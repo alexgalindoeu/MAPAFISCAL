@@ -1,0 +1,250 @@
+# =============================================================================
+# PARÁMETROS IRPF — TERRITORIOS HISTÓRICOS DEL PAÍS VASCO — EJERCICIO 2025
+# =============================================================================
+# Normas forales:
+#   Bizkaia  — Norma Foral 13/2013, de 5 de diciembre  (BOB)
+#   Gipuzkoa — Norma Foral 3/2014, de 17 de enero       (BOG)
+#   Araba    — Norma Foral 33/2013, de 27 de noviembre  (BOTHA)
+#
+# La tarifa general y la del ahorro están ARMONIZADAS entre los tres territorios
+# (Órgano de Coordinación Tributaria de Euskadi). Difieren ligeramente algunos
+# importes de deducciones familiares y personales.
+#
+# Diferencias estructurales frente al territorio común:
+#   - Tarifa foral ÚNICA sobre la base liquidable general (sin escala estatal).
+#   - Circunstancias familiares = DEDUCCIONES DE CUOTA (minoración + deducciones),
+#     no "mínimo personal y familiar" que reduce la base.
+#   - Bonificación del trabajo (a tanto alzado) en lugar de la reducción art. 20.
+#   - Tarifa del ahorro foral propia.
+#   - Exención de dividendos hasta 1.500 € (art. 9.24 NF Bizkaia) — el Estado la derogó en 2015.
+#   - Coeficientes de actualización del valor de adquisición de inmuebles: VIGENTES.
+#
+# Fuente principal 2025: Diputación Foral de Gipuzkoa, "Modelo 109 (2025) —
+#   Bonificaciones, reducciones, deducciones y la tabla de gravamen".
+#   https://www.gipuzkoa.eus/es/web/ogasuna/impuestos/modelo/109/2025/bonificaciones-reducciones-deducciones-tabla-gravamen
+#   Contraste: Cuatrecasas, "País Vasco - Novedades tributarias para personas físicas 2025 y 2026" (mayo 2025).
+# =============================================================================
+
+meta:
+  ejercicio: 2025
+  regimen: foral_pais_vasco
+  territorios: [ES-PV-BI, ES-PV-SS, ES-PV-VI]
+
+# -----------------------------------------------------------------------------
+# COMÚN A LOS TRES TERRITORIOS (armonizado)
+# -----------------------------------------------------------------------------
+comun:
+
+  escala_general_foral:
+    norma: "Art. 75 NF 13/2013 Bizkaia / art. 75 NF 3/2014 Gipuzkoa / art. 74 NF 33/2013 Araba"
+    fuente: "DF Gipuzkoa, Modelo 109 (2025) — tabla de gravamen general"
+    estado: confirmado
+    tramos:
+      - { hasta: 17720,  tipo: 0.23 }
+      - { hasta: 35440,  tipo: 0.28 }
+      - { hasta: 53160,  tipo: 0.35 }
+      - { hasta: 75910,  tipo: 0.40 }
+      - { hasta: 105130, tipo: 0.45 }
+      - { hasta: 140130, tipo: 0.46 }
+      - { hasta: 204270, tipo: 0.47 }
+      - { hasta: .inf,   tipo: 0.49 }
+
+  escala_ahorro_foral:
+    norma: "Art. 76 NF 13/2013 y equivalentes (redacción vigente hasta 31/12/2025)"
+    fuente: "DF Gipuzkoa, Modelo 109 (2025); Cuatrecasas (mayo 2025)"
+    estado: confirmado
+    tramos:
+      - { hasta: 2500,  tipo: 0.20 }
+      - { hasta: 10000, tipo: 0.21 }
+      - { hasta: 15000, tipo: 0.22 }
+      - { hasta: 30000, tipo: 0.23 }
+      - { hasta: .inf,  tipo: 0.25 }
+
+  bonificacion_trabajo:
+    norma: "Art. 23 NF 13/2013 y equivalentes"
+    fuente: "DF Gipuzkoa, Modelo 109 (2025)"
+    estado: confirmado
+    umbral_pleno: 14800          # (ingresos - gastos deducibles) < 14.800 -> 8.000
+    importe_pleno: 8000
+    coef_reduccion: 0.6098       # 14.800–23.000: 8.000 - 0,6098*(RT - 14.800)
+    umbral_minimo: 23000         # > 23.000 -> 3.000
+    importe_minimo: 3000
+    limite_otras_rentas: 7500    # si otras rentas > 7.500 -> bonificación = 3.000
+    incremento_discapacidad_33_64: 1.00       # +100 %
+    incremento_discapacidad_65_o_movilidad: 2.50  # +250 %
+
+  reduccion_prevision_social:
+    norma: "Arts. 70–72 NF 13/2013 y equivalentes (EPSV, planes de pensiones...)"
+    fuente: "DF Gipuzkoa, Modelo 109 (2025)"
+    estado: confirmado
+    limite_individual_no_empleo: 5000
+    limite_individual_empleo: 8000
+    limite_autonomos_empleo: 4000
+    limite_conjunto: 12000
+    limite_aportacion_conyuge: 2400
+    rentas_conyuge_maximas: 8000
+    limite_discapacidad_familiares: 8000
+    limite_discapacidad_propio: 24250
+
+  reduccion_tributacion_conjunta:
+    norma: "Art. 75 NF 13/2013 y equivalentes"
+    fuente: "DF Gipuzkoa, Modelo 109 (2025)"
+    estado: confirmado
+    importe: 4800    # cualquier modalidad de unidad familiar
+
+  minoracion_cuota:
+    norma: "Art. 77 NF 13/2013 y equivalentes"
+    fuente: "DF Gipuzkoa Modelo 109 (2025); DFB (Bizkaia 2025)"
+    estado: confirmado
+    importe_gipuzkoa: 1583
+    importe_bizkaia: 1615
+    importe_araba: 1583        # PROVISIONAL — verificar en NF 33/2013 Araba
+
+  exencion_dividendos:
+    norma: "Art. 9.24 NF 13/2013 Bizkaia (y equivalentes forales)"
+    fuente: "NF 13/2013 art. 9.24"
+    estado: confirmado
+    importe: 1500
+
+  capital_inmobiliario:
+    norma: "Art. 32 NF 13/2013 y equivalentes; NF 2/2025, 3/2025, 1/2025 (efectos 2025)"
+    fuente: "Cuatrecasas (mayo 2025)"
+    estado: confirmado
+    bonificacion_general: 0.20          # gasto/bonificación a tanto alzado sobre ingresos íntegros
+    bonificacion_vivienda_habitual: 0.30
+    bonificacion_zona_tensionada: 0.70
+    bonificacion_programas_publicos: 0.70
+    deduce_gastos_financieros: true     # además de la bonificación, intereses reales
+
+  coeficientes_actualizacion_inmuebles:
+    norma: "Art. 45 NF 13/2013 y equivalentes + tabla anual (Norma Foral de Presupuestos)"
+    estado: pendiente     # tabla de coeficientes por año de adquisición — POR LOCALIZAR (BOB/BOG/BOTHA 2025)
+    aplica: true
+    tabla: {}
+
+  dt_abatimiento_pre1994:
+    norma: "DT foral (equivalente a la DT 9ª LIRPF)"
+    estado: provisional
+    limite_valor_transmision_acumulado: 400000
+    fecha_corte_adquisicion: "1994-12-31"
+    coeficientes_por_anio_exceso:
+      inmuebles: 0.1111
+      acciones_cotizadas: 0.25
+      resto: 0.1428
+
+  estimacion_objetiva:
+    norma: "Decreto Foral anual de cada Diputación (no la Orden HFP estatal)"
+    estado: pendiente
+    fuente: "DF Bizkaia / DF Gipuzkoa / DF Araba de módulos 2025 — POR LOCALIZAR"
+
+# -----------------------------------------------------------------------------
+# DEDUCCIONES FAMILIARES Y PERSONALES (importes de Gipuzkoa 2025; Bizkaia/Araba: verificar)
+# -----------------------------------------------------------------------------
+  deduccion_descendientes:
+    norma: "Art. 79 NF 3/2014 Gipuzkoa (y equivalentes)"
+    fuente: "DF Gipuzkoa Modelo 109 (2025); DFB (Bizkaia 2025) — importes por orden idénticos en los 3 TH"
+    estado: confirmado
+    importes: { "1": 668, "2": 827, "3": 1393, "4": 1647, "5+": 2151 }
+    incremento_menor_6_anios: 386   # Gipuzkoa; Bizkaia 394 (ver override)
+
+  deduccion_anualidades_alimentos_hijos:
+    norma: "Art. 79 NF 3/2014 y equivalentes"
+    fuente: "DF Gipuzkoa, Modelo 109 (2025)"
+    estado: confirmado
+    porcentaje: 0.15
+    limites: { "1": 200.40, "2": 248.10, "3": 417.90, "4": 494.10, "5+": 645.30 }
+
+  deduccion_ascendientes:
+    norma: "Art. 80 NF 3/2014 y equivalentes"
+    fuente: "DF Gipuzkoa, Modelo 109 (2025)"
+    estado: confirmado
+    importe: 321
+
+  deduccion_discapacidad:
+    norma: "Art. 82 NF 3/2014 y equivalentes"
+    fuente: "DF Gipuzkoa, Modelo 109 (2025)"
+    estado: confirmado
+    grado_33_64: 888
+    grado_65_mas_o_dependencia_moderada: 1268
+    grado_75_15_39_puntos_o_dependencia_severa: 1521
+    grado_75_40_puntos_o_gran_dependencia: 2040
+
+  deduccion_edad:
+    norma: "Art. 82 NF 3/2014 y equivalentes"
+    fuente: "DF Gipuzkoa, Modelo 109 (2025)"
+    estado: confirmado
+    individual:
+      edad_65: { importe: 385, base_plena: 20000, base_cero: 30000, coef_reduccion: 0.0385 }
+      edad_75: { importe: 700, base_plena: 20000, base_cero: 30000, coef_reduccion: 0.0700 }
+    conjunta:
+      edad_65: { importe: 385, base_plena: 35000, base_cero: 35000 }
+      edad_75: { importe: 700, base_plena: 35000, base_cero: 35000 }
+
+  deduccion_viudedad:
+    norma: "NF 3/2014 y equivalentes"
+    fuente: "DF Gipuzkoa, Modelo 109 (2025)"
+    estado: confirmado
+    importe: 200
+    base_plena: 20000
+    base_cero: 30000
+    coef_reduccion: 0.0200
+    incompatible_con: [deduccion_edad]
+
+  deduccion_alquiler_vivienda:
+    norma: "Art. 86 NF 3/2014 y equivalentes; NF 1/2025 (efectos 2025)"
+    fuente: "DF Gipuzkoa, Modelo 109 (2025)"
+    estado: confirmado
+    general:            { porcentaje: 0.20, limite: 1600 }
+    colectivo_especial: { porcentaje: 0.35, limite: 2800 }  # <36 años, familia numerosa, monoparental, víctimas violencia, dependencia/discapacidad >=65 %
+
+  deduccion_adquisicion_vivienda:
+    norma: "Arts. 87–89 NF 3/2014 y equivalentes; NF 1/2025"
+    fuente: "DF Gipuzkoa, Modelo 109 (2025)"
+    estado: confirmado
+    credito_fiscal_vital: 36000
+    general:            { porcentaje: 0.18, limite_anual: 1530 }
+    colectivo_especial: { porcentaje: 0.23, limite_anual: 1955 }  # familia numerosa, monoparental, víctimas violencia, dependencia/discapacidad >=65 %
+    menor_36:           { porcentaje: 0.23, limite_anual: 1955, sin_limite_anio_compra: true }
+    transitorio_pre_2012:
+      general:            { porcentaje: 0.18, limite_anual: 2160 }
+      colectivo_especial: { porcentaje: 0.23, limite_anual: 2760 }
+    doble_limite_conjunta: true
+
+  deduccion_patrimonio_protegido:
+    norma: "NF 3/2014 y equivalentes"
+    fuente: "DF Gipuzkoa, Modelo 109 (2025)"
+    estado: confirmado
+    porcentaje: 0.30
+    limite_anual: 3000
+
+  deducciones_otras:
+    norma: "NF 3/2014 y equivalentes"
+    estado: parcial
+    donativos_pct: 0.20               # PROVISIONAL — verificar % foral y límites
+    cuotas_sindicales_pct: 0.20       # PROVISIONAL
+    doble_imposicion_dividendos: pendiente
+    participacion_trabajadores_empresa: pendiente
+
+# -----------------------------------------------------------------------------
+# OVERRIDES POR TERRITORIO (solo lo que difiere del bloque `comun`)
+# -----------------------------------------------------------------------------
+overrides:
+  ES-PV-BI:
+    nombre: "Bizkaia"
+    norma_base: "Norma Foral 13/2013"
+    fuente: "DFB — Deducciones IRPF Bizkaia 2025 (bizkaia.eus); deia.eus 02-04-2025"
+    deduccion_descendientes:
+      estado: confirmado
+      incremento_menor_6_anios: 394   # Bizkaia (Gipuzkoa: 386)
+
+  ES-PV-SS:
+    nombre: "Gipuzkoa"
+    norma_base: "Norma Foral 3/2014"
+    # Sin overrides: el bloque `comun` toma los importes de Gipuzkoa 2025 (fuente directa).
+
+  ES-PV-VI:
+    nombre: "Araba/Álava"
+    norma_base: "Norma Foral 33/2013"
+    deduccion_descendientes: { estado: provisional }
+    minoracion_cuota:        { estado: provisional }
+    # Especialidad: bonificación 35 % arrendamiento en zona de despoblación (art. 32 NF 33/2013).

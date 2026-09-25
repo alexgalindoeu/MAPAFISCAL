@@ -1,0 +1,1713 @@
+# =============================================================================
+# PARÁMETROS IRPF — TRAMO AUTONÓMICO (CCAA de régimen común) — EJERCICIO 2025
+# =============================================================================
+# Cada territorio aporta sobre el núcleo estatal:
+#   (A) escala_general_autonomica  -> sustituye a la escala supletoria del art. 65
+#   (B) deducciones_autonomicas    -> deducciones de la cuota íntegra autonómica
+#
+# ESCALAS: TODAS verificadas contra AEAT, Manual Práctico Renta 2025,
+#   "Gravamen de la base liquidable general > Gravamen autonómico" (subpágina por CCAA).
+#   URL base: https://sede.agenciatributaria.gob.es/Sede/ayuda/manuales-videos-folletos/
+#             manuales-practicos/irpf-2025/c15-calculo-impuesto-determinacion-cuotas-integras/
+#             gravamen-base-liquidable-general/gravamen-autonomico/<comunidad>.html
+#
+# DEDUCCIONES AUTONÓMICAS: estado `pendiente` de forma generalizada — requieren
+#   extraer, norma a norma, de la ley de tributos cedidos de cada CCAA + del anexo
+#   "Deducciones autonómicas" del Manual Práctico Renta 2025. El catálogo de
+#   `slots` está enumerado abajo por comunidad para guiar esa carga (hito H3).
+# =============================================================================
+
+meta:
+  ejercicio: 2025
+  regimen: comun
+  escalas_estado: confirmado
+  deducciones_estado: pendiente
+  catalogo_slots_deducciones:
+    - nacimiento_adopcion
+    - familia_numerosa
+    - familia_monoparental
+    - cuidado_hijos_guarderia
+    - ascendientes_mayores
+    - discapacidad_contribuyente
+    - discapacidad_familiar
+    - arrendamiento_vivienda_general
+    - arrendamiento_vivienda_joven
+    - adquisicion_rehabilitacion_vivienda
+    - vivienda_zona_despoblacion
+    - donativos
+    - gastos_educativos
+    - gastos_salud_seguro_medico
+    - inversion_empresas_nueva_creacion
+    - autoempleo_jovenes
+    - conciliacion_empleada_hogar
+    - acogimiento
+    - partos_multiples
+    - victimas_violencia_terrorismo
+    - complemento_tramo_autonomico_vivienda
+
+territorios:
+
+  ES-AN:
+    nombre: "Andalucía"
+    escala_general_autonomica:
+      norma: "Art. 23 Ley 5/2021 de Tributos Cedidos de Andalucía"
+      fuente: "AEAT Manual Renta 2025 — Gravamen autonómico Andalucía"
+      estado: confirmado
+      tramos:
+        - { hasta: 13000,  tipo: 0.095 }
+        - { hasta: 21100,  tipo: 0.12 }
+        - { hasta: 35200,  tipo: 0.15 }
+        - { hasta: 60000,  tipo: 0.185 }
+        - { hasta: .inf,   tipo: 0.225 }
+    deducciones_autonomicas:
+      # Ley 5/2021 de Tributos Cedidos de Andalucía. Catálogo total ~17; 10 implementadas.
+      estado: cargado
+      fuente: "Ley 5/2021 de Tributos Cedidos de Andalucía, arts. 10-22 bis; AEAT Manual Práctico Renta 2025, Parte 2 — Deducciones autonómicas / Andalucía"
+      lista:
+        - id: nacimiento_adopcion
+          norma: "Art. 11 Ley 5/2021"
+          tipo: fija_por_hijo_nacido
+          importe: 200
+          importe_multiple: 200
+          anios_ventana: 1
+        - id: arrendamiento_vivienda_habitual
+          norma: "Art. 10 Ley 5/2021"
+          tipo: porcentaje_campo
+          campo: alquiler_vivienda_pagos
+          porcentaje: 0.15
+          limite: 1200
+          edad_max: 35
+          edad_min_alt: 65      # también aplican >65, víctimas de violencia/terrorismo y personas con discapacidad
+          base_max_individual: 25000
+          base_max_conjunta: 30000
+        - id: familia_numerosa_general
+          norma: "Art. 14 Ley 5/2021"
+          tipo: fija
+          importe: 200
+          requiere_familia_numerosa: true
+        - id: familia_numerosa_especial
+          norma: "Art. 14 Ley 5/2021"
+          tipo: fija
+          importe: 200          # 400 total en especial; 200 adicional sobre la general
+          requiere_familia_numerosa: especial
+        - id: familia_monoparental
+          norma: "Art. 13 Ley 5/2021"
+          tipo: fija
+          importe: 100
+          requiere_monoparental: true
+          base_max_individual: 80000
+          base_max_conjunta: 100000
+        - id: familia_monoparental_ascendientes_75
+          norma: "Art. 13 Ley 5/2021 (incremento)"
+          estado: provisional   # el tipo fija_por_ascendiente cuenta también ascendientes con discapacidad; aquí el incremento es solo por edad > 75
+          tipo: fija_por_ascendiente
+          importe: 100           # 100 € adicionales por ascendiente > 75 que conviva con la familia monoparental
+          edad_ascendiente_min: 75
+          requiere_monoparental: true
+          base_max_individual: 80000
+          base_max_conjunta: 100000
+        - id: contribuyente_discapacidad
+          norma: "Art. 16 Ley 5/2021"
+          tipo: fija
+          importe: 150
+          requiere_discapacidad_contribuyente: true   # grado >= 33 %
+          base_max_individual: 25000
+          base_max_conjunta: 30000
+        - id: gastos_educativos_idiomas_informatica
+          norma: "Art. 15 Ley 5/2021"
+          tipo: porcentaje_campo_hijo
+          campo: gastos_idiomas_informatica
+          porcentaje: 0.15
+          limite: 150            # por descendiente
+          base_max_individual: 80000
+          base_max_conjunta: 100000
+        - id: ayuda_domestica
+          norma: "Art. 19 Ley 5/2021"
+          estado: provisional   # requiere que ambos cónyuges perciban rendimientos del trabajo/actividad (no modelado)
+          tipo: porcentaje_campo
+          campo: cuotas_ss_empleada_hogar
+          porcentaje: 0.20
+          limite: 500
+          descendientes_min: 1
+        - id: ejercicio_fisico_deporte
+          norma: "Art. 22 bis Ley 5/2021"
+          estado: provisional   # límite de base del art. 60 sin cotejar; aquí sin puerta de renta
+          tipo: porcentaje_campo
+          campo: gastos_deporte
+          porcentaje: 0.15
+          limite: 100            # por contribuyente
+      pendientes:
+        - inversion_vivienda_protegida_jovenes
+        - adopcion_internacional
+        - conyuge_pareja_discapacidad          # 100 € — requiere flag de cónyuge no declarante con discapacidad >= 65 %
+        - asistencia_personas_discapacidad     # 100 € + 20 % empleada hogar
+        - inversion_sociedades_nueva_creacion
+        - defensa_juridica_laboral
+        - donativos_ecologicos
+        - gastos_veterinarios
+        - familias_celiacas
+
+  ES-AR:
+    nombre: "Aragón"
+    escala_general_autonomica:
+      norma: "Art. 110-1 TR Disposiciones tributos cedidos de Aragón (DL 1/2005)"
+      fuente: "AEAT Manual Renta 2025 — Gravamen autonómico Aragón"
+      estado: confirmado
+      tramos:
+        - { hasta: 13072.50, tipo: 0.095 }
+        - { hasta: 21210,    tipo: 0.12 }
+        - { hasta: 36960,    tipo: 0.15 }
+        - { hasta: 52500,    tipo: 0.185 }
+        - { hasta: 60000,    tipo: 0.205 }
+        - { hasta: 80000,    tipo: 0.23 }
+        - { hasta: 90000,    tipo: 0.24 }
+        - { hasta: 130000,   tipo: 0.25 }
+        - { hasta: .inf,     tipo: 0.255 }
+    deducciones_autonomicas:
+      # TR de tributos cedidos de Aragón (DL 1/2005), art. 110. Solo se modela el
+      # RÉGIMEN GENERAL. El "régimen de fiscalidad diferenciada" (importes más altos
+      # para residentes en asentamientos rurales con alto riesgo de despoblación)
+      # depende del municipio y NO se modela — ver docs/05, decisiones pendientes.
+      estado: cargado
+      fuente: "TR tributos cedidos de Aragón (DL 1/2005), art. 110 (arts. 110-2/3/4/5/14/17); AEAT Manual Práctico Renta 2025, Parte 2 — Deducciones autonómicas / Aragón"
+      lista:
+        - id: nacimiento_adopcion_tercer_hijo_renta_baja
+          norma: "Art. 110-2 DL 1/2005 Aragón"
+          tipo: fija_por_hijo_nacido
+          anios_ventana: 1
+          importes_por_orden: { "1": 0, "2": 0, "3+": 600 }   # solo 3.er hijo o sucesivos
+          base_gate: menos_minimo
+          base_max_individual: 21000
+          base_max_conjunta: 35000
+          prorratea_progenitores: true
+        - id: nacimiento_adopcion_tercer_hijo_general
+          norma: "Art. 110-2 DL 1/2005 Aragón"
+          tipo: fija_por_hijo_nacido
+          anios_ventana: 1
+          importes_por_orden: { "1": 0, "2": 0, "3+": 500 }
+          base_gate: menos_minimo
+          base_min_individual: 21000.01
+          base_min_conjunta: 35000.01
+          prorratea_progenitores: true
+        - id: cuidado_personas_dependientes
+          norma: "Art. 110-5 DL 1/2005 Aragón"
+          estado: provisional   # el límite de renta usa base − (mínimo contrib. + mínimo desc.); aquí se resta el MPF total
+          tipo: fija
+          importe: 150
+          requiere_dependiente_a_cargo: true   # ascendiente >= 75, o asc./desc. con discapacidad >= 65 %
+          base_gate: menos_minimo
+          base_max_individual: 21000
+          base_max_conjunta: 35000
+          prorratea_progenitores: true
+        - id: mayores_70_anos
+          norma: "Art. 110-14 DL 1/2005 Aragón"
+          estado: provisional   # exige además obtener rendimientos del trabajo y/o de actividades (no comprobado; las pensiones cuentan como trabajo)
+          tipo: fija
+          importe: 75
+          edad_min: 70
+          base_max_individual: 23000
+          base_max_conjunta: 35000
+        - id: gastos_guarderia_menores_3
+          norma: "Art. 110-17 DL 1/2005 Aragón"
+          estado: provisional   # 250 €/hijo < 3; 125 € el año en que cumple 3 (no modelado); base del ahorro <= 4.000 no comprobada
+          tipo: porcentaje_campo_hijo
+          campo: gastos_guarderia
+          porcentaje: 0.15
+          limite: 250
+          edad_hijo_max: 2
+          base_max_individual: 35000
+          base_max_conjunta: 50000
+          prorratea_progenitores: true
+        # --- condicionadas al municipio de residencia ---
+        - id: residencia_municipios_despoblacion
+          norma: "Arts. 160-1 y 160-2.8 DL 1/2005 Aragón"
+          estado: provisional   # no se modelan el requisito de base del ahorro <= 4.000 € ni el de residir allí los 4 años siguientes; en conjunta la ley la da a cada contribuyente que cumpla (aquí una vez)
+          tipo: fija
+          importe: 600
+          requiere_zona_despoblada: true   # asentamientos rurales en riesgo extremo de despoblación (Rango X)
+          base_max_individual: 34999.99
+          base_max_conjunta: 49999.99
+        - id: nacimiento_municipios_pequenos_renta_baja
+          norma: "Art. 110-16 DL 1/2005 Aragón"
+          estado: provisional   # el límite legal es sobre base imponible (aquí liquidable) y se exige residir también el año anterior en municipio < 10.000 hab.
+          tipo: fija_por_hijo_nacido
+          anios_ventana: 1
+          importes_por_orden: { "1": 200, "2": 300, "3+": 0 }
+          municipio_hab_max: 9999
+          base_max_individual: 23000
+          base_max_conjunta: 35000
+          grupo: nacimiento_rural_ar
+        - id: nacimiento_municipios_pequenos
+          norma: "Art. 110-16 DL 1/2005 Aragón"
+          estado: provisional
+          tipo: fija_por_hijo_nacido
+          anios_ventana: 1
+          importes_por_orden: { "1": 100, "2": 150, "3+": 0 }
+          municipio_hab_max: 9999
+          grupo: nacimiento_rural_ar
+      pendientes:
+        - nacimiento_adopcion_hijo_discapacidad         # necesita marcar discapacidad del recién nacido
+        - adopcion_internacional                        # necesita flag "adopción internacional"
+        - libros_texto_material_escolar                 # tabla de límites por tramo de base (no modelada)
+        - clases_apoyo_refuerzo                         # tabla de límites por tramo de base (no modelada)
+        - adquisicion_rehabilitacion_vivienda_nucleos_rurales   # condicionada a municipio
+        - arrendamiento_vivienda_social_arrendador
+        - donaciones_ecologicas_i_d_i
+        - vivienda_victimas_terrorismo
+        - inversion_entidades_nueva_creacion
+        - inversion_mab
+        - inversion_economia_social
+        - formacion_autonomia_menores_discapacidad
+        - regimen_fiscalidad_diferenciada               # importes incrementados por municipio (no modelado)
+
+  ES-AS:
+    nombre: "Principado de Asturias"
+    escala_general_autonomica:
+      norma: "Art. 2 TR tributos cedidos de Asturias (DL 2/2014), mod. Ley 3/2025 (efectos 2025)"
+      fuente: "AEAT Manual Renta 2025 — Gravamen autonómico Asturias"
+      estado: confirmado
+      tramos:
+        - { hasta: 12450,    tipo: 0.09 }
+        - { hasta: 17707.20, tipo: 0.12 }
+        - { hasta: 33007.20, tipo: 0.14 }
+        - { hasta: 53407.20, tipo: 0.192 }
+        - { hasta: 70000,    tipo: 0.215 }
+        - { hasta: 90000,    tipo: 0.225 }
+        - { hasta: 175000,   tipo: 0.25 }
+        - { hasta: .inf,     tipo: 0.26 }
+    deducciones_autonomicas:
+      # TR de tributos cedidos de Asturias (DL 2/2014), arts. 7-14 terdecies.
+      # Las variantes incrementadas para concejos en riesgo de despoblamiento
+      # NO se modelan (dependen del concejo de residencia).
+      estado: cargado
+      fuente: "TR tributos cedidos de Asturias (DL 2/2014), arts. 7, 10, 11, 12, 14 bis, 14 duodecies y 14 terdecies; AEAT Manual Práctico Renta 2025, Parte 2 — Deducciones autonómicas / Principado de Asturias"
+      lista:
+        - id: familia_numerosa_general
+          norma: "Art. 11 DL 2/2014 Asturias"
+          tipo: fija
+          importe: 1000
+          requiere_familia_numerosa: true
+        - id: familia_numerosa_especial
+          norma: "Art. 11 DL 2/2014 Asturias"
+          tipo: fija
+          importe: 1000        # 2.000 total en especial; 1.000 adicional
+          requiere_familia_numerosa: especial
+        - id: familias_monoparentales
+          norma: "Art. 12 DL 2/2014 Asturias"
+          estado: provisional   # no aplicable en custodia compartida (no modelado)
+          tipo: fija
+          importe: 500
+          requiere_monoparental: true
+          descendientes_min: 1
+          base_max_individual: 45000
+          base_max_conjunta: 45000
+        - id: partos_multiples
+          norma: "Art. 10 DL 2/2014 Asturias"
+          tipo: fija_por_hijo_nacido
+          anios_ventana: 1
+          importe: 1000          # por cada hijo nacido/adoptado en el parto/adopción múltiple
+          importe_multiple: 0
+          requiere_parto_multiple: true
+          prorratea_progenitores: true
+        - id: gastos_descendientes_0_3
+          norma: "Art. 14 bis DL 2/2014 Asturias"
+          estado: provisional   # la variante del 30 %/1.000 € (concejos en riesgo de despoblamiento) y la minoración por ayudas del Principado no se modelan
+          tipo: porcentaje_campo_hijo
+          campo: gastos_guarderia
+          porcentaje: 0.15
+          limite: 500
+          edad_hijo_max: 2
+          base_max_individual: 26000
+          base_max_conjunta: 37000
+        - id: cuidado_descendientes_hasta_25
+          norma: "Art. 14 duodecies DL 2/2014 Asturias"
+          tipo: fija_por_hijo
+          importe: 600
+          edad_hijo_max: 25
+          base_max_individual: 35000
+          base_max_conjunta: 45000
+          prorratea_progenitores: true
+        - id: emancipacion_jovenes_35
+          norma: "Art. 14 terdecies DL 2/2014 Asturias"
+          estado: provisional   # gastos vinculados a la emancipación (mobiliario, transporte, alquiler/compra); se toma el campo gastos_emancipacion
+          tipo: porcentaje_campo
+          campo: gastos_emancipacion
+          porcentaje: 1.00
+          limite: 1000
+          edad_max: 36
+          base_max_individual: 35000
+          base_max_conjunta: 45000
+        - id: arrendamiento_vivienda_habitual_joven
+          norma: "Art. 7 DL 2/2014 Asturias"
+          estado: provisional   # 30 %/1.500 € para < 36 años, familia numerosa, monoparental o víctima de violencia de género; aquí solo por edad
+          tipo: porcentaje_campo
+          campo: alquiler_vivienda_pagos
+          porcentaje: 0.30
+          limite: 1500
+          edad_max: 36
+          base_max_individual: 35000
+          base_max_conjunta: 45000
+        - id: arrendamiento_vivienda_habitual_general
+          norma: "Art. 7 DL 2/2014 Asturias"
+          tipo: porcentaje_campo
+          campo: alquiler_vivienda_pagos
+          porcentaje: 0.10
+          limite: 500
+          edad_min: 36
+          base_max_individual: 35000
+          base_max_conjunta: 45000
+        # --- condicionadas al municipio de residencia ---
+        - id: nacimiento_concejos_despoblamiento
+          norma: "Art. 14 quater DL 2/2014 Asturias"
+          estado: provisional   # el Manual no detalla el reparto entre progenitores convivientes; se aplica el reparto general
+          tipo: fija_por_hijo_nacido
+          anios_ventana: 1
+          importes_por_orden: { "1": 0, "2": 300, "3+": 300 }   # segundo hijo y sucesivos
+          requiere_zona_despoblada: true   # concejos en riesgo de despoblamiento o crisis demográfica (Decreto 83/2025)
+      pendientes:
+        - libros_texto_material_escolar          # tabla de límites por tramo de base (no modelada)
+        - acogimiento_no_remunerado_mayores_65
+        - adquisicion_adecuacion_vivienda_discapacidad
+        - inversion_vivienda_protegida
+        - adopcion_internacional
+        - acogimiento_familiar_menores
+        - certificacion_forestal_sostenible
+        - autonomos_concejos_despoblamiento                # condicionada a concejo
+        - transporte_publico_concejos_despoblamiento       # condicionada a concejo
+        - gastos_formacion_i_d
+        - traslado_domicilio_fiscal_a_asturias
+        - vehiculos_electricos
+        - gastos_vitales_hasta_35
+        - fallecimiento_progenitor_accidente_laboral
+        - inversion_entidades_nueva_creacion
+        - enfermedad_celiaca
+
+  ES-IB:
+    nombre: "Illes Balears"
+    escala_general_autonomica:
+      norma: "Art. 1 TR disposiciones legales de les Illes Balears en tributos cedidos (DL 1/2014)"
+      fuente: "AEAT Manual Renta 2025 — Gravamen autonómico Illes Balears"
+      estado: confirmado
+      tramos:
+        - { hasta: 10000,  tipo: 0.09 }
+        - { hasta: 18000,  tipo: 0.1125 }
+        - { hasta: 30000,  tipo: 0.1425 }
+        - { hasta: 48000,  tipo: 0.175 }
+        - { hasta: 70000,  tipo: 0.19 }
+        - { hasta: 90000,  tipo: 0.2175 }
+        - { hasta: 120000, tipo: 0.2275 }
+        - { hasta: 175000, tipo: 0.2375 }
+        - { hasta: .inf,   tipo: 0.2475 }
+    deducciones_autonomicas:
+      # TR de tributos cedidos de les Illes Balears (DL 1/2014), arts. 3 bis - 6 ter.
+      # Límites de renta generales: 33.000 (ind.) / 52.800 (conj.); los importes
+      # incrementados para familias numerosas/monoparentales no se modelan.
+      estado: cargado
+      fuente: "TR tributos cedidos de les Illes Balears (DL 1/2014), arts. 3 bis, 4, 4 bis, 6 bis y 6 ter; AEAT Manual Práctico Renta 2025, Parte 2 — Deducciones autonómicas / Illes Balears"
+      lista:
+        - id: arrendamiento_vivienda_habitual
+          norma: "Art. 3 bis DL 1/2014 Illes Balears"
+          estado: provisional   # solo el 15 %/530 € (< 36 años o > 65 inactivo); la variante del 20 %/650 € (< 30, discapacidad, familia numerosa/monoparental, autónomo) no se modela
+          tipo: porcentaje_campo
+          campo: alquiler_vivienda_pagos
+          porcentaje: 0.15
+          limite: 530
+          edad_max: 36
+          edad_min_alt: 65
+          base_max_individual: 33000
+          base_max_conjunta: 52800
+        - id: nacimiento
+          norma: "Art. 6 ter DL 1/2014 Illes Balears"
+          estado: provisional   # 4.º hijo y siguientes (1.400 €) no distinguidos del 3.º; la regla del 50 % al superar el límite y los límites de familia numerosa no se modelan
+          tipo: fija_por_hijo_nacido
+          anios_ventana: 1
+          importes_por_orden: { "1": 800, "2": 1000, "3+": 1200 }
+          base_max_individual: 52800
+          base_max_conjunta: 84480
+          prorratea_progenitores: true
+        - id: libros_texto
+          norma: "Art. 4 DL 1/2014 Illes Balears"
+          estado: provisional   # límite incrementado a 350 €/hijo (< 30 años, discapacidad, familia numerosa, autónomo) no modelado
+          tipo: porcentaje_campo_hijo
+          campo: gastos_libros_texto
+          porcentaje: 1.00
+          limite: 220
+          base_max_individual: 33000
+          base_max_conjunta: 52800
+        - id: aprendizaje_idiomas_extranjeros
+          norma: "Art. 4 bis DL 1/2014 Illes Balears"
+          tipo: porcentaje_campo_hijo
+          campo: gastos_idiomas_extranjeros
+          porcentaje: 0.15
+          limite: 110
+          base_max_individual: 33000
+          base_max_conjunta: 52800
+        - id: conciliacion_menores_6
+          norma: "Art. 6 bis DL 1/2014 Illes Balears"
+          estado: provisional   # solo el 40 %/660 € general; la variante del 50 %/900 € y el requisito de rendimientos del trabajo/actividad no se modelan
+          tipo: porcentaje_campo
+          campo: gastos_conciliacion_menores
+          porcentaje: 0.40
+          limite: 660
+          descendiente_edad_max: 5
+          base_max_individual: 33000
+          base_max_conjunta: 52800
+      pendientes:
+        - inversiones_mejora_sostenibilidad_vivienda
+        - estudios_educacion_superior_fuera_isla     # necesita el dato "estudia fuera de la isla"
+        - adopcion                                    # art. 6 quater, análoga a nacimiento
+        - declarantes_discapacidad_o_descendientes
+        - gastos_mayores_65_o_discapacidad
+        - arrendador_vivienda_permanente_primas_seguros
+        - arrendador_vivienda_permanente_otros_gastos
+        - arrendamiento_traslado_laboral
+        - vivienda_ocupada_ilegalmente
+        - donaciones_i_d_i
+        - mecenazgo_cultural_deportivo
+        - donaciones_lengua_catalana
+        - donaciones_tercer_sector
+        - inversion_entidades_nueva_creacion
+        - fomento_autoocupacion
+        - plazas_dificil_cobertura
+
+  ES-CN:
+    nombre: "Canarias"
+    escala_general_autonomica:
+      norma: "Art. 18 bis TR tributos cedidos de Canarias (DL 1/2009), mod. Ley 9/2025 (efectos 2025)"
+      fuente: "AEAT Manual Renta 2025 — Gravamen autonómico Canarias"
+      estado: confirmado
+      tramos:
+        - { hasta: 13748,  tipo: 0.09 }
+        - { hasta: 19422,  tipo: 0.115 }
+        - { hasta: 35924,  tipo: 0.14 }
+        - { hasta: 57566,  tipo: 0.185 }
+        - { hasta: 93268,  tipo: 0.235 }
+        - { hasta: 123745, tipo: 0.25 }
+        - { hasta: .inf,   tipo: 0.26 }
+    deducciones_autonomicas:
+      # TR de tributos cedidos de Canarias (DL 1/2009). Catálogo total ~16.
+      # 6 implementadas.
+      estado: cargado
+      fuente: "TR tributos cedidos de Canarias (DL 1/2009), arts. 7 bis, 10, 11 ter, 12, 13; AEAT Manual Práctico Renta 2025, Parte 2 — Deducciones autonómicas / Canarias"
+      lista:
+        - id: nacimiento_adopcion
+          norma: "Art. 10 DL 1/2009 Canarias"
+          estado: provisional   # 4.º hijo 796 €, 5.º+ 928 € (el DSL usa 530 € desde el 3.º)
+          tipo: fija_por_hijo_nacido
+          anios_ventana: 1
+          importes_por_orden: { "1": 265, "2": 265, "3+": 530 }
+          prorratea_progenitores: true
+          base_max_individual: 46455
+          base_max_conjunta: 61770
+        - id: familia_numerosa_general
+          norma: "Art. 13 DL 1/2009 Canarias"
+          tipo: fija
+          importe: 597
+          requiere_familia_numerosa: true
+        - id: familia_numerosa_especial
+          norma: "Art. 13 DL 1/2009 Canarias"
+          tipo: fija
+          importe: 199        # 796 total en especial; 199 adicional sobre la general
+          requiere_familia_numerosa: especial
+        - id: familia_monoparental
+          norma: "Art. 11 ter DL 1/2009 Canarias"
+          tipo: fija
+          importe: 133
+          requiere_monoparental: true
+          descendientes_min: 1
+        - id: gastos_custodia_guarderias
+          norma: "Art. 12 DL 1/2009 Canarias"
+          tipo: porcentaje_campo_hijo
+          campo: gastos_guarderia
+          porcentaje: 0.18
+          limite: 530
+          edad_hijo_max: 2
+        - id: gastos_estudios_no_superiores
+          norma: "Art. 7 bis DL 1/2009 Canarias"
+          estado: provisional   # límite real: 133 € por el 1.º + 66 € por cada descendiente adicional; aquí sólo 133 €
+          tipo: porcentaje_campo
+          campo: gastos_estudios_no_superiores
+          porcentaje: 1.00
+          limite: 133
+      pendientes:
+        - contribuyentes_discapacidad_mayores_65
+        - gastos_estudios_educacion_superior_fuera_isla   # necesita flag "estudia fuera de la isla" -> 1.800/1.920 €
+        - traslado_residencia_otra_isla
+        - acogimiento_menores
+        - donaciones (varias)
+        - inversion_adquisicion_acciones
+
+  ES-CB:
+    nombre: "Cantabria"
+    escala_general_autonomica:
+      norma: "Art. 1 TR Ley de Medidas Fiscales de Cantabria (DL 62/2008)"
+      fuente: "AEAT Manual Renta 2025 — Gravamen autonómico Cantabria"
+      estado: confirmado
+      tramos:
+        - { hasta: 13000,  tipo: 0.085 }
+        - { hasta: 21000,  tipo: 0.11 }
+        - { hasta: 35200,  tipo: 0.145 }
+        - { hasta: 60000,  tipo: 0.18 }
+        - { hasta: 90000,  tipo: 0.225 }
+        - { hasta: .inf,   tipo: 0.245 }
+    deducciones_autonomicas:
+      # TR de la Ley de Medidas Fiscales de Cantabria (DL 62/2008), art. 2. Los límites
+      # de renta se aplican sobre BASE LIQUIDABLE − mínimo personal y familiar
+      # (base_gate: menos_minimo). Las deducciones condicionadas a municipio en riesgo
+      # de despoblamiento NO se modelan.
+      estado: cargado
+      fuente: "TR Medidas Fiscales de Cantabria (DL 62/2008), art. 2 (apartados 1, 7, 8, 9, 10 y 13); AEAT Manual Práctico Renta 2025, Parte 2 — Deducciones autonómicas / Cantabria"
+      lista:
+        - id: nacimiento_adopcion
+          norma: "Art. 2.10 DL 62/2008 Cantabria"
+          tipo: fija_por_hijo_nacido
+          importe: 1400            # nacidos desde 1-1-2024; año + 2 siguientes
+          anios_ventana: 3
+          prorratea_progenitores: true
+        - id: familias_monoparentales
+          norma: "Art. 2.9 DL 62/2008 Cantabria"
+          tipo: fija
+          importe: 200
+          requiere_monoparental: true
+          descendientes_min: 1
+          base_gate: menos_minimo
+          base_max_individual: 31485
+          base_max_conjunta: 31485
+        - id: gastos_guarderia
+          grupo: guarderia_cb             # general o municipio en riesgo de despoblamiento: la mayor
+          norma: "Art. 2.8 DL 62/2008 Cantabria"
+          estado: provisional     # límite de renta sin cotejar
+          tipo: porcentaje_campo_hijo
+          campo: gastos_guarderia
+          porcentaje: 0.15
+          limite: 300
+          edad_hijo_max: 2
+        - id: gastos_enfermedad
+          norma: "Art. 2.7 DL 62/2008 Cantabria"
+          estado: provisional     # incremento de 100 € por discapacidad >= 65 % no modelado
+          tipo: porcentaje_campo
+          campo: gastos_enfermedad
+          porcentaje: 0.10
+          limite: 500
+          base_gate: menos_minimo
+          base_max_individual: 22946
+          base_max_conjunta: 31485
+        - id: gastos_educacion_libros
+          norma: "Art. 2.13 DL 62/2008 Cantabria"
+          estado: provisional     # solo el 100 % de libros de texto; el 15 % de idiomas extraescolares y el límite conjunto de 200 €/unidad familiar con ambas partidas no se modelan
+          tipo: porcentaje_campo
+          campo: gastos_libros_texto
+          porcentaje: 1.00
+          limite: 200
+          prorratea_progenitores: true
+        - id: arrendamiento_vivienda_habitual
+          grupo: arrendamiento_cb         # general o municipio en riesgo de despoblamiento: la mayor
+          norma: "Art. 2.1 DL 62/2008 Cantabria"
+          estado: provisional     # límite de renta exacto por confirmar
+          tipo: porcentaje_campo
+          campo: alquiler_vivienda_pagos
+          porcentaje: 0.10
+          limite: 300
+          edad_max: 36
+          edad_min_alt: 65
+          base_gate: menos_minimo
+          base_max_individual: 22946
+          base_max_conjunta: 31485
+        # --- condicionadas al municipio de residencia (Orden PRE/1/2025, BOC 03-01-2025) ---
+        - id: residencia_municipio_despoblamiento
+          norma: "Art. 2.11.5 DL 62/2008 Cantabria"
+          estado: provisional   # en conjunta la ley la da a cada contribuyente que cumpla (aquí una vez)
+          tipo: porcentaje_cuota_autonomica
+          porcentaje: 0.20
+          limite: 500
+          sobre_cuota_integra: true
+          edad_max: 40                     # menor de 40 años
+          requiere_zona_despoblada: true
+        - id: guarderia_municipio_despoblamiento
+          norma: "Art. 2.11.2 DL 62/2008 Cantabria"
+          tipo: porcentaje_campo_hijo
+          campo: gastos_guarderia
+          porcentaje: 0.30
+          limite: 600                      # por hijo menor de 3 años
+          edad_hijo_max: 2
+          requiere_zona_despoblada: true
+          grupo: guarderia_cb
+        - id: arrendamiento_municipio_despoblamiento
+          norma: "Art. 2.11.1 DL 62/2008 Cantabria"
+          tipo: porcentaje_campo
+          campo: alquiler_vivienda_pagos
+          porcentaje: 0.20
+          limite: 600
+          limite_conjunta: 1200
+          requiere_zona_despoblada: true
+          grupo: arrendamiento_cb
+      pendientes:
+        - cuidado_familiares          # 100 €/familiar (desc. < 3, asc. > 70, o familiar con discapacidad >= 65 %) — por miembro y multicondición
+        - obras_mejora
+        - donativos_fundaciones_cantabria_coopera
+        - acogimiento_familiar_menores
+        - inversion_entidades_nueva_creacion
+        - ayuda_domestica
+        - traslado_residencia_despoblamiento          # condicionada a municipio
+        - economia_social
+        - nuevos_contribuyentes_extranjero
+        - arrendamiento_viviendas_vacias
+
+  ES-CM:
+    nombre: "Castilla-La Mancha"
+    escala_general_autonomica:
+      norma: "Art. 13 bis Ley 8/2013 de Medidas Tributarias de Castilla-La Mancha"
+      fuente: "AEAT Manual Renta 2025 — Gravamen autonómico Castilla-La Mancha (coincide con la supletoria estatal)"
+      estado: confirmado
+      tramos:
+        - { hasta: 12450,  tipo: 0.095 }
+        - { hasta: 20200,  tipo: 0.12 }
+        - { hasta: 35200,  tipo: 0.15 }
+        - { hasta: 60000,  tipo: 0.185 }
+        - { hasta: .inf,   tipo: 0.225 }
+    deducciones_autonomicas:
+      # Ley 8/2013 de Castilla-La Mancha, de Medidas Tributarias. Catálogo total ~30;
+      # 9 implementadas. Límite general de base 27.000 / 36.000 € (art. 13).
+      estado: cargado
+      fuente: "Ley 8/2013 de Castilla-La Mancha, arts. 1, 2, 2 bis, 3 bis, 4, 6, 9, 13; AEAT Manual Práctico Renta 2025, Parte 2 — Deducciones autonómicas / Castilla-La Mancha"
+      lista:
+        - id: nacimiento_adopcion
+          norma: "Art. 1 Ley 8/2013 CLM"
+          estado: provisional   # 100 € parto de 1; 500 € parto de 2; 900 € parto de 3+ — solo se modela el importe base
+          tipo: fija_por_hijo_nacido
+          importe: 100
+          importe_multiple: 300
+          anios_ventana: 1
+          base_max_individual: 27000
+          base_max_conjunta: 36000
+        - id: familia_numerosa_general
+          norma: "Art. 2 Ley 8/2013 CLM"
+          tipo: fija
+          importe: 200
+          requiere_familia_numerosa: true
+          base_max_individual: 27000
+          base_max_conjunta: 36000
+        - id: familia_numerosa_especial
+          norma: "Art. 2 Ley 8/2013 CLM"
+          tipo: fija
+          importe: 200
+          requiere_familia_numerosa: especial
+          base_max_individual: 27000
+          base_max_conjunta: 36000
+        - id: familia_monoparental
+          norma: "Art. 2 bis Ley 8/2013 CLM"
+          tipo: fija
+          importe: 200
+          requiere_monoparental: true
+          base_max_individual: 27000
+          base_max_conjunta: 36000
+        - id: gastos_guarderia
+          norma: "Art. 3 bis Ley 8/2013 CLM"
+          tipo: porcentaje_campo_hijo
+          campo: gastos_guarderia
+          porcentaje: 0.30
+          limite: 500            # por hijo < 3 (250 € el año en que cumple 3)
+          edad_hijo_max: 2
+          base_max_individual: 27000
+          base_max_conjunta: 36000
+        - id: discapacidad_contribuyente
+          norma: "Art. 4 Ley 8/2013 CLM"
+          tipo: fija
+          importe: 300
+          requiere_discapacidad_grado: "65_mas"
+          base_max_individual: 27000
+          base_max_conjunta: 36000
+        - id: contribuyente_mayor_75
+          norma: "Art. 6.1 Ley 8/2013 CLM"
+          estado: provisional   # no se modela la exclusión por residir > 30 días en centro residencial de mayores
+          tipo: fija
+          importe: 150
+          edad_min: 76           # "mayores de 75 años"
+          base_max_individual: 27000
+          base_max_conjunta: 36000
+        - id: cuidado_ascendientes_75
+          norma: "Art. 6.2 Ley 8/2013 CLM"
+          estado: provisional   # el tipo cuenta también ascendientes < 76 con discapacidad; exclusión por centro residencial no modelada
+          tipo: fija_por_ascendiente
+          importe: 150
+          edad_ascendiente_min: 76
+          base_max_individual: 27000
+          base_max_conjunta: 36000
+        - id: arrendamiento_vivienda_habitual_joven
+          norma: "Art. 9 Ley 8/2013 CLM"
+          tipo: porcentaje_campo
+          campo: alquiler_vivienda_pagos
+          porcentaje: 0.15
+          limite: 500
+          edad_max: 36
+          base_max_individual: 27000
+          base_max_conjunta: 36000
+        # --- condicionadas al municipio de residencia (zonas escasamente pobladas, Ley 2/2021) ---
+        - id: residencia_zona_rural_menos_2000
+          norma: "Art. 12 bis y DA 2ª Ley 8/2013 CLM; Ley 2/2021 CLM"
+          estado: provisional   # se aplica el porcentaje de zona en riesgo de despoblación (15 %); en zonas de intensa (20 %) o extrema despoblación (25 %) es mayor
+          tipo: porcentaje_cuota_autonomica
+          porcentaje: 0.15
+          sobre_cuota_integra: true
+          requiere_zona_despoblada: true
+          municipio_hab_max: 1999
+        - id: residencia_zona_rural_2000_5000
+          norma: "Art. 12 bis y DA 2ª Ley 8/2013 CLM; Ley 2/2021 CLM"
+          estado: provisional   # porcentaje de zona en riesgo (10 %); intensa 15 %, extrema 20 %
+          tipo: porcentaje_cuota_autonomica
+          porcentaje: 0.10
+          sobre_cuota_integra: true
+          requiere_zona_despoblada: true
+          municipio_hab_min: 2000
+          municipio_hab_max: 4999
+      pendientes:
+        - libros_texto_idiomas_educacion       # tabla de tramos de base
+        - discapacidad_ascendientes_descendientes
+        - acogimiento_familiar_menores
+        - acogimiento_no_remunerado_mayores_65
+        - arrendamiento_familias_numerosas
+        - arrendamiento_familias_monoparentales
+        - arrendamiento_personas_discapacidad
+        - intereses_primera_vivienda_40
+        - adquisicion_rehabilitacion_vivienda_rural
+        - traslado_vivienda_habitual
+        - donativos_cooperacion_id_i_cultura
+        - inversion_sociedades_economia_social
+
+  ES-CL:
+    nombre: "Castilla y León"
+    escala_general_autonomica:
+      norma: "Art. 1 TR tributos propios y cedidos de Castilla y León (DL 1/2013)"
+      fuente: "AEAT Manual Renta 2025 — Gravamen autonómico Castilla y León"
+      estado: confirmado
+      tramos:
+        - { hasta: 12450,    tipo: 0.09 }
+        - { hasta: 20200,    tipo: 0.12 }
+        - { hasta: 35200,    tipo: 0.14 }
+        - { hasta: 53407.20, tipo: 0.185 }
+        - { hasta: .inf,     tipo: 0.215 }
+    deducciones_autonomicas:
+      # TR de tributos propios y cedidos de Castilla y León (DL 1/2013), arts. 3-10.
+      # Catálogo total ~18. 8 implementadas.
+      estado: cargado
+      fuente: "TR tributos de Castilla y León (DL 1/2013), arts. 3-7; AEAT Manual Práctico Renta 2025, Parte 2 — Deducciones autonómicas / Castilla y León"
+      lista:
+        - id: nacimiento_adopcion
+          norma: "Art. 4 DL 1/2013 CyL"
+          grupo: nacimiento_cyl           # se aplica la mayor: general o medio rural (<= 5.000 hab.)
+          tipo: fija_por_hijo_nacido
+          anios_ventana: 1
+          importes_por_orden: { "1": 1010, "2": 1475, "3+": 2351 }
+        - id: familia_numerosa
+          norma: "Art. 3 DL 1/2013 CyL"
+          estado: provisional   # 600 € general; 1.500 € (4 desc.); 2.500 € (5) + 1.000 €/desc. desde el 6º; +600 discapacidad >=65 %
+          tipo: fija
+          importe: 600
+          requiere_familia_numerosa: true
+        - id: arrendamiento_vivienda_habitual_joven
+          norma: "Art. 7.4 DL 1/2013 CyL"
+          tipo: porcentaje_campo
+          campo: alquiler_vivienda_pagos
+          porcentaje: 0.20
+          limite: 459
+          edad_max: 36
+        - id: cuidado_hijos_empleada_hogar
+          norma: "Art. 5.1 DL 1/2013 CyL"
+          tipo: porcentaje_campo
+          campo: gastos_empleada_hogar
+          porcentaje: 0.30
+          limite: 322
+        - id: cuidado_hijos_escuela_infantil
+          norma: "Art. 5.1 DL 1/2013 CyL"
+          tipo: porcentaje_campo
+          campo: gastos_escuela_infantil_cyl
+          porcentaje: 1.00
+          limite: 1320
+        - id: cuotas_ss_empleada_hogar
+          norma: "Art. 5.2 DL 1/2013 CyL"
+          tipo: porcentaje_campo
+          campo: cuotas_ss_empleada_hogar
+          porcentaje: 0.15
+          limite: 300
+          descendiente_edad_max: 3          # hijo menor de 4 años
+          base_gate: menos_minimo
+          base_max_individual: 18900
+          base_max_conjunta: 31500
+        - id: contribuyente_discapacidad_65_grado_33
+          norma: "Art. 6 DL 1/2013 CyL"
+          tipo: fija
+          importe: 300
+          requiere_discapacidad_grado: "33_64"
+          edad_min: 65
+          base_gate: menos_minimo
+          base_max_individual: 18900
+          base_max_conjunta: 31500
+        - id: contribuyente_discapacidad_65_grado_65
+          norma: "Art. 6 DL 1/2013 CyL"
+          tipo: fija
+          importe: 656
+          requiere_discapacidad_grado: "65_mas"
+          edad_min: 65
+          base_gate: menos_minimo
+          base_max_individual: 18900
+          base_max_conjunta: 31500
+        - id: contribuyente_discapacidad_menor_65_grado_65
+          norma: "Art. 6 DL 1/2013 CyL"
+          tipo: fija
+          importe: 300
+          requiere_discapacidad_grado: "65_mas"
+          edad_max: 65
+          base_gate: menos_minimo
+          base_max_individual: 18900
+          base_max_conjunta: 31500
+        - id: nacimiento_adopcion_medio_rural
+          norma: "Art. 4.1 a 3 DL 1/2013 CyL (medio rural: municipios o entidades locales menores <= 5.000 hab.)"
+          tipo: fija_por_hijo_nacido
+          anios_ventana: 1
+          importes_por_orden: { "1": 1420, "2": 2070, "3+": 3300 }
+          municipio_hab_max: 5000
+          grupo: nacimiento_cyl
+      pendientes:
+        - partos_adopciones_multiples          # 50/100 % de la deducción por nacimiento — acoplada
+        - gastos_adopcion
+        - vivienda_joven_rural                 # condicionada a municipio
+        - rehabilitacion_subvencionada
+        - rehabilitacion_medio_rural_alquiler
+        - fomento_emprendimiento
+        - donaciones_fundaciones_cyl
+        - donaciones_i_d_i
+        - movilidad_sostenible
+        - vivienda_nueva_construccion
+        - recuperacion_patrimonio_historico_natural
+
+  ES-CT:
+    nombre: "Cataluña"
+    escala_general_autonomica:
+      norma: "Art. 611-1 DL 1/2024 (libro sexto del Código Tributario de Cataluña)"
+      fuente: "AEAT Manual Renta 2025 — Gravamen autonómico Cataluña"
+      estado: confirmado
+      tramos:
+        - { hasta: 12500,  tipo: 0.095 }
+        - { hasta: 22000,  tipo: 0.125 }
+        - { hasta: 33000,  tipo: 0.16 }
+        - { hasta: 53000,  tipo: 0.19 }
+        - { hasta: 90000,  tipo: 0.215 }
+        - { hasta: 120000, tipo: 0.235 }
+        - { hasta: 175000, tipo: 0.245 }
+        - { hasta: .inf,   tipo: 0.255 }
+    deducciones_autonomicas:
+      # Catálogo del libro sexto del Código Tributario de Catalunya (DL 1/2024), arts. 612-x.
+      # 7 de 13 deducciones implementadas; 6 pendientes por requerir campos de entrada
+      # no modelados (año de viudedad, condición de víctima de violencia, más de un pagador,
+      # préstamo AGAUR de máster/doctorado) o por estar ya cubiertas vía la deducción
+      # estatal transitoria por vivienda (tramo autonómico general del 7,5 %).
+      estado: cargado
+      fuente: "DL 1/2024 (libro sexto del Código Tributario de Catalunya); AEAT Manual Práctico Renta 2025, Parte 2 — Deducciones autonómicas / Cataluña"
+      lista:
+        - id: nacimiento_adopcion
+          norma: "Art. 612-1 DL 1/2024"
+          tipo: fija_por_hijo_nacido
+          importe: 150            # por progenitor en declaración individual
+          importe_conjunta: 300
+          importe_multiple: 150
+          anios_ventana: 1
+          prorratea_progenitores: false   # cada progenitor aplica sus 150 € en individual (no se reparten)
+        - id: arrendamiento_vivienda_habitual
+          norma: "Art. 612-3 DL 1/2024"
+          tipo: porcentaje_campo
+          campo: alquiler_vivienda_pagos
+          porcentaje: 0.10
+          limite: 500
+          edad_max: 36           # <=35 años (o paro >=183 días, o discapacidad >=65 %, o viudo >=65 — no modelados)
+          base_gate: menos_minimo
+          base_max_individual: 30000
+          base_max_conjunta: 45000
+        - id: rehabilitacion_vivienda_habitual
+          norma: "Art. 612-4 DL 1/2024"
+          tipo: porcentaje_campo
+          campo: rehabilitacion_vivienda_pagos
+          porcentaje: 0.015
+          base_maxima: 9040
+        - id: donativos_fomento_lengua_catalana
+          norma: "Art. 612-6 DL 1/2024"
+          tipo: porcentaje_campo
+          campo: donativos_lengua_catalana
+          porcentaje: 0.15
+          limite_pct_cuota_autonomica: 0.10
+        - id: donativos_investigacion_i_d_i
+          norma: "Art. 612-7 DL 1/2024"
+          tipo: porcentaje_campo
+          campo: donativos_investigacion
+          porcentaje: 0.30
+          limite_pct_cuota_autonomica: 0.10
+        - id: inversion_angel_inversor
+          norma: "Art. 612-9 DL 1/2024"
+          tipo: porcentaje_campo
+          campo: inversion_angel_inversor
+          porcentaje: 0.40      # 50 % si la sociedad está participada por universidades/centros de investigación (no distinguido)
+          limite: 12000
+        - id: inversion_cooperativas_agrarias_vivienda
+          norma: "Art. 612-12 DL 1/2024"
+          tipo: porcentaje_campo
+          campo: inversion_cooperativas_cat
+          porcentaje: 0.20
+          limite: 3000
+      pendientes:
+        # Requieren campos de entrada no modelados por el motor:
+        - viudedad_2023_2025                 # necesita "año de viudedad" + nº descendientes -> 150/300 €
+        - alquiler_vivienda_victimas_violencia_machista  # necesita flag "víctima de violencia machista" -> 100 %/1.000 €
+        - obligacion_declarar_dos_pagadores  # necesita flag ">1 pagador" y trabajo 15.876–22.000; deducción = cuota aut − cuota estatal
+        - intereses_prestamos_master_doctorado  # préstamos AGAUR; campo específico
+        # Ya cubierta parcialmente por la deducción estatal transitoria por vivienda:
+        - tramo_autonomico_inversion_vivienda_9pct  # el 7,5 % general lo aplica deduccion_vivienda_transitoria; el 9 % incrementado (adquisición < 30-07-2011, base − mínimo ≤ 30.000) queda pendiente
+        # Niche / falta de datos:
+        - donaciones_medio_ambiente_patrimonio_natural  # art. 612-8 — % por confirmar
+
+  ES-EX:
+    nombre: "Extremadura"
+    escala_general_autonomica:
+      norma: "Art. 1 TR disposiciones legales de Extremadura en tributos cedidos (DL 1/2018)"
+      fuente: "AEAT Manual Renta 2025 — Gravamen autonómico Extremadura"
+      estado: confirmado
+      tramos:
+        - { hasta: 12450,  tipo: 0.08 }
+        - { hasta: 20200,  tipo: 0.10 }
+        - { hasta: 24200,  tipo: 0.16 }
+        - { hasta: 35200,  tipo: 0.175 }
+        - { hasta: 60000,  tipo: 0.21 }
+        - { hasta: 80200,  tipo: 0.235 }
+        - { hasta: 99200,  tipo: 0.24 }
+        - { hasta: 120200, tipo: 0.245 }
+        - { hasta: .inf,   tipo: 0.25 }
+    deducciones_autonomicas:
+      # TR de tributos cedidos de Extremadura (DL 1/2018), arts. 2-13. Límites de renta
+      # generales (19.000 ind. / 24.000 conj.) del art. 12 bis. Los límites incrementados
+      # para residentes en municipios < 3.000 hab. (28.000/45.000) NO se modelan.
+      estado: cargado
+      fuente: "TR tributos cedidos de Extremadura (DL 1/2018), arts. 3, 5, 6, 9, 10 y 12 bis; AEAT Manual Práctico Renta 2025, Parte 2 — Deducciones autonómicas / Extremadura"
+      lista:
+        - id: arrendamiento_vivienda_habitual
+          norma: "Art. 9 DL 1/2018 Extremadura"
+          estado: provisional   # alquiler en medio rural (30 %/1.500) y alternativas al requisito de edad (familia numerosa, ascendiente separado con 2 hijos, discapacidad >= 65 %) no modeladas
+          tipo: porcentaje_campo
+          campo: alquiler_vivienda_pagos
+          porcentaje: 0.30
+          limite: 1000
+          edad_max: 36
+          base_max_individual: 19000
+          base_max_conjunta: 24000
+        - id: material_escolar
+          norma: "Art. 10 DL 1/2018 Extremadura"
+          tipo: fija_por_hijo
+          importe: 15
+          edad_hijo_min: 6
+          edad_hijo_max: 15
+          base_max_individual: 19000
+          base_max_conjunta: 24000
+          prorratea_progenitores: true
+        - id: partos_multiples
+          norma: "Art. 3 DL 1/2018 Extremadura"
+          tipo: fija_por_hijo_nacido
+          anios_ventana: 1
+          importe: 300            # por cada hijo nacido en el parto múltiple
+          importe_multiple: 0     # el importe ya es por hijo; no sumar extra por parto múltiple
+          requiere_parto_multiple: true
+          base_max_individual: 19000
+          base_max_conjunta: 24000
+          prorratea_progenitores: true
+        - id: cuidado_hijos_menores_14
+          norma: "Art. 6 DL 1/2018 Extremadura"
+          estado: provisional   # exige que ambos progenitores realicen actividad remunerada (no comprobado); límite por unidad de convivencia
+          tipo: porcentaje_campo
+          campo: gastos_cuidado_hijos
+          porcentaje: 0.10
+          limite: 400
+          descendiente_edad_max: 14
+          base_max_individual: 19000
+          base_max_conjunta: 24000
+        - id: cuidado_familiares_discapacidad
+          norma: "Art. 5 DL 1/2018 Extremadura"
+          estado: provisional   # 150 € por cada ascendiente/descendiente con discapacidad >= 65 %; aquí se aplica una sola vez
+          tipo: fija
+          importe: 150
+          requiere_familiar_discapacidad_65: true
+          base_max_individual: 19000
+          base_max_conjunta: 24000
+        # --- condicionadas al municipio de residencia ---
+        - id: residencia_municipios_menos_3000
+          norma: "Art. 11 ter DL 1/2018 Extremadura"
+          estado: provisional   # en conjunta la ley reparte la cuota en proporción a las bases individuales (aquí 15 % de toda la cuota); el límite legal es sobre base imponible
+          tipo: porcentaje_cuota_autonomica
+          porcentaje: 0.15
+          sobre_cuota_integra: true
+          municipio_hab_max: 2999
+          base_max_individual: 28000
+          base_max_conjunta: 45000
+      pendientes:
+        - trabajo_dependiente             # 75 €; exige trabajo íntegro <= 12.000 y resto de rentas <= 300 (puerta no modelada)
+        - contribuyentes_viudos           # 100/200 €; necesita marcar el estado de viudedad
+        - acogimiento_menores
+        - vivienda_habitual_jovenes_victimas_terrorismo
+        - arrendadores_viviendas_vacias
+        - rehabilitacion_viviendas_rurales_alquiler
+        - inversion_acciones_constitucion_ampliacion
+        - vivienda_zonas_rurales           # condicionada a municipio
+        - intereses_financiacion_vivienda_jovenes
+        - donaciones_culturales_deportistas
+        - traslado_residencia_a_extremadura
+        - ayudas_ela
+
+  ES-GA:
+    nombre: "Galicia"
+    escala_general_autonomica:
+      norma: "Art. 4 TR disposiciones legales de Galicia en tributos cedidos (DL 1/2011)"
+      fuente: "AEAT Manual Renta 2025 — Gravamen autonómico Galicia"
+      estado: confirmado
+      tramos:
+        - { hasta: 12985.35, tipo: 0.09 }
+        - { hasta: 21068.60, tipo: 0.1165 }
+        - { hasta: 35200,    tipo: 0.149 }
+        - { hasta: 60000,    tipo: 0.184 }
+        - { hasta: .inf,     tipo: 0.225 }
+    deducciones_autonomicas:
+      # TR de tributos cedidos de Galicia (DL 1/2011), art. 5. Catálogo total ~24 deducciones.
+      # 7 implementadas (las familiares y de vivienda de mayor incidencia); el resto son de
+      # inversión/donativos o están condicionadas a municipio (< 5.000 hab, aldeas modelo) que
+      # el motor no modela.
+      estado: cargado
+      fuente: "TR tributos cedidos de Galicia (DL 1/2011), art. 5; AEAT Manual Práctico Renta 2025, Parte 2 — Deducciones autonómicas / Galicia"
+      lista:
+        # Nacimiento (art. 5.Dos): año del nacimiento y los dos siguientes; +20 % en municipios
+        # de menos de 5.000 habitantes. Renta = base imponible − mínimo personal y familiar.
+        - id: nacimiento_adopcion_renta_baja
+          norma: "Art. 5.Dos DL 1/2011"
+          tipo: fija_por_hijo_nacido
+          anios_ventana: 3                 # ejercicio del nacimiento y los dos siguientes
+          importes_por_orden: { "1": 360, "2": 1200, "3+": 2400 }
+          base_gate: menos_minimo
+          base_max_individual: 22000
+          base_max_conjunta: 22000
+          incremento_municipio: { hab_max: 4999, factor: 1.20 }
+        - id: nacimiento_adopcion_renta_media
+          norma: "Art. 5.Dos DL 1/2011"
+          tipo: fija_por_hijo_nacido
+          anios_ventana: 1                 # año del nacimiento: sin límite superior de renta
+          importe: 300
+          importe_multiple: 360
+          base_gate: menos_minimo
+          base_min_individual: 22000.01
+          base_min_conjunta: 22000.01
+          incremento_municipio: { hab_max: 4999, factor: 1.20 }
+        - id: nacimiento_adopcion_anios_siguientes_renta_media
+          norma: "Art. 5.Dos DL 1/2011"
+          estado: provisional   # la duplicación por discapacidad >= 33 % del hijo no se modela
+          tipo: fija_por_hijo
+          importe: 300                     # por hijo nacido en los dos ejercicios anteriores
+          edad_hijo_min: 1
+          edad_hijo_max: 2
+          base_gate: menos_minimo
+          base_min_individual: 22000.01
+          base_min_conjunta: 22000.01
+          base_max_individual: 31000
+          base_max_conjunta: 31000
+          incremento_municipio: { hab_max: 4999, factor: 1.20 }
+        - id: familias_dos_hijos
+          norma: "Art. 5.Tres.1 DL 1/2011"
+          tipo: fija
+          importe: 250          # 500 € si el contribuyente o un hijo tiene discapacidad >= 65 %
+          descendientes_min: 2
+          descendientes_max: 2
+        - id: familia_numerosa
+          norma: "Art. 5.Tres.2 DL 1/2011"
+          estado: provisional   # 250 € (hasta 2 hijos) + 250 €/hijo adicional (>2); 500/800 si discapacidad >= 65 %
+          tipo: fija
+          importe: 250
+          requiere_familia_numerosa: true
+        - id: arrendamiento_vivienda_habitual_general
+          norma: "Art. 5.Siete DL 1/2011"
+          estado: provisional   # límite (base − mínimo); se usa 22.000 / 31.000
+          tipo: porcentaje_campo
+          campo: alquiler_vivienda_pagos
+          porcentaje: 0.10
+          limite: 300
+          edad_max: 36
+          descendientes_max: 1
+          base_gate: menos_minimo
+          base_max_individual: 22000
+          base_max_conjunta: 31000
+        - id: arrendamiento_vivienda_habitual_dos_hijos
+          norma: "Art. 5.Siete DL 1/2011"
+          estado: provisional
+          tipo: porcentaje_campo
+          campo: alquiler_vivienda_pagos
+          porcentaje: 0.20
+          limite: 600
+          edad_max: 36
+          descendientes_min: 2
+          base_gate: menos_minimo
+          base_max_individual: 22000
+          base_max_conjunta: 31000
+        - id: cuidado_hijos_menores
+          norma: "Art. 5.Cinco DL 1/2011"
+          estado: provisional   # 600 € si 2+ hijos <= 3 años (no distinguido); prorrateo entre progenitores
+          tipo: porcentaje_campo
+          campo: gastos_cuidado_hijos
+          porcentaje: 0.30
+          limite: 400
+          base_gate: menos_minimo
+          base_max_individual: 22000
+          base_max_conjunta: 31000
+        - id: libros_texto_material_escolar
+          norma: "Art. 5.Veinticinco DL 1/2011"
+          estado: provisional   # tabla de tramos por (base − mínimo); se usa el 15 % con tope de renta 22.000/31.000
+          tipo: porcentaje_campo
+          campo: gastos_libros_texto
+          porcentaje: 0.15
+          base_gate: menos_minimo
+          base_max_individual: 22000
+          base_max_conjunta: 31000
+      pendientes:
+        - acogimiento_menores
+        - contribuyentes_discapacidad_65_ayuda_terceros
+        - nuevas_tecnologias_gallegos
+        - inversion_acciones_nuevas_entidades         # varias variantes
+        - donaciones_i_d_i
+        - instalaciones_climatizacion_acs
+        - rehabilitacion_inmuebles_centros_historicos
+        - eficiencia_energetica
+        - vivienda_aldeas_modelo                       # condicionada a municipio
+
+  ES-MD:
+    nombre: "Comunidad de Madrid"
+    escala_general_autonomica:
+      norma: "Art. 1 TR disposiciones legales de la Comunidad de Madrid en tributos cedidos (DL 1/2010)"
+      fuente: "AEAT Manual Renta 2025 — Gravamen autonómico Comunidad de Madrid"
+      estado: confirmado
+      tramos:
+        - { hasta: 13362.22, tipo: 0.085 }
+        - { hasta: 19004.63, tipo: 0.107 }
+        - { hasta: 35425.68, tipo: 0.128 }
+        - { hasta: 57320.40, tipo: 0.174 }
+        - { hasta: .inf,     tipo: 0.205 }
+    deducciones_autonomicas:
+      # TR de tributos cedidos de la Comunidad de Madrid (DL 1/2010). Catálogo total ~23;
+      # 9 implementadas.
+      estado: cargado
+      fuente: "TR tributos cedidos de la Comunidad de Madrid (DL 1/2010), arts. 4, 7, 7 bis, 8, 11, 11 bis, 13 bis; AEAT Manual Práctico Renta 2025, Parte 2 — Deducciones autonómicas / Comunidad de Madrid"
+      lista:
+        - id: arrendamiento_vivienda_habitual
+          norma: "Art. 8 DL 1/2010 Madrid"
+          tipo: porcentaje_campo
+          campo: alquiler_vivienda_pagos
+          porcentaje: 0.30
+          limite: 1237.20
+          edad_max: 40
+          base_max_individual: 26414.22
+          base_max_conjunta: 37322.20
+          base_max_unidad_familiar: 61860
+        - id: nacimiento_adopcion
+          norma: "Art. 4 DL 1/2010 Madrid"
+          tipo: fija_por_hijo_nacido
+          importe: 721.70          # hijos nacidos/adoptados desde 2023 (600 € si anteriores)
+          importe_multiple: 721.70
+          anios_ventana: 3         # ejercicio del nacimiento + 2 siguientes
+          base_max_individual: 30930
+          base_max_conjunta: 37322.20
+          base_max_unidad_familiar: 61860
+          prorratea_progenitores: true
+        - id: familia_numerosa_general
+          norma: "Art. 13 bis DL 1/2010 Madrid"
+          estado: provisional   # límite de renta real = 30.930 € x nº de miembros de la unidad familiar (no modelado; casi nunca vinculante en FN)
+          tipo: porcentaje_cuota_autonomica
+          sobre_cuota_integra: true
+          porcentaje: 0.50
+          limite: 6186
+          limite_conjunta: 12372
+          familia_numerosa_categoria: general
+        - id: familia_numerosa_especial
+          norma: "Art. 13 bis DL 1/2010 Madrid"
+          estado: provisional   # ídem: límite de renta por nº de miembros no modelado
+          tipo: porcentaje_cuota_autonomica
+          sobre_cuota_integra: true
+          porcentaje: 1.00
+          limite: 12372
+          limite_conjunta: 24744
+          familia_numerosa_categoria: especial
+        - id: cuidado_ascendientes
+          norma: "Art. 7 bis DL 1/2010 Madrid"
+          tipo: fija_por_ascendiente
+          importe: 515.50        # por ascendiente > 65 o con discapacidad >= 33 % con derecho a mínimo por ascendientes
+          edad_ascendiente_min: 65
+          prorratea_progenitores: true
+        - id: cuidado_hijos_menores_3_empleada_hogar
+          norma: "Art. 11 bis DL 1/2010 Madrid"
+          estado: provisional   # la variante de familia numerosa (40 %/618,60 €) y los supuestos de convivencia con dependiente/discapacitado no se modelan
+          tipo: porcentaje_campo
+          campo: cuotas_ss_empleada_hogar
+          porcentaje: 0.25
+          limite: 463.95
+          descendiente_edad_max: 2
+        - id: gastos_educativos_escolaridad
+          norma: "Art. 11 DL 1/2010 Madrid"
+          estado: provisional   # el límite por hijo es combinado (927,90 € con escolaridad, 1.031 € en 1er ciclo infantil); el DSL aplica un tope fijo sobre el gasto de escolaridad
+          tipo: porcentaje_campo
+          campo: gastos_escolaridad
+          porcentaje: 0.15
+          limite: 927.90
+        - id: gastos_educativos_idiomas
+          norma: "Art. 11 DL 1/2010 Madrid"
+          estado: provisional   # límite combinado idiomas + vestuario = 412,40 €/hijo; aquí se aplica por separado
+          tipo: porcentaje_campo
+          campo: gastos_idiomas
+          porcentaje: 0.15
+          limite: 412.40
+        - id: gastos_educativos_vestuario
+          norma: "Art. 11 DL 1/2010 Madrid"
+          estado: provisional
+          tipo: porcentaje_campo
+          campo: gastos_vestuario_escolar
+          porcentaje: 0.05
+          limite: 412.40
+      pendientes:
+        - acogimiento_no_remunerado_mayores_65     # 1.546,50 € — requiere flag de acogimiento
+        - acogimiento_familiar_menores
+        - familias_dos_mas_descendientes_ingresos_reducidos  # 10 % cuota autonómica si base UF < 24.000 y 2+ desc.
+        - intereses_prestamos_vivienda_jovenes_30   # % sobre intereses del préstamo — falta el campo
+        - intereses_prestamos_estudios_grado_master_doctorado
+        - adquisicion_vivienda_por_nacimiento
+        - donativos_fundaciones_clubes_deportivos
+        - inversion_entidades_nueva_creacion
+        - fomento_autoempleo_jovenes_35
+        - inversiones_mab
+        - nuevos_contribuyentes_extranjero          # "mbappé" — inversión
+        - cambio_residencia_municipio_despoblacion  # condición de municipio
+        - adquisicion_vivienda_municipios_despoblacion
+        - incremento_costes_financiacion_ajena_vivienda
+        - arrendamiento_viviendas_vacias
+        - gastos_derivados_arrendamiento
+        - adopcion_internacional
+
+  ES-MC:
+    nombre: "Región de Murcia"
+    escala_general_autonomica:
+      norma: "Art. 2 TR disposiciones legales de la Región de Murcia en tributos cedidos (DL 1/2010)"
+      fuente: "AEAT Manual Renta 2025 — Gravamen autonómico Región de Murcia"
+      estado: confirmado
+      tramos:
+        - { hasta: 12450,  tipo: 0.095 }
+        - { hasta: 20200,  tipo: 0.112 }
+        - { hasta: 34000,  tipo: 0.133 }
+        - { hasta: 60000,  tipo: 0.179 }
+        - { hasta: .inf,   tipo: 0.225 }
+    deducciones_autonomicas:
+      # TR de las disposiciones legales de la Región de Murcia en tributos cedidos (DL 1/2010),
+      # art. 1. Catálogo total ~27 deducciones; 7 implementadas.
+      estado: cargado
+      fuente: "TR tributos cedidos de la Región de Murcia (DL 1/2010), art. 1 (apartados Tres, Ocho, Nueve, Diez, Once, Trece, Dieciséis); AEAT Manual Práctico Renta 2025, Parte 2 — Deducciones autonómicas / Región de Murcia"
+      lista:
+        - id: nacimiento_adopcion
+          norma: "Art. 1.Nueve DL 1/2010 Murcia"
+          tipo: fija_por_hijo_nacido
+          anios_ventana: 1
+          importes_por_orden: { "1": 100, "2": 200, "3+": 300 }   # 1º/2º/3º y sucesivos
+          base_max_individual: 30000
+          base_max_conjunta: 50000
+          prorratea_progenitores: true   # por mitad si ambos progenitores declaran y conviven con el hijo
+        - id: gastos_guarderia
+          norma: "Art. 1.Tres DL 1/2010 Murcia"
+          tipo: porcentaje_campo_hijo
+          campo: gastos_guarderia
+          porcentaje: 0.20
+          limite: 1000            # por hijo/descendiente
+          edad_hijo_max: 2        # Primer Ciclo de Educación Infantil (0-3 años)
+          base_max_individual: 30000
+          base_max_conjunta: 50000
+        - id: material_escolar_libros
+          norma: "Art. 1.Ocho DL 1/2010 Murcia"
+          estado: provisional   # edad 3-16 aproxima "2º ciclo infantil + primaria + ESO"; límites de familia numerosa (33.000/53.000) no modelados
+          tipo: fija_por_hijo
+          importe: 120
+          edad_hijo_min: 3
+          edad_hijo_max: 16
+          base_max_individual: 20000
+          base_max_conjunta: 40000
+          prorratea_progenitores: true
+        - id: contribuyente_discapacidad
+          norma: "Art. 1.Diez DL 1/2010 Murcia"
+          tipo: fija
+          importe: 150
+          requiere_discapacidad_contribuyente: true   # grado >= 33 %
+          base_max_individual: 40000
+          base_max_conjunta: 40000
+        - id: conciliacion_cuidado_descendientes
+          norma: "Art. 1.Once.A DL 1/2010 Murcia"
+          estado: provisional   # requiere alta como empleador del Sistema Especial de Empleados de Hogar; se usa el campo cuotas_ss_empleada_hogar
+          tipo: porcentaje_campo
+          campo: cuotas_ss_empleada_hogar
+          porcentaje: 0.20
+          limite: 400
+          descendiente_edad_max: 11   # al menos un hijo menor de 12 años
+        - id: familia_monoparental
+          norma: "Art. 1.Dieciséis DL 1/2010 Murcia"
+          tipo: fija
+          importe: 303
+          requiere_monoparental: true
+          descendientes_min: 1
+          base_max_individual: 35240
+          base_max_conjunta: 35240
+        - id: arrendamiento_vivienda_habitual
+          norma: "Art. 1.Trece DL 1/2010 Murcia"
+          estado: provisional   # alternativas al requisito de edad (familia numerosa / discapacidad >= 65 %) no modeladas; límite de renta sin cotejar
+          tipo: porcentaje_campo
+          campo: alquiler_vivienda_pagos
+          porcentaje: 0.10
+          limite: 300            # por contrato
+          edad_max: 41           # 40 años o menos a fecha de devengo
+          base_max_individual: 30000
+          base_max_conjunta: 50000
+      pendientes:
+        - inversion_vivienda_habitual_jovenes    # inversión, % sobre base — pendiente de catálogo de importes
+        - mujeres_trabajadoras
+        - conciliacion_cuidado_ascendientes      # Art. 1.Once.B
+        - acogimiento_no_remunerado_mayores
+        - adquisicion_vivienda_familias_numerosas
+        - donativos_patrimonio_cultural
+        - donativos_investigacion_biosanitaria
+        - inversiones_ahorro_agua
+        - inversion_energias_renovables
+        - inversion_entidades_nueva_creacion
+        - gastos_ensenanza_idiomas
+        - gastos_acceso_internet
+        - vehiculos_electricos
+        - cristales_graduados_lentes
+        - practica_deporte
+        - enfermedades_raras
+        - gastos_veterinarios
+
+  ES-RI:
+    nombre: "La Rioja"
+    escala_general_autonomica:
+      norma: "Art. 31 Ley 10/2017 de La Rioja (mod. Ley 13/2023, efectos 2024)"
+      fuente: "AEAT Manual Renta 2025 — Gravamen autonómico La Rioja"
+      estado: confirmado
+      tramos:
+        - { hasta: 12450,  tipo: 0.08 }
+        - { hasta: 20200,  tipo: 0.106 }
+        - { hasta: 35200,  tipo: 0.136 }
+        - { hasta: 40000,  tipo: 0.178 }
+        - { hasta: 50000,  tipo: 0.183 }
+        - { hasta: 60000,  tipo: 0.19 }
+        - { hasta: 120000, tipo: 0.245 }
+        - { hasta: .inf,   tipo: 0.27 }
+    deducciones_autonomicas:
+      # Ley 10/2017 de La Rioja, art. 32. Muchas deducciones de La Rioja están
+      # condicionadas a residir en un "pequeño municipio" (lista oficial) — esas
+      # variantes (porcentajes/límites incrementados) NO se modelan.
+      estado: cargado
+      fuente: "Ley 10/2017 de La Rioja, art. 32 (apartados 1, 6, 9, 10, 12 y 17); AEAT Manual Práctico Renta 2025, Parte 2 — Deducciones autonómicas / La Rioja"
+      lista:
+        - id: nacimiento_adopcion
+          norma: "Art. 32.1 Ley 10/2017 La Rioja"
+          estado: provisional   # +60 €/hijo en nacimientos/adopciones múltiples no modelado
+          tipo: fija_por_hijo_nacido
+          anios_ventana: 1
+          importes_por_orden: { "1": 600, "2": 750, "3+": 900 }
+          prorratea_progenitores: true
+        - id: hijo_0_3_escuelas_infantiles
+          norma: "Art. 32.6 Ley 10/2017 La Rioja"
+          estado: provisional   # límite de renta sin cotejar
+          tipo: porcentaje_campo_hijo
+          campo: gastos_guarderia
+          porcentaje: 0.20
+          limite: 600
+          edad_hijo_max: 2
+        - id: arrendamiento_vivienda_habitual_joven
+          norma: "Art. 32.12 Ley 10/2017 La Rioja"
+          estado: provisional   # variante del 20 %/400 € para pequeños municipios no modelada
+          tipo: porcentaje_campo
+          campo: alquiler_vivienda_pagos
+          porcentaje: 0.10
+          limite: 300
+          edad_max: 36
+          base_max_individual: 18030
+          base_max_conjunta: 30050
+        - id: acceso_internet_jovenes_emancipados
+          norma: "Art. 32.9 Ley 10/2017 La Rioja"
+          estado: provisional   # variante del 40 % (jóvenes de pequeños municipios / primer contrato) y el límite máximo no cotejados
+          tipo: porcentaje_campo
+          campo: gastos_internet
+          porcentaje: 0.30
+          edad_max: 36
+          base_max_individual: 18030
+          base_max_conjunta: 30050
+        - id: suministro_luz_gas_emancipados
+          norma: "Art. 32.10 Ley 10/2017 La Rioja"
+          estado: provisional   # variante del 20 % para pequeños municipios y el límite máximo no cotejados
+          tipo: porcentaje_campo
+          campo: gastos_luz_gas
+          porcentaje: 0.15
+          edad_max: 36
+          base_max_individual: 18030
+          base_max_conjunta: 30050
+        - id: fomentar_ejercicio_fisico
+          norma: "Art. 32.17 Ley 10/2017 La Rioja"
+          estado: provisional   # 100 % para mayores de 65 o discapacidad >= 33 % no modelado
+          tipo: porcentaje_campo
+          campo: gastos_deporte
+          porcentaje: 0.30
+          limite: 300
+        # --- condicionadas al municipio de residencia (pequeños municipios del anexo) ---
+        - id: hijo_0_3_pequenos_municipios
+          norma: "Art. 32.5 Ley 10/2017 La Rioja"
+          estado: provisional   # 100 €/mes: se computan 12 meses por hijo menor de 3 años (sin prorrateo mensual por nacimientos, cumpleaños o traslados)
+          tipo: fija_por_hijo
+          importe: 1200
+          edad_hijo_max: 2
+          requiere_zona_despoblada: true
+      pendientes:
+        - adquisicion_construccion_rehabilitacion_vivienda_pequenos_municipios   # municipio
+        - acogimiento_familiar_menor
+        - hijo_0_3_traslado_pequenos_municipios                                  # municipio
+        - vehiculos_electricos
+        - fijacion_poblacion_medio_rural                                         # municipio
+        - inversion_vivienda_habitual_jovenes_36
+        - bicicletas
+        - obras_rehabilitacion_vivienda
+        - adquisicion_construccion_vivienda_jovenes
+        - segunda_vivienda_medio_rural                                           # municipio
+        - obras_adecuacion_discapacidad
+        - donaciones_mecenazgo
+        - conservacion_patrimonio_historico
+        - enfermos_ela
+        - cuotas_organizaciones_agrarias
+        - enfermedad_celiaca
+        - paliar_subida_intereses_prestamos_vivienda
+
+  ES-VC:
+    nombre: "Comunitat Valenciana"
+    escala_general_autonomica:
+      norma: "Art. 2 Ley 13/1997 de la Comunitat Valenciana"
+      fuente: "AEAT Manual Renta 2025 — Gravamen autonómico Comunitat Valenciana"
+      estado: confirmado
+      tramos:
+        - { hasta: 12000,  tipo: 0.09 }
+        - { hasta: 22000,  tipo: 0.12 }
+        - { hasta: 32000,  tipo: 0.15 }
+        - { hasta: 42000,  tipo: 0.175 }
+        - { hasta: 52000,  tipo: 0.20 }
+        - { hasta: 62000,  tipo: 0.225 }
+        - { hasta: 72000,  tipo: 0.25 }
+        - { hasta: 100000, tipo: 0.265 }
+        - { hasta: 150000, tipo: 0.275 }
+        - { hasta: 200000, tipo: 0.285 }
+        - { hasta: .inf,   tipo: 0.295 }
+    deducciones_autonomicas:
+      # Ley 13/1997 de la Comunitat Valenciana, art. 4 (mod. Ley 5/2025). Catálogo total
+      # ~40; 13 implementadas (con variantes). Reducción lineal (taper) de base modelada.
+      estado: cargado
+      fuente: "Ley 13/1997 de la Comunitat Valenciana, art. 4.Uno (a, d, e, g, h, n, t, v, x); AEAT Manual Práctico Renta 2025, Parte 2 — Deducciones autonómicas / Comunitat Valenciana"
+      lista:
+        # Reducción lineal común a la mayoría (art. 4.Cuatro y Cinco): importe (o límite)
+        # íntegro si base liquidable < 27.000 (44.000 conjunta); entre 27.000 y 30.000
+        # (44.000-47.000) se multiplica por 1 − (base − 27.000)/3.000.
+        - id: nacimiento_adopcion
+          norma: "Art. 4.Uno.a), Cuatro y Cinco Ley 13/1997 (red. Ley 5/2025)"
+          tipo: fija_por_hijo_nacido
+          anios_ventana: 3                 # ejercicio del nacimiento y los dos siguientes
+          importes_por_orden: { "1": 600, "2": 750, "3+": 900 }
+          prorratea_progenitores: true
+          base_max_individual: 30000
+          base_max_conjunta: 47000
+          taper_individual: [27000, 30000]
+          taper_conjunta: [44000, 47000]
+        - id: familia_numerosa_general
+          norma: "Art. 4.Uno.d), Cuatro y Cinco Ley 13/1997"
+          tipo: fija
+          importe: 330
+          familia_numerosa_categoria: general
+          prorratea_progenitores: true
+          base_max_individual: 30000
+          base_max_conjunta: 47000
+          taper_individual: [27000, 30000]
+          taper_conjunta: [44000, 47000]
+        - id: familia_numerosa_especial
+          norma: "Art. 4.Uno.d), Cuatro y Cinco Ley 13/1997"
+          tipo: fija
+          importe: 660
+          familia_numerosa_categoria: especial
+          prorratea_progenitores: true
+          base_max_individual: 35000
+          base_max_conjunta: 58000
+          taper_individual: [31000, 35000]
+          taper_conjunta: [54000, 58000]
+        - id: familia_monoparental
+          norma: "Art. 4.Uno.d), Cuatro y Cinco Ley 13/1997"
+          estado: provisional   # modela la monoparental de categoría general (330 €); la especial (660 €) exige el título de familia monoparental especial (Decreto 19/2018), no modelado
+          tipo: fija
+          importe: 330
+          requiere_monoparental: true
+          familia_numerosa_categoria: "no"   # es la misma deducción que la de familia numerosa: no se acumulan
+          base_max_individual: 30000
+          base_max_conjunta: 47000
+          taper_individual: [27000, 30000]
+          taper_conjunta: [44000, 47000]
+        - id: custodia_guarderias
+          norma: "Art. 4.Uno.e), Cuatro y Cinco Ley 13/1997"
+          tipo: porcentaje_campo_hijo
+          campo: gastos_guarderia
+          porcentaje: 0.15
+          limite: 297           # por hijo < 3 años; el límite es el que se reduce en la franja de taper
+          edad_hijo_max: 2
+          requiere_progenitores_trabajan: true
+          prorratea_progenitores: true
+          base_max_individual: 30000
+          base_max_conjunta: 47000
+          taper_individual: [27000, 30000]
+          taper_conjunta: [44000, 47000]
+        - id: contribuyente_discapacidad_65
+          norma: "Art. 4.Uno.g), Cuatro y Cinco Ley 13/1997"
+          tipo: fija
+          importe: 197
+          requiere_discapacidad_contribuyente: true   # grado >= 33 %
+          edad_min: 65
+          base_max_individual: 30000
+          base_max_conjunta: 47000
+          taper_individual: [27000, 30000]
+          taper_conjunta: [44000, 47000]
+        - id: ascendientes_75
+          norma: "Art. 4.Uno.h), Cuatro y Cinco Ley 13/1997"
+          estado: provisional   # requisito real: > 75 años, o > 65 con discapacidad >= 65 % (o intelectual >= 33 %); el tipo cuenta cualquier ascendiente con discapacidad
+          tipo: fija_por_ascendiente
+          importe: 197
+          edad_ascendiente_min: 75
+          prorratea_progenitores: true
+          base_max_individual: 30000
+          base_max_conjunta: 47000
+          taper_individual: [27000, 30000]
+          taper_conjunta: [44000, 47000]
+        # Arrendamiento de vivienda habitual: tres variantes excluyentes (se aplica la mayor).
+        - id: arrendamiento_vivienda_habitual
+          norma: "Art. 4.Uno.n), Cuatro y Cinco Ley 13/1997"
+          grupo: arrendamiento_vc
+          tipo: porcentaje_campo
+          campo: alquiler_vivienda_pagos
+          porcentaje: 0.20
+          limite: 800
+          base_max_individual: 30000
+          base_max_conjunta: 47000
+          taper_individual: [27000, 30000]
+          taper_conjunta: [44000, 47000]
+        - id: arrendamiento_vivienda_habitual_joven
+          norma: "Art. 4.Uno.n), Cuatro y Cinco Ley 13/1997"
+          grupo: arrendamiento_vc
+          tipo: porcentaje_campo
+          campo: alquiler_vivienda_pagos
+          porcentaje: 0.25
+          limite: 950
+          edad_max: 36                     # 35 años o menos
+          base_max_individual: 30000
+          base_max_conjunta: 47000
+          taper_individual: [27000, 30000]
+          taper_conjunta: [44000, 47000]
+        - id: arrendamiento_vivienda_habitual_discapacidad
+          norma: "Art. 4.Uno.n), Cuatro y Cinco Ley 13/1997"
+          grupo: arrendamiento_vc
+          tipo: porcentaje_campo
+          campo: alquiler_vivienda_pagos
+          porcentaje: 0.25
+          limite: 950
+          requiere_discapacidad_grado: "65_mas"
+          base_max_individual: 30000
+          base_max_conjunta: 47000
+          taper_individual: [27000, 30000]
+          taper_conjunta: [44000, 47000]
+        - id: arrendamiento_vivienda_habitual_joven_discapacidad
+          norma: "Art. 4.Uno.n), Cuatro y Cinco Ley 13/1997"
+          grupo: arrendamiento_vc
+          tipo: porcentaje_campo
+          campo: alquiler_vivienda_pagos
+          porcentaje: 0.30
+          limite: 1100                     # dos o más condiciones
+          edad_max: 36
+          requiere_discapacidad_grado: "65_mas"
+          base_max_individual: 30000
+          base_max_conjunta: 47000
+          taper_individual: [27000, 30000]
+          taper_conjunta: [44000, 47000]
+        - id: material_escolar
+          norma: "Art. 4.Uno.v), Cuatro y Cinco Ley 13/1997"
+          estado: provisional          # edad 6-16 aproxima la escolarización en primaria/ESO/FP básica en centro público o concertado
+          tipo: fija_por_hijo
+          importe: 110
+          edad_hijo_min: 6
+          edad_hijo_max: 16
+          requiere_desempleo: true     # contribuyente (u otro progenitor conviviente) en desempleo e inscrito como demandante
+          prorratea_progenitores: true
+          base_max_individual: 30000
+          base_max_conjunta: 47000
+          taper_individual: [27000, 30000]
+          taper_conjunta: [44000, 47000]
+        - id: abonos_culturales
+          norma: "Art. 4.Uno.x) Ley 13/1997"
+          tipo: porcentaje_campo
+          campo: gastos_abonos_culturales
+          porcentaje: 0.21
+          base_maxima: 165
+          base_max_individual: 50000
+          base_max_conjunta: 50000
+        - id: dos_o_mas_descendientes
+          norma: "Art. 4.Uno.t) Ley 13/1997"
+          estado: provisional          # el límite de 30.000 € es sobre la SUMA de bases imponibles de todos los que aplican el mínimo por los mismos descendientes (y de los propios descendientes); en individual con dos progenitores el motor solo ve la base del declarante
+          tipo: porcentaje_cuota_autonomica
+          porcentaje: 0.10
+          min_descendientes: 2
+          base_max_individual: 30000
+          base_max_conjunta: 30000
+        # --- condicionadas al municipio de residencia (beneficiarios del Fondo de Cooperación Municipal contra el despoblamiento) ---
+        - id: residencia_municipio_despoblamiento
+          norma: "Art. 4.Uno.aa) y Seis Ley 13/1997"
+          tipo: fija
+          importe: 330
+          requiere_zona_despoblada: true
+        - id: residencia_despoblamiento_1_descendiente
+          norma: "Art. 4.Uno.aa) Ley 13/1997"
+          estado: provisional   # no se descuentan los descendientes que ya dan derecho a las deducciones por nacimiento
+          tipo: fija
+          importe: 132
+          requiere_zona_despoblada: true
+          descendientes_min: 1
+          descendientes_max: 1
+        - id: residencia_despoblamiento_2_descendientes
+          norma: "Art. 4.Uno.aa) Ley 13/1997"
+          estado: provisional
+          tipo: fija
+          importe: 198
+          requiere_zona_despoblada: true
+          descendientes_min: 2
+          descendientes_max: 2
+        - id: residencia_despoblamiento_3_descendientes
+          norma: "Art. 4.Uno.aa) Ley 13/1997"
+          estado: provisional
+          tipo: fija
+          importe: 264
+          requiere_zona_despoblada: true
+          descendientes_min: 3
+      pendientes:
+        - nacimiento_adopcion_multiple
+        - nacimiento_adopcion_discapacidad
+        - conciliacion_trabajo_vida_familiar      # importe por hijo 6 meses-3 años, madre trabajadora
+        - contratacion_indefinida_empleada_hogar_cuidado
+        - primera_adquisicion_vivienda_35
+        - adquisicion_vivienda_discapacidad
+        - arrendamiento_actividad_distinto_municipio
+        - autoconsumo_energia_renovable
+        - obras_conservacion_mejora_vivienda
+        - donativos_ecologicos_patrimonio_lengua
+        - incremento_costes_financiacion_vivienda
+        - gastos_salud
+        - "(~25 más)"
+
+  # Ceuta (ES-CE) y Melilla (ES-ML) quedan fuera del alcance de la herramienta
+  # (decisión de producto, 2026-09-09). Su régimen —escala estatal supletoria del
+  # art. 65 + bonificación del 60 % del art. 68.4— sigue documentado en
+  # docs/00_documento_diseno.md por si se reincorporan.

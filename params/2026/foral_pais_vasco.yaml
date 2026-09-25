@@ -1,0 +1,50 @@
+# =============================================================================
+# PARÁMETROS IRPF — TERRITORIOS HISTÓRICOS DEL PAÍS VASCO — EJERCICIO 2026
+# =============================================================================
+# Aprobado por: NF 2/2025 (Bizkaia), NF 3/2025 (Álava), NF 1/2025 (Gipuzkoa)
+#   + NF de Presupuestos 2026 (deflactación 2 % de la tarifa general).
+# Fuente: Iberley art. 75 NF 13/2013 (versión 2026); Cuatrecasas "País Vasco -
+#   Novedades tributarias para personas físicas 2025 y 2026" (mayo 2025).
+#
+# NOTA: para 2026 solo se sobreescriben las escalas (general y ahorro). El resto
+#   de parámetros hereda de params/2025/foral_pais_vasco.yaml salvo los que se
+#   vayan confirmando. Deducciones familiares 2026: +2 % sobre 2025 (pendiente
+#   de encaje exacto).
+# =============================================================================
+
+meta:
+  ejercicio: 2026
+  regimen: foral_pais_vasco
+  hereda_de: "2025/foral_pais_vasco.yaml"
+  territorios: [ES-PV-BI, ES-PV-SS, ES-PV-VI]
+
+comun:
+
+  escala_general_foral:
+    norma: "Art. 75 NF 13/2013 (redacción NF 7/2025 Presupuestos Bizkaia 2026) y equivalentes"
+    fuente: "Iberley art. 75 IRPF Bizkaia (versión 2026)"
+    estado: confirmado
+    tramos:
+      - { hasta: 18080,  tipo: 0.23 }
+      - { hasta: 36160,  tipo: 0.28 }
+      - { hasta: 54240,  tipo: 0.35 }
+      - { hasta: 77450,  tipo: 0.40 }
+      - { hasta: 107260, tipo: 0.45 }
+      - { hasta: 142960, tipo: 0.46 }
+      - { hasta: 208390, tipo: 0.47 }
+      - { hasta: .inf,   tipo: 0.49 }
+
+  escala_ahorro_foral:
+    norma: "NF 2/2025 Bizkaia / NF 3/2025 Álava / NF 1/2025 Gipuzkoa (efectos 1-1-2026)"
+    fuente: "Cuatrecasas (mayo 2025) — nueva escala del ahorro 19 %–28 %"
+    estado: provisional   # transcripción de umbrales a cotejar con el texto foral consolidado
+    tramos:
+      - { hasta: 7500,   tipo: 0.19 }
+      - { hasta: 15500,  tipo: 0.20 }
+      - { hasta: 30000,  tipo: 0.22 }
+      - { hasta: 50000,  tipo: 0.24 }
+      - { hasta: 90000,  tipo: 0.255 }
+      - { hasta: 120000, tipo: 0.26 }
+      - { hasta: 240000, tipo: 0.265 }
+      - { hasta: 300000, tipo: 0.27 }
+      - { hasta: .inf,   tipo: 0.28 }
