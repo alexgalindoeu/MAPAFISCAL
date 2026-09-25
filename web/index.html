@@ -56,6 +56,12 @@
           <label for="f-territorio">Comunidad o territorio foral donde residiste en 2025</label>
           <select id="f-territorio"></select>
         </div>
+        <div class="campo">
+          <label for="f-municipio">Habitantes de tu municipio <span class="ayuda">(opcional)</span></label>
+          <input type="number" id="f-municipio" min="0" step="100" placeholder="p. ej. 4200" inputmode="numeric" aria-describedby="ayuda-municipio">
+          <p class="ayuda" id="ayuda-municipio"></p>
+        </div>
+        <label class="casilla"><input type="checkbox" id="f-despoblada"> Mi municipio figura en la lista oficial de zonas rurales o en riesgo de despoblación de mi comunidad</label>
       </fieldset>
 
       <fieldset class="bloque">
@@ -64,6 +70,7 @@
           <label for="f-salario">Salario o pensión bruta anual</label>
           <div class="con-sufijo"><input type="number" id="f-salario" min="0" step="100" value="32000" inputmode="decimal"><span>€</span></div>
         </div>
+        <label class="casilla"><input type="checkbox" id="f-pension"> Es una pensión de jubilación de la Seguridad Social</label>
         <div class="campo">
           <label for="f-ss">Cotizaciones a la Seguridad Social</label>
           <div class="con-sufijo"><input type="number" id="f-ss" min="0" step="10" value="2032" inputmode="decimal"><span>€</span></div>
@@ -267,8 +274,8 @@
       <ul>
         <li>Ceuta y Melilla.</li>
         <li>Estimación objetiva (módulos) de actividades económicas.</li>
-        <li>Deducciones autonómicas condicionadas al municipio de residencia (zonas rurales o en riesgo de despoblación) y las de inversión y donativos.</li>
-        <li>En Navarra, las deducciones de vivienda y por familia numerosa.</li>
+        <li>Deducciones autonómicas de inversión y donativos, las que fijan el límite por tramos de base (libros de texto) y algunas rurales que dependen del año de traslado.</li>
+        <li>En Navarra, las deducciones por adquisición de vivienda y por familia numerosa.</li>
       </ul>
     </div>
     <div class="tarjeta">
