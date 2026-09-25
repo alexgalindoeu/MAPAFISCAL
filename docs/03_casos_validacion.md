@@ -793,3 +793,22 @@ Base liquidable general 15.300 − 2.000 − [7.302 − 1,75 × (15.300 − 14.8
 (6.782 − 5.956,65) × 8,5 % = 70,15 €. El motor aún aplica el mínimo estatal a la parte
 autonómica (104,72 €; los mínimos autonómicos de 10 CCAA están pendientes). En los dos casos
 la deducción absorbe toda la cuota y la cuota resultante es 0.
+
+## Base del ahorro: gravamen con el mínimo personal y familiar (art. 66.1, issue #3)
+
+Test `tests/testthat/test-ahorro-art66.R`, casos `ahorro_minimo_cm` y `aeat_ejemplo_ar` del
+validador (R ↔ JS). **Sin cambios en el motor**: el issue #3 planteaba gravar solo el exceso
+de la base del ahorro sobre el mínimo (escala(BLA − mínimo)). El Manual Práctico Renta 2025
+(*Gravamen de la base liquidable del ahorro → Gravamen estatal*, y el autonómico igual)
+indica el método que ya aplica el motor: se aplica la escala a **toda** la base liquidable
+del ahorro y se resta la misma escala aplicada a la parte de esa base que corresponde al
+mínimo personal y familiar.
+
+- **Castilla-La Mancha**, 40 años, 10.000 € de intereses y ninguna otra renta: el mínimo
+  (5.550 €) pasa entero a la base del ahorro. Por tramo: escala(10.000) − escala(5.550) =
+  (6.000 × 9,5 % + 4.000 × 10,5 %) − 527,25 = 990 − 527,25 = **462,75 €**; total **925,50 €**
+  (con la lectura del issue serían 845,50 €).
+- **Ejemplo práctico de la AEAT** (*Cálculo de las cuotas íntegras estatal y autonómica*):
+  residente en Aragón con base liquidable general 23.900 €, del ahorro 2.800 € y mínimo
+  5.550 €. Estatal 2.667,75 − 527,25 + 266 = **2.406,50 €**; autonómica (escala de Aragón)
+  2.621,89 − 527,25 + 266 = **2.360,64 €**. El motor da las dos cifras al céntimo.

@@ -316,6 +316,20 @@ add("da61_pareja_vc", "ES-VC", "biparental", "no",     # conjunta elegida, con D
     list(list(id="d1",rol="declarante",edad=36, trabajo=list(dinerarias=18200,cotizacionesSs=1179.36)),
          list(id="d2",rol="conyuge",edad=35), list(id="h1",rol="descendiente",edad=4)))
 
+# 9. base del ahorro con el mínimo (art. 66, issue #3) y ejemplo práctico de la AEAT (Aragón)
+add("ahorro_minimo_cm", "ES-CM", "ninguna", "no",
+    list(persona("d1","declarante",40, capital_mobiliario=list(intereses=10000))),
+    list(list(id="d1",rol="declarante",edad=40, capitalMobiliario=list(intereses=10000))))
+local({
+  h <- nuevo_hogar("aeat_ejemplo_ar", "ES-AR", list(persona("d1","declarante",40, capital_mobiliario=list(intereses=2800))))
+  h$miembros[[1]]$ganancias_perdidas_no_transmision <- 23900
+  casos[["aeat_ejemplo_ar"]] <<- list(
+    js = list(territorio = "ES-AR", ejercicio = 2025, tipoUnidadFamiliar = "ninguna", familiaNumerosa = "no",
+              miembros = list(list(id="d1", rol="declarante", edad=40, capitalMobiliario=list(intereses=2800),
+                                   gananciasPerdidasNoTransmision=23900))),
+    liq = liquidar(h))
+})
+
 out <- lapply(casos, function(c) list(
   js = c$js,
   ref = list(
