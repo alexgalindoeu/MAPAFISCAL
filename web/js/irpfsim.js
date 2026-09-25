@@ -320,6 +320,11 @@
       if (d.requiere_familiar_discapacidad_65 &&
           !asc.concat(desc).some(p => (p.discapacidad || "no") === "65_mas")) return false;
       if (d.requiere_parto_multiple && !hogar.partoMultiple) return false;
+      // municipio de residencia: población máxima y/o lista oficial de zonas despobladas
+      if (d.municipio_hab_max != null && (hogar.municipioHabitantes == null || hogar.municipioHabitantes > d.municipio_hab_max)) return false;
+      if (d.requiere_zona_despoblada && !hogar.zonaDespoblada) return false;
+      if (d.excluye_zona_despoblada && hogar.zonaDespoblada) return false;
+      if (d.municipio_hab_min != null && hogar.municipioHabitantes != null && hogar.municipioHabitantes < d.municipio_hab_min) return false;
       if (d.requiere_desempleo && !decs.some(p => p.desempleado)) return false;
       if (d.requiere_progenitores_trabajan && !decs.every(p => p.trabajo || p.actividades)) return false;
       return true;
@@ -339,8 +344,9 @@
       if (!pasaPuertas(d)) continue;
       let val = 0;
       const ft = factorTaper(d);
-      const taperEnLimite = (d.tipo === "porcentaje_campo" || d.tipo === "porcentaje_campo_hijo") && d.limite != null;
-      const lim = taperEnLimite ? d.limite * ft : d.limite;
+      const limBase = (esConj && d.limite_conjunta != null) ? d.limite_conjunta : d.limite;
+      const taperEnLimite = (d.tipo === "porcentaje_campo" || d.tipo === "porcentaje_campo_hijo") && limBase != null;
+      const lim = taperEnLimite ? limBase * ft : limBase;
       if (d.tipo === "fija") val = num(d.importe);
       else if (d.tipo === "porcentaje_campo") {
         // gasto propio de las personas del ámbito; el de hijos/ascendientes se reparte en individual
@@ -384,6 +390,9 @@
         val = cuenta * num(d.importe);
       }
       if (!taperEnLimite) val *= ft;
+      // incremento por residir en un municipio pequeño (p. ej. +20 % en Galicia, < 5.000 hab.)
+      const fm = d.incremento_municipio;
+      if (fm && hogar.municipioHabitantes != null && hogar.municipioHabitantes <= fm.hab_max) val *= fm.factor;
       if (prorratea(d) && indCompartido) val /= nProg;
       if (val > 0) cand.push({ id: d.id || "ded", val, grupo: d.grupo });
     }
@@ -663,9 +672,10 @@
     }
     const mp = J.minimo_personal_deduccion;
     const baseTotal = blg + bla;
-    const contribsNv = modo === "conjunta"
-      ? hogar.miembros.filter(m => m.rol === "declarante" || m.rol === "conyuge")
-      : [hogar.miembros.find(m => m.rol === "declarante")];
+    const decsNv = hogar.miembros.filter(m => m.rol === "declarante" || m.rol === "conyuge");
+    // contribuyentes del ámbito: en individual, el declarante que se liquida (no el primero)
+    const contribsNv = modo === "conjunta" ? decsNv
+      : (declaranteId != null ? decsNv.filter(m => m.id === declaranteId) : decsNv.slice(0, 1));
     let dedMin = 0;
     for (const c of contribsNv) {
       let inc;
@@ -704,18 +714,59 @@
       });
     }
 
-    const cuotaLiquida = Math.max(0, cuotaIntegra - dedMin - dedFam - dedTrabajo);
     const bit = r.baseImponibleGeneral + r.baseImponibleAhorro;
+    const cuotaDisponible = Math.max(0, cuotaIntegra - dedMin - dedFam - dedTrabajo);
+
+    // alquiler (art. 62.2, cuota) y emancipación (art. 68 quinquies.A, cuota diferencial):
+    // incompatibles; se aplica la más favorable. Pagos propios del ámbito.
+    const alq = contribsNv.reduce((s, p) => s + num(p.alquilerViviendaPagos), 0);
+    const da = J.deduccion_alquiler_vivienda, de = J.deduccion_emancipacion;
+    let dedAlq = 0, dedEman = 0;
+    if (alq > 0 && da) {
+      const joven = contribsNv.some(p => num(p.edad, 99) < da.joven_o_monoparental.edad_max) || hogar.tipoUnidadFamiliar === "monoparental";
+      const cfg = joven ? da.joven_o_monoparental : da.general;
+      if (bit <= da.rentas_max && alq > da.umbral_esfuerzo * bit)
+        dedAlq = Math.min(alq * cfg.porcentaje, cfg.limite, cuotaDisponible);
+    }
+    if (alq > 0 && de) {
+      const edadOk = contribsNv.some(p => num(p.edad, 0) >= de.edad_min && num(p.edad, 0) <= de.edad_max);
+      const enUf = decsNv.length > 1 || hogar.miembros.some(m => m.rol === "descendiente");
+      const limR = enUf ? de.rentas_max_unidad_familiar : de.rentas_max_individual;
+      if (edadOk && bit <= limR) dedEman = Math.min(alq * de.porcentaje, 12 * de.limite_mensual);
+    }
+    if (dedEman > 0 && dedEman >= dedAlq) dedAlq = 0; else dedEman = 0;
+
+    // pensión de jubilación contributiva (art. 68.B, cuota diferencial): hasta 14.490 €
+    const dp = J.deduccion_pension_jubilacion;
+    let dedPen = 0;
+    if (dp) for (const p of contribsNv) {
+      const pen = num(p.trabajo && p.trabajo.dinerarias);
+      if (p.trabajo && p.trabajo.pensionJubilacion && pen > 0 && pen < dp.umbral) {
+        let d = dp.umbral - pen;
+        const lim = decsNv.length > 1 ? dp.rentas_max_unidad_familiar : dp.rentas_max_individual;
+        const exceso = (bit + d) - lim;
+        if (exceso > 0) d = Math.max(0, d - exceso);
+        dedPen += d;
+      }
+    }
+
+    const cuotaLiquida = Math.max(0, cuotaDisponible - dedAlq);
+    const dedCd = dedEman + dedPen;
+    const detCd = {};
+    if (dedEman > 0) detCd.emancipacion = red2(dedEman);
+    if (dedPen > 0) detCd.pensionJubilacion = red2(dedPen);
+    const detAut = { minimoPersonal: red2(dedMin), minimoFamiliar: red2(dedFam), trabajo: red2(dedTrabajo) };
+    if (dedAlq > 0) detAut.alquilerVivienda = red2(dedAlq);
     return {
       modo, regimen: "foral_navarra", componentesRenta: r,
       baseImponibleGeneral: r.baseImponibleGeneral, baseImponibleAhorro: r.baseImponibleAhorro,
       reduccionesBase: {}, baseLiquidableGeneral: blg, baseLiquidableAhorro: bla,
       minimoPersonalFamiliar: { total: red2(dedMin + dedFam) },
       cuotaIntegraEstatal: 0, cuotaIntegraAutonomica: red2(cuotaIntegra), cuotaIntegraTotal: red2(cuotaIntegra),
-      deduccionesAutonomicas: { total: red2(dedMin + dedFam + dedTrabajo), detalle: { minimoPersonal: red2(dedMin), minimoFamiliar: red2(dedFam), trabajo: red2(dedTrabajo) } },
+      deduccionesAutonomicas: { total: red2(dedMin + dedFam + dedTrabajo + dedAlq), detalle: detAut },
       cuotaLiquidaEstatal: 0, cuotaLiquidaAutonomica: red2(cuotaLiquida), cuotaLiquidaTotal: red2(cuotaLiquida),
-      retenciones: red2(r.retenciones), deduccionesCuotaDiferencial: { total: 0, detalle: {} },
-      cuotaDiferencial: red2(cuotaLiquida - r.retenciones),
+      retenciones: red2(r.retenciones), deduccionesCuotaDiferencial: { total: red2(dedCd), detalle: detCd },
+      cuotaDiferencial: red2(cuotaLiquida - r.retenciones - dedCd),
       tipoMedioEfectivo: bit > 0 ? Math.round(cuotaLiquida / bit * 10000) / 10000 : 0
     };
   }

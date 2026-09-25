@@ -608,6 +608,41 @@
    "incremento_discapacidad_33_64": 0.5,
    "incremento_discapacidad_65_mas": 1
   },
+  "deduccion_alquiler_vivienda": {
+   "norma": "Art. 62.2 DFL 4/2008 (TR IRPF Navarra), redacción de la Ley Foral 22/2023, art. primero.Nueve (efectos 2024)",
+   "fuente": "BOE-A-2024-1694 (Ley Foral 22/2023, de 26 de diciembre); BOE-A-2025-719 (LF 20/2024: sin cambios en el art. 62.2)",
+   "estado": "confirmado",
+   "general": {
+    "porcentaje": 0.15,
+    "limite": 1500
+   },
+   "joven_o_monoparental": {
+    "porcentaje": 0.2,
+    "limite": 1600,
+    "edad_max": 30
+   },
+   "rentas_max": 30000,
+   "umbral_esfuerzo": 0.1
+  },
+  "deduccion_emancipacion": {
+   "norma": "Art. 68 quinquies.A DFL 4/2008, redacción de la Ley Foral 22/2023, art. primero.Quince (efectos 2024)",
+   "fuente": "BOE-A-2024-1694 (Ley Foral 22/2023): A.1 '23 a 35 años inclusive ... 50 por 100 de la renta ... límite máximo de 280 euros mensuales'; A.3 'rentas, incluidas las exentas, superiores a 22.000 euros ... o 33.000 euros conjuntamente con el resto de miembros de la unidad familiar'",
+   "estado": "provisional",
+   "edad_min": 23,
+   "edad_max": 35,
+   "porcentaje": 0.5,
+   "limite_mensual": 280,
+   "rentas_max_individual": 22000,
+   "rentas_max_unidad_familiar": 33000
+  },
+  "deduccion_pension_jubilacion": {
+   "norma": "Art. 68.B DFL 4/2008, redacción de la Ley Foral 20/2024, art. primero.Trece (efectos 2025)",
+   "fuente": "BOE-A-2025-719 (Ley Foral 20/2024, de 26 de diciembre)",
+   "estado": "provisional",
+   "umbral": 14490,
+   "rentas_max_individual": 21619.59,
+   "rentas_max_unidad_familiar": 28980
+  },
   "dt_abatimiento_pre1994": {
    "norma": "DT TR IRPF Navarra (equivalente a la DT 9ª LIRPF)",
    "estado": "provisional",
@@ -867,16 +902,54 @@
       "base_max_individual": 35000,
       "base_max_conjunta": 50000,
       "prorratea_progenitores": true
+     },
+     {
+      "id": "residencia_municipios_despoblacion",
+      "norma": "Arts. 160-1 y 160-2.8 DL 1/2005 Aragón",
+      "estado": "provisional",
+      "tipo": "fija",
+      "importe": 600,
+      "requiere_zona_despoblada": true,
+      "base_max_individual": 34999.99,
+      "base_max_conjunta": 49999.99
+     },
+     {
+      "id": "nacimiento_municipios_pequenos_renta_baja",
+      "norma": "Art. 110-16 DL 1/2005 Aragón",
+      "estado": "provisional",
+      "tipo": "fija_por_hijo_nacido",
+      "anios_ventana": 1,
+      "importes_por_orden": {
+       "1": 200,
+       "2": 300,
+       "3+": 0
+      },
+      "municipio_hab_max": 9999,
+      "base_max_individual": 23000,
+      "base_max_conjunta": 35000,
+      "grupo": "nacimiento_rural_ar"
+     },
+     {
+      "id": "nacimiento_municipios_pequenos",
+      "norma": "Art. 110-16 DL 1/2005 Aragón",
+      "estado": "provisional",
+      "tipo": "fija_por_hijo_nacido",
+      "anios_ventana": 1,
+      "importes_por_orden": {
+       "1": 100,
+       "2": 150,
+       "3+": 0
+      },
+      "municipio_hab_max": 9999,
+      "grupo": "nacimiento_rural_ar"
      }
     ],
     "pendientes": [
-     "nacimiento_1_2_hijo_municipios_menos_10000",
      "nacimiento_adopcion_hijo_discapacidad",
      "adopcion_internacional",
      "libros_texto_material_escolar",
      "clases_apoyo_refuerzo",
      "adquisicion_rehabilitacion_vivienda_nucleos_rurales",
-     "residencia_determinados_municipios",
      "arrendamiento_vivienda_social_arrendador",
      "donaciones_ecologicas_i_d_i",
      "vivienda_victimas_terrorismo",
@@ -1021,6 +1094,19 @@
       "edad_min": 36,
       "base_max_individual": 35000,
       "base_max_conjunta": 45000
+     },
+     {
+      "id": "nacimiento_concejos_despoblamiento",
+      "norma": "Art. 14 quater DL 2/2014 Asturias",
+      "estado": "provisional",
+      "tipo": "fija_por_hijo_nacido",
+      "anios_ventana": 1,
+      "importes_por_orden": {
+       "1": 0,
+       "2": 300,
+       "3+": 300
+      },
+      "requiere_zona_despoblada": true
      }
     ],
     "pendientes": [
@@ -1031,7 +1117,6 @@
      "adopcion_internacional",
      "acogimiento_familiar_menores",
      "certificacion_forestal_sostenible",
-     "nacimiento_2_sucesivos_concejos_despoblamiento",
      "autonomos_concejos_despoblamiento",
      "transporte_publico_concejos_despoblamiento",
      "gastos_formacion_i_d",
@@ -1331,6 +1416,7 @@
      },
      {
       "id": "gastos_guarderia",
+      "grupo": "guarderia_cb",
       "norma": "Art. 2.8 DL 62/2008 Cantabria",
       "estado": "provisional",
       "tipo": "porcentaje_campo_hijo",
@@ -1363,6 +1449,7 @@
      },
      {
       "id": "arrendamiento_vivienda_habitual",
+      "grupo": "arrendamiento_cb",
       "norma": "Art. 2.1 DL 62/2008 Cantabria",
       "estado": "provisional",
       "tipo": "porcentaje_campo",
@@ -1374,6 +1461,39 @@
       "base_gate": "menos_minimo",
       "base_max_individual": 22946,
       "base_max_conjunta": 31485
+     },
+     {
+      "id": "residencia_municipio_despoblamiento",
+      "norma": "Art. 2.11.5 DL 62/2008 Cantabria",
+      "estado": "provisional",
+      "tipo": "porcentaje_cuota_autonomica",
+      "porcentaje": 0.2,
+      "limite": 500,
+      "sobre_cuota_integra": true,
+      "edad_max": 40,
+      "requiere_zona_despoblada": true
+     },
+     {
+      "id": "guarderia_municipio_despoblamiento",
+      "norma": "Art. 2.11.2 DL 62/2008 Cantabria",
+      "tipo": "porcentaje_campo_hijo",
+      "campo": "gastos_guarderia",
+      "porcentaje": 0.3,
+      "limite": 600,
+      "edad_hijo_max": 2,
+      "requiere_zona_despoblada": true,
+      "grupo": "guarderia_cb"
+     },
+     {
+      "id": "arrendamiento_municipio_despoblamiento",
+      "norma": "Art. 2.11.1 DL 62/2008 Cantabria",
+      "tipo": "porcentaje_campo",
+      "campo": "alquiler_vivienda_pagos",
+      "porcentaje": 0.2,
+      "limite": 600,
+      "limite_conjunta": 1200,
+      "requiere_zona_despoblada": true,
+      "grupo": "arrendamiento_cb"
      }
     ],
     "pendientes": [
@@ -1383,10 +1503,7 @@
      "acogimiento_familiar_menores",
      "inversion_entidades_nueva_creacion",
      "ayuda_domestica",
-     "arrendamiento_municipios_despoblamiento",
-     "guarderia_municipios_despoblamiento",
      "traslado_residencia_despoblamiento",
-     "residencia_habitual_despoblamiento",
      "economia_social",
      "nuevos_contribuyentes_extranjero",
      "arrendamiento_viviendas_vacias"
@@ -1511,6 +1628,27 @@
       "edad_max": 36,
       "base_max_individual": 27000,
       "base_max_conjunta": 36000
+     },
+     {
+      "id": "residencia_zona_rural_menos_2000",
+      "norma": "Art. 12 bis y DA 2ª Ley 8/2013 CLM; Ley 2/2021 CLM",
+      "estado": "provisional",
+      "tipo": "porcentaje_cuota_autonomica",
+      "porcentaje": 0.15,
+      "sobre_cuota_integra": true,
+      "requiere_zona_despoblada": true,
+      "municipio_hab_max": 1999
+     },
+     {
+      "id": "residencia_zona_rural_2000_5000",
+      "norma": "Art. 12 bis y DA 2ª Ley 8/2013 CLM; Ley 2/2021 CLM",
+      "estado": "provisional",
+      "tipo": "porcentaje_cuota_autonomica",
+      "porcentaje": 0.1,
+      "sobre_cuota_integra": true,
+      "requiere_zona_despoblada": true,
+      "municipio_hab_min": 2000,
+      "municipio_hab_max": 4999
      }
     ],
     "pendientes": [
@@ -1522,7 +1660,6 @@
      "arrendamiento_familias_monoparentales",
      "arrendamiento_personas_discapacidad",
      "intereses_primera_vivienda_40",
-     "residencia_zonas_rurales",
      "adquisicion_rehabilitacion_vivienda_rural",
      "traslado_vivienda_habitual",
      "donativos_cooperacion_id_i_cultura",
@@ -1563,7 +1700,7 @@
      {
       "id": "nacimiento_adopcion",
       "norma": "Art. 4 DL 1/2013 CyL",
-      "estado": "provisional",
+      "grupo": "nacimiento_cyl",
       "tipo": "fija_por_hijo_nacido",
       "anios_ventana": 1,
       "importes_por_orden": {
@@ -1649,6 +1786,19 @@
       "base_gate": "menos_minimo",
       "base_max_individual": 18900,
       "base_max_conjunta": 31500
+     },
+     {
+      "id": "nacimiento_adopcion_medio_rural",
+      "norma": "Art. 4.1 a 3 DL 1/2013 CyL (medio rural: municipios o entidades locales menores <= 5.000 hab.)",
+      "tipo": "fija_por_hijo_nacido",
+      "anios_ventana": 1,
+      "importes_por_orden": {
+       "1": 1420,
+       "2": 2070,
+       "3+": 3300
+      },
+      "municipio_hab_max": 5000,
+      "grupo": "nacimiento_cyl"
      }
     ],
     "pendientes": [
@@ -1883,6 +2033,17 @@
       "requiere_familiar_discapacidad_65": true,
       "base_max_individual": 19000,
       "base_max_conjunta": 24000
+     },
+     {
+      "id": "residencia_municipios_menos_3000",
+      "norma": "Art. 11 ter DL 1/2018 Extremadura",
+      "estado": "provisional",
+      "tipo": "porcentaje_cuota_autonomica",
+      "porcentaje": 0.15,
+      "sobre_cuota_integra": true,
+      "municipio_hab_max": 2999,
+      "base_max_individual": 28000,
+      "base_max_conjunta": 45000
      }
     ],
     "pendientes": [
@@ -1894,7 +2055,6 @@
      "rehabilitacion_viviendas_rurales_alquiler",
      "inversion_acciones_constitucion_ampliacion",
      "vivienda_zonas_rurales",
-     "residencia_municipios_menos_3000",
      "intereses_financiacion_vivienda_jovenes",
      "donaciones_culturales_deportistas",
      "traslado_residencia_a_extremadura",
@@ -1936,7 +2096,7 @@
       "id": "nacimiento_adopcion_renta_baja",
       "norma": "Art. 5.Dos DL 1/2011",
       "tipo": "fija_por_hijo_nacido",
-      "anios_ventana": 1,
+      "anios_ventana": 3,
       "importes_por_orden": {
        "1": 360,
        "2": 1200,
@@ -1944,7 +2104,11 @@
       },
       "base_gate": "menos_minimo",
       "base_max_individual": 22000,
-      "base_max_conjunta": 22000
+      "base_max_conjunta": 22000,
+      "incremento_municipio": {
+       "hab_max": 4999,
+       "factor": 1.2
+      }
      },
      {
       "id": "nacimiento_adopcion_renta_media",
@@ -1955,7 +2119,29 @@
       "importe_multiple": 360,
       "base_gate": "menos_minimo",
       "base_min_individual": 22000.01,
-      "base_min_conjunta": 22000.01
+      "base_min_conjunta": 22000.01,
+      "incremento_municipio": {
+       "hab_max": 4999,
+       "factor": 1.2
+      }
+     },
+     {
+      "id": "nacimiento_adopcion_anios_siguientes_renta_media",
+      "norma": "Art. 5.Dos DL 1/2011",
+      "estado": "provisional",
+      "tipo": "fija_por_hijo",
+      "importe": 300,
+      "edad_hijo_min": 1,
+      "edad_hijo_max": 2,
+      "base_gate": "menos_minimo",
+      "base_min_individual": 22000.01,
+      "base_min_conjunta": 22000.01,
+      "base_max_individual": 31000,
+      "base_max_conjunta": 31000,
+      "incremento_municipio": {
+       "hab_max": 4999,
+       "factor": 1.2
+      }
      },
      {
       "id": "familias_dos_hijos",
@@ -2034,8 +2220,7 @@
      "instalaciones_climatizacion_acs",
      "rehabilitacion_inmuebles_centros_historicos",
      "eficiencia_energetica",
-     "vivienda_aldeas_modelo",
-     "nacimiento_incremento_20pct_municipios_pequenos"
+     "vivienda_aldeas_modelo"
     ]
    }
   },
@@ -2419,11 +2604,19 @@
       "campo": "gastos_deporte",
       "porcentaje": 0.3,
       "limite": 300
+     },
+     {
+      "id": "hijo_0_3_pequenos_municipios",
+      "norma": "Art. 32.5 Ley 10/2017 La Rioja",
+      "estado": "provisional",
+      "tipo": "fija_por_hijo",
+      "importe": 1200,
+      "edad_hijo_max": 2,
+      "requiere_zona_despoblada": true
      }
     ],
     "pendientes": [
      "adquisicion_construccion_rehabilitacion_vivienda_pequenos_municipios",
-     "hijo_0_3_pequenos_municipios",
      "acogimiento_familiar_menor",
      "hijo_0_3_traslado_pequenos_municipios",
      "vehiculos_electricos",
@@ -2752,6 +2945,42 @@
       "min_descendientes": 2,
       "base_max_individual": 30000,
       "base_max_conjunta": 30000
+     },
+     {
+      "id": "residencia_municipio_despoblamiento",
+      "norma": "Art. 4.Uno.aa) y Seis Ley 13/1997",
+      "tipo": "fija",
+      "importe": 330,
+      "requiere_zona_despoblada": true
+     },
+     {
+      "id": "residencia_despoblamiento_1_descendiente",
+      "norma": "Art. 4.Uno.aa) Ley 13/1997",
+      "estado": "provisional",
+      "tipo": "fija",
+      "importe": 132,
+      "requiere_zona_despoblada": true,
+      "descendientes_min": 1,
+      "descendientes_max": 1
+     },
+     {
+      "id": "residencia_despoblamiento_2_descendientes",
+      "norma": "Art. 4.Uno.aa) Ley 13/1997",
+      "estado": "provisional",
+      "tipo": "fija",
+      "importe": 198,
+      "requiere_zona_despoblada": true,
+      "descendientes_min": 2,
+      "descendientes_max": 2
+     },
+     {
+      "id": "residencia_despoblamiento_3_descendientes",
+      "norma": "Art. 4.Uno.aa) Ley 13/1997",
+      "estado": "provisional",
+      "tipo": "fija",
+      "importe": 264,
+      "requiere_zona_despoblada": true,
+      "descendientes_min": 3
      }
     ],
     "pendientes": [
@@ -2767,7 +2996,6 @@
      "donativos_ecologicos_patrimonio_lengua",
      "incremento_costes_financiacion_vivienda",
      "gastos_salud",
-     "municipio_riesgo_despoblamiento",
      "(~25 más)"
     ]
    }

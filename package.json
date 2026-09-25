@@ -6,7 +6,8 @@
   "scripts": {
     "test": "node --test test/*.test.mjs",
     "empaquetar": "node tools/empaquetar.mjs",
-    "servir": "node tools/servir.mjs"
+    "servir": "node tools/servir.mjs",
+    "validar": "node tools/validar_js_node.js"
   },
   "engines": {
     "node": ">=20"
