@@ -51,7 +51,7 @@ function(req, territorios = paste(TERRITORIOS, collapse = ",")) {
   hogar <- hogar_desde_json(req$postBody)
   ts <- strsplit(territorios, ",")[[1]]
   df <- comparar_territorios(hogar, territorios = ts)
-  df[order(df$cuota_liquida_total), ]
+  df[order(df$cuota_resultante_autoliquidacion), ]
 }
 
 #* @post /simular

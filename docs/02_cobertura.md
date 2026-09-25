@@ -10,7 +10,8 @@ provisionales o parciales · ⛔ pendiente (hook presente, no calcula).
 | Escala general (tarifa) | ✅ | ✅ | ✅ |
 | Escala del ahorro | ✅ | ✅ (2025 y 2026) | ✅ |
 | Rendimientos del trabajo (art. 19: íntegro − gastos) | ✅ | ✅ | ✅ |
-| Reducción del trabajo | ✅ art. 20 (2025) | ✅ bonificación art. 23 | 🟡 usa art. 20 provisional |
+| Reducción del trabajo | ✅ art. 20 (2025), cuantía sobre íntegro − gastos a) a e) | ✅ bonificación art. 23 | 🟡 usa art. 20 provisional |
+| Deducción por obtención de rendimientos del trabajo (DA 61.ª, Ley 5/2025) | ✅ importes y requisitos · 🟡 límite proporcional con otras rentas y en conjunta | — | — |
 | Capital inmobiliario + reducción arrendamiento | 🟡 (%s reforma vivienda por confirmar) | 🟡 modelo foral 20 % | 🟡 |
 | Capital mobiliario (ahorro/general) | ✅ | ✅ + exención 1.500 € art. 9.24 | ✅ |
 | Actividades — estimación directa (normal/simplificada) | ✅ | ✅ | ✅ |
@@ -21,7 +22,7 @@ provisionales o parciales · ⛔ pendiente (hook presente, no calcula).
 | Integración y compensación (arts. 47–49) | ✅ (límites 25 %) | ✅ (reglas estatales) | ✅ (reglas estatales) |
 | Reducciones de base (previsión social, p. compensatorias) | 🟡 | 🟡 (límites EPSV) | ⛔ |
 | Tributación individual vs. conjunta (elige la mínima) | ✅ | ✅ | 🟡 |
-| Mínimo personal y familiar | ✅ (en base, con prorrateo art. 61) | ✅ (deducción de cuota) | ✅ personal + familiar (deducción de cuota, con prorrateo) |
+| Mínimo personal y familiar | ✅ estatal (en base, con prorrateo art. 61) · ⛔ importes autonómicos propios de 10 CCAA (se usa el estatal también en el tramo autonómico) | ✅ (deducción de cuota) | ✅ personal + familiar (deducción de cuota, con prorrateo) |
 | Anualidades por alimentos a hijos (escala separada) | ✅ | ⛔ | ⛔ |
 | Deducciones estatales de cuota (vivienda transit., donativos) | 🟡 | — | — |
 | Deducciones autonómicas de cuota | 🟡 motor genérico dirigido por datos. **Las 15 CCAA de régimen común con catálogo cargado** (5–18 deducciones cada una, las de mayor incidencia), con reducción lineal por base (taper), variantes excluyentes y reparto entre progenitores en individual. Deducciones rurales / de despoblación cargadas en 9 CCAA (datos de municipio del hogar). Quedan pendientes las de inversión/donativos y algunas rurales ligadas al año de traslado | — | — |

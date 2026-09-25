@@ -306,23 +306,27 @@
     // pueden dar un resultado a devolver aunque no haya retenciones
     const impr = (liq.deduccionesCuotaDiferencial && liq.deduccionesCuotaDiferencial.total) || 0;
     const hayResultado = ret > 0 || impr > 0;
+    // deducción por obtención de rendimientos del trabajo (DA 61.ª): cuota líquida -> cuota resultante
+    const drt = (liq.deduccionRendimientosTrabajo && liq.deduccionRendimientosTrabajo.total) || 0;
+    const cuota = liq.cuotaResultanteAutoliquidacion;
+    const nombreCuota = drt ? "Cuota resultante" : "Cuota líquida";
 
     // cifra principal
     if (hayResultado) {
       const devolver = cd < 0;
       $("res-principal").innerHTML = `<div class="res-etq">Resultado de la declaración</div>
         <div class="res-cifra ${devolver ? "gana" : ""}">${devolver ? "A devolver" : "A ingresar"} ${eur(Math.abs(cd))}</div>
-        <p class="res-sub">Cuota líquida <b>${eur(liq.cuotaLiquidaTotal)}</b>${impr ? ` · deducciones sobre la cuota diferencial <b>${eur(impr)}</b>` : ""}${ret ? ` · retenciones <b>${eur(ret)}</b>` : ""}</p>`;
+        <p class="res-sub">${nombreCuota} <b>${eur(cuota)}</b>${impr ? ` · deducciones sobre la cuota diferencial <b>${eur(impr)}</b>` : ""}${ret ? ` · retenciones <b>${eur(ret)}</b>` : ""}</p>`;
     } else {
-      $("res-principal").innerHTML = `<div class="res-etq">Cuota líquida del IRPF · ${esc(corto(terr))}</div>
-        <div class="res-cifra">${eur(liq.cuotaLiquidaTotal)}</div>
-        <p class="res-sub">Añade tus retenciones (paso 5) para saber si te sale a pagar o a devolver.</p>`;
+      $("res-principal").innerHTML = `<div class="res-etq">${nombreCuota} del IRPF · ${esc(corto(terr))}</div>
+        <div class="res-cifra">${eur(cuota)}</div>
+        <p class="res-sub">${drt ? `Incluye la deducción por obtención de rendimientos del trabajo (${eur(drt)}). ` : ""}Añade tus retenciones (paso 5) para saber si te sale a pagar o a devolver.</p>`;
     }
-    $("bm-etq").textContent = hayResultado ? (cd < 0 ? "A devolver" : "A ingresar") : "Cuota líquida · " + corto(terr);
-    $("bm-cifra").textContent = eur(hayResultado ? Math.abs(cd) : liq.cuotaLiquidaTotal);
+    $("bm-etq").textContent = hayResultado ? (cd < 0 ? "A devolver" : "A ingresar") : nombreCuota + " · " + corto(terr);
+    $("bm-cifra").textContent = eur(hayResultado ? Math.abs(cd) : cuota);
     $("bm-cifra").className = "bm-cifra" + (hayResultado && cd < 0 ? " gana" : "");
     const otra = liq.modoTributacionElegido === "conjunta" ? liq.comparativa.individual : liq.comparativa.conjunta;
-    const ahorroModo = otra != null ? otra - liq.cuotaLiquidaTotal : 0;
+    const ahorroModo = otra != null ? otra - cuota : 0;
     $("res-kpis").innerHTML = `
       <div><dt>Tipo medio efectivo</dt><dd>${pct(liq.tipoMedioEfectivo)}</dd></div>
       <div><dt>Tipo marginal</dt><dd>${pct(tipoMarginal(liq, terr))}</dd></div>
@@ -351,6 +355,10 @@
       if (da) f(reg === "foral_navarra" ? "Deducciones de la cuota (mínimos y trabajo)" : "Deducciones forales", "", "−" + eur(da), "menos");
     }
     f("Cuota líquida total", "", eur(liq.cuotaLiquidaTotal), "sub");
+    if (drt) {
+      f("Deducción por obtención de rendimientos del trabajo", "", "−" + eur(drt), "menos");
+      f("Cuota resultante de la autoliquidación", "", eur(cuota), "sub");
+    }
     if (impr) f(reg === "foral_navarra" ? "Deducciones sobre la cuota diferencial (emancipación, pensiones)"
       : "Deducciones por maternidad, familia numerosa o discapacidad", "", "−" + eur(impr), "menos");
     if (ret) f("Retenciones e ingresos a cuenta", "", "−" + eur(ret), "menos");
@@ -372,6 +380,10 @@
       const norma = (inf && inf.norma ? inf.norma : "Arts. 81 y 81 bis LIRPF") + " · se resta de la cuota diferencial";
       return `<li><span class="ded-nombre">${esc(nombreDed(id))}${prov}</span><span class="ded-norma">${esc(norma)}</span><span class="ded-imp">−${eur(v)}</span></li>`;
     }));
+    if (drt) {
+      const inf = P.estatal.deduccion_obtencion_rendimientos_trabajo;
+      items.push(`<li><span class="ded-nombre">Deducción por obtención de rendimientos del trabajo${inf.estado === "provisional" ? etqProvisional : ""}</span><span class="ded-norma">${esc(inf.norma)} · se resta de la cuota líquida total</span><span class="ded-imp">−${eur(drt)}</span></li>`);
+    }
     $("res-deducciones").innerHTML = items.length ? items.join("")
       : `<li class="vacio">Con estos datos no se aplica ninguna deducción. Revisa los gastos del paso 4: dependen de tu territorio.</li>`;
 
@@ -414,7 +426,7 @@
     if (!ultima) return;
     const terr = selTerr.value;
     const cmp = irpfsim.compararTerritorios(ultima.hogar, P);
-    const val = c => metrica === "cuota" ? c.cuotaLiquidaTotal : c.tipoMedioEfectivo;
+    const val = c => metrica === "cuota" ? c.cuotaResultanteAutoliquidacion : c.tipoMedioEfectivo;
     const fmt = v => metrica === "cuota" ? eur0(v) : pct(v);
     const yo = cmp.find(c => c.territorio === terr);
     const base = yo ? val(yo) : 0;
@@ -455,14 +467,14 @@
         const d = val(c) - base, tu = c.territorio === terr;
         const dtxt = tu ? "—" : (Math.abs(d) < umbralIgual ? "igual" : (d < 0 ? "−" : "+") + (metrica === "cuota" ? eur0(Math.abs(d)) : (100 * Math.abs(d)).toFixed(2).replace(".", ",") + " p.p."));
         return `<tr class="${tu ? "tu" : ""}" data-t="${c.territorio}"><td class="pos">${i + 1}</td><td>${esc(corto(c.territorio))}${c.regimen !== "comun" ? '<span class="regimen">foral</span>' : ""}</td>
-          <td class="num">${fmt(val(c))}</td><td class="num ocultable">${metrica === "cuota" ? pct(c.tipoMedioEfectivo) : eur0(c.cuotaLiquidaTotal)}</td>
+          <td class="num">${fmt(val(c))}</td><td class="num ocultable">${metrica === "cuota" ? pct(c.tipoMedioEfectivo) : eur0(c.cuotaResultanteAutoliquidacion)}</td>
           <td class="num dif ${d < -umbralIgual ? "gana" : d > umbralIgual ? "pierde" : ""}">${dtxt}</td></tr>`;
       }).join("") + "</tbody>";
 
     const barato = orden[0], caro = orden[orden.length - 1];
-    let txt = `Con tu situación, en <b>${esc(corto(terr))}</b> pagas <b>${eur0(yo.cuotaLiquidaTotal)}</b> de IRPF. `;
-    if (barato.territorio === terr) txt += `Es el territorio más barato de los 19; el más caro es ${esc(corto(caro.territorio))} (+${eur0(caro.cuotaLiquidaTotal - yo.cuotaLiquidaTotal)}).`;
-    else txt += `El más barato es <b>${esc(corto(barato.territorio))}</b>, donde pagarías <b>${eur0(yo.cuotaLiquidaTotal - barato.cuotaLiquidaTotal)} menos</b>; el más caro, ${esc(corto(caro.territorio))}.`;
+    let txt = `Con tu situación, en <b>${esc(corto(terr))}</b> pagas <b>${eur0(yo.cuotaResultanteAutoliquidacion)}</b> de IRPF. `;
+    if (barato.territorio === terr) txt += `Es el territorio más barato de los 19; el más caro es ${esc(corto(caro.territorio))} (+${eur0(caro.cuotaResultanteAutoliquidacion - yo.cuotaResultanteAutoliquidacion)}).`;
+    else txt += `El más barato es <b>${esc(corto(barato.territorio))}</b>, donde pagarías <b>${eur0(yo.cuotaResultanteAutoliquidacion - barato.cuotaResultanteAutoliquidacion)} menos</b>; el más caro, ${esc(corto(caro.territorio))}.`;
     $("comp-entradilla").innerHTML = txt;
     const hg = ultima.hogar;
     const notaMunicipio = hg.municipioHabitantes != null || hg.zonaDespoblada
@@ -477,8 +489,8 @@
     const p = e.target.closest(".terr");
     if (!p || !ultima || !cmpCache[p.dataset.t]) { tip.hidden = true; return; }
     const t = p.dataset.t, c = cmpCache[t];
-    const yo = ultima.liq.cuotaLiquidaTotal, d = c.cuotaLiquidaTotal - yo;
-    tip.innerHTML = `<b>${esc(T[t].nombre)}</b>Cuota ${eur0(c.cuotaLiquidaTotal)} · ${pct(c.tipoMedioEfectivo)}<br>${t === selTerr.value ? "Tu territorio" : (d < 0 ? `${eur0(-d)} menos que en ${esc(corto(selTerr.value))}` : `${eur0(d)} más que en ${esc(corto(selTerr.value))}`)}`;
+    const yo = ultima.liq.cuotaResultanteAutoliquidacion, d = c.cuotaResultanteAutoliquidacion - yo;
+    tip.innerHTML = `<b>${esc(T[t].nombre)}</b>Cuota ${eur0(c.cuotaResultanteAutoliquidacion)} · ${pct(c.tipoMedioEfectivo)}<br>${t === selTerr.value ? "Tu territorio" : (d < 0 ? `${eur0(-d)} menos que en ${esc(corto(selTerr.value))}` : `${eur0(d)} más que en ${esc(corto(selTerr.value))}`)}`;
     const r = $("mapa").parentElement.getBoundingClientRect();
     tip.hidden = false;
     tip.style.left = Math.min(e.clientX - r.left + 14, r.width - 190) + "px";
@@ -620,7 +632,8 @@
     const { hogar, liq } = ultima;
     const fila = {
       alias, notas: $("guardar-notas").value.trim() || null, territorio: hogar.territorio, ejercicio: P.ejercicio, hogar,
-      resultado: { cuotaLiquidaTotal: liq.cuotaLiquidaTotal, cuotaDiferencial: liq.cuotaDiferencial, retenciones: num("f-retenciones"),
+      resultado: { cuotaLiquidaTotal: liq.cuotaLiquidaTotal, cuotaResultanteAutoliquidacion: liq.cuotaResultanteAutoliquidacion,
+        cuotaDiferencial: liq.cuotaDiferencial, retenciones: num("f-retenciones"),
         tipoMedioEfectivo: liq.tipoMedioEfectivo, modo: liq.modoTributacionElegido, motor: P.generado },
       cuota_liquida: liq.cuotaLiquidaTotal
     };

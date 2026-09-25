@@ -54,9 +54,12 @@ agregar_rentas <- function(personas, P, regimen) {
   # usando otras_rentas del conjunto — aproximación válida para hogares de 1 perceptor)
   red_trabajo <- 0
   for (pe in personas) {
-    tp <- rn_trabajo_previo(pe, P, regimen)$previo
+    tp <- rn_trabajo_previo(pe, P, regimen)
     otras_pe <- otras_rentas_trabajo  # conservador
-    red_trabajo <- red_trabajo + reduccion_trabajo(tp, otras_pe, pe, P, regimen)
+    # la cuantía se fija sobre el rendimiento sin la letra f); no puede dejar negativo el
+    # rendimiento neto ya minorado en ella
+    red <- reduccion_trabajo(tp$previo_art20, otras_pe, pe, P, regimen)
+    red_trabajo <- red_trabajo + min(red, max(0, tp$previo))
   }
   trabajo_neto <- max(0, trabajo_previo - red_trabajo)
 
@@ -131,6 +134,41 @@ gravar_con_minimo <- function(base, minimo_aplicable, escala) {
   max(0, aplicar_escala(base, escala) - aplicar_escala(aplicable, escala))
 }
 
+# Deducción por obtención de rendimientos del trabajo (DA 61.ª LIRPF, Ley 5/2025).
+# Por cada persona del ámbito con rendimientos íntegros del trabajo de una relación
+# laboral o estatutaria (no pensiones) inferiores al umbral final y otras rentas no
+# superiores al límite: importe según tramo, limitado a la parte de la cuota íntegra
+# total que corresponde a esos rendimientos (ver la nota del bloque en estatal.yaml).
+deduccion_rendimientos_trabajo <- function(personas, P, cuota_integra_total) {
+  d <- P$estatal$deduccion_obtencion_rendimientos_trabajo
+  if (is.null(d) || cuota_integra_total <= 0) return(list(total = 0, detalle = list()))
+  filas <- lapply(personas, function(pe) {
+    tr <- pe$trabajo
+    rit <- if (is.null(tr)) 0 else (tr$dinerarias %||% 0) + (tr$especie %||% 0)
+    neto <- if (is.null(tr)) 0 else max(0, rit - (tr$cotizaciones_ss %||% 0) - (tr$otros_gastos %||% 0))
+    laboral <- !is.null(tr) && !isTRUE(tr$pension_jubilacion)
+    cm <- rn_capital_mobiliario(pe, P, "comun")
+    gan <- sum(vapply(pe$ganancias %||% list(), function(el) {
+      g <- ganancia_elemento(el, P, "comun"); g$ahorro + g$general }, numeric(1))) +
+      (pe$ganancias_perdidas_no_transmision %||% 0)
+    otras <- max(0, rn_capital_inmobiliario(pe, P, "comun")) + max(0, cm$ahorro) + max(0, cm$general) +
+      max(0, rn_actividades(pe, P)) + max(0, imputacion_inmobiliaria(pe, P)) + max(0, gan) +
+      (if (laboral) 0 else neto)
+    list(id = pe$id, rit = if (laboral) rit else 0, neto = if (laboral) neto else 0, otras = otras)
+  })
+  denominador <- sum(vapply(filas, function(x) x$neto + x$otras, numeric(1)))
+  detalle <- list()
+  for (x in filas) {
+    if (x$rit <= 0 || x$rit >= d$umbral_final || x$otras > d$limite_otras_rentas) next
+    importe <- if (x$rit <= d$umbral_pleno) d$importe_maximo
+               else d$importe_maximo - d$coef_reduccion * (x$rit - d$umbral_pleno)
+    limite <- if (denominador > 0) cuota_integra_total * x$neto / denominador else 0
+    v <- max(0, min(importe, limite))
+    if (v > 0) detalle[[x$id]] <- red2(v)
+  }
+  list(total = sum(unlist(detalle)), detalle = detalle)
+}
+
 #' Liquidación en régimen común para un ámbito (individual o conjunta)
 liquidar_comun_scope <- function(hogar, P, modo, declarante_id = NULL) {
   regimen <- "comun"
@@ -197,13 +235,20 @@ liquidar_comun_scope <- function(hogar, P, modo, declarante_id = NULL) {
 
   cuota_liquida_total <- cl_est + cl_aut
 
+  # Deducción por obtención de rendimientos del trabajo (DA 61.ª): se resta de la cuota
+  # líquida total (tras la de doble imposición internacional, no modelada) y da la cuota
+  # resultante de la autoliquidación, que no puede ser negativa
+  drt <- deduccion_rendimientos_trabajo(personas, P, cuota_integra_estatal + cuota_integra_autonomica)
+  drt$total <- red2(min(drt$total, cuota_liquida_total))
+  cuota_resultante <- cuota_liquida_total - drt$total
+
   # Deducciones "impropias" (pueden dar negativo -> devolución)
   impropias <- deducciones_impropias(hogar, P, rentas, modo = modo, declarante_id = declarante_id)
 
-  cuota_diferencial <- cuota_liquida_total - rentas$retenciones - impropias$total
+  cuota_diferencial <- cuota_resultante - rentas$retenciones - impropias$total
 
   base_imponible_total <- rentas$base_imponible_general + rentas$base_imponible_ahorro
-  tme <- if (base_imponible_total > 0) cuota_liquida_total / base_imponible_total else 0
+  tme <- if (base_imponible_total > 0) cuota_resultante / base_imponible_total else 0
 
   list(
     modo = modo,
@@ -223,6 +268,8 @@ liquidar_comun_scope <- function(hogar, P, modo, declarante_id = NULL) {
     cuota_liquida_estatal = red2(cl_est),
     cuota_liquida_autonomica = red2(cl_aut),
     cuota_liquida_total = red2(cuota_liquida_total),
+    deduccion_rendimientos_trabajo = drt,
+    cuota_resultante_autoliquidacion = red2(cuota_resultante),
     retenciones = red2(rentas$retenciones),
     deducciones_cuota_diferencial = impropias,
     cuota_diferencial = red2(cuota_diferencial),

@@ -18,7 +18,7 @@ optimizar <- function(hogar, palancas = list()) {
   ), palancas)
 
   liq0 <- liquidar(hogar, modo = "auto")
-  cuota0 <- liq0$cuota_liquida_total
+  cuota0 <- liq0$cuota_resultante_autoliquidacion
   recs <- list()
 
   add_rec <- function(id, titulo, detalle, cuota_nueva, reversible = TRUE, categoria = "general") {
@@ -51,7 +51,7 @@ optimizar <- function(hogar, palancas = list()) {
     ps <- m[[idx]]$prevision_social %||% list(aportacion_individual = 0, contribucion_empresarial = 0)
     ps$aportacion_individual <- (ps$aportacion_individual %||% 0) + paso
     m[[idx]]$prevision_social <- ps; h2$miembros <- m
-    liquidar(h2, modo = "auto")$cuota_liquida_total
+    liquidar(h2, modo = "auto")$cuota_resultante_autoliquidacion
   }
   pasos <- sort(unique(cfg$plan_pensiones_pasos))
   ahorros <- vapply(pasos, function(p) cuota0 - simular_aporte(p), numeric(1))
@@ -69,14 +69,14 @@ optimizar <- function(hogar, palancas = list()) {
   if (isTRUE(cfg$incluir_traslado)) {
     comp <- comparar_territorios(hogar, territorios = setdiff(cfg$territorios, hogar$territorio))
     if (!is.null(comp) && nrow(comp)) {
-      comp <- comp[order(comp$cuota_liquida_total), ]
+      comp <- comp[order(comp$cuota_resultante_autoliquidacion), ]
       for (k in seq_len(min(3, nrow(comp)))) {
         top <- comp[k, ]
         add_rec(sprintf("traslado_%s", top$territorio),
                 sprintf("Trasladar la residencia fiscal a %s", top$nombre),
                 sprintf("Con la misma situación, la cuota sería %.2f € (frente a %.2f €). Requiere residencia efectiva > 183 días/año y centro de intereses económicos.",
-                        top$cuota_liquida_total, cuota0),
-                top$cuota_liquida_total, reversible = FALSE, categoria = "territorio")
+                        top$cuota_resultante_autoliquidacion, cuota0),
+                top$cuota_resultante_autoliquidacion, reversible = FALSE, categoria = "territorio")
       }
     }
   }

@@ -127,8 +127,12 @@ trabajo_otros_gastos:
 
 trabajo_reduccion_art20:
   norma: "Art. 20 LIRPF (redacción vigente 2025)"
-  fuente: "AEAT Manual Renta 2025; Iberley art. 20 LIRPF"
+  fuente: "AEAT Manual Práctico Renta 2025, Rendimientos del trabajo → Fase 3ª: Determinación del rendimiento neto reducido; Iberley art. 20 LIRPF"
   estado: confirmado
+  # El rendimiento neto que fija la cuantía (y el umbral de 19.747,50 €) es el íntegro
+  # menos los gastos de las letras a) a e) del art. 19.2, SIN los «otros gastos» de la
+  # letra f). La reducción no puede dejar negativo el rendimiento neto (tras la letra f).
+  base: "rendimiento íntegro − gastos art. 19.2 a) a e)"
   importe_maximo: 7302
   umbral_pleno: 14852            # RNT <= 14.852 -> 7.302
   umbral_intermedio: 17673.52   # tramo 1: 7.302 - 1,75*(RNT-14.852)
@@ -339,6 +343,28 @@ deduccion_doble_imposicion_internacional:
   norma: "Art. 80 LIRPF"
   estado: confirmado
   metodo: "menor de (impuesto extranjero, tipo medio efectivo * renta extranjera gravada fuera)"
+
+deduccion_obtencion_rendimientos_trabajo:
+  norma: "DA 61.ª LIRPF, añadida por la DF 3.ª de la Ley 5/2025, de 24 de julio (efectos 1-1-2025)"
+  fuente: "BOE-A-2025-15424 (texto de la DA 61.ª); AEAT Manual Práctico Renta 2025, Deducciones de la cuota líquida total → Deducción por obtención de rendimientos del trabajo, y sus ejemplos 1 a 3"
+  # Importes, umbrales, requisito de otras rentas y orden de aplicación: literales de la
+  # DA 61.ª (confirmados). Provisional por el límite: la ley dice «la parte de la suma de
+  # las cuotas íntegras estatal y autonómica que proporcionalmente corresponda a los
+  # rendimientos netos del trabajo» sin fijar la proporción cuando hay otras rentas. Se
+  # usa (rend. íntegros del trabajo laboral − sus gastos a) a e)) / (suma de rendimientos
+  # netos y ganancias positivos de las bases, cada uno menos sus gastos propios), que da el
+  # 100 % sin otras rentas (ejemplo 1 de la AEAT) y sigue la indicación del ejemplo 3. En
+  # tributación conjunta se aplica a cada miembro que cumpla los requisitos (sin fuente).
+  estado: provisional
+  importe_maximo: 340
+  umbral_pleno: 16576            # rend. íntegros del trabajo <= 16.576 -> 340 €
+  umbral_final: 18276            # entre ambos: 340 − 0,2 × (íntegros − 16.576); desde 18.276, 0
+  coef_reduccion: 0.2
+  limite_otras_rentas: 6500      # rentas distintas del trabajo laboral (excl. exentas); las pensiones cuentan
+  # Solo rendimientos «derivados de la prestación efectiva de servicios correspondientes
+  # a una relación laboral o estatutaria»: no las pensiones (ejemplo 2 de la AEAT).
+  # Se resta de la cuota líquida total, después de la deducción por doble imposición
+  # internacional (art. 80) -> cuota resultante de la autoliquidación.
 
 # -----------------------------------------------------------------------------
 # 11. DEDUCCIONES "IMPROPIAS" (pueden generar devolución) — arts. 81, 81 bis

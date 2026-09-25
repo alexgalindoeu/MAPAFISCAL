@@ -74,6 +74,8 @@ liquidar_pais_vasco_scope <- function(hogar, P, modo, declarante_id = NULL) {
     cuota_liquida_estatal = 0,
     cuota_liquida_autonomica = red2(cuota_liquida),
     cuota_liquida_total = red2(cuota_liquida),
+    deduccion_rendimientos_trabajo = list(total = 0, detalle = list()),   # DA 61.ª: solo régimen común
+    cuota_resultante_autoliquidacion = red2(cuota_liquida),
     retenciones = red2(rentas$retenciones),
     deducciones_cuota_diferencial = list(total = 0, detalle = list()),
     cuota_diferencial = red2(cuota_diferencial),
@@ -306,6 +308,8 @@ liquidar_navarra_scope <- function(hogar, P, modo, declarante_id = NULL) {
     cuota_liquida_estatal = 0,
     cuota_liquida_autonomica = red2(cuota_liquida),
     cuota_liquida_total = red2(cuota_liquida),
+    deduccion_rendimientos_trabajo = list(total = 0, detalle = list()),   # DA 61.ª: solo régimen común
+    cuota_resultante_autoliquidacion = red2(cuota_liquida),
     retenciones = red2(rentas$retenciones),
     deducciones_cuota_diferencial = list(total = red2(ded_cd), detalle = det_cd),
     cuota_diferencial = red2(cuota_diferencial),

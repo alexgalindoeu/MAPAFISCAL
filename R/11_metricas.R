@@ -29,7 +29,7 @@ deciles <- function(x, w = NULL, k = 10) {
 }
 
 #' Curva de incidencia por decil: renta bruta, cuota, tipo efectivo, renta disponible.
-tabla_por_decil <- function(df, var_renta = "renta_bruta", var_cuota = "cuota_liquida_total",
+tabla_por_decil <- function(df, var_renta = "renta_bruta", var_cuota = "cuota_resultante_autoliquidacion",
                             w = NULL, k = 10) {
   w <- w %||% rep(1, nrow(df))
   df$.d <- deciles(df[[var_renta]], w, k)

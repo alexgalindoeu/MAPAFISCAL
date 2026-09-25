@@ -124,8 +124,9 @@
   },
   "trabajo_reduccion_art20": {
    "norma": "Art. 20 LIRPF (redacción vigente 2025)",
-   "fuente": "AEAT Manual Renta 2025; Iberley art. 20 LIRPF",
+   "fuente": "AEAT Manual Práctico Renta 2025, Rendimientos del trabajo → Fase 3ª: Determinación del rendimiento neto reducido; Iberley art. 20 LIRPF",
    "estado": "confirmado",
+   "base": "rendimiento íntegro − gastos art. 19.2 a) a e)",
    "importe_maximo": 7302,
    "umbral_pleno": 14852,
    "umbral_intermedio": 17673.52,
@@ -200,6 +201,16 @@
    "fuente": "AEAT Manual Renta 2025",
    "estado": "confirmado",
    "incremento_minimo_contribuyente": 1980
+  },
+  "deduccion_obtencion_rendimientos_trabajo": {
+   "norma": "DA 61.ª LIRPF, añadida por la DF 3.ª de la Ley 5/2025, de 24 de julio (efectos 1-1-2025)",
+   "fuente": "BOE-A-2025-15424 (texto de la DA 61.ª); AEAT Manual Práctico Renta 2025, Deducciones de la cuota líquida total → Deducción por obtención de rendimientos del trabajo, y sus ejemplos 1 a 3",
+   "estado": "provisional",
+   "importe_maximo": 340,
+   "umbral_pleno": 16576,
+   "umbral_final": 18276,
+   "coef_reduccion": 0.2,
+   "limite_otras_rentas": 6500
   },
   "deduccion_maternidad": {
    "norma": "Art. 81 LIRPF",
