@@ -29,7 +29,7 @@ jobs:
       - name: web/datos/params.json sale de params/2025/*.yaml
         run: Rscript tools/exportar_params.R --comprobar
 
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v7
         with:
           node-version: 22
 
