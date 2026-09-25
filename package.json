@@ -1,0 +1,14 @@
+{
+  "name": "mapafiscal",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Calculadora y microsimulador del IRPF 2025 en los 19 territorios fiscales de España",
+  "scripts": {
+    "test": "node --test test/*.test.mjs",
+    "empaquetar": "node tools/empaquetar.mjs",
+    "servir": "node tools/servir.mjs"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}
