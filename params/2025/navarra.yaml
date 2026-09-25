@@ -1,0 +1,181 @@
+# =============================================================================
+# PARÁMETROS IRPF — COMUNIDAD FORAL DE NAVARRA — EJERCICIO 2025
+# =============================================================================
+# Norma: Decreto Foral Legislativo 4/2008, de 2 de junio, Texto Refundido de la
+#        Ley Foral del IRPF, redacción vigente 2025.
+#        Ley Foral 22/2023 (deflactación 3 %, tarifa vigente). LF 20/2024 y
+#        LF 17/2025 NO modificaron la tarifa (⇒ 2025 = 2026 en escalas).
+#        Convenio Económico: Ley 28/1990.
+# Fuente: guiafiscal.es/irpf/navarra (tablas literales del BON) + Iberley
+#         "Escala IRPF Navarra"; texto TR IRPF Navarra (BON).
+#
+# Diferencias estructurales frente al territorio común:
+#   - Tarifa foral ÚNICA sobre la base liquidable general (sin escala estatal).
+#   - Mínimo personal y familiar = DEDUCCIÓN DE LA CUOTA (no reduce la base).
+#   - Tarifa del ahorro foral propia.
+#   - Reducción por rendimientos del trabajo con tabla propia + deducción por
+#     trabajo en cuota.
+#   - Coeficientes de actualización de inmuebles: VIGENTES.
+# =============================================================================
+
+meta:
+  ejercicio: 2025
+  regimen: foral_navarra
+  territorio: ES-NC
+
+escala_general_foral:
+  norma: "Art. 59.1 TR IRPF Navarra (DFL 4/2008), redacción LF 22/2023"
+  fuente: "BON; guiafiscal.es/irpf/navarra (tabla literal); Iberley Escala IRPF Navarra"
+  estado: confirmado
+  tramos:
+    - { hasta: 4458,   tipo: 0.13 }
+    - { hasta: 10030,  tipo: 0.22 }
+    - { hasta: 21175,  tipo: 0.25 }
+    - { hasta: 35663,  tipo: 0.28 }
+    - { hasta: 51266,  tipo: 0.365 }
+    - { hasta: 66869,  tipo: 0.415 }
+    - { hasta: 89159,  tipo: 0.44 }
+    - { hasta: 139310, tipo: 0.47 }
+    - { hasta: 195034, tipo: 0.49 }
+    - { hasta: 334344, tipo: 0.505 }
+    - { hasta: .inf,   tipo: 0.52 }
+
+escala_ahorro_foral:
+  norma: "Art. 60 TR IRPF Navarra, redacción LF 36/2022 (efectos 1-1-2023)"
+  fuente: "BON; guiafiscal.es/irpf/navarra"
+  estado: confirmado
+  tramos:
+    - { hasta: 6000,   tipo: 0.20 }
+    - { hasta: 10000,  tipo: 0.22 }
+    - { hasta: 15000,  tipo: 0.24 }
+    - { hasta: 200000, tipo: 0.26 }
+    - { hasta: 300000, tipo: 0.27 }
+    - { hasta: .inf,   tipo: 0.28 }
+
+minimo_personal_deduccion:
+  norma: "Art. 62.9.a) DFL 4/2008 (TR IRPF Navarra)"
+  fuente: "guiafiscal.es (1.084 € base; 2.138 € para bases bajas); rentanavarra.com"
+  estado: provisional   # cotejar tabla exacta de incremento por renta en el BON 2025
+  # El mínimo personal opera como deducción de la cuota (importe fijo, no aplicando tarifa).
+  importe_general: 1084
+  incremento_rentas_bajas: 1054       # 1.084 + 1.054 ≈ 2.138 para BASE <= umbral_pleno
+  umbral_pleno: 17500
+  umbral_cero_incremento: 32000
+  incremento_65: 264
+  incremento_75: 585                  # adicional al de 65
+  incremento_discapacidad_33_64: 766
+  incremento_discapacidad_65_mas: 2757
+
+minimo_familiar_deduccion:
+  norma: "Art. 62.9.b) DFL 4/2008 (TR IRPF Navarra)"
+  fuente: "rentanavarra.com — resumen deducciones IRPF Navarra 2025 (fuente secundaria; cotejar con BON)"
+  estado: provisional
+  descendientes:
+    importes: { "1": 483, "2": 512, "3": 732, "4": 981, "5": 1111, "6+": 1286 }
+    incremento_menor_3_anios: 644
+    incremento_discapacidad_33_64: 674
+    incremento_discapacidad_65_mas: 2360
+  ascendientes:
+    importe_65: 264
+    importe_75: 585
+    incremento_discapacidad_33_64: 674
+    incremento_discapacidad_65_mas: 2360
+  limite_rentas_familiar: 8000   # aprox.; el descendiente/ascendiente no debe superar este umbral
+
+reduccion_rendimientos_trabajo:
+  norma: "Art. 55 TR IRPF Navarra"
+  estado: no_aplica   # Navarra canaliza el beneficio por la deducción por trabajo en cuota (art. 62.5)
+
+deduccion_trabajo_cuota:
+  norma: "Art. 62.5 DFL 4/2008 (TR IRPF Navarra)"
+  fuente: "Iberley — Deducción IRPF rendimientos del trabajo Navarra (ejercicio 2025)"
+  estado: confirmado
+  tramos:
+    - { hasta: 10500, base: 1400, coef: 0,     desde: 0 }
+    - { hasta: 17500, base: 1400, coef: 0.1,   desde: 10500 }
+    - { hasta: 35000, base: 700,  coef: 0,     desde: 17500 }
+    - { hasta: 50000, base: 700,  coef: 0.02,  desde: 35000 }
+    - { hasta: .inf,  base: 400,  coef: 0,     desde: 50000 }
+  incremento_discapacidad_33_64: 0.50
+  incremento_discapacidad_65_mas: 1.00
+  # tope: no excede de aplicar la escala del art. 59.1 a los RNT
+
+deduccion_tributacion_conjunta:
+  norma: "Art. 71 y ss. TR IRPF Navarra"
+  estado: pendiente
+
+deducciones_vivienda:
+  norma: "Art. 62.1 TR IRPF Navarra (adquisición: régimen transitorio)"
+  estado: pendiente
+  adquisicion: {}
+
+# Deducción por alquiler de vivienda habitual (cuota). Texto literal de la LF 22/2023:
+# "El 15 por 100, con el máximo de 1.500 euros anuales [...] siempre que: – el sujeto
+# pasivo no tenga rentas superiores, excluidas las exentas, a 30.000 euros; – las
+# cantidades satisfechas en concepto de alquiler excedan del 10 por 100 de las rentas
+# [...]. Esta deducción será del 20 por 100, con el máximo de 1.600 euros anuales, [...]
+# del sujeto pasivo que [...] tenga una edad inferior a 30 años o forme parte de una
+# unidad familiar a la que se refiere el artículo 71.1.c)". Sin cambios en LF 20/2024.
+deduccion_alquiler_vivienda:
+  norma: "Art. 62.2 DFL 4/2008 (TR IRPF Navarra), redacción de la Ley Foral 22/2023, art. primero.Nueve (efectos 2024)"
+  fuente: "BOE-A-2024-1694 (Ley Foral 22/2023, de 26 de diciembre); BOE-A-2025-719 (LF 20/2024: sin cambios en el art. 62.2)"
+  estado: confirmado
+  general:              { porcentaje: 0.15, limite: 1500 }
+  joven_o_monoparental: { porcentaje: 0.20, limite: 1600, edad_max: 30 }   # edad inferior a 30, o unidad monoparental (art. 71.1.c)
+  rentas_max: 30000       # rentas del sujeto pasivo, excluidas las exentas (el motor usa la base imponible)
+  umbral_esfuerzo: 0.10   # el alquiler debe superar el 10 % de esas rentas
+
+# Deducción por arrendamiento para emancipación (sobre la cuota diferencial: reembolsable).
+# Incompatible con la del art. 62.2: el motor aplica la más favorable.
+deduccion_emancipacion:
+  norma: "Art. 68 quinquies.A DFL 4/2008, redacción de la Ley Foral 22/2023, art. primero.Quince (efectos 2024)"
+  fuente: "BOE-A-2024-1694 (Ley Foral 22/2023): A.1 '23 a 35 años inclusive ... 50 por 100 de la renta ... límite máximo de 280 euros mensuales'; A.3 'rentas, incluidas las exentas, superiores a 22.000 euros ... o 33.000 euros conjuntamente con el resto de miembros de la unidad familiar'"
+  estado: provisional   # resto de requisitos del art. 68 quinquies.A (contrato, no ser titular de vivienda, duración máxima) no modelados; rentas aproximadas por la base imponible del ámbito
+  edad_min: 23
+  edad_max: 35
+  porcentaje: 0.50
+  limite_mensual: 280
+  rentas_max_individual: 22000
+  rentas_max_unidad_familiar: 33000
+
+# Deducción por pensión de jubilación contributiva (sobre la cuota diferencial:
+# reembolsable): diferencia hasta 14.490 € (art. 68.B.2, redacción LF 20/2024).
+deduccion_pension_jubilacion:
+  norma: "Art. 68.B DFL 4/2008, redacción de la Ley Foral 20/2024, art. primero.Trece (efectos 2025)"
+  fuente: "BOE-A-2025-719 (Ley Foral 20/2024, de 26 de diciembre)"
+  estado: provisional   # no distingue las pensiones con complemento a mínimos (68.B.1: diferencia sobre la cuantía mínima); requisito de no declarar Patrimonio no modelado; rentas aproximadas por la base imponible
+  umbral: 14490
+  rentas_max_individual: 21619.59     # otras rentas + pensión + deducción; el exceso reduce la deducción
+  rentas_max_unidad_familiar: 28980
+
+deduccion_familia_numerosa:
+  norma: "Art. 62.6 TR IRPF Navarra"
+  estado: pendiente
+
+deducciones_donativos:
+  norma: "Ley Foral de mecenazgo de Navarra"
+  estado: pendiente
+
+reduccion_prevision_social:
+  norma: "Art. 55.1 TR IRPF Navarra"
+  estado: pendiente
+
+coeficientes_actualizacion_inmuebles:
+  norma: "TR IRPF Navarra + Ley Foral anual (BON)"
+  estado: pendiente
+  aplica: true
+  tabla: {}
+
+dt_abatimiento_pre1994:
+  norma: "DT TR IRPF Navarra (equivalente a la DT 9ª LIRPF)"
+  estado: provisional
+  limite_valor_transmision_acumulado: 400000
+  fecha_corte_adquisicion: "1994-12-31"
+  coeficientes_por_anio_exceso:
+    inmuebles: 0.1111
+    acciones_cotizadas: 0.25
+    resto: 0.1428
+
+estimacion_objetiva:
+  norma: "Orden Foral anual del Departamento de Economía y Hacienda de Navarra"
+  estado: pendiente

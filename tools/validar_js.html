@@ -1,0 +1,967 @@
+<!doctype html><meta charset="utf-8"><title>Validador JS vs R</title>
+<style>body{font:13px monospace;padding:1rem}.ok{color:green}.bad{color:red;font-weight:bold}</style>
+<pre id="out">corriendo...</pre>
+<script>/* =============================================================================
+ * irpfsim.js — motor de liquidación del IRPF (port del motor R a JavaScript)
+ * Fuente única de parámetros: params.json (generado de params/2025/*.yaml).
+ * Debe reproducir R/00..08 al céntimo. Ver tools/validar_js.html.
+ * ========================================================================== */
+(function (global) {
+  "use strict";
+
+  const red2 = n => Math.round((n + 1e-9) * 100) / 100;
+  const num = (x, d = 0) => (x === undefined || x === null || Number.isNaN(x)) ? d : x;
+
+  // Escala progresiva por tramos marginales. tramos: [{hasta|null, tipo}]
+  function aplicarEscala(base, tramos) {
+    if (!base || base <= 0) return 0;
+    let cuota = 0, prev = 0;
+    for (const tr of tramos) {
+      const lim = tr.hasta;
+      if (lim === null || lim === undefined || base <= lim) {
+        return cuota + (base - prev) * tr.tipo;
+      }
+      cuota += (lim - prev) * tr.tipo;
+      prev = lim;
+    }
+    return cuota;
+  }
+  function tipoMarginal(base, tramos) {
+    if (base < 0) base = 0;
+    for (const tr of tramos) {
+      if (tr.hasta === null || tr.hasta === undefined || base <= tr.hasta) return tr.tipo;
+    }
+    return tramos[tramos.length - 1].tipo;
+  }
+
+  // ---- Rendimientos ---------------------------------------------------------
+  function rnTrabajoPrevio(pe, P, regimen) {
+    const tr = pe.trabajo;
+    if (!tr) return 0;
+    let integro = num(tr.dinerarias) + num(tr.especie);
+    const irr = tr.rendimientoIrregular;
+    if (irr && num(irr.importe) > 0 && num(irr.anios) > 2) {
+      integro -= Math.min(irr.importe, 300000) * 0.30;
+    }
+    let otros = 0;
+    if (regimen === "comun") {
+      const og = P.estatal.trabajo_otros_gastos;
+      otros = og.generico;
+      if (tr.movilidadGeografica) otros += og.incremento_movilidad_geografica;
+      if (pe.discapacidad === "33_64" && tr.trabajadorActivoDiscapacidad) otros += og.incremento_discapacidad_33_64;
+      if ((pe.discapacidad === "65_mas" || pe.movilidadReducida) && tr.trabajadorActivoDiscapacidad)
+        otros += og.incremento_discapacidad_65_o_movilidad;
+    }
+    const gastos = num(tr.cotizacionesSs) + num(tr.otrosGastos) + Math.min(otros, Math.max(0, integro));
+    return integro - gastos;
+  }
+
+  function reduccionTrabajo(rnPrevio, otrasRentas, pe, P, regimen) {
+    if (rnPrevio <= 0) return 0;
+    if (regimen === "comun") {
+      const a = P.estatal.trabajo_reduccion_art20;
+      if (otrasRentas > a.limite_otras_rentas) return 0;
+      if (rnPrevio <= a.umbral_pleno) return Math.min(a.importe_maximo, rnPrevio);
+      if (rnPrevio <= a.umbral_intermedio) return Math.max(0, a.importe_maximo - a.coef_tramo1 * (rnPrevio - a.umbral_pleno));
+      if (rnPrevio <= a.umbral_final) return Math.max(0, a.base_tramo2 - a.coef_tramo2 * (rnPrevio - a.umbral_intermedio));
+      return 0;
+    }
+    if (regimen === "foral_pais_vasco") {
+      const b = P.foral_pv.bonificacion_trabajo;
+      let bimp;
+      if (otrasRentas > b.limite_otras_rentas) bimp = b.importe_minimo;
+      else if (rnPrevio < b.umbral_pleno) bimp = b.importe_pleno;
+      else if (rnPrevio <= b.umbral_minimo) bimp = Math.max(b.importe_minimo, b.importe_pleno - b.coef_reduccion * (rnPrevio - b.umbral_pleno));
+      else bimp = b.importe_minimo;
+      let mult = 1;
+      if (pe.discapacidad === "33_64" && pe.trabajo && pe.trabajo.trabajadorActivoDiscapacidad) mult = 1 + b.incremento_discapacidad_33_64;
+      if ((pe.discapacidad === "65_mas" || pe.movilidadReducida) && pe.trabajo && pe.trabajo.trabajadorActivoDiscapacidad)
+        mult = 1 + b.incremento_discapacidad_65_o_movilidad;
+      return Math.min(bimp * mult, rnPrevio);
+    }
+    return 0; // navarra -> deducción en cuota
+  }
+
+  function rnCapitalInmobiliario(pe, P, regimen) {
+    const inms = pe.capitalInmobiliario;
+    if (!inms || !inms.length) return 0;
+    let total = 0;
+    for (const im of inms) {
+      const ingresos = num(im.ingresos);
+      let neto = ingresos - (num(im.gastosDeducibles) + num(im.gastosFinancieros));
+      if (im.arrendamientoVivienda && neto > 0) {
+        if (regimen === "comun") {
+          const r = P.estatal.capital_inmobiliario ? P.estatal.capital_inmobiliario.reduccion_arrendamiento_vivienda : null;
+          const pct = { zona_tensionada_bajada: 0.90, joven_o_admon: 0.70, rehabilitacion: 0.60 }[im.tipoArrendamiento] || 0.50;
+          neto = neto * (1 - pct);
+        } else if (regimen === "foral_pais_vasco") {
+          const pct = { zona_tensionada: 0.70, programas_publicos: 0.70, vivienda_habitual: 0.30 }[im.tipoArrendamiento] || 0.20;
+          neto = ingresos * (1 - pct) - num(im.gastosFinancieros);
+        }
+      }
+      total += neto;
+    }
+    return total;
+  }
+
+  function rnCapitalMobiliario(pe, P, regimen) {
+    const cm = pe.capitalMobiliario;
+    if (!cm) return { ahorro: 0, general: 0 };
+    const div = num(cm.dividendos);
+    let exencion = 0;
+    if (regimen === "foral_pais_vasco") exencion = Math.min(div, num(P.foral_pv.exencion_dividendos && P.foral_pv.exencion_dividendos.importe, 0));
+    return {
+      ahorro: (div - exencion) + num(cm.intereses) + num(cm.seguros) + num(cm.cesionTercerosGeneral),
+      general: num(cm.baseGeneralOtros)
+    };
+  }
+
+  function rnActividades(pe, P) {
+    const ac = pe.actividades;
+    if (!ac) return 0;
+    if (ac.metodo === "objetiva") return num(ac.rendimientoNetoModulos);
+    let rnp = num(ac.rendimientoNetoPrevio);
+    if (ac.metodo === "directa_simplificada") {
+      const s = P.estatal.actividades_directa_simplificada;
+      rnp -= Math.min(s.gastos_dificil_justificacion_pct * Math.max(0, rnp), s.gastos_dificil_justificacion_max);
+    }
+    if (ac.inicioActividad && rnp > 0) rnp -= Math.min(rnp, 100000) * 0.20;
+    return rnp;
+  }
+
+  function imputacionInmobiliaria(pe, P) {
+    const ii = pe.imputacionInmobiliaria;
+    if (!ii) return 0;
+    const tipo = ii.revisado10Anios ? P.estatal.imputacion_renta_inmobiliaria.tipo_revisado_10_anios
+                                    : P.estatal.imputacion_renta_inmobiliaria.tipo_general;
+    return num(ii.valorCatastral) * tipo;
+  }
+
+  function gananciaElemento(el, P, regimen) {
+    if (el.exenta) return { ahorro: 0, general: 0 };
+    const ganancia0 = num(el.valorTransmision) - num(el.valorAdquisicion);
+    if (el.esTransmision === false) return { ahorro: 0, general: ganancia0 };
+    if (ganancia0 <= 0) return { ahorro: ganancia0, general: 0 };
+    let ganancia = ganancia0;
+    const dt = regimen === "comun" ? P.estatal.dt9_abatimiento : (regimen === "foral_pais_vasco" ? P.foral_pv.dt_abatimiento_pre1994 : P.navarra.dt_abatimiento_pre1994);
+    if (dt && el.fechaAdquisicion && new Date(el.fechaAdquisicion) <= new Date(dt.fecha_corte_adquisicion || "1994-12-31")) {
+      const dTot = (new Date(el.fechaTransmision || "2025-12-31") - new Date(el.fechaAdquisicion)) / 86400000;
+      const dPre = (new Date("2006-01-20") - new Date(el.fechaAdquisicion)) / 86400000;
+      const fracPre = dTot > 0 ? Math.min(1, Math.max(0, dPre / dTot)) : 1;
+      const gananciaPre = ganancia * fracPre;
+      const anios = Math.ceil((new Date("1996-12-31") - new Date(el.fechaAdquisicion)) / (365.25 * 86400000));
+      const exceso = Math.max(0, anios - 2);
+      const coef = { inmueble: dt.coeficientes_por_anio_exceso.inmuebles, accion_cotizada: dt.coeficientes_por_anio_exceso.acciones_cotizadas }[el.tipoElemento] || dt.coeficientes_por_anio_exceso.resto;
+      ganancia -= Math.min(1, exceso * coef) * gananciaPre;
+    }
+    return { ahorro: ganancia, general: 0 };
+  }
+
+  function integrarCompensar(rendGeneral, ganGeneral, mobAhorro, ganAhorro, P) {
+    const ic = P.estatal.integracion_compensacion;
+    let sR = rendGeneral, sG = ganGeneral;
+    if (sG < 0 && sR > 0) {
+      const c = Math.min(-sG, sR * ic.base_general_limite_perdidas_pct);
+      sG += c; sR -= c;
+    }
+    const big = sR + sG;
+    let m = mobAhorro, g = ganAhorro;
+    if (m < 0 && g > 0) { const c = Math.min(-m, g * ic.base_ahorro_limite_compensacion_pct); m += c; g -= c; }
+    else if (g < 0 && m > 0) { const c = Math.min(-g, m * ic.base_ahorro_limite_compensacion_pct); g += c; m -= c; }
+    return { big: big, bia: Math.max(0, m + g) };
+  }
+
+  // ---- Agregación ---------------------------------------------------------
+  function agregarRentas(personas, P, regimen) {
+    let trabajoPrevio = 0, capInmob = 0, capMobA = 0, capMobG = 0, actividades = 0, imput = 0;
+    let ganA = 0, ganG = 0, psInd = 0, psEmp = 0, pensComp = 0, retenciones = 0, anualidades = 0;
+    let otrasRentas = 0;
+    for (const pe of personas) {
+      trabajoPrevio += rnTrabajoPrevio(pe, P, regimen);
+      const ci = rnCapitalInmobiliario(pe, P, regimen);
+      const cm = rnCapitalMobiliario(pe, P, regimen);
+      const ac = rnActividades(pe, P);
+      const im = imputacionInmobiliaria(pe, P);
+      capInmob += ci; capMobA += cm.ahorro; capMobG += cm.general; actividades += ac; imput += im;
+      for (const el of (pe.ganancias || [])) {
+        const gg = gananciaElemento(el, P, regimen);
+        ganA += gg.ahorro; ganG += gg.general;
+      }
+      ganG += num(pe.gananciasPerdidasNoTransmision);
+      otrasRentas += ci + cm.ahorro + cm.general + ac + im;
+      if (pe.previsionSocial) { psInd += num(pe.previsionSocial.aportacionIndividual); psEmp += num(pe.previsionSocial.contribucionEmpresarial); }
+      if (pe.reducciones) { pensComp += num(pe.reducciones.pensionesCompensatorias); anualidades += num(pe.reducciones.anualidadesAlimentosHijos); }
+      retenciones += num(pe.retenciones);
+    }
+    let redTrabajo = 0;
+    for (const pe of personas) redTrabajo += reduccionTrabajo(rnTrabajoPrevio(pe, P, regimen), otrasRentas, pe, P, regimen);
+    const trabajoNeto = Math.max(0, trabajoPrevio - redTrabajo);
+    const rendGeneral = trabajoNeto + capInmob + capMobG + actividades + imput;
+    const ic = integrarCompensar(rendGeneral, ganG, capMobA, ganA, P);
+    return {
+      trabajoNeto, trabajoPrevio, reduccionTrabajo: redTrabajo, capitalInmobiliario: capInmob,
+      capitalMobiliarioAhorro: capMobA, capitalMobiliarioGeneral: capMobG, actividades, imputaciones: imput,
+      gananciasAhorro: ganA, gananciasGeneral: ganG,
+      baseImponibleGeneral: ic.big, baseImponibleAhorro: ic.bia,
+      previsionSocialIndividual: psInd, previsionSocialEmpresarial: psEmp,
+      pensionesCompensatorias: pensComp, anualidadesAlimentos: anualidades, retenciones
+    };
+  }
+
+  // ---- Mínimo personal y familiar (común) --------------------------------
+  function minimoDiscapacidadPersona(p, mdi) {
+    if (!p.discapacidad || p.discapacidad === "no") return 0;
+    const base = p.discapacidad === "65_mas" ? mdi.grado_65_mas : mdi.grado_33_64;
+    const extra = (p.ayudaTerceros || p.movilidadReducida || p.discapacidad === "65_mas") ? mdi.gastos_asistencia : 0;
+    return base + extra;
+  }
+
+  function minimoPersonalFamiliar(hogar, P, modo, declaranteId) {
+    const e = P.estatal, mc = e.minimo_contribuyente, md = e.minimo_descendientes, ma = e.minimo_ascendientes, mdi = e.minimo_discapacidad;
+    const decs = hogar.miembros.filter(m => m.rol === "declarante" || m.rol === "conyuge");
+    const prorrateo = (modo === "individual" && decs.length > 1) ? 0.5 : 1;
+    const contribs = modo === "conjunta" ? decs : hogar.miembros.filter(m => m.id === declaranteId);
+
+    let minContrib = 0, minDiscContrib = 0;
+    contribs.forEach((c, idx) => {
+      if (modo === "conjunta") {
+        if (idx === 0) minContrib += mc.general;
+        if (c.edad > 65) minContrib += mc.incremento_mayor_65;
+        if (c.edad > 75) minContrib += mc.incremento_mayor_75;
+      } else {
+        let m = mc.general;
+        if (c.edad > 65) m += mc.incremento_mayor_65;
+        if (c.edad > 75) m += mc.incremento_mayor_75;
+        minContrib += m;
+      }
+      minDiscContrib += minimoDiscapacidadPersona(c, mdi);
+    });
+
+    let desc = hogar.miembros.filter(m => m.rol === "descendiente")
+      .filter(d => num(d.rentasPropias) <= md.limite_rentas_descendiente && (d.edad < md.edad_maxima || (d.discapacidad && d.discapacidad !== "no")));
+    let minDesc = 0, minDiscDesc = 0;
+    desc.forEach((d, i) => {
+      let imp = i === 0 ? md.importes["1"] : i === 1 ? md.importes["2"] : i === 2 ? md.importes["3"] : md.importes["4+"];
+      if (d.edad < 3) imp += md.incremento_menor_3_anios;
+      const factor = num(d.convivenciaMeses, 12) >= 6 ? 1 : 0.5;
+      minDesc += imp * factor * prorrateo;
+      minDiscDesc += minimoDiscapacidadPersona(d, mdi) * prorrateo;
+    });
+
+    const asc = hogar.miembros.filter(m => m.rol === "ascendiente")
+      .filter(a => num(a.rentasPropias) <= ma.limite_rentas_ascendiente && (a.edad >= ma.edad_minima || (a.discapacidad && a.discapacidad !== "no")) && num(a.convivenciaMeses, 12) >= 6);
+    let minAsc = 0, minDiscAsc = 0;
+    for (const a of asc) {
+      let imp = ma.importe;
+      if (a.edad > 75) imp += ma.incremento_mayor_75;
+      minAsc += imp * prorrateo;
+      minDiscAsc += minimoDiscapacidadPersona(a, mdi) * prorrateo;
+    }
+    const total = minContrib + minDesc + minAsc + minDiscContrib + minDiscDesc + minDiscAsc;
+    return { total, contribuyente: minContrib, descendientes: minDesc, ascendientes: minAsc, discapacidad: minDiscContrib + minDiscDesc + minDiscAsc };
+  }
+
+  // ---- Deducciones autonómicas (DSL, común) ------------------------------
+  function deduccionesAutonomicas(hogar, terr, P, modo, baseTotal, cuotaIntegraAut, minimo, declaranteId) {
+    minimo = minimo || 0;
+    const da = terr.deducciones_autonomicas;
+    if (!da || da.estado === "pendiente" || !da.lista || !da.lista.length) return { detalle: {}, total: 0, estado: da ? da.estado : "pendiente" };
+    const esConj = modo === "conjunta";
+    const decs = hogar.miembros.filter(m => m.rol === "declarante" || m.rol === "conyuge");
+    const nProg = decs.length;
+    const desc = hogar.miembros.filter(m => m.rol === "descendiente");
+    const asc = hogar.miembros.filter(m => m.rol === "ascendiente");
+    // ámbito personal: el declarante liquidado (individual) o todos (conjunta)
+    let ambito = (esConj || declaranteId == null) ? decs : decs.filter(p => p.id === declaranteId);
+    if (!ambito.length) ambito = decs.slice(0, 1);
+    const idsAmbito = new Set(ambito.map(p => p.id));
+    const indCompartido = !esConj && nProg > 1;
+
+    const pasaPersonales = (d, p) => {
+      const edad = num(p.edad, 40), disc = !!(p.discapacidad && p.discapacidad !== "no");
+      if (d.requiere_discapacidad_grado != null && (p.discapacidad || "no") !== d.requiere_discapacidad_grado) return false;
+      if (d.edad_max != null && d.edad_min_alt != null) {
+        if (edad >= d.edad_max && edad < d.edad_min_alt && !disc) return false;
+      } else {
+        if (d.edad_max != null && edad >= d.edad_max) return false;
+        if (d.edad_min != null && edad < d.edad_min) return false;
+      }
+      if (d.requiere_discapacidad_contribuyente && !disc) return false;
+      return true;
+    };
+    const esFamiliar = d =>
+      ["fija_por_hijo", "fija_por_hijo_nacido", "porcentaje_campo_hijo", "fija_por_ascendiente"].includes(d.tipo) ||
+      (d.tipo === "fija" && (d.requiere_familia_numerosa != null || d.familia_numerosa_categoria != null ||
+        d.requiere_monoparental || d.descendientes_min != null || d.requiere_dependiente_a_cargo ||
+        d.requiere_familiar_discapacidad_65 || d.requiere_parto_multiple));
+    const prorratea = d => d.prorratea_progenitores == null ? esFamiliar(d) : !!d.prorratea_progenitores;
+
+    const pasaPuertas = d => {
+      const b = d.base_gate === "menos_minimo" ? Math.max(0, baseTotal - minimo) : baseTotal;
+      if (d.base_max_individual != null && !esConj && b > d.base_max_individual) return false;
+      if (d.base_max_conjunta != null && esConj && b > d.base_max_conjunta) return false;
+      if (d.base_min_individual != null && !esConj && b < d.base_min_individual) return false;
+      if (d.base_min_conjunta != null && esConj && b < d.base_min_conjunta) return false;
+      if (d.base_max_unidad_familiar != null && baseTotal > d.base_max_unidad_familiar) return false;
+      if (d.descendientes_min != null && desc.length < d.descendientes_min) return false;
+      if (d.descendientes_max != null && desc.length > d.descendientes_max) return false;
+      if (d.descendiente_edad_max != null && !desc.some(h => num(h.edad, 99) <= d.descendiente_edad_max)) return false;
+      if (!ambito.some(p => pasaPersonales(d, p))) return false;
+      if (d.requiere_familia_numerosa === "especial" && hogar.familiaNumerosa !== "especial") return false;
+      if (d.requiere_familia_numerosa === true && (!hogar.familiaNumerosa || hogar.familiaNumerosa === "no")) return false;
+      if (d.familia_numerosa_categoria != null) {
+        const catH = hogar.familiaNumerosa === "especial" ? "especial"
+          : (hogar.familiaNumerosa && hogar.familiaNumerosa !== "no") ? "general" : "no";
+        if (catH !== d.familia_numerosa_categoria) return false;
+      }
+      if (d.requiere_monoparental && hogar.tipoUnidadFamiliar !== "monoparental") return false;
+      if (d.requiere_dependiente_a_cargo) {
+        const hayDep = asc.some(p => num(p.edad, 0) >= 75) ||
+          asc.concat(desc).some(p => (p.discapacidad || "no") === "65_mas");
+        if (!hayDep) return false;
+      }
+      if (d.requiere_familiar_discapacidad_65 &&
+          !asc.concat(desc).some(p => (p.discapacidad || "no") === "65_mas")) return false;
+      if (d.requiere_parto_multiple && !hogar.partoMultiple) return false;
+      // municipio de residencia: población máxima y/o lista oficial de zonas despobladas
+      if (d.municipio_hab_max != null && (hogar.municipioHabitantes == null || hogar.municipioHabitantes > d.municipio_hab_max)) return false;
+      if (d.requiere_zona_despoblada && !hogar.zonaDespoblada) return false;
+      if (d.excluye_zona_despoblada && hogar.zonaDespoblada) return false;
+      if (d.municipio_hab_min != null && hogar.municipioHabitantes != null && hogar.municipioHabitantes < d.municipio_hab_min) return false;
+      if (d.requiere_desempleo && !decs.some(p => p.desempleado)) return false;
+      if (d.requiere_progenitores_trabajan && !decs.every(p => p.trabajo || p.actividades)) return false;
+      return true;
+    };
+
+    // reducción lineal (taper) entre dos umbrales de base
+    const factorTaper = d => {
+      const tp = esConj ? d.taper_conjunta : d.taper_individual;
+      if (!tp) return 1;
+      const b = d.base_gate === "menos_minimo" ? Math.max(0, baseTotal - minimo) : baseTotal;
+      if (b <= tp[0]) return 1;
+      return Math.max(0, Math.min(1, 1 - (b - tp[0]) / (tp[1] - tp[0])));
+    };
+
+    const cand = [];
+    for (const d of da.lista) {
+      if (!pasaPuertas(d)) continue;
+      let val = 0;
+      const ft = factorTaper(d);
+      const limBase = (esConj && d.limite_conjunta != null) ? d.limite_conjunta : d.limite;
+      const taperEnLimite = (d.tipo === "porcentaje_campo" || d.tipo === "porcentaje_campo_hijo") && limBase != null;
+      const lim = taperEnLimite ? limBase * ft : limBase;
+      if (d.tipo === "fija") val = num(d.importe);
+      else if (d.tipo === "porcentaje_campo") {
+        // gasto propio de las personas del ámbito; el de hijos/ascendientes se reparte en individual
+        let base = 0;
+        for (const m of hogar.miembros) {
+          const v = num(m[camelize(d.campo)]);
+          if (m.rol === "declarante" || m.rol === "conyuge") { if (idsAmbito.has(m.id)) base += v; }
+          else base += indCompartido ? v / nProg : v;
+        }
+        if (d.base_maxima != null) base = Math.min(base, d.base_maxima);
+        val = base * num(d.porcentaje);
+        if (lim != null) val = Math.min(val, lim);
+        if (d.limite_pct_cuota_autonomica != null && cuotaIntegraAut != null && !Number.isNaN(cuotaIntegraAut))
+          val = Math.min(val, cuotaIntegraAut * d.limite_pct_cuota_autonomica);
+      } else if (d.tipo === "porcentaje_campo_hijo") {
+        for (const h of desc) {
+          if (d.edad_hijo_max != null && num(h.edad, 99) > d.edad_hijo_max) continue;
+          let v = num(h[camelize(d.campo)]) * num(d.porcentaje);
+          if (lim != null) v = Math.min(v, lim);
+          val += v;
+        }
+      } else if (d.tipo === "fija_por_hijo_nacido") {
+        const ventana = num(d.anios_ventana, 1);
+        const esNacido = h => num(h.edad, 99) <= ventana - 1 || h.nacidoEnEjercicio;
+        if (d.importes_por_orden) {
+          const ord = desc.slice().sort((a, b) => num(b.edad, 0) - num(a.edad, 0));
+          val = 0;
+          ord.forEach((h, k) => { if (esNacido(h)) { const key = k < 2 ? String(k + 1) : "3+"; val += num(d.importes_por_orden[key] != null ? d.importes_por_orden[key] : d.importes_por_orden["3+"]); } });
+        } else {
+          const impH = (esConj && d.importe_conjunta != null) ? d.importe_conjunta : num(d.importe);
+          val = desc.filter(esNacido).length * impH;
+          if (hogar.partoMultiple) val += num(d.importe_multiple != null ? d.importe_multiple : impH);
+        }
+      } else if (d.tipo === "fija_por_hijo") {
+        const hh = desc.filter(h => (d.edad_hijo_min == null || num(h.edad, 99) >= d.edad_hijo_min) &&
+                                    (d.edad_hijo_max == null || num(h.edad, 99) <= d.edad_hijo_max));
+        val = hh.length * num(d.importe);
+      } else if (d.tipo === "fija_por_ascendiente") {
+        const cuenta = asc.filter(a => num(a.edad, 0) >= num(d.edad_ascendiente_min, 65) ||
+                                       (a.discapacidad && a.discapacidad !== "no")).length;
+        val = cuenta * num(d.importe);
+      }
+      if (!taperEnLimite) val *= ft;
+      // incremento por residir en un municipio pequeño (p. ej. +20 % en Galicia, < 5.000 hab.)
+      const fm = d.incremento_municipio;
+      if (fm && hogar.municipioHabitantes != null && hogar.municipioHabitantes <= fm.hab_max) val *= fm.factor;
+      if (prorratea(d) && indCompartido) val /= nProg;
+      if (val > 0) cand.push({ id: d.id || "ded", val, grupo: d.grupo });
+    }
+    // variantes excluyentes: por `grupo`, solo la de mayor importe
+    let total = 0; const detalle = {};
+    for (const c of cand) {
+      if (c.grupo != null) {
+        const rivales = cand.filter(x => x.grupo === c.grupo);
+        let mejor = rivales[0];
+        for (const x of rivales) if (x.val > mejor.val) mejor = x;
+        if (mejor.id !== c.id) continue;
+      }
+      detalle[c.id] = red2(c.val); total += c.val;
+    }
+    // 2ª pasada: % de la cuota íntegra autonómica (minorada por defecto; completa con sobre_cuota_integra)
+    if (cuotaIntegraAut != null && !Number.isNaN(cuotaIntegraAut)) {
+      const baseCuota = Math.max(0, cuotaIntegraAut - total);
+      for (const d of da.lista) {
+        if (d.tipo !== "porcentaje_cuota_autonomica" || !pasaPuertas(d)) continue;
+        if (d.min_descendientes != null && desc.length < d.min_descendientes) continue;
+        const b = d.sobre_cuota_integra ? Math.max(0, cuotaIntegraAut) : baseCuota;
+        let val = b * num(d.porcentaje);
+        const lim = (esConj && d.limite_conjunta != null) ? d.limite_conjunta : d.limite;
+        if (lim != null) val = Math.min(val, lim);
+        val *= factorTaper(d);
+        if (val > 0) { detalle[d.id || "ded"] = red2(val); total += val; }
+      }
+    }
+    return { detalle, total: red2(total), estado: "cargado" };
+  }
+  const camelize = s => s.replace(/_([a-z])/g, (_, c) => c.toUpperCase());
+
+  // Deducciones "impropias" (maternidad, familia numerosa, discapacidad a cargo)
+  function deduccionesImpropias(hogar, P, modo, declaranteId) {
+    const e = P.estatal; const detalle = {}; let total = 0;
+    const desc = hogar.miembros.filter(m => m.rol === "descendiente");
+    const asc = hogar.miembros.filter(m => m.rol === "ascendiente");
+    const decs = hogar.miembros.filter(m => m.rol === "declarante" || m.rol === "conyuge");
+    const indCompartido = modo !== "conjunta" && decs.length > 1 && declaranteId != null;
+    const trabaja = m => !!(m.trabajo || m.actividades);
+    const hijosMenores3 = desc.filter(d => d.edad < 3).length;
+    // maternidad: una sola vez, al primer progenitor con actividad (el motor no registra el sexo)
+    const titular = decs.find(trabaja);
+    const madreTrabaja = indCompartido ? !!titular && titular.id === declaranteId : decs.some(trabaja);
+    if (hijosMenores3 > 0 && madreTrabaja) {
+      const dm = e.deduccion_maternidad;
+      let val = hijosMenores3 * dm.importe_anual;
+      const guarderia = hogar.miembros.reduce((s, m) => s + num(m.gastosGuarderia), 0);
+      if (guarderia > 0) val += Math.min(guarderia, dm.incremento_guarderia * hijosMenores3);
+      detalle.maternidad = red2(val); total += val;
+    }
+    if (hogar.familiaNumerosa && hogar.familiaNumerosa !== "no") {
+      const df = e.deduccion_familia_numerosa_y_discapacidad_cargo;
+      let val = hogar.familiaNumerosa === "especial" ? df.familia_numerosa_especial : df.familia_numerosa_general;
+      const umbral = hogar.familiaNumerosa === "especial" ? 6 : 4;
+      if (desc.length > umbral) val += (desc.length - umbral + 1) * df.incremento_por_hijo_adicional;
+      if (indCompartido) val /= decs.length;          // art. 81 bis.3: prorrateo por partes iguales
+      detalle.familiaNumerosa = red2(val); total += val;
+    }
+    const nDiscFam = desc.concat(asc).filter(p => p.discapacidad && p.discapacidad !== "no").length;
+    if (nDiscFam > 0) {
+      const df = e.deduccion_familia_numerosa_y_discapacidad_cargo;
+      let val = nDiscFam * df.ascendiente_o_descendiente_discapacidad;
+      if (indCompartido) val /= decs.length;
+      detalle.discapacidadFamiliaresCargo = red2(val); total += val;
+    }
+    return { detalle, total: red2(total) };
+  }
+
+  // ---- Pipeline régimen común -------------------------------------------
+  function gravarConMinimo(base, minAplic, escala) {
+    return Math.max(0, aplicarEscala(base, escala) - aplicarEscala(Math.min(minAplic, base), escala));
+  }
+
+  function liquidarComunScope(hogar, terr, P, modo, declaranteId) {
+    const personas = modo === "conjunta"
+      ? hogar.miembros.filter(m => m.rol === "declarante" || m.rol === "conyuge" || m.rol === "descendiente")
+      : hogar.miembros.filter(m => m.id === declaranteId);
+    const r = agregarRentas(personas, P, "comun");
+
+    // reducciones de base
+    let big = r.baseImponibleGeneral, bia = r.baseImponibleAhorro;
+    const rs = P.estatal.reduccion_prevision_social;
+    const rendBase = r.trabajoNeto + Math.max(0, r.actividades);
+    const redPsInd = Math.min(r.previsionSocialIndividual, rs.limite_general_abs, rs.limite_general_pct_rend * rendBase);
+    const redPsEmp = Math.min(r.previsionSocialEmpresarial, rs.incremento_contribucion_empresarial);
+    const redPs = Math.min(redPsInd + redPsEmp, Math.max(0, big)); big -= redPs;
+    const redPc = Math.min(r.pensionesCompensatorias, Math.max(0, big)); big -= redPc;
+    const restoPc = r.pensionesCompensatorias - redPc; bia = Math.max(0, bia - Math.min(restoPc, bia));
+    let redConj = 0;
+    if (modo === "conjunta") {
+      const rc = P.estatal.reduccion_tributacion_conjunta;
+      redConj = hogar.tipoUnidadFamiliar === "monoparental" ? rc.monoparental : rc.biparental;
+      const ap = Math.min(redConj, Math.max(0, big)); big -= ap;
+      bia = Math.max(0, bia - Math.min(redConj - ap, bia));
+    }
+    const blg = Math.max(0, big), bla = Math.max(0, bia);
+
+    const mpf = minimoPersonalFamiliar(hogar, P, modo, declaranteId);
+    const minimo = mpf.total;
+    const eGE = P.estatal.escala_general_estatal, eGA = terr.escala_general_autonomica;
+    const eAE = P.estatal.escala_ahorro_estatal, eAA = P.estatal.escala_ahorro_autonomica;
+    const minEnGeneral = Math.min(minimo, blg), minEnAhorro = Math.max(0, minimo - blg);
+
+    let cigEst, cigAut;
+    const anual = r.anualidadesAlimentos;
+    if (anual > 0 && modo !== "conjunta") {
+      const inc = P.estatal.anualidades_alimentos_hijos.incremento_minimo_contribuyente;
+      cigEst = Math.max(0, aplicarEscala(anual, eGE) + aplicarEscala(Math.max(0, blg - anual), eGE) - aplicarEscala(Math.min(minimo + inc, blg), eGE));
+      cigAut = Math.max(0, aplicarEscala(anual, eGA) + aplicarEscala(Math.max(0, blg - anual), eGA) - aplicarEscala(Math.min(minimo + inc, blg), eGA));
+    } else {
+      cigEst = gravarConMinimo(blg, minEnGeneral, eGE);
+      cigAut = gravarConMinimo(blg, minEnGeneral, eGA);
+    }
+    const ciaEst = gravarConMinimo(bla, minEnAhorro, eAE);
+    const ciaAut = gravarConMinimo(bla, minEnAhorro, eAA);
+    const cuotaIntegraEstatal = cigEst + ciaEst;
+    const cuotaIntegraAutonomica = cigAut + ciaAut;
+
+    const dedAut = deduccionesAutonomicas(hogar, terr, P, modo, blg + bla, cuotaIntegraAutonomica, mpf.total, declaranteId);
+    let clEst = Math.max(0, cuotaIntegraEstatal);
+    let clAut = Math.max(0, cuotaIntegraAutonomica - dedAut.total);
+
+    let bonifCm = 0;
+    if (terr.bonificacion_residencia) {
+      const b = terr.bonificacion_residencia.porcentaje;
+      bonifCm = (clEst + clAut) * b;
+      clEst *= (1 - b); clAut *= (1 - b);
+    }
+    const cuotaLiquida = clEst + clAut;
+    const impropias = deduccionesImpropias(hogar, P, modo, declaranteId);
+    const cuotaDiferencial = cuotaLiquida - r.retenciones - impropias.total;
+    const bit = r.baseImponibleGeneral + r.baseImponibleAhorro;
+
+    return {
+      modo, regimen: "comun",
+      componentesRenta: r,
+      baseImponibleGeneral: r.baseImponibleGeneral, baseImponibleAhorro: r.baseImponibleAhorro,
+      reduccionesBase: { previsionSocial: redPs, pensionesCompensatorias: redPc, tributacionConjunta: redConj },
+      baseLiquidableGeneral: blg, baseLiquidableAhorro: bla,
+      minimoPersonalFamiliar: mpf,
+      cuotaIntegraEstatal: red2(cuotaIntegraEstatal), cuotaIntegraAutonomica: red2(cuotaIntegraAutonomica),
+      cuotaIntegraTotal: red2(cuotaIntegraEstatal + cuotaIntegraAutonomica),
+      deduccionesAutonomicas: dedAut, bonificacionResidencia: red2(bonifCm),
+      cuotaLiquidaEstatal: red2(clEst), cuotaLiquidaAutonomica: red2(clAut),
+      cuotaLiquidaTotal: red2(cuotaLiquida),
+      retenciones: red2(r.retenciones),
+      deduccionesCuotaDiferencial: impropias,
+      cuotaDiferencial: red2(cuotaDiferencial),
+      tipoMedioEfectivo: bit > 0 ? Math.round(cuotaLiquida / bit * 10000) / 10000 : 0
+    };
+  }
+
+  // ---- País Vasco -------------------------------------------------------
+  function liquidarPaisVascoScope(hogar, terrCode, P, modo, declaranteId) {
+    const J = P.foral_pv;
+    const personas = modo === "conjunta"
+      ? hogar.miembros.filter(m => m.rol === "declarante" || m.rol === "conyuge" || m.rol === "descendiente")
+      : hogar.miembros.filter(m => m.id === declaranteId);
+    const r = agregarRentas(personas, P, "foral_pais_vasco");
+    let big = r.baseImponibleGeneral, bia = r.baseImponibleAhorro;
+    const aport = r.previsionSocialIndividual + r.previsionSocialEmpresarial;
+    const redPs = Math.min(aport, (J.reduccion_prevision_social && J.reduccion_prevision_social.limite_conjunto) || 12000, Math.max(0, big)); big -= redPs;
+    const redPc = Math.min(r.pensionesCompensatorias, Math.max(0, big)); big -= redPc;
+    let redConj = 0;
+    if (modo === "conjunta") { redConj = J.reduccion_tributacion_conjunta.importe; big = Math.max(0, big - redConj); }
+    const blg = Math.max(0, big), bla = Math.max(0, bia);
+
+    const cig = aplicarEscala(blg, J.escala_general_foral);
+    const cia = aplicarEscala(bla, J.escala_ahorro_foral);
+    const cuotaIntegra = cig + cia;
+
+    let minCuota = J.minoracion_cuota.importe_gipuzkoa || J.minoracion_cuota.importe || 1583;
+    const nombre = (P.territorios[terrCode] || {}).nombre;
+    if (nombre === "Bizkaia") minCuota = J.minoracion_cuota.importe_bizkaia || minCuota;
+    if (nombre === "Araba/Álava") minCuota = J.minoracion_cuota.importe_araba || minCuota;
+
+    const ovT = (J.overrides && J.overrides[terrCode]) || {};
+    const ded = deduccionesForalesPv(hogar, J, modo, blg + bla, ovT, declaranteId);
+    const cuotaLiquida = Math.max(0, cuotaIntegra - minCuota - ded.total);
+    const bit = r.baseImponibleGeneral + r.baseImponibleAhorro;
+    return {
+      modo, regimen: "foral_pais_vasco", componentesRenta: r,
+      baseImponibleGeneral: r.baseImponibleGeneral, baseImponibleAhorro: r.baseImponibleAhorro,
+      reduccionesBase: { previsionSocial: redPs, pensionesCompensatorias: redPc, tributacionConjunta: redConj },
+      baseLiquidableGeneral: blg, baseLiquidableAhorro: bla,
+      minimoPersonalFamiliar: { total: 0 },
+      cuotaIntegraEstatal: 0, cuotaIntegraAutonomica: red2(cuotaIntegra), cuotaIntegraTotal: red2(cuotaIntegra),
+      minoracionCuota: red2(minCuota), deduccionesAutonomicas: ded,
+      cuotaLiquidaEstatal: 0, cuotaLiquidaAutonomica: red2(cuotaLiquida), cuotaLiquidaTotal: red2(cuotaLiquida),
+      retenciones: red2(r.retenciones), deduccionesCuotaDiferencial: { total: 0, detalle: {} },
+      cuotaDiferencial: red2(cuotaLiquida - r.retenciones),
+      tipoMedioEfectivo: bit > 0 ? Math.round(cuotaLiquida / bit * 10000) / 10000 : 0
+    };
+  }
+
+  function deduccionesForalesPv(hogar, J, modo, baseTotal, ovT, declaranteId) {
+    ovT = ovT || {};
+    const detalle = {}; let total = 0;
+    const decs = hogar.miembros.filter(m => m.rol === "declarante" || m.rol === "conyuge");
+    const prorr = (modo === "individual" && decs.length > 1) ? 0.5 : 1;
+    // personas cuyas circunstancias y gastos propios cuentan en este ámbito
+    const ambito = (modo === "conjunta" || declaranteId == null) ? decs : decs.filter(p => p.id === declaranteId);
+    const inc6 = num((ovT.deduccion_descendientes && ovT.deduccion_descendientes.incremento_menor_6_anios) != null
+      ? ovT.deduccion_descendientes.incremento_menor_6_anios : J.deduccion_descendientes.incremento_menor_6_anios);
+    let desc = hogar.miembros.filter(m => m.rol === "descendiente").filter(d => num(d.rentasPropias) <= 8000);
+    if (desc.length) {
+      let sd = 0;
+      desc.forEach((d, i) => {
+        const key = i < 4 ? String(i + 1) : "5+";
+        let imp = J.deduccion_descendientes.importes[key] || J.deduccion_descendientes.importes["5+"];
+        if (num(d.edad, 99) < 6) imp += inc6;
+        sd += imp;
+      });
+      sd *= prorr; detalle.descendientes = red2(sd); total += sd;
+    }
+    const asc = hogar.miembros.filter(m => m.rol === "ascendiente").filter(a => num(a.rentasPropias) <= 8000 && num(a.convivenciaMeses, 12) >= 6);
+    if (asc.length) { const v = asc.length * num(J.deduccion_ascendientes.importe) * prorr; detalle.ascendientes = red2(v); total += v; }
+    const dsc = J.deduccion_discapacidad;
+    const importeDisc = p => p.discapacidad === "33_64" ? dsc.grado_33_64
+      : p.discapacidad === "65_mas" ? (p.ayudaTerceros ? dsc.grado_75_40_puntos_o_gran_dependencia : dsc.grado_65_mas_o_dependencia_moderada) : 0;
+    const discTotal = ambito.reduce((s, p) => s + importeDisc(p), 0) + prorr * desc.concat(asc).reduce((s, p) => s + importeDisc(p), 0);
+    if (discTotal > 0) { detalle.discapacidad = red2(discTotal); total += discTotal; }
+    for (const p of ambito) {
+      if (num(p.edad, 0) < 65) continue;
+      const cfg = p.edad >= 75 ? J.deduccion_edad.individual.edad_75 : J.deduccion_edad.individual.edad_65;
+      const val = baseTotal <= cfg.base_plena ? cfg.importe : baseTotal >= cfg.base_cero ? 0 : Math.max(0, cfg.importe - cfg.coef_reduccion * (baseTotal - cfg.base_plena));
+      if (val > 0) { detalle.edad = red2(num(detalle.edad) + val); total += val; }
+    }
+    for (const m of ambito) {
+      const alq = num(m.alquilerViviendaPagos);
+      if (alq > 0) {
+        const cfg = m.colectivoEspecialVivienda ? J.deduccion_alquiler_vivienda.colectivo_especial : J.deduccion_alquiler_vivienda.general;
+        const v = Math.min(alq * cfg.porcentaje, cfg.limite);
+        detalle.alquilerVivienda = red2(num(detalle.alquilerVivienda) + v); total += v;
+      }
+      const adq = num(m.adquisicionViviendaPagos);
+      if (adq > 0) {
+        const dq = J.deduccion_adquisicion_vivienda;
+        const cfg = num(m.edad, 99) < 36 ? dq.menor_36 : m.colectivoEspecialVivienda ? dq.colectivo_especial : dq.general;
+        const v = Math.min(adq * cfg.porcentaje, cfg.limite_anual);
+        detalle.adquisicionVivienda = red2(num(detalle.adquisicionVivienda) + v); total += v;
+      }
+    }
+    return { detalle, total: red2(total) };
+  }
+
+  // ---- Navarra --------------------------------------------------------
+  function deduccionTrabajoNavarra(rnt, pe, P) {
+    const dt = P.navarra.deduccion_trabajo_cuota;
+    if (!dt || rnt <= 0) return 0;
+    let val = 0;
+    for (const tr of dt.tramos) {
+      if (tr.hasta == null || rnt <= tr.hasta) { val = tr.base - num(tr.coef) * (rnt - num(tr.desde)); break; }
+    }
+    val = Math.max(0, val);
+    if (pe.discapacidad === "33_64" && pe.trabajo && pe.trabajo.trabajadorActivoDiscapacidad) val *= (1 + dt.incremento_discapacidad_33_64);
+    if (pe.discapacidad === "65_mas" && pe.trabajo && pe.trabajo.trabajadorActivoDiscapacidad) val *= (1 + dt.incremento_discapacidad_65_mas);
+    return Math.min(val, aplicarEscala(rnt, P.navarra.escala_general_foral));
+  }
+
+  function liquidarNavarraScope(hogar, P, modo, declaranteId) {
+    const J = P.navarra;
+    const personas = modo === "conjunta"
+      ? hogar.miembros.filter(m => m.rol === "declarante" || m.rol === "conyuge" || m.rol === "descendiente")
+      : hogar.miembros.filter(m => m.id === declaranteId);
+    const r = agregarRentas(personas, P, "foral_navarra");
+    const blg = Math.max(0, r.baseImponibleGeneral - Math.min(r.pensionesCompensatorias, r.baseImponibleGeneral));
+    const bla = r.baseImponibleAhorro;
+    const cig = aplicarEscala(blg, J.escala_general_foral);
+    const cia = aplicarEscala(bla, J.escala_ahorro_foral);
+    const cuotaIntegra = cig + cia;
+    let dedTrabajo = 0;
+    for (const pe of personas) {
+      const rnt = rnTrabajoPrevio(pe, P, "foral_navarra");
+      if (rnt > 0) dedTrabajo += deduccionTrabajoNavarra(rnt, pe, P);
+    }
+    const mp = J.minimo_personal_deduccion;
+    const baseTotal = blg + bla;
+    const decsNv = hogar.miembros.filter(m => m.rol === "declarante" || m.rol === "conyuge");
+    // contribuyentes del ámbito: en individual, el declarante que se liquida (no el primero)
+    const contribsNv = modo === "conjunta" ? decsNv
+      : (declaranteId != null ? decsNv.filter(m => m.id === declaranteId) : decsNv.slice(0, 1));
+    let dedMin = 0;
+    for (const c of contribsNv) {
+      let inc;
+      if (baseTotal <= (mp.umbral_pleno || 17500)) inc = num(mp.incremento_rentas_bajas);
+      else if (baseTotal >= (mp.umbral_cero_incremento || 32000)) inc = 0;
+      else inc = num(mp.incremento_rentas_bajas) * (1 - (baseTotal - mp.umbral_pleno) / (mp.umbral_cero_incremento - mp.umbral_pleno));
+      let m = num(mp.importe_general) + Math.max(0, inc);
+      if (num(c.edad, 0) >= 65) m += num(mp.incremento_65);
+      if (num(c.edad, 0) >= 75) m += num(mp.incremento_75);
+      if (c.discapacidad === "33_64") m += num(mp.incremento_discapacidad_33_64);
+      if (c.discapacidad === "65_mas") m += num(mp.incremento_discapacidad_65_mas);
+      dedMin += m;
+    }
+
+    // mínimo familiar — art. 62.9.b (prorrateo entre progenitores en individual)
+    const mf = J.minimo_familiar_deduccion;
+    const prorrNv = (modo === "individual" && hogar.miembros.filter(m => m.rol === "declarante" || m.rol === "conyuge").length > 1) ? 0.5 : 1;
+    let dedFam = 0;
+    if (mf) {
+      const limR = num(mf.limite_rentas_familiar, 8000);
+      const descNv = hogar.miembros.filter(m => m.rol === "descendiente" && num(m.rentasPropias) <= limR);
+      descNv.forEach((d, i) => {
+        const key = i < 5 ? String(i + 1) : "6+";
+        let imp = num(mf.descendientes.importes[key] != null ? mf.descendientes.importes[key] : mf.descendientes.importes["6+"]);
+        if (num(d.edad, 99) < 3) imp += num(mf.descendientes.incremento_menor_3_anios);
+        if (d.discapacidad === "33_64") imp += num(mf.descendientes.incremento_discapacidad_33_64);
+        if (d.discapacidad === "65_mas") imp += num(mf.descendientes.incremento_discapacidad_65_mas);
+        dedFam += imp * prorrNv;
+      });
+      hogar.miembros.filter(m => m.rol === "ascendiente" && num(m.rentasPropias) <= limR &&
+        (num(m.edad, 0) >= 65 || (m.discapacidad && m.discapacidad !== "no"))).forEach(a => {
+        let imp = num(a.edad, 0) >= 75 ? num(mf.ascendientes.importe_75) : num(mf.ascendientes.importe_65);
+        if (a.discapacidad === "33_64") imp += num(mf.ascendientes.incremento_discapacidad_33_64);
+        if (a.discapacidad === "65_mas") imp += num(mf.ascendientes.incremento_discapacidad_65_mas);
+        dedFam += imp * prorrNv;
+      });
+    }
+
+    const bit = r.baseImponibleGeneral + r.baseImponibleAhorro;
+    const cuotaDisponible = Math.max(0, cuotaIntegra - dedMin - dedFam - dedTrabajo);
+
+    // alquiler (art. 62.2, cuota) y emancipación (art. 68 quinquies.A, cuota diferencial):
+    // incompatibles; se aplica la más favorable. Pagos propios del ámbito.
+    const alq = contribsNv.reduce((s, p) => s + num(p.alquilerViviendaPagos), 0);
+    const da = J.deduccion_alquiler_vivienda, de = J.deduccion_emancipacion;
+    let dedAlq = 0, dedEman = 0;
+    if (alq > 0 && da) {
+      const joven = contribsNv.some(p => num(p.edad, 99) < da.joven_o_monoparental.edad_max) || hogar.tipoUnidadFamiliar === "monoparental";
+      const cfg = joven ? da.joven_o_monoparental : da.general;
+      if (bit <= da.rentas_max && alq > da.umbral_esfuerzo * bit)
+        dedAlq = Math.min(alq * cfg.porcentaje, cfg.limite, cuotaDisponible);
+    }
+    if (alq > 0 && de) {
+      const edadOk = contribsNv.some(p => num(p.edad, 0) >= de.edad_min && num(p.edad, 0) <= de.edad_max);
+      const enUf = decsNv.length > 1 || hogar.miembros.some(m => m.rol === "descendiente");
+      const limR = enUf ? de.rentas_max_unidad_familiar : de.rentas_max_individual;
+      if (edadOk && bit <= limR) dedEman = Math.min(alq * de.porcentaje, 12 * de.limite_mensual);
+    }
+    if (dedEman > 0 && dedEman >= dedAlq) dedAlq = 0; else dedEman = 0;
+
+    // pensión de jubilación contributiva (art. 68.B, cuota diferencial): hasta 14.490 €
+    const dp = J.deduccion_pension_jubilacion;
+    let dedPen = 0;
+    if (dp) for (const p of contribsNv) {
+      const pen = num(p.trabajo && p.trabajo.dinerarias);
+      if (p.trabajo && p.trabajo.pensionJubilacion && pen > 0 && pen < dp.umbral) {
+        let d = dp.umbral - pen;
+        const lim = decsNv.length > 1 ? dp.rentas_max_unidad_familiar : dp.rentas_max_individual;
+        const exceso = (bit + d) - lim;
+        if (exceso > 0) d = Math.max(0, d - exceso);
+        dedPen += d;
+      }
+    }
+
+    const cuotaLiquida = Math.max(0, cuotaDisponible - dedAlq);
+    const dedCd = dedEman + dedPen;
+    const detCd = {};
+    if (dedEman > 0) detCd.emancipacion = red2(dedEman);
+    if (dedPen > 0) detCd.pensionJubilacion = red2(dedPen);
+    const detAut = { minimoPersonal: red2(dedMin), minimoFamiliar: red2(dedFam), trabajo: red2(dedTrabajo) };
+    if (dedAlq > 0) detAut.alquilerVivienda = red2(dedAlq);
+    return {
+      modo, regimen: "foral_navarra", componentesRenta: r,
+      baseImponibleGeneral: r.baseImponibleGeneral, baseImponibleAhorro: r.baseImponibleAhorro,
+      reduccionesBase: {}, baseLiquidableGeneral: blg, baseLiquidableAhorro: bla,
+      minimoPersonalFamiliar: { total: red2(dedMin + dedFam) },
+      cuotaIntegraEstatal: 0, cuotaIntegraAutonomica: red2(cuotaIntegra), cuotaIntegraTotal: red2(cuotaIntegra),
+      deduccionesAutonomicas: { total: red2(dedMin + dedFam + dedTrabajo + dedAlq), detalle: detAut },
+      cuotaLiquidaEstatal: 0, cuotaLiquidaAutonomica: red2(cuotaLiquida), cuotaLiquidaTotal: red2(cuotaLiquida),
+      retenciones: red2(r.retenciones), deduccionesCuotaDiferencial: { total: red2(dedCd), detalle: detCd },
+      cuotaDiferencial: red2(cuotaLiquida - r.retenciones - dedCd),
+      tipoMedioEfectivo: bit > 0 ? Math.round(cuotaLiquida / bit * 10000) / 10000 : 0
+    };
+  }
+
+  // ---- Dispatcher ----------------------------------------------------
+  function combinarIndividuales(lst) {
+    if (lst.length === 1) return lst[0];
+    const base = JSON.parse(JSON.stringify(lst[0]));
+    const campos = ["baseImponibleGeneral", "baseImponibleAhorro", "baseLiquidableGeneral", "baseLiquidableAhorro",
+      "cuotaIntegraEstatal", "cuotaIntegraAutonomica", "cuotaIntegraTotal", "cuotaLiquidaEstatal", "cuotaLiquidaAutonomica",
+      "cuotaLiquidaTotal", "retenciones", "cuotaDiferencial"];
+    for (const c of campos) base[c] = red2(lst.reduce((s, x) => s + num(x[c]), 0));
+    // detalle de deducciones de todos los declarantes (solo informativo: las cuotas ya van sumadas)
+    const sumaDetalle = k => {
+      const out = { detalle: {}, total: 0 };
+      for (const x of lst) {
+        const d = x[k]; if (!d) continue;
+        out.total += num(d.total);
+        for (const [kk, v] of Object.entries(d.detalle || {})) out.detalle[kk] = red2(num(out.detalle[kk]) + num(v));
+      }
+      out.total = red2(out.total);
+      return out;
+    };
+    base.deduccionesAutonomicas = Object.assign({}, lst[0].deduccionesAutonomicas, sumaDetalle("deduccionesAutonomicas"));
+    base.deduccionesCuotaDiferencial = sumaDetalle("deduccionesCuotaDiferencial");
+    base.minoracionCuota = red2(lst.reduce((s, x) => s + num(x.minoracionCuota), 0));
+    const bit = base.baseImponibleGeneral + base.baseImponibleAhorro;
+    base.tipoMedioEfectivo = bit > 0 ? Math.round(base.cuotaLiquidaTotal / bit * 10000) / 10000 : 0;
+    base.modo = "individual";
+    return base;
+  }
+
+  function liquidar(hogar, P, modo) {
+    modo = modo || "auto";
+    const terrCode = hogar.territorio;
+    const terr = P.territorios[terrCode];
+    if (!terr) throw new Error("territorio desconocido: " + terrCode);
+    const regimen = terr.regimen;
+    const fscope = regimen === "comun" ? (h, m, id) => liquidarComunScope(h, terr, P, m, id)
+      : regimen === "foral_pais_vasco" ? (h, m, id) => liquidarPaisVascoScope(h, terrCode, P, m, id)
+      : (h, m, id) => liquidarNavarraScope(h, P, m, id);
+
+    const decs = hogar.miembros.filter(m => m.rol === "declarante" || m.rol === "conyuge");
+    const puedeConjunta = hogar.tipoUnidadFamiliar === "biparental" || hogar.tipoUnidadFamiliar === "monoparental";
+    const res = {};
+    if (modo === "auto" || modo === "individual")
+      res.individual = combinarIndividuales(decs.map(d => fscope(hogar, "individual", d.id)));
+    if ((modo === "auto" || modo === "conjunta") && puedeConjunta)
+      res.conjunta = fscope(hogar, "conjunta", null);
+
+    let elegido;
+    if (modo === "conjunta" && res.conjunta) elegido = "conjunta";
+    else if (modo === "individual") elegido = "individual";
+    else if (res.conjunta && res.conjunta.cuotaLiquidaTotal < res.individual.cuotaLiquidaTotal) elegido = "conjunta";
+    else elegido = "individual";
+
+    const liq = res[elegido];
+    liq.territorio = terrCode;
+    liq.territorioNombre = terr.nombre;
+    liq.ejercicio = P.ejercicio;
+    liq.modoTributacionElegido = elegido;
+    liq.comparativa = { individual: res.individual ? res.individual.cuotaLiquidaTotal : null, conjunta: res.conjunta ? res.conjunta.cuotaLiquidaTotal : null };
+    return liq;
+  }
+
+  function compararTerritorios(hogar, P, territorios) {
+    territorios = territorios || Object.keys(P.territorios);
+    return territorios.map(t => {
+      const h = Object.assign({}, hogar, { territorio: t });
+      try {
+        const liq = liquidar(h, P, "auto");
+        return {
+          territorio: t, nombre: P.territorios[t].nombre, regimen: P.territorios[t].regimen,
+          cuotaLiquidaTotal: liq.cuotaLiquidaTotal, tipoMedioEfectivo: liq.tipoMedioEfectivo,
+          cuotaDiferencial: liq.cuotaDiferencial, modo: liq.modoTributacionElegido,
+          baseImponible: red2(liq.baseImponibleGeneral + liq.baseImponibleAhorro)
+        };
+      } catch (e) { return null; }
+    }).filter(Boolean).sort((a, b) => a.cuotaLiquidaTotal - b.cuotaLiquidaTotal);
+  }
+
+  // ---- Optimizador (palancas de ahorro) --------------------------------
+  function optimizar(hogar, P, opts) {
+    opts = opts || {};
+    const pasos = opts.pasosPlan || [500, 1000, 1500, 2000, 3000, 5000, 8000];
+    const liq0 = liquidar(hogar, P, "auto");
+    const cuota0 = liq0.cuotaLiquidaTotal;
+    const recs = [];
+    const fmt = n => String(Math.round(n)).replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+
+    // 1. individual vs conjunta
+    if (liq0.comparativa.conjunta != null && liq0.comparativa.individual != null) {
+      const dif = Math.abs(liq0.comparativa.conjunta - liq0.comparativa.individual);
+      const mejor = liq0.comparativa.conjunta < liq0.comparativa.individual ? "conjunta" : "individual";
+      if (dif >= 1) recs.push({
+        id: "modo", categoria: "declaracion",
+        titulo: "Presentar declaración " + mejor,
+        detalle: "Individual " + fmt(liq0.comparativa.individual) + " € vs. conjunta " + fmt(liq0.comparativa.conjunta) + " €.",
+        ahorro: red2(dif), yaAplicado: liq0.modoTributacionElegido === mejor
+      });
+    }
+
+    // 2. plan de pensiones — punto de saturación
+    const d1 = hogar.miembros.find(m => m.rol === "declarante");
+    const simulaPlan = paso => {
+      const h2 = JSON.parse(JSON.stringify(hogar));
+      const m = h2.miembros.find(x => x.id === d1.id);
+      m.previsionSocial = m.previsionSocial || { aportacionIndividual: 0 };
+      m.previsionSocial.aportacionIndividual = num(m.previsionSocial.aportacionIndividual) + paso;
+      return liquidar(h2, P, "auto").cuotaLiquidaTotal;
+    };
+    let mejorPaso = 0, mejorAhorro = 0;
+    for (const p of pasos) { const a = cuota0 - simulaPlan(p); if (a > mejorAhorro + 0.5) { mejorAhorro = a; mejorPaso = p; } }
+    if (mejorAhorro > 0.5) {
+      // menor paso que alcanza ~el máximo
+      let pOpt = mejorPaso;
+      for (const p of pasos) if (cuota0 - simulaPlan(p) >= mejorAhorro - 0.5) { pOpt = p; break; }
+      recs.push({
+        id: "plan_pensiones", categoria: "prevision",
+        titulo: "Aportar ~" + fmt(pOpt) + " € a un plan de pensiones / EPSV",
+        detalle: "Reduce tu cuota en " + fmt(mejorAhorro) + " €/año (≈" + Math.round(mejorAhorro / pOpt * 100) + " % de lo aportado). Por encima ya no ahorra más este año.",
+        ahorro: red2(mejorAhorro)
+      });
+    }
+
+    // 3. traslados — mejores territorios, sin duplicar cuota (Ceuta≈Melilla)
+    const cmp = compararTerritorios(hogar, P);
+    const vistos = new Set();
+    cmp.filter(c => c.territorio !== hogar.territorio && c.cuotaLiquidaTotal < cuota0 - 1)
+       .filter(c => { const k = Math.round(c.cuotaLiquidaTotal); if (vistos.has(k)) return false; vistos.add(k); return true; })
+       .slice(0, 3).forEach(c => recs.push({
+      id: "traslado_" + c.territorio, categoria: "territorio",
+      titulo: "Residencia fiscal en " + c.nombre + (c.nombre === "Ceuta" ? " o Melilla" : ""),
+      detalle: "Con la misma situación pagarías " + fmt(c.cuotaLiquidaTotal) + " € (requiere residencia efectiva > 183 días/año y centro de intereses económicos allí).",
+      ahorro: red2(cuota0 - c.cuotaLiquidaTotal)
+    }));
+
+    // 4. deducciones autonómicas potenciales no usadas (agrupadas, máx. 3)
+    const terr = P.territorios[hogar.territorio];
+    const da = terr && terr.deducciones_autonomicas;
+    if (da && da.estado === "cargado") {
+      const potenc = [];
+      for (const d of (da.lista || [])) {
+        if (d.tipo === "porcentaje_campo" && d.campo) {
+          const ya = hogar.miembros.reduce((s, m) => s + num(m[camelize(d.campo)]), 0);
+          if (ya === 0 && !potenc.some(p => p.campo === d.campo)) potenc.push(d);
+        }
+      }
+      potenc.slice(0, 3).forEach(d => recs.push({
+        id: "ded_" + d.id, categoria: "deduccion_potencial",
+        titulo: "Deducción autonómica: " + d.id.replace(/_/g, " ").replace(/gastos educativos/, "gastos educativos"),
+        detalle: "Si tienes este gasto y cumples los requisitos de renta/edad de " + terr.nombre + ", deduce el " + Math.round((d.porcentaje || 0) * 100) + " %" + (d.limite ? " (límite " + fmt(d.limite) + " €)" : "") + ".",
+        ahorro: null
+      }));
+    }
+
+    recs.sort((a, b) => (b.ahorro == null ? -1 : b.ahorro) - (a.ahorro == null ? -1 : a.ahorro));
+    return { cuotaActual: red2(cuota0), recomendaciones: recs };
+  }
+
+  const api = { aplicarEscala, tipoMarginal, liquidar, compararTerritorios, optimizar };
+  if (typeof module !== "undefined" && module.exports) module.exports = api;
+  global.irpfsim = api;
+})(typeof window !== "undefined" ? window : this);</script>
+<script>
+const P = {"ejercicio":2025,"generado":"2026-09-25","estatal":{"escala_general_estatal":[{"hasta":12450,"tipo":0.095},{"hasta":20200,"tipo":0.12},{"hasta":35200,"tipo":0.15},{"hasta":60000,"tipo":0.185},{"hasta":300000,"tipo":0.225},{"hasta":null,"tipo":0.245}],"escala_ahorro_estatal":[{"hasta":6000,"tipo":0.095},{"hasta":50000,"tipo":0.105},{"hasta":200000,"tipo":0.115},{"hasta":300000,"tipo":0.135},{"hasta":null,"tipo":0.15}],"escala_ahorro_autonomica":[{"hasta":6000,"tipo":0.095},{"hasta":50000,"tipo":0.105},{"hasta":200000,"tipo":0.115},{"hasta":300000,"tipo":0.135},{"hasta":null,"tipo":0.15}],"minimo_contribuyente":{"norma":"Art. 57 LIRPF","fuente":"AEAT Manual Renta 2025 — cuadro-resumen mínimo personal y familiar","estado":"confirmado","general":5550,"incremento_mayor_65":1150,"incremento_mayor_75":1400},"minimo_descendientes":{"norma":"Art. 58 LIRPF","fuente":"AEAT Manual Renta 2025","estado":"confirmado","importes":{"1":2400,"2":2700,"3":4000,"4+":4500},"incremento_menor_3_anios":2800,"limite_rentas_descendiente":8000,"limite_declaracion_descendiente":1800,"edad_maxima":25},"minimo_ascendientes":{"norma":"Art. 59 LIRPF","fuente":"AEAT Manual Renta 2025","estado":"confirmado","importe":1150,"incremento_mayor_75":1400,"limite_rentas_ascendiente":8000,"edad_minima":65},"minimo_discapacidad":{"norma":"Art. 60 LIRPF","fuente":"AEAT Manual Renta 2025","estado":"confirmado","grado_33_64":3000,"grado_65_mas":9000,"gastos_asistencia":3000},"trabajo_otros_gastos":{"norma":"Art. 19.2.f LIRPF","fuente":"AEAT Manual Renta 2025","estado":"provisional","generico":2000,"incremento_movilidad_geografica":2000,"incremento_discapacidad_33_64":3500,"incremento_discapacidad_65_o_movilidad":7750,"limite":"rendimiento íntegro del trabajo menos resto de gastos"},"trabajo_reduccion_art20":{"norma":"Art. 20 LIRPF (redacción vigente 2025)","fuente":"AEAT Manual Renta 2025; Iberley art. 20 LIRPF","estado":"confirmado","importe_maximo":7302,"umbral_pleno":14852,"umbral_intermedio":17673.52,"umbral_final":19747.5,"coef_tramo1":1.75,"coef_tramo2":1.14,"base_tramo2":2364.34,"limite_otras_rentas":6500},"capital_mobiliario":{"norma":"Arts. 25–26 LIRPF","estado":"confirmado","exencion_dividendos":0,"reduccion_irregular":{"porcentaje":0.3,"base_maxima":300000}},"actividades_directa_simplificada":{"norma":"Art. 30 LIRPF; art. 30 RIRPF","estado":"confirmado","gastos_dificil_justificacion_pct":0.05,"gastos_dificil_justificacion_max":2000,"umbral_cifra_negocio":600000},"dt9_abatimiento":{"norma":"DT 9ª LIRPF (redacción Ley 26/2014)","fuente":"BOE-A-2006-20764; AEAT Manual Renta 2025","estado":"confirmado","limite_valor_transmision_acumulado":400000,"fecha_corte_adquisicion":"1994-12-31","fecha_fin_computo":"1996-12-31","fecha_generacion_lineal":"2006-01-20","coeficientes_por_anio_exceso":{"inmuebles":0.1111,"acciones_cotizadas":0.25,"resto":0.1428}},"integracion_compensacion":{"norma":"Arts. 47–49 LIRPF","estado":"confirmado","base_general_limite_perdidas_pct":0.25,"base_ahorro_limite_compensacion_pct":0.25,"anios_arrastre":4},"reduccion_prevision_social":{"norma":"Arts. 51–52 LIRPF; DA 16ª","estado":"provisional","limite_general_abs":1500,"limite_general_pct_rend":0.3,"incremento_contribucion_empresarial":8500,"incremento_seguros_dependencia":5000,"limite_aportacion_conyuge":1000,"rentas_conyuge_maximas":8000},"reduccion_tributacion_conjunta":{"norma":"Art. 84.2 LIRPF","fuente":"AEAT Manual Renta 2025 — reducción por tributación conjunta","estado":"confirmado","biparental":3400,"monoparental":2150},"imputacion_renta_inmobiliaria":{"norma":"Art. 85 LIRPF","estado":"confirmado","tipo_general":0.02,"tipo_revisado_10_anios":0.011},"anualidades_alimentos_hijos":{"norma":"Arts. 64 y 75 LIRPF","fuente":"AEAT Manual Renta 2025","estado":"confirmado","incremento_minimo_contribuyente":1980},"deduccion_maternidad":{"norma":"Art. 81 LIRPF","estado":"provisional","importe_anual":1200,"edad_maxima_hijo":3,"incremento_guarderia":1000},"deduccion_familia_numerosa_y_discapacidad_cargo":{"norma":"Art. 81 bis LIRPF","estado":"provisional","familia_numerosa_general":1200,"familia_numerosa_especial":2400,"incremento_por_hijo_adicional":600,"ascendiente_o_descendiente_discapacidad":1200,"conyuge_discapacidad":1200,"rentas_conyuge_maximas":8000}},"foral_pv":{"escala_general_foral":[{"hasta":17720,"tipo":0.23},{"hasta":35440,"tipo":0.28},{"hasta":53160,"tipo":0.35},{"hasta":75910,"tipo":0.4},{"hasta":105130,"tipo":0.45},{"hasta":140130,"tipo":0.46},{"hasta":204270,"tipo":0.47},{"hasta":null,"tipo":0.49}],"escala_ahorro_foral":[{"hasta":2500,"tipo":0.2},{"hasta":10000,"tipo":0.21},{"hasta":15000,"tipo":0.22},{"hasta":30000,"tipo":0.23},{"hasta":null,"tipo":0.25}],"bonificacion_trabajo":{"norma":"Art. 23 NF 13/2013 y equivalentes","fuente":"DF Gipuzkoa, Modelo 109 (2025)","estado":"confirmado","umbral_pleno":14800,"importe_pleno":8000,"coef_reduccion":0.6098,"umbral_minimo":23000,"importe_minimo":3000,"limite_otras_rentas":7500,"incremento_discapacidad_33_64":1,"incremento_discapacidad_65_o_movilidad":2.5},"reduccion_prevision_social":{"norma":"Arts. 70–72 NF 13/2013 y equivalentes (EPSV, planes de pensiones...)","fuente":"DF Gipuzkoa, Modelo 109 (2025)","estado":"confirmado","limite_individual_no_empleo":5000,"limite_individual_empleo":8000,"limite_autonomos_empleo":4000,"limite_conjunto":12000,"limite_aportacion_conyuge":2400,"rentas_conyuge_maximas":8000,"limite_discapacidad_familiares":8000,"limite_discapacidad_propio":24250},"reduccion_tributacion_conjunta":{"norma":"Art. 75 NF 13/2013 y equivalentes","fuente":"DF Gipuzkoa, Modelo 109 (2025)","estado":"confirmado","importe":4800},"minoracion_cuota":{"norma":"Art. 77 NF 13/2013 y equivalentes","fuente":"DF Gipuzkoa Modelo 109 (2025); DFB (Bizkaia 2025)","estado":"confirmado","importe_gipuzkoa":1583,"importe_bizkaia":1615,"importe_araba":1583},"exencion_dividendos":{"norma":"Art. 9.24 NF 13/2013 Bizkaia (y equivalentes forales)","fuente":"NF 13/2013 art. 9.24","estado":"confirmado","importe":1500},"deduccion_descendientes":{"norma":"Art. 79 NF 3/2014 Gipuzkoa (y equivalentes)","fuente":"DF Gipuzkoa Modelo 109 (2025); DFB (Bizkaia 2025) — importes por orden idénticos en los 3 TH","estado":"confirmado","importes":{"1":668,"2":827,"3":1393,"4":1647,"5+":2151},"incremento_menor_6_anios":386},"deduccion_ascendientes":{"norma":"Art. 80 NF 3/2014 y equivalentes","fuente":"DF Gipuzkoa, Modelo 109 (2025)","estado":"confirmado","importe":321},"deduccion_discapacidad":{"norma":"Art. 82 NF 3/2014 y equivalentes","fuente":"DF Gipuzkoa, Modelo 109 (2025)","estado":"confirmado","grado_33_64":888,"grado_65_mas_o_dependencia_moderada":1268,"grado_75_15_39_puntos_o_dependencia_severa":1521,"grado_75_40_puntos_o_gran_dependencia":2040},"deduccion_edad":{"norma":"Art. 82 NF 3/2014 y equivalentes","fuente":"DF Gipuzkoa, Modelo 109 (2025)","estado":"confirmado","individual":{"edad_65":{"importe":385,"base_plena":20000,"base_cero":30000,"coef_reduccion":0.0385},"edad_75":{"importe":700,"base_plena":20000,"base_cero":30000,"coef_reduccion":0.07}},"conjunta":{"edad_65":{"importe":385,"base_plena":35000,"base_cero":35000},"edad_75":{"importe":700,"base_plena":35000,"base_cero":35000}}},"deduccion_alquiler_vivienda":{"norma":"Art. 86 NF 3/2014 y equivalentes; NF 1/2025 (efectos 2025)","fuente":"DF Gipuzkoa, Modelo 109 (2025)","estado":"confirmado","general":{"porcentaje":0.2,"limite":1600},"colectivo_especial":{"porcentaje":0.35,"limite":2800}},"deduccion_adquisicion_vivienda":{"norma":"Arts. 87–89 NF 3/2014 y equivalentes; NF 1/2025","fuente":"DF Gipuzkoa, Modelo 109 (2025)","estado":"confirmado","credito_fiscal_vital":36000,"general":{"porcentaje":0.18,"limite_anual":1530},"colectivo_especial":{"porcentaje":0.23,"limite_anual":1955},"menor_36":{"porcentaje":0.23,"limite_anual":1955,"sin_limite_anio_compra":true},"transitorio_pre_2012":{"general":{"porcentaje":0.18,"limite_anual":2160},"colectivo_especial":{"porcentaje":0.23,"limite_anual":2760}},"doble_limite_conjunta":true},"dt_abatimiento_pre1994":{"norma":"DT foral (equivalente a la DT 9ª LIRPF)","estado":"provisional","limite_valor_transmision_acumulado":400000,"fecha_corte_adquisicion":"1994-12-31","coeficientes_por_anio_exceso":{"inmuebles":0.1111,"acciones_cotizadas":0.25,"resto":0.1428}},"overrides":{"ES-PV-BI":{"nombre":"Bizkaia","norma_base":"Norma Foral 13/2013","fuente":"DFB — Deducciones IRPF Bizkaia 2025 (bizkaia.eus); deia.eus 02-04-2025","deduccion_descendientes":{"estado":"confirmado","incremento_menor_6_anios":394}},"ES-PV-SS":{"nombre":"Gipuzkoa","norma_base":"Norma Foral 3/2014"},"ES-PV-VI":{"nombre":"Araba/Álava","norma_base":"Norma Foral 33/2013","deduccion_descendientes":{"estado":"provisional"},"minoracion_cuota":{"estado":"provisional"}}}},"navarra":{"escala_general_foral":[{"hasta":4458,"tipo":0.13},{"hasta":10030,"tipo":0.22},{"hasta":21175,"tipo":0.25},{"hasta":35663,"tipo":0.28},{"hasta":51266,"tipo":0.365},{"hasta":66869,"tipo":0.415},{"hasta":89159,"tipo":0.44},{"hasta":139310,"tipo":0.47},{"hasta":195034,"tipo":0.49},{"hasta":334344,"tipo":0.505},{"hasta":null,"tipo":0.52}],"escala_ahorro_foral":[{"hasta":6000,"tipo":0.2},{"hasta":10000,"tipo":0.22},{"hasta":15000,"tipo":0.24},{"hasta":200000,"tipo":0.26},{"hasta":300000,"tipo":0.27},{"hasta":null,"tipo":0.28}],"minimo_personal_deduccion":{"norma":"Art. 62.9.a) DFL 4/2008 (TR IRPF Navarra)","fuente":"guiafiscal.es (1.084 € base; 2.138 € para bases bajas); rentanavarra.com","estado":"provisional","importe_general":1084,"incremento_rentas_bajas":1054,"umbral_pleno":17500,"umbral_cero_incremento":32000,"incremento_65":264,"incremento_75":585,"incremento_discapacidad_33_64":766,"incremento_discapacidad_65_mas":2757},"minimo_familiar_deduccion":{"norma":"Art. 62.9.b) DFL 4/2008 (TR IRPF Navarra)","fuente":"rentanavarra.com — resumen deducciones IRPF Navarra 2025 (fuente secundaria; cotejar con BON)","estado":"provisional","descendientes":{"importes":{"1":483,"2":512,"3":732,"4":981,"5":1111,"6+":1286},"incremento_menor_3_anios":644,"incremento_discapacidad_33_64":674,"incremento_discapacidad_65_mas":2360},"ascendientes":{"importe_65":264,"importe_75":585,"incremento_discapacidad_33_64":674,"incremento_discapacidad_65_mas":2360},"limite_rentas_familiar":8000},"deduccion_trabajo_cuota":{"tramos":[{"hasta":10500,"base":1400,"coef":0,"desde":0},{"hasta":17500,"base":1400,"coef":0.1,"desde":10500},{"hasta":35000,"base":700,"coef":0,"desde":17500},{"hasta":50000,"base":700,"coef":0.02,"desde":35000},{"hasta":null,"base":400,"coef":0,"desde":50000}],"incremento_discapacidad_33_64":0.5,"incremento_discapacidad_65_mas":1},"deduccion_alquiler_vivienda":{"norma":"Art. 62.2 DFL 4/2008 (TR IRPF Navarra), redacción de la Ley Foral 22/2023, art. primero.Nueve (efectos 2024)","fuente":"BOE-A-2024-1694 (Ley Foral 22/2023, de 26 de diciembre); BOE-A-2025-719 (LF 20/2024: sin cambios en el art. 62.2)","estado":"confirmado","general":{"porcentaje":0.15,"limite":1500},"joven_o_monoparental":{"porcentaje":0.2,"limite":1600,"edad_max":30},"rentas_max":30000,"umbral_esfuerzo":0.1},"deduccion_emancipacion":{"norma":"Art. 68 quinquies.A DFL 4/2008, redacción de la Ley Foral 22/2023, art. primero.Quince (efectos 2024)","fuente":"BOE-A-2024-1694 (Ley Foral 22/2023): A.1 '23 a 35 años inclusive ... 50 por 100 de la renta ... límite máximo de 280 euros mensuales'; A.3 'rentas, incluidas las exentas, superiores a 22.000 euros ... o 33.000 euros conjuntamente con el resto de miembros de la unidad familiar'","estado":"provisional","edad_min":23,"edad_max":35,"porcentaje":0.5,"limite_mensual":280,"rentas_max_individual":22000,"rentas_max_unidad_familiar":33000},"deduccion_pension_jubilacion":{"norma":"Art. 68.B DFL 4/2008, redacción de la Ley Foral 20/2024, art. primero.Trece (efectos 2025)","fuente":"BOE-A-2025-719 (Ley Foral 20/2024, de 26 de diciembre)","estado":"provisional","umbral":14490,"rentas_max_individual":21619.59,"rentas_max_unidad_familiar":28980},"dt_abatimiento_pre1994":{"norma":"DT TR IRPF Navarra (equivalente a la DT 9ª LIRPF)","estado":"provisional","limite_valor_transmision_acumulado":400000,"fecha_corte_adquisicion":"1994-12-31","coeficientes_por_anio_exceso":{"inmuebles":0.1111,"acciones_cotizadas":0.25,"resto":0.1428}}},"territorios":{"ES-AN":{"nombre":"Andalucía","regimen":"comun","escala_general_autonomica":[{"hasta":13000,"tipo":0.095},{"hasta":21100,"tipo":0.12},{"hasta":35200,"tipo":0.15},{"hasta":60000,"tipo":0.185},{"hasta":null,"tipo":0.225}],"bonificacion_residencia":null,"deducciones_autonomicas":{"estado":"cargado","fuente":"Ley 5/2021 de Tributos Cedidos de Andalucía, arts. 10-22 bis; AEAT Manual Práctico Renta 2025, Parte 2 — Deducciones autonómicas / Andalucía","lista":[{"id":"nacimiento_adopcion","norma":"Art. 11 Ley 5/2021","tipo":"fija_por_hijo_nacido","importe":200,"importe_multiple":200,"anios_ventana":1},{"id":"arrendamiento_vivienda_habitual","norma":"Art. 10 Ley 5/2021","tipo":"porcentaje_campo","campo":"alquiler_vivienda_pagos","porcentaje":0.15,"limite":1200,"edad_max":35,"edad_min_alt":65,"base_max_individual":25000,"base_max_conjunta":30000},{"id":"familia_numerosa_general","norma":"Art. 14 Ley 5/2021","tipo":"fija","importe":200,"requiere_familia_numerosa":true},{"id":"familia_numerosa_especial","norma":"Art. 14 Ley 5/2021","tipo":"fija","importe":200,"requiere_familia_numerosa":"especial"},{"id":"familia_monoparental","norma":"Art. 13 Ley 5/2021","tipo":"fija","importe":100,"requiere_monoparental":true,"base_max_individual":80000,"base_max_conjunta":100000},{"id":"familia_monoparental_ascendientes_75","norma":"Art. 13 Ley 5/2021 (incremento)","estado":"provisional","tipo":"fija_por_ascendiente","importe":100,"edad_ascendiente_min":75,"requiere_monoparental":true,"base_max_individual":80000,"base_max_conjunta":100000},{"id":"contribuyente_discapacidad","norma":"Art. 16 Ley 5/2021","tipo":"fija","importe":150,"requiere_discapacidad_contribuyente":true,"base_max_individual":25000,"base_max_conjunta":30000},{"id":"gastos_educativos_idiomas_informatica","norma":"Art. 15 Ley 5/2021","tipo":"porcentaje_campo_hijo","campo":"gastos_idiomas_informatica","porcentaje":0.15,"limite":150,"base_max_individual":80000,"base_max_conjunta":100000},{"id":"ayuda_domestica","norma":"Art. 19 Ley 5/2021","estado":"provisional","tipo":"porcentaje_campo","campo":"cuotas_ss_empleada_hogar","porcentaje":0.2,"limite":500,"descendientes_min":1},{"id":"ejercicio_fisico_deporte","norma":"Art. 22 bis Ley 5/2021","estado":"provisional","tipo":"porcentaje_campo","campo":"gastos_deporte","porcentaje":0.15,"limite":100}],"pendientes":["inversion_vivienda_protegida_jovenes","adopcion_internacional","conyuge_pareja_discapacidad","asistencia_personas_discapacidad","inversion_sociedades_nueva_creacion","defensa_juridica_laboral","donativos_ecologicos","gastos_veterinarios","familias_celiacas"]}},"ES-AR":{"nombre":"Aragón","regimen":"comun","escala_general_autonomica":[{"hasta":13072.5,"tipo":0.095},{"hasta":21210,"tipo":0.12},{"hasta":36960,"tipo":0.15},{"hasta":52500,"tipo":0.185},{"hasta":60000,"tipo":0.205},{"hasta":80000,"tipo":0.23},{"hasta":90000,"tipo":0.24},{"hasta":130000,"tipo":0.25},{"hasta":null,"tipo":0.255}],"bonificacion_residencia":null,"deducciones_autonomicas":{"estado":"cargado","fuente":"TR tributos cedidos de Aragón (DL 1/2005), art. 110 (arts. 110-2/3/4/5/14/17); AEAT Manual Práctico Renta 2025, Parte 2 — Deducciones autonómicas / Aragón","lista":[{"id":"nacimiento_adopcion_tercer_hijo_renta_baja","norma":"Art. 110-2 DL 1/2005 Aragón","tipo":"fija_por_hijo_nacido","anios_ventana":1,"importes_por_orden":{"1":0,"2":0,"3+":600},"base_gate":"menos_minimo","base_max_individual":21000,"base_max_conjunta":35000,"prorratea_progenitores":true},{"id":"nacimiento_adopcion_tercer_hijo_general","norma":"Art. 110-2 DL 1/2005 Aragón","tipo":"fija_por_hijo_nacido","anios_ventana":1,"importes_por_orden":{"1":0,"2":0,"3+":500},"base_gate":"menos_minimo","base_min_individual":21000.01,"base_min_conjunta":35000.01,"prorratea_progenitores":true},{"id":"cuidado_personas_dependientes","norma":"Art. 110-5 DL 1/2005 Aragón","estado":"provisional","tipo":"fija","importe":150,"requiere_dependiente_a_cargo":true,"base_gate":"menos_minimo","base_max_individual":21000,"base_max_conjunta":35000,"prorratea_progenitores":true},{"id":"mayores_70_anos","norma":"Art. 110-14 DL 1/2005 Aragón","estado":"provisional","tipo":"fija","importe":75,"edad_min":70,"base_max_individual":23000,"base_max_conjunta":35000},{"id":"gastos_guarderia_menores_3","norma":"Art. 110-17 DL 1/2005 Aragón","estado":"provisional","tipo":"porcentaje_campo_hijo","campo":"gastos_guarderia","porcentaje":0.15,"limite":250,"edad_hijo_max":2,"base_max_individual":35000,"base_max_conjunta":50000,"prorratea_progenitores":true},{"id":"residencia_municipios_despoblacion","norma":"Arts. 160-1 y 160-2.8 DL 1/2005 Aragón","estado":"provisional","tipo":"fija","importe":600,"requiere_zona_despoblada":true,"base_max_individual":34999.99,"base_max_conjunta":49999.99},{"id":"nacimiento_municipios_pequenos_renta_baja","norma":"Art. 110-16 DL 1/2005 Aragón","estado":"provisional","tipo":"fija_por_hijo_nacido","anios_ventana":1,"importes_por_orden":{"1":200,"2":300,"3+":0},"municipio_hab_max":9999,"base_max_individual":23000,"base_max_conjunta":35000,"grupo":"nacimiento_rural_ar"},{"id":"nacimiento_municipios_pequenos","norma":"Art. 110-16 DL 1/2005 Aragón","estado":"provisional","tipo":"fija_por_hijo_nacido","anios_ventana":1,"importes_por_orden":{"1":100,"2":150,"3+":0},"municipio_hab_max":9999,"grupo":"nacimiento_rural_ar"}],"pendientes":["nacimiento_adopcion_hijo_discapacidad","adopcion_internacional","libros_texto_material_escolar","clases_apoyo_refuerzo","adquisicion_rehabilitacion_vivienda_nucleos_rurales","arrendamiento_vivienda_social_arrendador","donaciones_ecologicas_i_d_i","vivienda_victimas_terrorismo","inversion_entidades_nueva_creacion","inversion_mab","inversion_economia_social","formacion_autonomia_menores_discapacidad","regimen_fiscalidad_diferenciada"]}},"ES-AS":{"nombre":"Principado de Asturias","regimen":"comun","escala_general_autonomica":[{"hasta":12450,"tipo":0.09},{"hasta":17707.2,"tipo":0.12},{"hasta":33007.2,"tipo":0.14},{"hasta":53407.2,"tipo":0.192},{"hasta":70000,"tipo":0.215},{"hasta":90000,"tipo":0.225},{"hasta":175000,"tipo":0.25},{"hasta":null,"tipo":0.26}],"bonificacion_residencia":null,"deducciones_autonomicas":{"estado":"cargado","fuente":"TR tributos cedidos de Asturias (DL 2/2014), arts. 7, 10, 11, 12, 14 bis, 14 duodecies y 14 terdecies; AEAT Manual Práctico Renta 2025, Parte 2 — Deducciones autonómicas / Principado de Asturias","lista":[{"id":"familia_numerosa_general","norma":"Art. 11 DL 2/2014 Asturias","tipo":"fija","importe":1000,"requiere_familia_numerosa":true},{"id":"familia_numerosa_especial","norma":"Art. 11 DL 2/2014 Asturias","tipo":"fija","importe":1000,"requiere_familia_numerosa":"especial"},{"id":"familias_monoparentales","norma":"Art. 12 DL 2/2014 Asturias","estado":"provisional","tipo":"fija","importe":500,"requiere_monoparental":true,"descendientes_min":1,"base_max_individual":45000,"base_max_conjunta":45000},{"id":"partos_multiples","norma":"Art. 10 DL 2/2014 Asturias","tipo":"fija_por_hijo_nacido","anios_ventana":1,"importe":1000,"importe_multiple":0,"requiere_parto_multiple":true,"prorratea_progenitores":true},{"id":"gastos_descendientes_0_3","norma":"Art. 14 bis DL 2/2014 Asturias","estado":"provisional","tipo":"porcentaje_campo_hijo","campo":"gastos_guarderia","porcentaje":0.15,"limite":500,"edad_hijo_max":2,"base_max_individual":26000,"base_max_conjunta":37000},{"id":"cuidado_descendientes_hasta_25","norma":"Art. 14 duodecies DL 2/2014 Asturias","tipo":"fija_por_hijo","importe":600,"edad_hijo_max":25,"base_max_individual":35000,"base_max_conjunta":45000,"prorratea_progenitores":true},{"id":"emancipacion_jovenes_35","norma":"Art. 14 terdecies DL 2/2014 Asturias","estado":"provisional","tipo":"porcentaje_campo","campo":"gastos_emancipacion","porcentaje":1,"limite":1000,"edad_max":36,"base_max_individual":35000,"base_max_conjunta":45000},{"id":"arrendamiento_vivienda_habitual_joven","norma":"Art. 7 DL 2/2014 Asturias","estado":"provisional","tipo":"porcentaje_campo","campo":"alquiler_vivienda_pagos","porcentaje":0.3,"limite":1500,"edad_max":36,"base_max_individual":35000,"base_max_conjunta":45000},{"id":"arrendamiento_vivienda_habitual_general","norma":"Art. 7 DL 2/2014 Asturias","tipo":"porcentaje_campo","campo":"alquiler_vivienda_pagos","porcentaje":0.1,"limite":500,"edad_min":36,"base_max_individual":35000,"base_max_conjunta":45000},{"id":"nacimiento_concejos_despoblamiento","norma":"Art. 14 quater DL 2/2014 Asturias","estado":"provisional","tipo":"fija_por_hijo_nacido","anios_ventana":1,"importes_por_orden":{"1":0,"2":300,"3+":300},"requiere_zona_despoblada":true}],"pendientes":["libros_texto_material_escolar","acogimiento_no_remunerado_mayores_65","adquisicion_adecuacion_vivienda_discapacidad","inversion_vivienda_protegida","adopcion_internacional","acogimiento_familiar_menores","certificacion_forestal_sostenible","autonomos_concejos_despoblamiento","transporte_publico_concejos_despoblamiento","gastos_formacion_i_d","traslado_domicilio_fiscal_a_asturias","vehiculos_electricos","gastos_vitales_hasta_35","fallecimiento_progenitor_accidente_laboral","inversion_entidades_nueva_creacion","enfermedad_celiaca"]}},"ES-IB":{"nombre":"Illes Balears","regimen":"comun","escala_general_autonomica":[{"hasta":10000,"tipo":0.09},{"hasta":18000,"tipo":0.1125},{"hasta":30000,"tipo":0.1425},{"hasta":48000,"tipo":0.175},{"hasta":70000,"tipo":0.19},{"hasta":90000,"tipo":0.2175},{"hasta":120000,"tipo":0.2275},{"hasta":175000,"tipo":0.2375},{"hasta":null,"tipo":0.2475}],"bonificacion_residencia":null,"deducciones_autonomicas":{"estado":"cargado","fuente":"TR tributos cedidos de les Illes Balears (DL 1/2014), arts. 3 bis, 4, 4 bis, 6 bis y 6 ter; AEAT Manual Práctico Renta 2025, Parte 2 — Deducciones autonómicas / Illes Balears","lista":[{"id":"arrendamiento_vivienda_habitual","norma":"Art. 3 bis DL 1/2014 Illes Balears","estado":"provisional","tipo":"porcentaje_campo","campo":"alquiler_vivienda_pagos","porcentaje":0.15,"limite":530,"edad_max":36,"edad_min_alt":65,"base_max_individual":33000,"base_max_conjunta":52800},{"id":"nacimiento","norma":"Art. 6 ter DL 1/2014 Illes Balears","estado":"provisional","tipo":"fija_por_hijo_nacido","anios_ventana":1,"importes_por_orden":{"1":800,"2":1000,"3+":1200},"base_max_individual":52800,"base_max_conjunta":84480,"prorratea_progenitores":true},{"id":"libros_texto","norma":"Art. 4 DL 1/2014 Illes Balears","estado":"provisional","tipo":"porcentaje_campo_hijo","campo":"gastos_libros_texto","porcentaje":1,"limite":220,"base_max_individual":33000,"base_max_conjunta":52800},{"id":"aprendizaje_idiomas_extranjeros","norma":"Art. 4 bis DL 1/2014 Illes Balears","tipo":"porcentaje_campo_hijo","campo":"gastos_idiomas_extranjeros","porcentaje":0.15,"limite":110,"base_max_individual":33000,"base_max_conjunta":52800},{"id":"conciliacion_menores_6","norma":"Art. 6 bis DL 1/2014 Illes Balears","estado":"provisional","tipo":"porcentaje_campo","campo":"gastos_conciliacion_menores","porcentaje":0.4,"limite":660,"descendiente_edad_max":5,"base_max_individual":33000,"base_max_conjunta":52800}],"pendientes":["inversiones_mejora_sostenibilidad_vivienda","estudios_educacion_superior_fuera_isla","adopcion","declarantes_discapacidad_o_descendientes","gastos_mayores_65_o_discapacidad","arrendador_vivienda_permanente_primas_seguros","arrendador_vivienda_permanente_otros_gastos","arrendamiento_traslado_laboral","vivienda_ocupada_ilegalmente","donaciones_i_d_i","mecenazgo_cultural_deportivo","donaciones_lengua_catalana","donaciones_tercer_sector","inversion_entidades_nueva_creacion","fomento_autoocupacion","plazas_dificil_cobertura"]}},"ES-CN":{"nombre":"Canarias","regimen":"comun","escala_general_autonomica":[{"hasta":13748,"tipo":0.09},{"hasta":19422,"tipo":0.115},{"hasta":35924,"tipo":0.14},{"hasta":57566,"tipo":0.185},{"hasta":93268,"tipo":0.235},{"hasta":123745,"tipo":0.25},{"hasta":null,"tipo":0.26}],"bonificacion_residencia":null,"deducciones_autonomicas":{"estado":"cargado","fuente":"TR tributos cedidos de Canarias (DL 1/2009), arts. 7 bis, 10, 11 ter, 12, 13; AEAT Manual Práctico Renta 2025, Parte 2 — Deducciones autonómicas / Canarias","lista":[{"id":"nacimiento_adopcion","norma":"Art. 10 DL 1/2009 Canarias","estado":"provisional","tipo":"fija_por_hijo_nacido","anios_ventana":1,"importes_por_orden":{"1":265,"2":265,"3+":530},"prorratea_progenitores":true,"base_max_individual":46455,"base_max_conjunta":61770},{"id":"familia_numerosa_general","norma":"Art. 13 DL 1/2009 Canarias","tipo":"fija","importe":597,"requiere_familia_numerosa":true},{"id":"familia_numerosa_especial","norma":"Art. 13 DL 1/2009 Canarias","tipo":"fija","importe":199,"requiere_familia_numerosa":"especial"},{"id":"familia_monoparental","norma":"Art. 11 ter DL 1/2009 Canarias","tipo":"fija","importe":133,"requiere_monoparental":true,"descendientes_min":1},{"id":"gastos_custodia_guarderias","norma":"Art. 12 DL 1/2009 Canarias","tipo":"porcentaje_campo_hijo","campo":"gastos_guarderia","porcentaje":0.18,"limite":530,"edad_hijo_max":2},{"id":"gastos_estudios_no_superiores","norma":"Art. 7 bis DL 1/2009 Canarias","estado":"provisional","tipo":"porcentaje_campo","campo":"gastos_estudios_no_superiores","porcentaje":1,"limite":133}],"pendientes":["contribuyentes_discapacidad_mayores_65","gastos_estudios_educacion_superior_fuera_isla","traslado_residencia_otra_isla","acogimiento_menores","donaciones (varias)","inversion_adquisicion_acciones"]}},"ES-CB":{"nombre":"Cantabria","regimen":"comun","escala_general_autonomica":[{"hasta":13000,"tipo":0.085},{"hasta":21000,"tipo":0.11},{"hasta":35200,"tipo":0.145},{"hasta":60000,"tipo":0.18},{"hasta":90000,"tipo":0.225},{"hasta":null,"tipo":0.245}],"bonificacion_residencia":null,"deducciones_autonomicas":{"estado":"cargado","fuente":"TR Medidas Fiscales de Cantabria (DL 62/2008), art. 2 (apartados 1, 7, 8, 9, 10 y 13); AEAT Manual Práctico Renta 2025, Parte 2 — Deducciones autonómicas / Cantabria","lista":[{"id":"nacimiento_adopcion","norma":"Art. 2.10 DL 62/2008 Cantabria","tipo":"fija_por_hijo_nacido","importe":1400,"anios_ventana":3,"prorratea_progenitores":true},{"id":"familias_monoparentales","norma":"Art. 2.9 DL 62/2008 Cantabria","tipo":"fija","importe":200,"requiere_monoparental":true,"descendientes_min":1,"base_gate":"menos_minimo","base_max_individual":31485,"base_max_conjunta":31485},{"id":"gastos_guarderia","grupo":"guarderia_cb","norma":"Art. 2.8 DL 62/2008 Cantabria","estado":"provisional","tipo":"porcentaje_campo_hijo","campo":"gastos_guarderia","porcentaje":0.15,"limite":300,"edad_hijo_max":2},{"id":"gastos_enfermedad","norma":"Art. 2.7 DL 62/2008 Cantabria","estado":"provisional","tipo":"porcentaje_campo","campo":"gastos_enfermedad","porcentaje":0.1,"limite":500,"base_gate":"menos_minimo","base_max_individual":22946,"base_max_conjunta":31485},{"id":"gastos_educacion_libros","norma":"Art. 2.13 DL 62/2008 Cantabria","estado":"provisional","tipo":"porcentaje_campo","campo":"gastos_libros_texto","porcentaje":1,"limite":200,"prorratea_progenitores":true},{"id":"arrendamiento_vivienda_habitual","grupo":"arrendamiento_cb","norma":"Art. 2.1 DL 62/2008 Cantabria","estado":"provisional","tipo":"porcentaje_campo","campo":"alquiler_vivienda_pagos","porcentaje":0.1,"limite":300,"edad_max":36,"edad_min_alt":65,"base_gate":"menos_minimo","base_max_individual":22946,"base_max_conjunta":31485},{"id":"residencia_municipio_despoblamiento","norma":"Art. 2.11.5 DL 62/2008 Cantabria","estado":"provisional","tipo":"porcentaje_cuota_autonomica","porcentaje":0.2,"limite":500,"sobre_cuota_integra":true,"edad_max":40,"requiere_zona_despoblada":true},{"id":"guarderia_municipio_despoblamiento","norma":"Art. 2.11.2 DL 62/2008 Cantabria","tipo":"porcentaje_campo_hijo","campo":"gastos_guarderia","porcentaje":0.3,"limite":600,"edad_hijo_max":2,"requiere_zona_despoblada":true,"grupo":"guarderia_cb"},{"id":"arrendamiento_municipio_despoblamiento","norma":"Art. 2.11.1 DL 62/2008 Cantabria","tipo":"porcentaje_campo","campo":"alquiler_vivienda_pagos","porcentaje":0.2,"limite":600,"limite_conjunta":1200,"requiere_zona_despoblada":true,"grupo":"arrendamiento_cb"}],"pendientes":["cuidado_familiares","obras_mejora","donativos_fundaciones_cantabria_coopera","acogimiento_familiar_menores","inversion_entidades_nueva_creacion","ayuda_domestica","traslado_residencia_despoblamiento","economia_social","nuevos_contribuyentes_extranjero","arrendamiento_viviendas_vacias"]}},"ES-CM":{"nombre":"Castilla-La Mancha","regimen":"comun","escala_general_autonomica":[{"hasta":12450,"tipo":0.095},{"hasta":20200,"tipo":0.12},{"hasta":35200,"tipo":0.15},{"hasta":60000,"tipo":0.185},{"hasta":null,"tipo":0.225}],"bonificacion_residencia":null,"deducciones_autonomicas":{"estado":"cargado","fuente":"Ley 8/2013 de Castilla-La Mancha, arts. 1, 2, 2 bis, 3 bis, 4, 6, 9, 13; AEAT Manual Práctico Renta 2025, Parte 2 — Deducciones autonómicas / Castilla-La Mancha","lista":[{"id":"nacimiento_adopcion","norma":"Art. 1 Ley 8/2013 CLM","estado":"provisional","tipo":"fija_por_hijo_nacido","importe":100,"importe_multiple":300,"anios_ventana":1,"base_max_individual":27000,"base_max_conjunta":36000},{"id":"familia_numerosa_general","norma":"Art. 2 Ley 8/2013 CLM","tipo":"fija","importe":200,"requiere_familia_numerosa":true,"base_max_individual":27000,"base_max_conjunta":36000},{"id":"familia_numerosa_especial","norma":"Art. 2 Ley 8/2013 CLM","tipo":"fija","importe":200,"requiere_familia_numerosa":"especial","base_max_individual":27000,"base_max_conjunta":36000},{"id":"familia_monoparental","norma":"Art. 2 bis Ley 8/2013 CLM","tipo":"fija","importe":200,"requiere_monoparental":true,"base_max_individual":27000,"base_max_conjunta":36000},{"id":"gastos_guarderia","norma":"Art. 3 bis Ley 8/2013 CLM","tipo":"porcentaje_campo_hijo","campo":"gastos_guarderia","porcentaje":0.3,"limite":500,"edad_hijo_max":2,"base_max_individual":27000,"base_max_conjunta":36000},{"id":"discapacidad_contribuyente","norma":"Art. 4 Ley 8/2013 CLM","tipo":"fija","importe":300,"requiere_discapacidad_grado":"65_mas","base_max_individual":27000,"base_max_conjunta":36000},{"id":"contribuyente_mayor_75","norma":"Art. 6.1 Ley 8/2013 CLM","estado":"provisional","tipo":"fija","importe":150,"edad_min":76,"base_max_individual":27000,"base_max_conjunta":36000},{"id":"cuidado_ascendientes_75","norma":"Art. 6.2 Ley 8/2013 CLM","estado":"provisional","tipo":"fija_por_ascendiente","importe":150,"edad_ascendiente_min":76,"base_max_individual":27000,"base_max_conjunta":36000},{"id":"arrendamiento_vivienda_habitual_joven","norma":"Art. 9 Ley 8/2013 CLM","tipo":"porcentaje_campo","campo":"alquiler_vivienda_pagos","porcentaje":0.15,"limite":500,"edad_max":36,"base_max_individual":27000,"base_max_conjunta":36000},{"id":"residencia_zona_rural_menos_2000","norma":"Art. 12 bis y DA 2ª Ley 8/2013 CLM; Ley 2/2021 CLM","estado":"provisional","tipo":"porcentaje_cuota_autonomica","porcentaje":0.15,"sobre_cuota_integra":true,"requiere_zona_despoblada":true,"municipio_hab_max":1999},{"id":"residencia_zona_rural_2000_5000","norma":"Art. 12 bis y DA 2ª Ley 8/2013 CLM; Ley 2/2021 CLM","estado":"provisional","tipo":"porcentaje_cuota_autonomica","porcentaje":0.1,"sobre_cuota_integra":true,"requiere_zona_despoblada":true,"municipio_hab_min":2000,"municipio_hab_max":4999}],"pendientes":["libros_texto_idiomas_educacion","discapacidad_ascendientes_descendientes","acogimiento_familiar_menores","acogimiento_no_remunerado_mayores_65","arrendamiento_familias_numerosas","arrendamiento_familias_monoparentales","arrendamiento_personas_discapacidad","intereses_primera_vivienda_40","adquisicion_rehabilitacion_vivienda_rural","traslado_vivienda_habitual","donativos_cooperacion_id_i_cultura","inversion_sociedades_economia_social"]}},"ES-CL":{"nombre":"Castilla y León","regimen":"comun","escala_general_autonomica":[{"hasta":12450,"tipo":0.09},{"hasta":20200,"tipo":0.12},{"hasta":35200,"tipo":0.14},{"hasta":53407.2,"tipo":0.185},{"hasta":null,"tipo":0.215}],"bonificacion_residencia":null,"deducciones_autonomicas":{"estado":"cargado","fuente":"TR tributos de Castilla y León (DL 1/2013), arts. 3-7; AEAT Manual Práctico Renta 2025, Parte 2 — Deducciones autonómicas / Castilla y León","lista":[{"id":"nacimiento_adopcion","norma":"Art. 4 DL 1/2013 CyL","grupo":"nacimiento_cyl","tipo":"fija_por_hijo_nacido","anios_ventana":1,"importes_por_orden":{"1":1010,"2":1475,"3+":2351}},{"id":"familia_numerosa","norma":"Art. 3 DL 1/2013 CyL","estado":"provisional","tipo":"fija","importe":600,"requiere_familia_numerosa":true},{"id":"arrendamiento_vivienda_habitual_joven","norma":"Art. 7.4 DL 1/2013 CyL","tipo":"porcentaje_campo","campo":"alquiler_vivienda_pagos","porcentaje":0.2,"limite":459,"edad_max":36},{"id":"cuidado_hijos_empleada_hogar","norma":"Art. 5.1 DL 1/2013 CyL","tipo":"porcentaje_campo","campo":"gastos_empleada_hogar","porcentaje":0.3,"limite":322},{"id":"cuidado_hijos_escuela_infantil","norma":"Art. 5.1 DL 1/2013 CyL","tipo":"porcentaje_campo","campo":"gastos_escuela_infantil_cyl","porcentaje":1,"limite":1320},{"id":"cuotas_ss_empleada_hogar","norma":"Art. 5.2 DL 1/2013 CyL","tipo":"porcentaje_campo","campo":"cuotas_ss_empleada_hogar","porcentaje":0.15,"limite":300,"descendiente_edad_max":3,"base_gate":"menos_minimo","base_max_individual":18900,"base_max_conjunta":31500},{"id":"contribuyente_discapacidad_65_grado_33","norma":"Art. 6 DL 1/2013 CyL","tipo":"fija","importe":300,"requiere_discapacidad_grado":"33_64","edad_min":65,"base_gate":"menos_minimo","base_max_individual":18900,"base_max_conjunta":31500},{"id":"contribuyente_discapacidad_65_grado_65","norma":"Art. 6 DL 1/2013 CyL","tipo":"fija","importe":656,"requiere_discapacidad_grado":"65_mas","edad_min":65,"base_gate":"menos_minimo","base_max_individual":18900,"base_max_conjunta":31500},{"id":"contribuyente_discapacidad_menor_65_grado_65","norma":"Art. 6 DL 1/2013 CyL","tipo":"fija","importe":300,"requiere_discapacidad_grado":"65_mas","edad_max":65,"base_gate":"menos_minimo","base_max_individual":18900,"base_max_conjunta":31500},{"id":"nacimiento_adopcion_medio_rural","norma":"Art. 4.1 a 3 DL 1/2013 CyL (medio rural: municipios o entidades locales menores <= 5.000 hab.)","tipo":"fija_por_hijo_nacido","anios_ventana":1,"importes_por_orden":{"1":1420,"2":2070,"3+":3300},"municipio_hab_max":5000,"grupo":"nacimiento_cyl"}],"pendientes":["partos_adopciones_multiples","gastos_adopcion","vivienda_joven_rural","rehabilitacion_subvencionada","rehabilitacion_medio_rural_alquiler","fomento_emprendimiento","donaciones_fundaciones_cyl","donaciones_i_d_i","movilidad_sostenible","vivienda_nueva_construccion","recuperacion_patrimonio_historico_natural"]}},"ES-CT":{"nombre":"Cataluña","regimen":"comun","escala_general_autonomica":[{"hasta":12500,"tipo":0.095},{"hasta":22000,"tipo":0.125},{"hasta":33000,"tipo":0.16},{"hasta":53000,"tipo":0.19},{"hasta":90000,"tipo":0.215},{"hasta":120000,"tipo":0.235},{"hasta":175000,"tipo":0.245},{"hasta":null,"tipo":0.255}],"bonificacion_residencia":null,"deducciones_autonomicas":{"estado":"cargado","fuente":"DL 1/2024 (libro sexto del Código Tributario de Catalunya); AEAT Manual Práctico Renta 2025, Parte 2 — Deducciones autonómicas / Cataluña","lista":[{"id":"nacimiento_adopcion","norma":"Art. 612-1 DL 1/2024","tipo":"fija_por_hijo_nacido","importe":150,"importe_conjunta":300,"importe_multiple":150,"anios_ventana":1,"prorratea_progenitores":false},{"id":"arrendamiento_vivienda_habitual","norma":"Art. 612-3 DL 1/2024","tipo":"porcentaje_campo","campo":"alquiler_vivienda_pagos","porcentaje":0.1,"limite":500,"edad_max":36,"base_gate":"menos_minimo","base_max_individual":30000,"base_max_conjunta":45000},{"id":"rehabilitacion_vivienda_habitual","norma":"Art. 612-4 DL 1/2024","tipo":"porcentaje_campo","campo":"rehabilitacion_vivienda_pagos","porcentaje":0.015,"base_maxima":9040},{"id":"donativos_fomento_lengua_catalana","norma":"Art. 612-6 DL 1/2024","tipo":"porcentaje_campo","campo":"donativos_lengua_catalana","porcentaje":0.15,"limite_pct_cuota_autonomica":0.1},{"id":"donativos_investigacion_i_d_i","norma":"Art. 612-7 DL 1/2024","tipo":"porcentaje_campo","campo":"donativos_investigacion","porcentaje":0.3,"limite_pct_cuota_autonomica":0.1},{"id":"inversion_angel_inversor","norma":"Art. 612-9 DL 1/2024","tipo":"porcentaje_campo","campo":"inversion_angel_inversor","porcentaje":0.4,"limite":12000},{"id":"inversion_cooperativas_agrarias_vivienda","norma":"Art. 612-12 DL 1/2024","tipo":"porcentaje_campo","campo":"inversion_cooperativas_cat","porcentaje":0.2,"limite":3000}],"pendientes":["viudedad_2023_2025","alquiler_vivienda_victimas_violencia_machista","obligacion_declarar_dos_pagadores","intereses_prestamos_master_doctorado","tramo_autonomico_inversion_vivienda_9pct","donaciones_medio_ambiente_patrimonio_natural"]}},"ES-EX":{"nombre":"Extremadura","regimen":"comun","escala_general_autonomica":[{"hasta":12450,"tipo":0.08},{"hasta":20200,"tipo":0.1},{"hasta":24200,"tipo":0.16},{"hasta":35200,"tipo":0.175},{"hasta":60000,"tipo":0.21},{"hasta":80200,"tipo":0.235},{"hasta":99200,"tipo":0.24},{"hasta":120200,"tipo":0.245},{"hasta":null,"tipo":0.25}],"bonificacion_residencia":null,"deducciones_autonomicas":{"estado":"cargado","fuente":"TR tributos cedidos de Extremadura (DL 1/2018), arts. 3, 5, 6, 9, 10 y 12 bis; AEAT Manual Práctico Renta 2025, Parte 2 — Deducciones autonómicas / Extremadura","lista":[{"id":"arrendamiento_vivienda_habitual","norma":"Art. 9 DL 1/2018 Extremadura","estado":"provisional","tipo":"porcentaje_campo","campo":"alquiler_vivienda_pagos","porcentaje":0.3,"limite":1000,"edad_max":36,"base_max_individual":19000,"base_max_conjunta":24000},{"id":"material_escolar","norma":"Art. 10 DL 1/2018 Extremadura","tipo":"fija_por_hijo","importe":15,"edad_hijo_min":6,"edad_hijo_max":15,"base_max_individual":19000,"base_max_conjunta":24000,"prorratea_progenitores":true},{"id":"partos_multiples","norma":"Art. 3 DL 1/2018 Extremadura","tipo":"fija_por_hijo_nacido","anios_ventana":1,"importe":300,"importe_multiple":0,"requiere_parto_multiple":true,"base_max_individual":19000,"base_max_conjunta":24000,"prorratea_progenitores":true},{"id":"cuidado_hijos_menores_14","norma":"Art. 6 DL 1/2018 Extremadura","estado":"provisional","tipo":"porcentaje_campo","campo":"gastos_cuidado_hijos","porcentaje":0.1,"limite":400,"descendiente_edad_max":14,"base_max_individual":19000,"base_max_conjunta":24000},{"id":"cuidado_familiares_discapacidad","norma":"Art. 5 DL 1/2018 Extremadura","estado":"provisional","tipo":"fija","importe":150,"requiere_familiar_discapacidad_65":true,"base_max_individual":19000,"base_max_conjunta":24000},{"id":"residencia_municipios_menos_3000","norma":"Art. 11 ter DL 1/2018 Extremadura","estado":"provisional","tipo":"porcentaje_cuota_autonomica","porcentaje":0.15,"sobre_cuota_integra":true,"municipio_hab_max":2999,"base_max_individual":28000,"base_max_conjunta":45000}],"pendientes":["trabajo_dependiente","contribuyentes_viudos","acogimiento_menores","vivienda_habitual_jovenes_victimas_terrorismo","arrendadores_viviendas_vacias","rehabilitacion_viviendas_rurales_alquiler","inversion_acciones_constitucion_ampliacion","vivienda_zonas_rurales","intereses_financiacion_vivienda_jovenes","donaciones_culturales_deportistas","traslado_residencia_a_extremadura","ayudas_ela"]}},"ES-GA":{"nombre":"Galicia","regimen":"comun","escala_general_autonomica":[{"hasta":12985.35,"tipo":0.09},{"hasta":21068.6,"tipo":0.1165},{"hasta":35200,"tipo":0.149},{"hasta":60000,"tipo":0.184},{"hasta":null,"tipo":0.225}],"bonificacion_residencia":null,"deducciones_autonomicas":{"estado":"cargado","fuente":"TR tributos cedidos de Galicia (DL 1/2011), art. 5; AEAT Manual Práctico Renta 2025, Parte 2 — Deducciones autonómicas / Galicia","lista":[{"id":"nacimiento_adopcion_renta_baja","norma":"Art. 5.Dos DL 1/2011","tipo":"fija_por_hijo_nacido","anios_ventana":3,"importes_por_orden":{"1":360,"2":1200,"3+":2400},"base_gate":"menos_minimo","base_max_individual":22000,"base_max_conjunta":22000,"incremento_municipio":{"hab_max":4999,"factor":1.2}},{"id":"nacimiento_adopcion_renta_media","norma":"Art. 5.Dos DL 1/2011","tipo":"fija_por_hijo_nacido","anios_ventana":1,"importe":300,"importe_multiple":360,"base_gate":"menos_minimo","base_min_individual":22000.01,"base_min_conjunta":22000.01,"incremento_municipio":{"hab_max":4999,"factor":1.2}},{"id":"nacimiento_adopcion_anios_siguientes_renta_media","norma":"Art. 5.Dos DL 1/2011","estado":"provisional","tipo":"fija_por_hijo","importe":300,"edad_hijo_min":1,"edad_hijo_max":2,"base_gate":"menos_minimo","base_min_individual":22000.01,"base_min_conjunta":22000.01,"base_max_individual":31000,"base_max_conjunta":31000,"incremento_municipio":{"hab_max":4999,"factor":1.2}},{"id":"familias_dos_hijos","norma":"Art. 5.Tres.1 DL 1/2011","tipo":"fija","importe":250,"descendientes_min":2,"descendientes_max":2},{"id":"familia_numerosa","norma":"Art. 5.Tres.2 DL 1/2011","estado":"provisional","tipo":"fija","importe":250,"requiere_familia_numerosa":true},{"id":"arrendamiento_vivienda_habitual_general","norma":"Art. 5.Siete DL 1/2011","estado":"provisional","tipo":"porcentaje_campo","campo":"alquiler_vivienda_pagos","porcentaje":0.1,"limite":300,"edad_max":36,"descendientes_max":1,"base_gate":"menos_minimo","base_max_individual":22000,"base_max_conjunta":31000},{"id":"arrendamiento_vivienda_habitual_dos_hijos","norma":"Art. 5.Siete DL 1/2011","estado":"provisional","tipo":"porcentaje_campo","campo":"alquiler_vivienda_pagos","porcentaje":0.2,"limite":600,"edad_max":36,"descendientes_min":2,"base_gate":"menos_minimo","base_max_individual":22000,"base_max_conjunta":31000},{"id":"cuidado_hijos_menores","norma":"Art. 5.Cinco DL 1/2011","estado":"provisional","tipo":"porcentaje_campo","campo":"gastos_cuidado_hijos","porcentaje":0.3,"limite":400,"base_gate":"menos_minimo","base_max_individual":22000,"base_max_conjunta":31000},{"id":"libros_texto_material_escolar","norma":"Art. 5.Veinticinco DL 1/2011","estado":"provisional","tipo":"porcentaje_campo","campo":"gastos_libros_texto","porcentaje":0.15,"base_gate":"menos_minimo","base_max_individual":22000,"base_max_conjunta":31000}],"pendientes":["acogimiento_menores","contribuyentes_discapacidad_65_ayuda_terceros","nuevas_tecnologias_gallegos","inversion_acciones_nuevas_entidades","donaciones_i_d_i","instalaciones_climatizacion_acs","rehabilitacion_inmuebles_centros_historicos","eficiencia_energetica","vivienda_aldeas_modelo"]}},"ES-MD":{"nombre":"Comunidad de Madrid","regimen":"comun","escala_general_autonomica":[{"hasta":13362.22,"tipo":0.085},{"hasta":19004.63,"tipo":0.107},{"hasta":35425.68,"tipo":0.128},{"hasta":57320.4,"tipo":0.174},{"hasta":null,"tipo":0.205}],"bonificacion_residencia":null,"deducciones_autonomicas":{"estado":"cargado","fuente":"TR tributos cedidos de la Comunidad de Madrid (DL 1/2010), arts. 4, 7, 7 bis, 8, 11, 11 bis, 13 bis; AEAT Manual Práctico Renta 2025, Parte 2 — Deducciones autonómicas / Comunidad de Madrid","lista":[{"id":"arrendamiento_vivienda_habitual","norma":"Art. 8 DL 1/2010 Madrid","tipo":"porcentaje_campo","campo":"alquiler_vivienda_pagos","porcentaje":0.3,"limite":1237.2,"edad_max":40,"base_max_individual":26414.22,"base_max_conjunta":37322.2,"base_max_unidad_familiar":61860},{"id":"nacimiento_adopcion","norma":"Art. 4 DL 1/2010 Madrid","tipo":"fija_por_hijo_nacido","importe":721.7,"importe_multiple":721.7,"anios_ventana":3,"base_max_individual":30930,"base_max_conjunta":37322.2,"base_max_unidad_familiar":61860,"prorratea_progenitores":true},{"id":"familia_numerosa_general","norma":"Art. 13 bis DL 1/2010 Madrid","estado":"provisional","tipo":"porcentaje_cuota_autonomica","sobre_cuota_integra":true,"porcentaje":0.5,"limite":6186,"limite_conjunta":12372,"familia_numerosa_categoria":"general"},{"id":"familia_numerosa_especial","norma":"Art. 13 bis DL 1/2010 Madrid","estado":"provisional","tipo":"porcentaje_cuota_autonomica","sobre_cuota_integra":true,"porcentaje":1,"limite":12372,"limite_conjunta":24744,"familia_numerosa_categoria":"especial"},{"id":"cuidado_ascendientes","norma":"Art. 7 bis DL 1/2010 Madrid","tipo":"fija_por_ascendiente","importe":515.5,"edad_ascendiente_min":65,"prorratea_progenitores":true},{"id":"cuidado_hijos_menores_3_empleada_hogar","norma":"Art. 11 bis DL 1/2010 Madrid","estado":"provisional","tipo":"porcentaje_campo","campo":"cuotas_ss_empleada_hogar","porcentaje":0.25,"limite":463.95,"descendiente_edad_max":2},{"id":"gastos_educativos_escolaridad","norma":"Art. 11 DL 1/2010 Madrid","estado":"provisional","tipo":"porcentaje_campo","campo":"gastos_escolaridad","porcentaje":0.15,"limite":927.9},{"id":"gastos_educativos_idiomas","norma":"Art. 11 DL 1/2010 Madrid","estado":"provisional","tipo":"porcentaje_campo","campo":"gastos_idiomas","porcentaje":0.15,"limite":412.4},{"id":"gastos_educativos_vestuario","norma":"Art. 11 DL 1/2010 Madrid","estado":"provisional","tipo":"porcentaje_campo","campo":"gastos_vestuario_escolar","porcentaje":0.05,"limite":412.4}],"pendientes":["acogimiento_no_remunerado_mayores_65","acogimiento_familiar_menores","familias_dos_mas_descendientes_ingresos_reducidos","intereses_prestamos_vivienda_jovenes_30","intereses_prestamos_estudios_grado_master_doctorado","adquisicion_vivienda_por_nacimiento","donativos_fundaciones_clubes_deportivos","inversion_entidades_nueva_creacion","fomento_autoempleo_jovenes_35","inversiones_mab","nuevos_contribuyentes_extranjero","cambio_residencia_municipio_despoblacion","adquisicion_vivienda_municipios_despoblacion","incremento_costes_financiacion_ajena_vivienda","arrendamiento_viviendas_vacias","gastos_derivados_arrendamiento","adopcion_internacional"]}},"ES-MC":{"nombre":"Región de Murcia","regimen":"comun","escala_general_autonomica":[{"hasta":12450,"tipo":0.095},{"hasta":20200,"tipo":0.112},{"hasta":34000,"tipo":0.133},{"hasta":60000,"tipo":0.179},{"hasta":null,"tipo":0.225}],"bonificacion_residencia":null,"deducciones_autonomicas":{"estado":"cargado","fuente":"TR tributos cedidos de la Región de Murcia (DL 1/2010), art. 1 (apartados Tres, Ocho, Nueve, Diez, Once, Trece, Dieciséis); AEAT Manual Práctico Renta 2025, Parte 2 — Deducciones autonómicas / Región de Murcia","lista":[{"id":"nacimiento_adopcion","norma":"Art. 1.Nueve DL 1/2010 Murcia","tipo":"fija_por_hijo_nacido","anios_ventana":1,"importes_por_orden":{"1":100,"2":200,"3+":300},"base_max_individual":30000,"base_max_conjunta":50000,"prorratea_progenitores":true},{"id":"gastos_guarderia","norma":"Art. 1.Tres DL 1/2010 Murcia","tipo":"porcentaje_campo_hijo","campo":"gastos_guarderia","porcentaje":0.2,"limite":1000,"edad_hijo_max":2,"base_max_individual":30000,"base_max_conjunta":50000},{"id":"material_escolar_libros","norma":"Art. 1.Ocho DL 1/2010 Murcia","estado":"provisional","tipo":"fija_por_hijo","importe":120,"edad_hijo_min":3,"edad_hijo_max":16,"base_max_individual":20000,"base_max_conjunta":40000,"prorratea_progenitores":true},{"id":"contribuyente_discapacidad","norma":"Art. 1.Diez DL 1/2010 Murcia","tipo":"fija","importe":150,"requiere_discapacidad_contribuyente":true,"base_max_individual":40000,"base_max_conjunta":40000},{"id":"conciliacion_cuidado_descendientes","norma":"Art. 1.Once.A DL 1/2010 Murcia","estado":"provisional","tipo":"porcentaje_campo","campo":"cuotas_ss_empleada_hogar","porcentaje":0.2,"limite":400,"descendiente_edad_max":11},{"id":"familia_monoparental","norma":"Art. 1.Dieciséis DL 1/2010 Murcia","tipo":"fija","importe":303,"requiere_monoparental":true,"descendientes_min":1,"base_max_individual":35240,"base_max_conjunta":35240},{"id":"arrendamiento_vivienda_habitual","norma":"Art. 1.Trece DL 1/2010 Murcia","estado":"provisional","tipo":"porcentaje_campo","campo":"alquiler_vivienda_pagos","porcentaje":0.1,"limite":300,"edad_max":41,"base_max_individual":30000,"base_max_conjunta":50000}],"pendientes":["inversion_vivienda_habitual_jovenes","mujeres_trabajadoras","conciliacion_cuidado_ascendientes","acogimiento_no_remunerado_mayores","adquisicion_vivienda_familias_numerosas","donativos_patrimonio_cultural","donativos_investigacion_biosanitaria","inversiones_ahorro_agua","inversion_energias_renovables","inversion_entidades_nueva_creacion","gastos_ensenanza_idiomas","gastos_acceso_internet","vehiculos_electricos","cristales_graduados_lentes","practica_deporte","enfermedades_raras","gastos_veterinarios"]}},"ES-RI":{"nombre":"La Rioja","regimen":"comun","escala_general_autonomica":[{"hasta":12450,"tipo":0.08},{"hasta":20200,"tipo":0.106},{"hasta":35200,"tipo":0.136},{"hasta":40000,"tipo":0.178},{"hasta":50000,"tipo":0.183},{"hasta":60000,"tipo":0.19},{"hasta":120000,"tipo":0.245},{"hasta":null,"tipo":0.27}],"bonificacion_residencia":null,"deducciones_autonomicas":{"estado":"cargado","fuente":"Ley 10/2017 de La Rioja, art. 32 (apartados 1, 6, 9, 10, 12 y 17); AEAT Manual Práctico Renta 2025, Parte 2 — Deducciones autonómicas / La Rioja","lista":[{"id":"nacimiento_adopcion","norma":"Art. 32.1 Ley 10/2017 La Rioja","estado":"provisional","tipo":"fija_por_hijo_nacido","anios_ventana":1,"importes_por_orden":{"1":600,"2":750,"3+":900},"prorratea_progenitores":true},{"id":"hijo_0_3_escuelas_infantiles","norma":"Art. 32.6 Ley 10/2017 La Rioja","estado":"provisional","tipo":"porcentaje_campo_hijo","campo":"gastos_guarderia","porcentaje":0.2,"limite":600,"edad_hijo_max":2},{"id":"arrendamiento_vivienda_habitual_joven","norma":"Art. 32.12 Ley 10/2017 La Rioja","estado":"provisional","tipo":"porcentaje_campo","campo":"alquiler_vivienda_pagos","porcentaje":0.1,"limite":300,"edad_max":36,"base_max_individual":18030,"base_max_conjunta":30050},{"id":"acceso_internet_jovenes_emancipados","norma":"Art. 32.9 Ley 10/2017 La Rioja","estado":"provisional","tipo":"porcentaje_campo","campo":"gastos_internet","porcentaje":0.3,"edad_max":36,"base_max_individual":18030,"base_max_conjunta":30050},{"id":"suministro_luz_gas_emancipados","norma":"Art. 32.10 Ley 10/2017 La Rioja","estado":"provisional","tipo":"porcentaje_campo","campo":"gastos_luz_gas","porcentaje":0.15,"edad_max":36,"base_max_individual":18030,"base_max_conjunta":30050},{"id":"fomentar_ejercicio_fisico","norma":"Art. 32.17 Ley 10/2017 La Rioja","estado":"provisional","tipo":"porcentaje_campo","campo":"gastos_deporte","porcentaje":0.3,"limite":300},{"id":"hijo_0_3_pequenos_municipios","norma":"Art. 32.5 Ley 10/2017 La Rioja","estado":"provisional","tipo":"fija_por_hijo","importe":1200,"edad_hijo_max":2,"requiere_zona_despoblada":true}],"pendientes":["adquisicion_construccion_rehabilitacion_vivienda_pequenos_municipios","acogimiento_familiar_menor","hijo_0_3_traslado_pequenos_municipios","vehiculos_electricos","fijacion_poblacion_medio_rural","inversion_vivienda_habitual_jovenes_36","bicicletas","obras_rehabilitacion_vivienda","adquisicion_construccion_vivienda_jovenes","segunda_vivienda_medio_rural","obras_adecuacion_discapacidad","donaciones_mecenazgo","conservacion_patrimonio_historico","enfermos_ela","cuotas_organizaciones_agrarias","enfermedad_celiaca","paliar_subida_intereses_prestamos_vivienda"]}},"ES-VC":{"nombre":"Comunitat Valenciana","regimen":"comun","escala_general_autonomica":[{"hasta":12000,"tipo":0.09},{"hasta":22000,"tipo":0.12},{"hasta":32000,"tipo":0.15},{"hasta":42000,"tipo":0.175},{"hasta":52000,"tipo":0.2},{"hasta":62000,"tipo":0.225},{"hasta":72000,"tipo":0.25},{"hasta":100000,"tipo":0.265},{"hasta":150000,"tipo":0.275},{"hasta":200000,"tipo":0.285},{"hasta":null,"tipo":0.295}],"bonificacion_residencia":null,"deducciones_autonomicas":{"estado":"cargado","fuente":"Ley 13/1997 de la Comunitat Valenciana, art. 4.Uno (a, d, e, g, h, n, t, v, x); AEAT Manual Práctico Renta 2025, Parte 2 — Deducciones autonómicas / Comunitat Valenciana","lista":[{"id":"nacimiento_adopcion","norma":"Art. 4.Uno.a), Cuatro y Cinco Ley 13/1997 (red. Ley 5/2025)","tipo":"fija_por_hijo_nacido","anios_ventana":3,"importes_por_orden":{"1":600,"2":750,"3+":900},"prorratea_progenitores":true,"base_max_individual":30000,"base_max_conjunta":47000,"taper_individual":[27000,30000],"taper_conjunta":[44000,47000]},{"id":"familia_numerosa_general","norma":"Art. 4.Uno.d), Cuatro y Cinco Ley 13/1997","tipo":"fija","importe":330,"familia_numerosa_categoria":"general","prorratea_progenitores":true,"base_max_individual":30000,"base_max_conjunta":47000,"taper_individual":[27000,30000],"taper_conjunta":[44000,47000]},{"id":"familia_numerosa_especial","norma":"Art. 4.Uno.d), Cuatro y Cinco Ley 13/1997","tipo":"fija","importe":660,"familia_numerosa_categoria":"especial","prorratea_progenitores":true,"base_max_individual":35000,"base_max_conjunta":58000,"taper_individual":[31000,35000],"taper_conjunta":[54000,58000]},{"id":"familia_monoparental","norma":"Art. 4.Uno.d), Cuatro y Cinco Ley 13/1997","estado":"provisional","tipo":"fija","importe":330,"requiere_monoparental":true,"familia_numerosa_categoria":"no","base_max_individual":30000,"base_max_conjunta":47000,"taper_individual":[27000,30000],"taper_conjunta":[44000,47000]},{"id":"custodia_guarderias","norma":"Art. 4.Uno.e), Cuatro y Cinco Ley 13/1997","tipo":"porcentaje_campo_hijo","campo":"gastos_guarderia","porcentaje":0.15,"limite":297,"edad_hijo_max":2,"requiere_progenitores_trabajan":true,"prorratea_progenitores":true,"base_max_individual":30000,"base_max_conjunta":47000,"taper_individual":[27000,30000],"taper_conjunta":[44000,47000]},{"id":"contribuyente_discapacidad_65","norma":"Art. 4.Uno.g), Cuatro y Cinco Ley 13/1997","tipo":"fija","importe":197,"requiere_discapacidad_contribuyente":true,"edad_min":65,"base_max_individual":30000,"base_max_conjunta":47000,"taper_individual":[27000,30000],"taper_conjunta":[44000,47000]},{"id":"ascendientes_75","norma":"Art. 4.Uno.h), Cuatro y Cinco Ley 13/1997","estado":"provisional","tipo":"fija_por_ascendiente","importe":197,"edad_ascendiente_min":75,"prorratea_progenitores":true,"base_max_individual":30000,"base_max_conjunta":47000,"taper_individual":[27000,30000],"taper_conjunta":[44000,47000]},{"id":"arrendamiento_vivienda_habitual","norma":"Art. 4.Uno.n), Cuatro y Cinco Ley 13/1997","grupo":"arrendamiento_vc","tipo":"porcentaje_campo","campo":"alquiler_vivienda_pagos","porcentaje":0.2,"limite":800,"base_max_individual":30000,"base_max_conjunta":47000,"taper_individual":[27000,30000],"taper_conjunta":[44000,47000]},{"id":"arrendamiento_vivienda_habitual_joven","norma":"Art. 4.Uno.n), Cuatro y Cinco Ley 13/1997","grupo":"arrendamiento_vc","tipo":"porcentaje_campo","campo":"alquiler_vivienda_pagos","porcentaje":0.25,"limite":950,"edad_max":36,"base_max_individual":30000,"base_max_conjunta":47000,"taper_individual":[27000,30000],"taper_conjunta":[44000,47000]},{"id":"arrendamiento_vivienda_habitual_discapacidad","norma":"Art. 4.Uno.n), Cuatro y Cinco Ley 13/1997","grupo":"arrendamiento_vc","tipo":"porcentaje_campo","campo":"alquiler_vivienda_pagos","porcentaje":0.25,"limite":950,"requiere_discapacidad_grado":"65_mas","base_max_individual":30000,"base_max_conjunta":47000,"taper_individual":[27000,30000],"taper_conjunta":[44000,47000]},{"id":"arrendamiento_vivienda_habitual_joven_discapacidad","norma":"Art. 4.Uno.n), Cuatro y Cinco Ley 13/1997","grupo":"arrendamiento_vc","tipo":"porcentaje_campo","campo":"alquiler_vivienda_pagos","porcentaje":0.3,"limite":1100,"edad_max":36,"requiere_discapacidad_grado":"65_mas","base_max_individual":30000,"base_max_conjunta":47000,"taper_individual":[27000,30000],"taper_conjunta":[44000,47000]},{"id":"material_escolar","norma":"Art. 4.Uno.v), Cuatro y Cinco Ley 13/1997","estado":"provisional","tipo":"fija_por_hijo","importe":110,"edad_hijo_min":6,"edad_hijo_max":16,"requiere_desempleo":true,"prorratea_progenitores":true,"base_max_individual":30000,"base_max_conjunta":47000,"taper_individual":[27000,30000],"taper_conjunta":[44000,47000]},{"id":"abonos_culturales","norma":"Art. 4.Uno.x) Ley 13/1997","tipo":"porcentaje_campo","campo":"gastos_abonos_culturales","porcentaje":0.21,"base_maxima":165,"base_max_individual":50000,"base_max_conjunta":50000},{"id":"dos_o_mas_descendientes","norma":"Art. 4.Uno.t) Ley 13/1997","estado":"provisional","tipo":"porcentaje_cuota_autonomica","porcentaje":0.1,"min_descendientes":2,"base_max_individual":30000,"base_max_conjunta":30000},{"id":"residencia_municipio_despoblamiento","norma":"Art. 4.Uno.aa) y Seis Ley 13/1997","tipo":"fija","importe":330,"requiere_zona_despoblada":true},{"id":"residencia_despoblamiento_1_descendiente","norma":"Art. 4.Uno.aa) Ley 13/1997","estado":"provisional","tipo":"fija","importe":132,"requiere_zona_despoblada":true,"descendientes_min":1,"descendientes_max":1},{"id":"residencia_despoblamiento_2_descendientes","norma":"Art. 4.Uno.aa) Ley 13/1997","estado":"provisional","tipo":"fija","importe":198,"requiere_zona_despoblada":true,"descendientes_min":2,"descendientes_max":2},{"id":"residencia_despoblamiento_3_descendientes","norma":"Art. 4.Uno.aa) Ley 13/1997","estado":"provisional","tipo":"fija","importe":264,"requiere_zona_despoblada":true,"descendientes_min":3}],"pendientes":["nacimiento_adopcion_multiple","nacimiento_adopcion_discapacidad","conciliacion_trabajo_vida_familiar","contratacion_indefinida_empleada_hogar_cuidado","primera_adquisicion_vivienda_35","adquisicion_vivienda_discapacidad","arrendamiento_actividad_distinto_municipio","autoconsumo_energia_renovable","obras_conservacion_mejora_vivienda","donativos_ecologicos_patrimonio_lengua","incremento_costes_financiacion_vivienda","gastos_salud","(~25 más)"]}},"ES-PV-BI":{"nombre":"Bizkaia","regimen":"foral_pais_vasco"},"ES-PV-SS":{"nombre":"Gipuzkoa","regimen":"foral_pais_vasco"},"ES-PV-VI":{"nombre":"Araba/Álava","regimen":"foral_pais_vasco"},"ES-NC":{"nombre":"Comunidad Foral de Navarra","regimen":"foral_navarra"}}};
+const CASOS = {"soltero30_ES-MD":{"js":{"territorio":"ES-MD","ejercicio":2025,"tipoUnidadFamiliar":"ninguna","familiaNumerosa":"no","miembros":[{"id":"d1","rol":"declarante","edad":35,"trabajo":{"dinerarias":30000,"cotizacionesSs":1905},"retenciones":3500}]},"ref":{"blg":26095,"bla":0,"minimo":5550,"ci_est":2469.75,"ci_aut":2175.34,"cl":4645.09,"cd":1145.09,"tme":0.178,"modo":"individual"}},"soltero30_ES-CT":{"js":{"territorio":"ES-CT","ejercicio":2025,"tipoUnidadFamiliar":"ninguna","familiaNumerosa":"no","miembros":[{"id":"d1","rol":"declarante","edad":35,"trabajo":{"dinerarias":30000,"cotizacionesSs":1905},"retenciones":3500}]},"ref":{"blg":26095,"bla":0,"minimo":5550,"ci_est":2469.75,"ci_aut":2502.95,"cl":4972.7,"cd":1472.7,"tme":0.1906,"modo":"individual"}},"soltero30_ES-AN":{"js":{"territorio":"ES-AN","ejercicio":2025,"tipoUnidadFamiliar":"ninguna","familiaNumerosa":"no","miembros":[{"id":"d1","rol":"declarante","edad":35,"trabajo":{"dinerarias":30000,"cotizacionesSs":1905},"retenciones":3500}]},"ref":{"blg":26095,"bla":0,"minimo":5550,"ci_est":2469.75,"ci_aut":2429,"cl":4898.75,"cd":1398.75,"tme":0.1877,"modo":"individual"}},"soltero30_ES-EX":{"js":{"territorio":"ES-EX","ejercicio":2025,"tipoUnidadFamiliar":"ninguna","familiaNumerosa":"no","miembros":[{"id":"d1","rol":"declarante","edad":35,"trabajo":{"dinerarias":30000,"cotizacionesSs":1905},"retenciones":3500}]},"ref":{"blg":26095,"bla":0,"minimo":5550,"ci_est":2469.75,"ci_aut":2298.63,"cl":4768.38,"cd":1268.38,"tme":0.1827,"modo":"individual"}},"soltero30_ES-VC":{"js":{"territorio":"ES-VC","ejercicio":2025,"tipoUnidadFamiliar":"ninguna","familiaNumerosa":"no","miembros":[{"id":"d1","rol":"declarante","edad":35,"trabajo":{"dinerarias":30000,"cotizacionesSs":1905},"retenciones":3500}]},"ref":{"blg":26095,"bla":0,"minimo":5550,"ci_est":2469.75,"ci_aut":2394.75,"cl":4864.5,"cd":1364.5,"tme":0.1864,"modo":"individual"}},"soltero30_ES-PV-BI":{"js":{"territorio":"ES-PV-BI","ejercicio":2025,"tipoUnidadFamiliar":"ninguna","familiaNumerosa":"no","miembros":[{"id":"d1","rol":"declarante","edad":35,"trabajo":{"dinerarias":30000,"cotizacionesSs":1905},"retenciones":3500}]},"ref":{"blg":25095,"bla":0,"minimo":0,"ci_est":0,"ci_aut":6140.6,"cl":4525.6,"cd":1025.6,"tme":0.1803,"modo":"individual"}},"soltero30_ES-PV-SS":{"js":{"territorio":"ES-PV-SS","ejercicio":2025,"tipoUnidadFamiliar":"ninguna","familiaNumerosa":"no","miembros":[{"id":"d1","rol":"declarante","edad":35,"trabajo":{"dinerarias":30000,"cotizacionesSs":1905},"retenciones":3500}]},"ref":{"blg":25095,"bla":0,"minimo":0,"ci_est":0,"ci_aut":6140.6,"cl":4557.6,"cd":1057.6,"tme":0.1816,"modo":"individual"}},"soltero30_ES-NC":{"js":{"territorio":"ES-NC","ejercicio":2025,"tipoUnidadFamiliar":"ninguna","familiaNumerosa":"no","miembros":[{"id":"d1","rol":"declarante","edad":35,"trabajo":{"dinerarias":30000,"cotizacionesSs":1905},"retenciones":3500}]},"ref":{"blg":28095,"bla":0,"minimo":1367.85,"ci_est":0,"ci_aut":6529.23,"cl":4461.38,"cd":961.38,"tme":0.1588,"modo":"individual"}},"pareja2h_ES-MD":{"js":{"territorio":"ES-MD","ejercicio":2025,"tipoUnidadFamiliar":"biparental","familiaNumerosa":"no","miembros":[{"id":"d1","rol":"declarante","edad":40,"trabajo":{"dinerarias":45000,"cotizacionesSs":2857},"capitalMobiliario":{"dividendos":2000,"intereses":500},"retenciones":8000},{"id":"d2","rol":"conyuge","edad":38,"trabajo":{"dinerarias":20000,"cotizacionesSs":1270},"retenciones":2000},{"id":"h1","rol":"descendiente","edad":8},{"id":"h2","rol":"descendiente","edad":4}]},"ref":{"blg":52857.5,"bla":2500,"minimo":8100,"ci_est":5190.2,"ci_aut":4603.46,"cl":9793.66,"cd":-206.34,"tme":0.1769,"modo":"individual"}},"pareja2h_ES-PV-BI":{"js":{"territorio":"ES-PV-BI","ejercicio":2025,"tipoUnidadFamiliar":"biparental","familiaNumerosa":"no","miembros":[{"id":"d1","rol":"declarante","edad":40,"trabajo":{"dinerarias":45000,"cotizacionesSs":2857},"capitalMobiliario":{"dividendos":2000,"intereses":500},"retenciones":8000},{"id":"d2","rol":"conyuge","edad":38,"trabajo":{"dinerarias":20000,"cotizacionesSs":1270},"retenciones":2000},{"id":"h1","rol":"descendiente","edad":8},{"id":"h2","rol":"descendiente","edad":4}]},"ref":{"blg":52269.51,"bla":1000,"minimo":0,"ci_est":0,"ci_aut":13552.35,"cl":8433.35,"cd":-1566.65,"tme":0.1583,"modo":"individual"}},"pareja2h_ES-NC":{"js":{"territorio":"ES-NC","ejercicio":2025,"tipoUnidadFamiliar":"biparental","familiaNumerosa":"no","miembros":[{"id":"d1","rol":"declarante","edad":40,"trabajo":{"dinerarias":45000,"cotizacionesSs":2857},"capitalMobiliario":{"dividendos":2000,"intereses":500},"retenciones":8000},{"id":"d2","rol":"conyuge","edad":38,"trabajo":{"dinerarias":20000,"cotizacionesSs":1270},"retenciones":2000},{"id":"h1","rol":"descendiente","edad":8},{"id":"h2","rol":"descendiente","edad":4}]},"ref":{"blg":60873,"bla":2500,"minimo":1581.5,"ci_est":0,"ci_aut":15493.85,"cl":10109.12,"cd":109.12,"tme":0.1595,"modo":"individual"}},"dt9_ct":{"js":{"territorio":"ES-CT","ejercicio":2025,"tipoUnidadFamiliar":"ninguna","familiaNumerosa":"no","miembros":[{"id":"d1","rol":"declarante","edad":70,"trabajo":{"dinerarias":18000},"ganancias":[{"valorTransmision":50000,"valorAdquisicion":10000,"fechaAdquisicion":"1990-06-01","fechaTransmision":"2025-03-01","tipoElemento":"accion_cotizada","esTransmision":true}],"retenciones":1500}]},"ref":{"blg":10707,"bla":21998.109045,"minimo":6700,"ci_est":2630.47,"ci_aut":2630.47,"cl":5260.93,"cd":3760.93,"tme":0.1609,"modo":"individual"}},"prevsoc_md":{"js":{"territorio":"ES-MD","ejercicio":2025,"tipoUnidadFamiliar":"ninguna","familiaNumerosa":"no","miembros":[{"id":"d1","rol":"declarante","edad":45,"trabajo":{"dinerarias":60000,"cotizacionesSs":3810},"previsionSocial":{"aportacionIndividual":1500,"contribucionEmpresarial":8500}}]},"ref":{"blg":44190,"bla":0,"minimo":5550,"ci_est":5498.65,"ci_aut":4894.66,"cl":10393.31,"cd":10393.31,"tme":0.1918,"modo":"individual"}},"md_alquiler":{"js":{"territorio":"ES-MD","ejercicio":2025,"tipoUnidadFamiliar":"ninguna","familiaNumerosa":"no","miembros":[{"id":"d1","rol":"declarante","edad":30,"trabajo":{"dinerarias":27000,"cotizacionesSs":1714},"alquilerViviendaPagos":9000}]},"ref":{"blg":23286,"bla":0,"minimo":5550,"ci_est":2048.4,"ci_aut":1815.79,"cl":2626.99,"cd":2626.99,"tme":0.1128,"modo":"individual"}},"an_mono":{"js":{"territorio":"ES-AN","ejercicio":2025,"tipoUnidadFamiliar":"monoparental","familiaNumerosa":"no","miembros":[{"id":"d1","rol":"declarante","edad":32,"trabajo":{"dinerarias":24000,"cotizacionesSs":1524}},{"id":"h1","rol":"descendiente","edad":0,"nacidoEnEjercicio":true}]},"ref":{"blg":18326,"bla":0,"minimo":10750,"ci_est":866.62,"ci_aut":852.87,"cl":1419.49,"cd":219.49,"tme":0.0693,"modo":"conjunta"}},"vc_2hijos":{"js":{"territorio":"ES-VC","ejercicio":2025,"tipoUnidadFamiliar":"monoparental","familiaNumerosa":"no","miembros":[{"id":"d1","rol":"declarante","edad":40,"trabajo":{"dinerarias":26000,"cotizacionesSs":1651}},{"id":"h1","rol":"descendiente","edad":6},{"id":"h2","rol":"descendiente","edad":9}]},"ref":{"blg":20199,"bla":0,"minimo":10650,"ci_est":1100.88,"ci_aut":1105.38,"cl":1798.72,"cd":1798.72,"tme":0.0805,"modo":"conjunta"}},"ct_deducciones":{"js":{"territorio":"ES-CT","ejercicio":2025,"tipoUnidadFamiliar":"ninguna","familiaNumerosa":"no","miembros":[{"id":"d1","rol":"declarante","edad":45,"trabajo":{"dinerarias":50000,"cotizacionesSs":3175},"rehabilitacionViviendaPagos":6000,"donativosInvestigacion":800,"inversionAngelInversor":10000}]},"ref":{"blg":44825,"bla":0,"minimo":5550,"ci_est":5616.13,"ci_aut":5854.5,"cl":7140.63,"cd":7140.63,"tme":0.1593,"modo":"individual"}},"ga_familia":{"js":{"territorio":"ES-GA","ejercicio":2025,"tipoUnidadFamiliar":"monoparental","familiaNumerosa":"no","miembros":[{"id":"d1","rol":"declarante","edad":34,"trabajo":{"dinerarias":24000,"cotizacionesSs":1524}},{"id":"h1","rol":"descendiente","edad":0,"nacidoEnEjercicio":true},{"id":"h2","rol":"descendiente","edad":8,"gastosLibrosTexto":200}]},"ref":{"blg":18326,"bla":0,"minimo":13450,"ci_est":585.12,"ci_aut":568.05,"cl":585.12,"cd":-614.88,"tme":0.0286,"modo":"conjunta"}},"cyl_disc":{"js":{"territorio":"ES-CL","ejercicio":2025,"tipoUnidadFamiliar":"ninguna","familiaNumerosa":"no","miembros":[{"id":"d1","rol":"declarante","edad":70,"discapacidad":"65_mas","trabajo":{"dinerarias":20000,"cotizacionesSs":1270}}]},"ref":{"blg":12714.5,"bla":0,"minimo":18700,"ci_est":0,"ci_aut":0,"cl":0,"cd":0,"tme":0,"modo":"individual"}},"cn_familia":{"js":{"territorio":"ES-CN","ejercicio":2025,"tipoUnidadFamiliar":"biparental","familiaNumerosa":"no","miembros":[{"id":"d1","rol":"declarante","edad":34,"trabajo":{"dinerarias":25000,"cotizacionesSs":1587}},{"id":"d2","rol":"conyuge","edad":33,"trabajo":{"dinerarias":20000,"cotizacionesSs":1270}},{"id":"h1","rol":"descendiente","edad":1,"gastosGuarderia":4000},{"id":"h2","rol":"descendiente","edad":0,"nacidoEnEjercicio":true}]},"ref":{"blg":34127.5,"bla":0,"minimo":10900,"ci_est":1438.19,"ci_aut":1350.88,"cl":2228.26,"cd":-2171.74,"tme":0.0653,"modo":"individual"}},"mc_familia":{"js":{"territorio":"ES-MC","ejercicio":2025,"tipoUnidadFamiliar":"monoparental","familiaNumerosa":"no","miembros":[{"id":"d1","rol":"declarante","edad":38,"trabajo":{"dinerarias":28000,"cotizacionesSs":1778},"cuotasSsEmpleadaHogar":3000},{"id":"h1","rol":"descendiente","edad":1,"gastosGuarderia":6000},{"id":"h2","rol":"descendiente","edad":8}]},"ref":{"blg":22072,"bla":0,"minimo":13450,"ci_est":1090.8,"ci_aut":1004.98,"cl":1090.8,"cd":-1109.2,"tme":0.045,"modo":"conjunta"}},"ar_dependientes":{"js":{"territorio":"ES-AR","ejercicio":2025,"tipoUnidadFamiliar":"ninguna","familiaNumerosa":"no","miembros":[{"id":"d1","rol":"declarante","edad":72,"trabajo":{"dinerarias":19000,"cotizacionesSs":0}},{"id":"a1","rol":"ascendiente","edad":82}]},"ref":{"blg":13457,"bla":0,"minimo":9250,"ci_est":424.84,"ci_aut":409.28,"cl":609.12,"cd":609.12,"tme":0.0453,"modo":"individual"}},"ex_familia":{"js":{"territorio":"ES-EX","ejercicio":2025,"tipoUnidadFamiliar":"monoparental","familiaNumerosa":"no","miembros":[{"id":"d1","rol":"declarante","edad":40,"trabajo":{"dinerarias":24000,"cotizacionesSs":1524},"gastosCuidadoHijos":5000},{"id":"h1","rol":"descendiente","edad":8},{"id":"h2","rol":"descendiente","edad":12,"discapacidad":"65_mas"}]},"ref":{"blg":20476,"bla":0,"minimo":22650,"ci_est":0,"ci_aut":0,"cl":0,"cd":-1200,"tme":0,"modo":"individual"}},"ib_familia":{"js":{"territorio":"ES-IB","ejercicio":2025,"tipoUnidadFamiliar":"monoparental","familiaNumerosa":"no","miembros":[{"id":"d1","rol":"declarante","edad":34,"trabajo":{"dinerarias":30000,"cotizacionesSs":1905},"gastosConciliacionMenores":2000},{"id":"h1","rol":"descendiente","edad":4,"gastosLibrosTexto":300},{"id":"h2","rol":"descendiente","edad":0,"nacidoEnEjercicio":true}]},"ref":{"blg":23945,"bla":0,"minimo":13450,"ci_est":1371.75,"ci_aut":1359.04,"cl":1371.75,"cd":171.75,"tme":0.0526,"modo":"conjunta"}},"as_familia":{"js":{"territorio":"ES-AS","ejercicio":2025,"tipoUnidadFamiliar":"monoparental","familiaNumerosa":"no","miembros":[{"id":"d1","rol":"declarante","edad":38,"trabajo":{"dinerarias":24000,"cotizacionesSs":1524}},{"id":"h1","rol":"descendiente","edad":1,"gastosGuarderia":4000},{"id":"h2","rol":"descendiente","edad":15}]},"ref":{"blg":18326,"bla":0,"minimo":13450,"ci_est":585.12,"ci_aut":597.5,"cl":585.12,"cd":-1614.88,"tme":0.0286,"modo":"conjunta"}},"cb_familia":{"js":{"territorio":"ES-CB","ejercicio":2025,"tipoUnidadFamiliar":"monoparental","familiaNumerosa":"no","miembros":[{"id":"d1","rol":"declarante","edad":40,"trabajo":{"dinerarias":26000,"cotizacionesSs":1651},"gastosEnfermedad":8000},{"id":"h1","rol":"descendiente","edad":1,"gastosGuarderia":3000}]},"ref":{"blg":20199,"bla":0,"minimo":10750,"ci_est":1091.38,"ci_aut":983.14,"cl":1091.38,"cd":-1108.62,"tme":0.0488,"modo":"conjunta"}},"ri_joven":{"js":{"territorio":"ES-RI","ejercicio":2025,"tipoUnidadFamiliar":"ninguna","familiaNumerosa":"no","miembros":[{"id":"d1","rol":"declarante","edad":30,"trabajo":{"dinerarias":18000,"cotizacionesSs":1143},"gastosInternet":600,"gastosLuzGas":2000,"gastosDeporte":1500}]},"ref":{"blg":7563.75,"bla":0,"minimo":5550,"ci_est":191.31,"ci_aut":161.1,"cl":191.31,"cd":191.31,"tme":0.0253,"modo":"individual"}},"cm_mayores":{"js":{"territorio":"ES-CM","ejercicio":2025,"tipoUnidadFamiliar":"ninguna","familiaNumerosa":"no","miembros":[{"id":"d1","rol":"declarante","edad":78,"trabajo":{"dinerarias":17000,"cotizacionesSs":0}},{"id":"a1","rol":"ascendiente","edad":90,"rentasPropias":0}]},"ref":{"blg":7957,"bla":0,"minimo":10650,"ci_est":0,"ci_aut":0,"cl":0,"cd":0,"tme":0,"modo":"individual"}},"vc_familia2":{"js":{"territorio":"ES-VC","ejercicio":2025,"tipoUnidadFamiliar":"monoparental","familiaNumerosa":"no","miembros":[{"id":"d1","rol":"declarante","edad":44,"trabajo":{"dinerarias":27000,"cotizacionesSs":1714},"gastosAbonosCulturales":400},{"id":"h1","rol":"descendiente","edad":1,"gastosGuarderia":3000},{"id":"a1","rol":"ascendiente","edad":80,"rentasPropias":0}]},"ref":{"blg":21136,"bla":0,"minimo":13300,"ci_est":968.4,"ci_aut":940.32,"cl":968.4,"cd":-1231.6,"tme":0.0416,"modo":"conjunta"}},"an_ascendiente":{"js":{"territorio":"ES-AN","ejercicio":2025,"tipoUnidadFamiliar":"monoparental","familiaNumerosa":"no","miembros":[{"id":"d1","rol":"declarante","edad":45,"trabajo":{"dinerarias":32000,"cotizacionesSs":2032},"gastosDeporte":900},{"id":"h1","rol":"descendiente","edad":10,"gastosIdiomasInformatica":1500},{"id":"a1","rol":"ascendiente","edad":80,"rentasPropias":0}]},"ref":{"blg":25818,"bla":0,"minimo":10500,"ci_est":1957.95,"ci_aut":1917.2,"cl":3425.15,"cd":3425.15,"tme":0.1225,"modo":"conjunta"}},"md_fn_asc":{"js":{"territorio":"ES-MD","ejercicio":2025,"tipoUnidadFamiliar":"biparental","familiaNumerosa":"especial","miembros":[{"id":"d1","rol":"declarante","edad":44,"trabajo":{"dinerarias":48000,"cotizacionesSs":3048}},{"id":"d2","rol":"conyuge","edad":42,"trabajo":{"dinerarias":20000,"cotizacionesSs":1270}},{"id":"h1","rol":"descendiente","edad":6},{"id":"h2","rol":"descendiente","edad":9},{"id":"h3","rol":"descendiente","edad":12},{"id":"h4","rol":"descendiente","edad":15},{"id":"h5","rol":"descendiente","edad":17},{"id":"a1","rol":"ascendiente","edad":83,"rentasPropias":0}]},"ref":{"blg":55666.5,"bla":0,"minimo":15875,"ci_est":4203.12,"ci_aut":3746.34,"cl":4203.12,"cd":1803.12,"tme":0.0755,"modo":"individual"}},"vc_taper":{"js":{"territorio":"ES-VC","ejercicio":2025,"tipoUnidadFamiliar":"monoparental","familiaNumerosa":"no","miembros":[{"id":"d1","rol":"declarante","edad":30,"trabajo":{"dinerarias":32000,"cotizacionesSs":1500},"alquilerViviendaPagos":5000,"desempleado":true},{"id":"h1","rol":"descendiente","edad":2},{"id":"h2","rol":"descendiente","edad":9}]},"ref":{"blg":26350,"bla":0,"minimo":13450,"ci_est":1732.5,"ci_aut":1678.5,"cl":1732.5,"cd":532.5,"tme":0.0608,"modo":"conjunta"}},"vc_guarderia_2prog":{"js":{"territorio":"ES-VC","ejercicio":2025,"tipoUnidadFamiliar":"biparental","familiaNumerosa":"no","miembros":[{"id":"d1","rol":"declarante","edad":34,"trabajo":{"dinerarias":24000,"cotizacionesSs":1524}},{"id":"d2","rol":"conyuge","edad":33,"trabajo":{"dinerarias":22000,"cotizacionesSs":1397}},{"id":"h1","rol":"descendiente","edad":1,"gastosGuarderia":3000}]},"ref":{"blg":37774.27,"bla":0,"minimo":8150,"ci_est":2370.19,"ci_aut":2345.91,"cl":3819.1,"cd":1619.1,"tme":0.1011,"modo":"individual"}},"md_pareja_indiv":{"js":{"territorio":"ES-MD","ejercicio":2025,"tipoUnidadFamiliar":"biparental","familiaNumerosa":"general","miembros":[{"id":"d1","rol":"declarante","edad":30,"trabajo":{"dinerarias":30000,"cotizacionesSs":1905},"alquilerViviendaPagos":9000},{"id":"d2","rol":"conyuge","edad":45,"trabajo":{"dinerarias":28000,"cotizacionesSs":1778}},{"id":"h1","rol":"descendiente","edad":1},{"id":"h2","rol":"descendiente","edad":6},{"id":"h3","rol":"descendiente","edad":9}]},"ref":{"blg":50317,"bla":0,"minimo":11500,"ci_est":3528.05,"ci_aut":3099.44,"cl":3882.13,"cd":1482.13,"tme":0.0772,"modo":"individual"}},"pv_pareja_indiv":{"js":{"territorio":"ES-PV-SS","ejercicio":2025,"tipoUnidadFamiliar":"biparental","familiaNumerosa":"no","miembros":[{"id":"d1","rol":"declarante","edad":30,"discapacidad":"33_64","trabajo":{"dinerarias":30000,"cotizacionesSs":1905},"alquilerViviendaPagos":6000},{"id":"d2","rol":"conyuge","edad":67,"trabajo":{"dinerarias":28000,"cotizacionesSs":0}},{"id":"h1","rol":"descendiente","edad":4}]},"ref":{"blg":50095,"bla":0,"minimo":0,"ci_est":0,"ci_aut":12254.6,"cl":5754.1,"cd":5754.1,"tme":0.1149,"modo":"individual"}},"nc_emancipacion":{"js":{"territorio":"ES-NC","ejercicio":2025,"tipoUnidadFamiliar":"ninguna","familiaNumerosa":"no","miembros":[{"id":"d1","rol":"declarante","edad":28,"trabajo":{"dinerarias":20000,"cotizacionesSs":1270},"alquilerViviendaPagos":7200}]},"ref":{"blg":18730,"bla":0,"minimo":2048.59,"ci_est":0,"ci_aut":3980.38,"cl":1231.79,"cd":-2128.21,"tme":0.0658,"modo":"individual"}},"nc_alquiler":{"js":{"territorio":"ES-NC","ejercicio":2025,"tipoUnidadFamiliar":"ninguna","familiaNumerosa":"no","miembros":[{"id":"d1","rol":"declarante","edad":40,"trabajo":{"dinerarias":25000,"cotizacionesSs":1587},"alquilerViviendaPagos":6000}]},"ref":{"blg":23413,"bla":0,"minimo":1708.19,"ci_est":0,"ci_aut":5218.27,"cl":1910.08,"cd":1910.08,"tme":0.0816,"modo":"individual"}},"nc_pension":{"js":{"territorio":"ES-NC","ejercicio":2025,"tipoUnidadFamiliar":"ninguna","familiaNumerosa":"no","miembros":[{"id":"d1","rol":"declarante","edad":70,"trabajo":{"dinerarias":13000,"cotizacionesSs":0,"pensionJubilacion":true},"capitalMobiliario":{"intereses":8000}}]},"ref":{"blg":13000,"bla":8000,"minimo":2147.59,"ci_est":0,"ci_aut":4187.88,"cl":890.29,"cd":270.7,"tme":0.0424,"modo":"individual"}},"nc_pareja_edades":{"js":{"territorio":"ES-NC","ejercicio":2025,"tipoUnidadFamiliar":"biparental","familiaNumerosa":"no","miembros":[{"id":"d1","rol":"declarante","edad":40,"trabajo":{"dinerarias":30000,"cotizacionesSs":1905}},{"id":"d2","rol":"conyuge","edad":70,"trabajo":{"dinerarias":30000,"cotizacionesSs":1905}}]},"ref":{"blg":56190,"bla":0,"minimo":1367.85,"ci_est":0,"ci_aut":13058.46,"cl":8658.76,"cd":8658.76,"tme":0.1541,"modo":"individual"}},"cl_rural":{"js":{"territorio":"ES-CL","ejercicio":2025,"tipoUnidadFamiliar":"monoparental","familiaNumerosa":"no","miembros":[{"id":"d1","rol":"declarante","edad":33,"trabajo":{"dinerarias":24000,"cotizacionesSs":1524}},{"id":"h1","rol":"descendiente","edad":0,"nacidoEnEjercicio":true}],"municipioHabitantes":1800},"ref":{"blg":18326,"bla":0,"minimo":10750,"ci_est":866.62,"ci_aut":858.12,"cl":866.62,"cd":-333.38,"tme":0.0423,"modo":"conjunta"}},"cm_rural":{"js":{"territorio":"ES-CM","ejercicio":2025,"tipoUnidadFamiliar":"ninguna","familiaNumerosa":"no","miembros":[{"id":"d1","rol":"declarante","edad":50,"trabajo":{"dinerarias":30000,"cotizacionesSs":1905}}],"municipioHabitantes":1200,"zonaDespoblada":true},"ref":{"blg":26095,"bla":0,"minimo":5550,"ci_est":2469.75,"ci_aut":2469.75,"cl":4569.04,"cd":4569.04,"tme":0.1751,"modo":"individual"}},"vc_despoblamiento":{"js":{"territorio":"ES-VC","ejercicio":2025,"tipoUnidadFamiliar":"biparental","familiaNumerosa":"no","miembros":[{"id":"d1","rol":"declarante","edad":40,"trabajo":{"dinerarias":26000,"cotizacionesSs":1651}},{"id":"d2","rol":"conyuge","edad":38,"trabajo":{"dinerarias":24000,"cotizacionesSs":1524}},{"id":"h1","rol":"descendiente","edad":6},{"id":"h2","rol":"descendiente","edad":9}],"municipioHabitantes":900,"zonaDespoblada":true},"ref":{"blg":42825,"bla":0,"minimo":8100,"ci_est":3050.25,"ci_aut":2971.47,"cl":4952.37,"cd":4952.37,"tme":0.1156,"modo":"individual"}},"ga_rural":{"js":{"territorio":"ES-GA","ejercicio":2025,"tipoUnidadFamiliar":"monoparental","familiaNumerosa":"no","miembros":[{"id":"d1","rol":"declarante","edad":34,"trabajo":{"dinerarias":22000,"cotizacionesSs":1397}},{"id":"h1","rol":"descendiente","edad":1},{"id":"h2","rol":"descendiente","edad":5}],"municipioHabitantes":3500},"ref":{"blg":15148.2672,"bla":0,"minimo":13450,"ci_est":203.79,"ci_aut":197.85,"cl":203.79,"cd":-996.21,"tme":0.0118,"modo":"conjunta"}},"cb_rural":{"js":{"territorio":"ES-CB","ejercicio":2025,"tipoUnidadFamiliar":"ninguna","familiaNumerosa":"no","miembros":[{"id":"d1","rol":"declarante","edad":32,"trabajo":{"dinerarias":28000,"cotizacionesSs":1778},"alquilerViviendaPagos":6000}],"municipioHabitantes":2500,"zonaDespoblada":true},"ref":{"blg":24222,"bla":0,"minimo":5550,"ci_est":2188.8,"ci_aut":1980.44,"cl":3173.15,"cd":3173.15,"tme":0.131,"modo":"individual"}},"rentista_ib":{"js":{"territorio":"ES-IB","ejercicio":2025,"tipoUnidadFamiliar":"ninguna","familiaNumerosa":"no","miembros":[{"id":"d1","rol":"declarante","edad":55,"capitalMobiliario":{"intereses":50000}}]},"ref":{"blg":0,"bla":50000,"minimo":5550,"ci_est":4662.75,"ci_aut":4662.75,"cl":9325.5,"cd":9325.5,"tme":0.1865,"modo":"individual"}},"jubilado_ga":{"js":{"territorio":"ES-GA","ejercicio":2025,"tipoUnidadFamiliar":"ninguna","familiaNumerosa":"no","miembros":[{"id":"d1","rol":"declarante","edad":70,"trabajo":{"dinerarias":25000,"cotizacionesSs":0}}]},"ref":{"blg":23000,"bla":0,"minimo":6700,"ci_est":1896.25,"ci_aut":1795.16,"cl":3691.41,"cd":3691.41,"tme":0.1605,"modo":"individual"}}};
+const tol = 0.02;
+let lines = [], nbad = 0;
+for (const [id, c] of Object.entries(CASOS)) {
+  let liq;
+  try { liq = irpfsim.liquidar(c.js, P, "auto"); }
+  catch (e) { lines.push("ERROR " + id + ": " + e.message); nbad++; continue; }
+  const checks = [
+    ["blg", liq.baseLiquidableGeneral, c.ref.blg],
+    ["bla", liq.baseLiquidableAhorro, c.ref.bla],
+    ["min", liq.minimoPersonalFamiliar.total, c.ref.minimo],
+    ["ciEst", liq.cuotaIntegraEstatal, c.ref.ci_est],
+    ["ciAut", liq.cuotaIntegraAutonomica, c.ref.ci_aut],
+    ["cl", liq.cuotaLiquidaTotal, c.ref.cl],
+    ["cd", liq.cuotaDiferencial, c.ref.cd],
+    ["modo", liq.modoTributacionElegido, c.ref.modo]
+  ];
+  let bad = checks.filter(([k, a, b]) => (typeof b === "number") ? Math.abs(a - b) > tol : a !== b);
+  if (bad.length) {
+    nbad++;
+    lines.push("FAIL " + id + " :: " + bad.map(([k, a, b]) => k + " js=" + a + " r=" + b).join(" | "));
+  } else {
+    lines.push("ok   " + id + "  cl=" + liq.cuotaLiquidaTotal.toFixed(2));
+  }
+}
+lines.unshift(nbad === 0 ? "TODOS OK (" + Object.keys(CASOS).length + ")" : nbad + " CASOS CON DIFERENCIAS");
+document.getElementById("out").textContent = lines.join("\n");
+document.title = nbad === 0 ? "VALIDADOR OK" : "VALIDADOR FAIL " + nbad;
+</script>

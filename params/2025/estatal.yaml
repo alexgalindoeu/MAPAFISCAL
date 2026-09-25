@@ -1,0 +1,382 @@
+# =============================================================================
+# PARÁMETROS IRPF — NÚCLEO ESTATAL (territorio común) — EJERCICIO 2025
+# =============================================================================
+# Fuente primaria: Ley 35/2006 (LIRPF), redacción vigente 2025.
+#   BOE consolidado: https://www.boe.es/buscar/act.php?id=BOE-A-2006-20764
+# Fuente de contraste: AEAT, Manual Práctico Renta 2025.
+#
+# Convención de escalas: lista de tramos con `hasta` = límite superior de la
+# base a la que se aplica el `tipo` marginal. El último tramo lleva `hasta: .inf`.
+# `estado`: confirmado | provisional | pendiente
+# =============================================================================
+
+meta:
+  jurisdiccion: estatal
+  ejercicio: 2025
+  regimen: comun
+  descripcion: "Escala estatal + parámetros comunes a las 15 CCAA de régimen común y Ceuta/Melilla"
+
+# -----------------------------------------------------------------------------
+# 1. ESCALAS DE GRAVAMEN
+# -----------------------------------------------------------------------------
+escala_general_estatal:
+  norma: "Art. 63.1.1º LIRPF"
+  fuente: "AEAT Manual Renta 2025 — Gravamen estatal base liquidable general"
+  estado: confirmado
+  tramos:
+    - { hasta: 12450,  tipo: 0.095 }
+    - { hasta: 20200,  tipo: 0.12 }
+    - { hasta: 35200,  tipo: 0.15 }
+    - { hasta: 60000,  tipo: 0.185 }
+    - { hasta: 300000, tipo: 0.225 }
+    - { hasta: .inf,   tipo: 0.245 }
+
+escala_general_autonomica_supletoria:
+  norma: "Art. 65 LIRPF (aplicable si la CCAA no aprueba escala propia; y a Ceuta/Melilla)"
+  fuente: "Art. 65 LIRPF — coincide con la escala del art. 63"
+  estado: confirmado
+  tramos:
+    - { hasta: 12450,  tipo: 0.095 }
+    - { hasta: 20200,  tipo: 0.12 }
+    - { hasta: 35200,  tipo: 0.15 }
+    - { hasta: 60000,  tipo: 0.185 }
+    - { hasta: 300000, tipo: 0.225 }
+    - { hasta: .inf,   tipo: 0.245 }
+
+escala_ahorro_estatal:
+  norma: "Art. 66.1 LIRPF (redacción con 5º tramo vigente desde 2025)"
+  fuente: "AEAT Manual Renta 2025 — Gravamen estatal base liquidable del ahorro"
+  estado: confirmado
+  tramos:
+    - { hasta: 6000,   tipo: 0.095 }
+    - { hasta: 50000,  tipo: 0.105 }
+    - { hasta: 200000, tipo: 0.115 }
+    - { hasta: 300000, tipo: 0.135 }
+    - { hasta: .inf,   tipo: 0.15 }
+
+escala_ahorro_autonomica:
+  norma: "Art. 76 LIRPF"
+  fuente: "Art. 76 LIRPF — coincide con la parte estatal del art. 66 (⇒ tarifa del ahorro combinada 19/21/23/27/30 %)"
+  estado: confirmado
+  tramos:
+    - { hasta: 6000,   tipo: 0.095 }
+    - { hasta: 50000,  tipo: 0.105 }
+    - { hasta: 200000, tipo: 0.115 }
+    - { hasta: 300000, tipo: 0.135 }
+    - { hasta: .inf,   tipo: 0.15 }
+
+# Escala para anualidades por alimentos a los hijos (arts. 64 y 75 LIRPF):
+# se aplica la escala general (estatal / autonómica) SEPARADAMENTE al importe de
+# las anualidades y al resto de la base, con el mínimo personal incrementado en 1.980 €.
+anualidades_alimentos_hijos:
+  norma: "Arts. 64 y 75 LIRPF"
+  fuente: "AEAT Manual Renta 2025"
+  estado: confirmado
+  incremento_minimo_contribuyente: 1980
+
+# -----------------------------------------------------------------------------
+# 2. MÍNIMO PERSONAL Y FAMILIAR (arts. 56–61 LIRPF)
+# -----------------------------------------------------------------------------
+minimo_contribuyente:
+  norma: "Art. 57 LIRPF"
+  fuente: "AEAT Manual Renta 2025 — cuadro-resumen mínimo personal y familiar"
+  estado: confirmado
+  general: 5550
+  incremento_mayor_65: 1150
+  incremento_mayor_75: 1400   # adicional al de 65
+
+minimo_descendientes:
+  norma: "Art. 58 LIRPF"
+  fuente: "AEAT Manual Renta 2025"
+  estado: confirmado
+  importes: { "1": 2400, "2": 2700, "3": 4000, "4+": 4500 }
+  incremento_menor_3_anios: 2800
+  limite_rentas_descendiente: 8000      # rentas anuales del descendiente
+  limite_declaracion_descendiente: 1800 # no presentar declaración con rentas > este importe
+  edad_maxima: 25                       # salvo discapacidad (sin límite de edad)
+
+minimo_ascendientes:
+  norma: "Art. 59 LIRPF"
+  fuente: "AEAT Manual Renta 2025"
+  estado: confirmado
+  importe: 1150
+  incremento_mayor_75: 1400
+  limite_rentas_ascendiente: 8000
+  edad_minima: 65   # o discapacidad >= 33 % a cualquier edad
+
+minimo_discapacidad:
+  norma: "Art. 60 LIRPF"
+  fuente: "AEAT Manual Renta 2025"
+  estado: confirmado
+  grado_33_64: 3000
+  grado_65_mas: 9000
+  gastos_asistencia: 3000   # adicional (ayuda de terceros / movilidad reducida / grado >= 65 %)
+
+# -----------------------------------------------------------------------------
+# 3. RENDIMIENTOS DEL TRABAJO (arts. 17–20 LIRPF)
+# -----------------------------------------------------------------------------
+trabajo_otros_gastos:
+  norma: "Art. 19.2.f LIRPF"
+  fuente: "AEAT Manual Renta 2025"
+  estado: provisional      # confirmar cuantía 2.000 € para 2025
+  generico: 2000
+  incremento_movilidad_geografica: 2000
+  incremento_discapacidad_33_64: 3500
+  incremento_discapacidad_65_o_movilidad: 7750
+  limite: "rendimiento íntegro del trabajo menos resto de gastos"
+
+trabajo_reduccion_art20:
+  norma: "Art. 20 LIRPF (redacción vigente 2025)"
+  fuente: "AEAT Manual Renta 2025; Iberley art. 20 LIRPF"
+  estado: confirmado
+  importe_maximo: 7302
+  umbral_pleno: 14852            # RNT <= 14.852 -> 7.302
+  umbral_intermedio: 17673.52   # tramo 1: 7.302 - 1,75*(RNT-14.852)
+  umbral_final: 19747.5         # tramo 2: 2.364,34 - 1,14*(RNT-17.673,52)
+  coef_tramo1: 1.75
+  coef_tramo2: 1.14
+  base_tramo2: 2364.34
+  limite_otras_rentas: 6500     # rentas distintas del trabajo (excl. exentas)
+
+trabajo_reduccion_irregular:
+  norma: "Art. 18.2 LIRPF"
+  estado: confirmado
+  porcentaje: 0.30
+  base_maxima: 300000
+
+# -----------------------------------------------------------------------------
+# 4. CAPITAL INMOBILIARIO (arts. 21–24 LIRPF)
+# -----------------------------------------------------------------------------
+capital_inmobiliario:
+  norma: "Arts. 23–24 LIRPF; Ley 12/2023"
+  fuente: "AEAT Manual Renta 2025"
+  estado: provisional     # confirmar porcentajes exactos de la reducción reformada
+  reduccion_arrendamiento_vivienda:
+    general: 0.50
+    zona_tensionada_bajada_renta: 0.90
+    primer_alquiler_joven_o_admon: 0.70
+    rehabilitacion_reciente: 0.60
+  amortizacion_porcentaje: 0.03   # sobre el mayor de coste satisfecho o valor catastral (excl. suelo)
+  reduccion_irregular: { porcentaje: 0.30, base_maxima: 300000 }
+
+imputacion_renta_inmobiliaria:
+  norma: "Art. 85 LIRPF"
+  estado: confirmado
+  tipo_general: 0.02
+  tipo_revisado_10_anios: 0.011
+
+# -----------------------------------------------------------------------------
+# 5. CAPITAL MOBILIARIO (arts. 25–26 LIRPF)
+# -----------------------------------------------------------------------------
+capital_mobiliario:
+  norma: "Arts. 25–26 LIRPF"
+  estado: confirmado
+  exencion_dividendos: 0        # el Estado la derogó en 2015 (Ley 26/2014). En Bizkaia/otros forales = 1500.
+  reduccion_irregular: { porcentaje: 0.30, base_maxima: 300000 }
+
+# -----------------------------------------------------------------------------
+# 6. ACTIVIDADES ECONÓMICAS (arts. 27–32 LIRPF)
+# -----------------------------------------------------------------------------
+actividades_directa_simplificada:
+  norma: "Art. 30 LIRPF; art. 30 RIRPF"
+  estado: confirmado
+  gastos_dificil_justificacion_pct: 0.05
+  gastos_dificil_justificacion_max: 2000
+  umbral_cifra_negocio: 600000
+
+actividades_reduccion_inicio:
+  norma: "Art. 32.3 LIRPF"
+  estado: confirmado
+  porcentaje: 0.20
+  ejercicios: 2
+  rendimiento_maximo: 100000
+
+actividades_reduccion_art32_2:
+  norma: "Art. 32.2.1º LIRPF (autónomos dependientes / rendimientos asimilados a trabajo)"
+  estado: provisional
+  # Estructura análoga al art. 20; se parametriza igual que trabajo_reduccion_art20 salvo cuantías
+  usa_tabla_trabajo: true
+
+estimacion_objetiva:
+  norma: "Orden anual HFP de módulos"
+  fuente: "Orden HFP de módulos 2025 (BOE) — PENDIENTE DE LOCALIZAR"
+  estado: pendiente
+  # Subsistema completo pendiente: magnitudes de exclusión, módulos por actividad,
+  # índices correctores, reducción general. En v1 el motor acepta
+  # `rendimiento_neto_modulos` como input exógeno (ver R/jurisdicciones).
+  magnitudes_exclusion:
+    ingresos_totales: 250000
+    facturacion_empresarios: 125000     # prórroga anual — confirmar
+    compras_bienes_servicios: 250000
+  reduccion_general: 0.05               # confirmar en la Orden 2025
+
+# -----------------------------------------------------------------------------
+# 7. GANANCIAS Y PÉRDIDAS PATRIMONIALES (arts. 33–39 + DT 9ª)
+# -----------------------------------------------------------------------------
+dt9_abatimiento:
+  norma: "DT 9ª LIRPF (redacción Ley 26/2014)"
+  fuente: "BOE-A-2006-20764; AEAT Manual Renta 2025"
+  estado: confirmado
+  limite_valor_transmision_acumulado: 400000
+  fecha_corte_adquisicion: "1994-12-31"
+  fecha_fin_computo: "1996-12-31"     # años de permanencia que exceden de 2 a esta fecha
+  fecha_generacion_lineal: "2006-01-20" # parte de ganancia hasta esta fecha es la reducible
+  coeficientes_por_anio_exceso:
+    inmuebles: 0.1111
+    acciones_cotizadas: 0.25
+    resto: 0.1428
+
+ganancias_exencion_reinversion_vivienda:
+  norma: "Art. 38.1 LIRPF"
+  estado: confirmado
+  plazo_anios: 2
+
+ganancias_exencion_mayores_65:
+  norma: "Arts. 33.4.b y 38.3 LIRPF"
+  estado: confirmado
+  edad: 65
+  renta_vitalicia_maxima: 240000
+  plazo_constitucion_meses: 6
+
+coeficientes_actualizacion_inmuebles:
+  norma: "Suprimidos para IRPF por Ley 26/2014"
+  estado: confirmado
+  aplica: false   # en normativa foral SÍ aplican (ver ficheros forales)
+
+# -----------------------------------------------------------------------------
+# 8. INTEGRACIÓN Y COMPENSACIÓN (arts. 44–49 LIRPF)
+# -----------------------------------------------------------------------------
+integracion_compensacion:
+  norma: "Arts. 47–49 LIRPF"
+  estado: confirmado
+  base_general_limite_perdidas_pct: 0.25   # pérdidas no derivadas de transmisión vs. saldo positivo rendimientos+imputaciones
+  base_ahorro_limite_compensacion_pct: 0.25
+  anios_arrastre: 4
+
+# -----------------------------------------------------------------------------
+# 9. REDUCCIONES DE LA BASE IMPONIBLE GENERAL (arts. 51–55, 84 LIRPF)
+# -----------------------------------------------------------------------------
+reduccion_prevision_social:
+  norma: "Arts. 51–52 LIRPF; DA 16ª"
+  estado: provisional
+  limite_general_abs: 1500
+  limite_general_pct_rend: 0.30
+  incremento_contribucion_empresarial: 8500
+  incremento_seguros_dependencia: 5000
+  limite_aportacion_conyuge: 1000
+  rentas_conyuge_maximas: 8000
+
+reduccion_tributacion_conjunta:
+  norma: "Art. 84.2 LIRPF"
+  fuente: "AEAT Manual Renta 2025 — reducción por tributación conjunta"
+  estado: confirmado
+  biparental: 3400
+  monoparental: 2150
+
+reduccion_pensiones_compensatorias:
+  norma: "Art. 55 LIRPF"
+  estado: confirmado
+  sin_limite_propio: true   # reduce la BIG hasta agotarla; el resto reduce la BIA
+
+reduccion_patrimonios_protegidos:
+  norma: "Art. 54 LIRPF"
+  estado: provisional
+  limite_por_aportante: 10000
+  limite_conjunto: 24250
+
+# -----------------------------------------------------------------------------
+# 10. DEDUCCIONES DE LA CUOTA — ESTATALES (art. 68 y DDTT)
+# -----------------------------------------------------------------------------
+deduccion_vivienda_transitoria:
+  norma: "DT 18ª LIRPF (adquisiciones anteriores a 2013)"
+  estado: provisional
+  porcentaje_estatal: 0.075
+  porcentaje_autonomico_defecto: 0.075
+  base_maxima: 9040
+  obras_discapacidad: { base_maxima: 12080, porcentaje: 0.20 }
+
+deduccion_alquiler_transitoria_estatal:
+  norma: "DT 15ª LIRPF (contratos anteriores a 2015)"
+  estado: provisional
+  porcentaje: 0.1005
+  base_maxima: 9040
+  base_imponible_maxima: 24107.20
+
+deduccion_donativos:
+  norma: "Art. 68.3 LIRPF; Ley 49/2002 art. 19 (mod. RDL 6/2023)"
+  estado: provisional
+  ley49_2002:
+    tramo1_limite: 250
+    tramo1_porcentaje: 0.80
+    resto_porcentaje: 0.40
+    resto_porcentaje_recurrente: 0.45   # misma entidad >= 3 años
+    limite_base_liquidable_pct: 0.10
+  otras_fundaciones_porcentaje: 0.10
+  cuotas_afiliacion_partidos: { porcentaje: 0.20, base_maxima: 600 }
+
+deduccion_obras_eficiencia_energetica:
+  norma: "DA 50ª LIRPF; RDL 19/2021 y prórrogas"
+  estado: pendiente     # confirmar vigencia y cuantías 2025
+  reduccion_demanda:   { porcentaje: 0.20, base_maxima: 5000 }
+  reduccion_consumo:   { porcentaje: 0.40, base_maxima: 7500 }
+  rehabilitacion_edif: { porcentaje: 0.60, base_maxima: 15000 }
+
+deduccion_vehiculos_electricos:
+  norma: "DA 58ª LIRPF; RDL 5/2023"
+  estado: pendiente
+  porcentaje: 0.15
+  base_maxima_vehiculo: 20000
+  base_maxima_punto_recarga: 4000
+
+deduccion_ceuta_melilla:
+  norma: "Art. 68.4 LIRPF"
+  fuente: "Art. 68.4 LIRPF"
+  estado: confirmado
+  porcentaje_residentes: 0.60
+  porcentaje_no_residentes: 0.50
+
+deduccion_doble_imposicion_internacional:
+  norma: "Art. 80 LIRPF"
+  estado: confirmado
+  metodo: "menor de (impuesto extranjero, tipo medio efectivo * renta extranjera gravada fuera)"
+
+# -----------------------------------------------------------------------------
+# 11. DEDUCCIONES "IMPROPIAS" (pueden generar devolución) — arts. 81, 81 bis
+# -----------------------------------------------------------------------------
+deduccion_maternidad:
+  norma: "Art. 81 LIRPF"
+  estado: provisional
+  importe_anual: 1200
+  edad_maxima_hijo: 3
+  incremento_guarderia: 1000
+
+deduccion_familia_numerosa_y_discapacidad_cargo:
+  norma: "Art. 81 bis LIRPF"
+  estado: provisional
+  familia_numerosa_general: 1200
+  familia_numerosa_especial: 2400
+  incremento_por_hijo_adicional: 600     # a partir del 4º (general) / 6º (especial)
+  ascendiente_o_descendiente_discapacidad: 1200
+  conyuge_discapacidad: 1200
+  rentas_conyuge_maximas: 8000
+
+# -----------------------------------------------------------------------------
+# 12. OBLIGACIÓN DE DECLARAR (art. 96 LIRPF) — informativo, no altera la cuota
+# -----------------------------------------------------------------------------
+obligacion_declarar:
+  norma: "Art. 96 LIRPF"
+  estado: provisional
+  trabajo_un_pagador: 22000
+  trabajo_varios_pagadores: 15876    # confirmar cifra 2025
+  segundo_pagador_umbral: 1500
+  capital_y_ganancias_con_retencion: 1600
+  rentas_inmobiliarias_imputadas: 1000
+
+# -----------------------------------------------------------------------------
+# 13. GRAVÁMENES ESPECIALES
+# -----------------------------------------------------------------------------
+gravamen_premios_loteria:
+  norma: "DA 33ª LIRPF"
+  estado: confirmado
+  exento: 40000
+  tipo: 0.20

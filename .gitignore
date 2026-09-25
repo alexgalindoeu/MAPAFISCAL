@@ -1,0 +1,23 @@
+node_modules/
+dist/
+.DS_Store
+*.log
+.env
+.env.*
+
+# R
+.Rhistory
+.RData
+.Rproj.user/
+*.Rproj
+tests/*.out
+data/muestra_sintetica.parquet
+
+# Supabase y secretos (nunca al repo)
+supabase/.temp/
+supabase/.branches/
+*.pem
+
+# configuración local del entorno
+.claude/
+Thumbs.db

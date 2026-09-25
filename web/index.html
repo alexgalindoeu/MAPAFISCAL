@@ -1,0 +1,325 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Mapafiscal</title>
+<meta name="description" content="Calcula tu IRPF 2025 con tu situación real y compáralo en los 19 territorios fiscales de España.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500&display=swap">
+<link rel="stylesheet" href="css/mapafiscal.css">
+</head>
+<body>
+<!--CUERPO-->
+<header class="appbar">
+  <div class="appbar-in">
+    <a class="marca" href="#calculadora" aria-label="Mapafiscal, inicio">
+      <svg class="marca-ico" viewBox="0 0 32 32" aria-hidden="true"><rect width="32" height="32" rx="7" class="marca-fondo"/><path d="M8 22V10l5 6 5-6v12" class="marca-trazo"/><path d="M21 13h4M21 17h4M21 21h4" class="marca-trazo"/></svg>
+      <span class="marca-txt">Mapafiscal</span>
+    </a>
+    <nav class="nav" aria-label="Secciones">
+      <a href="#calculadora" data-vista="calculadora">Calculadora</a>
+      <a href="#comparar" data-vista="comparar">Comparar territorios</a>
+      <a href="#clientes" data-vista="clientes">Mis clientes</a>
+      <a href="#planes" data-vista="planes">Planes</a>
+      <a href="#metodologia" data-vista="metodologia">Metodología</a>
+    </nav>
+    <div class="appbar-der">
+      <span class="chip-ejercicio" title="Ejercicio fiscal">IRPF 2025</span>
+      <button class="btn btn-sec btn-sm" id="btn-cuenta" type="button">Acceder</button>
+    </div>
+  </div>
+</header>
+
+<main class="contenedor">
+
+<!-- =========================== CALCULADORA =========================== -->
+<section class="vista" id="v-calculadora" aria-labelledby="t-calc">
+  <div class="cabecera-vista">
+    <div>
+      <h1 id="t-calc">Calcula tu IRPF</h1>
+      <p class="entradilla">Declaración de la renta del ejercicio 2025 con tu situación real: escala estatal y autonómica o foral, mínimos, reducciones y las deducciones autonómicas de tu territorio.</p>
+    </div>
+    <div class="cabecera-acciones" id="barra-cliente" hidden>
+      <span class="cliente-abierto">Cliente: <b id="cliente-alias"></b></span>
+      <button class="btn btn-sec btn-sm" type="button" id="btn-cerrar-cliente">Cerrar</button>
+    </div>
+  </div>
+
+  <div class="calc">
+    <form class="formulario" id="form" autocomplete="off" novalidate>
+
+      <fieldset class="bloque">
+        <legend><span class="paso">1</span>Residencia fiscal</legend>
+        <div class="campo">
+          <label for="f-territorio">Comunidad o territorio foral donde residiste en 2025</label>
+          <select id="f-territorio"></select>
+        </div>
+      </fieldset>
+
+      <fieldset class="bloque">
+        <legend><span class="paso">2</span>Ingresos</legend>
+        <div class="campo">
+          <label for="f-salario">Salario o pensión bruta anual</label>
+          <div class="con-sufijo"><input type="number" id="f-salario" min="0" step="100" value="32000" inputmode="decimal"><span>€</span></div>
+        </div>
+        <div class="campo">
+          <label for="f-ss">Cotizaciones a la Seguridad Social</label>
+          <div class="con-sufijo"><input type="number" id="f-ss" min="0" step="10" value="2032" inputmode="decimal"><span>€</span></div>
+          <p class="ayuda" id="ayuda-ss">Estimadas en el 6,35 % del salario. Cámbialas si las conoces (vienen en tu certificado de retenciones).</p>
+        </div>
+        <details class="mas" id="mas-rentas">
+          <summary>Otros ingresos</summary>
+          <div class="rejilla2">
+            <div class="campo"><label for="f-intereses">Intereses</label><div class="con-sufijo"><input type="number" id="f-intereses" min="0" step="10" value="0"><span>€</span></div></div>
+            <div class="campo"><label for="f-dividendos">Dividendos</label><div class="con-sufijo"><input type="number" id="f-dividendos" min="0" step="10" value="0"><span>€</span></div></div>
+          </div>
+          <div class="campo"><label for="f-ganancias">Ganancia neta por venta de acciones o fondos</label><div class="con-sufijo"><input type="number" id="f-ganancias" step="100" value="0"><span>€</span></div><p class="ayuda">Negativo si hubo pérdidas. Tributa en la base del ahorro.</p></div>
+          <div class="campo"><label for="f-alquileres">Rendimiento neto de inmuebles alquilados</label><div class="con-sufijo"><input type="number" id="f-alquileres" min="0" step="100" value="0"><span>€</span></div></div>
+          <div class="campo"><label for="f-actividad">Rendimiento neto de actividad económica</label><div class="con-sufijo"><input type="number" id="f-actividad" min="0" step="100" value="0"><span>€</span></div><p class="ayuda">Autónomos en estimación directa. La estimación objetiva (módulos) no está modelada.</p></div>
+        </details>
+      </fieldset>
+
+      <fieldset class="bloque">
+        <legend><span class="paso">3</span>Situación personal y familiar</legend>
+        <div class="rejilla2">
+          <div class="campo"><label for="f-edad">Tu edad</label><input type="number" id="f-edad" min="16" max="110" step="1" value="34"></div>
+          <div class="campo"><label for="f-discapacidad">Discapacidad</label>
+            <select id="f-discapacidad"><option value="no">Ninguna</option><option value="33_64">33 % – 64 %</option><option value="65_mas">65 % o más</option></select></div>
+        </div>
+        <label class="casilla"><input type="checkbox" id="f-desempleado"> Estoy en desempleo e inscrito como demandante de empleo</label>
+
+        <div class="campo">
+          <span class="etiqueta" id="lbl-pareja">¿Tienes cónyuge o pareja en la unidad familiar?</span>
+          <div class="segmentado" role="radiogroup" aria-labelledby="lbl-pareja">
+            <label><input type="radio" name="pareja" value="no" checked><span>No</span></label>
+            <label><input type="radio" name="pareja" value="si"><span>Sí</span></label>
+          </div>
+        </div>
+        <div class="subbloque" id="bloque-pareja" hidden>
+          <div class="rejilla2">
+            <div class="campo"><label for="f-pareja-edad">Edad de tu pareja</label><input type="number" id="f-pareja-edad" min="16" max="110" value="34"></div>
+            <div class="campo"><label for="f-pareja-salario">Su salario bruto anual</label><div class="con-sufijo"><input type="number" id="f-pareja-salario" min="0" step="100" value="0"><span>€</span></div></div>
+          </div>
+        </div>
+
+        <div class="campo">
+          <span class="etiqueta">Hijos y descendientes a tu cargo</span>
+          <ul class="lista-hijos" id="lista-hijos" aria-live="polite"></ul>
+          <button class="btn btn-sec btn-sm" type="button" id="btn-hijo">+ Añadir hijo</button>
+        </div>
+        <div class="rejilla2">
+          <div class="campo"><label for="f-familia-numerosa">Familia numerosa</label>
+            <select id="f-familia-numerosa"><option value="no">No</option><option value="general">General</option><option value="especial">Especial</option></select></div>
+          <div class="campo"><label for="f-ascendientes">Ascendientes que conviven contigo</label>
+            <select id="f-ascendientes"><option value="0">Ninguno</option><option value="65">Uno de 65 a 74 años</option><option value="75">Uno de 75 años o más</option><option value="75x2">Dos de 75 años o más</option></select></div>
+        </div>
+      </fieldset>
+
+      <fieldset class="bloque">
+        <legend><span class="paso">4</span>Vivienda y ahorro fiscal</legend>
+        <div class="campo"><label for="f-alquiler">Alquiler de tu vivienda habitual pagado en 2025</label><div class="con-sufijo"><input type="number" id="f-alquiler" min="0" step="50" value="0"><span>€</span></div></div>
+        <div class="campo" id="campo-compra" hidden><label for="f-compra">Pagos por la compra de tu vivienda habitual en 2025</label><div class="con-sufijo"><input type="number" id="f-compra" min="0" step="100" value="0"><span>€</span></div><p class="ayuda">Deducción foral por adquisición de vivienda (País Vasco).</p></div>
+        <div class="campo"><label for="f-pensiones">Aportaciones a planes de pensiones o EPSV</label><div class="con-sufijo"><input type="number" id="f-pensiones" min="0" step="100" value="0"><span>€</span></div></div>
+        <div id="gastos-territorio"></div>
+      </fieldset>
+
+      <fieldset class="bloque">
+        <legend><span class="paso">5</span>Retenciones</legend>
+        <div class="campo"><label for="f-retenciones">Retenciones e ingresos a cuenta del año (tuyas y de tu pareja)</label><div class="con-sufijo"><input type="number" id="f-retenciones" min="0" step="50" value="0"><span>€</span></div><p class="ayuda">Con ellas calculamos si la declaración sale a pagar o a devolver.</p></div>
+      </fieldset>
+    </form>
+
+    <aside class="resultado" aria-live="polite" aria-labelledby="t-res">
+      <div class="tarjeta tarjeta-resultado">
+        <h2 class="rotulo" id="t-res">Resultado</h2>
+        <div id="res-principal"></div>
+        <dl class="kpis" id="res-kpis"></dl>
+        <div class="acciones-res">
+          <button class="btn btn-pri" type="button" id="btn-guardar-cliente">Guardar como cliente</button>
+          <a class="btn btn-sec" href="#comparar">Comparar en los 19 territorios</a>
+        </div>
+      </div>
+
+      <div class="tarjeta">
+        <h2 class="rotulo">Desglose de la liquidación</h2>
+        <table class="desglose" id="res-desglose"></table>
+      </div>
+
+      <div class="tarjeta" id="tarjeta-deducciones">
+        <h2 class="rotulo">Deducciones aplicadas</h2>
+        <ul class="deducciones" id="res-deducciones"></ul>
+      </div>
+
+      <div class="tarjeta">
+        <h2 class="rotulo">Cómo pagar menos</h2>
+        <ul class="palancas" id="res-palancas"></ul>
+      </div>
+
+      <details class="avisos" id="res-avisos"></details>
+    </aside>
+  </div>
+</section>
+
+<!-- =========================== COMPARAR =========================== -->
+<section class="vista" id="v-comparar" aria-labelledby="t-comp" hidden>
+  <div class="cabecera-vista">
+    <div>
+      <h1 id="t-comp">La misma situación, en 19 territorios</h1>
+      <p class="entradilla" id="comp-entradilla"></p>
+    </div>
+    <div class="cabecera-acciones">
+      <div class="segmentado" role="radiogroup" aria-label="Qué mostrar">
+        <label><input type="radio" name="metrica" value="cuota" checked><span>Cuota</span></label>
+        <label><input type="radio" name="metrica" value="tipo"><span>Tipo medio</span></label>
+      </div>
+    </div>
+  </div>
+  <div class="comparar">
+    <div class="tarjeta tarjeta-mapa">
+      <div class="mapa-envoltorio">
+        <svg id="mapa" role="img" aria-labelledby="mapa-titulo"><title id="mapa-titulo">Mapa de España por territorio fiscal</title></svg>
+        <div class="mapa-tip" id="mapa-tip" hidden></div>
+      </div>
+      <div class="leyenda" id="leyenda"></div>
+      <p class="nota">Pulsa un territorio para calcular con esa residencia. Canarias, en el recuadro, a escala reducida.</p>
+    </div>
+    <div class="tarjeta tarjeta-ranking">
+      <table class="ranking" id="ranking"></table>
+    </div>
+  </div>
+  <p class="nota nota-pie" id="comp-nota"></p>
+</section>
+
+<!-- =========================== CLIENTES =========================== -->
+<section class="vista" id="v-clientes" aria-labelledby="t-cli" hidden>
+  <div class="cabecera-vista">
+    <div>
+      <h1 id="t-cli">Mis clientes</h1>
+      <p class="entradilla">Guarda la situación de cada cliente, recalcúlala cuando cambie la normativa y compara su factura fiscal entre territorios.</p>
+    </div>
+    <div class="cabecera-acciones" id="cli-acciones" hidden>
+      <input type="search" id="cli-buscar" placeholder="Buscar cliente" aria-label="Buscar cliente">
+      <a class="btn btn-pri" href="#calculadora" id="btn-nuevo-cliente">Nuevo cliente</a>
+    </div>
+  </div>
+  <div id="cli-contenido"></div>
+</section>
+
+<!-- =========================== PLANES =========================== -->
+<section class="vista" id="v-planes" aria-labelledby="t-planes" hidden>
+  <div class="cabecera-vista cabecera-centrada">
+    <div>
+      <h1 id="t-planes">Planes</h1>
+      <p class="entradilla">La calculadora es y será gratuita. Para asesores y gestorías que llevan carteras de clientes, el plan Gestor añade perfiles guardados, optimización por cliente e informes.</p>
+      <div class="segmentado segmentado-centro" role="radiogroup" aria-label="Periodo de facturación">
+        <label><input type="radio" name="periodo" value="mensual" checked><span>Mensual</span></label>
+        <label><input type="radio" name="periodo" value="anual"><span>Anual</span></label>
+      </div>
+    </div>
+  </div>
+  <div class="planes" id="planes"></div>
+  <p class="nota nota-centro" id="nota-precios"></p>
+
+  <div class="tarjeta tarjeta-tabla">
+    <table class="comparativa">
+      <caption>Qué incluye cada plan</caption>
+      <thead><tr><th scope="col">Función</th><th scope="col">Gratis</th><th scope="col">Gestor</th><th scope="col">Despacho</th></tr></thead>
+      <tbody>
+        <tr><th scope="row">Cálculo del IRPF 2025 y comparación entre los 19 territorios</th><td>✓</td><td>✓</td><td>✓</td></tr>
+        <tr><th scope="row">Desglose con casillas de Renta Web y deducciones autonómicas</th><td>✓</td><td>✓</td><td>✓</td></tr>
+        <tr><th scope="row">Perfiles de cliente guardados</th><td>3 de prueba</td><td>Ilimitados</td><td>Ilimitados</td></tr>
+        <tr><th scope="row">Optimización por cliente (pensiones, conjunta, deducciones)</th><td>—</td><td>✓</td><td>✓</td></tr>
+        <tr><th scope="row">Informe por cliente</th><td>—</td><td>✓</td><td>✓</td></tr>
+        <tr><th scope="row">Varios usuarios en el mismo despacho</th><td>—</td><td>—</td><td>✓</td></tr>
+        <tr><th scope="row">API para integrar con tu software</th><td>—</td><td>—</td><td>✓</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="faq">
+    <h2>Preguntas frecuentes</h2>
+    <details><summary>¿La calculadora seguirá siendo gratis?</summary><p>Sí. El cálculo y la comparación entre territorios son gratuitos y no requieren cuenta.</p></details>
+    <details><summary>¿De dónde salen los cálculos?</summary><p>De un motor abierto que reproduce la normativa del ejercicio 2025: la Ley del IRPF, las leyes de tributos cedidos de cada comunidad, las normas forales vascas y el texto refundido navarro, contrastados con el Manual Práctico de Renta de la AEAT. Cada parámetro indica su fuente y si está confirmado o es provisional. Ver <a href="#metodologia">Metodología</a>.</p></details>
+    <details><summary>¿Qué datos de mis clientes guardáis?</summary><p>Solo lo necesario para el cálculo: un alias que eliges tú y las cifras de la declaración. No pedimos NIF ni nombre completo. Cada gestor solo puede ver sus propios clientes; los datos se alojan en la Unión Europea.</p></details>
+    <details><summary>¿Puedo cancelar cuando quiera?</summary><p>Sí. La suscripción se gestiona desde el portal de facturación y se puede cancelar en cualquier momento; mantienes el acceso hasta el final del periodo pagado.</p></details>
+    <details><summary>¿Es asesoramiento fiscal?</summary><p>No. Mapafiscal es una herramienta de cálculo y estimación: no sustituye a un asesor ni es una liquidación oficial de la Agencia Tributaria.</p></details>
+  </div>
+</section>
+
+<!-- =========================== METODOLOGÍA =========================== -->
+<section class="vista" id="v-metodologia" aria-labelledby="t-met" hidden>
+  <div class="cabecera-vista">
+    <div>
+      <h1 id="t-met">Metodología y cobertura</h1>
+      <p class="entradilla">Qué calcula Mapafiscal, de dónde salen sus parámetros y qué queda todavía fuera.</p>
+    </div>
+  </div>
+  <div class="metodologia">
+    <div class="prosa">
+      <h2>Cómo se calcula</h2>
+      <p>El motor liquida el IRPF siguiendo el orden de la declaración: rendimientos netos, integración y compensación de rentas en las bases general y del ahorro, reducciones (planes de pensiones, tributación conjunta), mínimo personal y familiar, escalas estatal y autonómica —o la tarifa foral en el País Vasco y Navarra—, deducciones y, con las retenciones, la cuota diferencial. Para cada hogar prueba la tributación individual y la conjunta y se queda con la más favorable.</p>
+      <p>Hay dos implementaciones del mismo motor: la de referencia en R y la del navegador en JavaScript. Un validador automático comprueba que ambas dan el mismo resultado, al céntimo, en todos los casos de prueba.</p>
+      <h2>Fuentes</h2>
+      <p>Ley 35/2006 del IRPF y su reglamento; leyes de tributos cedidos de cada comunidad autónoma; Normas Forales de Bizkaia, Gipuzkoa y Araba; Texto Refundido del IRPF de Navarra; y el <i>Manual Práctico de Renta 2025</i> de la AEAT (partes 1 y 2). Cada cifra del motor lleva la norma de la que procede y un estado: <b>confirmado</b> si está cotejado con la fuente, <b>provisional</b> si falta cotejarlo o si la regla está simplificada.</p>
+      <h2>Qué queda fuera</h2>
+      <ul>
+        <li>Ceuta y Melilla.</li>
+        <li>Estimación objetiva (módulos) de actividades económicas.</li>
+        <li>Deducciones autonómicas condicionadas al municipio de residencia (zonas rurales o en riesgo de despoblación) y las de inversión y donativos.</li>
+        <li>En Navarra, las deducciones de vivienda y por familia numerosa.</li>
+      </ul>
+    </div>
+    <div class="tarjeta">
+      <h2 class="rotulo">Deducciones autonómicas modeladas por territorio</h2>
+      <table class="cobertura" id="cobertura"></table>
+    </div>
+  </div>
+</section>
+
+</main>
+
+<div class="barra-movil" id="barra-movil" aria-live="polite">
+  <div><div class="bm-etq" id="bm-etq">Cuota líquida</div><div class="bm-cifra" id="bm-cifra">—</div></div>
+  <a class="btn btn-pri btn-sm" href="#t-res" id="bm-ver">Ver desglose</a>
+</div>
+
+<footer class="pie">
+  <div class="contenedor pie-in">
+    <p><b>Mapafiscal</b> ofrece estimaciones con fines informativos. No es una liquidación oficial ni asesoramiento fiscal.</p>
+    <p class="pie-sec">Normativa del ejercicio 2025 · Motor validado R ↔ JavaScript · <span id="pie-generado"></span> · Cartografía: <span title="es-atlas (MIT) sobre datos del Instituto Geográfico Nacional, CC BY 4.0">© Instituto Geográfico Nacional (CC BY 4.0)</span></p>
+  </div>
+</footer>
+
+<dialog class="dialogo" id="dlg-acceso" aria-labelledby="t-acceso">
+  <form method="dialog" class="dialogo-in" id="form-acceso">
+    <h2 id="t-acceso">Accede a tu espacio de gestor</h2>
+    <p>Te enviamos un enlace de acceso a tu correo. Sin contraseñas.</p>
+    <div class="campo"><label for="acceso-email">Correo electrónico</label><input type="email" id="acceso-email" required autocomplete="email" placeholder="nombre@despacho.es"></div>
+    <p class="mensaje" id="acceso-msg" role="status"></p>
+    <div class="dialogo-acciones">
+      <button class="btn btn-sec" value="cancelar" type="submit" formnovalidate>Cancelar</button>
+      <button class="btn btn-pri" type="button" id="btn-enviar-enlace">Enviar enlace</button>
+    </div>
+  </form>
+</dialog>
+
+<dialog class="dialogo" id="dlg-guardar" aria-labelledby="t-guardar">
+  <form method="dialog" class="dialogo-in" id="form-guardar">
+    <h2 id="t-guardar">Guardar cliente</h2>
+    <div class="campo"><label for="guardar-alias">Alias del cliente</label><input type="text" id="guardar-alias" maxlength="120" required placeholder="p. ej. Familia G. — Getafe"><p class="ayuda">Usa un alias: no hace falta nombre completo ni NIF.</p></div>
+    <div class="campo"><label for="guardar-notas">Notas (opcional)</label><textarea id="guardar-notas" rows="3" maxlength="4000"></textarea></div>
+    <p class="mensaje" id="guardar-msg" role="status"></p>
+    <div class="dialogo-acciones">
+      <button class="btn btn-sec" value="cancelar" type="submit" formnovalidate>Cancelar</button>
+      <button class="btn btn-pri" type="button" id="btn-confirmar-guardar">Guardar</button>
+    </div>
+  </form>
+</dialog>
+<!--/CUERPO-->
+<script src="config.js"></script>
+<script src="js/irpfsim.js"></script>
+<script src="js/app.js"></script>
+</body>
+</html>

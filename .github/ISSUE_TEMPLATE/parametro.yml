@@ -1,0 +1,32 @@
+name: Parámetro a corregir o confirmar
+description: Un importe, umbral, tipo o deducción de params.json está mal, falta o sigue como provisional.
+title: "[Parámetro] "
+labels: ["parámetros"]
+body:
+  - type: input
+    id: ruta
+    attributes:
+      label: Parámetro
+      description: Ruta dentro de web/datos/params.json.
+      placeholder: "territorios.ES-CT.escala_general_autonomica"
+    validations:
+      required: true
+  - type: textarea
+    id: actual
+    attributes:
+      label: Valor actual
+    validations:
+      required: true
+  - type: textarea
+    id: correcto
+    attributes:
+      label: Valor correcto
+    validations:
+      required: true
+  - type: textarea
+    id: fuente
+    attributes:
+      label: Norma y fuente
+      description: Ley o decreto (con artículo) y, si puede ser, el enlace al BOE, boletín autonómico o Manual Práctico de la AEAT.
+    validations:
+      required: true

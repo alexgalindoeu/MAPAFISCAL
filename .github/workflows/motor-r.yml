@@ -1,0 +1,39 @@
+name: Motor R
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  motor-r:
+    name: Tests R, params.json y paridad R ↔ JavaScript
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: r-lib/actions/setup-r@v2
+        with:
+          r-version: "4.3"
+          use-public-rspm: true
+
+      - name: Dependencias de R
+        run: Rscript -e 'install.packages(c("yaml", "jsonlite", "testthat"))'
+
+      - name: Tests del motor R (testthat)
+        run: Rscript tests/testthat.R
+
+      - name: web/datos/params.json sale de params/2025/*.yaml
+        run: Rscript tools/exportar_params.R --comprobar
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Paridad R ↔ JavaScript al céntimo
+        run: |
+          Rscript tools/validar_js.R
+          node tools/validar_js_node.js
