@@ -100,6 +100,29 @@
     return { hogar: [...hogar.keys()], hijo: [...hijo.entries()] };
   }
 
+  // deducciones del territorio que dependen del municipio de residencia
+  function reglasMunicipio(terr) {
+    const lista = (T[terr] && T[terr].deducciones_autonomicas && T[terr].deducciones_autonomicas.lista) || [];
+    const tramos = new Set();
+    let despoblada = false;
+    for (const d of lista) {
+      if (d.municipio_hab_max != null) tramos.add(d.municipio_hab_max);
+      if (d.incremento_municipio) tramos.add(d.incremento_municipio.hab_max);
+      if (d.requiere_zona_despoblada || d.excluye_zona_despoblada) despoblada = true;
+    }
+    return { tramos: [...tramos].sort((a, b) => a - b), despoblada, hay: tramos.size > 0 || despoblada };
+  }
+  function pintarAyudaMunicipio() {
+    const terr = selTerr.value, r = reglasMunicipio(terr);
+    const habitantes = n => (n + 1) % 1000 === 0 ? "menos de " + miles(String(n + 1)) : "hasta " + miles(String(n));
+    const partes = [];
+    if (r.tramos.length) partes.push("municipios de " + r.tramos.map(habitantes).join(" y de ") + " habitantes");
+    if (r.despoblada) partes.push("zonas de la lista oficial de despoblación");
+    $("ayuda-municipio").textContent = r.hay
+      ? `En ${corto(terr)} hay deducciones para ${partes.join(" y para ")}.`
+      : `En ${corto(terr)} ninguna deducción depende del municipio; el dato cuenta al comparar con otros territorios.`;
+  }
+
   // ---- estado del formulario ----------------------------------------------------------
   let hijos = [];                 // [{ edad, gastos: { campo: importe } }]
   const gastosHogar = {};         // campo -> importe (se conserva al cambiar de territorio)
@@ -121,6 +144,7 @@
   function pintarGastosTerritorio() {
     const terr = selTerr.value, { hogar: campos } = camposDe(terr);
     $("campo-compra").hidden = T[terr].regimen !== "foral_pais_vasco";
+    pintarAyudaMunicipio();
     if (!campos.length) { $("gastos-territorio").innerHTML = ""; return; }
     $("gastos-territorio").innerHTML = `<p class="gastos-titulo">Otros gastos con deducción en ${esc(corto(terr))}</p>` +
       campos.map(c => `<div class="campo"><label for="g-${c}">${esc(etiqueta(c))}</label>
@@ -129,7 +153,8 @@
 
   $("form").addEventListener("input", e => {
     const t = e.target;
-    if (t.id === "f-salario" && !ssManual) $("f-ss").value = Math.round(num("f-salario") * 0.0635);
+    if ((t.id === "f-salario" || t.id === "f-pension") && !ssManual)
+      $("f-ss").value = $("f-pension").checked ? 0 : Math.round(num("f-salario") * 0.0635);
     if (t.id === "f-ss") { ssManual = true; $("ayuda-ss").textContent = "Importe introducido por ti."; }
     if (t.dataset.hijoEdad != null) {
       hijos[+t.dataset.hijoEdad].edad = Math.max(0, Math.min(30, parseInt(t.value, 10) || 0));
@@ -154,7 +179,7 @@
     const d1 = {
       id: "d1", rol: "declarante", edad: num("f-edad") || 40, discapacidad: $("f-discapacidad").value,
       desempleado: $("f-desempleado").checked,
-      trabajo: salario > 0 ? { dinerarias: salario, cotizacionesSs: num("f-ss") } : null,
+      trabajo: salario > 0 ? { dinerarias: salario, cotizacionesSs: num("f-ss"), pensionJubilacion: $("f-pension").checked } : null,
       capitalMobiliario: (num("f-intereses") > 0 || num("f-dividendos") > 0) ? { intereses: num("f-intereses"), dividendos: num("f-dividendos") } : null,
       capitalInmobiliario: num("f-alquileres") > 0 ? [{ ingresos: num("f-alquileres"), gastosDeducibles: 0 }] : null,
       actividades: num("f-actividad") > 0 ? { metodo: "directa_simplificada", rendimientoNetoPrevio: num("f-actividad") } : null,
@@ -181,10 +206,13 @@
     if (asc === "65") miembros.push({ id: "a1", rol: "ascendiente", edad: 70, rentasPropias: 0 });
     if (asc === "75" || asc === "75x2") miembros.push({ id: "a1", rol: "ascendiente", edad: 80, rentasPropias: 0 });
     if (asc === "75x2") miembros.push({ id: "a2", rol: "ascendiente", edad: 80, rentasPropias: 0 });
+    const hab = parseInt($("f-municipio").value, 10);
     return {
       territorio, ejercicio: P.ejercicio,
       tipoUnidadFamiliar: pareja ? "biparental" : (hijos.length ? "monoparental" : "ninguna"),
       familiaNumerosa: $("f-familia-numerosa").value,
+      municipioHabitantes: Number.isFinite(hab) && hab > 0 ? hab : null,
+      zonaDespoblada: $("f-despoblada").checked,
       miembros
     };
   }
@@ -197,6 +225,9 @@
     selTerr.value = h.territorio;
     set("f-salario", d1.trabajo ? d1.trabajo.dinerarias : 0);
     set("f-ss", d1.trabajo ? d1.trabajo.cotizacionesSs : 0); ssManual = true;
+    $("f-pension").checked = !!(d1.trabajo && d1.trabajo.pensionJubilacion);
+    $("f-municipio").value = h.municipioHabitantes != null ? h.municipioHabitantes : "";
+    $("f-despoblada").checked = !!h.zonaDespoblada;
     set("f-intereses", d1.capitalMobiliario ? d1.capitalMobiliario.intereses : 0);
     set("f-dividendos", d1.capitalMobiliario ? d1.capitalMobiliario.dividendos : 0);
     const g = (d1.ganancias || [])[0];
@@ -242,8 +273,23 @@
   const NOMBRES_DED = {
     minimoPersonal: "Mínimo personal (deducción foral)", minimoFamiliar: "Mínimo familiar (deducción foral)",
     trabajo: "Deducción por rendimientos del trabajo", maternidad: "Deducción por maternidad",
-    familiaNumerosa: "Deducción por familia numerosa", discapacidadFamiliaresCargo: "Deducción por familiares con discapacidad a cargo"
+    familiaNumerosa: "Deducción por familia numerosa", discapacidadFamiliaresCargo: "Deducción por familiares con discapacidad a cargo",
+    alquilerVivienda: "Deducción por alquiler de vivienda habitual", adquisicionVivienda: "Deducción por adquisición de vivienda habitual",
+    emancipacion: "Deducción por arrendamiento para emancipación", pensionJubilacion: "Deducción por pensiones de jubilación bajas"
   };
+  // bloque de params del que sale cada deducción estatal o foral (para citar su norma y su estado)
+  const BLOQUE_DED = {
+    minimoPersonal: "minimo_personal_deduccion", minimoFamiliar: "minimo_familiar_deduccion", trabajo: "deduccion_trabajo_cuota",
+    alquilerVivienda: "deduccion_alquiler_vivienda", adquisicionVivienda: "deduccion_adquisicion_vivienda",
+    emancipacion: "deduccion_emancipacion", pensionJubilacion: "deduccion_pension_jubilacion",
+    maternidad: "deduccion_maternidad", familiaNumerosa: "deduccion_familia_numerosa_y_discapacidad_cargo",
+    discapacidadFamiliaresCargo: "deduccion_familia_numerosa_y_discapacidad_cargo"
+  };
+  function bloqueDed(reg, id) {
+    const fuente = reg === "foral_navarra" ? P.navarra : reg === "foral_pais_vasco" ? P.foral_pv : P.estatal;
+    return (BLOQUE_DED[id] && fuente && fuente[BLOQUE_DED[id]]) || null;
+  }
+  const etqProvisional = '<span class="etq etq-prov" title="Importe o requisitos pendientes de cotejo con la norma">provisional</span>';
   const nombreDed = id => NOMBRES_DED[id] || id.replace(/([A-Z])/g, " $1").replace(/_/g, " ").trim().toLowerCase().replace(/^./, c => c.toUpperCase());
 
   function recalcular() {
@@ -256,21 +302,25 @@
     const reg = T[terr].regimen, comun = reg === "comun";
     const ret = num("f-retenciones");
     const cd = liq.cuotaDiferencial;
+    // deducciones que se restan de la cuota diferencial (maternidad, familia numerosa, Navarra 68.B…):
+    // pueden dar un resultado a devolver aunque no haya retenciones
+    const impr = (liq.deduccionesCuotaDiferencial && liq.deduccionesCuotaDiferencial.total) || 0;
+    const hayResultado = ret > 0 || impr > 0;
 
     // cifra principal
-    if (ret > 0) {
+    if (hayResultado) {
       const devolver = cd < 0;
       $("res-principal").innerHTML = `<div class="res-etq">Resultado de la declaración</div>
         <div class="res-cifra ${devolver ? "gana" : ""}">${devolver ? "A devolver" : "A ingresar"} ${eur(Math.abs(cd))}</div>
-        <p class="res-sub">Cuota líquida <b>${eur(liq.cuotaLiquidaTotal)}</b> · retenciones <b>${eur(ret)}</b></p>`;
+        <p class="res-sub">Cuota líquida <b>${eur(liq.cuotaLiquidaTotal)}</b>${impr ? ` · deducciones sobre la cuota diferencial <b>${eur(impr)}</b>` : ""}${ret ? ` · retenciones <b>${eur(ret)}</b>` : ""}</p>`;
     } else {
       $("res-principal").innerHTML = `<div class="res-etq">Cuota líquida del IRPF · ${esc(corto(terr))}</div>
         <div class="res-cifra">${eur(liq.cuotaLiquidaTotal)}</div>
         <p class="res-sub">Añade tus retenciones (paso 5) para saber si te sale a pagar o a devolver.</p>`;
     }
-    $("bm-etq").textContent = ret > 0 ? (cd < 0 ? "A devolver" : "A ingresar") : "Cuota líquida · " + corto(terr);
-    $("bm-cifra").textContent = eur(ret > 0 ? Math.abs(cd) : liq.cuotaLiquidaTotal);
-    $("bm-cifra").className = "bm-cifra" + (ret > 0 && cd < 0 ? " gana" : "");
+    $("bm-etq").textContent = hayResultado ? (cd < 0 ? "A devolver" : "A ingresar") : "Cuota líquida · " + corto(terr);
+    $("bm-cifra").textContent = eur(hayResultado ? Math.abs(cd) : liq.cuotaLiquidaTotal);
+    $("bm-cifra").className = "bm-cifra" + (hayResultado && cd < 0 ? " gana" : "");
     const otra = liq.modoTributacionElegido === "conjunta" ? liq.comparativa.individual : liq.comparativa.conjunta;
     const ahorroModo = otra != null ? otra - liq.cuotaLiquidaTotal : 0;
     $("res-kpis").innerHTML = `
@@ -301,10 +351,10 @@
       if (da) f(reg === "foral_navarra" ? "Deducciones de la cuota (mínimos y trabajo)" : "Deducciones forales", "", "−" + eur(da), "menos");
     }
     f("Cuota líquida total", "", eur(liq.cuotaLiquidaTotal), "sub");
-    const impr = (liq.deduccionesCuotaDiferencial && liq.deduccionesCuotaDiferencial.total) || 0;
-    if (impr) f("Deducciones por maternidad, familia numerosa o discapacidad", "", "−" + eur(impr), "menos");
+    if (impr) f(reg === "foral_navarra" ? "Deducciones sobre la cuota diferencial (emancipación, pensiones)"
+      : "Deducciones por maternidad, familia numerosa o discapacidad", "", "−" + eur(impr), "menos");
     if (ret) f("Retenciones e ingresos a cuenta", "", "−" + eur(ret), "menos");
-    if (ret || impr) f(ret ? (cd < 0 ? "Resultado: a devolver" : "Resultado: a ingresar") : "Cuota diferencial", "", eur(Math.abs(cd)), "total");
+    if (hayResultado) f(cd < 0 ? "Resultado: a devolver" : "Resultado: a ingresar", "", eur(Math.abs(cd)), "total");
     else filas[filas.length - 1] = filas[filas.length - 1].replace('class="sub"', 'class="total"');
     $("res-desglose").innerHTML = filas.join("");
 
@@ -312,12 +362,16 @@
     const det = Object.assign({}, (liq.deduccionesAutonomicas && liq.deduccionesAutonomicas.detalle) || {});
     const detImp = (liq.deduccionesCuotaDiferencial && liq.deduccionesCuotaDiferencial.detalle) || {};
     const items = Object.entries(det).filter(([, v]) => v > 0).map(([id, v]) => {
-      const inf = comun ? infoDeduccion(terr, id) : null;
-      const prov = inf && inf.estado === "provisional" ? '<span class="etq etq-prov" title="Importe o requisitos pendientes de cotejo con la norma">provisional</span>' : "";
-      const norma = inf ? inf.norma : (comun ? "" : (reg === "foral_navarra" ? "Texto Refundido del IRPF de Navarra" : "Normativa foral del Territorio Histórico"));
+      const inf = comun ? infoDeduccion(terr, id) : bloqueDed(reg, id);
+      const prov = inf && inf.estado === "provisional" ? etqProvisional : "";
+      const norma = inf && inf.norma ? inf.norma : (comun ? "" : (reg === "foral_navarra" ? "Texto Refundido del IRPF de Navarra" : "Normativa foral del Territorio Histórico"));
       return `<li><span class="ded-nombre">${esc(nombreDed(id))}${prov}</span><span class="ded-norma">${esc(norma)}</span><span class="ded-imp">−${eur(v)}</span></li>`;
-    }).concat(Object.entries(detImp).filter(([, v]) => v > 0).map(([id, v]) =>
-      `<li><span class="ded-nombre">${esc(nombreDed(id))}</span><span class="ded-norma">Arts. 81 y 81 bis LIRPF (estatal)</span><span class="ded-imp">−${eur(v)}</span></li>`));
+    }).concat(Object.entries(detImp).filter(([, v]) => v > 0).map(([id, v]) => {
+      const inf = bloqueDed(reg, id);
+      const prov = inf && inf.estado === "provisional" ? etqProvisional : "";
+      const norma = (inf && inf.norma ? inf.norma : "Arts. 81 y 81 bis LIRPF") + " · se resta de la cuota diferencial";
+      return `<li><span class="ded-nombre">${esc(nombreDed(id))}${prov}</span><span class="ded-norma">${esc(norma)}</span><span class="ded-imp">−${eur(v)}</span></li>`;
+    }));
     $("res-deducciones").innerHTML = items.length ? items.join("")
       : `<li class="vacio">Con estos datos no se aplica ninguna deducción. Revisa los gastos del paso 4: dependen de tu territorio.</li>`;
 
@@ -338,13 +392,14 @@
     const da = T[terr].deducciones_autonomicas;
     if (comun && da && da.lista) {
       const pend = (da.pendientes || []).filter(p => typeof p === "string" && p[0] !== "(").length;
-      av.push(`${esc(T[terr].nombre)}: ${da.lista.length} deducciones autonómicas modeladas${pend ? `; ${pend} del catálogo oficial aún no (inversión, donativos y las ligadas al municipio, entre otras)` : ""}.`);
+      av.push(`${esc(T[terr].nombre)}: ${da.lista.length} deducciones autonómicas modeladas${pend ? `; ${pend} del catálogo oficial aún no (inversión y donativos, entre otras)` : ""}.`);
     }
     if (reg === "foral_pais_vasco") av.push("País Vasco: deducciones familiares y de vivienda con los importes de 2025; algunos de Bizkaia y Álava están pendientes de cotejo.");
-    if (reg === "foral_navarra") av.push("Navarra: faltan las deducciones de vivienda y por familia numerosa, así que la cuota puede estar algo sobreestimada.");
+    if (reg === "foral_navarra") av.push("Navarra: incluye alquiler, emancipación y pensiones de jubilación bajas; faltan las deducciones por adquisición de vivienda y por familia numerosa, así que la cuota puede estar algo sobreestimada.");
+    if (reglasMunicipio(terr).hay && hogar.municipioHabitantes == null && !hogar.zonaDespoblada)
+      av.push(`No has indicado tu municipio: las deducciones de ${esc(corto(terr))} para municipios pequeños o zonas en riesgo de despoblación no se aplican.`);
     if (num("f-actividad") > 0) av.push("La actividad económica se calcula en estimación directa simplificada; los módulos no están modelados.");
     if (hijos.some(h => h.edad === 0)) av.push("Los hijos de 0 años se tratan como nacidos en 2025.");
-    av.push("Las deducciones que dependen del municipio de residencia (zonas rurales o en riesgo de despoblación) no se aplican.");
     $("res-avisos").innerHTML = `<summary>Qué no recoge este cálculo (${av.length})</summary><ul>${av.map(a => `<li>${a}</li>`).join("")}</ul>`;
 
     if (vistaActual() === "comparar") pintarComparacion();
@@ -409,7 +464,11 @@
     if (barato.territorio === terr) txt += `Es el territorio más barato de los 19; el más caro es ${esc(corto(caro.territorio))} (+${eur0(caro.cuotaLiquidaTotal - yo.cuotaLiquidaTotal)}).`;
     else txt += `El más barato es <b>${esc(corto(barato.territorio))}</b>, donde pagarías <b>${eur0(yo.cuotaLiquidaTotal - barato.cuotaLiquidaTotal)} menos</b>; el más caro, ${esc(corto(caro.territorio))}.`;
     $("comp-entradilla").innerHTML = txt;
-    $("comp-nota").textContent = "Misma situación personal y económica en cada territorio, con su escala, mínimos y las deducciones modeladas. Cambiar de residencia fiscal exige vivir allí más de 183 días al año y tener allí el centro de intereses.";
+    const hg = ultima.hogar;
+    const notaMunicipio = hg.municipioHabitantes != null || hg.zonaDespoblada
+      ? ` Se supone un municipio ${hg.municipioHabitantes != null ? `de ${miles(String(hg.municipioHabitantes))} habitantes` : "del mismo tipo"} en cada territorio${hg.zonaDespoblada ? ", incluido en su lista oficial de despoblación" : ""}.`
+      : "";
+    $("comp-nota").textContent = "Misma situación personal y económica en cada territorio, con su escala, mínimos y las deducciones modeladas." + notaMunicipio + " Cambiar de residencia fiscal exige vivir allí más de 183 días al año y tener allí el centro de intereses.";
   }
 
   // tooltip y clic en el mapa / ranking

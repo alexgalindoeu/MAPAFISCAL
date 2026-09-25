@@ -83,7 +83,7 @@ El detalle por territorio está en [`docs/02_cobertura.md`](docs/02_cobertura.md
 - Las deducciones autonómicas de inversión y donativos, y las que fijan el límite por tramos de base (libros de texto).
 - En Navarra, las deducciones por adquisición de vivienda y por familia numerosa.
 
-El motor ya calcula las deducciones autonómicas que dependen del municipio de residencia (población o zona en riesgo de despoblación), pero la web todavía no pregunta por el municipio.
+Las deducciones autonómicas que dependen del municipio de residencia se aplican si se indica su población o si está en la lista oficial de zonas en riesgo de despoblación de la comunidad. Al comparar territorios se supone un municipio del mismo tamaño en cada uno.
 
 ## Motor R de referencia
 
