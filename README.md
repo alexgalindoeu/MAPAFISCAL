@@ -12,21 +12,37 @@ Liquida la declaración completa de un hogar siguiendo el orden del modelo 100: 
 | `web/js/irpfsim.js` | Motor de liquidación. Es el port a JavaScript del motor R de referencia y funciona en el navegador y en Node |
 | `web/js/app.js` | Interfaz de la web |
 | `web/css/mapafiscal.css` | Estilos (tema claro y oscuro) |
-| `web/datos/params.json` | Parámetros normativos de 2025. Cada bloque indica su `norma`, su `fuente` y su `estado` |
-| `web/datos/mapa_es.json` | Cartografía por territorio fiscal (© Instituto Geográfico Nacional, CC BY 4.0) |
+| `web/datos/params.json` | Parámetros normativos de 2025, generados desde `params/2025/*.yaml`. Cada bloque indica su `norma`, su `fuente` y su `estado` |
+| `web/datos/mapa_es.json` | Cartografía por territorio fiscal (© Instituto Geográfico Nacional, CC BY 4.0), generada con `tools/generar_mapa.R` |
 | `web/config.js` | Configuración del despliegue (modo demo, backend opcional con Supabase, precios) |
 | `tools/empaquetar.mjs` | Genera un único HTML autónomo, en el mismo formato que el artifact publicado en Claude |
 | `tools/servir.mjs` | Servidor estático para probar `web/` en local |
 | `test/` | Tests del motor (casos calculados a mano e invariantes en los 19 territorios), de los parámetros y del empaquetado |
+| `params/2025/*.yaml` | Fuente única de los parámetros: escalas, mínimos, reducciones y deducciones, cada una con su norma y su fuente |
+| `R/` | Motor R de referencia, del que `irpfsim.js` es un port. También simula reformas sobre una muestra sintética |
+| `tests/` | Tests del motor R (testthat), con el cálculo a mano de cada caso en `docs/03_casos_validacion.md` |
+| `tools/*.R` | Generadores (`params.json`, mapa, catálogo de Supabase) y validador de paridad R ↔ JavaScript (`validar_js.html`, `validar_js_node.js`, `casos.json`) |
+| `supabase/` | Esquema, migraciones, Edge Functions de cobro y semilla del catálogo normativo del backend |
+| `docs/` | Diseño, cobertura, casos de validación, arquitectura de la web y registros de sesión |
+| `inst/` | API REST (plumber) y dashboard de reformas (Shiny) sobre el motor R |
 
 ## Uso
 
-Solo hace falta Node 20 o posterior. No hay dependencias que instalar.
+Para la web y el motor JavaScript solo hace falta Node 20 o posterior. No hay dependencias que instalar.
 
 ```bash
 npm test              # tests
+npm run validar       # paridad R ↔ JavaScript con los casos de tools/casos.json
 npm run servir        # web en http://localhost:8080
 npm run empaquetar    # dist/mapafiscal.html (HTML autónomo)
+```
+
+Para el motor R hace falta R 4.3 o posterior con `yaml`, `jsonlite` y `testthat`:
+
+```bash
+Rscript tests/testthat.R               # tests del motor R
+Rscript tools/exportar_params.R        # regenera web/datos/params.json desde los YAML
+Rscript tools/montar_validador.R       # regenera casos.json y tools/validar_js.html
 ```
 
 ### El motor desde Node
@@ -45,29 +61,37 @@ irpfsim.compararTerritorios(hogar, P);          // los 19 territorios, de menor 
 irpfsim.optimizar(hogar, P).recomendaciones;    // modalidad de declaración, plan de pensiones, traslado, deducciones
 ```
 
-Un hogar se describe con `territorio` (código ISO: `ES-AN`, `ES-CT`, `ES-PV-BI`, `ES-NC`…), `tipoUnidadFamiliar` (`ninguna`, `biparental` o `monoparental`), `familiaNumerosa` y una lista de `miembros`. Cada miembro tiene un `rol` (`declarante`, `conyuge`, `descendiente` o `ascendiente`), su edad y discapacidad, y sus rentas: `trabajo`, `capitalMobiliario`, `capitalInmobiliario`, `actividades`, `ganancias`, `previsionSocial` y `retenciones`. La forma exacta de cada bloque está en las funciones `rn*` de `irpfsim.js` y en `construirHogar()` de `app.js`.
+Un hogar se describe con `territorio` (código ISO: `ES-AN`, `ES-CT`, `ES-PV-BI`, `ES-NC`…), `tipoUnidadFamiliar` (`ninguna`, `biparental` o `monoparental`), `familiaNumerosa`, opcionalmente `municipioHabitantes` y `zonaDespoblada` (para las deducciones autonómicas rurales), y una lista de `miembros`. Cada miembro tiene un `rol` (`declarante`, `conyuge`, `descendiente` o `ascendiente`), su edad y discapacidad, y sus rentas: `trabajo`, `capitalMobiliario`, `capitalInmobiliario`, `actividades`, `ganancias`, `previsionSocial` y `retenciones`. La forma exacta de cada bloque está en las funciones `rn*` de `irpfsim.js` y en `construirHogar()` de `app.js`.
 
 ## Parámetros
 
-`web/datos/params.json` es la única fuente de datos del motor. Cada bloque lleva la norma de la que procede y un estado:
+Los parámetros se mantienen en `params/2025/*.yaml`; `web/datos/params.json` se genera a partir de ellos con `Rscript tools/exportar_params.R` y no se edita a mano (la CI lo regenera y falla si no coincide). Cada bloque lleva la norma de la que procede y un estado:
 
 - **confirmado**: cotejado con la fuente.
 - **provisional**: falta cotejarlo, o la regla está simplificada.
+
+Las deducciones identificadas que aún no tienen cifra verificada no se calculan: figuran por nombre en la lista `pendientes` de cada territorio.
 
 Para corregir o confirmar un parámetro, abre un issue con la plantilla *Parámetro a corregir o confirmar*.
 
 ## Cobertura
 
-Quedan fuera por ahora:
+El detalle por territorio está en [`docs/02_cobertura.md`](docs/02_cobertura.md). Quedan fuera por ahora:
 
 - Ceuta y Melilla.
 - La estimación objetiva (módulos) de actividades económicas.
-- Las deducciones autonómicas que dependen del municipio de residencia (zonas rurales o en riesgo de despoblación), y las de inversión y donativos.
-- En Navarra, las deducciones por vivienda y por familia numerosa.
+- Las deducciones autonómicas de inversión y donativos, y las que fijan el límite por tramos de base (libros de texto).
+- En Navarra, las deducciones por adquisición de vivienda y por familia numerosa.
+
+El motor ya calcula las deducciones autonómicas que dependen del municipio de residencia (población o zona en riesgo de despoblación), pero la web todavía no pregunta por el municipio.
 
 ## Motor R de referencia
 
-`params.json` se genera a partir de `params/2025/*.yaml`. El motor JavaScript se valida al céntimo contra el motor R (`R/00..08`, con `tools/validar_js.html`). Esos ficheros todavía no están en este repositorio.
+`R/` es la referencia normativa: `web/js/irpfsim.js` es un port que tiene que dar el mismo resultado al céntimo. La paridad se comprueba con los 46 hogares de `tools/validar_js.R`: el motor R calcula la referencia (`tools/casos.json`) y el motor JavaScript la liquida de nuevo, en el navegador (`tools/validar_js.html`, que debe decir «VALIDADOR OK») o en Node (`npm run validar`). La CI (`.github/workflows/motor-r.yml`) ejecuta en cada PR los tests del motor R, la comprobación de `params.json` y la validación de paridad.
+
+## Backend (Supabase)
+
+`supabase/` contiene el esquema del espacio de gestores (perfiles, clientes, lista de espera y suscripciones, todo con RLS), el catálogo normativo de lectura pública derivado de `params.json`, y las Edge Functions de cobro con Stripe. Cómo aplicarlo y qué claves configurar: [`supabase/README.md`](supabase/README.md).
 
 ## Publicar la web
 
