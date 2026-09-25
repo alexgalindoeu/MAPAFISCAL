@@ -12,7 +12,7 @@
 # Rendimiento neto PREVIO a la reducción del trabajo (art. 19: íntegro - gastos)
 rn_trabajo_previo <- function(pers, P, regimen = "comun") {
   tr <- pers$trabajo
-  if (is.null(tr)) return(list(previo = 0, integro = 0))
+  if (is.null(tr)) return(list(previo = 0, previo_art20 = 0, integro = 0))
   integro <- (tr$dinerarias %||% 0) + (tr$especie %||% 0)
   # rendimiento irregular: reducción del 30 % sobre base máx. (art. 18.2)
   irr <- tr$rendimiento_irregular %||% NULL
@@ -35,9 +35,13 @@ rn_trabajo_previo <- function(pers, P, regimen = "comun") {
         isTRUE(tr$trabajador_activo_discapacidad))
       otros <- otros + og$incremento_discapacidad_65_o_movilidad
   }
-  gastos <- (tr$cotizaciones_ss %||% 0) + (tr$otros_gastos %||% 0) + min(otros, max(0, integro))
-  previo <- integro - gastos
-  list(previo = previo, integro = integro)
+  # gastos de las letras a) a e) del art. 19.2 (cotizaciones, cuotas sindicales, colegios…)
+  previo_art20 <- integro - (tr$cotizaciones_ss %||% 0) - (tr$otros_gastos %||% 0)
+  # letra f), con el límite del íntegro minorado en el resto de gastos
+  previo <- previo_art20 - min(otros, max(0, previo_art20))
+  # previo_art20 es el rendimiento neto que fija la cuantía de la reducción del art. 20
+  # (Manual Práctico Renta 2025, Fase 3ª: íntegro − gastos a) a e), sin la letra f)
+  list(previo = previo, previo_art20 = previo_art20, integro = integro)
 }
 
 # Reducción del trabajo según régimen

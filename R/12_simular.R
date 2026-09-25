@@ -29,7 +29,7 @@ liquidar_muestra <- function(muestra, reforma = NULL, ejercicio = 2025) {
     d
   })
   out <- do.call(rbind, res)
-  out$renta_disponible <- out$renta_bruta - out$cuota_liquida_total
+  out$renta_disponible <- out$renta_bruta - out$cuota_resultante_autoliquidacion
   out
 }
 
@@ -39,24 +39,24 @@ liquidar_muestra <- function(muestra, reforma = NULL, ejercicio = 2025) {
 simular <- function(muestra, reforma, ejercicio = 2025, k_deciles = 10) {
   base <- liquidar_muestra(muestra, reforma = NULL, ejercicio = ejercicio)
   refo <- liquidar_muestra(muestra, reforma = reforma, ejercicio = ejercicio)
-  m <- merge(base[, c("id_hogar","peso","renta_bruta","cuota_liquida_total","renta_disponible")],
-             refo[, c("id_hogar","cuota_liquida_total","renta_disponible")],
+  m <- merge(base[, c("id_hogar","peso","renta_bruta","cuota_resultante_autoliquidacion","renta_disponible")],
+             refo[, c("id_hogar","cuota_resultante_autoliquidacion","renta_disponible")],
              by = "id_hogar", suffixes = c("_base","_reforma"))
 
   imp <- list(
-    recaudacion_base    = sum(m$cuota_liquida_total_base * m$peso),
-    recaudacion_reforma = sum(m$cuota_liquida_total_reforma * m$peso),
-    variacion_recaudacion = sum((m$cuota_liquida_total_reforma - m$cuota_liquida_total_base) * m$peso),
+    recaudacion_base    = sum(m$cuota_resultante_autoliquidacion_base * m$peso),
+    recaudacion_reforma = sum(m$cuota_resultante_autoliquidacion_reforma * m$peso),
+    variacion_recaudacion = sum((m$cuota_resultante_autoliquidacion_reforma - m$cuota_resultante_autoliquidacion_base) * m$peso),
     gini_disp_base    = gini(m$renta_disponible_base, m$peso),
     gini_disp_reforma = gini(m$renta_disponible_reforma, m$peso),
-    redistribucion_base = indices_redistribucion(m$renta_bruta, m$cuota_liquida_total_base, m$peso),
-    redistribucion_reforma = indices_redistribucion(m$renta_bruta, m$cuota_liquida_total_reforma, m$peso),
+    redistribucion_base = indices_redistribucion(m$renta_bruta, m$cuota_resultante_autoliquidacion_base, m$peso),
+    redistribucion_reforma = indices_redistribucion(m$renta_bruta, m$cuota_resultante_autoliquidacion_reforma, m$peso),
     ganadores_perdedores = ganadores_perdedores(m$renta_disponible_base, m$renta_disponible_reforma, m$peso),
-    por_decil_base    = tabla_por_decil(setNames(m[, c("renta_bruta","cuota_liquida_total_base")],
-                                                 c("renta_bruta","cuota_liquida_total")),
+    por_decil_base    = tabla_por_decil(setNames(m[, c("renta_bruta","cuota_resultante_autoliquidacion_base")],
+                                                 c("renta_bruta","cuota_resultante_autoliquidacion")),
                                         w = m$peso, k = k_deciles),
-    por_decil_reforma = tabla_por_decil(setNames(m[, c("renta_bruta","cuota_liquida_total_reforma")],
-                                                 c("renta_bruta","cuota_liquida_total")),
+    por_decil_reforma = tabla_por_decil(setNames(m[, c("renta_bruta","cuota_resultante_autoliquidacion_reforma")],
+                                                 c("renta_bruta","cuota_resultante_autoliquidacion")),
                                         w = m$peso, k = k_deciles)
   )
   structure(list(baseline = base, reforma = refo, panel = m, impacto = imp),

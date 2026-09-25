@@ -80,6 +80,7 @@ El detalle por territorio está en [`docs/02_cobertura.md`](docs/02_cobertura.md
 
 - Ceuta y Melilla.
 - La estimación objetiva (módulos) de actividades económicas.
+- Los mínimos personales y familiares propios que han aprobado 10 comunidades para el tramo autonómico: se aplica el estatal, así que en ellas la cuota autonómica puede salir algo más alta.
 - Las deducciones autonómicas de inversión y donativos, y las que fijan el límite por tramos de base (libros de texto).
 - En Navarra, las deducciones por adquisición de vivienda y por familia numerosa.
 

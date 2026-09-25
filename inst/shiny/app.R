@@ -90,7 +90,7 @@ server <- function(input, output, session) {
       liq <- tryCatch(liquidar(construir_hogar(t), modo = "auto"), error = function(e) NULL)
       if (is.null(liq)) return(NULL)
       data.frame(territorio = NOMBRES[[t]],
-                 cuota = liq$cuota_liquida_total,
+                 cuota = liq$cuota_resultante_autoliquidacion,
                  tipo_efectivo = 100 * liq$tipo_medio_efectivo,
                  modo = liq$modo_tributacion_elegido)
     }))

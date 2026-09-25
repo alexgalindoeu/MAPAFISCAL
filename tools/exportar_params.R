@@ -35,6 +35,7 @@ estatal <- list(
   reduccion_tributacion_conjunta = est$reduccion_tributacion_conjunta,
   imputacion_renta_inmobiliaria = est$imputacion_renta_inmobiliaria,
   anualidades_alimentos_hijos = est$anualidades_alimentos_hijos,
+  deduccion_obtencion_rendimientos_trabajo = est$deduccion_obtencion_rendimientos_trabajo,
   deduccion_maternidad = est$deduccion_maternidad,
   deduccion_familia_numerosa_y_discapacidad_cargo = est$deduccion_familia_numerosa_y_discapacidad_cargo
 )

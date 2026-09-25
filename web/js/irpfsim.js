@@ -32,7 +32,9 @@
   }
 
   // ---- Rendimientos ---------------------------------------------------------
-  function rnTrabajoPrevio(pe, P, regimen) {
+  // Rendimiento neto que fija la cuantía de la reducción del art. 20: íntegro − gastos
+  // a) a e) del art. 19.2, sin los «otros gastos» de la letra f)
+  function rnTrabajoPrevioArt20(pe) {
     const tr = pe.trabajo;
     if (!tr) return 0;
     let integro = num(tr.dinerarias) + num(tr.especie);
@@ -40,6 +42,15 @@
     if (irr && num(irr.importe) > 0 && num(irr.anios) > 2) {
       integro -= Math.min(irr.importe, 300000) * 0.30;
     }
+    return integro - num(tr.cotizacionesSs) - num(tr.otrosGastos);
+  }
+
+  // Rendimiento neto previo a la reducción (tras la letra f, limitada al íntegro menos
+  // el resto de gastos)
+  function rnTrabajoPrevio(pe, P, regimen) {
+    const tr = pe.trabajo;
+    if (!tr) return 0;
+    const previoArt20 = rnTrabajoPrevioArt20(pe);
     let otros = 0;
     if (regimen === "comun") {
       const og = P.estatal.trabajo_otros_gastos;
@@ -49,8 +60,7 @@
       if ((pe.discapacidad === "65_mas" || pe.movilidadReducida) && tr.trabajadorActivoDiscapacidad)
         otros += og.incremento_discapacidad_65_o_movilidad;
     }
-    const gastos = num(tr.cotizacionesSs) + num(tr.otrosGastos) + Math.min(otros, Math.max(0, integro));
-    return integro - gastos;
+    return previoArt20 - Math.min(otros, Math.max(0, previoArt20));
   }
 
   function reduccionTrabajo(rnPrevio, otrasRentas, pe, P, regimen) {
@@ -191,7 +201,11 @@
       retenciones += num(pe.retenciones);
     }
     let redTrabajo = 0;
-    for (const pe of personas) redTrabajo += reduccionTrabajo(rnTrabajoPrevio(pe, P, regimen), otrasRentas, pe, P, regimen);
+    for (const pe of personas) {
+      // la cuantía se fija sin la letra f); no puede dejar negativo el rendimiento ya minorado en ella
+      const red = reduccionTrabajo(rnTrabajoPrevioArt20(pe), otrasRentas, pe, P, regimen);
+      redTrabajo += Math.min(red, Math.max(0, rnTrabajoPrevio(pe, P, regimen)));
+    }
     const trabajoNeto = Math.max(0, trabajoPrevio - redTrabajo);
     const rendGeneral = trabajoNeto + capInmob + capMobG + actividades + imput;
     const ic = integrarCompensar(rendGeneral, ganG, capMobA, ganA, P);
@@ -467,6 +481,39 @@
     return Math.max(0, aplicarEscala(base, escala) - aplicarEscala(Math.min(minAplic, base), escala));
   }
 
+  // Deducción por obtención de rendimientos del trabajo (DA 61.ª LIRPF, Ley 5/2025): por
+  // persona con rendimientos íntegros de una relación laboral o estatutaria (no pensiones)
+  // bajo el umbral final y otras rentas no superiores al límite; limitada a la parte de la
+  // cuota íntegra total que corresponde a esos rendimientos (ver estatal.yaml).
+  function deduccionRendimientosTrabajo(personas, P, cuotaIntegraTotal) {
+    const d = P.estatal.deduccion_obtencion_rendimientos_trabajo;
+    if (!d || cuotaIntegraTotal <= 0) return { total: 0, detalle: {} };
+    const filas = personas.map(pe => {
+      const tr = pe.trabajo;
+      const rit = tr ? num(tr.dinerarias) + num(tr.especie) : 0;
+      const neto = tr ? Math.max(0, rit - num(tr.cotizacionesSs) - num(tr.otrosGastos)) : 0;
+      const laboral = !!tr && !tr.pensionJubilacion;
+      const cm = rnCapitalMobiliario(pe, P, "comun");
+      let gan = num(pe.gananciasPerdidasNoTransmision);
+      for (const el of (pe.ganancias || [])) { const g = gananciaElemento(el, P, "comun"); gan += g.ahorro + g.general; }
+      const otras = Math.max(0, rnCapitalInmobiliario(pe, P, "comun")) + Math.max(0, cm.ahorro) + Math.max(0, cm.general) +
+        Math.max(0, rnActividades(pe, P)) + Math.max(0, imputacionInmobiliaria(pe, P)) + Math.max(0, gan) +
+        (laboral ? 0 : neto);
+      return { id: pe.id, rit: laboral ? rit : 0, neto: laboral ? neto : 0, otras };
+    });
+    const denominador = filas.reduce((s, x) => s + x.neto + x.otras, 0);
+    const detalle = {};
+    let total = 0;
+    for (const x of filas) {
+      if (x.rit <= 0 || x.rit >= d.umbral_final || x.otras > d.limite_otras_rentas) continue;
+      const importe = x.rit <= d.umbral_pleno ? d.importe_maximo : d.importe_maximo - d.coef_reduccion * (x.rit - d.umbral_pleno);
+      const limite = denominador > 0 ? cuotaIntegraTotal * x.neto / denominador : 0;
+      const v = Math.max(0, Math.min(importe, limite));
+      if (v > 0) { detalle[x.id] = red2(v); total += red2(v); }
+    }
+    return { total, detalle };
+  }
+
   function liquidarComunScope(hogar, terr, P, modo, declaranteId) {
     const personas = modo === "conjunta"
       ? hogar.miembros.filter(m => m.rol === "declarante" || m.rol === "conyuge" || m.rol === "descendiente")
@@ -523,8 +570,12 @@
       clEst *= (1 - b); clAut *= (1 - b);
     }
     const cuotaLiquida = clEst + clAut;
+    // DA 61.ª: se resta de la cuota líquida total y da la cuota resultante (no negativa)
+    const drt = deduccionRendimientosTrabajo(personas, P, cuotaIntegraEstatal + cuotaIntegraAutonomica);
+    drt.total = red2(Math.min(drt.total, cuotaLiquida));
+    const cuotaResultante = cuotaLiquida - drt.total;
     const impropias = deduccionesImpropias(hogar, P, modo, declaranteId);
-    const cuotaDiferencial = cuotaLiquida - r.retenciones - impropias.total;
+    const cuotaDiferencial = cuotaResultante - r.retenciones - impropias.total;
     const bit = r.baseImponibleGeneral + r.baseImponibleAhorro;
 
     return {
@@ -539,10 +590,12 @@
       deduccionesAutonomicas: dedAut, bonificacionResidencia: red2(bonifCm),
       cuotaLiquidaEstatal: red2(clEst), cuotaLiquidaAutonomica: red2(clAut),
       cuotaLiquidaTotal: red2(cuotaLiquida),
+      deduccionRendimientosTrabajo: drt,
+      cuotaResultanteAutoliquidacion: red2(cuotaResultante),
       retenciones: red2(r.retenciones),
       deduccionesCuotaDiferencial: impropias,
       cuotaDiferencial: red2(cuotaDiferencial),
-      tipoMedioEfectivo: bit > 0 ? Math.round(cuotaLiquida / bit * 10000) / 10000 : 0
+      tipoMedioEfectivo: bit > 0 ? Math.round(cuotaResultante / bit * 10000) / 10000 : 0
     };
   }
 
@@ -583,6 +636,7 @@
       cuotaIntegraEstatal: 0, cuotaIntegraAutonomica: red2(cuotaIntegra), cuotaIntegraTotal: red2(cuotaIntegra),
       minoracionCuota: red2(minCuota), deduccionesAutonomicas: ded,
       cuotaLiquidaEstatal: 0, cuotaLiquidaAutonomica: red2(cuotaLiquida), cuotaLiquidaTotal: red2(cuotaLiquida),
+      deduccionRendimientosTrabajo: { total: 0, detalle: {} }, cuotaResultanteAutoliquidacion: red2(cuotaLiquida),   // DA 61.ª: solo régimen común
       retenciones: red2(r.retenciones), deduccionesCuotaDiferencial: { total: 0, detalle: {} },
       cuotaDiferencial: red2(cuotaLiquida - r.retenciones),
       tipoMedioEfectivo: bit > 0 ? Math.round(cuotaLiquida / bit * 10000) / 10000 : 0
@@ -765,6 +819,7 @@
       cuotaIntegraEstatal: 0, cuotaIntegraAutonomica: red2(cuotaIntegra), cuotaIntegraTotal: red2(cuotaIntegra),
       deduccionesAutonomicas: { total: red2(dedMin + dedFam + dedTrabajo + dedAlq), detalle: detAut },
       cuotaLiquidaEstatal: 0, cuotaLiquidaAutonomica: red2(cuotaLiquida), cuotaLiquidaTotal: red2(cuotaLiquida),
+      deduccionRendimientosTrabajo: { total: 0, detalle: {} }, cuotaResultanteAutoliquidacion: red2(cuotaLiquida),   // DA 61.ª: solo régimen común
       retenciones: red2(r.retenciones), deduccionesCuotaDiferencial: { total: red2(dedCd), detalle: detCd },
       cuotaDiferencial: red2(cuotaLiquida - r.retenciones - dedCd),
       tipoMedioEfectivo: bit > 0 ? Math.round(cuotaLiquida / bit * 10000) / 10000 : 0
@@ -777,7 +832,7 @@
     const base = JSON.parse(JSON.stringify(lst[0]));
     const campos = ["baseImponibleGeneral", "baseImponibleAhorro", "baseLiquidableGeneral", "baseLiquidableAhorro",
       "cuotaIntegraEstatal", "cuotaIntegraAutonomica", "cuotaIntegraTotal", "cuotaLiquidaEstatal", "cuotaLiquidaAutonomica",
-      "cuotaLiquidaTotal", "retenciones", "cuotaDiferencial"];
+      "cuotaLiquidaTotal", "cuotaResultanteAutoliquidacion", "retenciones", "cuotaDiferencial"];
     for (const c of campos) base[c] = red2(lst.reduce((s, x) => s + num(x[c]), 0));
     // detalle de deducciones de todos los declarantes (solo informativo: las cuotas ya van sumadas)
     const sumaDetalle = k => {
@@ -792,9 +847,10 @@
     };
     base.deduccionesAutonomicas = Object.assign({}, lst[0].deduccionesAutonomicas, sumaDetalle("deduccionesAutonomicas"));
     base.deduccionesCuotaDiferencial = sumaDetalle("deduccionesCuotaDiferencial");
+    base.deduccionRendimientosTrabajo = sumaDetalle("deduccionRendimientosTrabajo");
     base.minoracionCuota = red2(lst.reduce((s, x) => s + num(x.minoracionCuota), 0));
     const bit = base.baseImponibleGeneral + base.baseImponibleAhorro;
-    base.tipoMedioEfectivo = bit > 0 ? Math.round(base.cuotaLiquidaTotal / bit * 10000) / 10000 : 0;
+    base.tipoMedioEfectivo = bit > 0 ? Math.round(base.cuotaResultanteAutoliquidacion / bit * 10000) / 10000 : 0;
     base.modo = "individual";
     return base;
   }
@@ -820,7 +876,8 @@
     let elegido;
     if (modo === "conjunta" && res.conjunta) elegido = "conjunta";
     else if (modo === "individual") elegido = "individual";
-    else if (res.conjunta && res.conjunta.cuotaLiquidaTotal < res.individual.cuotaLiquidaTotal) elegido = "conjunta";
+    // la modalidad se elige por la cuota resultante (cuota líquida menos la DA 61.ª)
+    else if (res.conjunta && res.conjunta.cuotaResultanteAutoliquidacion < res.individual.cuotaResultanteAutoliquidacion) elegido = "conjunta";
     else elegido = "individual";
 
     const liq = res[elegido];
@@ -828,7 +885,7 @@
     liq.territorioNombre = terr.nombre;
     liq.ejercicio = P.ejercicio;
     liq.modoTributacionElegido = elegido;
-    liq.comparativa = { individual: res.individual ? res.individual.cuotaLiquidaTotal : null, conjunta: res.conjunta ? res.conjunta.cuotaLiquidaTotal : null };
+    liq.comparativa = { individual: res.individual ? res.individual.cuotaResultanteAutoliquidacion : null, conjunta: res.conjunta ? res.conjunta.cuotaResultanteAutoliquidacion : null };
     return liq;
   }
 
@@ -840,12 +897,13 @@
         const liq = liquidar(h, P, "auto");
         return {
           territorio: t, nombre: P.territorios[t].nombre, regimen: P.territorios[t].regimen,
-          cuotaLiquidaTotal: liq.cuotaLiquidaTotal, tipoMedioEfectivo: liq.tipoMedioEfectivo,
+          cuotaLiquidaTotal: liq.cuotaLiquidaTotal, cuotaResultanteAutoliquidacion: liq.cuotaResultanteAutoliquidacion,
+          tipoMedioEfectivo: liq.tipoMedioEfectivo,
           cuotaDiferencial: liq.cuotaDiferencial, modo: liq.modoTributacionElegido,
           baseImponible: red2(liq.baseImponibleGeneral + liq.baseImponibleAhorro)
         };
       } catch (e) { return null; }
-    }).filter(Boolean).sort((a, b) => a.cuotaLiquidaTotal - b.cuotaLiquidaTotal);
+    }).filter(Boolean).sort((a, b) => a.cuotaResultanteAutoliquidacion - b.cuotaResultanteAutoliquidacion);
   }
 
   // ---- Optimizador (palancas de ahorro) --------------------------------
@@ -853,7 +911,7 @@
     opts = opts || {};
     const pasos = opts.pasosPlan || [500, 1000, 1500, 2000, 3000, 5000, 8000];
     const liq0 = liquidar(hogar, P, "auto");
-    const cuota0 = liq0.cuotaLiquidaTotal;
+    const cuota0 = liq0.cuotaResultanteAutoliquidacion;
     const recs = [];
     const fmt = n => String(Math.round(n)).replace(/\B(?=(\d{3})+(?!\d))/g, ".");
 
@@ -876,7 +934,7 @@
       const m = h2.miembros.find(x => x.id === d1.id);
       m.previsionSocial = m.previsionSocial || { aportacionIndividual: 0 };
       m.previsionSocial.aportacionIndividual = num(m.previsionSocial.aportacionIndividual) + paso;
-      return liquidar(h2, P, "auto").cuotaLiquidaTotal;
+      return liquidar(h2, P, "auto").cuotaResultanteAutoliquidacion;
     };
     let mejorPaso = 0, mejorAhorro = 0;
     for (const p of pasos) { const a = cuota0 - simulaPlan(p); if (a > mejorAhorro + 0.5) { mejorAhorro = a; mejorPaso = p; } }
@@ -895,13 +953,13 @@
     // 3. traslados — mejores territorios, sin duplicar cuota (Ceuta≈Melilla)
     const cmp = compararTerritorios(hogar, P);
     const vistos = new Set();
-    cmp.filter(c => c.territorio !== hogar.territorio && c.cuotaLiquidaTotal < cuota0 - 1)
-       .filter(c => { const k = Math.round(c.cuotaLiquidaTotal); if (vistos.has(k)) return false; vistos.add(k); return true; })
+    cmp.filter(c => c.territorio !== hogar.territorio && c.cuotaResultanteAutoliquidacion < cuota0 - 1)
+       .filter(c => { const k = Math.round(c.cuotaResultanteAutoliquidacion); if (vistos.has(k)) return false; vistos.add(k); return true; })
        .slice(0, 3).forEach(c => recs.push({
       id: "traslado_" + c.territorio, categoria: "territorio",
       titulo: "Residencia fiscal en " + c.nombre + (c.nombre === "Ceuta" ? " o Melilla" : ""),
-      detalle: "Con la misma situación pagarías " + fmt(c.cuotaLiquidaTotal) + " € (requiere residencia efectiva > 183 días/año y centro de intereses económicos allí).",
-      ahorro: red2(cuota0 - c.cuotaLiquidaTotal)
+      detalle: "Con la misma situación pagarías " + fmt(c.cuotaResultanteAutoliquidacion) + " € (requiere residencia efectiva > 183 días/año y centro de intereses económicos allí).",
+      ahorro: red2(cuota0 - c.cuotaResultanteAutoliquidacion)
     }));
 
     // 4. deducciones autonómicas potenciales no usadas (agrupadas, máx. 3)

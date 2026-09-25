@@ -299,13 +299,31 @@ add("jubilado_ga", "ES-GA", "ninguna", "no",
     list(persona("d1","declarante",70, trabajo=list(dinerarias=25000, cotizaciones_ss=0))),
     list(list(id="d1",rol="declarante",edad=70, trabajo=list(dinerarias=25000, cotizacionesSs=0))))
 
+# 8. reducción del art. 20 y deducción por obtención de rendimientos del trabajo (DA 61.ª)
+tr_bajo <- function(id, terr, bruto, ss, edad = 40, pension = FALSE, intereses = 0) add(id, terr, "ninguna", "no",
+    list(persona("d1","declarante",edad, trabajo=list(dinerarias=bruto, cotizaciones_ss=ss, pension_jubilacion=pension),
+                 capital_mobiliario = if (intereses > 0) list(intereses=intereses) else NULL)),
+    list(list(id="d1",rol="declarante",edad=edad, trabajo=list(dinerarias=bruto, cotizacionesSs=ss, pensionJubilacion=pension),
+              capitalMobiliario = if (intereses > 0) list(intereses=intereses) else NULL)))
+tr_bajo("smi_cm", "ES-CM", 16576, 1074.12)
+tr_bajo("da61_tramo_cm", "ES-CM", 17500, 1134)
+tr_bajo("da61_pension_cm", "ES-CM", 17000, 0, edad = 70, pension = TRUE)
+tr_bajo("da61_ahorro_cm", "ES-CM", 16576, 1074.12, intereses = 2000)
+tr_bajo("da61_aeat_md", "ES-MD", 16500, 1200)
+add("da61_pareja_vc", "ES-VC", "biparental", "no",     # conjunta elegida, con DA 61.ª
+    list(persona("d1","declarante",36, trabajo=list(dinerarias=18200, cotizaciones_ss=1179.36)),
+         persona("d2","conyuge",35), persona("h1","descendiente",4)),
+    list(list(id="d1",rol="declarante",edad=36, trabajo=list(dinerarias=18200,cotizacionesSs=1179.36)),
+         list(id="d2",rol="conyuge",edad=35), list(id="h1",rol="descendiente",edad=4)))
+
 out <- lapply(casos, function(c) list(
   js = c$js,
   ref = list(
     blg = c$liq$base_liquidable_general, bla = c$liq$base_liquidable_ahorro,
     minimo = c$liq$minimo_personal_familiar$total %||% 0,
     ci_est = c$liq$cuota_integra_estatal, ci_aut = c$liq$cuota_integra_autonomica,
-    cl = c$liq$cuota_liquida_total, cd = c$liq$cuota_diferencial,
+    cl = c$liq$cuota_liquida_total, cr = c$liq$cuota_resultante_autoliquidacion,
+    cd = c$liq$cuota_diferencial,
     tme = c$liq$tipo_medio_efectivo, modo = c$liq$modo_tributacion_elegido
   )
 ))

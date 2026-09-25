@@ -70,7 +70,8 @@ test("tributación conjunta: el modo automático elige la cuota menor", () => {
   h.miembros.push({ id: "d2", rol: "conyuge", edad: 40, trabajo: null });
   const l = motor.liquidar(h, P);
   assert.ok(l.comparativa.individual != null && l.comparativa.conjunta != null);
-  assert.equal(l.cuotaLiquidaTotal, Math.min(l.comparativa.individual, l.comparativa.conjunta));
+  // se compara la cuota resultante (cuota líquida menos la deducción de la DA 61.ª)
+  assert.equal(l.cuotaResultanteAutoliquidacion, Math.min(l.comparativa.individual, l.comparativa.conjunta));
   assert.equal(l.modoTributacionElegido, l.comparativa.conjunta < l.comparativa.individual ? "conjunta" : "individual");
 });
 
@@ -78,7 +79,34 @@ test("comparar territorios devuelve los 19, ordenados de menor a mayor cuota", (
   const cmp = motor.compararTerritorios(hogarAsalariado("ES-MD", 30000, 1905), P);
   assert.equal(cmp.length, 19);
   assert.deepEqual(new Set(cmp.map(c => c.territorio)), new Set(Object.keys(P.territorios)));
-  for (let i = 1; i < cmp.length; i++) assert.ok(cmp[i - 1].cuotaLiquidaTotal <= cmp[i].cuotaLiquidaTotal);
+  for (let i = 1; i < cmp.length; i++) assert.ok(cmp[i - 1].cuotaResultanteAutoliquidacion <= cmp[i].cuotaResultanteAutoliquidacion);
+});
+
+test("art. 20: la cuantía de la reducción se fija sin restar antes los 2.000 € de otros gastos (#2)", () => {
+  // SMI en Castilla-La Mancha: 16.576 − 1.074,12 = 15.501,88 -> 7.302 − 1,75 × 649,88 = 6.164,71
+  const l = motor.liquidar(hogarAsalariado("ES-CM", 16576, 1074.12), P);
+  casi(l.componentesRenta.reduccionTrabajo, 6164.71, "reducción del art. 20");
+  casi(l.baseLiquidableGeneral, 7337.17, "base liquidable general");   // 15.501,88 − 2.000 − 6.164,71
+  casi(l.cuotaIntegraTotal, 339.56, "cuota íntegra");                  // 2 × (7.337,17 − 5.550) × 9,5 %
+  casi(motor.liquidar(hogarAsalariado("ES-CM", 18000, 1166.40), P).cuotaIntegraTotal, 1035.39, "18.000 €");
+  casi(motor.liquidar(hogarAsalariado("ES-CM", 20000, 1296), P).cuotaIntegraTotal, 2046.46, "20.000 €");
+});
+
+test("deducción por obtención de rendimientos del trabajo (DA 61.ª LIRPF, #1)", () => {
+  // tramo pleno: 340 € limitados a la cuota íntegra (100 % trabajo) -> el SMI no tributa
+  const smi = motor.liquidar(hogarAsalariado("ES-CM", 16576, 1074.12), P);
+  casi(smi.deduccionRendimientosTrabajo.total, 339.56, "deducción con el SMI");
+  assert.equal(smi.cuotaResultanteAutoliquidacion, 0);
+  // tramo decreciente: 340 − 0,2 × (17.500 − 16.576) = 155,20 (ejemplo 3 de la AEAT)
+  const l = motor.liquidar(hogarAsalariado("ES-CM", 17500, 1134), P);
+  casi(l.deduccionRendimientosTrabajo.total, 155.20, "tramo decreciente");
+  casi(l.cuotaResultanteAutoliquidacion, l.cuotaLiquidaTotal - 155.20, "cuota resultante");
+  // desde 18.276 € íntegros no hay deducción
+  assert.equal(motor.liquidar(hogarAsalariado("ES-CM", 20000, 1296), P).deduccionRendimientosTrabajo.total, 0);
+  // no se aplica a pensiones (ejemplo 2 de la AEAT) ni en los territorios forales
+  const pen = hogarAsalariado("ES-CM", 17000, 0, { edad: 70 }); pen.miembros[0].trabajo.pensionJubilacion = true;
+  assert.equal(motor.liquidar(pen, P).deduccionRendimientosTrabajo.total, 0);
+  assert.equal(motor.liquidar(hogarAsalariado("ES-NC", 16576, 1074.12), P).deduccionRendimientosTrabajo.total, 0);
 });
 
 test("en todos los territorios la cuota es ≥ 0 y no baja al subir el salario", () => {

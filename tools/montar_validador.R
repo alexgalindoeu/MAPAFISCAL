@@ -26,6 +26,7 @@ for (const [id, c] of Object.entries(CASOS)) {
     ["ciEst", liq.cuotaIntegraEstatal, c.ref.ci_est],
     ["ciAut", liq.cuotaIntegraAutonomica, c.ref.ci_aut],
     ["cl", liq.cuotaLiquidaTotal, c.ref.cl],
+    ["cr", liq.cuotaResultanteAutoliquidacion, c.ref.cr],
     ["cd", liq.cuotaDiferencial, c.ref.cd],
     ["modo", liq.modoTributacionElegido, c.ref.modo]
   ];

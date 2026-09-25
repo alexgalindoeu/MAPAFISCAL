@@ -745,3 +745,51 @@ lleva las listas de municipios: la persona indica si el suyo figura.
 Pendientes: Madrid (traslado a municipio < 2.500 hab. y adquisición de vivienda: dependen
 del año de traslado), vivienda rural de Aragón, CLM, CyL, Extremadura y La Rioja
 (inversión), autónomos y transporte en concejos asturianos.
+
+## Trabajo: reducción del art. 20 y deducción por obtención de rendimientos del trabajo (2026-09-25)
+
+Issues #2 y #1. Test `tests/testthat/test-trabajo-art20-da61.R`, casos `smi_cm`,
+`da61_tramo_cm`, `da61_pension_cm`, `da61_ahorro_cm`, `da61_aeat_md` y `da61_pareja_vc` del
+validador (R ↔ JS), y `test/motor.test.mjs`.
+
+**Art. 20 (corrección).** La cuantía de la reducción se fija con el rendimiento neto
+**íntegro − gastos de las letras a) a e)** del art. 19.2, sin los 2.000 € de «otros
+gastos» de la letra f) (Manual Práctico Renta 2025, *Fase 3ª: Determinación del rendimiento
+neto reducido*). Los 2.000 € se restan igualmente del rendimiento y la reducción no puede
+dejarlo negativo. Antes el motor restaba los 2.000 € antes de fijar la cuantía, con lo que
+la reducción salía más alta y la cuota, más baja (123,48 € en vez de 339,56 € con el SMI).
+
+**DA 61.ª LIRPF** (DF 3.ª de la Ley 5/2025, BOE-A-2025-15424, efectos 1-1-2025). Solo en
+régimen común. Rendimientos íntegros del trabajo de una relación laboral o estatutaria
+(no pensiones) < 18.276 € y otras rentas ≤ 6.500 €: **340 €** hasta 16.576 € y
+**340 − 0,2 × (íntegros − 16.576)** entre 16.576 y 18.276 €. Límite: la parte de la cuota
+íntegra estatal + autonómica que corresponde a esos rendimientos (🟡 proporción: rendimiento
+del trabajo menos sus gastos, sobre el total de rendimientos netos y ganancias positivos).
+Se resta de la cuota líquida total y da la **cuota resultante de la autoliquidación**, que es
+la que usa el motor para elegir modalidad, comparar territorios y calcular el tipo medio.
+
+### Comprobación numérica (Castilla-La Mancha, escala autonómica = estatal, soltero de 40 años)
+
+| Íntegros | Cotizaciones | Íntegro − a) a e) | Reducción art. 20 | Base liquidable | Cuota íntegra | DA 61.ª | Cuota resultante |
+|---:|---:|---:|---:|---:|---:|---:|---:|
+| 16.576 (SMI) | 1.074,12 | 15.501,88 | 7.302 − 1,75 × 649,88 = **6.164,71** | 7.337,17 | 2 × 1.787,17 × 9,5 % = **339,56** | mín(340; 339,56) = **339,56** | **0** |
+| 17.500 | 1.134,00 | 16.366,00 | 7.302 − 1,75 × 1.514 = 4.652,50 | 9.713,50 | 2 × 4.163,50 × 9,5 % = 791,07 | 340 − 0,2 × 924 = **155,20** | **635,87** |
+| 18.000 | 1.166,40 | 16.833,60 | 7.302 − 1,75 × 1.981,60 = 3.834,20 | 10.999,40 | **1.035,39** | 340 − 0,2 × 1.424 = 55,20 | 980,19 |
+| 20.000 | 1.296,00 | 18.704,00 | 2.364,34 − 1,14 × 1.030,48 = 1.189,59 | 15.514,41 | 2 × (1.550,48 − 527,25) = **2.046,46** | 0 (≥ 18.276) | 2.046,46 |
+
+- La base de 18.000 y 20.000 € coincide con la tabla del issue #2.
+- **Pensión de jubilación** de 17.000 € a los 70 años: misma cuota líquida que un salario de
+  17.000 € (903,83 €), pero sin DA 61.ª. Con salario la deducción sería 255,20 €.
+- **SMI + 7.000 € de intereses**: otras rentas > 6.500 € ⇒ ni reducción del art. 20 ni DA 61.ª.
+- **SMI + 2.000 € de intereses**: cuota íntegra 339,56 + 2 × 2.000 × 9,5 % = 719,56 €;
+  límite 719,56 × 15.501,88 / 17.501,88 = 637,34 € > 340 ⇒ deducción **340 €**, cuota
+  resultante **379,56 €**.
+
+### Ejemplo 1 de la AEAT (Madrid, 16.500 € íntegros, 1.200 € de cotizaciones)
+
+Base liquidable general 15.300 − 2.000 − [7.302 − 1,75 × (15.300 − 14.852)] = **6.782 €**
+(igual que la AEAT). Parte estatal (6.782 − 5.550) × 9,5 % = **117,04 €**. La AEAT da una cuota
+íntegra total de **187,19 €**, que cuadra con el mínimo autonómico de Madrid de 5.956,65 €:
+(6.782 − 5.956,65) × 8,5 % = 70,15 €. El motor aún aplica el mínimo estatal a la parte
+autonómica (104,72 €; los mínimos autonómicos de 10 CCAA están pendientes). En los dos casos
+la deducción absorbe toda la cuota y la cuota resultante es 0.

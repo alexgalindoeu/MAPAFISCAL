@@ -31,10 +31,13 @@ liquidar <- function(hogar, parametros = NULL, modo = "auto") {
     resultados$conjunta <- fscope(hogar, P, "conjunta")
   }
 
+  # la modalidad se elige por la cuota resultante de la autoliquidación (cuota líquida
+  # total menos la deducción por obtención de rendimientos del trabajo)
   elegido <- if (modo == "conjunta" && !is.null(resultados$conjunta)) "conjunta"
              else if (modo == "individual") "individual"
              else if (!is.null(resultados$conjunta) &&
-                      resultados$conjunta$cuota_liquida_total < resultados$individual$cuota_liquida_total)
+                      resultados$conjunta$cuota_resultante_autoliquidacion <
+                        resultados$individual$cuota_resultante_autoliquidacion)
                "conjunta"
              else "individual"
 
@@ -44,8 +47,8 @@ liquidar <- function(hogar, parametros = NULL, modo = "auto") {
   liq$regimen <- reg
   liq$modo_tributacion_elegido <- elegido
   liq$comparativa <- list(
-    individual = resultados$individual$cuota_liquida_total,
-    conjunta   = if (!is.null(resultados$conjunta)) resultados$conjunta$cuota_liquida_total else NA_real_
+    individual = resultados$individual$cuota_resultante_autoliquidacion,
+    conjunta   = if (!is.null(resultados$conjunta)) resultados$conjunta$cuota_resultante_autoliquidacion else NA_real_
   )
   liq$avisos_parametros <- avisos_parametros()
   class(liq) <- "irpfsim_liquidacion"
@@ -60,10 +63,13 @@ liquidar <- function(hogar, parametros = NULL, modo = "auto") {
   for (campo in c("base_imponible_general","base_imponible_ahorro","base_liquidable_general",
                   "base_liquidable_ahorro","cuota_integra_estatal","cuota_integra_autonomica",
                   "cuota_integra_total","cuota_liquida_estatal","cuota_liquida_autonomica",
-                  "cuota_liquida_total","retenciones","cuota_diferencial"))
+                  "cuota_liquida_total","cuota_resultante_autoliquidacion","retenciones","cuota_diferencial"))
     base[[campo]] <- red2(suma(campo))
+  base$deduccion_rendimientos_trabajo <- list(
+    total = red2(sum(vapply(lst, function(x) x$deduccion_rendimientos_trabajo$total %||% 0, numeric(1)))),
+    detalle = do.call(c, lapply(lst, function(x) x$deduccion_rendimientos_trabajo$detalle)))
   bit <- base$base_imponible_general + base$base_imponible_ahorro
-  base$tipo_medio_efectivo <- if (bit > 0) round(base$cuota_liquida_total / bit, 4) else 0
+  base$tipo_medio_efectivo <- if (bit > 0) round(base$cuota_resultante_autoliquidacion / bit, 4) else 0
   base$modo <- "individual"
   base
 }
@@ -80,6 +86,9 @@ print.irpfsim_liquidacion <- function(x, ...) {
   cat(sprintf("  Cuota íntegra       : estatal %.2f | autonómica/foral %.2f | total %.2f\n",
               x$cuota_integra_estatal, x$cuota_integra_autonomica, x$cuota_integra_total))
   cat(sprintf("  Cuota líquida total : %.2f\n", x$cuota_liquida_total))
+  if ((x$deduccion_rendimientos_trabajo$total %||% 0) > 0)
+    cat(sprintf("  Ded. rend. trabajo  : %.2f  (DA 61.ª LIRPF)\n", x$deduccion_rendimientos_trabajo$total))
+  cat(sprintf("  Cuota resultante    : %.2f\n", x$cuota_resultante_autoliquidacion))
   cat(sprintf("  Retenciones         : %.2f\n", x$retenciones))
   cat(sprintf("  Cuota diferencial   : %.2f  (%s)\n", x$cuota_diferencial,
               if (x$cuota_diferencial >= 0) "a ingresar" else "a devolver"))
@@ -103,6 +112,7 @@ as.data.frame.irpfsim_liquidacion <- function(x, ...) {
     cuota_integra_autonomica = x$cuota_integra_autonomica,
     cuota_integra_total = x$cuota_integra_total,
     cuota_liquida_total = x$cuota_liquida_total,
+    cuota_resultante_autoliquidacion = x$cuota_resultante_autoliquidacion,
     retenciones = x$retenciones,
     cuota_diferencial = x$cuota_diferencial,
     tipo_medio_efectivo = x$tipo_medio_efectivo,
