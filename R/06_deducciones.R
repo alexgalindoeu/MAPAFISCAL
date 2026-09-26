@@ -64,11 +64,14 @@ deducciones_estatales <- function(hogar, P, rentas, base_liquidable_total, perso
 #     taper_individual / taper_conjunta: [desde, hasta] -> reducción lineal del importe
 #       (o del `limite` en las porcentuales) cuando la base está entre ambos umbrales
 #     grupo: variantes excluyentes de una misma deducción; solo se aplica la mayor
+#     suma_bases: "imponibles" -> las puertas y el taper usan la suma de bases imponibles
+#       general y del ahorro (0435 + 0460) en vez de la de bases liquidables (por defecto);
+#     base_gate: "menos_minimo" -> base imponible − mínimo del gravamen autonómico (0520)
 #   fija_por_ascendiente: edad_ascendiente_min, ascendiente_discapacidad (false/"65_mas"),
 #     edad_ascendiente_min_discapacidad, requiere_minimo_ascendiente (ver el bloque del tipo)
 deducciones_autonomicas <- function(hogar, P, rentas, modo = "individual", base_total = 0,
                                     cuota_integra_autonomica = NA_real_, minimo = 0,
-                                    declarante_id = NULL) {
+                                    declarante_id = NULL, minimo_autonomico = minimo) {
   da <- P$jurisdiccion$deducciones_autonomicas
   if (is.null(da) || identical(da$estado, "pendiente") ||
       !length(da$lista %||% list())) {
@@ -82,6 +85,16 @@ deducciones_autonomicas <- function(hogar, P, rentas, modo = "individual", base_
   n_prog  <- length(declarantes(hogar))
   base_ind <- base_total
   base_uf  <- base_total   # aproximación: base del ámbito liquidado (ver docs/02_cobertura §5.4)
+  # Suma de las bases IMPONIBLES general y del ahorro (casillas 0435 + 0460), antes de las
+  # reducciones: la usan las puertas con `suma_bases: imponibles` y `base_gate: menos_minimo`
+  # (base imponible − mínimo personal y familiar del gravamen autonómico, casilla 0520).
+  base_imp <- if (is.null(rentas$base_imponible_general)) base_total else
+    rentas$base_imponible_general + (rentas$base_imponible_ahorro %||% 0)
+  base_puerta <- function(d) {
+    if (identical(g(d, "base_gate"), "menos_minimo")) return(max(0, base_imp - minimo_autonomico))
+    if (identical(g(d, "suma_bases"), "imponibles")) return(base_imp)
+    base_ind
+  }
   desc <- descendientes(hogar)
 
   # Ámbito personal: en individual, el declarante que se liquida; en conjunta, todos.
@@ -128,12 +141,13 @@ deducciones_autonomicas <- function(hogar, P, rentas, modo = "individual", base_
   }
 
   pasa_puertas <- function(d) {
-    b <- if (identical(g(d,"base_gate"), "menos_minimo")) max(0, base_total - minimo) else base_ind
+    b <- base_puerta(d)
     if (!is.null(g(d,"base_max_individual")) && !es_conj && b > g(d,"base_max_individual")) return(FALSE)
     if (!is.null(g(d,"base_max_conjunta"))   &&  es_conj && b > g(d,"base_max_conjunta"))   return(FALSE)
     if (!is.null(g(d,"base_min_individual")) && !es_conj && b < g(d,"base_min_individual")) return(FALSE)
     if (!is.null(g(d,"base_min_conjunta"))   &&  es_conj && b < g(d,"base_min_conjunta"))   return(FALSE)
-    if (!is.null(g(d,"base_max_unidad_familiar")) && base_uf > g(d,"base_max_unidad_familiar")) return(FALSE)
+    b_uf <- if (identical(g(d, "suma_bases"), "imponibles")) base_imp else base_uf
+    if (!is.null(g(d,"base_max_unidad_familiar")) && b_uf > g(d,"base_max_unidad_familiar")) return(FALSE)
     nd <- length(desc)
     if (!is.null(g(d,"descendientes_min")) && nd < g(d,"descendientes_min")) return(FALSE)
     if (!is.null(g(d,"descendientes_max")) && nd > g(d,"descendientes_max")) return(FALSE)
@@ -192,7 +206,7 @@ deducciones_autonomicas <- function(hogar, P, rentas, modo = "individual", base_
     tp <- if (es_conj) g(d, "taper_conjunta") else g(d, "taper_individual")
     if (is.null(tp)) return(1)
     tp <- unlist(tp)
-    b <- if (identical(g(d,"base_gate"), "menos_minimo")) max(0, base_total - minimo) else base_ind
+    b <- base_puerta(d)
     if (b <= tp[1]) return(1)
     max(0, min(1, 1 - (b - tp[1]) / (tp[2] - tp[1])))
   }

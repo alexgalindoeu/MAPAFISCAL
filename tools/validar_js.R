@@ -239,6 +239,28 @@ add("md_fn_asc", "ES-MD", "biparental", "especial",
          list(id="a1",rol="ascendiente",edad=83, rentasPropias=0)))
 
 # 5k. C. Valenciana — taper 27.000-30.000, variantes de alquiler (grupo), desempleo, nacimiento 2025
+# 5j0. Bases imponibles y mínimo autonómico en las puertas de renta (cotejo #16, #22)
+# Andalucía: el alquiler (art. 10) mira la base imponible (26.095 > 25.000) aunque el plan
+# de pensiones deje la liquidable en 24.595
+add("an_bases_plan", "ES-AN", "ninguna", "no",
+    list(persona("d1","declarante",30, trabajo=list(dinerarias=30000, cotizaciones_ss=1905),
+                 prevision_social=list(aportacion_individual=1500), alquiler_vivienda_pagos=6000)),
+    list(list(id="d1",rol="declarante",edad=30, trabajo=list(dinerarias=30000,cotizacionesSs=1905),
+              previsionSocial=list(aportacionIndividual=1500), alquilerViviendaPagos=6000)))
+# Galicia: nacimiento con base imponible − mínimo AUTONÓMICO (21.588 <= 22.000 -> 360 €)
+add("ga_minimo_aut", "ES-GA", "monoparental", "no",
+    list(persona("d1","declarante",34, trabajo=list(dinerarias=37160, cotizaciones_ss=2360)),
+         persona("h1","descendiente",0, nacido_en_ejercicio=TRUE)),
+    list(list(id="d1",rol="declarante",edad=34, trabajo=list(dinerarias=37160,cotizacionesSs=2360)),
+         list(id="h1",rol="descendiente",edad=0, nacidoEnEjercicio=TRUE)))
+# Cataluña: alquiler (art. 612-3) con base imponible − mínimo = 31.000 > 30.000; la base
+# liquidable con plan de pensiones (29.500) ya no cuenta
+add("ct_alquiler_bi", "ES-CT", "ninguna", "no",
+    list(persona("d1","declarante",30, trabajo=list(dinerarias=41164, cotizaciones_ss=2614),
+                 prevision_social=list(aportacion_individual=1500), alquiler_vivienda_pagos=8000)),
+    list(list(id="d1",rol="declarante",edad=30, trabajo=list(dinerarias=41164,cotizacionesSs=2614),
+              previsionSocial=list(aportacionIndividual=1500), alquilerViviendaPagos=8000)))
+
 add("vc_taper", "ES-VC", "monoparental", "no",
     list(persona("d1","declarante",30, trabajo=list(dinerarias=32000, cotizaciones_ss=1500),
                  alquiler_vivienda_pagos=5000, desempleado=TRUE),

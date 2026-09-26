@@ -764,6 +764,7 @@
       "edad_max": 35,
       "edad_min_alt": 65,
       "base_max_individual": 25000,
+      "suma_bases": "imponibles",
       "base_max_conjunta": 30000
      },
      {
@@ -773,6 +774,7 @@
       "importe": 200,
       "requiere_familia_numerosa": true,
       "base_max_individual": 25000,
+      "suma_bases": "imponibles",
       "base_max_conjunta": 30000
      },
      {
@@ -782,6 +784,7 @@
       "importe": 200,
       "requiere_familia_numerosa": "especial",
       "base_max_individual": 25000,
+      "suma_bases": "imponibles",
       "base_max_conjunta": 30000
      },
      {
@@ -791,6 +794,7 @@
       "importe": 100,
       "requiere_monoparental": true,
       "base_max_individual": 80000,
+      "suma_bases": "imponibles",
       "base_max_conjunta": 100000
      },
      {
@@ -805,6 +809,7 @@
       "requiere_minimo_ascendiente": true,
       "requiere_monoparental": true,
       "base_max_individual": 80000,
+      "suma_bases": "imponibles",
       "base_max_conjunta": 100000
      },
      {
@@ -814,6 +819,7 @@
       "importe": 150,
       "requiere_discapacidad_contribuyente": true,
       "base_max_individual": 25000,
+      "suma_bases": "imponibles",
       "base_max_conjunta": 30000
      },
      {
@@ -824,6 +830,7 @@
       "porcentaje": 0.15,
       "limite": 150,
       "base_max_individual": 80000,
+      "suma_bases": "imponibles",
       "base_max_conjunta": 100000
      },
      {
@@ -1744,6 +1751,7 @@
       "importe_multiple": 300,
       "anios_ventana": 1,
       "base_max_individual": 27000,
+      "suma_bases": "imponibles",
       "base_max_conjunta": 36000
      },
      {
@@ -1753,6 +1761,7 @@
       "importe": 200,
       "requiere_familia_numerosa": true,
       "base_max_individual": 27000,
+      "suma_bases": "imponibles",
       "base_max_conjunta": 36000
      },
      {
@@ -1762,6 +1771,7 @@
       "importe": 200,
       "requiere_familia_numerosa": "especial",
       "base_max_individual": 27000,
+      "suma_bases": "imponibles",
       "base_max_conjunta": 36000
      },
      {
@@ -1771,6 +1781,7 @@
       "importe": 200,
       "requiere_monoparental": true,
       "base_max_individual": 27000,
+      "suma_bases": "imponibles",
       "base_max_conjunta": 36000
      },
      {
@@ -1782,6 +1793,7 @@
       "limite": 500,
       "edad_hijo_max": 2,
       "base_max_individual": 27000,
+      "suma_bases": "imponibles",
       "base_max_conjunta": 36000
      },
      {
@@ -1791,6 +1803,7 @@
       "importe": 300,
       "requiere_discapacidad_grado": "65_mas",
       "base_max_individual": 27000,
+      "suma_bases": "imponibles",
       "base_max_conjunta": 36000
      },
      {
@@ -1801,6 +1814,7 @@
       "importe": 150,
       "edad_min": 76,
       "base_max_individual": 27000,
+      "suma_bases": "imponibles",
       "base_max_conjunta": 36000
      },
      {
@@ -1811,6 +1825,7 @@
       "importe": 150,
       "edad_ascendiente_min": 76,
       "base_max_individual": 27000,
+      "suma_bases": "imponibles",
       "base_max_conjunta": 36000
      },
      {
@@ -1822,6 +1837,7 @@
       "limite": 500,
       "edad_max": 36,
       "base_max_individual": 27000,
+      "suma_bases": "imponibles",
       "base_max_conjunta": 36000
      },
      {
@@ -2498,6 +2514,7 @@
       "limite": 1237.2,
       "edad_max": 40,
       "base_max_individual": 26414.22,
+      "suma_bases": "imponibles",
       "base_max_conjunta": 37322.2,
       "base_max_unidad_familiar": 61860
      },
@@ -2509,6 +2526,7 @@
       "importe_multiple": 721.7,
       "anios_ventana": 3,
       "base_max_individual": 30930,
+      "suma_bases": "imponibles",
       "base_max_conjunta": 37322.2,
       "base_max_unidad_familiar": 61860,
       "prorratea_progenitores": true
@@ -3217,6 +3235,7 @@
       "porcentaje": 0.1,
       "min_descendientes": 2,
       "base_max_individual": 30000,
+      "suma_bases": "imponibles",
       "base_max_conjunta": 30000
      },
      {

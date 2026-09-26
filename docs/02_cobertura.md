@@ -112,6 +112,10 @@ provisionales o parciales · ⛔ pendiente (hook presente, no calcula).
    del ámbito (exacto para hogares monoperceptores; conservador para biperceptores).
 5. **Tributación individual de parejas**: cada declarante se liquida en su ámbito (sus
    gastos y requisitos personales solo en su declaración; lo familiar se reparte). Ver docs/03.
+   Las puertas de renta «de la unidad familiar» solo ven la base del declarante liquidado.
+   Las puertas de renta de las deducciones autonómicas usan bases liquidables por defecto,
+   bases imponibles con `suma_bases: imponibles`, y `base_gate: menos_minimo` resta el
+   mínimo del gravamen autonómico (casilla 0520); ver docs/03.
 6. **Parámetros marcados `provisional`/`pendiente`** en los YAML: ver `params/2025/*.yaml`
    (campo `estado`) y la lista `avisos_parametros()` que devuelve cada liquidación.
 7. Fuera de alcance: régimen de impatriados (art. 93), IRNR, doble imposición internacional

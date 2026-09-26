@@ -678,6 +678,54 @@ adquisición, traslado) condicionada a municipio.
 
 ---
 
+## Puertas de renta: bases imponibles y mínimo autonómico (corrección 2026-09-26, #16 y #22)
+
+Codificado en `test-ded-andalucia.R`, `test-ded-cv-ga.R` y `test-ded-cataluna.R`; casos
+R↔JS `an_bases_plan`, `ga_minimo_aut` y `ct_alquiler_bi`.
+
+**Error corregido.** Las puertas de renta de las deducciones autonómicas usaban siempre la
+suma de las bases **liquidables** (general + ahorro), y `base_gate: menos_minimo` restaba
+el mínimo personal y familiar **estatal**. Pero muchas leyes autonómicas miran la suma de
+las bases **imponibles** (casillas 0435 + 0460), que es anterior a las reducciones por
+planes de pensiones y por tributación conjunta. Y el Manual de Renta 2025 resta el mínimo
+del gravamen **autonómico** (casilla 0520) en todas las deducciones de «base menos
+mínimo»: Galicia, Castilla y León y Cataluña. Con planes de pensiones, en conjunta o con
+mínimo autonómico propio, el motor aplicaba deducciones a quien no tenía derecho, o al
+revés.
+
+**Regla ahora (R y JS):**
+
+| Clave | Base de la puerta y del taper |
+|---|---|
+| (por defecto) | base liquidable general + del ahorro |
+| `suma_bases: imponibles` | base imponible general + del ahorro (0435 + 0460) |
+| `base_gate: menos_minimo` | base imponible − mínimo del gravamen autonómico (0520) |
+
+Marcadas con `suma_bases: imponibles`: todas las de Andalucía y Castilla-La Mancha con
+límite de renta, alquiler y nacimiento de Madrid, y dos o más descendientes de la C.
+Valenciana. El resto de la C. Valenciana usa bases liquidables (casillas 0500 + 0510), que
+es el valor por defecto.
+
+**Comprobación numérica.**
+
+- Andalucía (`an_bases_plan`): 30 años, 30.000 € de trabajo (cot. 1.905) → base imponible
+  26.095 €; con 1.500 € al plan de pensiones, la liquidable queda en 24.595 €. El alquiler
+  (art. 10) exige base imponible ≤ 25.000 → **no aplica** (antes: 15 % · 6.000 = 900 €).
+  Con 24.000 € de trabajo (base imponible 20.476 €) sí: **900 €**.
+- Galicia (`ga_minimo_aut`, test en individual): monoparental con un recién nacido, base
+  imponible 32.800 €. Con el mínimo estatal (5.550 + 2.400 + 2.800 = 10.750) quedaría
+  22.050 € (> 22.000 → 300 €). Con el autonómico gallego (5.789 + 2.503 + 2.920 = 11.212)
+  queda 21.588 € (≤ 22.000) → **360 €** (primer hijo, tramo de renta baja).
+- Cataluña (`ct_alquiler_bi`): 30 años, 41.164 € de trabajo (cot. 2.614) → base imponible
+  36.550 €; − 5.550 = 31.000 > 30.000 → el alquiler del art. 612-3 **no aplica**, aunque
+  con 1.500 € al plan de pensiones la base liquidable menos el mínimo quede en 29.500 €.
+
+**Pendiente:** en tributación individual de una pareja, las puertas «de la unidad familiar»
+(`base_max_unidad_familiar`, y la del art. 4.Uno.t de la C. Valenciana) solo ven la base
+del declarante liquidado, no la suma de los dos.
+
+---
+
 ## Tributación individual de una pareja: ámbito de cada declarante (corrección 2026-09-25)
 
 Codificado en `tests/testthat/test-ambito-individual.R`; casos R↔JS `md_pareja_indiv` y

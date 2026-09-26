@@ -87,6 +87,7 @@ territorios:
           edad_max: 35
           edad_min_alt: 65      # también aplican >65, víctimas de violencia/terrorismo y personas con discapacidad
           base_max_individual: 25000
+          suma_bases: imponibles       # casillas 0435 + 0460
           base_max_conjunta: 30000
         - id: familia_numerosa_general
           norma: "Art. 14 Ley 5/2021"
@@ -94,6 +95,7 @@ territorios:
           importe: 200
           requiere_familia_numerosa: true
           base_max_individual: 25000   # art. 14.3 (suma de bases imponibles general y del ahorro)
+          suma_bases: imponibles       # casillas 0435 + 0460
           base_max_conjunta: 30000
         - id: familia_numerosa_especial
           norma: "Art. 14 Ley 5/2021"
@@ -101,6 +103,7 @@ territorios:
           importe: 200          # 400 total en especial; 200 adicional sobre la general
           requiere_familia_numerosa: especial
           base_max_individual: 25000   # art. 14.3
+          suma_bases: imponibles       # casillas 0435 + 0460
           base_max_conjunta: 30000
         - id: familia_monoparental
           norma: "Art. 13 Ley 5/2021"
@@ -108,6 +111,7 @@ territorios:
           importe: 100
           requiere_monoparental: true
           base_max_individual: 80000
+          suma_bases: imponibles       # casillas 0435 + 0460
           base_max_conjunta: 100000
         - id: familia_monoparental_ascendientes_75
           norma: "Art. 13.2 y 13.3 Ley 5/2021 (incremento)"
@@ -120,6 +124,7 @@ territorios:
           requiere_minimo_ascendiente: true
           requiere_monoparental: true
           base_max_individual: 80000
+          suma_bases: imponibles       # casillas 0435 + 0460
           base_max_conjunta: 100000
         - id: contribuyente_discapacidad
           norma: "Art. 16 Ley 5/2021"
@@ -127,6 +132,7 @@ territorios:
           importe: 150
           requiere_discapacidad_contribuyente: true   # grado >= 33 %
           base_max_individual: 25000
+          suma_bases: imponibles       # casillas 0435 + 0460
           base_max_conjunta: 30000
         - id: gastos_educativos_idiomas_informatica
           norma: "Art. 15 Ley 5/2021"
@@ -135,6 +141,7 @@ territorios:
           porcentaje: 0.15
           limite: 150            # por descendiente
           base_max_individual: 80000
+          suma_bases: imponibles       # casillas 0435 + 0460
           base_max_conjunta: 100000
         # Ayuda doméstica (art. 19.1): dos supuestos alternativos, mismo importe -> variantes
         # excluyentes del grupo `ayuda_domestica`. Sin límite de base.
@@ -735,6 +742,7 @@ territorios:
           importe_multiple: 300
           anios_ventana: 1
           base_max_individual: 27000
+          suma_bases: imponibles       # casillas 0435 + 0460
           base_max_conjunta: 36000
         - id: familia_numerosa_general
           norma: "Art. 2 Ley 8/2013 CLM"
@@ -742,6 +750,7 @@ territorios:
           importe: 200
           requiere_familia_numerosa: true
           base_max_individual: 27000
+          suma_bases: imponibles       # casillas 0435 + 0460
           base_max_conjunta: 36000
         - id: familia_numerosa_especial
           norma: "Art. 2 Ley 8/2013 CLM"
@@ -749,6 +758,7 @@ territorios:
           importe: 200
           requiere_familia_numerosa: especial
           base_max_individual: 27000
+          suma_bases: imponibles       # casillas 0435 + 0460
           base_max_conjunta: 36000
         - id: familia_monoparental
           norma: "Art. 2 bis Ley 8/2013 CLM"
@@ -756,6 +766,7 @@ territorios:
           importe: 200
           requiere_monoparental: true
           base_max_individual: 27000
+          suma_bases: imponibles       # casillas 0435 + 0460
           base_max_conjunta: 36000
         - id: gastos_guarderia
           norma: "Art. 3 bis Ley 8/2013 CLM"
@@ -765,6 +776,7 @@ territorios:
           limite: 500            # por hijo < 3 (250 € el año en que cumple 3)
           edad_hijo_max: 2
           base_max_individual: 27000
+          suma_bases: imponibles       # casillas 0435 + 0460
           base_max_conjunta: 36000
         - id: discapacidad_contribuyente
           norma: "Art. 4 Ley 8/2013 CLM"
@@ -772,6 +784,7 @@ territorios:
           importe: 300
           requiere_discapacidad_grado: "65_mas"
           base_max_individual: 27000
+          suma_bases: imponibles       # casillas 0435 + 0460
           base_max_conjunta: 36000
         - id: contribuyente_mayor_75
           norma: "Art. 6.1 Ley 8/2013 CLM"
@@ -780,6 +793,7 @@ territorios:
           importe: 150
           edad_min: 76           # "mayores de 75 años"
           base_max_individual: 27000
+          suma_bases: imponibles       # casillas 0435 + 0460
           base_max_conjunta: 36000
         - id: cuidado_ascendientes_75
           norma: "Art. 6.2 Ley 8/2013 CLM"
@@ -788,6 +802,7 @@ territorios:
           importe: 150
           edad_ascendiente_min: 76
           base_max_individual: 27000
+          suma_bases: imponibles       # casillas 0435 + 0460
           base_max_conjunta: 36000
         - id: arrendamiento_vivienda_habitual_joven
           norma: "Art. 9 Ley 8/2013 CLM"
@@ -797,6 +812,7 @@ territorios:
           limite: 500
           edad_max: 36
           base_max_individual: 27000
+          suma_bases: imponibles       # casillas 0435 + 0460
           base_max_conjunta: 36000
         # --- condicionadas al municipio de residencia (zonas escasamente pobladas, Ley 2/2021) ---
         - id: residencia_zona_rural_menos_2000
@@ -1285,6 +1301,7 @@ territorios:
           limite: 1237.20
           edad_max: 40
           base_max_individual: 26414.22
+          suma_bases: imponibles       # casillas 0435 + 0460
           base_max_conjunta: 37322.20
           base_max_unidad_familiar: 61860
         - id: nacimiento_adopcion
@@ -1294,6 +1311,7 @@ territorios:
           importe_multiple: 721.70
           anios_ventana: 3         # ejercicio del nacimiento + 2 siguientes
           base_max_individual: 30930
+          suma_bases: imponibles       # casillas 0435 + 0460
           base_max_conjunta: 37322.20
           base_max_unidad_familiar: 61860
           prorratea_progenitores: true
@@ -1758,6 +1776,7 @@ territorios:
           porcentaje: 0.10
           min_descendientes: 2
           base_max_individual: 30000
+          suma_bases: imponibles       # casillas 0435 + 0460
           base_max_conjunta: 30000
         # --- condicionadas al municipio de residencia (beneficiarios del Fondo de Cooperación Municipal contra el despoblamiento) ---
         - id: residencia_municipio_despoblamiento
