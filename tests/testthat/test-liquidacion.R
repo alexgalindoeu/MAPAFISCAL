@@ -86,8 +86,11 @@ test_that("Previsión social: contribución empresarial añade hasta 8.500 € m
   h <- nuevo_hogar("v","ES-MD", list(persona("d1","declarante",45,
     trabajo=list(dinerarias=60000, cotizaciones_ss=3810),
     prevision_social=list(aportacion_individual=1500, contribucion_empresarial=8500))))
+  # la contribución de 8.500 € se imputa como rendimiento del trabajo (art. 17.1.e): se compara
+  # con un salario de 68.500 € sin plan
   h0 <- nuevo_hogar("v","ES-MD", list(persona("d1","declarante",45,
-    trabajo=list(dinerarias=60000, cotizaciones_ss=3810))))
+    trabajo=list(dinerarias=68500, cotizaciones_ss=3810))))
+  expect_equal(liquidar(h)$reducciones_base$prevision_social, 10000)
   expect_equal(liquidar(h0)$base_liquidable_general - liquidar(h)$base_liquidable_general, 10000)
 })
 

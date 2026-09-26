@@ -28,6 +28,32 @@ test_that("Descendientes: incremento del 40 % hasta 20.000 € de rentas, decrec
   expect_equal(det(nv(30001, hijos = hijo))$minimo_familiar, 483)
 })
 
+test_that("Ejemplo 4 del manual de Hacienda Foral: cada cónyuge aplica el incremento según sus rentas", {
+  # Paco (16.000) y Teresa (27.000) con hijos de 2, 5 y 7 años, declaraciones individuales.
+  # Mitad de 483 + 512 + (732 + 644) = 1.185,50 por cónyuge; × 1,40 y × 1,225 (40 − 50 × 7.000 / 20.000)
+  h <- nuevo_hogar("n", "ES-NC", list(
+    persona("d1", "declarante", 40, trabajo = list(dinerarias = 16000, cotizaciones_ss = 0)),
+    persona("d2", "conyuge", 38, trabajo = list(dinerarias = 27000, cotizaciones_ss = 0)),
+    persona("h1", "descendiente", 7), persona("h2", "descendiente", 5), persona("h3", "descendiente", 2)),
+    tipo_unidad_familiar = "biparental")
+  P <- cargar_parametros("ES-NC")
+  paco   <- liquidar_navarra_scope(h, P, "individual", "d1")$deducciones_autonomicas$detalle$minimo_familiar
+  teresa <- liquidar_navarra_scope(h, P, "individual", "d2")$deducciones_autonomicas$detalle$minimo_familiar
+  expect_equal(paco, 1659.70, tolerance = 0.006)
+  expect_equal(teresa, 1452.24, tolerance = 0.006)
+})
+
+test_that("Monoparental en tributación conjunta: mínimo personal + 668 € (art. 75.4.ª)", {
+  h <- nv(30000, hijos = list(persona("h1", "descendiente", 8)))
+  expect_equal(liquidar(h, modo = "conjunta")$deducciones_autonomicas$detalle$minimo_personal, 1084 + 150 + 668)
+  expect_equal(liquidar(h, modo = "individual")$deducciones_autonomicas$detalle$minimo_personal, 1084 + 150)
+})
+
+test_that("Límite de rentas del descendiente: IPREM de 8.400 €", {
+  expect_equal(det(nv(40000, hijos = list(persona("h1", "descendiente", 20, rentas_propias = 8400))))$minimo_familiar, 483)
+  expect_equal(det(nv(40000, hijos = list(persona("h1", "descendiente", 20, rentas_propias = 8401))))$minimo_familiar %||% 0, 0)
+})
+
 test_that("Descendientes: menores de 30 años, o con discapacidad a cualquier edad", {
   expect_equal(det(nv(40000, hijos = list(persona("h1", "descendiente", 29))))$minimo_familiar, 483)
   expect_equal(det(nv(40000, hijos = list(persona("h1", "descendiente", 30))))$minimo_familiar %||% 0, 0)

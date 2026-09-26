@@ -447,7 +447,8 @@ condicionada a residir en pequeños municipios.
 
 ## Deducciones autonómicas — Comunidad de Madrid (DL 1/2010)
 
-Codificadas en `tests/testthat/test-ded-madrid.R`. 9 deducciones (de ~23).
+Codificadas en `tests/testthat/test-ded-madrid.R`. 7 deducciones (de ~23), contando
+como una las variantes de la empleada de hogar.
 Fuente: TR de tributos cedidos de la Comunidad de Madrid (DL 1/2010), arts. 4, 7 bis,
 8, 11, 11 bis, 13 bis, y AEAT *Manual Práctico Renta 2025, Parte 2 — Deducciones
 autonómicas / Comunidad de Madrid*.
@@ -456,23 +457,56 @@ autonómicas / Comunidad de Madrid*.
 |---|---|
 | Arrendamiento de vivienda habitual (8) | **30 %**, límite **1.237,20 €**; ≤ 40 años; *base ≤ 26.414,22 / 37.322,20*, UF ≤ 61.860 |
 | Nacimiento o adopción (4) | **721,70 €/hijo** (desde 2023) en el ejercicio del nacimiento **+ 2 siguientes**; +721,70 €/hijo el 1.er año si parto múltiple; *base ≤ 30.930 / 37.322,20*, UF ≤ 61.860; prorrateo |
-| Familia numerosa general (13 bis) | **50 % de la cuota íntegra autonómica**, tope **6.186 € / 12.372 €** (ind./conj.). 🟡 el límite real de renta (30.930 € × nº de miembros de la UF) no se modela |
-| Familia numerosa especial (13 bis) | **100 % de la cuota íntegra autonómica**, tope **12.372 € / 24.744 €** |
+| Familia numerosa general (13 bis) | **50 % de la cuota íntegra autonómica**, tope **6.186 € / 12.372 €** (ind./conj.). **Solo si el título se obtiene con efectos desde el 1-1-2023**, en ese ejercicio y en los dos siguientes (`familia_numerosa_reciente`; si no se informa, no se aplica). UF ≤ 30.930 € × nº de miembros (art. 18.2) |
+| Familia numerosa especial (13 bis) | **100 % de la cuota íntegra autonómica**, tope **12.372 € / 24.744 €**; mismos requisitos |
 | Cuidado de ascendientes (7 bis) | **515,50 €** por ascendiente > 65 años o con discapacidad ≥ 33 % con derecho a mínimo por ascendientes; prorrateo |
-| Cuidado de hijos < 3 — empleada de hogar (11 bis) | **25 %** de las cuotas al Sistema Especial de Empleados de Hogar, límite **463,95 €**. 🟡 la variante de familia numerosa (40 %/618,60 €) y los supuestos de convivencia con dependiente/discapacitado no se modelan |
-| Gastos educativos — escolaridad (11) | **15 %**, límite modelado **927,90 €/hijo** (🟡 el tope real es combinado con idiomas/vestuario) |
-| Gastos educativos — idiomas (11) | **15 %**, límite **412,40 €/hijo** (🟡 combinado con vestuario) |
-| Gastos educativos — vestuario escolar (11) | **5 %**, límite **412,40 €/hijo** |
+| Empleada de hogar (11 bis) | **25 %** de las cuotas al Sistema Especial de Empleados de Hogar, límite **463,95 €**; **40 % / 618,60 €** para titulares de familia numerosa. Supuestos modelados (variantes del `grupo: empleada_hogar_md`): **a)** hijo < 3 años y los dos progenitores con actividad; **d)** contribuyente con discapacidad ≥ 33 %. UF ≤ 30.930 € × miembros. Pendientes b) y c) (familiar dependiente o con discapacidad) |
+| Gastos educativos (11) | Por hijo: **15 %** de escolaridad e idiomas y **5 %** de vestuario escolar, con **un único límite por hijo**: 412,40 €; **927,90 €** si hay gasto de escolaridad; **1.031 €** en el primer ciclo de infantil (0-2 años, solo escolaridad). Prorrateo; UF ≤ 30.930 € × miembros. Tipo `porcentaje_campos_hijo` |
 
-### Comprobación numérica (test `md_fn_asc`, validado R↔JS)
+### Cotejo con la fuente (2026-09-26, issue #16)
 
-Pareja (48.000 + 20.000 € de trabajo), 5 hijos → **familia numerosa especial**,
-+ 1 ascendiente de 83 años a cargo. Tributación individual.
+Texto del DL 1/2010 en la redacción vigente en 2025 (consolidación del BOE,
+`BOCM-m-2010-90068`: Leyes 13/2023 y 5/2024) y subpáginas del Manual Práctico Renta 2025.
+El límite del art. 18.2 (suma de bases imponibles de la unidad familiar ≤ 30.930 € × nº
+de miembros) se aplica con `base_max_por_miembro_uf`; miembros = declarantes +
+descendientes menores de 18, y la base es la misma aproximación que la de
+`base_max_unidad_familiar`.
 
-- Familia numerosa especial: **100 %** de la cuota íntegra autonómica del declarante
-  (por debajo del tope de 12.372 €) → la cuota autonómica queda anulada.
-- Cuidado de ascendientes: 515,50 € → **257,75 €** (prorrateo entre los dos progenitores).
-- `cuota_líquida_total` = **4.203,12 €**, idéntica en R y en `irpfsim.js`.
+**Familia numerosa (art. 13 bis).** El hogar `md_fn_asc` (pareja con 48.000 + 20.000 € y
+5 hijos, familia numerosa especial, un ascendiente de 83 años) ya no aplica la deducción
+si el título es anterior a 2023: `cuota_líquida_total` = 4.203,12 + 3.603,30 − 257,75
+(ascendiente, prorrateado) = **7.548,67 €**. El mismo hogar sin ascendiente y con título
+reciente (`md_fn_reciente`): 100 % de la cuota íntegra autonómica (3.749,72 €, por debajo
+del tope) → cuota líquida = cuota estatal = **4.472,53 €**. 7 miembros → límite de la UF
+7 × 30.930 = 216.510 €.
+
+**Empleada de hogar (art. 11 bis).** Cotizaciones de 1.200 € (tests):
+
+| Hogar | Supuesto | Deducción |
+|---|---|---|
+| Pareja, hijo de 1 año, solo trabaja uno | a) no | 0 |
+| Pareja, hijo de 1 año, trabajan los dos | a) | 25 % · 1.200 = **300 €** |
+| Lo mismo con familia numerosa general | a), familia numerosa | 40 % · 1.200 = **480 €** (solo la variante mayor) |
+| Contribuyente con discapacidad 33-64 %, sin hijos | d) | **300 €** |
+
+`md_empleada_fn` (validador): 2.000 € de cotizaciones → 40 % = 800 → tope **618,60 €**.
+
+**Gastos educativos (art. 11).** Familia monoparental con 40.000 € de trabajo:
+
+| Hijo | Gastos | Cálculo | Deducción |
+|---|---|---|---|
+| 10 años | escolaridad 5.000, idiomas 1.000, vestuario 400 | 750 + 150 + 20 = 920 ≤ 927,90 | 920,00 |
+| 12 años | idiomas 3.000, vestuario 200 | 450 + 10 = 460 → sin escolaridad, tope 412,40 | 412,40 |
+| 1 año | escolaridad 8.000, idiomas 500 | primer ciclo: solo escolaridad, 1.200 → 1.031 | 1.031,00 |
+| | | **Total** | **2.363,40 €** |
+
+Con dos progenitores en individual, cada uno aplica la mitad (hijo de 10 años: 460 €). Con
+70.000 € de trabajo y un hijo, la base (63.555 €) supera 2 × 30.930 = 61.860 € → 0 €.
+
+`md_educativos_uf` (validador): pareja con un solo sueldo de 135.000 € y dos hijos (4
+miembros → 123.720 €). En individual, la base de d1 (124.427 €) supera el límite → 0 €.
+En conjunta (121.027 €) aplica: hijo de 7 años 900 + 135 + 15 = 1.050 → 927,90; hijo de 2
+años 15 % · 9.000 = 1.350 → 1.031 (los idiomas no cuentan en el primer ciclo) → **1.958,90 €**.
 
 **Pendientes:** acogimiento no remunerado de mayores (1.546,50 €, requiere flag),
 familias con dos o más descendientes e ingresos reducidos (10 % de la cuota), intereses
@@ -489,6 +523,14 @@ municipio en riesgo de despoblación.
 - `porcentaje_cuota_autonomica` acepta ahora `limite` / `limite_conjunta` (tope €) y
   `sobre_cuota_integra: true` (calcula sobre la cuota íntegra autonómica completa, no
   sobre la ya minorada por otras deducciones).
+- *(2026-09-26)* `base_max_por_miembro_uf` — base de la UF ≤ importe × (declarantes +
+  descendientes < 18). `requiere_familia_numerosa_reciente` — exige
+  `familia_numerosa_reciente` en el hogar (JS: `familiaNumerosaReciente`).
+- *(2026-09-26)* Tipo `porcentaje_campos_hijo` — `campos: {campo: porcentaje}` por hijo,
+  `limite` por hijo, `limite_si_campo: {campo, limite}` (sube el límite si el hijo tiene
+  ese gasto) y `primer_ciclo: {edad_hijo_max, limite, campos}` (hasta esa edad solo cuentan
+  esos campos, con su límite). Es familiar: se prorratea entre progenitores en individual.
+  La web pide sus campos por hijo (`camposDe()` en `app.js`).
 
 ---
 
@@ -1004,12 +1046,28 @@ individual.
 
 - Soltero, 30.000 €: aporta 1.500 → reduce **1.500**; aporta 3.000 → 1.500; con 2.000 € de
   contribución empresarial → **3.500**.
-- 18.000 € y 1.143 € de cotizaciones, aporta 1.500 y la empresa 8.000: rendimiento del art. 19
-  = 18.000 − 1.143 − 2.000 = 14.857; límite mín(30 % × 14.857; 1.500 + 8.000) = **4.457,10 €**
-  (antes, 9.500 €).
+- 18.000 € de salario y 1.143 € de cotizaciones, aporta 1.500 y la empresa 8.000: la
+  contribución empresarial es rendimiento íntegro del trabajo (ver abajo), así que el íntegro
+  es 26.000 y el rendimiento del art. 19 = 26.000 − 1.143 − 2.000 = 22.857; límite
+  mín(30 % × 22.857; 1.500 + 8.000) = **6.857,10 €** (con el íntegro sin imputar daba 4.457,10;
+  antes de los límites por partícipe, 9.500).
 - Autónomo en directa simplificada con 4.000 €: 3.800 € netos → 30 % = **1.140 €**.
 - Pareja en conjunta (Madrid, 30.000 y 20.000 €, 1.500 € cada uno): **3.000 €** (antes, 1.500).
   Con 42.000 y 6.000 €: 1.500 + 30 % × (6.000 − 381 − 2.000) = 1.500 + 1.085,70 = **2.585,70 €**.
+
+**Contribución empresarial imputada (art. 17.1.e LIRPF, #31, 2026-09-26).** Las contribuciones
+del promotor a planes de pensiones, planes de empleo y demás sistemas de previsión social
+imputadas al trabajador son rendimiento íntegro del trabajo (en el modelo 100 tienen casilla
+propia dentro de los rendimientos del trabajo). El motor suma `contribucion_empresarial` al
+íntegro (`integro_trabajo()` en R, `integroTrabajo()` en JS), así que `dinerarias` y `especie`
+**no** deben incluirla. El íntegro con la contribución es el que cuenta para la reducción del
+art. 20, la deducción de la DA 61.ª, el límite del 30 % y la obligación de declarar:
+
+- Mismo caso de arriba frente a un salario de 26.000 € sin plan: los dos tienen un rendimiento
+  del art. 19 de 22.857 € y ninguna reducción del art. 20 (24.857 € > 19.747,50); la base
+  liquidable general con la contribución es 22.857 − 6.857,10 = **15.999,90 €**.
+- Obligación de declarar: 15.000 € de salario y 8.000 € de contribución empresarial, un solo
+  pagador: rendimientos íntegros del trabajo 23.000 € > 22.000 € → **obligado** (antes, no).
 
 🟡 No modelados: los coeficientes de las aportaciones del trabajador al mismo plan de empleo,
 el incremento de 4.250 € de autónomos, los 5.000 € de seguros colectivos de dependencia, los
@@ -1045,6 +1103,18 @@ incrementos por edad sumados).
   con 30.001 €: 483 €.
 - Hijo de 30 años sin discapacidad: no da derecho; de 35 con discapacidad del 33 %: 483 + 674.
 
-🟡 Provisional: el importe del IPREM como límite de rentas del familiar (se usa 8.400 €, el
-anual de 14 pagas de 600 €; puede ser 7.200 €) y, en tributación conjunta, qué rentas fijan
-el incremento del 40 % (el motor usa la base imponible de la unidad).
+**Cotejo con el manual de Hacienda Foral** (*Manual teórico Renta y Patrimonio 2025*,
+actualizado a 02-02-2026), 2026-09-26:
+
+- **IPREM 2025: 8.400 €** («se mantiene el importe del IPREM en 8.400 euros por prórroga de
+  los Presupuestos Generales del Estado para 2023»).
+- **Ejemplo 4 del manual**: Paco (16.000 €) y Teresa (27.000 €), hijos de 2, 5 y 7 años,
+  declaraciones individuales. Cada uno aplica la mitad, 241,50 + 256 + (732 + 644) / 2 =
+  1.185,50 €, con su propio incremento: Paco × 1,40 = **1.659,70 €**; Teresa × 1,225 (22,5 % =
+  40 − 50 × 7.000 / 20.000) = **1.452,24 €**. El motor da las dos cifras. En tributación conjunta
+  (el manual no lo ejemplifica) suma la parte de cada sujeto pasivo con su propio incremento
+  (🟡); antes usaba la base de toda la unidad.
+- **Monoparental en conjunta** (art. 75.4.ª): el mínimo personal sube **668 €** (1.752 € con
+  carácter general, más los 150 € si las rentas no superan 30.000 €).
+- Tabla del mínimo personal del manual: 1.084 / 1.348 (65) / 1.669 (75) / 1.850 y 3.841
+  (discapacidad) / 2.114, 2.435, 4.105, 4.426 (combinaciones): coincide con el motor.

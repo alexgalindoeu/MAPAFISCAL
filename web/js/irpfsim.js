@@ -32,12 +32,19 @@
   }
 
   // ---- Rendimientos ---------------------------------------------------------
+  // Rendimiento íntegro del trabajo: dinerarias y especie más las contribuciones
+  // empresariales a previsión social imputadas al trabajador (art. 17.1.e LIRPF)
+  function integroTrabajo(pe) {
+    const tr = pe.trabajo || {};
+    return num(tr.dinerarias) + num(tr.especie) + num(pe.previsionSocial && pe.previsionSocial.contribucionEmpresarial);
+  }
+
   // Rendimiento neto que fija la cuantía de la reducción del art. 20: íntegro − gastos
   // a) a e) del art. 19.2, sin los «otros gastos» de la letra f)
   function rnTrabajoPrevioArt20(pe) {
-    const tr = pe.trabajo;
-    if (!tr) return 0;
-    let integro = num(tr.dinerarias) + num(tr.especie);
+    let integro = integroTrabajo(pe);
+    if (!pe.trabajo && integro === 0) return 0;
+    const tr = pe.trabajo || {};
     const irr = tr.rendimientoIrregular;
     if (irr && num(irr.importe) > 0 && num(irr.anios) > 2) {
       integro -= Math.min(irr.importe, 300000) * 0.30;
@@ -48,8 +55,8 @@
   // Rendimiento neto previo a la reducción (tras la letra f, limitada al íntegro menos
   // el resto de gastos)
   function rnTrabajoPrevio(pe, P, regimen) {
-    const tr = pe.trabajo;
-    if (!tr) return 0;
+    if (!pe.trabajo && integroTrabajo(pe) === 0) return 0;
+    const tr = pe.trabajo || {};
     const previoArt20 = rnTrabajoPrevioArt20(pe);
     let otros = 0;
     if (regimen === "comun") {
@@ -318,7 +325,7 @@
       return true;
     };
     const esFamiliar = d =>
-      ["fija_por_hijo", "fija_por_hijo_nacido", "porcentaje_campo_hijo", "fija_por_ascendiente"].includes(d.tipo) ||
+      ["fija_por_hijo", "fija_por_hijo_nacido", "porcentaje_campo_hijo", "porcentaje_campos_hijo", "fija_por_ascendiente"].includes(d.tipo) ||
       (d.tipo === "fija" && (d.requiere_familia_numerosa != null || d.familia_numerosa_categoria != null ||
         d.requiere_monoparental || d.descendientes_min != null || d.requiere_dependiente_a_cargo ||
         d.requiere_familiar_discapacidad_65 || d.requiere_parto_multiple));
@@ -331,6 +338,10 @@
       if (d.base_min_individual != null && !esConj && b < d.base_min_individual) return false;
       if (d.base_min_conjunta != null && esConj && b < d.base_min_conjunta) return false;
       if (d.base_max_unidad_familiar != null && baseTotal > d.base_max_unidad_familiar) return false;
+      // límite de la UF por miembro (Madrid, art. 18.2): declarantes + descendientes < 18
+      if (d.base_max_por_miembro_uf != null &&
+          baseTotal > d.base_max_por_miembro_uf * (decs.length + desc.filter(h => num(h.edad, 99) < 18).length)) return false;
+      if (d.requiere_familia_numerosa_reciente && !hogar.familiaNumerosaReciente) return false;
       // descendientes_sin_deduccion: no cuentan los que dan derecho a esa otra deducción
       let nd = desc.length;
       if (d.descendientes_sin_deduccion != null) {
@@ -409,6 +420,19 @@
           if (lim != null) v = Math.min(v, lim);
           val += v;
         }
+      } else if (d.tipo === "porcentaje_campos_hijo") {
+        // varios gastos por hijo con su porcentaje y un límite único por hijo (Madrid, art. 11)
+        const cp = d.campos || {}, lsc = d.limite_si_campo, pc = d.primer_ciclo;
+        for (const h of desc) {
+          if (d.edad_hijo_max != null && num(h.edad, 99) > d.edad_hijo_max) continue;
+          const enPc = pc != null && num(h.edad, 99) <= pc.edad_hijo_max;
+          const usados = enPc ? [].concat(pc.campos) : Object.keys(cp);
+          let v = 0;
+          for (const k of usados) v += num(h[camelize(k)]) * num(cp[k]);
+          const l = enPc ? pc.limite : (lsc && num(h[camelize(lsc.campo)]) > 0 ? lsc.limite : lim);
+          if (l != null) v = Math.min(v, l);
+          val += v;
+        }
       } else if (d.tipo === "fija_por_hijo_nacido") {
         const ventana = num(d.anios_ventana, 1);
         const esNacido = h => num(h.edad, 99) <= ventana - 1 || h.nacidoEnEjercicio;
@@ -430,10 +454,10 @@
         // false = no cuenta, "65_mas" = solo ese grado); requiere_minimo_ascendiente: mismo
         // filtro que el mínimo por ascendientes
         const ma = P.estatal.minimo_ascendientes, ad = d.ascendiente_discapacidad;
-        const cand = d.requiere_minimo_ascendiente
+        const ascCand = d.requiere_minimo_ascendiente
           ? asc.filter(a => num(a.rentasPropias) <= ma.limite_rentas_ascendiente && (a.edad >= ma.edad_minima || (a.discapacidad && a.discapacidad !== "no")) && num(a.convivenciaMeses, 12) >= 6)
           : asc;
-        const cuenta = cand.filter(a => {
+        const cuenta = ascCand.filter(a => {
           const disc = a.discapacidad || "no";
           const porDisc = disc !== "no" && ad !== false && (ad == null || disc === ad) &&
             num(a.edad, 0) >= num(d.edad_ascendiente_min_discapacidad, 0);
@@ -532,10 +556,10 @@
     const d = P.estatal.deduccion_obtencion_rendimientos_trabajo;
     if (!d || cuotaIntegraTotal <= 0) return { total: 0, detalle: {} };
     const filas = personas.map(pe => {
-      const tr = pe.trabajo;
-      const rit = tr ? num(tr.dinerarias) + num(tr.especie) : 0;
-      const neto = tr ? Math.max(0, rit - num(tr.cotizacionesSs) - num(tr.otrosGastos)) : 0;
-      const laboral = !!tr && !tr.pensionJubilacion;
+      const tr = pe.trabajo || {};
+      const rit = integroTrabajo(pe);
+      const neto = Math.max(0, rit - num(tr.cotizacionesSs) - num(tr.otrosGastos));
+      const laboral = rit > 0 && !tr.pensionJubilacion;
       const cm = rnCapitalMobiliario(pe, P, "comun");
       let gan = num(pe.gananciasPerdidasNoTransmision);
       for (const el of (pe.ganancias || [])) { const g = gananciaElemento(el, P, "comun"); gan += g.ahorro + g.general; }
@@ -832,6 +856,8 @@
       m += edad >= 75 ? num(mp.incremento_75) : edad >= 65 ? num(mp.incremento_65) : 0;
       if (c.discapacidad === "33_64") m += num(mp.incremento_discapacidad_33_64);
       if (c.discapacidad === "65_mas") m += num(mp.incremento_discapacidad_65_mas);
+      // unidad monoparental en tributación conjunta (art. 75.4.ª)
+      if (modo === "conjunta" && hogar.tipoUnidadFamiliar === "monoparental") m += num(mp.incremento_monoparental_conjunta);
       dedMin += m;
     }
 
@@ -844,9 +870,11 @@
       // solteros menores de 30 años (o con discapacidad, a cualquier edad) y rentas <= IPREM
       const descNv = hogar.miembros.filter(m => m.rol === "descendiente" && num(m.rentasPropias) <= limR &&
         (num(m.edad, 0) < num(mf.edad_maxima_descendiente, 30) || (m.discapacidad && m.discapacidad !== "no")));
-      // incremento del ordinal 1.º por rentas del sujeto pasivo (art. 62.9.b.b´.2.º): no se prorratea
-      const rentasInc = (modo === "conjunta" || !contribsNv.length) ? r.baseImponibleGeneral + r.baseImponibleAhorro : rentasSp(contribsNv[0]);
-      const pctInc = incrementoDescendientesNavarra(rentasInc, mf.incremento_rentas_descendientes);
+      // incremento del ordinal 1.º por las rentas de cada sujeto pasivo (art. 62.9.b.b´.2.º): cada
+      // uno lo aplica sobre su parte; en conjunta, media de los factores de los sujetos pasivos
+      const factorDe = p => 1 + incrementoDescendientesNavarra(rentasSp(p), mf.incremento_rentas_descendientes) / 100;
+      const sps = modo === "conjunta" ? decsNv : contribsNv;
+      const factorInc = sps.length ? sps.reduce((s, p) => s + factorDe(p), 0) / sps.length : 1;
       descNv.forEach((d, i) => {
         const key = i < 5 ? String(i + 1) : "6+";
         let imp = num(mf.descendientes.importes[key] != null ? mf.descendientes.importes[key] : mf.descendientes.importes["6+"]);
@@ -854,7 +882,7 @@
         let disc = 0;
         if (d.discapacidad === "33_64") disc = num(mf.descendientes.incremento_discapacidad_33_64);
         if (d.discapacidad === "65_mas") disc = num(mf.descendientes.incremento_discapacidad_65_mas);
-        dedFam += imp * prorrNv * (1 + pctInc / 100) + disc * prorrNv;
+        dedFam += imp * prorrNv * factorInc + disc * prorrNv;
       });
       hogar.miembros.filter(m => m.rol === "ascendiente" && num(m.rentasPropias) <= limR &&
         (num(m.edad, 0) >= 65 || (m.discapacidad && m.discapacidad !== "no"))).forEach(a => {
@@ -964,7 +992,7 @@
   // como no sometidas a retención y actividad económica = alta en el RETA.
   function obligacionDeclararPersona(pe, P) {
     const o = P.estatal.obligacion_declarar, tr = pe.trabajo;
-    const trabajo = tr ? num(tr.dinerarias) + num(tr.especie) : 0;
+    const trabajo = integroTrabajo(pe);
     const otrosPagadores = tr ? num(tr.otrosPagadores) : 0;
     const cm = pe.capitalMobiliario;
     const capitalRet = cm ? Object.values(cm).reduce((s, v) => s + (typeof v === "number" ? Math.max(0, v) : 0), 0) : 0;
