@@ -90,6 +90,11 @@
     const lista = (T[terr] && T[terr].deducciones_autonomicas && T[terr].deducciones_autonomicas.lista) || [];
     const hogar = new Map(), hijo = new Map();
     for (const d of lista) {
+      if (d.tipo === "porcentaje_campos_hijo") {   // varios gastos por hijo (p. ej. Madrid, art. 11)
+        const max = d.edad_hijo_max != null ? d.edad_hijo_max : 25;
+        for (const c of Object.keys(d.campos || {})) { const prev = hijo.get(c); hijo.set(c, prev == null ? max : Math.max(prev, max)); }
+        continue;
+      }
       if (!d.campo || d.campo === "alquiler_vivienda_pagos") continue;
       if (d.tipo === "porcentaje_campo_hijo") {
         const prev = hijo.get(d.campo);

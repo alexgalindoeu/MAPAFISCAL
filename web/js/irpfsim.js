@@ -311,7 +311,7 @@
       return true;
     };
     const esFamiliar = d =>
-      ["fija_por_hijo", "fija_por_hijo_nacido", "porcentaje_campo_hijo", "fija_por_ascendiente"].includes(d.tipo) ||
+      ["fija_por_hijo", "fija_por_hijo_nacido", "porcentaje_campo_hijo", "porcentaje_campos_hijo", "fija_por_ascendiente"].includes(d.tipo) ||
       (d.tipo === "fija" && (d.requiere_familia_numerosa != null || d.familia_numerosa_categoria != null ||
         d.requiere_monoparental || d.descendientes_min != null || d.requiere_dependiente_a_cargo ||
         d.requiere_familiar_discapacidad_65 || d.requiere_parto_multiple));
@@ -324,6 +324,10 @@
       if (d.base_min_individual != null && !esConj && b < d.base_min_individual) return false;
       if (d.base_min_conjunta != null && esConj && b < d.base_min_conjunta) return false;
       if (d.base_max_unidad_familiar != null && baseTotal > d.base_max_unidad_familiar) return false;
+      // límite de la UF por miembro (Madrid, art. 18.2): declarantes + descendientes < 18
+      if (d.base_max_por_miembro_uf != null &&
+          baseTotal > d.base_max_por_miembro_uf * (decs.length + desc.filter(h => num(h.edad, 99) < 18).length)) return false;
+      if (d.requiere_familia_numerosa_reciente && !hogar.familiaNumerosaReciente) return false;
       if (d.descendientes_min != null && desc.length < d.descendientes_min) return false;
       if (d.descendientes_max != null && desc.length > d.descendientes_max) return false;
       if (d.descendiente_edad_max != null && !desc.some(h => num(h.edad, 99) <= d.descendiente_edad_max)) return false;
@@ -390,6 +394,19 @@
           if (d.edad_hijo_max != null && num(h.edad, 99) > d.edad_hijo_max) continue;
           let v = num(h[camelize(d.campo)]) * num(d.porcentaje);
           if (lim != null) v = Math.min(v, lim);
+          val += v;
+        }
+      } else if (d.tipo === "porcentaje_campos_hijo") {
+        // varios gastos por hijo con su porcentaje y un límite único por hijo (Madrid, art. 11)
+        const cp = d.campos || {}, lsc = d.limite_si_campo, pc = d.primer_ciclo;
+        for (const h of desc) {
+          if (d.edad_hijo_max != null && num(h.edad, 99) > d.edad_hijo_max) continue;
+          const enPc = pc != null && num(h.edad, 99) <= pc.edad_hijo_max;
+          const usados = enPc ? [].concat(pc.campos) : Object.keys(cp);
+          let v = 0;
+          for (const k of usados) v += num(h[camelize(k)]) * num(cp[k]);
+          const l = enPc ? pc.limite : (lsc && num(h[camelize(lsc.campo)]) > 0 ? lsc.limite : lim);
+          if (l != null) v = Math.min(v, l);
           val += v;
         }
       } else if (d.tipo === "fija_por_hijo_nacido") {

@@ -2507,25 +2507,31 @@
      },
      {
       "id": "familia_numerosa_general",
-      "norma": "Art. 13 bis DL 1/2010 Madrid",
-      "estado": "provisional",
+      "norma": "Arts. 13 bis y 18.2 DL 1/2010 Madrid",
+      "estado": "confirmado",
+      "fuente": "Arts. 13 bis y 18.2 DL 1/2010, redacción de la Ley 13/2023 (BOE-A-2024-5610) y de la Ley 5/2024 (BOE-A-2025-3303), vigente en 2025; AEAT Manual Práctico Renta 2025, Parte 2, Comunidad de Madrid, «Por la obtención de la condición de familia numerosa de categoría general o especial» (https://sede.agenciatributaria.gob.es/Sede/ayuda/manuales-videos-folletos/manuales-practicos/irpf-2025-deducciones-autonomicas/comunidad-madrid/obtencion-condicion-familia-numerosa.html)",
       "tipo": "porcentaje_cuota_autonomica",
       "sobre_cuota_integra": true,
       "porcentaje": 0.5,
       "limite": 6186,
       "limite_conjunta": 12372,
-      "familia_numerosa_categoria": "general"
+      "familia_numerosa_categoria": "general",
+      "requiere_familia_numerosa_reciente": true,
+      "base_max_por_miembro_uf": 30930
      },
      {
       "id": "familia_numerosa_especial",
-      "norma": "Art. 13 bis DL 1/2010 Madrid",
-      "estado": "provisional",
+      "norma": "Arts. 13 bis y 18.2 DL 1/2010 Madrid",
+      "estado": "confirmado",
+      "fuente": "Arts. 13 bis y 18.2 DL 1/2010, redacción de la Ley 13/2023 (BOE-A-2024-5610) y de la Ley 5/2024 (BOE-A-2025-3303), vigente en 2025; AEAT Manual Práctico Renta 2025, Parte 2, Comunidad de Madrid, «Por la obtención de la condición de familia numerosa de categoría general o especial» (https://sede.agenciatributaria.gob.es/Sede/ayuda/manuales-videos-folletos/manuales-practicos/irpf-2025-deducciones-autonomicas/comunidad-madrid/obtencion-condicion-familia-numerosa.html)",
       "tipo": "porcentaje_cuota_autonomica",
       "sobre_cuota_integra": true,
       "porcentaje": 1,
       "limite": 12372,
       "limite_conjunta": 24744,
-      "familia_numerosa_categoria": "especial"
+      "familia_numerosa_categoria": "especial",
+      "requiere_familia_numerosa_reciente": true,
+      "base_max_por_miembro_uf": 30930
      },
      {
       "id": "cuidado_ascendientes",
@@ -2537,44 +2543,87 @@
      },
      {
       "id": "cuidado_hijos_menores_3_empleada_hogar",
-      "norma": "Art. 11 bis DL 1/2010 Madrid",
-      "estado": "provisional",
+      "norma": "Arts. 11 bis.2.a) y 18.2 DL 1/2010 Madrid",
+      "estado": "confirmado",
+      "fuente": "Arts. 11 bis y 18.2 DL 1/2010, redacción de la Ley 13/2023 (BOE-A-2024-5610), vigente en 2025; AEAT Manual Práctico Renta 2025, Parte 2, Comunidad de Madrid, «Por cuidado de hijos menores de 3 años, mayores dependientes y personas con discapacidad» (https://sede.agenciatributaria.gob.es/Sede/ayuda/manuales-videos-folletos/manuales-practicos/irpf-2025-deducciones-autonomicas/comunidad-madrid/cuidado-hijos-menores-mayores-discapacitados.html)",
       "tipo": "porcentaje_campo",
       "campo": "cuotas_ss_empleada_hogar",
       "porcentaje": 0.25,
       "limite": 463.95,
-      "descendiente_edad_max": 2
+      "grupo": "empleada_hogar_md",
+      "descendiente_edad_max": 2,
+      "requiere_progenitores_trabajan": true,
+      "base_max_por_miembro_uf": 30930
      },
      {
-      "id": "gastos_educativos_escolaridad",
-      "norma": "Art. 11 DL 1/2010 Madrid",
-      "estado": "provisional",
+      "id": "cuidado_hijos_menores_3_empleada_hogar_fn",
+      "norma": "Arts. 11 bis.1 (familia numerosa), 11 bis.2.a) y 18.2 DL 1/2010 Madrid",
+      "estado": "confirmado",
+      "fuente": "Arts. 11 bis y 18.2 DL 1/2010, redacción de la Ley 13/2023 (BOE-A-2024-5610), vigente en 2025; AEAT Manual Práctico Renta 2025, Parte 2, Comunidad de Madrid, «Por cuidado de hijos menores de 3 años, mayores dependientes y personas con discapacidad» (https://sede.agenciatributaria.gob.es/Sede/ayuda/manuales-videos-folletos/manuales-practicos/irpf-2025-deducciones-autonomicas/comunidad-madrid/cuidado-hijos-menores-mayores-discapacitados.html)",
       "tipo": "porcentaje_campo",
-      "campo": "gastos_escolaridad",
-      "porcentaje": 0.15,
-      "limite": 927.9
+      "campo": "cuotas_ss_empleada_hogar",
+      "porcentaje": 0.4,
+      "limite": 618.6,
+      "grupo": "empleada_hogar_md",
+      "requiere_familia_numerosa": true,
+      "descendiente_edad_max": 2,
+      "requiere_progenitores_trabajan": true,
+      "base_max_por_miembro_uf": 30930
      },
      {
-      "id": "gastos_educativos_idiomas",
-      "norma": "Art. 11 DL 1/2010 Madrid",
-      "estado": "provisional",
+      "id": "empleada_hogar_contribuyente_discapacidad",
+      "norma": "Arts. 11 bis.2.d) y 18.2 DL 1/2010 Madrid",
+      "estado": "confirmado",
+      "fuente": "Arts. 11 bis y 18.2 DL 1/2010, redacción de la Ley 13/2023 (BOE-A-2024-5610), vigente en 2025; AEAT Manual Práctico Renta 2025, Parte 2, Comunidad de Madrid, «Por cuidado de hijos menores de 3 años, mayores dependientes y personas con discapacidad» (https://sede.agenciatributaria.gob.es/Sede/ayuda/manuales-videos-folletos/manuales-practicos/irpf-2025-deducciones-autonomicas/comunidad-madrid/cuidado-hijos-menores-mayores-discapacitados.html)",
       "tipo": "porcentaje_campo",
-      "campo": "gastos_idiomas",
-      "porcentaje": 0.15,
-      "limite": 412.4
+      "campo": "cuotas_ss_empleada_hogar",
+      "porcentaje": 0.25,
+      "limite": 463.95,
+      "grupo": "empleada_hogar_md",
+      "requiere_discapacidad_contribuyente": true,
+      "base_max_por_miembro_uf": 30930
      },
      {
-      "id": "gastos_educativos_vestuario",
-      "norma": "Art. 11 DL 1/2010 Madrid",
-      "estado": "provisional",
+      "id": "empleada_hogar_contribuyente_discapacidad_fn",
+      "norma": "Arts. 11 bis.1 (familia numerosa), 11 bis.2.d) y 18.2 DL 1/2010 Madrid",
+      "estado": "confirmado",
+      "fuente": "Arts. 11 bis y 18.2 DL 1/2010, redacción de la Ley 13/2023 (BOE-A-2024-5610), vigente en 2025; AEAT Manual Práctico Renta 2025, Parte 2, Comunidad de Madrid, «Por cuidado de hijos menores de 3 años, mayores dependientes y personas con discapacidad» (https://sede.agenciatributaria.gob.es/Sede/ayuda/manuales-videos-folletos/manuales-practicos/irpf-2025-deducciones-autonomicas/comunidad-madrid/cuidado-hijos-menores-mayores-discapacitados.html)",
       "tipo": "porcentaje_campo",
-      "campo": "gastos_vestuario_escolar",
-      "porcentaje": 0.05,
-      "limite": 412.4
+      "campo": "cuotas_ss_empleada_hogar",
+      "porcentaje": 0.4,
+      "limite": 618.6,
+      "grupo": "empleada_hogar_md",
+      "requiere_familia_numerosa": true,
+      "requiere_discapacidad_contribuyente": true,
+      "base_max_por_miembro_uf": 30930
+     },
+     {
+      "id": "gastos_educativos",
+      "norma": "Arts. 11 y 18.2 DL 1/2010 Madrid",
+      "estado": "confirmado",
+      "fuente": "Arts. 11 y 18.2 DL 1/2010, redacción de la Ley 13/2023 (BOE-A-2024-5610), vigente en 2025; AEAT Manual Práctico Renta 2025, Parte 2, Comunidad de Madrid, «Por gastos educativos» (https://sede.agenciatributaria.gob.es/Sede/ayuda/manuales-videos-folletos/manuales-practicos/irpf-2025-deducciones-autonomicas/comunidad-madrid/gastos-educativos.html)",
+      "tipo": "porcentaje_campos_hijo",
+      "campos": {
+       "gastos_escolaridad": 0.15,
+       "gastos_idiomas": 0.15,
+       "gastos_vestuario_escolar": 0.05
+      },
+      "limite": 412.4,
+      "limite_si_campo": {
+       "campo": "gastos_escolaridad",
+       "limite": 927.9
+      },
+      "primer_ciclo": {
+       "edad_hijo_max": 2,
+       "limite": 1031,
+       "campos": "gastos_escolaridad"
+      },
+      "base_max_por_miembro_uf": 30930
      }
     ],
     "pendientes": [
      "acogimiento_no_remunerado_mayores_65",
+     "empleada_hogar_familiar_dependiente_o_discapacidad",
      "acogimiento_familiar_menores",
      "familias_dos_mas_descendientes_ingresos_reducidos",
      "intereses_prestamos_vivienda_jovenes_30",

@@ -445,7 +445,8 @@ condicionada a residir en pequeños municipios.
 
 ## Deducciones autonómicas — Comunidad de Madrid (DL 1/2010)
 
-Codificadas en `tests/testthat/test-ded-madrid.R`. 9 deducciones (de ~23).
+Codificadas en `tests/testthat/test-ded-madrid.R`. 7 deducciones (de ~23), contando
+como una las variantes de la empleada de hogar.
 Fuente: TR de tributos cedidos de la Comunidad de Madrid (DL 1/2010), arts. 4, 7 bis,
 8, 11, 11 bis, 13 bis, y AEAT *Manual Práctico Renta 2025, Parte 2 — Deducciones
 autonómicas / Comunidad de Madrid*.
@@ -454,23 +455,56 @@ autonómicas / Comunidad de Madrid*.
 |---|---|
 | Arrendamiento de vivienda habitual (8) | **30 %**, límite **1.237,20 €**; ≤ 40 años; *base ≤ 26.414,22 / 37.322,20*, UF ≤ 61.860 |
 | Nacimiento o adopción (4) | **721,70 €/hijo** (desde 2023) en el ejercicio del nacimiento **+ 2 siguientes**; +721,70 €/hijo el 1.er año si parto múltiple; *base ≤ 30.930 / 37.322,20*, UF ≤ 61.860; prorrateo |
-| Familia numerosa general (13 bis) | **50 % de la cuota íntegra autonómica**, tope **6.186 € / 12.372 €** (ind./conj.). 🟡 el límite real de renta (30.930 € × nº de miembros de la UF) no se modela |
-| Familia numerosa especial (13 bis) | **100 % de la cuota íntegra autonómica**, tope **12.372 € / 24.744 €** |
+| Familia numerosa general (13 bis) | **50 % de la cuota íntegra autonómica**, tope **6.186 € / 12.372 €** (ind./conj.). **Solo si el título se obtiene con efectos desde el 1-1-2023**, en ese ejercicio y en los dos siguientes (`familia_numerosa_reciente`; si no se informa, no se aplica). UF ≤ 30.930 € × nº de miembros (art. 18.2) |
+| Familia numerosa especial (13 bis) | **100 % de la cuota íntegra autonómica**, tope **12.372 € / 24.744 €**; mismos requisitos |
 | Cuidado de ascendientes (7 bis) | **515,50 €** por ascendiente > 65 años o con discapacidad ≥ 33 % con derecho a mínimo por ascendientes; prorrateo |
-| Cuidado de hijos < 3 — empleada de hogar (11 bis) | **25 %** de las cuotas al Sistema Especial de Empleados de Hogar, límite **463,95 €**. 🟡 la variante de familia numerosa (40 %/618,60 €) y los supuestos de convivencia con dependiente/discapacitado no se modelan |
-| Gastos educativos — escolaridad (11) | **15 %**, límite modelado **927,90 €/hijo** (🟡 el tope real es combinado con idiomas/vestuario) |
-| Gastos educativos — idiomas (11) | **15 %**, límite **412,40 €/hijo** (🟡 combinado con vestuario) |
-| Gastos educativos — vestuario escolar (11) | **5 %**, límite **412,40 €/hijo** |
+| Empleada de hogar (11 bis) | **25 %** de las cuotas al Sistema Especial de Empleados de Hogar, límite **463,95 €**; **40 % / 618,60 €** para titulares de familia numerosa. Supuestos modelados (variantes del `grupo: empleada_hogar_md`): **a)** hijo < 3 años y los dos progenitores con actividad; **d)** contribuyente con discapacidad ≥ 33 %. UF ≤ 30.930 € × miembros. Pendientes b) y c) (familiar dependiente o con discapacidad) |
+| Gastos educativos (11) | Por hijo: **15 %** de escolaridad e idiomas y **5 %** de vestuario escolar, con **un único límite por hijo**: 412,40 €; **927,90 €** si hay gasto de escolaridad; **1.031 €** en el primer ciclo de infantil (0-2 años, solo escolaridad). Prorrateo; UF ≤ 30.930 € × miembros. Tipo `porcentaje_campos_hijo` |
 
-### Comprobación numérica (test `md_fn_asc`, validado R↔JS)
+### Cotejo con la fuente (2026-09-26, issue #16)
 
-Pareja (48.000 + 20.000 € de trabajo), 5 hijos → **familia numerosa especial**,
-+ 1 ascendiente de 83 años a cargo. Tributación individual.
+Texto del DL 1/2010 en la redacción vigente en 2025 (consolidación del BOE,
+`BOCM-m-2010-90068`: Leyes 13/2023 y 5/2024) y subpáginas del Manual Práctico Renta 2025.
+El límite del art. 18.2 (suma de bases imponibles de la unidad familiar ≤ 30.930 € × nº
+de miembros) se aplica con `base_max_por_miembro_uf`; miembros = declarantes +
+descendientes menores de 18, y la base es la misma aproximación que la de
+`base_max_unidad_familiar`.
 
-- Familia numerosa especial: **100 %** de la cuota íntegra autonómica del declarante
-  (por debajo del tope de 12.372 €) → la cuota autonómica queda anulada.
-- Cuidado de ascendientes: 515,50 € → **257,75 €** (prorrateo entre los dos progenitores).
-- `cuota_líquida_total` = **4.203,12 €**, idéntica en R y en `irpfsim.js`.
+**Familia numerosa (art. 13 bis).** El hogar `md_fn_asc` (pareja con 48.000 + 20.000 € y
+5 hijos, familia numerosa especial, un ascendiente de 83 años) ya no aplica la deducción
+si el título es anterior a 2023: `cuota_líquida_total` = 4.203,12 + 3.603,30 − 257,75
+(ascendiente, prorrateado) = **7.548,67 €**. El mismo hogar sin ascendiente y con título
+reciente (`md_fn_reciente`): 100 % de la cuota íntegra autonómica (3.749,72 €, por debajo
+del tope) → cuota líquida = cuota estatal = **4.472,53 €**. 7 miembros → límite de la UF
+7 × 30.930 = 216.510 €.
+
+**Empleada de hogar (art. 11 bis).** Cotizaciones de 1.200 € (tests):
+
+| Hogar | Supuesto | Deducción |
+|---|---|---|
+| Pareja, hijo de 1 año, solo trabaja uno | a) no | 0 |
+| Pareja, hijo de 1 año, trabajan los dos | a) | 25 % · 1.200 = **300 €** |
+| Lo mismo con familia numerosa general | a), familia numerosa | 40 % · 1.200 = **480 €** (solo la variante mayor) |
+| Contribuyente con discapacidad 33-64 %, sin hijos | d) | **300 €** |
+
+`md_empleada_fn` (validador): 2.000 € de cotizaciones → 40 % = 800 → tope **618,60 €**.
+
+**Gastos educativos (art. 11).** Familia monoparental con 40.000 € de trabajo:
+
+| Hijo | Gastos | Cálculo | Deducción |
+|---|---|---|---|
+| 10 años | escolaridad 5.000, idiomas 1.000, vestuario 400 | 750 + 150 + 20 = 920 ≤ 927,90 | 920,00 |
+| 12 años | idiomas 3.000, vestuario 200 | 450 + 10 = 460 → sin escolaridad, tope 412,40 | 412,40 |
+| 1 año | escolaridad 8.000, idiomas 500 | primer ciclo: solo escolaridad, 1.200 → 1.031 | 1.031,00 |
+| | | **Total** | **2.363,40 €** |
+
+Con dos progenitores en individual, cada uno aplica la mitad (hijo de 10 años: 460 €). Con
+70.000 € de trabajo y un hijo, la base (63.555 €) supera 2 × 30.930 = 61.860 € → 0 €.
+
+`md_educativos_uf` (validador): pareja con un solo sueldo de 135.000 € y dos hijos (4
+miembros → 123.720 €). En individual, la base de d1 (124.427 €) supera el límite → 0 €.
+En conjunta (121.027 €) aplica: hijo de 7 años 900 + 135 + 15 = 1.050 → 927,90; hijo de 2
+años 15 % · 9.000 = 1.350 → 1.031 (los idiomas no cuentan en el primer ciclo) → **1.958,90 €**.
 
 **Pendientes:** acogimiento no remunerado de mayores (1.546,50 €, requiere flag),
 familias con dos o más descendientes e ingresos reducidos (10 % de la cuota), intereses
@@ -487,6 +521,14 @@ municipio en riesgo de despoblación.
 - `porcentaje_cuota_autonomica` acepta ahora `limite` / `limite_conjunta` (tope €) y
   `sobre_cuota_integra: true` (calcula sobre la cuota íntegra autonómica completa, no
   sobre la ya minorada por otras deducciones).
+- *(2026-09-26)* `base_max_por_miembro_uf` — base de la UF ≤ importe × (declarantes +
+  descendientes < 18). `requiere_familia_numerosa_reciente` — exige
+  `familia_numerosa_reciente` en el hogar (JS: `familiaNumerosaReciente`).
+- *(2026-09-26)* Tipo `porcentaje_campos_hijo` — `campos: {campo: porcentaje}` por hijo,
+  `limite` por hijo, `limite_si_campo: {campo, limite}` (sube el límite si el hijo tiene
+  ese gasto) y `primer_ciclo: {edad_hijo_max, limite, campos}` (hasta esa edad solo cuentan
+  esos campos, con su límite). Es familiar: se prorratea entre progenitores en individual.
+  La web pide sus campos por hijo (`camposDe()` en `app.js`).
 
 ---
 
