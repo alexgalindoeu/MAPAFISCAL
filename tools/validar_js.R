@@ -447,6 +447,16 @@ add("obl_smi_devolver", "ES-EX", "ninguna", "no",
     list(persona("d1","declarante",25, trabajo=list(dinerarias=16576, cotizaciones_ss=1074.12), retenciones=400)),
     list(list(id="d1",rol="declarante",edad=25, trabajo=list(dinerarias=16576,cotizacionesSs=1074.12), retenciones=400)))
 
+# 13. previsión social: límites por partícipe y 30 % del rendimiento del art. 19
+add("ps_pareja_md", "ES-MD", "biparental", "no",
+    list(persona("d1","declarante",50, trabajo=list(dinerarias=42000, cotizaciones_ss=2667), prevision_social=list(aportacion_individual=1500)),
+         persona("d2","conyuge",48, trabajo=list(dinerarias=6000, cotizaciones_ss=381), prevision_social=list(aportacion_individual=1500))),
+    list(list(id="d1",rol="declarante",edad=50, trabajo=list(dinerarias=42000,cotizacionesSs=2667), previsionSocial=list(aportacionIndividual=1500)),
+         list(id="d2",rol="conyuge",edad=48, trabajo=list(dinerarias=6000,cotizacionesSs=381), previsionSocial=list(aportacionIndividual=1500))))
+add("ps_empresa_cm", "ES-CM", "ninguna", "no",
+    list(persona("d1","declarante",40, trabajo=list(dinerarias=18000, cotizaciones_ss=1143), prevision_social=list(aportacion_individual=1500, contribucion_empresarial=8000))),
+    list(list(id="d1",rol="declarante",edad=40, trabajo=list(dinerarias=18000,cotizacionesSs=1143), previsionSocial=list(aportacionIndividual=1500, contribucionEmpresarial=8000))))
+
 out <- lapply(casos, function(c) list(
   js = c$js,
   ref = list(

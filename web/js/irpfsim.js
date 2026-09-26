@@ -183,8 +183,10 @@
     let trabajoPrevio = 0, capInmob = 0, capMobA = 0, capMobG = 0, actividades = 0, imput = 0;
     let ganA = 0, ganG = 0, psInd = 0, psEmp = 0, pensComp = 0, retenciones = 0, anualidades = 0;
     let otrasRentas = 0;
+    const previsionPorPersona = [];   // límites de previsión social: por partícipe (art. 52.1)
     for (const pe of personas) {
-      trabajoPrevio += rnTrabajoPrevio(pe, P, regimen);
+      const tPrevio = rnTrabajoPrevio(pe, P, regimen);
+      trabajoPrevio += tPrevio;
       const ci = rnCapitalInmobiliario(pe, P, regimen);
       const cm = rnCapitalMobiliario(pe, P, regimen);
       const ac = rnActividades(pe, P);
@@ -196,7 +198,12 @@
       }
       ganG += num(pe.gananciasPerdidasNoTransmision);
       otrasRentas += ci + cm.ahorro + cm.general + ac + im;
-      if (pe.previsionSocial) { psInd += num(pe.previsionSocial.aportacionIndividual); psEmp += num(pe.previsionSocial.contribucionEmpresarial); }
+      if (pe.previsionSocial) {
+        const ind = num(pe.previsionSocial.aportacionIndividual), emp = num(pe.previsionSocial.contribucionEmpresarial);
+        psInd += ind; psEmp += emp;
+        // base del límite del 30 %: trabajo (art. 19, antes de la reducción del art. 20) y actividades
+        previsionPorPersona.push({ individual: ind, empresarial: emp, baseLimite: Math.max(0, tPrevio + ac) });
+      }
       if (pe.reducciones) { pensComp += num(pe.reducciones.pensionesCompensatorias); anualidades += num(pe.reducciones.anualidadesAlimentosHijos); }
       retenciones += num(pe.retenciones);
     }
@@ -214,7 +221,7 @@
       capitalMobiliarioAhorro: capMobA, capitalMobiliarioGeneral: capMobG, actividades, imputaciones: imput,
       gananciasAhorro: ganA, gananciasGeneral: ganG,
       baseImponibleGeneral: ic.big, baseImponibleAhorro: ic.bia,
-      previsionSocialIndividual: psInd, previsionSocialEmpresarial: psEmp,
+      previsionSocialIndividual: psInd, previsionSocialEmpresarial: psEmp, previsionPorPersona,
       pensionesCompensatorias: pensComp, anualidadesAlimentos: anualidades, retenciones
     };
   }
@@ -590,10 +597,15 @@
     // reducciones de base
     let big = r.baseImponibleGeneral, bia = r.baseImponibleAhorro;
     const rs = P.estatal.reduccion_prevision_social;
-    const rendBase = r.trabajoNeto + Math.max(0, r.actividades);
-    const redPsInd = Math.min(r.previsionSocialIndividual, rs.limite_general_abs, rs.limite_general_pct_rend * rendBase);
-    const redPsEmp = Math.min(r.previsionSocialEmpresarial, rs.incremento_contribucion_empresarial);
-    const redPs = Math.min(redPsInd + redPsEmp, Math.max(0, big)); big -= redPs;
+    // por partícipe (arts. 51.6 y 52.1): mín(30 % de sus rendimientos netos, 1.500 € + hasta
+    // 8.500 € de contribuciones empresariales), también en tributación conjunta
+    let redPsTotal = 0;
+    for (const x of r.previsionPorPersona || []) {
+      const limite = Math.min(rs.limite_general_pct_rend * x.baseLimite,
+        rs.limite_general_abs + Math.min(rs.incremento_contribucion_empresarial, x.empresarial));
+      redPsTotal += Math.min(x.individual + x.empresarial, limite);
+    }
+    const redPs = Math.min(redPsTotal, Math.max(0, big)); big -= redPs;
     const redPc = Math.min(r.pensionesCompensatorias, Math.max(0, big)); big -= redPc;
     const restoPc = r.pensionesCompensatorias - redPc; bia = Math.max(0, bia - Math.min(restoPc, bia));
     let redConj = 0;
