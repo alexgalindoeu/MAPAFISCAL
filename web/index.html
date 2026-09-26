@@ -23,7 +23,6 @@
       <a href="#comparar" data-vista="comparar">Comparar territorios</a>
       <a href="#clientes" data-vista="clientes">Mis clientes</a>
       <a href="#planes" data-vista="planes">Planes</a>
-      <a href="#metodologia" data-vista="metodologia">Metodología</a>
     </nav>
     <div class="appbar-der">
       <span class="chip-ejercicio" title="Ejercicio fiscal">IRPF 2025</span>
@@ -152,6 +151,7 @@
         <div id="res-principal"></div>
         <dl class="kpis" id="res-kpis"></dl>
         <p class="res-obligacion" id="res-obligacion"></p>
+        <p class="res-pista" id="res-pista" hidden></p>
         <div class="acciones-res">
           <button class="btn btn-pri" type="button" id="btn-guardar-cliente">Guardar como cliente</button>
           <a class="btn btn-sec" href="#comparar">Comparar en los 19 territorios</a>
@@ -173,7 +173,7 @@
         <ul class="palancas" id="res-palancas"></ul>
       </div>
 
-      <details class="avisos" id="res-avisos"></details>
+      <p class="res-pie"><a href="#metodologia">Cómo calculamos</a></p>
     </aside>
   </div>
 </section>
@@ -270,7 +270,7 @@
   <div class="cabecera-vista">
     <div>
       <h1 id="t-met">Metodología y cobertura</h1>
-      <p class="entradilla">Qué calcula Mapafiscal, de dónde salen sus parámetros y qué queda todavía fuera.</p>
+      <p class="entradilla">Cómo calcula Mapafiscal y de dónde salen sus parámetros.</p>
     </div>
   </div>
   <div class="metodologia">
@@ -280,13 +280,6 @@
       <p>Hay dos implementaciones del mismo motor: la de referencia en R y la del navegador en JavaScript. Un validador automático comprueba que ambas dan el mismo resultado, al céntimo, en todos los casos de prueba.</p>
       <h2>Fuentes</h2>
       <p>Ley 35/2006 del IRPF y su reglamento; leyes de tributos cedidos de cada comunidad autónoma; Normas Forales de Bizkaia, Gipuzkoa y Araba; Texto Refundido del IRPF de Navarra; y el <i>Manual Práctico de Renta 2025</i> de la AEAT (partes 1 y 2). Cada cifra del motor lleva la norma de la que procede y un estado: <b>confirmado</b> si está cotejado con la fuente, <b>provisional</b> si falta cotejarlo o si la regla está simplificada.</p>
-      <h2>Qué queda fuera</h2>
-      <ul>
-        <li>Ceuta y Melilla.</li>
-        <li>Estimación objetiva (módulos) de actividades económicas.</li>
-        <li>Deducciones autonómicas de inversión y donativos, las que fijan el límite por tramos de base (libros de texto) y algunas rurales que dependen del año de traslado.</li>
-        <li>En Navarra, las deducciones por adquisición de vivienda y por familia numerosa.</li>
-      </ul>
     </div>
     <div class="tarjeta">
       <h2 class="rotulo">Deducciones autonómicas modeladas por territorio</h2>
@@ -305,7 +298,7 @@
 <footer class="pie">
   <div class="contenedor pie-in">
     <p><b>Mapafiscal</b> ofrece estimaciones con fines informativos. No es una liquidación oficial ni asesoramiento fiscal.</p>
-    <p class="pie-sec">Normativa del ejercicio 2025 · Motor validado R ↔ JavaScript · <span id="pie-generado"></span> · Cartografía: <span title="es-atlas (MIT) sobre datos del Instituto Geográfico Nacional, CC BY 4.0">© Instituto Geográfico Nacional (CC BY 4.0)</span></p>
+    <p class="pie-sec"><a href="#metodologia">Cómo calculamos</a> · Normativa del ejercicio 2025 · Motor validado R ↔ JavaScript · <span id="pie-generado"></span> · Cartografía: <span title="es-atlas (MIT) sobre datos del Instituto Geográfico Nacional, CC BY 4.0">© Instituto Geográfico Nacional (CC BY 4.0)</span></p>
   </div>
 </footer>
 
