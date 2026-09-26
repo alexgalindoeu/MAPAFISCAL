@@ -67,6 +67,12 @@ cuenta lo cambia únicamente el webhook de Stripe. Al volver del pago (`#gestor?
 la web consulta el perfil cada 2 s hasta que el webhook activa el plan (máximo 30 s).
 Detalle y puesta en marcha: `supabase/README.md`, sección *Cobros (Stripe)*.
 
+«Mis clientes» es exclusivo del plan de pago (decisión de 2026-09-26; ya no hay plan
+gratuito con 3 clientes). Lo impone la RLS de `clientes`; la web lo refleja: sin plan, la
+pestaña sale atenuada con un candado y la vista muestra una cartera de ejemplo difuminada
+con «Se desbloquea con el plan Gestor» y el enlace a *Planes*; «Guardar como cliente» lleva
+a esa misma vista. Tras una baja, los clientes quedan ocultos y el gestor puede borrarlos.
+
 ## La API R (plumber) y el dashboard Shiny
 
 Siguen disponibles (`inst/plumber/`, `inst/shiny/`) para usos internos: microsimulación
@@ -75,7 +81,7 @@ la web pública.
 
 ## Pendiente antes de abrir al público
 
-1. Secretos de Stripe en Supabase y webhook (`supabase/README.md`); precios definitivos
+1. Cobros configurados y probados en modo test (2026-09-26); faltan precios definitivos
    (ahora 19,99 €/semana para la campaña de la renta, 39,99 €/mes y 290 €/año, IVA
    incluido, provisionales); productos y webhook en modo live.
 2. URL pública: GitHub Pages (`https://alexgalindoeu.github.io/MAPAFISCAL/`); configurarla
