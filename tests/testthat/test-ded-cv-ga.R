@@ -90,3 +90,17 @@ test_that("Aragón: guardería <3 años, 15 % límite 250 €/hijo", {
   # 15% de 3000 = 450 -> topado a 250
   expect_equal(liquidar(h)$deducciones_autonomicas$detalle$gastos_guarderia_menores_3, 250)
 })
+
+test_that("Galicia: base imponible menos el mínimo del gravamen AUTONÓMICO (casilla 0520) (#22)", {
+  # monoparental con un recién nacido; base imponible 32.800 (37.160 − 2.360 − 2.000)
+  # mínimo estatal 5.550 + 2.400 + 2.800 = 10.750 -> 22.050 (> 22.000: tramo de 300 €)
+  # mínimo autonómico de Galicia 5.789 + 2.503 + 2.920 = 11.212 -> 21.588 (<= 22.000: 360 €)
+  h <- nuevo_hogar("v","ES-GA", list(
+    persona("d1","declarante",34, trabajo=list(dinerarias=37160, cotizaciones_ss=2360)),
+    persona("h1","descendiente",0, nacido_en_ejercicio=TRUE)), tipo_unidad_familiar="monoparental")
+  l <- liquidar(h, modo="individual")
+  expect_equal(l$base_imponible_general, 32800)
+  d <- l$deducciones_autonomicas$detalle
+  expect_equal(d$nacimiento_adopcion_renta_baja, 360)
+  expect_null(d[["nacimiento_adopcion_renta_media"]])
+})

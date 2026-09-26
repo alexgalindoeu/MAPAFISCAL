@@ -297,8 +297,14 @@
   }
 
   // ---- Deducciones autonómicas (DSL, común) ------------------------------
-  function deduccionesAutonomicas(hogar, terr, P, modo, baseTotal, cuotaIntegraAut, minimo, declaranteId) {
+  function deduccionesAutonomicas(hogar, terr, P, modo, baseTotal, cuotaIntegraAut, minimo, declaranteId, baseImponible, minimoAut) {
     minimo = minimo || 0;
+    // suma de bases imponibles (0435 + 0460) y mínimo del gravamen autonómico (0520): los usan
+    // `suma_bases: imponibles` y `base_gate: menos_minimo` (base imponible − mínimo autonómico)
+    const baseImp = baseImponible != null ? baseImponible : baseTotal;
+    const minAut = minimoAut != null ? minimoAut : minimo;
+    const basePuerta = d => d.base_gate === "menos_minimo" ? Math.max(0, baseImp - minAut)
+      : (d.suma_bases === "imponibles" ? baseImp : baseTotal);
     const da = terr.deducciones_autonomicas;
     if (!da || da.estado === "pendiente" || !da.lista || !da.lista.length) return { detalle: {}, total: 0, estado: da ? da.estado : "pendiente" };
     const esConj = modo === "conjunta";
@@ -332,15 +338,16 @@
     const prorratea = d => d.prorratea_progenitores == null ? esFamiliar(d) : !!d.prorratea_progenitores;
 
     const pasaPuertas = d => {
-      const b = d.base_gate === "menos_minimo" ? Math.max(0, baseTotal - minimo) : baseTotal;
+      const b = basePuerta(d);
       if (d.base_max_individual != null && !esConj && b > d.base_max_individual) return false;
       if (d.base_max_conjunta != null && esConj && b > d.base_max_conjunta) return false;
       if (d.base_min_individual != null && !esConj && b < d.base_min_individual) return false;
       if (d.base_min_conjunta != null && esConj && b < d.base_min_conjunta) return false;
-      if (d.base_max_unidad_familiar != null && baseTotal > d.base_max_unidad_familiar) return false;
+      const bUf = d.suma_bases === "imponibles" ? baseImp : baseTotal;
+      if (d.base_max_unidad_familiar != null && bUf > d.base_max_unidad_familiar) return false;
       // límite de la UF por miembro (Madrid, art. 18.2): declarantes + descendientes < 18
       if (d.base_max_por_miembro_uf != null &&
-          baseTotal > d.base_max_por_miembro_uf * (decs.length + desc.filter(h => num(h.edad, 99) < 18).length)) return false;
+          bUf > d.base_max_por_miembro_uf * (decs.length + desc.filter(h => num(h.edad, 99) < 18).length)) return false;
       if (d.requiere_familia_numerosa_reciente && !hogar.familiaNumerosaReciente) return false;
       // descendientes_sin_deduccion: no cuentan los que dan derecho a esa otra deducción
       let nd = desc.length;
@@ -386,7 +393,7 @@
     const factorTaper = d => {
       const tp = esConj ? d.taper_conjunta : d.taper_individual;
       if (!tp) return 1;
-      const b = d.base_gate === "menos_minimo" ? Math.max(0, baseTotal - minimo) : baseTotal;
+      const b = basePuerta(d);
       if (b <= tp[0]) return 1;
       return Math.max(0, Math.min(1, 1 - (b - tp[0]) / (tp[1] - tp[0])));
     };
@@ -664,7 +671,8 @@
     const cuotaIntegraEstatal = cigEst + ciaEst;
     const cuotaIntegraAutonomica = cigAut + ciaAut;
 
-    const dedAut = deduccionesAutonomicas(hogar, terr, P, modo, blg + bla, cuotaIntegraAutonomica, mpf.total, declaranteId);
+    const dedAut = deduccionesAutonomicas(hogar, terr, P, modo, blg + bla, cuotaIntegraAutonomica, mpf.total, declaranteId,
+      r.baseImponibleGeneral + r.baseImponibleAhorro, minimoAut);
     const dedEst = deduccionesEstatales(personas, P, blg + bla);
     let clEst = Math.max(0, cuotaIntegraEstatal - dedEst.totalEstatal);
     let clAut = Math.max(0, cuotaIntegraAutonomica - dedAut.total - dedEst.totalAutonomico);
