@@ -500,14 +500,14 @@ Fuente: Ley 5/2021 de Tributos Cedidos de Andalucía, arts. 10-22 bis, y AEAT
 |---|---|
 | Nacimiento o adopción (11) | **200 €/hijo** nacido o adoptado (+200 € el 1.er año si parto múltiple) |
 | Arrendamiento de vivienda habitual (10) | **15 %**, límite **1.200 €**; ≤ 35 años (también > 65, discapacidad, víctimas); *base ≤ 25.000 / 30.000* |
-| Familia numerosa general (14) | **200 €** |
-| Familia numerosa especial (14) | **+200 €** (400 € en total) |
+| Familia numerosa general (14) | **200 €**; *base ≤ 25.000 / 30.000* (art. 14.3) |
+| Familia numerosa especial (14) | **+200 €** (400 € en total); *base ≤ 25.000 / 30.000* |
 | Familia monoparental (13) | **100 €**; *base ≤ 80.000 / 100.000* |
-| Familia monoparental — incremento por ascendiente > 75 (13) | **+100 €** por ascendiente > 75 que conviva (🟡 el tipo cuenta también ascendientes con discapacidad) |
+| Familia monoparental — incremento por ascendiente > 75 (13.2) | **+100 €** por ascendiente que conviva y genere el mínimo por ascendientes **de edad superior a 75 años** (edad ≥ 76 en el motor; rentas ≤ 8.000 €; la discapacidad no cuenta) |
 | Contribuyente con discapacidad ≥ 33 % (16) | **150 €**; *base ≤ 25.000 / 30.000* |
 | Gastos educativos de idiomas / informática (15) | **15 %**, límite **150 €/descendiente**; *base ≤ 80.000 / 100.000* |
-| Ayuda doméstica (19) | **20 %** de las cuotas al Sistema Especial de Empleados de Hogar, límite **500 €**; con hijos con mínimo por descendientes (🟡 la condición de que ambos cónyuges trabajen no se modela) |
-| Fomento del ejercicio físico (22 bis) | **15 %** de cuotas de gimnasios/clubes, límite **100 €/contribuyente** (🟡 límite de base del art. 60 sin cotejar) |
+| Ayuda doméstica (19) | **20 %** de las cuotas al Sistema Especial de Empleados de Hogar, límite **500 €**, sin límite de base. Dos supuestos alternativos (variantes del `grupo: ayuda_domestica`): **a)** hijos con mínimo por descendientes y rendimientos del trabajo o de actividades (con cónyuge o pareja, **los dos**); **b)** titular o cónyuge de **75 años o más** |
+| Fomento del ejercicio físico (22 bis) | **15 %** de cuotas de gimnasios/clubes, límite **100 €/contribuyente**, **sin límite de base** (el art. 60 solo regula la justificación). Añadido por la Ley 8/2025 con efectos desde el 1-1-2025 |
 
 ### Comprobación numérica (test `an_ascendiente`, validado R↔JS)
 
@@ -520,6 +520,46 @@ gimnasio.
 - Gastos de idiomas: 15 % · 1.500 = 225 → **150 €** (tope por descendiente).
 - Deporte: 15 % · 900 = 135 → **100 €** (tope).
 - Deducciones autonómicas = 450, idénticas en R y en `irpfsim.js`.
+
+### Cotejo con la fuente (2026-09-26, issue #16)
+
+Texto de la Ley 5/2021 en la redacción vigente en 2025 (consolidación del BOE,
+`BOE-A-2021-17915`) y subpáginas del Manual Práctico Renta 2025.
+
+**Incremento por ascendiente (art. 13.2).** Solo cuenta el ascendiente que genera el
+mínimo por ascendientes *mayores de 75 años* de la normativa estatal: 1.400 € «por cada
+ascendiente de edad superior a 75 años» (AEAT, *Mínimo por ascendientes*), con rentas
+≤ 8.000 € y convivencia ≥ 6 meses. Familia monoparental con un hijo de 9 años y 30.000 €
+de trabajo (tests en `test-ded-andalucia.R`):
+
+| Ascendiente | ¿Genera el mínimo de > 75? | Incremento |
+|---|---|---|
+| 80 años, sin rentas | sí | **100 €** |
+| 75 años | no (no tiene edad *superior* a 75) | 0 |
+| 70 años, discapacidad ≥ 65 % | genera el mínimo por ascendientes, pero no el de > 75 | 0 |
+| 80 años, 9.000 € de rentas | no (rentas > 8.000 €) | 0 |
+| dos, de 78 y 82 años | sí, los dos | 2 · 100 = **200 €** |
+
+**Ayuda doméstica (art. 19.1).** Cotizaciones de la empleada de hogar de 1.800 €;
+20 % · 1.800 = **360 €** (< 500 €):
+
+| Hogar | Supuesto | Deducción |
+|---|---|---|
+| Matrimonio, un hijo de 4 años, solo trabaja uno (conjunta) | a) no: tienen que trabajar los dos | 0 |
+| Matrimonio, un hijo de 4 años, trabajan los dos (conjunta) | a) sí | **360 €** |
+| Titular de 76 años sin hijos, solo intereses | b) sí | **360 €** |
+| Titular de 76 años con trabajo y un hijo de 16 (monoparental) | a) y b): variantes excluyentes | **360 €** (una sola vez) |
+
+**Ejercicio físico (art. 22 bis).** Sin límite de base: con 150.000 € de trabajo y 400 €
+de gimnasio, 15 % · 400 = **60 €**.
+
+**Familia numerosa (art. 14.3), corrección fuera de la lista del #16.** La ley exige
+que la suma de bases no pase de 25.000 € (individual) o 30.000 € (conjunta); el YAML
+no tenía esa puerta. Matrimonio en conjunta con tres hijos y un solo sueldo:
+
+- 28.000 € de trabajo: 28.000 − 1.778 (SS) − 2.000 (otros gastos) − 3.400 (reducción
+  por conjunta) = 20.822 € ≤ 30.000 → **200 €**.
+- 45.000 € de trabajo: base 36.742 € > 30.000 → **0 €** (antes el motor daba 200 €).
 
 **Pendientes:** cónyuge/pareja con discapacidad ≥ 65 % (requiere flag), asistencia a
 personas con discapacidad, inversión en vivienda protegida joven, adopción

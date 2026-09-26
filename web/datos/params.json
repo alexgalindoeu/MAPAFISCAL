@@ -751,14 +751,18 @@
       "norma": "Art. 14 Ley 5/2021",
       "tipo": "fija",
       "importe": 200,
-      "requiere_familia_numerosa": true
+      "requiere_familia_numerosa": true,
+      "base_max_individual": 25000,
+      "base_max_conjunta": 30000
      },
      {
       "id": "familia_numerosa_especial",
       "norma": "Art. 14 Ley 5/2021",
       "tipo": "fija",
       "importe": 200,
-      "requiere_familia_numerosa": "especial"
+      "requiere_familia_numerosa": "especial",
+      "base_max_individual": 25000,
+      "base_max_conjunta": 30000
      },
      {
       "id": "familia_monoparental",
@@ -771,11 +775,14 @@
      },
      {
       "id": "familia_monoparental_ascendientes_75",
-      "norma": "Art. 13 Ley 5/2021 (incremento)",
-      "estado": "provisional",
+      "norma": "Art. 13.2 y 13.3 Ley 5/2021 (incremento)",
+      "estado": "confirmado",
+      "fuente": "Art. 13 Ley 5/2021, redacción vigente en 2025 (BOE-A-2021-17915); AEAT Manual Práctico Renta 2025, Parte 2, Andalucía, «Para el padre o madre de familia monoparental y, en su caso, con ascendientes mayores de 75 años» (https://sede.agenciatributaria.gob.es/Sede/ayuda/manuales-videos-folletos/manuales-practicos/irpf-2025-deducciones-autonomicas/comunidad-autonoma-andalucia/padre-madre-familia-monoparental-ascendientes-anos.html)",
       "tipo": "fija_por_ascendiente",
       "importe": 100,
-      "edad_ascendiente_min": 75,
+      "edad_ascendiente_min": 76,
+      "ascendiente_discapacidad": false,
+      "requiere_minimo_ascendiente": true,
       "requiere_monoparental": true,
       "base_max_individual": 80000,
       "base_max_conjunta": 100000
@@ -801,18 +808,34 @@
      },
      {
       "id": "ayuda_domestica",
-      "norma": "Art. 19 Ley 5/2021",
-      "estado": "provisional",
+      "norma": "Art. 19.1.a) Ley 5/2021",
+      "estado": "confirmado",
+      "fuente": "Art. 19 Ley 5/2021, redacción de la Ley 1/2022 (BOE-A-2023-1604), vigente en 2025; AEAT Manual Práctico Renta 2025, Parte 2, Andalucía, «Por ayuda doméstica» (https://sede.agenciatributaria.gob.es/Sede/ayuda/manuales-videos-folletos/manuales-practicos/irpf-2025-deducciones-autonomicas/comunidad-autonoma-andalucia/ayuda-domestica.html)",
       "tipo": "porcentaje_campo",
       "campo": "cuotas_ss_empleada_hogar",
       "porcentaje": 0.2,
       "limite": 500,
-      "descendientes_min": 1
+      "grupo": "ayuda_domestica",
+      "descendientes_min": 1,
+      "requiere_progenitores_trabajan": true
+     },
+     {
+      "id": "ayuda_domestica_mayores_75",
+      "norma": "Art. 19.1.b) Ley 5/2021",
+      "estado": "confirmado",
+      "fuente": "Art. 19 Ley 5/2021, redacción de la Ley 1/2022 (BOE-A-2023-1604), vigente en 2025; AEAT Manual Práctico Renta 2025, Parte 2, Andalucía, «Por ayuda doméstica» (https://sede.agenciatributaria.gob.es/Sede/ayuda/manuales-videos-folletos/manuales-practicos/irpf-2025-deducciones-autonomicas/comunidad-autonoma-andalucia/ayuda-domestica.html)",
+      "tipo": "porcentaje_campo",
+      "campo": "cuotas_ss_empleada_hogar",
+      "porcentaje": 0.2,
+      "limite": 500,
+      "grupo": "ayuda_domestica",
+      "edad_min": 75
      },
      {
       "id": "ejercicio_fisico_deporte",
       "norma": "Art. 22 bis Ley 5/2021",
-      "estado": "provisional",
+      "estado": "confirmado",
+      "fuente": "Art. 22 bis Ley 5/2021, añadido por la DF 9.ª.3 de la Ley 8/2025 con efectos desde el 1-1-2025 (DF 18.ª.b; BOE-A-2026-945); art. 60 (obligaciones formales, sin límite de renta); AEAT Manual Práctico Renta 2025, Parte 2, Andalucía, «Para fomentar el ejercicio físico y la práctica deportiva» (https://sede.agenciatributaria.gob.es/Sede/ayuda/manuales-videos-folletos/manuales-practicos/irpf-2025-deducciones-autonomicas/comunidad-autonoma-andalucia/fomentar-ejercicio-fisico-practica-deportiva.html)",
       "tipo": "porcentaje_campo",
       "campo": "gastos_deporte",
       "porcentaje": 0.15,
