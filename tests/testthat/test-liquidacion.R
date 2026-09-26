@@ -29,9 +29,10 @@ test_that("Caso B — soltero 30.000 € trabajo, Bizkaia (foral PV)", {
 test_that("Caso C — soltero 30.000 € trabajo, Navarra (foral)", {
   liq <- liquidar(caso_soltero("ES-NC"))
   expect_equal(round(liq$cuota_integra_total, 2), 6529.23)
-  # cuota íntegra 6.529,23 - mínimo personal 1.367,85 - deducción por trabajo 700
+  # cuota íntegra 6.529,23 - mínimo personal (1.084 + 150, rentas <= 30.000) - deducción por trabajo 700
   expect_equal(liq$deducciones_autonomicas$detalle$trabajo, 700)
-  expect_equal(liq$cuota_liquida_total, 4461.38)
+  expect_equal(liq$deducciones_autonomicas$detalle$minimo_personal, 1234)
+  expect_equal(liq$cuota_liquida_total, 4595.23)
 })
 
 test_that("Navarra: mínimo familiar por descendientes (art. 62.9.b) reduce la cuota", {

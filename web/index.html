@@ -23,7 +23,6 @@
       <a href="#comparar" data-vista="comparar">Comparar territorios</a>
       <a href="#clientes" data-vista="clientes">Mis clientes</a>
       <a href="#planes" data-vista="planes">Planes</a>
-      <a href="#metodologia" data-vista="metodologia">Metodología</a>
     </nav>
     <div class="appbar-der">
       <span class="chip-ejercicio" title="Ejercicio fiscal">IRPF 2025</span>
@@ -153,6 +152,7 @@
         <div id="res-principal"></div>
         <dl class="kpis" id="res-kpis"></dl>
         <p class="res-obligacion" id="res-obligacion"></p>
+        <p class="res-pista" id="res-pista" hidden></p>
         <div class="acciones-res">
           <button class="btn btn-pri" type="button" id="btn-guardar-cliente">Guardar como cliente</button>
           <a class="btn btn-sec" href="#comparar">Comparar en los 19 territorios</a>
@@ -174,7 +174,7 @@
         <ul class="palancas" id="res-palancas"></ul>
       </div>
 
-      <details class="avisos" id="res-avisos"></details>
+      <p class="res-pie"><a href="#metodologia">Cómo calculamos</a></p>
     </aside>
   </div>
 </section>
@@ -229,7 +229,7 @@
   <div class="cabecera-vista cabecera-centrada">
     <div>
       <h1 id="t-planes">Planes</h1>
-      <p class="entradilla">La calculadora es y será gratuita. Para asesores y gestorías que llevan carteras de clientes, el plan Gestor añade perfiles guardados, optimización por cliente e informes.</p>
+      <p class="entradilla">La calculadora es y será gratuita. Para asesores y gestorías que llevan carteras de clientes, el plan Gestor desbloquea «Mis clientes»: perfiles guardados, optimización por cliente e informes.</p>
       <div class="segmentado segmentado-centro" role="radiogroup" aria-label="Periodo de facturación">
         <label><input type="radio" name="periodo" value="semanal"><span>Semanal</span></label>
         <label><input type="radio" name="periodo" value="mensual" checked><span>Mensual</span></label>
@@ -247,7 +247,7 @@
       <tbody>
         <tr><th scope="row">Cálculo del IRPF 2025 y comparación entre los 19 territorios</th><td>✓</td><td>✓</td><td>✓</td></tr>
         <tr><th scope="row">Desglose con casillas de Renta Web y deducciones autonómicas</th><td>✓</td><td>✓</td><td>✓</td></tr>
-        <tr><th scope="row">Perfiles de cliente guardados</th><td>3 de prueba</td><td>Ilimitados</td><td>Ilimitados</td></tr>
+        <tr><th scope="row">Mis clientes: perfiles de cliente guardados</th><td>—</td><td>Ilimitados</td><td>Ilimitados</td></tr>
         <tr><th scope="row">Optimización por cliente (pensiones, conjunta, deducciones)</th><td>—</td><td>✓</td><td>✓</td></tr>
         <tr><th scope="row">Informe por cliente</th><td>—</td><td>✓</td><td>✓</td></tr>
         <tr><th scope="row">Varios usuarios en el mismo despacho</th><td>—</td><td>—</td><td>✓</td></tr>
@@ -260,6 +260,8 @@
     <h2>Preguntas frecuentes</h2>
     <details><summary>¿La calculadora seguirá siendo gratis?</summary><p>Sí. El cálculo y la comparación entre territorios son gratuitos y no requieren cuenta.</p></details>
     <details><summary>¿De dónde salen los cálculos?</summary><p>De un motor abierto que reproduce la normativa del ejercicio 2025: la Ley del IRPF, las leyes de tributos cedidos de cada comunidad, las normas forales vascas y el texto refundido navarro, contrastados con el Manual Práctico de Renta de la AEAT. Cada parámetro indica su fuente y si está confirmado o es provisional. Ver <a href="#metodologia">Metodología</a>.</p></details>
+    <details><summary>¿Puedo guardar clientes sin suscribirme?</summary><p>No. «Mis clientes» forma parte del plan Gestor: con la suscripción activa guardas todos los clientes que quieras. La calculadora y el comparador siguen siendo gratuitos y sin cuenta.</p></details>
+    <details><summary>¿Qué pasa con mis clientes si cancelo?</summary><p>Mantienes el acceso hasta el final del periodo pagado. Después, tus clientes quedan guardados pero ocultos, y vuelven a aparecer si reactivas el plan. Si prefieres que los borremos, puedes eliminarlos tú mismo desde «Mis clientes».</p></details>
     <details><summary>¿Qué datos de mis clientes guardáis?</summary><p>Solo lo necesario para el cálculo: un alias que eliges tú y las cifras de la declaración. No pedimos NIF ni nombre completo. Cada gestor solo puede ver sus propios clientes; los datos se alojan en la Unión Europea.</p></details>
     <details><summary>¿Puedo cancelar cuando quiera?</summary><p>Sí. La suscripción se gestiona desde el portal de facturación y se puede cancelar en cualquier momento; mantienes el acceso hasta el final del periodo pagado.</p></details>
     <details><summary>¿Es asesoramiento fiscal?</summary><p>No. Mapafiscal es una herramienta de cálculo y estimación: no sustituye a un asesor ni es una liquidación oficial de la Agencia Tributaria.</p></details>
@@ -271,7 +273,7 @@
   <div class="cabecera-vista">
     <div>
       <h1 id="t-met">Metodología y cobertura</h1>
-      <p class="entradilla">Qué calcula Mapafiscal, de dónde salen sus parámetros y qué queda todavía fuera.</p>
+      <p class="entradilla">Cómo calcula Mapafiscal y de dónde salen sus parámetros.</p>
     </div>
   </div>
   <div class="metodologia">
@@ -281,13 +283,6 @@
       <p>Hay dos implementaciones del mismo motor: la de referencia en R y la del navegador en JavaScript. Un validador automático comprueba que ambas dan el mismo resultado, al céntimo, en todos los casos de prueba.</p>
       <h2>Fuentes</h2>
       <p>Ley 35/2006 del IRPF y su reglamento; leyes de tributos cedidos de cada comunidad autónoma; Normas Forales de Bizkaia, Gipuzkoa y Araba; Texto Refundido del IRPF de Navarra; y el <i>Manual Práctico de Renta 2025</i> de la AEAT (partes 1 y 2). Cada cifra del motor lleva la norma de la que procede y un estado: <b>confirmado</b> si está cotejado con la fuente, <b>provisional</b> si falta cotejarlo o si la regla está simplificada.</p>
-      <h2>Qué queda fuera</h2>
-      <ul>
-        <li>Ceuta y Melilla.</li>
-        <li>Estimación objetiva (módulos) de actividades económicas.</li>
-        <li>Deducciones autonómicas de inversión y donativos, las que fijan el límite por tramos de base (libros de texto) y algunas rurales que dependen del año de traslado.</li>
-        <li>En Navarra, las deducciones por adquisición de vivienda y por familia numerosa.</li>
-      </ul>
     </div>
     <div class="tarjeta">
       <h2 class="rotulo">Deducciones autonómicas modeladas por territorio</h2>
@@ -306,7 +301,7 @@
 <footer class="pie">
   <div class="contenedor pie-in">
     <p><b>Mapafiscal</b> ofrece estimaciones con fines informativos. No es una liquidación oficial ni asesoramiento fiscal.</p>
-    <p class="pie-sec">Normativa del ejercicio 2025 · Motor validado R ↔ JavaScript · <span id="pie-generado"></span> · Cartografía: <span title="es-atlas (MIT) sobre datos del Instituto Geográfico Nacional, CC BY 4.0">© Instituto Geográfico Nacional (CC BY 4.0)</span></p>
+    <p class="pie-sec"><a href="#metodologia">Cómo calculamos</a> · Normativa del ejercicio 2025 · Motor validado R ↔ JavaScript · <span id="pie-generado"></span> · Cartografía: <span title="es-atlas (MIT) sobre datos del Instituto Geográfico Nacional, CC BY 4.0">© Instituto Geográfico Nacional (CC BY 4.0)</span></p>
   </div>
 </footer>
 

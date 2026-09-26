@@ -314,14 +314,13 @@
     const fuente = reg === "foral_navarra" ? P.navarra : reg === "foral_pais_vasco" ? P.foral_pv : P.estatal;
     return (BLOQUE_DED[id] && fuente && fuente[BLOQUE_DED[id]]) || null;
   }
-  const etqProvisional = '<span class="etq etq-prov" title="Importe o requisitos pendientes de cotejo con la norma">provisional</span>';
   const nombreDed = id => NOMBRES_DED[id] || id.replace(/([A-Z])/g, " $1").replace(/_/g, " ").trim().toLowerCase().replace(/^./, c => c.toUpperCase());
 
   // ¿hay que presentar la declaración? (art. 96 LIRPF, calculado por el motor)
   function pintarObligacion(liq, reg) {
     const ob = liq.obligacionDeclarar, o = P.estatal.obligacion_declarar;
     if (!ob || ob.obligado === null) {
-      $("res-obligacion").textContent = reg === "comun" ? "" : "Obligación de declarar: los territorios forales tienen su propia regulación, que esta herramienta no evalúa.";
+      $("res-obligacion").textContent = "";
       return;
     }
     const quien = id => id === "d1" ? "tú" : "tu pareja";
@@ -433,14 +432,12 @@
     const detImp = (liq.deduccionesCuotaDiferencial && liq.deduccionesCuotaDiferencial.detalle) || {};
     const items = Object.entries(det).filter(([, v]) => v > 0).map(([id, v]) => {
       const inf = comun ? infoDeduccion(terr, id) : bloqueDed(reg, id);
-      const prov = inf && inf.estado === "provisional" ? etqProvisional : "";
       const norma = inf && inf.norma ? inf.norma : (comun ? "" : (reg === "foral_navarra" ? "Texto Refundido del IRPF de Navarra" : "Normativa foral del Territorio Histórico"));
-      return `<li><span class="ded-nombre">${esc(nombreDed(id))}${prov}</span><span class="ded-norma">${esc(norma)}</span><span class="ded-imp">−${eur(v)}</span></li>`;
+      return `<li><span class="ded-nombre">${esc(nombreDed(id))}</span><span class="ded-norma">${esc(norma)}</span><span class="ded-imp">−${eur(v)}</span></li>`;
     }).concat(Object.entries(detImp).filter(([, v]) => v > 0).map(([id, v]) => {
       const inf = bloqueDed(reg, id);
-      const prov = inf && inf.estado === "provisional" ? etqProvisional : "";
       const norma = (inf && inf.norma ? inf.norma : "Arts. 81 y 81 bis LIRPF") + " · se resta de la cuota diferencial";
-      return `<li><span class="ded-nombre">${esc(nombreDed(id))}${prov}</span><span class="ded-norma">${esc(norma)}</span><span class="ded-imp">−${eur(v)}</span></li>`;
+      return `<li><span class="ded-nombre">${esc(nombreDed(id))}</span><span class="ded-norma">${esc(norma)}</span><span class="ded-imp">−${eur(v)}</span></li>`;
     }));
     const detEst = (liq.deduccionesEstatales && liq.deduccionesEstatales.detalle) || {};
     for (const [id, v] of Object.entries(detEst).filter(([, v]) => v > 0)) {
@@ -449,7 +446,7 @@
     }
     if (drt) {
       const inf = P.estatal.deduccion_obtencion_rendimientos_trabajo;
-      items.push(`<li><span class="ded-nombre">Deducción por obtención de rendimientos del trabajo${inf.estado === "provisional" ? etqProvisional : ""}</span><span class="ded-norma">${esc(inf.norma)} · se resta de la cuota líquida total</span><span class="ded-imp">−${eur(drt)}</span></li>`);
+      items.push(`<li><span class="ded-nombre">Deducción por obtención de rendimientos del trabajo</span><span class="ded-norma">${esc(inf.norma)} · se resta de la cuota líquida total</span><span class="ded-imp">−${eur(drt)}</span></li>`);
     }
     $("res-deducciones").innerHTML = items.length ? items.join("")
       : `<li class="vacio">Con estos datos no se aplica ninguna deducción. Revisa los gastos del paso 4: dependen de tu territorio.</li>`;
@@ -466,20 +463,13 @@
     if (ahorroModo >= 1) $("res-palancas").insertAdjacentHTML("afterbegin",
       `<li><div class="pal-cab"><span class="pal-tit">Ya aplicada: declaración ${liq.modoTributacionElegido}</span><span class="pal-imp">−${eur0(ahorroModo)}/año</span></div><div class="pal-det">Frente a la declaración ${liq.modoTributacionElegido === "conjunta" ? "individual" : "conjunta"}.</div></li>`);
 
-    // avisos
-    const av = [];
-    const da = T[terr].deducciones_autonomicas;
-    if (comun && da && da.lista) {
-      const pend = (da.pendientes || []).filter(p => typeof p === "string" && p[0] !== "(").length;
-      av.push(`${esc(T[terr].nombre)}: ${da.lista.length} deducciones autonómicas modeladas${pend ? `; ${pend} del catálogo oficial aún no (inversión y donativos, entre otras)` : ""}.`);
-    }
-    if (reg === "foral_pais_vasco") av.push("País Vasco: deducciones familiares y de vivienda con los importes de 2025; algunos de Bizkaia y Álava están pendientes de cotejo.");
-    if (reg === "foral_navarra") av.push("Navarra: incluye alquiler, emancipación y pensiones de jubilación bajas; faltan las deducciones por adquisición de vivienda y por familia numerosa, así que la cuota puede estar algo sobreestimada.");
-    if (reglasMunicipio(terr).hay && hogar.municipioHabitantes == null && !hogar.zonaDespoblada)
-      av.push(`No has indicado tu municipio: las deducciones de ${esc(corto(terr))} para municipios pequeños o zonas en riesgo de despoblación no se aplican.`);
-    if (num("f-actividad") > 0) av.push("La actividad económica se calcula en estimación directa simplificada; los módulos no están modelados.");
-    if (hijos.some(h => h.edad === 0)) av.push("Los hijos de 0 años se tratan como nacidos en 2025.");
-    $("res-avisos").innerHTML = `<summary>Qué no recoge este cálculo (${av.length})</summary><ul>${av.map(a => `<li>${a}</li>`).join("")}</ul>`;
+    // pista que pide un dato: el municipio cambia el resultado en este territorio
+    const rm = reglasMunicipio(terr);
+    const que = [rm.tramos.length ? "municipios pequeños" : "", rm.despoblada ? "zonas en riesgo de despoblación" : ""].filter(Boolean).join(" y ");
+    const pista = rm.hay && hogar.municipioHabitantes == null && !hogar.zonaDespoblada
+      ? `Indica tu municipio (paso 1): ${corto(terr)} tiene deducciones para ${que}.` : "";
+    $("res-pista").textContent = pista;
+    $("res-pista").hidden = !pista;
 
     if (vistaActual() === "comparar") pintarComparacion();
   }
@@ -547,7 +537,7 @@
     const notaMunicipio = hg.municipioHabitantes != null || hg.zonaDespoblada
       ? ` Se supone un municipio ${hg.municipioHabitantes != null ? `de ${miles(String(hg.municipioHabitantes))} habitantes` : "del mismo tipo"} en cada territorio${hg.zonaDespoblada ? ", incluido en su lista oficial de despoblación" : ""}.`
       : "";
-    $("comp-nota").textContent = "Misma situación personal y económica en cada territorio, con su escala, mínimos y las deducciones modeladas." + notaMunicipio + " Cambiar de residencia fiscal exige vivir allí más de 183 días al año y tener allí el centro de intereses.";
+    $("comp-nota").textContent = "Misma situación personal y económica en cada territorio, con su escala, sus mínimos y sus deducciones." + notaMunicipio + " Cambiar de residencia fiscal exige vivir allí más de 183 días al año y tener allí el centro de intereses.";
   }
 
   // tooltip y clic en el mapa / ranking
@@ -598,15 +588,22 @@
     if (!sb) return;
     const { data } = await sb.auth.getSession();
     sesion.usuario = data.session ? data.session.user : null;
+    sesion.ocultos = 0;
     if (sesion.usuario) {
-      const [p, c] = await Promise.all([
-        sb.from("perfiles").select("nombre, despacho, plan").eq("id", sesion.usuario.id).maybeSingle(),
-        sb.from("clientes").select("id, alias, notas, territorio, hogar, cuota_liquida, resultado, actualizado_en").order("actualizado_en", { ascending: false })
-      ]);
+      const p = await sb.from("perfiles").select("nombre, despacho, plan").eq("id", sesion.usuario.id).maybeSingle();
       sesion.perfil = p.data || { plan: "gratis" };
-      sesion.clientes = c.data || [];
+      if (tienePlan()) {
+        const c = await sb.from("clientes").select("id, alias, notas, territorio, hogar, cuota_liquida, resultado, actualizado_en").order("actualizado_en", { ascending: false });
+        sesion.clientes = c.data || [];
+      } else {
+        // Sin plan, los clientes guardados (si los hay) siguen en la base de datos pero ocultos.
+        sesion.clientes = [];
+        const n = await sb.rpc("contar_mis_clientes");
+        sesion.ocultos = n.data || 0;
+      }
     } else { sesion.perfil = null; sesion.clientes = []; }
     $("btn-cuenta").textContent = sesion.usuario ? "Mi cuenta" : "Acceder";
+    marcarPestanaClientes();
     if (vistaActual() === "clientes") pintarClientes();
     if (vistaActual() === "planes") pintarPlanes();
   }
@@ -617,30 +614,59 @@
   });
   if (!sb) $("btn-cuenta").hidden = true;
 
+  // «Mis clientes» solo con un plan de pago activo (la base de datos lo exige por RLS).
+  function tienePlan() { return !!(sb && sesion.usuario && sesion.perfil && sesion.perfil.plan && sesion.perfil.plan !== "gratis"); }
+  const CANDADO = '<svg class="icono-candado" viewBox="0 0 16 16" aria-hidden="true"><rect x="3" y="7" width="10" height="7" rx="1.5"/><path d="M5.5 7V5a2.5 2.5 0 0 1 5 0v2"/></svg>';
+  function marcarPestanaClientes() {
+    const a = document.querySelector('.nav a[data-vista="clientes"]');
+    const bloqueada = !tienePlan();
+    a.classList.toggle("bloqueada", bloqueada);
+    a.innerHTML = bloqueada ? `<span>Mis clientes</span>${CANDADO}` : "Mis clientes";
+    if (bloqueada) a.title = "Se desbloquea con el plan Gestor"; else a.removeAttribute("title");
+  }
+
+  // Vista bloqueada: una cartera de ejemplo difuminada detrás de la explicación.
+  function pintarBloqueo(cont) {
+    const EJEMPLO = [["Familia G. — Getafe", "Madrid", 4812.37, "A devolver 612 €"], ["Autónomo diseño", "Cataluña", 9120.5, "A ingresar 1.240 €"],
+      ["Pensionista Vitoria", "Araba/Álava", 2310.08, "A devolver 95 €"], ["Pareja Sevilla", "Andalucía", 6405.12, "A ingresar 318 €"]];
+    const fondo = `<div class="bloqueo-fondo" aria-hidden="true"><div class="tarjeta tarjeta-tabla"><table class="tabla-clientes">
+      <thead><tr><th>Cliente</th><th>Territorio</th><th class="num">Cuota líquida</th><th class="num">Resultado</th></tr></thead>
+      <tbody>${EJEMPLO.map(([a, t, c, r]) => `<tr><td><div class="alias">${a}</div></td><td>${t}</td><td class="num">${eur(c)}</td><td class="num">${r}</td></tr>`).join("")}</tbody></table></div></div>`;
+    let pie = "";
+    if (!sb) pie = `<p class="ayuda">Disponible en la web de Mapafiscal, con tu cuenta.</p>`;
+    else if (!sesion.usuario) pie = `<p class="ayuda">¿Ya tienes el plan? <button class="btn btn-txt btn-sm" type="button" id="cli-acceder">Accede con tu correo</button></p>`;
+    else {
+      pie = `<p class="ayuda">Has accedido como ${esc(sesion.usuario.email)}. <button class="btn btn-txt btn-sm" type="button" id="cli-salir">Cerrar sesión</button></p>`;
+      if (sesion.ocultos) pie += `<p class="ayuda">Tienes ${sesion.ocultos} ${sesion.ocultos === 1 ? "cliente guardado" : "clientes guardados"}: volverán a aparecer al reactivar el plan.
+        <button class="btn btn-txt btn-sm btn-peligro" type="button" id="cli-borrar-todo">Eliminarlos definitivamente</button></p>`;
+    }
+    cont.innerHTML = `<div class="bloqueo">${fondo}<div class="tarjeta bloqueo-tarjeta">
+      <div class="bloqueo-icono">${CANDADO}</div>
+      <h2>Mis clientes se desbloquea con el plan Gestor</h2>
+      <p>Guarda la situación fiscal de cada cliente, recalcúlala cuando cambie la normativa, compárala entre territorios e imprime su informe.</p>
+      <a class="btn btn-pri" href="#planes">Ver planes</a>${pie}</div></div>`;
+    const acceder = $("cli-acceder"), salir = $("cli-salir"), borrar = $("cli-borrar-todo");
+    if (acceder) acceder.addEventListener("click", () => abrirAcceso());
+    if (salir) salir.addEventListener("click", async () => { await sb.auth.signOut(); cerrarCliente(); });
+    if (borrar) borrar.addEventListener("click", async () => {
+      if (!confirm(`¿Eliminar definitivamente ${sesion.ocultos === 1 ? "tu cliente guardado" : `tus ${sesion.ocultos} clientes guardados`}? Esta acción no se puede deshacer.`)) return;
+      const { error } = await sb.rpc("borrar_mis_clientes");
+      if (error) { alert("No se pudieron eliminar: " + error.message); return; }
+      await cargarSesion();
+    });
+  }
+
   function pintarClientes() {
     const cont = $("cli-contenido");
     $("cli-acciones").hidden = true;
-    if (!sb) {
-      cont.innerHTML = `<div class="tarjeta estado-vacio"><h2>Tu cartera de clientes, en la web de Mapafiscal</h2>
-        <p>Esta vista previa funciona sin cuenta. Para guardar clientes necesitas acceder desde la web de Mapafiscal con tu correo.</p>
-        <a class="btn btn-sec" href="#planes">Ver planes</a></div>`;
-      return;
-    }
-    if (!sesion.usuario) {
-      cont.innerHTML = `<div class="tarjeta estado-vacio"><h2>Accede para gestionar tus clientes</h2>
-        <p>Guarda la situación fiscal de cada cliente, vuelve a calcularla cuando quieras y compárala entre territorios. Te enviamos un enlace de acceso: no hay contraseñas.</p>
-        <button class="btn btn-pri" type="button" id="cli-acceder">Acceder con mi correo</button></div>`;
-      $("cli-acceder").addEventListener("click", () => abrirAcceso());
-      return;
-    }
+    if (!tienePlan()) { pintarBloqueo(cont); return; }
     $("cli-acciones").hidden = false;
-    const plan = (sesion.perfil && sesion.perfil.plan) || "gratis";
-    const limite = plan === "gratis" ? 3 : null;
+    const plan = sesion.perfil.plan;
     const q = $("cli-buscar").value.trim().toLowerCase();
     const lista = sesion.clientes.filter(c => !q || c.alias.toLowerCase().includes(q) || (c.notas || "").toLowerCase().includes(q));
-    const barra = `<div class="cuenta-barra"><span>${esc(sesion.usuario.email)} <span class="plan-chip">Plan ${plan === "gratis" ? "Gratis" : plan === "gestor" ? "Gestor" : "Despacho"}</span>
-        ${limite ? ` · ${sesion.clientes.length} de ${limite} clientes de prueba` : ` · ${sesion.clientes.length} clientes`}</span>
-      <span>${plan === "gratis" ? '<a class="btn btn-txt btn-sm" href="#planes">Mejorar plan</a>' : (CFG.pagosActivos ? '<button class="btn btn-txt btn-sm" type="button" id="cli-portal">Gestionar suscripción</button>' : "")}
+    const barra = `<div class="cuenta-barra"><span>${esc(sesion.usuario.email)} <span class="plan-chip">Plan ${plan === "despacho" ? "Despacho" : "Gestor"}</span>
+        · ${sesion.clientes.length} ${sesion.clientes.length === 1 ? "cliente" : "clientes"}</span>
+      <span>${CFG.pagosActivos ? '<button class="btn btn-txt btn-sm" type="button" id="cli-portal">Gestionar suscripción</button>' : ""}
       <button class="btn btn-txt btn-sm" type="button" id="cli-salir">Cerrar sesión</button></span></div>`;
     const aviso = avisoPago ? `<div class="aviso-demo" role="status" style="background:var(--gana-suave);color:var(--gana)">${AVISOS_PAGO[avisoPago]}</div>` : "";
     if (!sesion.clientes.length) {
@@ -697,8 +723,7 @@
   $("btn-cerrar-cliente").addEventListener("click", cerrarCliente);
 
   $("btn-guardar-cliente").addEventListener("click", () => {
-    if (!sb) { irA("clientes"); return; }
-    if (!sesion.usuario) { abrirAcceso("Accede con tu correo para guardar clientes."); return; }
+    if (!tienePlan()) { irA("clientes"); return; }     // vista bloqueada: explica el plan Gestor
     $("guardar-alias").value = clienteAbierto ? clienteAbierto.alias : "";
     $("guardar-notas").value = clienteAbierto ? clienteAbierto.notas : "";
     $("guardar-msg").textContent = ""; $("guardar-msg").className = "mensaje";
@@ -722,8 +747,9 @@
       : await sb.from("clientes").insert(fila).select().single();
     $("btn-confirmar-guardar").disabled = false;
     if (r.error) {
-      const limite = /máximo de/.test(r.error.message);
-      msg.innerHTML = limite ? `${esc(r.error.message)} <a href="#planes">Ver el plan Gestor</a>.` : "No se pudo guardar: " + esc(r.error.message);
+      // 42501: la RLS rechaza la fila (sin plan activo); PGRST116: la actualización no ve el cliente.
+      const sinPlan = r.error.code === "42501" || r.error.code === "PGRST116";
+      msg.innerHTML = sinPlan ? `Guardar clientes requiere el plan Gestor activo. <a href="#planes">Ver planes</a>.` : "No se pudo guardar: " + esc(r.error.message);
       msg.className = "mensaje error";
       return;
     }
@@ -799,7 +825,7 @@
         <span class="plan-cinta">Para asesores y gestorías</span>
         <h2>Gestor</h2><p class="plan-para">Tu cartera de clientes, siempre calculada.</p>
         <div class="plan-precio">${precioGestor}</div><p class="plan-precio-nota">${notaGestor}</p>
-        <ul><li>Todo lo del plan Gratis</li><li>Clientes ilimitados, guardados en la nube (UE)</li><li>Optimización por cliente: pensiones, conjunta, deducciones</li><li>Informe de cada cliente listo para imprimir</li><li>Recalcular la cartera cuando cambia la normativa</li></ul>
+        <ul><li>Todo lo del plan Gratis</li><li>Mis clientes: tu cartera, sin límite y guardada en la nube (UE)</li><li>Optimización por cliente: pensiones, conjunta, deducciones</li><li>Informe de cada cliente listo para imprimir</li><li>Recalcular la cartera cuando cambia la normativa</li></ul>
         ${ctaGestor}
         <div class="espera" id="espera-gestor" hidden></div>
       </div>
@@ -896,6 +922,6 @@
   $("bm-ver").addEventListener("click", e => { e.preventDefault(); $("t-res").scrollIntoView({ behavior: "smooth", block: "start" }); });
 
   // ---- arranque --------------------------------------------------------------------------
-  pintarHijos(); pintarGastosTerritorio(); recalcular(); mostrarVista();
+  pintarHijos(); pintarGastosTerritorio(); recalcular(); marcarPestanaClientes(); mostrarVista();
   if (avisoPago) esperarPlan(15); else cargarSesion();
 })();
