@@ -66,6 +66,8 @@ deducciones_estatales <- function(hogar, P, rentas, base_liquidable_total, perso
 #     grupo: variantes excluyentes de una misma deducción; solo se aplica la mayor
 #     base_max_por_miembro_uf: base de la UF <= importe x nº de miembros (declarantes +
 #       descendientes < 18); requiere_familia_numerosa_reciente (hogar$familia_numerosa_reciente)
+#     requiere_discapacidad_65_de: "declarantes_o_descendientes" | "contribuyente_o_descendientes"
+#     (en fija_por_hijo) hijos_desde_orden: N -> solo cuentan los hijos a partir del N-ésimo
 #   fija_por_ascendiente: edad_ascendiente_min, ascendiente_discapacidad (false/"65_mas"),
 #     edad_ascendiente_min_discapacidad, requiere_minimo_ascendiente (ver el bloque del tipo)
 #   tipo: "porcentaje_campos_hijo" -> varios campos por hijo con límite único por hijo
@@ -182,6 +184,14 @@ deducciones_autonomicas <- function(hogar, P, rentas, modo = "individual", base_
       if (!hay) return(FALSE)
     }
     if (isTRUE(g(d,"requiere_parto_multiple")) && !isTRUE(hogar$parto_multiple)) return(FALSE)
+    # discapacidad >= 65 % de algún declarante (o, con "contribuyente_o_descendientes", de la
+    # persona del ámbito liquidado) o de algún descendiente (CyL art. 3; Galicia art. 5.Tres)
+    r65 <- g(d, "requiere_discapacidad_65_de")
+    if (!is.null(r65)) {
+      quien <- c(if (identical(r65, "contribuyente_o_descendientes")) ambito else decs, desc)
+      if (!any(vapply(quien, function(p) identical(p$discapacidad %||% "no", "65_mas"), logical(1))))
+        return(FALSE)
+    }
     # municipio de residencia: población máxima y/o lista oficial de zonas despobladas
     mh <- g(d, "municipio_hab_max")
     if (!is.null(mh) && (is.null(hogar$municipio_habitantes) || hogar$municipio_habitantes > mh)) return(FALSE)
@@ -289,7 +299,9 @@ deducciones_autonomicas <- function(hogar, P, rentas, modo = "individual", base_
     } else if (identical(tipo, "fija_por_hijo")) {
       hh <- Filter(function(h) (is.null(g(d,"edad_hijo_min")) || (h$edad %||% 99) >= g(d,"edad_hijo_min")) &&
                                (is.null(g(d,"edad_hijo_max")) || (h$edad %||% 99) <= g(d,"edad_hijo_max")), desc)
-      val <- length(hh) * (g(d,"importe") %||% 0)
+      # `hijos_desde_orden: N`: solo cuentan a partir del N-ésimo (p. ej. 1.000 € desde el sexto)
+      n_h <- max(0, length(hh) - ((g(d, "hijos_desde_orden") %||% 1) - 1))
+      val <- n_h * (g(d,"importe") %||% 0)
 
     } else if (identical(tipo, "fija_por_ascendiente")) {
       # cuenta el ascendiente por edad (`edad_ascendiente_min`) o por discapacidad;
