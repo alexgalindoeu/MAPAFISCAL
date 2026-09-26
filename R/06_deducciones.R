@@ -11,14 +11,19 @@ deducciones_estatales <- function(hogar, P, rentas, base_liquidable_total, perso
 
   # Donativos y vivienda: gastos propios de las personas del ámbito liquidado
   # (en individual, solo los del declarante; en conjunta, los de la unidad familiar).
-  donativos <- 0
-  for (m in personas) donativos <- donativos + (m$donativos %||% 0)
+  donativos <- 0; recurrente <- FALSE
+  for (m in personas) {
+    donativos <- donativos + (m$donativos %||% 0)
+    if (isTRUE(m$donativos_recurrentes)) recurrente <- TRUE
+  }
   if (donativos > 0) {
     d <- e$deduccion_donativos$ley49_2002
-    ded <- min(donativos, d$tramo1_limite) * d$tramo1_porcentaje +
-      max(0, donativos - d$tramo1_limite) * d$resto_porcentaje
-    tope <- base_liquidable_total * d$limite_base_liquidable_pct
-    ded <- min(ded, tope)
+    # art. 69.1: la BASE de la deducción no puede superar el 10 % de la base liquidable
+    base <- min(donativos, base_liquidable_total * d$limite_base_liquidable_pct)
+    # 45 % en lugar del 40 % si se ha donado a la misma entidad los dos años anteriores
+    resto_pct <- if (recurrente) d$resto_porcentaje_recurrente else d$resto_porcentaje
+    ded <- min(base, d$tramo1_limite) * d$tramo1_porcentaje +
+      max(0, base - d$tramo1_limite) * resto_pct
     det$donativos <- red2(ded)
     tot_est <- tot_est + ded / 2   # reparto 50/50 (simplificado)
     tot_aut <- tot_aut + ded / 2
@@ -35,7 +40,6 @@ deducciones_estatales <- function(hogar, P, rentas, base_liquidable_total, perso
     det$vivienda_transitoria <- red2(ded_est + ded_aut)
     tot_est <- tot_est + ded_est
     tot_aut <- tot_aut + ded_aut
-    registrar_aviso("Deducción por vivienda habitual (transitoria): estado PROVISIONAL.")
   }
 
   list(detalle = det, total_estatal = red2(tot_est), total_autonomico = red2(tot_aut))

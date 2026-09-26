@@ -348,6 +348,19 @@ add("minaut_an_pareja", "ES-AN", "biparental", "no",
     list(list(id="d1",rol="declarante",edad=68, trabajo=list(dinerarias=28000,cotizacionesSs=0)),
          list(id="d2",rol="conyuge",edad=77), list(id="a1",rol="ascendiente",edad=90)))
 
+# 11. deducciones estatales: donativos (tope sobre la base, art. 69.1) y vivienda (DT 18.ª)
+add("est_donativos_cm", "ES-CM", "ninguna", "no",
+    list(persona("d1","declarante",40, trabajo=list(dinerarias=30000, cotizaciones_ss=1905), donativos=5000)),
+    list(list(id="d1",rol="declarante",edad=40, trabajo=list(dinerarias=30000,cotizacionesSs=1905), donativos=5000)))
+add("est_donativos_rec_vc", "ES-VC", "ninguna", "no",
+    list(persona("d1","declarante",40, trabajo=list(dinerarias=30000, cotizaciones_ss=1905), donativos=1000, donativos_recurrentes=TRUE)),
+    list(list(id="d1",rol="declarante",edad=40, trabajo=list(dinerarias=30000,cotizacionesSs=1905), donativos=1000, donativosRecurrentes=TRUE)))
+add("est_vivienda_md_pareja", "ES-MD", "biparental", "no",
+    list(persona("d1","declarante",45, trabajo=list(dinerarias=38000, cotizaciones_ss=2413), vivienda_transitoria_pagos=11000),
+         persona("d2","conyuge",44, trabajo=list(dinerarias=21000, cotizaciones_ss=1334)), persona("h1","descendiente",12)),
+    list(list(id="d1",rol="declarante",edad=45, trabajo=list(dinerarias=38000,cotizacionesSs=2413), viviendaTransitoriaPagos=11000),
+         list(id="d2",rol="conyuge",edad=44, trabajo=list(dinerarias=21000,cotizacionesSs=1334)), list(id="h1",rol="descendiente",edad=12)))
+
 out <- lapply(casos, function(c) list(
   js = c$js,
   ref = list(
