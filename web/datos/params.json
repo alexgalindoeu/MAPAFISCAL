@@ -588,22 +588,28 @@
    }
   ],
   "minimo_personal_deduccion": {
-   "norma": "Art. 62.9.a) DFL 4/2008 (TR IRPF Navarra)",
-   "fuente": "guiafiscal.es (1.084 € base; 2.138 € para bases bajas); rentanavarra.com",
-   "estado": "provisional",
+   "norma": "Art. 62.9.a) DFL 4/2008 (TR IRPF Navarra), redacción de la Ley Foral 22/2023, art. primero.Doce (efectos 2024; sin cambios en 2025: la LF 20/2024 no lo modifica y la LF 17/2025 lo hace desde 2026)",
+   "fuente": "BOE-A-2024-1694 (texto literal del art. 62.9 a), b) y c))",
+   "estado": "confirmado",
    "importe_general": 1084,
-   "incremento_rentas_bajas": 1054,
-   "umbral_pleno": 17500,
-   "umbral_cero_incremento": 32000,
+   "incremento_rentas_bajas": 150,
+   "umbral_rentas_bajas": 30000,
    "incremento_65": 264,
    "incremento_75": 585,
    "incremento_discapacidad_33_64": 766,
    "incremento_discapacidad_65_mas": 2757
   },
   "minimo_familiar_deduccion": {
-   "norma": "Art. 62.9.b) DFL 4/2008 (TR IRPF Navarra)",
-   "fuente": "rentanavarra.com — resumen deducciones IRPF Navarra 2025 (fuente secundaria; cotejar con BON)",
+   "norma": "Art. 62.9.b) y c) DFL 4/2008 (TR IRPF Navarra), redacción de la Ley Foral 22/2023, art. primero.Doce",
+   "fuente": "BOE-A-2024-1694 (texto literal del art. 62.9)",
    "estado": "provisional",
+   "edad_maxima_descendiente": 30,
+   "incremento_rentas_descendientes": {
+    "porcentaje_maximo": 40,
+    "umbral_pleno": 20000,
+    "umbral_final": 30000,
+    "coeficiente": 50
+   },
    "descendientes": {
     "importes": {
      "1": 483,
@@ -623,7 +629,7 @@
     "incremento_discapacidad_33_64": 674,
     "incremento_discapacidad_65_mas": 2360
    },
-   "limite_rentas_familiar": 8000
+   "limite_rentas_familiar": 8400
   },
   "deduccion_trabajo_cuota": {
    "tramos": [

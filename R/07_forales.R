@@ -197,14 +197,15 @@ liquidar_navarra_scope <- function(hogar, P, modo, declarante_id = NULL) {
   contribs_nv <- if (modo == "conjunta" || is.null(declarante_id)) declarantes(hogar)
                  else Filter(function(p) identical(p$id, declarante_id), declarantes(hogar))
   if (modo != "conjunta" && is.null(declarante_id)) contribs_nv <- declarantes(hogar)[1]
+  # rentas de cada sujeto pasivo: su base imponible (el motor no modela rentas exentas)
+  rentas_sp <- function(p) { r <- agregar_rentas(list(p), P, "foral_navarra")
+                             r$base_imponible_general + r$base_imponible_ahorro }
   for (c in contribs_nv) {
-    inc <- if (base_total <= (mp$umbral_pleno %||% 17500)) (mp$incremento_rentas_bajas %||% 0)
-           else if (base_total >= (mp$umbral_cero_incremento %||% 32000)) 0
-           else (mp$incremento_rentas_bajas %||% 0) *
-             (1 - (base_total - mp$umbral_pleno) / (mp$umbral_cero_incremento - mp$umbral_pleno))
-    m <- (mp$importe_general %||% 0) + max(0, inc)
-    if ((c$edad %||% 0) >= 65) m <- m + (mp$incremento_65 %||% 0)
-    if ((c$edad %||% 0) >= 75) m <- m + (mp$incremento_75 %||% 0)
+    m <- mp$importe_general %||% 0
+    if (rentas_sp(c) <= (mp$umbral_rentas_bajas %||% 0)) m <- m + (mp$incremento_rentas_bajas %||% 0)
+    # 264 € desde los 65 años o 585 € desde los 75 (uno u otro)
+    edad <- c$edad %||% 0
+    m <- m + (if (edad >= 75) mp$incremento_75 %||% 0 else if (edad >= 65) mp$incremento_65 %||% 0 else 0)
     if (identical(c$discapacidad, "33_64")) m <- m + (mp$incremento_discapacidad_33_64 %||% 0)
     if (identical(c$discapacidad, "65_mas")) m <- m + (mp$incremento_discapacidad_65_mas %||% 0)
     ded_min <- ded_min + m
@@ -217,16 +218,23 @@ liquidar_navarra_scope <- function(hogar, P, modo, declarante_id = NULL) {
   ded_fam <- 0
   if (!is.null(mf)) {
     dd <- mf$descendientes
-    desc_nv <- Filter(function(d) (d$rentas_propias %||% 0) <= (mf$limite_rentas_familiar %||% 8000),
+    # solteros menores de 30 años (o con discapacidad, a cualquier edad) y rentas <= IPREM
+    desc_nv <- Filter(function(d) (d$rentas_propias %||% 0) <= (mf$limite_rentas_familiar %||% 8000) &&
+                        ((d$edad %||% 0) < (mf$edad_maxima_descendiente %||% 30) || !identical(d$discapacidad %||% "no", "no")),
                       descendientes(hogar))
+    # incremento del ordinal 1.º por rentas del sujeto pasivo (art. 62.9.b.b´.2.º): no se prorratea
+    rentas_inc <- if (modo == "conjunta" || !length(contribs_nv)) rentas$base_imponible_general + rentas$base_imponible_ahorro
+                  else rentas_sp(contribs_nv[[1]])
+    pct_inc <- incremento_descendientes_navarra(rentas_inc, mf$incremento_rentas_descendientes)
     for (i in seq_along(desc_nv)) {
       d <- desc_nv[[i]]
       key <- if (i <= 5) as.character(i) else "6+"
       imp <- dd$importes[[key]] %||% dd$importes[["6+"]] %||% 0
       if ((d$edad %||% 99) < 3) imp <- imp + (dd$incremento_menor_3_anios %||% 0)
-      if (identical(d$discapacidad, "33_64")) imp <- imp + (dd$incremento_discapacidad_33_64 %||% 0)
-      if (identical(d$discapacidad, "65_mas")) imp <- imp + (dd$incremento_discapacidad_65_mas %||% 0)
-      ded_fam <- ded_fam + imp * prorr_nv
+      disc <- 0
+      if (identical(d$discapacidad, "33_64")) disc <- dd$incremento_discapacidad_33_64 %||% 0
+      if (identical(d$discapacidad, "65_mas")) disc <- dd$incremento_discapacidad_65_mas %||% 0
+      ded_fam <- ded_fam + imp * prorr_nv * (1 + pct_inc / 100) + disc * prorr_nv
     }
     aa <- mf$ascendientes
     asc_nv <- Filter(function(a) (a$rentas_propias %||% 0) <= (mf$limite_rentas_familiar %||% 8000) &&
@@ -315,4 +323,13 @@ liquidar_navarra_scope <- function(hogar, P, modo, declarante_id = NULL) {
     cuota_diferencial = red2(cuota_diferencial),
     tipo_medio_efectivo = round(tme, 4)
   )
+}
+
+# Porcentaje de incremento del mínimo por descendientes de Navarra según las rentas del sujeto
+# pasivo (art. 62.9.b.b´.2.º): 40 % hasta 20.000 €; entre 20.000 y 30.000 €, 40 − 50 × exceso /
+# 20.000 (redondeado a dos decimales); nada por encima de 30.000 €.
+incremento_descendientes_navarra <- function(rentas, cfg) {
+  if (is.null(cfg) || rentas > cfg$umbral_final) return(0)
+  if (rentas <= cfg$umbral_pleno) return(cfg$porcentaje_maximo)
+  red2(cfg$porcentaje_maximo - cfg$coeficiente * (rentas - cfg$umbral_pleno) / cfg$umbral_pleno)
 }
