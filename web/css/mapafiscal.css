@@ -202,6 +202,9 @@ details.mas:not([open]) summary { margin-bottom: 0; }
 .res-obligacion { font-size: 13px; color: var(--tinta-2); margin: 12px 0 0; line-height: 1.45; }
 .res-obligacion:empty { display: none; }
 .res-obligacion b { color: var(--tinta); }
+.res-pista { font-size: 13px; color: var(--tinta-2); margin: 8px 0 0; line-height: 1.45; }
+.res-pista[hidden] { display: none; }
+.res-pie { font-size: 13px; margin: 12px 2px 0; }
 .kpis { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 1px; background: var(--linea);
   border: 1px solid var(--linea); border-radius: 8px; overflow: hidden; margin: 18px 0; }
 .kpis > div { background: var(--superficie); padding: 10px 12px; }
@@ -384,7 +387,7 @@ details.mas:not([open]) summary { margin-bottom: 0; }
 
 /* ---- impresión: informe de cliente --------------------------------------------- */
 @media print {
-  .appbar, .pie, .formulario, .acciones-res, .cabecera-acciones, #res-avisos, .nav { display: none !important; }
+  .appbar, .pie, .formulario, .acciones-res, .cabecera-acciones, .res-pie, .res-pista, .nav { display: none !important; }
   body { background: #fff; }
   .calc { display: block; }
   .tarjeta { box-shadow: none; break-inside: avoid; }

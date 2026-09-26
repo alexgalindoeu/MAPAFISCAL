@@ -300,14 +300,13 @@
     const fuente = reg === "foral_navarra" ? P.navarra : reg === "foral_pais_vasco" ? P.foral_pv : P.estatal;
     return (BLOQUE_DED[id] && fuente && fuente[BLOQUE_DED[id]]) || null;
   }
-  const etqProvisional = '<span class="etq etq-prov" title="Importe o requisitos pendientes de cotejo con la norma">provisional</span>';
   const nombreDed = id => NOMBRES_DED[id] || id.replace(/([A-Z])/g, " $1").replace(/_/g, " ").trim().toLowerCase().replace(/^./, c => c.toUpperCase());
 
   // ¿hay que presentar la declaración? (art. 96 LIRPF, calculado por el motor)
   function pintarObligacion(liq, reg) {
     const ob = liq.obligacionDeclarar, o = P.estatal.obligacion_declarar;
     if (!ob || ob.obligado === null) {
-      $("res-obligacion").textContent = reg === "comun" ? "" : "Obligación de declarar: los territorios forales tienen su propia regulación, que esta herramienta no evalúa.";
+      $("res-obligacion").textContent = "";
       return;
     }
     const quien = id => id === "d1" ? "tú" : "tu pareja";
@@ -419,14 +418,12 @@
     const detImp = (liq.deduccionesCuotaDiferencial && liq.deduccionesCuotaDiferencial.detalle) || {};
     const items = Object.entries(det).filter(([, v]) => v > 0).map(([id, v]) => {
       const inf = comun ? infoDeduccion(terr, id) : bloqueDed(reg, id);
-      const prov = inf && inf.estado === "provisional" ? etqProvisional : "";
       const norma = inf && inf.norma ? inf.norma : (comun ? "" : (reg === "foral_navarra" ? "Texto Refundido del IRPF de Navarra" : "Normativa foral del Territorio Histórico"));
-      return `<li><span class="ded-nombre">${esc(nombreDed(id))}${prov}</span><span class="ded-norma">${esc(norma)}</span><span class="ded-imp">−${eur(v)}</span></li>`;
+      return `<li><span class="ded-nombre">${esc(nombreDed(id))}</span><span class="ded-norma">${esc(norma)}</span><span class="ded-imp">−${eur(v)}</span></li>`;
     }).concat(Object.entries(detImp).filter(([, v]) => v > 0).map(([id, v]) => {
       const inf = bloqueDed(reg, id);
-      const prov = inf && inf.estado === "provisional" ? etqProvisional : "";
       const norma = (inf && inf.norma ? inf.norma : "Arts. 81 y 81 bis LIRPF") + " · se resta de la cuota diferencial";
-      return `<li><span class="ded-nombre">${esc(nombreDed(id))}${prov}</span><span class="ded-norma">${esc(norma)}</span><span class="ded-imp">−${eur(v)}</span></li>`;
+      return `<li><span class="ded-nombre">${esc(nombreDed(id))}</span><span class="ded-norma">${esc(norma)}</span><span class="ded-imp">−${eur(v)}</span></li>`;
     }));
     const detEst = (liq.deduccionesEstatales && liq.deduccionesEstatales.detalle) || {};
     for (const [id, v] of Object.entries(detEst).filter(([, v]) => v > 0)) {
@@ -435,7 +432,7 @@
     }
     if (drt) {
       const inf = P.estatal.deduccion_obtencion_rendimientos_trabajo;
-      items.push(`<li><span class="ded-nombre">Deducción por obtención de rendimientos del trabajo${inf.estado === "provisional" ? etqProvisional : ""}</span><span class="ded-norma">${esc(inf.norma)} · se resta de la cuota líquida total</span><span class="ded-imp">−${eur(drt)}</span></li>`);
+      items.push(`<li><span class="ded-nombre">Deducción por obtención de rendimientos del trabajo</span><span class="ded-norma">${esc(inf.norma)} · se resta de la cuota líquida total</span><span class="ded-imp">−${eur(drt)}</span></li>`);
     }
     $("res-deducciones").innerHTML = items.length ? items.join("")
       : `<li class="vacio">Con estos datos no se aplica ninguna deducción. Revisa los gastos del paso 4: dependen de tu territorio.</li>`;
@@ -452,20 +449,13 @@
     if (ahorroModo >= 1) $("res-palancas").insertAdjacentHTML("afterbegin",
       `<li><div class="pal-cab"><span class="pal-tit">Ya aplicada: declaración ${liq.modoTributacionElegido}</span><span class="pal-imp">−${eur0(ahorroModo)}/año</span></div><div class="pal-det">Frente a la declaración ${liq.modoTributacionElegido === "conjunta" ? "individual" : "conjunta"}.</div></li>`);
 
-    // avisos
-    const av = [];
-    const da = T[terr].deducciones_autonomicas;
-    if (comun && da && da.lista) {
-      const pend = (da.pendientes || []).filter(p => typeof p === "string" && p[0] !== "(").length;
-      av.push(`${esc(T[terr].nombre)}: ${da.lista.length} deducciones autonómicas modeladas${pend ? `; ${pend} del catálogo oficial aún no (inversión y donativos, entre otras)` : ""}.`);
-    }
-    if (reg === "foral_pais_vasco") av.push("País Vasco: deducciones familiares y de vivienda con los importes de 2025; algunos de Bizkaia y Álava están pendientes de cotejo.");
-    if (reg === "foral_navarra") av.push("Navarra: incluye alquiler, emancipación y pensiones de jubilación bajas; faltan las deducciones por adquisición de vivienda y por familia numerosa, así que la cuota puede estar algo sobreestimada.");
-    if (reglasMunicipio(terr).hay && hogar.municipioHabitantes == null && !hogar.zonaDespoblada)
-      av.push(`No has indicado tu municipio: las deducciones de ${esc(corto(terr))} para municipios pequeños o zonas en riesgo de despoblación no se aplican.`);
-    if (num("f-actividad") > 0) av.push("La actividad económica se calcula en estimación directa simplificada; los módulos no están modelados.");
-    if (hijos.some(h => h.edad === 0)) av.push("Los hijos de 0 años se tratan como nacidos en 2025.");
-    $("res-avisos").innerHTML = `<summary>Qué no recoge este cálculo (${av.length})</summary><ul>${av.map(a => `<li>${a}</li>`).join("")}</ul>`;
+    // pista que pide un dato: el municipio cambia el resultado en este territorio
+    const rm = reglasMunicipio(terr);
+    const que = [rm.tramos.length ? "municipios pequeños" : "", rm.despoblada ? "zonas en riesgo de despoblación" : ""].filter(Boolean).join(" y ");
+    const pista = rm.hay && hogar.municipioHabitantes == null && !hogar.zonaDespoblada
+      ? `Indica tu municipio (paso 1): ${corto(terr)} tiene deducciones para ${que}.` : "";
+    $("res-pista").textContent = pista;
+    $("res-pista").hidden = !pista;
 
     if (vistaActual() === "comparar") pintarComparacion();
   }
@@ -533,7 +523,7 @@
     const notaMunicipio = hg.municipioHabitantes != null || hg.zonaDespoblada
       ? ` Se supone un municipio ${hg.municipioHabitantes != null ? `de ${miles(String(hg.municipioHabitantes))} habitantes` : "del mismo tipo"} en cada territorio${hg.zonaDespoblada ? ", incluido en su lista oficial de despoblación" : ""}.`
       : "";
-    $("comp-nota").textContent = "Misma situación personal y económica en cada territorio, con su escala, mínimos y las deducciones modeladas." + notaMunicipio + " Cambiar de residencia fiscal exige vivir allí más de 183 días al año y tener allí el centro de intereses.";
+    $("comp-nota").textContent = "Misma situación personal y económica en cada territorio, con su escala, sus mínimos y sus deducciones." + notaMunicipio + " Cambiar de residencia fiscal exige vivir allí más de 183 días al año y tener allí el centro de intereses.";
   }
 
   // tooltip y clic en el mapa / ranking
