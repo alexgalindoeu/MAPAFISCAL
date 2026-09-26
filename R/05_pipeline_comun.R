@@ -184,6 +184,9 @@ liquidar_comun_scope <- function(hogar, P, modo, declarante_id = NULL) {
 
   mpf <- minimo_personal_familiar(hogar, P, modo, declarante_id)
   minimo <- mpf$total
+  # mínimo para el gravamen autonómico (importes propios de la CCAA, si los tiene)
+  mpf_aut <- minimo_personal_familiar(hogar, P, modo, declarante_id, autonomico = TRUE)
+  minimo_aut <- mpf_aut$total
 
   esc_g_est <- P$jurisdiccion$escala_general_estatal
   esc_g_aut <- P$jurisdiccion$escala_general_autonomica
@@ -193,6 +196,8 @@ liquidar_comun_scope <- function(hogar, P, modo, declarante_id = NULL) {
   # Mínimo: primero contra la base general; remanente contra la del ahorro
   min_en_general <- min(minimo, blg)
   min_en_ahorro  <- max(0, minimo - blg)
+  min_aut_en_general <- min(minimo_aut, blg)
+  min_aut_en_ahorro  <- max(0, minimo_aut - blg)
 
   # --- Anualidades por alimentos a hijos (arts. 64/75): escala separada ---
   anual <- rentas$anualidades_alimentos
@@ -201,15 +206,15 @@ liquidar_comun_scope <- function(hogar, P, modo, declarante_id = NULL) {
     cig_est <- aplicar_escala(anual, esc_g_est) + aplicar_escala(max(0, blg - anual), esc_g_est) -
       aplicar_escala(min(minimo + inc, blg), esc_g_est)
     cig_aut <- aplicar_escala(anual, esc_g_aut) + aplicar_escala(max(0, blg - anual), esc_g_aut) -
-      aplicar_escala(min(minimo + inc, blg), esc_g_aut)
+      aplicar_escala(min(minimo_aut + inc, blg), esc_g_aut)
     cig_est <- max(0, cig_est); cig_aut <- max(0, cig_aut)
   } else {
     cig_est <- gravar_con_minimo(blg, min_en_general, esc_g_est)
-    cig_aut <- gravar_con_minimo(blg, min_en_general, esc_g_aut)
+    cig_aut <- gravar_con_minimo(blg, min_aut_en_general, esc_g_aut)
   }
 
   cia_est <- gravar_con_minimo(bla, min_en_ahorro, esc_a_est)
-  cia_aut <- gravar_con_minimo(bla, min_en_ahorro, esc_a_aut)
+  cia_aut <- gravar_con_minimo(bla, min_aut_en_ahorro, esc_a_aut)
 
   cuota_integra_estatal    <- cig_est + cia_est
   cuota_integra_autonomica <- cig_aut + cia_aut
@@ -259,6 +264,7 @@ liquidar_comun_scope <- function(hogar, P, modo, declarante_id = NULL) {
     base_liquidable_general = blg,
     base_liquidable_ahorro = bla,
     minimo_personal_familiar = mpf,
+    minimo_personal_familiar_autonomico = mpf_aut,
     cuota_integra_estatal = red2(cuota_integra_estatal),
     cuota_integra_autonomica = red2(cuota_integra_autonomica),
     cuota_integra_total = red2(cuota_integra_estatal + cuota_integra_autonomica),

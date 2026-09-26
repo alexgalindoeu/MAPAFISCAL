@@ -330,11 +330,30 @@ local({
     liq = liquidar(h))
 })
 
+# 10. mínimos autonómicos (issue #18)
+add("minaut_ib_70", "ES-IB", "ninguna", "no",
+    list(persona("d1","declarante",70, trabajo=list(dinerarias=24000, cotizaciones_ss=0))),
+    list(list(id="d1",rol="declarante",edad=70, trabajo=list(dinerarias=24000,cotizacionesSs=0))))
+add("minaut_ri_hijo_disc", "ES-RI", "monoparental", "no",
+    list(persona("d1","declarante",40, trabajo=list(dinerarias=30000, cotizaciones_ss=1905)),
+         persona("h1","descendiente",10, discapacidad="65_mas")),
+    list(list(id="d1",rol="declarante",edad=40, trabajo=list(dinerarias=30000,cotizacionesSs=1905)),
+         list(id="h1",rol="descendiente",edad=10, discapacidad="65_mas")))
+add("minaut_md_ahorro", "ES-MD", "ninguna", "no",
+    list(persona("d1","declarante",40, capital_mobiliario=list(intereses=10000))),
+    list(list(id="d1",rol="declarante",edad=40, capitalMobiliario=list(intereses=10000))))
+add("minaut_an_pareja", "ES-AN", "biparental", "no",
+    list(persona("d1","declarante",68, trabajo=list(dinerarias=28000, cotizaciones_ss=0)),
+         persona("d2","conyuge",77), persona("a1","ascendiente",90)),
+    list(list(id="d1",rol="declarante",edad=68, trabajo=list(dinerarias=28000,cotizacionesSs=0)),
+         list(id="d2",rol="conyuge",edad=77), list(id="a1",rol="ascendiente",edad=90)))
+
 out <- lapply(casos, function(c) list(
   js = c$js,
   ref = list(
     blg = c$liq$base_liquidable_general, bla = c$liq$base_liquidable_ahorro,
     minimo = c$liq$minimo_personal_familiar$total %||% 0,
+    minimo_aut = c$liq$minimo_personal_familiar_autonomico$total %||% 0,
     ci_est = c$liq$cuota_integra_estatal, ci_aut = c$liq$cuota_integra_autonomica,
     cl = c$liq$cuota_liquida_total, cr = c$liq$cuota_resultante_autoliquidacion,
     cd = c$liq$cuota_diferencial,

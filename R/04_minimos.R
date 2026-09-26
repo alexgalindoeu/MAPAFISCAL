@@ -5,15 +5,23 @@
 # base y a la parte de la base correspondiente al mínimo, y se restan las cuotas.
 # =============================================================================
 
-minimo_personal_familiar <- function(hogar, P, modo = "individual", declarante_id = NULL) {
+# autonomico = TRUE: importes del mínimo para el gravamen autonómico. Las CCAA que los
+# han modificado (art. 46.1.a Ley 22/2009) los traen en `minimo_autonomico`, solo con lo
+# que cambia; el resto (límites de rentas, edades, prorrateo) es el estatal.
+minimo_personal_familiar <- function(hogar, P, modo = "individual", declarante_id = NULL,
+                                     autonomico = FALSE) {
   e <- P$estatal
+  ov <- if (autonomico) P$jurisdiccion$minimo_autonomico else NULL
   # Prorrateo del mínimo por descendientes/ascendientes: si en tributación
   # individual hay dos declarantes con derecho, se divide entre 2 (art. 61.1ª LIRPF).
   prorrateo <- if (modo == "individual" && length(declarantes(hogar)) > 1) 0.5 else 1
-  mc <- e$minimo_contribuyente
-  md <- e$minimo_descendientes
-  ma <- e$minimo_ascendientes
-  mdi <- e$minimo_discapacidad
+  mc <- modifyList(e$minimo_contribuyente, ov[["minimo_contribuyente"]] %||% list())
+  md <- modifyList(e$minimo_descendientes, ov[["minimo_descendientes"]] %||% list())
+  ma <- modifyList(e$minimo_ascendientes, ov[["minimo_ascendientes"]] %||% list())
+  mdi <- modifyList(e$minimo_discapacidad, ov[["minimo_discapacidad"]] %||% list())
+  mdi_desc <- modifyList(mdi, ov[["minimo_discapacidad_descendientes"]] %||% list())
+  # mínimo general: algunas CCAA fijan otro importe para mayores de 65 años (Illes Balears)
+  general_de <- function(c) if (c$edad > 65 && !is.null(mc[["general_mayor_65"]])) mc[["general_mayor_65"]] else mc$general
 
   # Contribuyente(s) en el ámbito
   contribs <- if (modo == "conjunta") declarantes(hogar)
@@ -22,13 +30,13 @@ minimo_personal_familiar <- function(hogar, P, modo = "individual", declarante_i
   min_contrib <- 0
   min_disc_contrib <- 0
   for (c in contribs) {
-    m <- mc$general
+    m <- general_de(c)
     if (c$edad > 65) m <- m + mc$incremento_mayor_65
     if (c$edad > 75) m <- m + mc$incremento_mayor_75
     # En conjunta el mínimo del contribuyente es 5.550 por la unidad (no por persona),
     # salvo los incrementos por edad de cada uno.
     if (modo == "conjunta") {
-      if (identical(c, contribs[[1]])) min_contrib <- min_contrib + mc$general
+      if (identical(c, contribs[[1]])) min_contrib <- min_contrib + general_de(c)
       if (c$edad > 65) min_contrib <- min_contrib + mc$incremento_mayor_65
       if (c$edad > 75) min_contrib <- min_contrib + mc$incremento_mayor_75
     } else {
@@ -57,7 +65,7 @@ minimo_personal_familiar <- function(hogar, P, modo = "individual", declarante_i
       if (d$edad < 3) imp <- imp + md$incremento_menor_3_anios
       factor <- if ((d$convivencia_meses %||% 12) >= 6) 1 else 0.5
       min_desc <- min_desc + imp * factor * prorrateo
-      min_disc_desc <- min_disc_desc + minimo_discapacidad_persona(d, mdi) * prorrateo
+      min_disc_desc <- min_disc_desc + minimo_discapacidad_persona(d, mdi_desc) * prorrateo
     }
   }
 

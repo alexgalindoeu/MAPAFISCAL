@@ -56,7 +56,7 @@ const hogar = {
   miembros: [{ id: "d1", rol: "declarante", edad: 40, trabajo: { dinerarias: 30000, cotizacionesSs: 1905 } }]
 };
 
-irpfsim.liquidar(hogar, P).cuotaLiquidaTotal;   // 4645.09
+irpfsim.liquidar(hogar, P).cuotaLiquidaTotal;   // 4610.53
 irpfsim.compararTerritorios(hogar, P);          // los 19 territorios, de menor a mayor cuota
 irpfsim.optimizar(hogar, P).recomendaciones;    // modalidad de declaración, plan de pensiones, traslado, deducciones
 ```
@@ -80,7 +80,6 @@ El detalle por territorio está en [`docs/02_cobertura.md`](docs/02_cobertura.md
 
 - Ceuta y Melilla.
 - La estimación objetiva (módulos) de actividades económicas.
-- Los mínimos personales y familiares propios que han aprobado 10 comunidades para el tramo autonómico: se aplica el estatal, así que en ellas la cuota autonómica puede salir algo más alta.
 - Las deducciones autonómicas de inversión y donativos, y las que fijan el límite por tramos de base (libros de texto).
 - En Navarra, las deducciones por adquisición de vivienda y por familia numerosa.
 

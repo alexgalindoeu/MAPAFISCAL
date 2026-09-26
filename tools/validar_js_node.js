@@ -20,6 +20,7 @@ for (const [id, c] of Object.entries(CASOS)) {
     ["blg", liq.baseLiquidableGeneral, c.ref.blg],
     ["bla", liq.baseLiquidableAhorro, c.ref.bla],
     ["min", liq.minimoPersonalFamiliar.total, c.ref.minimo],
+    ["minAut", liq.minimoPersonalFamiliarAutonomico ? liq.minimoPersonalFamiliarAutonomico.total : 0, c.ref.minimo_aut],
     ["ciEst", liq.cuotaIntegraEstatal, c.ref.ci_est],
     ["ciAut", liq.cuotaIntegraAutonomica, c.ref.ci_aut],
     ["cl", liq.cuotaLiquidaTotal, c.ref.cl],
