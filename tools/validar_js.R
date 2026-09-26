@@ -194,6 +194,35 @@ add("an_ascendiente", "ES-AN", "monoparental", "no",
          list(id="h1",rol="descendiente",edad=10, gastosIdiomasInformatica=1500),
          list(id="a1",rol="ascendiente",edad=80, rentasPropias=0)))
 
+# 5n0b. Andalucía (cotejo #16) — el incremento por ascendiente solo cuenta al de > 75 con
+# derecho al mínimo (no al de 70 con discapacidad ni al de 81 con 9.000 € de rentas) +
+# ayuda doméstica, supuesto a) (hijo y rendimientos del trabajo)
+add("an_asc_minimo", "ES-AN", "monoparental", "no",
+    list({d <- persona("d1","declarante",46, trabajo=list(dinerarias=34000, cotizaciones_ss=2159));
+          d$cuotas_ss_empleada_hogar <- 1800; d},
+         persona("h1","descendiente",12),
+         persona("a1","ascendiente",78),
+         persona("a2","ascendiente",70, discapacidad="65_mas"),
+         persona("a3","ascendiente",81, rentas_propias=9000)),
+    list(list(id="d1",rol="declarante",edad=46, trabajo=list(dinerarias=34000,cotizacionesSs=2159),
+              cuotasSsEmpleadaHogar=1800),
+         list(id="h1",rol="descendiente",edad=12),
+         list(id="a1",rol="ascendiente",edad=78, rentasPropias=0),
+         list(id="a2",rol="ascendiente",edad=70, discapacidad="65_mas", rentasPropias=0),
+         list(id="a3",rol="ascendiente",edad=81, rentasPropias=9000)))
+
+# 5n0c. Andalucía (cotejo #16) — ayuda doméstica, supuesto b): titular de 77 años; el
+# cónyuge no trabaja, así que el supuesto a) no se cumple
+add("an_ayuda_75", "ES-AN", "biparental", "no",
+    list({d <- persona("d1","declarante",77, capital_mobiliario=list(intereses=18000));
+          d$cuotas_ss_empleada_hogar <- 2000; d},
+         persona("d2","conyuge",72, capital_mobiliario=list(intereses=6000)),
+         persona("h1","descendiente",20)),
+    list(list(id="d1",rol="declarante",edad=77, capitalMobiliario=list(intereses=18000),
+              cuotasSsEmpleadaHogar=2000),
+         list(id="d2",rol="conyuge",edad=72, capitalMobiliario=list(intereses=6000)),
+         list(id="h1",rol="descendiente",edad=20)))
+
 # 5n. Madrid — familia numerosa especial (% cuota autonómica) + cuidado de ascendiente
 add("md_fn_asc", "ES-MD", "biparental", "especial",
     list(persona("d1","declarante",44, trabajo=list(dinerarias=48000, cotizaciones_ss=3048)),
