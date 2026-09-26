@@ -1026,6 +1026,18 @@ incrementos por edad sumados).
   con 30.001 €: 483 €.
 - Hijo de 30 años sin discapacidad: no da derecho; de 35 con discapacidad del 33 %: 483 + 674.
 
-🟡 Provisional: el importe del IPREM como límite de rentas del familiar (se usa 8.400 €, el
-anual de 14 pagas de 600 €; puede ser 7.200 €) y, en tributación conjunta, qué rentas fijan
-el incremento del 40 % (el motor usa la base imponible de la unidad).
+**Cotejo con el manual de Hacienda Foral** (*Manual teórico Renta y Patrimonio 2025*,
+actualizado a 02-02-2026), 2026-09-26:
+
+- **IPREM 2025: 8.400 €** («se mantiene el importe del IPREM en 8.400 euros por prórroga de
+  los Presupuestos Generales del Estado para 2023»).
+- **Ejemplo 4 del manual**: Paco (16.000 €) y Teresa (27.000 €), hijos de 2, 5 y 7 años,
+  declaraciones individuales. Cada uno aplica la mitad, 241,50 + 256 + (732 + 644) / 2 =
+  1.185,50 €, con su propio incremento: Paco × 1,40 = **1.659,70 €**; Teresa × 1,225 (22,5 % =
+  40 − 50 × 7.000 / 20.000) = **1.452,24 €**. El motor da las dos cifras. En tributación conjunta
+  (el manual no lo ejemplifica) suma la parte de cada sujeto pasivo con su propio incremento
+  (🟡); antes usaba la base de toda la unidad.
+- **Monoparental en conjunta** (art. 75.4.ª): el mínimo personal sube **668 €** (1.752 € con
+  carácter general, más los 150 € si las rentas no superan 30.000 €).
+- Tabla del mínimo personal del manual: 1.084 / 1.348 (65) / 1.669 (75) / 1.850 y 3.841
+  (discapacidad) / 2.114, 2.435, 4.105, 4.426 (combinaciones): coincide con el motor.
