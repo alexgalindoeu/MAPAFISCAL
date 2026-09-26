@@ -93,11 +93,15 @@ territorios:
           tipo: fija
           importe: 200
           requiere_familia_numerosa: true
+          base_max_individual: 25000   # art. 14.3 (suma de bases imponibles general y del ahorro)
+          base_max_conjunta: 30000
         - id: familia_numerosa_especial
           norma: "Art. 14 Ley 5/2021"
           tipo: fija
           importe: 200          # 400 total en especial; 200 adicional sobre la general
           requiere_familia_numerosa: especial
+          base_max_individual: 25000   # art. 14.3
+          base_max_conjunta: 30000
         - id: familia_monoparental
           norma: "Art. 13 Ley 5/2021"
           tipo: fija
@@ -106,11 +110,14 @@ territorios:
           base_max_individual: 80000
           base_max_conjunta: 100000
         - id: familia_monoparental_ascendientes_75
-          norma: "Art. 13 Ley 5/2021 (incremento)"
-          estado: provisional   # el tipo fija_por_ascendiente cuenta también ascendientes con discapacidad; aquí el incremento es solo por edad > 75
+          norma: "Art. 13.2 y 13.3 Ley 5/2021 (incremento)"
+          estado: confirmado
+          fuente: "Art. 13 Ley 5/2021, redacción vigente en 2025 (BOE-A-2021-17915); AEAT Manual Práctico Renta 2025, Parte 2, Andalucía, «Para el padre o madre de familia monoparental y, en su caso, con ascendientes mayores de 75 años» (https://sede.agenciatributaria.gob.es/Sede/ayuda/manuales-videos-folletos/manuales-practicos/irpf-2025-deducciones-autonomicas/comunidad-autonoma-andalucia/padre-madre-familia-monoparental-ascendientes-anos.html)"
           tipo: fija_por_ascendiente
-          importe: 100           # 100 € adicionales por ascendiente > 75 que conviva con la familia monoparental
-          edad_ascendiente_min: 75
+          importe: 100           # por ascendiente que conviva con la familia monoparental y genere el mínimo por ascendientes mayores de 75 años
+          edad_ascendiente_min: 76   # «edad superior a 75 años» (AEAT, mínimo por ascendientes; el motor lo aplica con edad > 75)
+          ascendiente_discapacidad: false   # la discapacidad del ascendiente no da derecho al incremento
+          requiere_minimo_ascendiente: true
           requiere_monoparental: true
           base_max_individual: 80000
           base_max_conjunta: 100000
@@ -129,21 +136,37 @@ territorios:
           limite: 150            # por descendiente
           base_max_individual: 80000
           base_max_conjunta: 100000
+        # Ayuda doméstica (art. 19.1): dos supuestos alternativos, mismo importe -> variantes
+        # excluyentes del grupo `ayuda_domestica`. Sin límite de base.
         - id: ayuda_domestica
-          norma: "Art. 19 Ley 5/2021"
-          estado: provisional   # requiere que ambos cónyuges perciban rendimientos del trabajo/actividad (no modelado)
+          norma: "Art. 19.1.a) Ley 5/2021"
+          estado: confirmado
+          fuente: "Art. 19 Ley 5/2021, redacción de la Ley 1/2022 (BOE-A-2023-1604), vigente en 2025; AEAT Manual Práctico Renta 2025, Parte 2, Andalucía, «Por ayuda doméstica» (https://sede.agenciatributaria.gob.es/Sede/ayuda/manuales-videos-folletos/manuales-practicos/irpf-2025-deducciones-autonomicas/comunidad-autonoma-andalucia/ayuda-domestica.html)"
           tipo: porcentaje_campo
           campo: cuotas_ss_empleada_hogar
           porcentaje: 0.20
           limite: 500
-          descendientes_min: 1
+          grupo: ayuda_domestica
+          descendientes_min: 1                 # hijos que dan derecho al mínimo por descendientes
+          requiere_progenitores_trabajan: true # con cónyuge o pareja, los dos con rendimientos del trabajo o de actividades
+        - id: ayuda_domestica_mayores_75
+          norma: "Art. 19.1.b) Ley 5/2021"
+          estado: confirmado
+          fuente: "Art. 19 Ley 5/2021, redacción de la Ley 1/2022 (BOE-A-2023-1604), vigente en 2025; AEAT Manual Práctico Renta 2025, Parte 2, Andalucía, «Por ayuda doméstica» (https://sede.agenciatributaria.gob.es/Sede/ayuda/manuales-videos-folletos/manuales-practicos/irpf-2025-deducciones-autonomicas/comunidad-autonoma-andalucia/ayuda-domestica.html)"
+          tipo: porcentaje_campo
+          campo: cuotas_ss_empleada_hogar
+          porcentaje: 0.20
+          limite: 500
+          grupo: ayuda_domestica
+          edad_min: 75   # titular del hogar o su cónyuge/pareja con 75 años o más; en individual el motor solo mira la edad del declarante liquidado
         - id: ejercicio_fisico_deporte
           norma: "Art. 22 bis Ley 5/2021"
-          estado: provisional   # límite de base del art. 60 sin cotejar; aquí sin puerta de renta
+          estado: confirmado
+          fuente: "Art. 22 bis Ley 5/2021, añadido por la DF 9.ª.3 de la Ley 8/2025 con efectos desde el 1-1-2025 (DF 18.ª.b; BOE-A-2026-945); art. 60 (obligaciones formales, sin límite de renta); AEAT Manual Práctico Renta 2025, Parte 2, Andalucía, «Para fomentar el ejercicio físico y la práctica deportiva» (https://sede.agenciatributaria.gob.es/Sede/ayuda/manuales-videos-folletos/manuales-practicos/irpf-2025-deducciones-autonomicas/comunidad-autonoma-andalucia/fomentar-ejercicio-fisico-practica-deportiva.html)"
           tipo: porcentaje_campo
           campo: gastos_deporte
           porcentaje: 0.15
-          limite: 100            # por contribuyente
+          limite: 100            # por contribuyente; sin límite de base (el art. 60 solo regula la justificación)
       pendientes:
         - inversion_vivienda_protegida_jovenes
         - adopcion_internacional

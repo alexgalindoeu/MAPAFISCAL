@@ -409,8 +409,19 @@
                                     (d.edad_hijo_max == null || num(h.edad, 99) <= d.edad_hijo_max));
         val = hh.length * num(d.importe);
       } else if (d.tipo === "fija_por_ascendiente") {
-        const cuenta = asc.filter(a => num(a.edad, 0) >= num(d.edad_ascendiente_min, 65) ||
-                                       (a.discapacidad && a.discapacidad !== "no")).length;
+        // por edad o por discapacidad (ascendiente_discapacidad: omitido = cualquier grado,
+        // false = no cuenta, "65_mas" = solo ese grado); requiere_minimo_ascendiente: mismo
+        // filtro que el mínimo por ascendientes
+        const ma = P.estatal.minimo_ascendientes, ad = d.ascendiente_discapacidad;
+        const cand = d.requiere_minimo_ascendiente
+          ? asc.filter(a => num(a.rentasPropias) <= ma.limite_rentas_ascendiente && (a.edad >= ma.edad_minima || (a.discapacidad && a.discapacidad !== "no")) && num(a.convivenciaMeses, 12) >= 6)
+          : asc;
+        const cuenta = cand.filter(a => {
+          const disc = a.discapacidad || "no";
+          const porDisc = disc !== "no" && ad !== false && (ad == null || disc === ad) &&
+            num(a.edad, 0) >= num(d.edad_ascendiente_min_discapacidad, 0);
+          return num(a.edad, 0) >= num(d.edad_ascendiente_min, 65) || porDisc;
+        }).length;
         val = cuenta * num(d.importe);
       }
       if (!taperEnLimite) val *= ft;

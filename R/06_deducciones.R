@@ -64,6 +64,8 @@ deducciones_estatales <- function(hogar, P, rentas, base_liquidable_total, perso
 #     taper_individual / taper_conjunta: [desde, hasta] -> reducción lineal del importe
 #       (o del `limite` en las porcentuales) cuando la base está entre ambos umbrales
 #     grupo: variantes excluyentes de una misma deducción; solo se aplica la mayor
+#   fija_por_ascendiente: edad_ascendiente_min, ascendiente_discapacidad (false/"65_mas"),
+#     edad_ascendiente_min_discapacidad, requiere_minimo_ascendiente (ver el bloque del tipo)
 deducciones_autonomicas <- function(hogar, P, rentas, modo = "individual", base_total = 0,
                                     cuota_integra_autonomica = NA_real_, minimo = 0,
                                     declarante_id = NULL) {
@@ -258,10 +260,26 @@ deducciones_autonomicas <- function(hogar, P, rentas, modo = "individual", base_
       val <- length(hh) * (g(d,"importe") %||% 0)
 
     } else if (identical(tipo, "fija_por_ascendiente")) {
+      # cuenta el ascendiente por edad (`edad_ascendiente_min`) o por discapacidad;
+      # `ascendiente_discapacidad`: omitido -> cualquier grado y edad; false -> no cuenta;
+      # "65_mas" -> solo ese grado. `edad_ascendiente_min_discapacidad`: edad mínima de la
+      # vía por discapacidad. `requiere_minimo_ascendiente`: solo los ascendientes que generan
+      # el mínimo por ascendientes (mismo filtro que minimo_personal_familiar(), R/04_minimos.R).
+      ma <- P$estatal$minimo_ascendientes
+      ad <- g(d, "ascendiente_discapacidad")
       asc <- ascendientes(hogar)
-      cuenta <- sum(vapply(asc, function(a)
-        (a$edad %||% 0) >= (g(d,"edad_ascendiente_min") %||% 65) ||
-        !identical(a$discapacidad %||% "no", "no"), logical(1)))
+      if (isTRUE(g(d, "requiere_minimo_ascendiente")))
+        asc <- Filter(function(a) {
+          (a$rentas_propias %||% 0) <= ma$limite_rentas_ascendiente &&
+            (a$edad >= ma$edad_minima || a$discapacidad != "no") &&
+            (a$convivencia_meses %||% 12) >= 6
+        }, asc)
+      cuenta <- sum(vapply(asc, function(a) {
+        disc <- a$discapacidad %||% "no"
+        por_disc <- !identical(disc, "no") && !isFALSE(ad) && (is.null(ad) || identical(disc, ad)) &&
+          (a$edad %||% 0) >= (g(d, "edad_ascendiente_min_discapacidad") %||% 0)
+        (a$edad %||% 0) >= (g(d,"edad_ascendiente_min") %||% 65) || por_disc
+      }, logical(1)))
       val <- cuenta * (g(d,"importe") %||% 0)
     }
 
