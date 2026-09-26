@@ -261,8 +261,15 @@ integracion_compensacion:
 # 9. REDUCCIONES DE LA BASE IMPONIBLE GENERAL (arts. 51–55, 84 LIRPF)
 # -----------------------------------------------------------------------------
 reduccion_prevision_social:
-  norma: "Arts. 51–52 LIRPF; DA 16ª"
-  estado: provisional
+  norma: "Arts. 51.6 y 52.1 LIRPF; DA 16.ª LIRPF"
+  fuente: "AEAT Manual Práctico Renta 2025, Reducciones por aportaciones a sistemas de previsión social → 6.2 Límites y exceso de aportaciones"
+  # Por partícipe (también en conjunta): aportaciones + contribuciones empresariales hasta el
+  # menor de (a) el 30 % de sus rendimientos netos del trabajo (art. 19, antes de la reducción
+  # del art. 20) y de actividades, y (b) 1.500 € más hasta 8.500 € por contribuciones
+  # empresariales. No modelados: los coeficientes de las aportaciones del trabajador al mismo
+  # plan de empleo, el incremento de 4.250 € de autónomos, los 5.000 € de seguros colectivos de
+  # dependencia, los excesos de años anteriores y la reducción por aportaciones al cónyuge.
+  estado: confirmado
   limite_general_abs: 1500
   limite_general_pct_rend: 0.30
   incremento_contribucion_empresarial: 8500
@@ -296,9 +303,10 @@ deduccion_vivienda_transitoria:
   fuente: "AEAT Manual Práctico Renta 2025, Deducción por inversión en vivienda habitual: régimen transitorio → Cantidades satisfechas y base máxima deducible; Porcentajes de deducción. Manual de Renta Web 2025, 9.1.2"
   # Base: cantidades satisfechas en el ejercicio (amortización, intereses y gastos del
   # préstamo) hasta 9.040 €; 7,5 % estatal + 7,5 % autonómico en todas las CCAA de régimen
-  # común. Pendiente: el 9 % del régimen especial de Cataluña (compra antes del 30-07-2011 y
-  # otros requisitos) y el tratamiento del límite en tributación conjunta (el motor lo
-  # aplica una vez por declaración; sin cotejar).
+  # común. En tributación conjunta el límite de 9.040 € es uno por declaración (art. 84 LIRPF:
+  # la conjunta no amplía los límites salvo previsión expresa; Manual Práctico 2025,
+  # «Tributación individual y opción por la tributación conjunta»). Pendiente: el 9 % del
+  # régimen especial de Cataluña (compra antes del 30-07-2011 y otros requisitos).
   estado: confirmado
   porcentaje_estatal: 0.075
   porcentaje_autonomico_defecto: 0.075
