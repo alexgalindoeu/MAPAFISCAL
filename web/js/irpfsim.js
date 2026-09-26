@@ -227,8 +227,18 @@
     return base + extra;
   }
 
-  function minimoPersonalFamiliar(hogar, P, modo, declaranteId) {
-    const e = P.estatal, mc = e.minimo_contribuyente, md = e.minimo_descendientes, ma = e.minimo_ascendientes, mdi = e.minimo_discapacidad;
+  // ov: `minimo_autonomico` del territorio para el gravamen autonómico (solo los importes
+  // que la CCAA modifica; el resto, límites y edades incluidos, es el estatal)
+  function minimoPersonalFamiliar(hogar, P, modo, declaranteId, ov) {
+    const e = P.estatal, o = ov || {};
+    const mc = Object.assign({}, e.minimo_contribuyente, o.minimo_contribuyente);
+    const md = Object.assign({}, e.minimo_descendientes, o.minimo_descendientes);
+    md.importes = Object.assign({}, e.minimo_descendientes.importes, (o.minimo_descendientes || {}).importes);
+    const ma = Object.assign({}, e.minimo_ascendientes, o.minimo_ascendientes);
+    const mdi = Object.assign({}, e.minimo_discapacidad, o.minimo_discapacidad);
+    const mdiDesc = Object.assign({}, mdi, o.minimo_discapacidad_descendientes);
+    // mínimo general: algunas CCAA fijan otro importe para mayores de 65 años (Illes Balears)
+    const generalDe = c => (c.edad > 65 && mc.general_mayor_65 != null) ? mc.general_mayor_65 : mc.general;
     const decs = hogar.miembros.filter(m => m.rol === "declarante" || m.rol === "conyuge");
     const prorrateo = (modo === "individual" && decs.length > 1) ? 0.5 : 1;
     const contribs = modo === "conjunta" ? decs : hogar.miembros.filter(m => m.id === declaranteId);
@@ -236,11 +246,11 @@
     let minContrib = 0, minDiscContrib = 0;
     contribs.forEach((c, idx) => {
       if (modo === "conjunta") {
-        if (idx === 0) minContrib += mc.general;
+        if (idx === 0) minContrib += generalDe(c);
         if (c.edad > 65) minContrib += mc.incremento_mayor_65;
         if (c.edad > 75) minContrib += mc.incremento_mayor_75;
       } else {
-        let m = mc.general;
+        let m = generalDe(c);
         if (c.edad > 65) m += mc.incremento_mayor_65;
         if (c.edad > 75) m += mc.incremento_mayor_75;
         minContrib += m;
@@ -256,7 +266,7 @@
       if (d.edad < 3) imp += md.incremento_menor_3_anios;
       const factor = num(d.convivenciaMeses, 12) >= 6 ? 1 : 0.5;
       minDesc += imp * factor * prorrateo;
-      minDiscDesc += minimoDiscapacidadPersona(d, mdi) * prorrateo;
+      minDiscDesc += minimoDiscapacidadPersona(d, mdiDesc) * prorrateo;
     });
 
     const asc = hogar.miembros.filter(m => m.rol === "ascendiente")
@@ -543,19 +553,23 @@
     const eGE = P.estatal.escala_general_estatal, eGA = terr.escala_general_autonomica;
     const eAE = P.estatal.escala_ahorro_estatal, eAA = P.estatal.escala_ahorro_autonomica;
     const minEnGeneral = Math.min(minimo, blg), minEnAhorro = Math.max(0, minimo - blg);
+    // mínimo para el gravamen autonómico (importes propios de la CCAA, si los tiene)
+    const mpfAut = minimoPersonalFamiliar(hogar, P, modo, declaranteId, terr.minimo_autonomico);
+    const minimoAut = mpfAut.total;
+    const minAutEnGeneral = Math.min(minimoAut, blg), minAutEnAhorro = Math.max(0, minimoAut - blg);
 
     let cigEst, cigAut;
     const anual = r.anualidadesAlimentos;
     if (anual > 0 && modo !== "conjunta") {
       const inc = P.estatal.anualidades_alimentos_hijos.incremento_minimo_contribuyente;
       cigEst = Math.max(0, aplicarEscala(anual, eGE) + aplicarEscala(Math.max(0, blg - anual), eGE) - aplicarEscala(Math.min(minimo + inc, blg), eGE));
-      cigAut = Math.max(0, aplicarEscala(anual, eGA) + aplicarEscala(Math.max(0, blg - anual), eGA) - aplicarEscala(Math.min(minimo + inc, blg), eGA));
+      cigAut = Math.max(0, aplicarEscala(anual, eGA) + aplicarEscala(Math.max(0, blg - anual), eGA) - aplicarEscala(Math.min(minimoAut + inc, blg), eGA));
     } else {
       cigEst = gravarConMinimo(blg, minEnGeneral, eGE);
-      cigAut = gravarConMinimo(blg, minEnGeneral, eGA);
+      cigAut = gravarConMinimo(blg, minAutEnGeneral, eGA);
     }
     const ciaEst = gravarConMinimo(bla, minEnAhorro, eAE);
-    const ciaAut = gravarConMinimo(bla, minEnAhorro, eAA);
+    const ciaAut = gravarConMinimo(bla, minAutEnAhorro, eAA);
     const cuotaIntegraEstatal = cigEst + ciaEst;
     const cuotaIntegraAutonomica = cigAut + ciaAut;
 
@@ -584,7 +598,7 @@
       baseImponibleGeneral: r.baseImponibleGeneral, baseImponibleAhorro: r.baseImponibleAhorro,
       reduccionesBase: { previsionSocial: redPs, pensionesCompensatorias: redPc, tributacionConjunta: redConj },
       baseLiquidableGeneral: blg, baseLiquidableAhorro: bla,
-      minimoPersonalFamiliar: mpf,
+      minimoPersonalFamiliar: mpf, minimoPersonalFamiliarAutonomico: mpfAut,
       cuotaIntegraEstatal: red2(cuotaIntegraEstatal), cuotaIntegraAutonomica: red2(cuotaIntegraAutonomica),
       cuotaIntegraTotal: red2(cuotaIntegraEstatal + cuotaIntegraAutonomica),
       deduccionesAutonomicas: dedAut, bonificacionResidencia: red2(bonifCm),

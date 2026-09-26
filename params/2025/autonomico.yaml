@@ -49,6 +49,14 @@ territorios:
 
   ES-AN:
     nombre: "Andalucía"
+    minimo_autonomico:   # importes propios para el gravamen autonómico (art. 46.1.a Ley 22/2009)
+      norma: "Art. 23 bis Ley 5/2021, de 20 de octubre, de Tributos Cedidos de la Comunidad Autónoma de Andalucía"
+      fuente: "AEAT Manual Práctico Renta 2025 — Mínimo personal y familiar autonómico: Comunidad Autónoma de Andalucía; y Cuadro comparativo de los importes de los mínimos personales y familiares, estatal y autonómicos para 2025"
+      estado: confirmado
+      minimo_contribuyente: { general: 5790, incremento_mayor_65: 1200, incremento_mayor_75: 1460 }
+      minimo_descendientes: { importes: { "1": 2510, "2": 2820, "3": 4170, "4+": 4700 }, incremento_menor_3_anios: 2920 }
+      minimo_ascendientes: { importe: 1200, incremento_mayor_75: 1460 }
+      minimo_discapacidad: { grado_33_64: 3130, grado_65_mas: 9390, gastos_asistencia: 3130 }
     escala_general_autonomica:
       norma: "Art. 23 Ley 5/2021 de Tributos Cedidos de Andalucía"
       fuente: "AEAT Manual Renta 2025 — Gravamen autonómico Andalucía"
@@ -262,6 +270,14 @@ territorios:
 
   ES-AS:
     nombre: "Principado de Asturias"
+    minimo_autonomico:   # importes propios para el gravamen autonómico (art. 46.1.a Ley 22/2009)
+      norma: "Arts. 2 bis, 2 ter, 2 quater y 2 quinquies DL 2/2014, de 22 de octubre (TR tributos cedidos del Principado de Asturias)"
+      fuente: "AEAT Manual Práctico Renta 2025 — Mínimo personal y familiar autonómico: Comunidad Autónoma del Principado de Asturias; y Cuadro comparativo de los importes de los mínimos personales y familiares, estatal y autonómicos para 2025"
+      estado: confirmado
+      minimo_contribuyente: { general: 6105, incremento_mayor_65: 1265, incremento_mayor_75: 1540 }
+      minimo_descendientes: { importes: { "1": 2640, "2": 2970, "3": 4400, "4+": 4950 }, incremento_menor_3_anios: 3080 }
+      minimo_ascendientes: { importe: 1265, incremento_mayor_75: 1540 }
+      minimo_discapacidad: { grado_33_64: 3300, grado_65_mas: 9900, gastos_asistencia: 3300 }
     escala_general_autonomica:
       norma: "Art. 2 TR tributos cedidos de Asturias (DL 2/2014), mod. Ley 3/2025 (efectos 2025)"
       fuente: "AEAT Manual Renta 2025 — Gravamen autonómico Asturias"
@@ -384,6 +400,15 @@ territorios:
 
   ES-IB:
     nombre: "Illes Balears"
+    minimo_autonomico:   # importes propios para el gravamen autonómico (art. 46.1.a Ley 22/2009)
+      # El mínimo general (5.550 €), el del primer descendiente y el incremento por menor de 3 años son los estatales; el general es 6.105 € si el contribuyente tiene más de 65 años.
+      norma: "Art. 2 DL 1/2014, de 6 de junio (TR tributos cedidos de las Illes Balears)"
+      fuente: "AEAT Manual Práctico Renta 2025 — Mínimo personal y familiar autonómico: Comunidad Autónoma de las Illes Balears; y Cuadro comparativo de los importes de los mínimos personales y familiares, estatal y autonómicos para 2025"
+      estado: confirmado
+      minimo_contribuyente: { general_mayor_65: 6105, incremento_mayor_65: 1265, incremento_mayor_75: 1540 }
+      minimo_descendientes: { importes: { "2": 2970, "3": 4400, "4+": 4950 } }
+      minimo_ascendientes: { importe: 1265, incremento_mayor_75: 1540 }
+      minimo_discapacidad: { grado_33_64: 3300, grado_65_mas: 9900, gastos_asistencia: 3300 }
     escala_general_autonomica:
       norma: "Art. 1 TR disposiciones legales de les Illes Balears en tributos cedidos (DL 1/2014)"
       fuente: "AEAT Manual Renta 2025 — Gravamen autonómico Illes Balears"
@@ -472,6 +497,14 @@ territorios:
 
   ES-CN:
     nombre: "Canarias"
+    minimo_autonomico:   # importes propios para el gravamen autonómico (art. 46.1.a Ley 22/2009)
+      norma: "Art. 18 quater DL 1/2009, de 21 de abril (TR tributos cedidos de Canarias)"
+      fuente: "AEAT Manual Práctico Renta 2025 — Mínimo personal y familiar autonómico: Comunidad Autónoma de Canarias; y Cuadro comparativo de los importes de los mínimos personales y familiares, estatal y autonómicos para 2025"
+      estado: confirmado
+      minimo_contribuyente: { general: 5606, incremento_mayor_65: 1162, incremento_mayor_75: 1414 }
+      minimo_descendientes: { importes: { "1": 2424, "2": 2727, "3": 4040, "4+": 4545 }, incremento_menor_3_anios: 2828 }
+      minimo_ascendientes: { importe: 1162, incremento_mayor_75: 1414 }
+      minimo_discapacidad: { grado_33_64: 3030, grado_65_mas: 9090, gastos_asistencia: 3030 }
     escala_general_autonomica:
       norma: "Art. 18 bis TR tributos cedidos de Canarias (DL 1/2009), mod. Ley 9/2025 (efectos 2025)"
       fuente: "AEAT Manual Renta 2025 — Gravamen autonómico Canarias"
@@ -776,6 +809,11 @@ territorios:
 
   ES-CL:
     nombre: "Castilla y León"
+    minimo_autonomico:   # importes propios para el gravamen autonómico (art. 46.1.a Ley 22/2009)
+      # Mismos importes que los arts. 57 a 60 LIRPF: no modifica ninguno.
+      norma: "Art. 1 bis DL 1/2013, de 12 de septiembre (TR tributos propios y cedidos de Castilla y León)"
+      fuente: "AEAT Manual Práctico Renta 2025 — Mínimo personal y familiar autonómico: Comunidad de Castilla y León; y Cuadro comparativo de los importes de los mínimos personales y familiares, estatal y autonómicos para 2025"
+      estado: confirmado
     escala_general_autonomica:
       norma: "Art. 1 TR tributos propios y cedidos de Castilla y León (DL 1/2013)"
       fuente: "AEAT Manual Renta 2025 — Gravamen autonómico Castilla y León"
@@ -882,6 +920,11 @@ territorios:
 
   ES-CT:
     nombre: "Cataluña"
+    minimo_autonomico:   # importes propios para el gravamen autonómico (art. 46.1.a Ley 22/2009)
+      # Mismo importe que el art. 57 LIRPF: no modifica ninguno.
+      norma: "Art. 611-2 DL 1/2024, de 12 de marzo (libro sexto del código tributario de Catalunya)"
+      fuente: "AEAT Manual Práctico Renta 2025 — Mínimo personal y familiar autonómico: Comunidad Autónoma de Cataluña; y Cuadro comparativo de los importes de los mínimos personales y familiares, estatal y autonómicos para 2025"
+      estado: confirmado
     escala_general_autonomica:
       norma: "Art. 611-1 DL 1/2024 (libro sexto del Código Tributario de Cataluña)"
       fuente: "AEAT Manual Renta 2025 — Gravamen autonómico Cataluña"
@@ -1059,6 +1102,14 @@ territorios:
 
   ES-GA:
     nombre: "Galicia"
+    minimo_autonomico:   # importes propios para el gravamen autonómico (art. 46.1.a Ley 22/2009)
+      norma: "Art. 4 bis DL 1/2011, de 28 de julio (TR tributos cedidos de Galicia)"
+      fuente: "AEAT Manual Práctico Renta 2025 — Mínimo personal y familiar autonómico: Comunidad Autónoma de Galicia; y Cuadro comparativo de los importes de los mínimos personales y familiares, estatal y autonómicos para 2025"
+      estado: confirmado
+      minimo_contribuyente: { general: 5789, incremento_mayor_65: 1199, incremento_mayor_75: 1460 }
+      minimo_descendientes: { importes: { "1": 2503, "2": 2816, "3": 4172, "4+": 4694 }, incremento_menor_3_anios: 2920 }
+      minimo_ascendientes: { importe: 1199, incremento_mayor_75: 1460 }
+      minimo_discapacidad: { grado_33_64: 3129, grado_65_mas: 9387, gastos_asistencia: 3129 }
     escala_general_autonomica:
       norma: "Art. 4 TR disposiciones legales de Galicia en tributos cedidos (DL 1/2011)"
       fuente: "AEAT Manual Renta 2025 — Gravamen autonómico Galicia"
@@ -1179,6 +1230,14 @@ territorios:
 
   ES-MD:
     nombre: "Comunidad de Madrid"
+    minimo_autonomico:   # importes propios para el gravamen autonómico (art. 46.1.a Ley 22/2009)
+      norma: "Arts. 2, 2 bis, 2 ter y 2 quater DL 1/2010, de 21 de octubre (TR tributos cedidos de la Comunidad de Madrid)"
+      fuente: "AEAT Manual Práctico Renta 2025 — Mínimo personal y familiar autonómico: Comunidad de Madrid; y Cuadro comparativo de los importes de los mínimos personales y familiares, estatal y autonómicos para 2025"
+      estado: confirmado
+      minimo_contribuyente: { general: 5956.65, incremento_mayor_65: 1234.26, incremento_mayor_75: 1502.58 }
+      minimo_descendientes: { importes: { "1": 2575.85, "2": 2897.83, "3": 4400, "4+": 4950 }, incremento_menor_3_anios: 3005.16 }
+      minimo_ascendientes: { importe: 1234.26, incremento_mayor_75: 1502.58 }
+      minimo_discapacidad: { grado_33_64: 3219.81, grado_65_mas: 9659.44, gastos_asistencia: 3219.81 }
     escala_general_autonomica:
       norma: "Art. 1 TR disposiciones legales de la Comunidad de Madrid en tributos cedidos (DL 1/2010)"
       fuente: "AEAT Manual Renta 2025 — Gravamen autonómico Comunidad de Madrid"
@@ -1386,6 +1445,12 @@ territorios:
 
   ES-RI:
     nombre: "La Rioja"
+    minimo_autonomico:   # importes propios para el gravamen autonómico (art. 46.1.a Ley 22/2009)
+      # Solo el mínimo por discapacidad de los descendientes; los gastos de asistencia siguen en 3.000 € (art. 60.2 LIRPF).
+      norma: "Art. 31 bis Ley 10/2017, de 27 de octubre (La Rioja, impuestos propios y tributos cedidos)"
+      fuente: "AEAT Manual Práctico Renta 2025 — Mínimo personal y familiar autonómico: Comunidad Autónoma de La Rioja; y Cuadro comparativo de los importes de los mínimos personales y familiares, estatal y autonómicos para 2025"
+      estado: confirmado
+      minimo_discapacidad_descendientes: { grado_33_64: 3300, grado_65_mas: 9900 }
     escala_general_autonomica:
       norma: "Art. 31 Ley 10/2017 de La Rioja (mod. Ley 13/2023, efectos 2024)"
       fuente: "AEAT Manual Renta 2025 — Gravamen autonómico La Rioja"
@@ -1485,6 +1550,14 @@ territorios:
 
   ES-VC:
     nombre: "Comunitat Valenciana"
+    minimo_autonomico:   # importes propios para el gravamen autonómico (art. 46.1.a Ley 22/2009)
+      norma: "Art. 2 bis Ley 13/1997, de 23 de diciembre (tramo autonómico del IRPF de la Comunitat Valenciana)"
+      fuente: "AEAT Manual Práctico Renta 2025 — Mínimo personal y familiar autonómico: Comunitat Valenciana; y Cuadro comparativo de los importes de los mínimos personales y familiares, estatal y autonómicos para 2025"
+      estado: confirmado
+      minimo_contribuyente: { general: 6105, incremento_mayor_65: 1265, incremento_mayor_75: 1540 }
+      minimo_descendientes: { importes: { "1": 2640, "2": 2970, "3": 4400, "4+": 4950 }, incremento_menor_3_anios: 3080 }
+      minimo_ascendientes: { importe: 1265, incremento_mayor_75: 1540 }
+      minimo_discapacidad: { grado_33_64: 3300, grado_65_mas: 9900, gastos_asistencia: 3300 }
     escala_general_autonomica:
       norma: "Art. 2 Ley 13/1997 de la Comunitat Valenciana"
       fuente: "AEAT Manual Renta 2025 — Gravamen autonómico Comunitat Valenciana"

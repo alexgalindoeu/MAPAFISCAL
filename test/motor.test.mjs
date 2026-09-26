@@ -27,11 +27,12 @@ test("asalariado de 30.000 € en Castilla-La Mancha (escala autonómica = estat
 });
 
 test("asalariado de 30.000 € en Madrid (escala autonómica propia)", () => {
-  // autonómica: 13.362,22 × 8,5 % + 5.642,41 × 10,7 % + 7.090,37 × 12,8 % − 5.550 × 8,5 % = 2.175,34
+  // autonómica: 13.362,22 × 8,5 % + 5.642,41 × 10,7 % + 7.090,37 × 12,8 % − 5.956,65 × 8,5 % = 2.140,78
+  // (mínimo del contribuyente autonómico de Madrid: 5.956,65 €, art. 2 DL 1/2010)
   const l = motor.liquidar(hogarAsalariado("ES-MD", 30000, 1905), P);
   casi(l.cuotaIntegraEstatal, 2469.75, "cuota íntegra estatal");
-  casi(l.cuotaIntegraAutonomica, 2175.34, "cuota íntegra autonómica");
-  casi(l.cuotaLiquidaTotal, 4645.09, "cuota líquida");
+  casi(l.cuotaIntegraAutonomica, 2140.78, "cuota íntegra autonómica");
+  casi(l.cuotaLiquidaTotal, 4610.53, "cuota líquida");
 });
 
 test("rentas bajas: la reducción del art. 20 deja la cuota a cero", () => {

@@ -47,7 +47,8 @@ for (code in names(auto$territorios)) {
     nombre = t$nombre, regimen = "comun",
     escala_general_autonomica = flat_escala(t$escala_general_autonomica$tramos),
     bonificacion_residencia = t$bonificacion_residencia,
-    deducciones_autonomicas = t$deducciones_autonomicas
+    deducciones_autonomicas = t$deducciones_autonomicas,
+    minimo_autonomico = t$minimo_autonomico
   )
 }
 

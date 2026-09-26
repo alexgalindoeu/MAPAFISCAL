@@ -344,6 +344,9 @@
     if (liq.baseLiquidableAhorro) f("Base liquidable del ahorro", "0510", eur(liq.baseLiquidableAhorro), "sub");
     if (comun) {
       if (liq.minimoPersonalFamiliar && liq.minimoPersonalFamiliar.total) f("Mínimo personal y familiar (parte de la base que tributa al 0 %)", "", eur(liq.minimoPersonalFamiliar.total), "info");
+      // mínimo con los importes propios de la comunidad, que solo cuenta para la cuota autonómica
+      const mAut = liq.minimoPersonalFamiliarAutonomico;
+      if (mAut && Math.abs(mAut.total - liq.minimoPersonalFamiliar.total) > 0.005) f("Mínimo autonómico de " + esc(corto(terr)) + " (solo para la cuota autonómica)", "", eur(mAut.total), "info");
       f("Cuota íntegra estatal", "", eur(liq.cuotaIntegraEstatal));
       f("Cuota íntegra autonómica", "0546", eur(liq.cuotaIntegraAutonomica));
       const da = (liq.deduccionesAutonomicas && liq.deduccionesAutonomicas.total) || 0;

@@ -68,7 +68,8 @@ cargar_parametros <- function(territorio, ejercicio = 2025) {
         escala_ahorro_estatal     = estatal$escala_ahorro_estatal$tramos,
         escala_ahorro_autonomica  = estatal$escala_ahorro_autonomica$tramos,
         bonificacion_residencia   = terr$bonificacion_residencia,
-        deducciones_autonomicas   = terr$deducciones_autonomicas
+        deducciones_autonomicas   = terr$deducciones_autonomicas,
+        minimo_autonomico         = terr$minimo_autonomico
       )
     } else {
       est_e <- .leer_yaml(file.path(dir_e, "estatal.yaml"))
@@ -80,7 +81,8 @@ cargar_parametros <- function(territorio, ejercicio = 2025) {
         escala_ahorro_estatal     = est_e$escala_ahorro_estatal$tramos,
         escala_ahorro_autonomica  = est_e$escala_ahorro_autonomica$tramos,
         bonificacion_residencia   = terr$bonificacion_residencia,
-        deducciones_autonomicas   = terr$deducciones_autonomicas
+        deducciones_autonomicas   = terr$deducciones_autonomicas,
+        minimo_autonomico         = terr$minimo_autonomico
       )
     }
     if (!is.null(terr$deducciones_autonomicas$estado) &&
