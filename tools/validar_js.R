@@ -4,13 +4,16 @@ source("R/cargar.R"); irpfsim_cargar(".")
 
 # Cada caso: función que devuelve list(js = <hogar en forma JS>, hogar = <irpfsim_hogar>)
 casos <- list()
-add <- function(id, territorio, uf, fnum, miembros_r, miembros_js, municipio = NULL, despoblada = FALSE) {
+add <- function(id, territorio, uf, fnum, miembros_r, miembros_js, municipio = NULL, despoblada = FALSE,
+                titulo_mono = "no") {
   h <- nuevo_hogar(id, territorio, miembros_r, 2025, tipo_unidad_familiar = uf, familia_numerosa = fnum,
-                   municipio_habitantes = municipio, zona_despoblada = despoblada)
+                   municipio_habitantes = municipio, zona_despoblada = despoblada,
+                   titulo_monoparental = titulo_mono)
   js <- list(territorio = territorio, ejercicio = 2025, tipoUnidadFamiliar = uf,
              familiaNumerosa = fnum, miembros = miembros_js)
   if (!is.null(municipio)) js$municipioHabitantes <- municipio
   if (despoblada) js$zonaDespoblada <- TRUE
+  if (titulo_mono != "no") js$tituloMonoparental <- titulo_mono
   casos[[id]] <<- list(js = js, liq = liquidar(h))
 }
 
@@ -239,6 +242,36 @@ add("md_fn_asc", "ES-MD", "biparental", "especial",
          list(id="a1",rol="ascendiente",edad=83, rentasPropias=0)))
 
 # 5k. C. Valenciana — taper 27.000-30.000, variantes de alquiler (grupo), desempleo, nacimiento 2025
+# 5k0. C. Valenciana (cotejo #16) — ascendientes (art. 4.Uno.h): cuenta el de 70 años con
+# discapacidad >= 65 % y rentas <= 8.000; no el de 81 con 9.000 € de rentas
+add("vc_asc_disc", "ES-VC", "ninguna", "no",
+    list(persona("d1","declarante",52, trabajo=list(dinerarias=26000, cotizaciones_ss=1651)),
+         persona("a1","ascendiente",70, discapacidad="65_mas", rentas_propias=4000),
+         persona("a2","ascendiente",81, rentas_propias=9000)),
+    list(list(id="d1",rol="declarante",edad=52, trabajo=list(dinerarias=26000,cotizacionesSs=1651)),
+         list(id="a1",rol="ascendiente",edad=70, discapacidad="65_mas", rentasPropias=4000),
+         list(id="a2",rol="ascendiente",edad=81, rentasPropias=9000)))
+
+# 5k1. C. Valenciana (cotejo #16) — título de familia monoparental especial (660 €) y
+# material escolar con 6 meses en desempleo (55 € por hijo de 6 a 16)
+add("vc_mono_especial", "ES-VC", "monoparental", "no",
+    list(persona("d1","declarante",41, trabajo=list(dinerarias=30400, cotizaciones_ss=1930),
+                 desempleado=TRUE, meses_desempleo=6),
+         persona("h1","descendiente",8), persona("h2","descendiente",13)),
+    list(list(id="d1",rol="declarante",edad=41, trabajo=list(dinerarias=30400,cotizacionesSs=1930),
+              desempleado=TRUE, mesesDesempleo=6),
+         list(id="h1",rol="descendiente",edad=8), list(id="h2",rol="descendiente",edad=13)),
+    titulo_mono = "especial")
+
+# 5k2. C. Valenciana (cotejo #16) — despoblamiento: el hijo de 1 año tiene deducción por
+# nacimiento y no cuenta para el incremento (132 € por el de 6 años)
+add("vc_despobl_nacimiento", "ES-VC", "monoparental", "no",
+    list(persona("d1","declarante",36, trabajo=list(dinerarias=36000, cotizaciones_ss=2286)),
+         persona("h1","descendiente",6), persona("h2","descendiente",1)),
+    list(list(id="d1",rol="declarante",edad=36, trabajo=list(dinerarias=36000,cotizacionesSs=2286)),
+         list(id="h1",rol="descendiente",edad=6), list(id="h2",rol="descendiente",edad=1)),
+    municipio = 800, despoblada = TRUE)
+
 add("vc_taper", "ES-VC", "monoparental", "no",
     list(persona("d1","declarante",30, trabajo=list(dinerarias=32000, cotizaciones_ss=1500),
                  alquiler_vivienda_pagos=5000, desempleado=TRUE),
