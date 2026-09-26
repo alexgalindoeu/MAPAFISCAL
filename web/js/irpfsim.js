@@ -430,10 +430,10 @@
         // false = no cuenta, "65_mas" = solo ese grado); requiere_minimo_ascendiente: mismo
         // filtro que el mínimo por ascendientes
         const ma = P.estatal.minimo_ascendientes, ad = d.ascendiente_discapacidad;
-        const cand = d.requiere_minimo_ascendiente
+        const ascCand = d.requiere_minimo_ascendiente
           ? asc.filter(a => num(a.rentasPropias) <= ma.limite_rentas_ascendiente && (a.edad >= ma.edad_minima || (a.discapacidad && a.discapacidad !== "no")) && num(a.convivenciaMeses, 12) >= 6)
           : asc;
-        const cuenta = cand.filter(a => {
+        const cuenta = ascCand.filter(a => {
           const disc = a.discapacidad || "no";
           const porDisc = disc !== "no" && ad !== false && (ad == null || disc === ad) &&
             num(a.edad, 0) >= num(d.edad_ascendiente_min_discapacidad, 0);

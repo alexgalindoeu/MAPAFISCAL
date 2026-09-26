@@ -105,6 +105,12 @@
     return { hogar: [...hogar.keys()], hijo: [...hijo.entries()] };
   }
 
+  // título de familia numerosa reciente (Madrid, art. 13 bis): la casilla solo se muestra si
+  // algún territorio lo exige y el hogar es familia numerosa (cuenta también al comparar)
+  const pideFnReciente = Object.values(T).some(t =>
+    ((t.deducciones_autonomicas && t.deducciones_autonomicas.lista) || []).some(d => d.requiere_familia_numerosa_reciente));
+  const pintarFnReciente = () => { $("casilla-fn-reciente").hidden = !pideFnReciente || $("f-familia-numerosa").value === "no"; };
+
   // deducciones del territorio que dependen del municipio de residencia
   function reglasMunicipio(terr) {
     const lista = (T[terr] && T[terr].deducciones_autonomicas && T[terr].deducciones_autonomicas.lista) || [];
@@ -170,6 +176,7 @@
     if (t.dataset.hijo != null && t.dataset.campo) hijos[+t.dataset.hijo].gastos[t.dataset.campo] = parseFloat(t.value) || 0;
     if (t.dataset.gasto) gastosHogar[t.dataset.gasto] = parseFloat(t.value) || 0;
     if (t.name === "pareja") $("bloque-pareja").hidden = t.value !== "si";
+    if (t.id === "f-familia-numerosa") pintarFnReciente();
     recalcular();
   });
   selTerr.addEventListener("change", () => { pintarHijos(); pintarGastosTerritorio(); recalcular(); });
@@ -221,6 +228,7 @@
       territorio, ejercicio: P.ejercicio,
       tipoUnidadFamiliar: pareja ? "biparental" : (hijos.length ? "monoparental" : "ninguna"),
       familiaNumerosa: $("f-familia-numerosa").value,
+      familiaNumerosaReciente: $("f-familia-numerosa").value !== "no" && $("f-fn-reciente").checked,
       municipioHabitantes: Number.isFinite(hab) && hab > 0 ? hab : null,
       zonaDespoblada: $("f-despoblada").checked,
       miembros
@@ -256,6 +264,7 @@
     $("bloque-pareja").hidden = !d2;
     if (d2) { set("f-pareja-edad", d2.edad); set("f-pareja-salario", d2.trabajo ? d2.trabajo.dinerarias : 0); }
     $("f-familia-numerosa").value = h.familiaNumerosa || "no";
+    $("f-fn-reciente").checked = !!h.familiaNumerosaReciente; pintarFnReciente();
     const asc = h.miembros.filter(m => m.rol === "ascendiente");
     $("f-ascendientes").value = asc.length >= 2 ? "75x2" : asc.length ? (asc[0].edad >= 75 ? "75" : "65") : "0";
     const conocidos = new Set(["id", "rol", "edad", "discapacidad", "desempleado", "trabajo", "capitalMobiliario", "capitalInmobiliario",
