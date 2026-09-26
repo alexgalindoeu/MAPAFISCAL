@@ -4,13 +4,16 @@ source("R/cargar.R"); irpfsim_cargar(".")
 
 # Cada caso: función que devuelve list(js = <hogar en forma JS>, hogar = <irpfsim_hogar>)
 casos <- list()
-add <- function(id, territorio, uf, fnum, miembros_r, miembros_js, municipio = NULL, despoblada = FALSE) {
+add <- function(id, territorio, uf, fnum, miembros_r, miembros_js, municipio = NULL, despoblada = FALSE,
+                fn_reciente = FALSE) {
   h <- nuevo_hogar(id, territorio, miembros_r, 2025, tipo_unidad_familiar = uf, familia_numerosa = fnum,
-                   municipio_habitantes = municipio, zona_despoblada = despoblada)
+                   municipio_habitantes = municipio, zona_despoblada = despoblada,
+                   familia_numerosa_reciente = fn_reciente)
   js <- list(territorio = territorio, ejercicio = 2025, tipoUnidadFamiliar = uf,
              familiaNumerosa = fnum, miembros = miembros_js)
   if (!is.null(municipio)) js$municipioHabitantes <- municipio
   if (despoblada) js$zonaDespoblada <- TRUE
+  if (fn_reciente) js$familiaNumerosaReciente <- TRUE
   casos[[id]] <<- list(js = js, liq = liquidar(h))
 }
 
@@ -237,6 +240,49 @@ add("md_fn_asc", "ES-MD", "biparental", "especial",
          list(id="h3",rol="descendiente",edad=12), list(id="h4",rol="descendiente",edad=15),
          list(id="h5",rol="descendiente",edad=17),
          list(id="a1",rol="ascendiente",edad=83, rentasPropias=0)))
+
+# 5n1. Madrid (cotejo #16) — el mismo hogar con el título de familia numerosa reconocido
+# desde 2023 (art. 13 bis): 100 % de la cuota íntegra autonómica, con el límite por miembro
+add("md_fn_reciente", "ES-MD", "biparental", "especial",
+    list(persona("d1","declarante",44, trabajo=list(dinerarias=48000, cotizaciones_ss=3048)),
+         persona("d2","conyuge",42, trabajo=list(dinerarias=20000, cotizaciones_ss=1270)),
+         persona("h1","descendiente",6), persona("h2","descendiente",9),
+         persona("h3","descendiente",12), persona("h4","descendiente",15),
+         persona("h5","descendiente",17)),
+    list(list(id="d1",rol="declarante",edad=44, trabajo=list(dinerarias=48000,cotizacionesSs=3048)),
+         list(id="d2",rol="conyuge",edad=42, trabajo=list(dinerarias=20000,cotizacionesSs=1270)),
+         list(id="h1",rol="descendiente",edad=6), list(id="h2",rol="descendiente",edad=9),
+         list(id="h3",rol="descendiente",edad=12), list(id="h4",rol="descendiente",edad=15),
+         list(id="h5",rol="descendiente",edad=17)),
+    fn_reciente = TRUE)
+
+# 5n2. Madrid (cotejo #16) — gastos educativos con límite único por hijo (art. 11) cerca del
+# límite de renta del art. 18.2: pareja con 2 hijos = 4 miembros -> 123.720 €. En individual
+# la base de d1 lo supera; en conjunta (reducción de 3.400 €) queda por debajo.
+add("md_educativos_uf", "ES-MD", "biparental", "no",
+    list(persona("d1","declarante",45, trabajo=list(dinerarias=135000, cotizaciones_ss=8573)),
+         persona("d2","conyuge",43),
+         {h <- persona("h1","descendiente",7); h$gastos_escolaridad <- 6000; h$gastos_idiomas <- 900;
+          h$gastos_vestuario_escolar <- 300; h},
+         {h <- persona("h2","descendiente",2); h$gastos_escolaridad <- 9000; h$gastos_idiomas <- 400; h}),
+    list(list(id="d1",rol="declarante",edad=45, trabajo=list(dinerarias=135000,cotizacionesSs=8573)),
+         list(id="d2",rol="conyuge",edad=43),
+         list(id="h1",rol="descendiente",edad=7, gastosEscolaridad=6000, gastosIdiomas=900,
+              gastosVestuarioEscolar=300),
+         list(id="h2",rol="descendiente",edad=2, gastosEscolaridad=9000, gastosIdiomas=400)))
+
+# 5n3. Madrid (cotejo #16) — empleada de hogar con hijo < 3, los dos progenitores trabajan
+# y familia numerosa general: variante del 40 % / 618,60 € (art. 11 bis)
+add("md_empleada_fn", "ES-MD", "biparental", "general",
+    list({d <- persona("d1","declarante",38, trabajo=list(dinerarias=36000, cotizaciones_ss=2286));
+          d$cuotas_ss_empleada_hogar <- 2000; d},
+         persona("d2","conyuge",37, trabajo=list(dinerarias=24000, cotizaciones_ss=1524)),
+         persona("h1","descendiente",1), persona("h2","descendiente",5), persona("h3","descendiente",8)),
+    list(list(id="d1",rol="declarante",edad=38, trabajo=list(dinerarias=36000,cotizacionesSs=2286),
+              cuotasSsEmpleadaHogar=2000),
+         list(id="d2",rol="conyuge",edad=37, trabajo=list(dinerarias=24000,cotizacionesSs=1524)),
+         list(id="h1",rol="descendiente",edad=1), list(id="h2",rol="descendiente",edad=5),
+         list(id="h3",rol="descendiente",edad=8)))
 
 # 5k. C. Valenciana — taper 27.000-30.000, variantes de alquiler (grupo), desempleo, nacimiento 2025
 add("vc_taper", "ES-VC", "monoparental", "no",
