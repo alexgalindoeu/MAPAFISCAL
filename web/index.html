@@ -100,6 +100,8 @@
             <select id="f-discapacidad"><option value="no">Ninguna</option><option value="33_64">33 % – 64 %</option><option value="65_mas">65 % o más</option></select></div>
         </div>
         <label class="casilla"><input type="checkbox" id="f-desempleado"> Estoy en desempleo e inscrito como demandante de empleo</label>
+        <div class="campo" id="campo-meses-desempleo" hidden><label for="f-meses-desempleo">¿Cuántos meses de 2025 has estado en desempleo?</label>
+          <input type="number" id="f-meses-desempleo" min="1" max="12" step="1" value="12"></div>
 
         <div class="campo">
           <span class="etiqueta" id="lbl-pareja">¿Tienes cónyuge o pareja en la unidad familiar?</span>
@@ -126,6 +128,8 @@
           <div class="campo"><label for="f-ascendientes">Ascendientes que conviven contigo</label>
             <select id="f-ascendientes"><option value="0">Ninguno</option><option value="65">Uno de 65 a 74 años</option><option value="75">Uno de 75 años o más</option><option value="75x2">Dos de 75 años o más</option></select></div>
         </div>
+        <div class="campo" id="campo-titulo-monoparental" hidden><label for="f-titulo-monoparental">Título autonómico de familia monoparental</label>
+          <select id="f-titulo-monoparental"><option value="no">No tengo</option><option value="general">Categoría general</option><option value="especial">Categoría especial</option></select></div>
         <label class="casilla" id="casilla-fn-reciente" hidden><input type="checkbox" id="f-fn-reciente"> Obtuvimos el título de familia numerosa con efectos de 2023 o posterior (lo exige la deducción de la Comunidad de Madrid)</label>
       </fieldset>
 

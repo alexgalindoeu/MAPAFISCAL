@@ -1675,8 +1675,11 @@ territorios:
           base_max_conjunta: 47000
           taper_individual: [27000, 30000]
           taper_conjunta: [44000, 47000]
+        # Art. 4.Uno.d): una sola deducción «por familia numerosa o monoparental»; las cuatro
+        # variantes forman el grupo `fn_monoparental_vc` (se aplica la mayor, no se acumulan).
         - id: familia_numerosa_general
           norma: "Art. 4.Uno.d), Cuatro y Cinco Ley 13/1997"
+          grupo: fn_monoparental_vc
           tipo: fija
           importe: 330
           familia_numerosa_categoria: general
@@ -1687,6 +1690,7 @@ territorios:
           taper_conjunta: [44000, 47000]
         - id: familia_numerosa_especial
           norma: "Art. 4.Uno.d), Cuatro y Cinco Ley 13/1997"
+          grupo: fn_monoparental_vc
           tipo: fija
           importe: 660
           familia_numerosa_categoria: especial
@@ -1695,17 +1699,34 @@ territorios:
           base_max_conjunta: 58000
           taper_individual: [31000, 35000]
           taper_conjunta: [54000, 58000]
+        # Familia monoparental: exige el título de la Generalitat (Decreto 19/2018) en la
+        # categoría que corresponda (hogar$titulo_monoparental; la web lo pregunta).
         - id: familia_monoparental
           norma: "Art. 4.Uno.d), Cuatro y Cinco Ley 13/1997"
-          estado: provisional   # modela la monoparental de categoría general (330 €); la especial (660 €) exige el título de familia monoparental especial (Decreto 19/2018), no modelado
+          estado: confirmado
+          fuente: "Art. 4.Uno.d), Cuatro y Cinco Ley 13/1997, redacción vigente a 31-12-2025 (BOE-A-1998-8202); AEAT Manual Práctico Renta 2025, Parte 2, Comunitat Valenciana, «Por familia numerosa o monoparental» (https://sede.agenciatributaria.gob.es/Sede/ayuda/manuales-videos-folletos/manuales-practicos/irpf-2025-deducciones-autonomicas/comunitat-valenciana/familia-numerosa-monoparental.html)"
+          grupo: fn_monoparental_vc
           tipo: fija
           importe: 330
-          requiere_monoparental: true
-          familia_numerosa_categoria: "no"   # es la misma deducción que la de familia numerosa: no se acumulan
+          requiere_titulo_monoparental: general
+          prorratea_progenitores: true
           base_max_individual: 30000
           base_max_conjunta: 47000
           taper_individual: [27000, 30000]
           taper_conjunta: [44000, 47000]
+        - id: familia_monoparental_especial
+          norma: "Art. 4.Uno.d), Cuatro y Cinco Ley 13/1997"
+          estado: confirmado
+          fuente: "Art. 4.Uno.d), Cuatro y Cinco Ley 13/1997, redacción vigente a 31-12-2025 (BOE-A-1998-8202); AEAT Manual Práctico Renta 2025, Parte 2, Comunitat Valenciana, «Por familia numerosa o monoparental» (https://sede.agenciatributaria.gob.es/Sede/ayuda/manuales-videos-folletos/manuales-practicos/irpf-2025-deducciones-autonomicas/comunitat-valenciana/familia-numerosa-monoparental.html)"
+          grupo: fn_monoparental_vc
+          tipo: fija
+          importe: 660
+          requiere_titulo_monoparental: especial
+          prorratea_progenitores: true
+          base_max_individual: 35000
+          base_max_conjunta: 58000
+          taper_individual: [31000, 35000]
+          taper_conjunta: [54000, 58000]
         - id: custodia_guarderias
           norma: "Art. 4.Uno.e), Cuatro y Cinco Ley 13/1997"
           tipo: porcentaje_campo_hijo
@@ -1731,10 +1752,14 @@ territorios:
           taper_conjunta: [44000, 47000]
         - id: ascendientes_75
           norma: "Art. 4.Uno.h), Cuatro y Cinco Ley 13/1997"
-          estado: provisional   # requisito real: > 75 años, o > 65 con discapacidad >= 65 % (o intelectual >= 33 %); el tipo cuenta cualquier ascendiente con discapacidad
+          estado: confirmado
+          fuente: "Art. 4.Uno.h), Cuatro y Cinco Ley 13/1997, redacción del Decreto-ley 14/2025 vigente a 31-12-2025 (BOE-A-1998-8202); AEAT Manual Práctico Renta 2025, Parte 2, Comunitat Valenciana, «Por ascendientes mayores de 75 años o mayores de 65 años con discapacidad» (https://sede.agenciatributaria.gob.es/Sede/ayuda/manuales-videos-folletos/manuales-practicos/irpf-2025-deducciones-autonomicas/comunitat-valenciana/ascendientes-mayores-75-anos-mayores-discapacidad.html)"
           tipo: fija_por_ascendiente
           importe: 197
-          edad_ascendiente_min: 75
+          edad_ascendiente_min: 76                 # «mayores de 75 años» (edad > 75, como el mínimo)
+          ascendiente_discapacidad: "65_mas"       # o mayores de 65 con discapacidad >= 65 %; la discapacidad intelectual >= 33 % no se distingue en el motor
+          edad_ascendiente_min_discapacidad: 66
+          requiere_minimo_ascendiente: true        # convivencia >= 6 meses y rentas <= 8.000 € (no se comprueba el límite de 1.800 € si el ascendiente declara)
           prorratea_progenitores: true
           base_max_individual: 30000
           base_max_conjunta: 47000
@@ -1790,13 +1815,15 @@ territorios:
           taper_individual: [27000, 30000]
           taper_conjunta: [44000, 47000]
         - id: material_escolar
-          norma: "Art. 4.Uno.v), Cuatro y Cinco Ley 13/1997"
-          estado: provisional          # edad 6-16 aproxima la escolarización en primaria/ESO/FP básica en centro público o concertado
+          norma: "Art. 4.Uno.v), Cuatro y Cinco Ley 13/1997 (red. Ley 5/2025)"
+          estado: confirmado
+          fuente: "Art. 4.Uno.v), Cuatro y Cinco Ley 13/1997, redacción de la Ley 5/2025 (BOE-A-2025-11959), vigente en 2025; AEAT Manual Práctico Renta 2025, Parte 2, Comunitat Valenciana, «Por cantidades destinadas a la adquisición de material escolar» (https://sede.agenciatributaria.gob.es/Sede/ayuda/manuales-videos-folletos/manuales-practicos/irpf-2025-deducciones-autonomicas/comunitat-valenciana/cantidades-destinadas-adquisicion-material-escolar.html)"
           tipo: fija_por_hijo
-          importe: 110
+          importe: 110                 # por hijo en primaria, ESO o educación especial en centro público o concertado (la edad 6-16 aproxima la etapa)
           edad_hijo_min: 6
           edad_hijo_max: 16
           requiere_desempleo: true     # contribuyente (u otro progenitor conviviente) en desempleo e inscrito como demandante
+          prorratea_desempleo: true    # por el tiempo en desempleo: suma de los meses de ambos, con el límite del año
           prorratea_progenitores: true
           base_max_individual: 30000
           base_max_conjunta: 47000
@@ -1812,7 +1839,14 @@ territorios:
           base_max_conjunta: 50000
         - id: dos_o_mas_descendientes
           norma: "Art. 4.Uno.t) Ley 13/1997"
-          estado: provisional          # el límite de 30.000 € es sobre la SUMA de bases imponibles de todos los que aplican el mínimo por los mismos descendientes (y de los propios descendientes); en individual con dos progenitores el motor solo ve la base del declarante
+          # Porcentaje y cálculo sobre la cuota cotejados (art. 4.Uno.t, BOE-A-1998-8202; Manual
+          # Renta 2025, «Por contribuyentes con dos o más descendientes»). Sigue provisional
+          # por el límite: 30.000 € sobre la SUMA de las bases IMPONIBLES de todos los que
+          # aplican el mínimo por los mismos descendientes, de los propios descendientes y de
+          # la UF que tributa en conjunta. En individual con dos progenitores el motor solo ve
+          # la base del declarante liquidado, y usa bases liquidables. Pendiente de la rama
+          # local/cotejo-bases-imponibles.
+          estado: provisional
           tipo: porcentaje_cuota_autonomica
           porcentaje: 0.10
           min_descendientes: 2
@@ -1824,29 +1858,38 @@ territorios:
           tipo: fija
           importe: 330
           requiere_zona_despoblada: true
+        # Incrementos por descendientes con mínimo, único según su número y prorrateado entre
+        # los progenitores. No cuentan los hijos que dan derecho a la deducción por
+        # nacimiento (incompatibles «para el mismo descendiente»): `descendientes_sin_deduccion`.
         - id: residencia_despoblamiento_1_descendiente
-          norma: "Art. 4.Uno.aa) Ley 13/1997"
-          estado: provisional   # no se descuentan los descendientes que ya dan derecho a las deducciones por nacimiento
+          norma: "Art. 4.Uno.aa) y Seis Ley 13/1997"
+          estado: confirmado
+          fuente: "Art. 4.Uno.aa) y Seis Ley 13/1997, redacción vigente a 31-12-2025 (BOE-A-1998-8202); AEAT Manual Práctico Renta 2025, Parte 2, Comunitat Valenciana, «Por residir habitualmente en un municipio en riesgo de despoblamiento» (https://sede.agenciatributaria.gob.es/Sede/ayuda/manuales-videos-folletos/manuales-practicos/irpf-2025-deducciones-autonomicas/comunitat-valenciana/residir-habitualmente-municipio-riesgo-despoblamiento.html)"
           tipo: fija
           importe: 132
           requiere_zona_despoblada: true
           descendientes_min: 1
           descendientes_max: 1
+          descendientes_sin_deduccion: nacimiento_adopcion
         - id: residencia_despoblamiento_2_descendientes
-          norma: "Art. 4.Uno.aa) Ley 13/1997"
-          estado: provisional
+          norma: "Art. 4.Uno.aa) y Seis Ley 13/1997"
+          estado: confirmado
+          fuente: "Art. 4.Uno.aa) y Seis Ley 13/1997, redacción vigente a 31-12-2025 (BOE-A-1998-8202); AEAT Manual Práctico Renta 2025, Parte 2, Comunitat Valenciana, «Por residir habitualmente en un municipio en riesgo de despoblamiento» (https://sede.agenciatributaria.gob.es/Sede/ayuda/manuales-videos-folletos/manuales-practicos/irpf-2025-deducciones-autonomicas/comunitat-valenciana/residir-habitualmente-municipio-riesgo-despoblamiento.html)"
           tipo: fija
           importe: 198
           requiere_zona_despoblada: true
           descendientes_min: 2
           descendientes_max: 2
+          descendientes_sin_deduccion: nacimiento_adopcion
         - id: residencia_despoblamiento_3_descendientes
-          norma: "Art. 4.Uno.aa) Ley 13/1997"
-          estado: provisional
+          norma: "Art. 4.Uno.aa) y Seis Ley 13/1997"
+          estado: confirmado
+          fuente: "Art. 4.Uno.aa) y Seis Ley 13/1997, redacción vigente a 31-12-2025 (BOE-A-1998-8202); AEAT Manual Práctico Renta 2025, Parte 2, Comunitat Valenciana, «Por residir habitualmente en un municipio en riesgo de despoblamiento» (https://sede.agenciatributaria.gob.es/Sede/ayuda/manuales-videos-folletos/manuales-practicos/irpf-2025-deducciones-autonomicas/comunitat-valenciana/residir-habitualmente-municipio-riesgo-despoblamiento.html)"
           tipo: fija
           importe: 264
           requiere_zona_despoblada: true
           descendientes_min: 3
+          descendientes_sin_deduccion: nacimiento_adopcion
       pendientes:
         - nacimiento_adopcion_multiple
         - nacimiento_adopcion_discapacidad

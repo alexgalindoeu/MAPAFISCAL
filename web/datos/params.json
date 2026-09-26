@@ -3037,6 +3037,7 @@
      {
       "id": "familia_numerosa_general",
       "norma": "Art. 4.Uno.d), Cuatro y Cinco Ley 13/1997",
+      "grupo": "fn_monoparental_vc",
       "tipo": "fija",
       "importe": 330,
       "familia_numerosa_categoria": "general",
@@ -3055,6 +3056,7 @@
      {
       "id": "familia_numerosa_especial",
       "norma": "Art. 4.Uno.d), Cuatro y Cinco Ley 13/1997",
+      "grupo": "fn_monoparental_vc",
       "tipo": "fija",
       "importe": 660,
       "familia_numerosa_categoria": "especial",
@@ -3073,11 +3075,13 @@
      {
       "id": "familia_monoparental",
       "norma": "Art. 4.Uno.d), Cuatro y Cinco Ley 13/1997",
-      "estado": "provisional",
+      "estado": "confirmado",
+      "fuente": "Art. 4.Uno.d), Cuatro y Cinco Ley 13/1997, redacción vigente a 31-12-2025 (BOE-A-1998-8202); AEAT Manual Práctico Renta 2025, Parte 2, Comunitat Valenciana, «Por familia numerosa o monoparental» (https://sede.agenciatributaria.gob.es/Sede/ayuda/manuales-videos-folletos/manuales-practicos/irpf-2025-deducciones-autonomicas/comunitat-valenciana/familia-numerosa-monoparental.html)",
+      "grupo": "fn_monoparental_vc",
       "tipo": "fija",
       "importe": 330,
-      "requiere_monoparental": true,
-      "familia_numerosa_categoria": "no",
+      "requiere_titulo_monoparental": "general",
+      "prorratea_progenitores": true,
       "base_max_individual": 30000,
       "base_max_conjunta": 47000,
       "taper_individual": [
@@ -3087,6 +3091,27 @@
       "taper_conjunta": [
        44000,
        47000
+      ]
+     },
+     {
+      "id": "familia_monoparental_especial",
+      "norma": "Art. 4.Uno.d), Cuatro y Cinco Ley 13/1997",
+      "estado": "confirmado",
+      "fuente": "Art. 4.Uno.d), Cuatro y Cinco Ley 13/1997, redacción vigente a 31-12-2025 (BOE-A-1998-8202); AEAT Manual Práctico Renta 2025, Parte 2, Comunitat Valenciana, «Por familia numerosa o monoparental» (https://sede.agenciatributaria.gob.es/Sede/ayuda/manuales-videos-folletos/manuales-practicos/irpf-2025-deducciones-autonomicas/comunitat-valenciana/familia-numerosa-monoparental.html)",
+      "grupo": "fn_monoparental_vc",
+      "tipo": "fija",
+      "importe": 660,
+      "requiere_titulo_monoparental": "especial",
+      "prorratea_progenitores": true,
+      "base_max_individual": 35000,
+      "base_max_conjunta": 58000,
+      "taper_individual": [
+       31000,
+       35000
+      ],
+      "taper_conjunta": [
+       54000,
+       58000
       ]
      },
      {
@@ -3131,10 +3156,14 @@
      {
       "id": "ascendientes_75",
       "norma": "Art. 4.Uno.h), Cuatro y Cinco Ley 13/1997",
-      "estado": "provisional",
+      "estado": "confirmado",
+      "fuente": "Art. 4.Uno.h), Cuatro y Cinco Ley 13/1997, redacción del Decreto-ley 14/2025 vigente a 31-12-2025 (BOE-A-1998-8202); AEAT Manual Práctico Renta 2025, Parte 2, Comunitat Valenciana, «Por ascendientes mayores de 75 años o mayores de 65 años con discapacidad» (https://sede.agenciatributaria.gob.es/Sede/ayuda/manuales-videos-folletos/manuales-practicos/irpf-2025-deducciones-autonomicas/comunitat-valenciana/ascendientes-mayores-75-anos-mayores-discapacidad.html)",
       "tipo": "fija_por_ascendiente",
       "importe": 197,
-      "edad_ascendiente_min": 75,
+      "edad_ascendiente_min": 76,
+      "ascendiente_discapacidad": "65_mas",
+      "edad_ascendiente_min_discapacidad": 66,
+      "requiere_minimo_ascendiente": true,
       "prorratea_progenitores": true,
       "base_max_individual": 30000,
       "base_max_conjunta": 47000,
@@ -3229,13 +3258,15 @@
      },
      {
       "id": "material_escolar",
-      "norma": "Art. 4.Uno.v), Cuatro y Cinco Ley 13/1997",
-      "estado": "provisional",
+      "norma": "Art. 4.Uno.v), Cuatro y Cinco Ley 13/1997 (red. Ley 5/2025)",
+      "estado": "confirmado",
+      "fuente": "Art. 4.Uno.v), Cuatro y Cinco Ley 13/1997, redacción de la Ley 5/2025 (BOE-A-2025-11959), vigente en 2025; AEAT Manual Práctico Renta 2025, Parte 2, Comunitat Valenciana, «Por cantidades destinadas a la adquisición de material escolar» (https://sede.agenciatributaria.gob.es/Sede/ayuda/manuales-videos-folletos/manuales-practicos/irpf-2025-deducciones-autonomicas/comunitat-valenciana/cantidades-destinadas-adquisicion-material-escolar.html)",
       "tipo": "fija_por_hijo",
       "importe": 110,
       "edad_hijo_min": 6,
       "edad_hijo_max": 16,
       "requiere_desempleo": true,
+      "prorratea_desempleo": true,
       "prorratea_progenitores": true,
       "base_max_individual": 30000,
       "base_max_conjunta": 47000,
@@ -3277,32 +3308,38 @@
      },
      {
       "id": "residencia_despoblamiento_1_descendiente",
-      "norma": "Art. 4.Uno.aa) Ley 13/1997",
-      "estado": "provisional",
+      "norma": "Art. 4.Uno.aa) y Seis Ley 13/1997",
+      "estado": "confirmado",
+      "fuente": "Art. 4.Uno.aa) y Seis Ley 13/1997, redacción vigente a 31-12-2025 (BOE-A-1998-8202); AEAT Manual Práctico Renta 2025, Parte 2, Comunitat Valenciana, «Por residir habitualmente en un municipio en riesgo de despoblamiento» (https://sede.agenciatributaria.gob.es/Sede/ayuda/manuales-videos-folletos/manuales-practicos/irpf-2025-deducciones-autonomicas/comunitat-valenciana/residir-habitualmente-municipio-riesgo-despoblamiento.html)",
       "tipo": "fija",
       "importe": 132,
       "requiere_zona_despoblada": true,
       "descendientes_min": 1,
-      "descendientes_max": 1
+      "descendientes_max": 1,
+      "descendientes_sin_deduccion": "nacimiento_adopcion"
      },
      {
       "id": "residencia_despoblamiento_2_descendientes",
-      "norma": "Art. 4.Uno.aa) Ley 13/1997",
-      "estado": "provisional",
+      "norma": "Art. 4.Uno.aa) y Seis Ley 13/1997",
+      "estado": "confirmado",
+      "fuente": "Art. 4.Uno.aa) y Seis Ley 13/1997, redacción vigente a 31-12-2025 (BOE-A-1998-8202); AEAT Manual Práctico Renta 2025, Parte 2, Comunitat Valenciana, «Por residir habitualmente en un municipio en riesgo de despoblamiento» (https://sede.agenciatributaria.gob.es/Sede/ayuda/manuales-videos-folletos/manuales-practicos/irpf-2025-deducciones-autonomicas/comunitat-valenciana/residir-habitualmente-municipio-riesgo-despoblamiento.html)",
       "tipo": "fija",
       "importe": 198,
       "requiere_zona_despoblada": true,
       "descendientes_min": 2,
-      "descendientes_max": 2
+      "descendientes_max": 2,
+      "descendientes_sin_deduccion": "nacimiento_adopcion"
      },
      {
       "id": "residencia_despoblamiento_3_descendientes",
-      "norma": "Art. 4.Uno.aa) Ley 13/1997",
-      "estado": "provisional",
+      "norma": "Art. 4.Uno.aa) y Seis Ley 13/1997",
+      "estado": "confirmado",
+      "fuente": "Art. 4.Uno.aa) y Seis Ley 13/1997, redacción vigente a 31-12-2025 (BOE-A-1998-8202); AEAT Manual Práctico Renta 2025, Parte 2, Comunitat Valenciana, «Por residir habitualmente en un municipio en riesgo de despoblamiento» (https://sede.agenciatributaria.gob.es/Sede/ayuda/manuales-videos-folletos/manuales-practicos/irpf-2025-deducciones-autonomicas/comunitat-valenciana/residir-habitualmente-municipio-riesgo-despoblamiento.html)",
       "tipo": "fija",
       "importe": 264,
       "requiere_zona_despoblada": true,
-      "descendientes_min": 3
+      "descendientes_min": 3,
+      "descendientes_sin_deduccion": "nacimiento_adopcion"
      }
     ],
     "pendientes": [
