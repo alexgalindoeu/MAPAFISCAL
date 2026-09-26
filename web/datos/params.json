@@ -212,6 +212,35 @@
    "coef_reduccion": 0.2,
    "limite_otras_rentas": 6500
   },
+  "deduccion_vivienda_transitoria": {
+   "norma": "DT 18.ª LIRPF y art. 68.1.1.º LIRPF en su redacción a 31-12-2012 (vivienda habitual adquirida antes del 1-1-2013)",
+   "fuente": "AEAT Manual Práctico Renta 2025, Deducción por inversión en vivienda habitual: régimen transitorio → Cantidades satisfechas y base máxima deducible; Porcentajes de deducción. Manual de Renta Web 2025, 9.1.2",
+   "estado": "confirmado",
+   "porcentaje_estatal": 0.075,
+   "porcentaje_autonomico_defecto": 0.075,
+   "base_maxima": 9040,
+   "obras_discapacidad": {
+    "base_maxima": 12080,
+    "porcentaje": 0.2
+   }
+  },
+  "deduccion_donativos": {
+   "norma": "Art. 68.3 y 69.1 LIRPF; art. 19 Ley 49/2002 (mod. RDL 6/2023)",
+   "fuente": "AEAT Manual Práctico Renta 2025, Deducciones por donativos → 3. Porcentajes de deducción; Límite aplicable",
+   "estado": "confirmado",
+   "ley49_2002": {
+    "tramo1_limite": 250,
+    "tramo1_porcentaje": 0.8,
+    "resto_porcentaje": 0.4,
+    "resto_porcentaje_recurrente": 0.45,
+    "limite_base_liquidable_pct": 0.1
+   },
+   "otras_fundaciones_porcentaje": 0.1,
+   "cuotas_afiliacion_partidos": {
+    "porcentaje": 0.2,
+    "base_maxima": 600
+   }
+  },
   "deduccion_maternidad": {
    "norma": "Art. 81 LIRPF",
    "estado": "provisional",

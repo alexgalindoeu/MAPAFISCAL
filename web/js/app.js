@@ -144,6 +144,8 @@
   function pintarGastosTerritorio() {
     const terr = selTerr.value, { hogar: campos } = camposDe(terr);
     $("campo-compra").hidden = T[terr].regimen !== "foral_pais_vasco";
+    // deducciones estatales (vivienda anterior a 2013 y donativos): solo régimen común
+    for (const id of ["campo-hipoteca", "campo-donativos", "casilla-donativos-rec"]) $(id).hidden = T[terr].regimen !== "comun";
     pintarAyudaMunicipio();
     if (!campos.length) { $("gastos-territorio").innerHTML = ""; return; }
     $("gastos-territorio").innerHTML = `<p class="gastos-titulo">Otros gastos con deducción en ${esc(corto(terr))}</p>` +
@@ -188,6 +190,8 @@
       previsionSocial: num("f-pensiones") > 0 ? { aportacionIndividual: num("f-pensiones") } : null,
       alquilerViviendaPagos: num("f-alquiler"),
       adquisicionViviendaPagos: num("f-compra"),
+      viviendaTransitoriaPagos: num("f-hipoteca"),
+      donativos: num("f-donativos"), donativosRecurrentes: $("f-donativos-rec").checked,
       retenciones: num("f-retenciones")
     };
     for (const [c, v] of Object.entries(gastosHogar)) if (v > 0) d1[camel(c)] = v;
@@ -236,6 +240,8 @@
     set("f-actividad", d1.actividades ? d1.actividades.rendimientoNetoPrevio : 0);
     set("f-pensiones", d1.previsionSocial ? d1.previsionSocial.aportacionIndividual : 0);
     set("f-alquiler", d1.alquilerViviendaPagos); set("f-compra", d1.adquisicionViviendaPagos);
+    set("f-hipoteca", d1.viviendaTransitoriaPagos); set("f-donativos", d1.donativos);
+    $("f-donativos-rec").checked = !!d1.donativosRecurrentes;
     set("f-retenciones", d1.retenciones); set("f-edad", d1.edad);
     $("f-discapacidad").value = d1.discapacidad || "no";
     $("f-desempleado").checked = !!d1.desempleado;
@@ -246,7 +252,8 @@
     const asc = h.miembros.filter(m => m.rol === "ascendiente");
     $("f-ascendientes").value = asc.length >= 2 ? "75x2" : asc.length ? (asc[0].edad >= 75 ? "75" : "65") : "0";
     const conocidos = new Set(["id", "rol", "edad", "discapacidad", "desempleado", "trabajo", "capitalMobiliario", "capitalInmobiliario",
-      "actividades", "ganancias", "previsionSocial", "alquilerViviendaPagos", "adquisicionViviendaPagos", "retenciones", "rentasPropias", "nacidoEnEjercicio"]);
+      "actividades", "ganancias", "previsionSocial", "alquilerViviendaPagos", "adquisicionViviendaPagos", "retenciones", "rentasPropias", "nacidoEnEjercicio",
+      "viviendaTransitoriaPagos", "donativos", "donativosRecurrentes"]);
     const snake = s => s.replace(/[A-Z]/g, c => "_" + c.toLowerCase());
     for (const k of Object.keys(gastosHogar)) delete gastosHogar[k];
     for (const [k, v] of Object.entries(d1)) if (!conocidos.has(k) && typeof v === "number") gastosHogar[snake(k)] = v;
@@ -275,13 +282,15 @@
     trabajo: "Deducción por rendimientos del trabajo", maternidad: "Deducción por maternidad",
     familiaNumerosa: "Deducción por familia numerosa", discapacidadFamiliaresCargo: "Deducción por familiares con discapacidad a cargo",
     alquilerVivienda: "Deducción por alquiler de vivienda habitual", adquisicionVivienda: "Deducción por adquisición de vivienda habitual",
-    emancipacion: "Deducción por arrendamiento para emancipación", pensionJubilacion: "Deducción por pensiones de jubilación bajas"
+    emancipacion: "Deducción por arrendamiento para emancipación", pensionJubilacion: "Deducción por pensiones de jubilación bajas",
+    viviendaTransitoria: "Deducción por inversión en vivienda habitual (régimen transitorio)", donativos: "Deducción por donativos (Ley 49/2002)"
   };
   // bloque de params del que sale cada deducción estatal o foral (para citar su norma y su estado)
   const BLOQUE_DED = {
     minimoPersonal: "minimo_personal_deduccion", minimoFamiliar: "minimo_familiar_deduccion", trabajo: "deduccion_trabajo_cuota",
     alquilerVivienda: "deduccion_alquiler_vivienda", adquisicionVivienda: "deduccion_adquisicion_vivienda",
     emancipacion: "deduccion_emancipacion", pensionJubilacion: "deduccion_pension_jubilacion",
+    viviendaTransitoria: "deduccion_vivienda_transitoria", donativos: "deduccion_donativos",
     maternidad: "deduccion_maternidad", familiaNumerosa: "deduccion_familia_numerosa_y_discapacidad_cargo",
     discapacidadFamiliaresCargo: "deduccion_familia_numerosa_y_discapacidad_cargo"
   };
@@ -349,6 +358,8 @@
       if (mAut && Math.abs(mAut.total - liq.minimoPersonalFamiliar.total) > 0.005) f("Mínimo autonómico de " + esc(corto(terr)) + " (solo para la cuota autonómica)", "", eur(mAut.total), "info");
       f("Cuota íntegra estatal", "", eur(liq.cuotaIntegraEstatal));
       f("Cuota íntegra autonómica", "0546", eur(liq.cuotaIntegraAutonomica));
+      const de = liq.deduccionesEstatales, deTot = de ? de.totalEstatal + de.totalAutonomico : 0;
+      if (deTot) f("Deducciones generales (vivienda anterior a 2013, donativos)", "", "−" + eur(deTot), "menos");
       const da = (liq.deduccionesAutonomicas && liq.deduccionesAutonomicas.total) || 0;
       if (da) f("Deducciones autonómicas", "0564", "−" + eur(da), "menos");
     } else {
@@ -383,6 +394,11 @@
       const norma = (inf && inf.norma ? inf.norma : "Arts. 81 y 81 bis LIRPF") + " · se resta de la cuota diferencial";
       return `<li><span class="ded-nombre">${esc(nombreDed(id))}${prov}</span><span class="ded-norma">${esc(norma)}</span><span class="ded-imp">−${eur(v)}</span></li>`;
     }));
+    const detEst = (liq.deduccionesEstatales && liq.deduccionesEstatales.detalle) || {};
+    for (const [id, v] of Object.entries(detEst).filter(([, v]) => v > 0)) {
+      const inf = bloqueDed("comun", id);
+      items.push(`<li><span class="ded-nombre">${esc(nombreDed(id))}</span><span class="ded-norma">${esc(inf && inf.norma ? inf.norma : "LIRPF")} · mitad en la cuota estatal y mitad en la autonómica</span><span class="ded-imp">−${eur(v)}</span></li>`);
+    }
     if (drt) {
       const inf = P.estatal.deduccion_obtencion_rendimientos_trabajo;
       items.push(`<li><span class="ded-nombre">Deducción por obtención de rendimientos del trabajo${inf.estado === "provisional" ? etqProvisional : ""}</span><span class="ded-norma">${esc(inf.norma)} · se resta de la cuota líquida total</span><span class="ded-imp">−${eur(drt)}</span></li>`);

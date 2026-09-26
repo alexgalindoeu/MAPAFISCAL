@@ -859,3 +859,31 @@ familiares, estatal y autonómicos para 2025*, y la página de cada comunidad.
 🟡 Las puertas de renta de las deducciones autonómicas que restan el mínimo
 (`base_gate: menos_minimo`) siguen usando el mínimo estatal; cada ley autonómica dice cuál
 aplica y está sin cotejar.
+
+## Deducciones estatales: donativos y vivienda anterior a 2013 (2026-09-26)
+
+Test `tests/testthat/test-deducciones-estatales.R`; casos `est_*` del validador (R ↔ JS).
+Hasta ahora el motor JS no tenía estas dos deducciones (el R sí) y el R limitaba mal los
+donativos. Ahora están en los dos motores y la web las pide en el paso 4 (solo régimen común).
+
+**Donativos** (art. 68.3 y 69.1 LIRPF; art. 19 Ley 49/2002): 80 % de los primeros 250 €,
+40 % del resto (45 % si se ha donado a la misma entidad en 2023 y 2024 por importe igual o
+creciente). La **base** de la deducción (los donativos, no la deducción) no puede superar el
+10 % de la base liquidable (casillas 0500 + 0510). Mitad en cada cuota íntegra.
+
+- Castilla-La Mancha, 30.000 € de salario (base liquidable 26.095 €) y 5.000 € donados: base
+  mín(5.000; 2.609,50) = 2.609,50 → 250 × 80 % + 2.359,50 × 40 % = 200 + 943,80 = **1.143,80 €**
+  (571,90 € en cada cuota). Cuota líquida 4.939,50 − 1.143,80 = **3.795,70 €**. Antes el motor R
+  calculaba la deducción sobre los 5.000 € (2.100 €) y la topaba en 2.609,50 €.
+- 150 € → 120 €; 1.000 € → 200 + 300 = 500 €; recurrentes → 200 + 750 × 45 % = **537,50 €**.
+
+**Vivienda habitual, régimen transitorio** (DT 18.ª LIRPF; art. 68.1.1.º en su redacción a
+31-12-2012): lo pagado en el ejercicio (amortización, intereses y gastos del préstamo) hasta
+**9.040 €**, al 7,5 % en la cuota estatal y al 7,5 % en la autonómica.
+
+- Madrid, 30.000 € y 12.000 € pagados: 9.040 × 15 % = **1.356 €** (678 € por cuota). Cuota
+  líquida 4.610,53 − 1.356 = **3.254,53 €**. Con 4.000 € pagados, 600 €.
+
+🟡 Pendiente: el 9 % del régimen especial de Cataluña, el límite de 9.040 € en tributación
+conjunta (el motor lo aplica una vez por declaración) y los donativos a otras entidades y
+partidos políticos.

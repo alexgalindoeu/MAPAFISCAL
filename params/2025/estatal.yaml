@@ -292,8 +292,14 @@ reduccion_patrimonios_protegidos:
 # 10. DEDUCCIONES DE LA CUOTA — ESTATALES (art. 68 y DDTT)
 # -----------------------------------------------------------------------------
 deduccion_vivienda_transitoria:
-  norma: "DT 18ª LIRPF (adquisiciones anteriores a 2013)"
-  estado: provisional
+  norma: "DT 18.ª LIRPF y art. 68.1.1.º LIRPF en su redacción a 31-12-2012 (vivienda habitual adquirida antes del 1-1-2013)"
+  fuente: "AEAT Manual Práctico Renta 2025, Deducción por inversión en vivienda habitual: régimen transitorio → Cantidades satisfechas y base máxima deducible; Porcentajes de deducción. Manual de Renta Web 2025, 9.1.2"
+  # Base: cantidades satisfechas en el ejercicio (amortización, intereses y gastos del
+  # préstamo) hasta 9.040 €; 7,5 % estatal + 7,5 % autonómico en todas las CCAA de régimen
+  # común. Pendiente: el 9 % del régimen especial de Cataluña (compra antes del 30-07-2011 y
+  # otros requisitos) y el tratamiento del límite en tributación conjunta (el motor lo
+  # aplica una vez por declaración; sin cotejar).
+  estado: confirmado
   porcentaje_estatal: 0.075
   porcentaje_autonomico_defecto: 0.075
   base_maxima: 9040
@@ -307,8 +313,14 @@ deduccion_alquiler_transitoria_estatal:
   base_imponible_maxima: 24107.20
 
 deduccion_donativos:
-  norma: "Art. 68.3 LIRPF; Ley 49/2002 art. 19 (mod. RDL 6/2023)"
-  estado: provisional
+  norma: "Art. 68.3 y 69.1 LIRPF; art. 19 Ley 49/2002 (mod. RDL 6/2023)"
+  fuente: "AEAT Manual Práctico Renta 2025, Deducciones por donativos → 3. Porcentajes de deducción; Límite aplicable"
+  # Ley 49/2002: 80 % de los primeros 250 €, 40 % del resto (45 % si se ha donado a la misma
+  # entidad en los dos años anteriores por importe igual o creciente). La BASE (no la
+  # deducción) no puede superar el 10 % de la base liquidable (casillas 0500 + 0510). Se
+  # aplica el 50 % en cada cuota íntegra (estatal y autonómica). No modelados: el 15 % de
+  # las actividades prioritarias de mecenazgo, otras fundaciones (10 %) y partidos políticos.
+  estado: confirmado
   ley49_2002:
     tramo1_limite: 250
     tramo1_porcentaje: 0.80

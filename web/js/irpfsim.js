@@ -524,6 +524,35 @@
     return { total, detalle };
   }
 
+  // Deducciones estatales de la cuota (art. 68 LIRPF): donativos a entidades de la Ley 49/2002 y
+  // vivienda habitual en régimen transitorio (DT 18.ª). Gastos propios de las personas del
+  // ámbito; cada una se reparte entre la cuota estatal y la autonómica.
+  function deduccionesEstatales(personas, P, baseLiquidableTotal) {
+    const e = P.estatal, detalle = {};
+    let totEst = 0, totAut = 0;
+    let donativos = 0, recurrente = false;
+    for (const m of personas) { donativos += num(m.donativos); if (m.donativosRecurrentes) recurrente = true; }
+    if (donativos > 0) {
+      const d = e.deduccion_donativos.ley49_2002;
+      // art. 69.1: la BASE de la deducción no puede superar el 10 % de la base liquidable
+      const base = Math.min(donativos, baseLiquidableTotal * d.limite_base_liquidable_pct);
+      const restoPct = recurrente ? d.resto_porcentaje_recurrente : d.resto_porcentaje;
+      const ded = Math.min(base, d.tramo1_limite) * d.tramo1_porcentaje + Math.max(0, base - d.tramo1_limite) * restoPct;
+      detalle.donativos = red2(ded);
+      totEst += ded / 2; totAut += ded / 2;   // 50 % en cada cuota íntegra
+    }
+    let viv = 0;
+    for (const m of personas) viv += num(m.viviendaTransitoriaPagos);
+    if (viv > 0) {
+      const dv = e.deduccion_vivienda_transitoria;
+      const base = Math.min(viv, dv.base_maxima);
+      const dEst = base * dv.porcentaje_estatal, dAut = base * dv.porcentaje_autonomico_defecto;
+      detalle.viviendaTransitoria = red2(dEst + dAut);
+      totEst += dEst; totAut += dAut;
+    }
+    return { detalle, totalEstatal: red2(totEst), totalAutonomico: red2(totAut) };
+  }
+
   function liquidarComunScope(hogar, terr, P, modo, declaranteId) {
     const personas = modo === "conjunta"
       ? hogar.miembros.filter(m => m.rol === "declarante" || m.rol === "conyuge" || m.rol === "descendiente")
@@ -574,8 +603,9 @@
     const cuotaIntegraAutonomica = cigAut + ciaAut;
 
     const dedAut = deduccionesAutonomicas(hogar, terr, P, modo, blg + bla, cuotaIntegraAutonomica, mpf.total, declaranteId);
-    let clEst = Math.max(0, cuotaIntegraEstatal);
-    let clAut = Math.max(0, cuotaIntegraAutonomica - dedAut.total);
+    const dedEst = deduccionesEstatales(personas, P, blg + bla);
+    let clEst = Math.max(0, cuotaIntegraEstatal - dedEst.totalEstatal);
+    let clAut = Math.max(0, cuotaIntegraAutonomica - dedAut.total - dedEst.totalAutonomico);
 
     let bonifCm = 0;
     if (terr.bonificacion_residencia) {
@@ -601,7 +631,7 @@
       minimoPersonalFamiliar: mpf, minimoPersonalFamiliarAutonomico: mpfAut,
       cuotaIntegraEstatal: red2(cuotaIntegraEstatal), cuotaIntegraAutonomica: red2(cuotaIntegraAutonomica),
       cuotaIntegraTotal: red2(cuotaIntegraEstatal + cuotaIntegraAutonomica),
-      deduccionesAutonomicas: dedAut, bonificacionResidencia: red2(bonifCm),
+      deduccionesEstatales: dedEst, deduccionesAutonomicas: dedAut, bonificacionResidencia: red2(bonifCm),
       cuotaLiquidaEstatal: red2(clEst), cuotaLiquidaAutonomica: red2(clAut),
       cuotaLiquidaTotal: red2(cuotaLiquida),
       deduccionRendimientosTrabajo: drt,
@@ -861,6 +891,13 @@
     };
     base.deduccionesAutonomicas = Object.assign({}, lst[0].deduccionesAutonomicas, sumaDetalle("deduccionesAutonomicas"));
     base.deduccionesCuotaDiferencial = sumaDetalle("deduccionesCuotaDiferencial");
+    const est = { detalle: {}, totalEstatal: 0, totalAutonomico: 0 };
+    for (const x of lst) {
+      const d = x.deduccionesEstatales; if (!d) continue;
+      est.totalEstatal = red2(est.totalEstatal + num(d.totalEstatal)); est.totalAutonomico = red2(est.totalAutonomico + num(d.totalAutonomico));
+      for (const [k, v] of Object.entries(d.detalle || {})) est.detalle[k] = red2(num(est.detalle[k]) + num(v));
+    }
+    base.deduccionesEstatales = est;
     base.deduccionRendimientosTrabajo = sumaDetalle("deduccionRendimientosTrabajo");
     base.minoracionCuota = red2(lst.reduce((s, x) => s + num(x.minoracionCuota), 0));
     const bit = base.baseImponibleGeneral + base.baseImponibleAhorro;
