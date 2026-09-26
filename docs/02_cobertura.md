@@ -20,7 +20,7 @@ provisionales o parciales · ⛔ pendiente (hook presente, no calcula).
 | Régimen transitorio DT 9ª (pre-1994) | ✅ | 🟡 (coef. iguales a estatal) | 🟡 |
 | Coeficientes de actualización de inmuebles | ✅ (suprimidos) | ⛔ tabla anual pendiente | ⛔ |
 | Integración y compensación (arts. 47–49) | ✅ (límites 25 %) | ✅ (reglas estatales) | ✅ (reglas estatales) |
-| Reducciones de base (previsión social, p. compensatorias) | ✅ previsión social por partícipe (1.500 € + 8.500 € empresariales, 30 % del rendimiento del art. 19) · 🟡 incremento de autónomos, coeficientes del plan de empleo, cónyuge | 🟡 (límites EPSV) | ⛔ |
+| Reducciones de base (previsión social, p. compensatorias) | ✅ previsión social por partícipe (1.500 € + 8.500 € empresariales, 30 % del rendimiento del art. 19; la contribución empresarial se imputa al íntegro del trabajo, art. 17.1.e) · 🟡 incremento de autónomos, coeficientes del plan de empleo, cónyuge | 🟡 (límites EPSV) | ⛔ |
 | Tributación individual vs. conjunta (elige la mínima) | ✅ | ✅ | 🟡 |
 | Mínimo personal y familiar | ✅ estatal (en base, con prorrateo art. 61) · ✅ importes autonómicos propios para el tramo autonómico (8 CCAA; Cataluña y Castilla y León mantienen los estatales) | ✅ (deducción de cuota) | ✅ personal + familiar (deducción de cuota, con prorrateo) |
 | Anualidades por alimentos a hijos (escala separada) | ✅ | ⛔ | ⛔ |

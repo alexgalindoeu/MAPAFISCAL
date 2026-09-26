@@ -1027,12 +1027,28 @@ individual.
 
 - Soltero, 30.000 €: aporta 1.500 → reduce **1.500**; aporta 3.000 → 1.500; con 2.000 € de
   contribución empresarial → **3.500**.
-- 18.000 € y 1.143 € de cotizaciones, aporta 1.500 y la empresa 8.000: rendimiento del art. 19
-  = 18.000 − 1.143 − 2.000 = 14.857; límite mín(30 % × 14.857; 1.500 + 8.000) = **4.457,10 €**
-  (antes, 9.500 €).
+- 18.000 € de salario y 1.143 € de cotizaciones, aporta 1.500 y la empresa 8.000: la
+  contribución empresarial es rendimiento íntegro del trabajo (ver abajo), así que el íntegro
+  es 26.000 y el rendimiento del art. 19 = 26.000 − 1.143 − 2.000 = 22.857; límite
+  mín(30 % × 22.857; 1.500 + 8.000) = **6.857,10 €** (con el íntegro sin imputar daba 4.457,10;
+  antes de los límites por partícipe, 9.500).
 - Autónomo en directa simplificada con 4.000 €: 3.800 € netos → 30 % = **1.140 €**.
 - Pareja en conjunta (Madrid, 30.000 y 20.000 €, 1.500 € cada uno): **3.000 €** (antes, 1.500).
   Con 42.000 y 6.000 €: 1.500 + 30 % × (6.000 − 381 − 2.000) = 1.500 + 1.085,70 = **2.585,70 €**.
+
+**Contribución empresarial imputada (art. 17.1.e LIRPF, #31, 2026-09-26).** Las contribuciones
+del promotor a planes de pensiones, planes de empleo y demás sistemas de previsión social
+imputadas al trabajador son rendimiento íntegro del trabajo (en el modelo 100 tienen casilla
+propia dentro de los rendimientos del trabajo). El motor suma `contribucion_empresarial` al
+íntegro (`integro_trabajo()` en R, `integroTrabajo()` en JS), así que `dinerarias` y `especie`
+**no** deben incluirla. El íntegro con la contribución es el que cuenta para la reducción del
+art. 20, la deducción de la DA 61.ª, el límite del 30 % y la obligación de declarar:
+
+- Mismo caso de arriba frente a un salario de 26.000 € sin plan: los dos tienen un rendimiento
+  del art. 19 de 22.857 € y ninguna reducción del art. 20 (24.857 € > 19.747,50); la base
+  liquidable general con la contribución es 22.857 − 6.857,10 = **15.999,90 €**.
+- Obligación de declarar: 15.000 € de salario y 8.000 € de contribución empresarial, un solo
+  pagador: rendimientos íntegros del trabajo 23.000 € > 22.000 € → **obligado** (antes, no).
 
 🟡 No modelados: los coeficientes de las aportaciones del trabajador al mismo plan de empleo,
 el incremento de 4.250 € de autónomos, los 5.000 € de seguros colectivos de dependencia, los

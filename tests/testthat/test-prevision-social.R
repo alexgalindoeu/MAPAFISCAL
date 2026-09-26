@@ -17,12 +17,26 @@ test_that("Límite general de 1.500 € y ampliación de hasta 8.500 € por con
 })
 
 test_that("El 30 % se calcula sobre el rendimiento neto del art. 19 y limita el total", {
-  # 18.000 € y 1.143 € de cotizaciones: rendimiento del art. 19 = 18.000 − 1.143 − 2.000 = 14.857
-  # límite = mín(30 % × 14.857 = 4.457,10; 1.500 + 8.000) = 4.457,10
-  expect_equal(red_ps(con_plan(bruto = 18000, ss = 1143, ind = 1500, emp = 8000)), 4457.10)
+  # 18.000 € de salario + 8.000 € de contribución empresarial imputada (art. 17.1.e) y 1.143 € de
+  # cotizaciones: rendimiento del art. 19 = 26.000 − 1.143 − 2.000 = 22.857
+  # límite = mín(30 % × 22.857 = 6.857,10; 1.500 + 8.000) = 6.857,10
+  expect_equal(red_ps(con_plan(bruto = 18000, ss = 1143, ind = 1500, emp = 8000)), 6857.10)
   # autónomo en directa simplificada: 4.000 − 5 % = 3.800 -> 30 % = 1.140
   h <- con_plan(bruto = 0, ind = 1500, actividades = list(metodo = "directa_simplificada", rendimiento_neto_previo = 4000))
   expect_equal(red_ps(h), 1140)
+})
+
+test_that("La contribución empresarial es rendimiento íntegro del trabajo (art. 17.1.e LIRPF)", {
+  # con plan: 18.000 + 8.000 imputados; sin plan: 26.000 de salario. Mismo rendimiento del
+  # art. 19 (22.857) y sin reducción del art. 20; la diferencia es solo la reducción de 6.857,10
+  con <- liquidar(con_plan(bruto = 18000, ss = 1143, emp = 8000))
+  sin <- liquidar(con_plan(bruto = 26000, ss = 1143))
+  expect_equal(sin$base_liquidable_general, 22857)
+  expect_equal(con$base_liquidable_general, 22857 - 6857.10)
+  # obligación de declarar: 15.000 + 8.000 = 23.000 € de rendimientos íntegros > 22.000 €
+  ob <- liquidar(con_plan(bruto = 15000, ss = 952.5, emp = 8000))$obligacion_declarar
+  expect_true(ob$obligado)
+  expect_equal(ob$por_persona$d1$motivo, "trabajo")
 })
 
 test_that("En tributación conjunta cada partícipe conserva su propio límite", {

@@ -9,11 +9,19 @@
 
 # --- Rendimientos del trabajo -------------------------------------------------
 
+# Rendimiento íntegro del trabajo: retribuciones dinerarias y en especie más las
+# contribuciones empresariales a sistemas de previsión social imputadas al trabajador
+# (art. 17.1.e LIRPF; en el modelo 100 van dentro de los rendimientos del trabajo)
+integro_trabajo <- function(pers) {
+  tr <- pers$trabajo
+  (tr$dinerarias %||% 0) + (tr$especie %||% 0) + (pers$prevision_social$contribucion_empresarial %||% 0)
+}
+
 # Rendimiento neto PREVIO a la reducción del trabajo (art. 19: íntegro - gastos)
 rn_trabajo_previo <- function(pers, P, regimen = "comun") {
-  tr <- pers$trabajo
-  if (is.null(tr)) return(list(previo = 0, previo_art20 = 0, integro = 0))
-  integro <- (tr$dinerarias %||% 0) + (tr$especie %||% 0)
+  integro <- integro_trabajo(pers)
+  if (is.null(pers$trabajo) && integro == 0) return(list(previo = 0, previo_art20 = 0, integro = 0))
+  tr <- pers$trabajo %||% list()
   # rendimiento irregular: reducción del 30 % sobre base máx. (art. 18.2)
   irr <- tr$rendimiento_irregular %||% NULL
   if (!is.null(irr) && (irr$importe %||% 0) > 0 && (irr$anios %||% 0) > 2) {

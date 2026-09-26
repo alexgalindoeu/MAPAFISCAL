@@ -155,9 +155,9 @@ deduccion_rendimientos_trabajo <- function(personas, P, cuota_integra_total) {
   if (is.null(d) || cuota_integra_total <= 0) return(list(total = 0, detalle = list()))
   filas <- lapply(personas, function(pe) {
     tr <- pe$trabajo
-    rit <- if (is.null(tr)) 0 else (tr$dinerarias %||% 0) + (tr$especie %||% 0)
-    neto <- if (is.null(tr)) 0 else max(0, rit - (tr$cotizaciones_ss %||% 0) - (tr$otros_gastos %||% 0))
-    laboral <- !is.null(tr) && !isTRUE(tr$pension_jubilacion)
+    rit <- integro_trabajo(pe)
+    neto <- max(0, rit - (tr$cotizaciones_ss %||% 0) - (tr$otros_gastos %||% 0))
+    laboral <- rit > 0 && !isTRUE(tr$pension_jubilacion)
     cm <- rn_capital_mobiliario(pe, P, "comun")
     gan <- sum(vapply(pe$ganancias %||% list(), function(el) {
       g <- ganancia_elemento(el, P, "comun"); g$ahorro + g$general }, numeric(1))) +
