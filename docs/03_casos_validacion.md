@@ -161,7 +161,7 @@ Codificadas en `tests/testthat/test-ded-cyl.R`. 8 deducciones (de ~18).
 | Deducción (art.) | Regla |
 |---|---|
 | Nacimiento o adopción (4) | 1.010 / 1.475 / 2.351 € por orden (🟡 importes del medio rural más altos, no modelados). Solo año del nacimiento |
-| Familia numerosa (3) | 600 € (🟡 no el +1.000 €/hijo desde el 6.º ni el ×2 por discapacidad) |
+| Familia numerosa (3) | **600 €** en general; **1.500 €** con 4 descendientes; **2.500 €** con 5, más **1.000 €** por cada descendiente desde el sexto (`hijos_desde_orden: 6`); **+600 €** si algún cónyuge o descendiente tiene discapacidad ≥ 65 % (`requiere_discapacidad_65_de`). Sin límite de renta; prorrateo |
 | Alquiler vivienda habitual jóvenes (7.4) | 20 %, límite 459 €, ≤ 35 años |
 | Cuidado de hijos — empleada de hogar (5.1) | 30 %, límite 322 € |
 | Cuidado de hijos — escuela infantil de la Comunidad (5.1) | 100 %, límite 1.320 € |
@@ -175,7 +175,29 @@ nacimiento, acoplada), gastos de adopción, deducciones de inversión y donativo
 vivienda joven en el medio rural (condicionada a municipio), movilidad sostenible.
 
 **DSL:** se añadieron las puertas `descendiente_edad_max` (exige un descendiente por
-debajo de una edad) y `requiere_discapacidad_grado` (`"33_64"` / `"65_mas"`).
+debajo de una edad) y `requiere_discapacidad_grado` (`"33_64"` / `"65_mas"`). *(2026-09-26)*
+`hijos_desde_orden` en `fija_por_hijo` y la puerta `requiere_discapacidad_65_de`
+(`"declarantes_o_descendientes"` o `"contribuyente_o_descendientes"`).
+
+### Cotejo con la fuente (2026-09-26, issue #16)
+
+Familia numerosa, según la subpágina del Manual Práctico Renta 2025. El DL 1/2013 de
+Castilla y León no está consolidado en el BOE. Tests en `test-ded-cyl.R`, familia
+monoparental con 40.000 € de trabajo:
+
+| Descendientes | Cálculo | Deducción |
+|---|---|---|
+| 3 | general | 600 € |
+| 4 | | 1.500 € |
+| 5 (especial) | | 2.500 € |
+| 7 (especial) | 2.500 + 1.000 (6.º) + 1.000 (7.º) | 4.500 € |
+| 3, uno con discapacidad ≥ 65 % | 600 + 600 | 1.200 € |
+| 3, uno con discapacidad 33-64 % | sin incremento | 600 € |
+| 4, pareja en individual | 1.500 / 2 | 750 € cada uno |
+
+`cyl_fn_7` (validador): pareja con 90.000 + 60.000 € de trabajo, 7 descendientes, uno
+con discapacidad ≥ 65 %; en individual, cada progenitor aplica (2.500 + 2.000 + 600) / 2 =
+**2.550 €** (5.100 € en total; cuota líquida total 26.986,96 €).
 
 ---
 

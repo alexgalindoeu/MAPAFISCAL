@@ -87,6 +87,18 @@ add("ga_familia", "ES-GA", "monoparental", "no",
          list(id="h2",rol="descendiente",edad=8, gastosLibrosTexto=200)))
 
 # 5e. Castilla y León — discapacidad + cuidado hijos
+# 3b0. Castilla y León (cotejo #16) — familia numerosa con 7 descendientes, uno con
+# discapacidad >= 65 %: 2.500 + 2 x 1.000 (6.º y 7.º) + 600 = 5.100 €, prorrateado en individual
+add("cyl_fn_7", "ES-CL", "biparental", "especial",
+    c(list(persona("d1","declarante",46, trabajo=list(dinerarias=90000, cotizaciones_ss=5715)),
+           persona("d2","conyuge",44, trabajo=list(dinerarias=60000, cotizaciones_ss=3810)),
+           persona("h1","descendiente",4, discapacidad="65_mas")),
+      lapply(2:7, function(i) persona(paste0("h", i), "descendiente", 2 * i + 1))),
+    c(list(list(id="d1",rol="declarante",edad=46, trabajo=list(dinerarias=90000,cotizacionesSs=5715)),
+           list(id="d2",rol="conyuge",edad=44, trabajo=list(dinerarias=60000,cotizacionesSs=3810)),
+           list(id="h1",rol="descendiente",edad=4, discapacidad="65_mas")),
+      lapply(2:7, function(i) list(id=paste0("h", i), rol="descendiente", edad=2 * i + 1))))
+
 add("cyl_disc", "ES-CL", "ninguna", "no",
     list({p <- persona("d1","declarante",70, discapacidad="65_mas",
                        trabajo=list(dinerarias=20000, cotizaciones_ss=1270)); p}),

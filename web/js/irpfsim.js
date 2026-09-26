@@ -379,6 +379,11 @@
       if (d.requiere_familiar_discapacidad_65 &&
           !asc.concat(desc).some(p => (p.discapacidad || "no") === "65_mas")) return false;
       if (d.requiere_parto_multiple && !hogar.partoMultiple) return false;
+      // discapacidad >= 65 % de un declarante (o de la persona del ámbito) o de un descendiente
+      if (d.requiere_discapacidad_65_de != null) {
+        const quien = (d.requiere_discapacidad_65_de === "contribuyente_o_descendientes" ? ambito : decs).concat(desc);
+        if (!quien.some(p => (p.discapacidad || "no") === "65_mas")) return false;
+      }
       // municipio de residencia: población máxima y/o lista oficial de zonas despobladas
       if (d.municipio_hab_max != null && (hogar.municipioHabitantes == null || hogar.municipioHabitantes > d.municipio_hab_max)) return false;
       if (d.requiere_zona_despoblada && !hogar.zonaDespoblada) return false;
@@ -455,7 +460,8 @@
       } else if (d.tipo === "fija_por_hijo") {
         const hh = desc.filter(h => (d.edad_hijo_min == null || num(h.edad, 99) >= d.edad_hijo_min) &&
                                     (d.edad_hijo_max == null || num(h.edad, 99) <= d.edad_hijo_max));
-        val = hh.length * num(d.importe);
+        // hijos_desde_orden: solo cuentan a partir del N-ésimo
+        val = Math.max(0, hh.length - (num(d.hijos_desde_orden, 1) - 1)) * num(d.importe);
       } else if (d.tipo === "fija_por_ascendiente") {
         // por edad o por discapacidad (ascendiente_discapacidad: omitido = cualquier grado,
         // false = no cuenta, "65_mas" = solo ese grado); requiere_minimo_ascendiente: mismo

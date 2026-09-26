@@ -875,12 +875,51 @@ territorios:
           tipo: fija_por_hijo_nacido
           anios_ventana: 1
           importes_por_orden: { "1": 1010, "2": 1475, "3+": 2351 }
+        # Familia numerosa (art. 3): el importe depende del número de descendientes con
+        # mínimo por descendientes: 600 € en general, 1.500 € con 4, 2.500 € con 5 y 1.000 €
+        # más por cada uno desde el sexto; +600 € si algún cónyuge o descendiente tiene
+        # discapacidad >= 65 %. Sin límite de renta. Se prorratea entre los progenitores.
         - id: familia_numerosa
           norma: "Art. 3 DL 1/2013 CyL"
-          estado: provisional   # 600 € general; 1.500 € (4 desc.); 2.500 € (5) + 1.000 €/desc. desde el 6º; +600 discapacidad >=65 %
+          estado: confirmado
+          fuente: "AEAT Manual Práctico Renta 2025, Parte 2, Castilla y León, «Por familia numerosa» (https://sede.agenciatributaria.gob.es/Sede/ayuda/manuales-videos-folletos/manuales-practicos/irpf-2025-deducciones-autonomicas/comunidad-autonoma-castilla-leon/familia-numerosa.html); arts. 3 y 10 DL 1/2013 (el texto refundido no está consolidado en el BOE)"
           tipo: fija
           importe: 600
           requiere_familia_numerosa: true
+          descendientes_max: 3
+        - id: familia_numerosa_4_descendientes
+          norma: "Art. 3 DL 1/2013 CyL"
+          estado: confirmado
+          fuente: "AEAT Manual Práctico Renta 2025, Parte 2, Castilla y León, «Por familia numerosa» (https://sede.agenciatributaria.gob.es/Sede/ayuda/manuales-videos-folletos/manuales-practicos/irpf-2025-deducciones-autonomicas/comunidad-autonoma-castilla-leon/familia-numerosa.html)"
+          tipo: fija
+          importe: 1500
+          requiere_familia_numerosa: true
+          descendientes_min: 4
+          descendientes_max: 4
+        - id: familia_numerosa_5_descendientes
+          norma: "Art. 3 DL 1/2013 CyL"
+          estado: confirmado
+          fuente: "AEAT Manual Práctico Renta 2025, Parte 2, Castilla y León, «Por familia numerosa» (https://sede.agenciatributaria.gob.es/Sede/ayuda/manuales-videos-folletos/manuales-practicos/irpf-2025-deducciones-autonomicas/comunidad-autonoma-castilla-leon/familia-numerosa.html)"
+          tipo: fija
+          importe: 2500
+          requiere_familia_numerosa: true
+          descendientes_min: 5
+        - id: familia_numerosa_desde_6_descendiente
+          norma: "Art. 3 DL 1/2013 CyL"
+          estado: confirmado
+          fuente: "AEAT Manual Práctico Renta 2025, Parte 2, Castilla y León, «Por familia numerosa» (https://sede.agenciatributaria.gob.es/Sede/ayuda/manuales-videos-folletos/manuales-practicos/irpf-2025-deducciones-autonomicas/comunidad-autonoma-castilla-leon/familia-numerosa.html)"
+          tipo: fija_por_hijo
+          importe: 1000          # por cada descendiente a partir del sexto
+          hijos_desde_orden: 6
+          requiere_familia_numerosa: true
+        - id: familia_numerosa_discapacidad
+          norma: "Art. 3 DL 1/2013 CyL"
+          estado: confirmado
+          fuente: "AEAT Manual Práctico Renta 2025, Parte 2, Castilla y León, «Por familia numerosa» (https://sede.agenciatributaria.gob.es/Sede/ayuda/manuales-videos-folletos/manuales-practicos/irpf-2025-deducciones-autonomicas/comunidad-autonoma-castilla-leon/familia-numerosa.html)"
+          tipo: fija
+          importe: 600           # incremento único si algún cónyuge o descendiente tiene discapacidad >= 65 %
+          requiere_familia_numerosa: true
+          requiere_discapacidad_65_de: declarantes_o_descendientes
         - id: arrendamiento_vivienda_habitual_joven
           norma: "Art. 7.4 DL 1/2013 CyL"
           tipo: porcentaje_campo

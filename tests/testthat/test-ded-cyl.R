@@ -41,3 +41,29 @@ test_that("CyL: cuidado de hijos — empleada de hogar (30 %/322) y escuela infa
   expect_equal(d$cuidado_hijos_empleada_hogar, min(0.30*2000, 322))   # 322
   expect_equal(d$cuidado_hijos_escuela_infantil, min(3000, 1320))     # 1320
 })
+
+test_that("CyL: familia numerosa según el número de descendientes (art. 3)", {
+  fn <- function(nhijos, disc_hijo = "no", cat = "general") {
+    hijos <- lapply(seq_len(nhijos), function(i)
+      persona(paste0("h", i), "descendiente", 2 + 2 * i, discapacidad = if (i == 1) disc_hijo else "no"))
+    nuevo_hogar("v","ES-CL", c(list(persona("d1","declarante",45,
+      trabajo=list(dinerarias=40000, cotizaciones_ss=2540))), hijos),
+      tipo_unidad_familiar="monoparental", familia_numerosa=cat)
+  }
+  total_fn <- function(h) { d <- liquidar(h, modo="individual")$deducciones_autonomicas$detalle
+    sum(unlist(d[grepl("^familia_numerosa", names(d))])) }
+  expect_equal(total_fn(fn(3)), 600)                            # general
+  expect_equal(total_fn(fn(4)), 1500)                           # 4 descendientes
+  expect_equal(total_fn(fn(5, cat = "especial")), 2500)         # 5 descendientes
+  expect_equal(total_fn(fn(7, cat = "especial")), 2500 + 2 * 1000)  # 6.º y 7.º: +1.000 cada uno
+  expect_equal(total_fn(fn(3, disc_hijo = "65_mas")), 600 + 600)    # descendiente >= 65 %
+  expect_equal(total_fn(fn(3, disc_hijo = "33_64")), 600)           # grado insuficiente
+
+  # dos progenitores en individual -> cada uno la mitad (4 descendientes: 750)
+  h2 <- nuevo_hogar("v","ES-CL", c(list(
+    persona("d1","declarante",45, trabajo=list(dinerarias=40000, cotizaciones_ss=2540)),
+    persona("d2","conyuge",44, trabajo=list(dinerarias=30000, cotizaciones_ss=1905))),
+    lapply(1:4, function(i) persona(paste0("h", i), "descendiente", 3 * i))),
+    tipo_unidad_familiar="biparental", familia_numerosa="general")
+  expect_equal(liquidar(h2, modo="individual")$deducciones_autonomicas$detalle$familia_numerosa_4_descendientes, 750)
+})
