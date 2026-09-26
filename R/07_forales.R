@@ -208,6 +208,9 @@ liquidar_navarra_scope <- function(hogar, P, modo, declarante_id = NULL) {
     m <- m + (if (edad >= 75) mp$incremento_75 %||% 0 else if (edad >= 65) mp$incremento_65 %||% 0 else 0)
     if (identical(c$discapacidad, "33_64")) m <- m + (mp$incremento_discapacidad_33_64 %||% 0)
     if (identical(c$discapacidad, "65_mas")) m <- m + (mp$incremento_discapacidad_65_mas %||% 0)
+    # unidad monoparental en tributación conjunta (art. 75.4.ª)
+    if (modo == "conjunta" && identical(hogar$tipo_unidad_familiar, "monoparental"))
+      m <- m + (mp$incremento_monoparental_conjunta %||% 0)
     ded_min <- ded_min + m
   }
 
@@ -222,10 +225,11 @@ liquidar_navarra_scope <- function(hogar, P, modo, declarante_id = NULL) {
     desc_nv <- Filter(function(d) (d$rentas_propias %||% 0) <= (mf$limite_rentas_familiar %||% 8000) &&
                         ((d$edad %||% 0) < (mf$edad_maxima_descendiente %||% 30) || !identical(d$discapacidad %||% "no", "no")),
                       descendientes(hogar))
-    # incremento del ordinal 1.º por rentas del sujeto pasivo (art. 62.9.b.b´.2.º): no se prorratea
-    rentas_inc <- if (modo == "conjunta" || !length(contribs_nv)) rentas$base_imponible_general + rentas$base_imponible_ahorro
-                  else rentas_sp(contribs_nv[[1]])
-    pct_inc <- incremento_descendientes_navarra(rentas_inc, mf$incremento_rentas_descendientes)
+    # incremento del ordinal 1.º por las rentas de cada sujeto pasivo (art. 62.9.b.b´.2.º): cada
+    # uno lo aplica sobre su parte; en conjunta, media de los factores de los sujetos pasivos
+    factor_de <- function(p) 1 + incremento_descendientes_navarra(rentas_sp(p), mf$incremento_rentas_descendientes) / 100
+    sps <- if (modo == "conjunta") declarantes(hogar) else contribs_nv
+    factor_inc <- if (length(sps)) mean(vapply(sps, factor_de, numeric(1))) else 1
     for (i in seq_along(desc_nv)) {
       d <- desc_nv[[i]]
       key <- if (i <= 5) as.character(i) else "6+"
@@ -234,7 +238,7 @@ liquidar_navarra_scope <- function(hogar, P, modo, declarante_id = NULL) {
       disc <- 0
       if (identical(d$discapacidad, "33_64")) disc <- dd$incremento_discapacidad_33_64 %||% 0
       if (identical(d$discapacidad, "65_mas")) disc <- dd$incremento_discapacidad_65_mas %||% 0
-      ded_fam <- ded_fam + imp * prorr_nv * (1 + pct_inc / 100) + disc * prorr_nv
+      ded_fam <- ded_fam + imp * prorr_nv * factor_inc + disc * prorr_nv
     }
     aa <- mf$ascendientes
     asc_nv <- Filter(function(a) (a$rentas_propias %||% 0) <= (mf$limite_rentas_familiar %||% 8000) &&
