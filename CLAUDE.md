@@ -27,7 +27,7 @@ caso a `tools/validar_js.R`, (3) `Rscript tools/montar_validador.R` y abre
 
 ## Estructura
 
-- `R/00..13_*.R` — motor (cargar con `source("R/cargar.R"); irpfsim_cargar(".")`).
+- `R/00..14_*.R` — motor (cargar con `source("R/cargar.R"); irpfsim_cargar(".")`).
 - `params/<ejercicio>/*.yaml` — normativa, fuente única de los parámetros.
 - `tests/` — tests R (testthat). `test/` — tests Node de la web y del motor JS.
 - `tools/` — generadores (`*.R`), validador R ↔ JS, empaquetador y servidor de la web (`*.mjs`).

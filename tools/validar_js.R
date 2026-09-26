@@ -390,6 +390,17 @@ add("est_vivienda_md_pareja", "ES-MD", "biparental", "no",
     list(list(id="d1",rol="declarante",edad=45, trabajo=list(dinerarias=38000,cotizacionesSs=2413), viviendaTransitoriaPagos=11000),
          list(id="d2",rol="conyuge",edad=44, trabajo=list(dinerarias=21000,cotizacionesSs=1334)), list(id="h1",rol="descendiente",edad=12)))
 
+# 12. obligación de declarar (art. 96)
+add("obl_varios_pagadores", "ES-AN", "ninguna", "no",
+    list(persona("d1","declarante",30, trabajo=list(dinerarias=20000, cotizaciones_ss=1270, otros_pagadores=2000))),
+    list(list(id="d1",rol="declarante",edad=30, trabajo=list(dinerarias=20000,cotizacionesSs=1270, otrosPagadores=2000))))
+add("obl_alquiler_pequeno", "ES-CL", "ninguna", "no",
+    list(persona("d1","declarante",45, trabajo=list(dinerarias=15000, cotizaciones_ss=952.5), capital_inmobiliario=list(list(ingresos=300)))),
+    list(list(id="d1",rol="declarante",edad=45, trabajo=list(dinerarias=15000,cotizacionesSs=952.5), capitalInmobiliario=list(list(ingresos=300)))))
+add("obl_smi_devolver", "ES-EX", "ninguna", "no",
+    list(persona("d1","declarante",25, trabajo=list(dinerarias=16576, cotizaciones_ss=1074.12), retenciones=400)),
+    list(list(id="d1",rol="declarante",edad=25, trabajo=list(dinerarias=16576,cotizacionesSs=1074.12), retenciones=400)))
+
 out <- lapply(casos, function(c) list(
   js = c$js,
   ref = list(
@@ -399,7 +410,8 @@ out <- lapply(casos, function(c) list(
     ci_est = c$liq$cuota_integra_estatal, ci_aut = c$liq$cuota_integra_autonomica,
     cl = c$liq$cuota_liquida_total, cr = c$liq$cuota_resultante_autoliquidacion,
     cd = c$liq$cuota_diferencial,
-    tme = c$liq$tipo_medio_efectivo, modo = c$liq$modo_tributacion_elegido
+    tme = c$liq$tipo_medio_efectivo, modo = c$liq$modo_tributacion_elegido,
+    obl = c$liq$obligacion_declarar$obligado
   )
 ))
 dir.create("tools", showWarnings = FALSE)

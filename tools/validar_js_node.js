@@ -26,7 +26,8 @@ for (const [id, c] of Object.entries(CASOS)) {
     ["cl", liq.cuotaLiquidaTotal, c.ref.cl],
     ["cr", liq.cuotaResultanteAutoliquidacion, c.ref.cr],
     ["cd", liq.cuotaDiferencial, c.ref.cd],
-    ["modo", liq.modoTributacionElegido, c.ref.modo]
+    ["modo", liq.modoTributacionElegido, c.ref.modo],
+    ["obl", liq.obligacionDeclarar ? liq.obligacionDeclarar.obligado : null, c.ref.obl]
   ];
   const bad = checks.filter(([, a, b]) => (typeof b === "number") ? Math.abs(a - b) > tol : a !== b);
   if (bad.length) {

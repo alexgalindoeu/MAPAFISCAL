@@ -72,6 +72,11 @@
         </div>
         <label class="casilla"><input type="checkbox" id="f-pension"> Es una pensión de jubilación de la Seguridad Social</label>
         <div class="campo">
+          <label for="f-otros-pagadores">De ese importe, lo cobrado de otros pagadores <span class="ayuda">(opcional)</span></label>
+          <div class="con-sufijo"><input type="number" id="f-otros-pagadores" min="0" step="100" value="0" inputmode="decimal"><span>€</span></div>
+          <p class="ayuda">Del segundo pagador y siguientes. Solo cambia si estás obligado a declarar.</p>
+        </div>
+        <div class="campo">
           <label for="f-ss">Cotizaciones a la Seguridad Social</label>
           <div class="con-sufijo"><input type="number" id="f-ss" min="0" step="10" value="2032" inputmode="decimal"><span>€</span></div>
           <p class="ayuda" id="ayuda-ss">Estimadas en el 6,35 % del salario. Cámbialas si las conoces (vienen en tu certificado de retenciones).</p>
@@ -146,6 +151,7 @@
         <h2 class="rotulo" id="t-res">Resultado</h2>
         <div id="res-principal"></div>
         <dl class="kpis" id="res-kpis"></dl>
+        <p class="res-obligacion" id="res-obligacion"></p>
         <div class="acciones-res">
           <button class="btn btn-pri" type="button" id="btn-guardar-cliente">Guardar como cliente</button>
           <a class="btn btn-sec" href="#comparar">Comparar en los 19 territorios</a>

@@ -241,6 +241,18 @@
     "base_maxima": 600
    }
   },
+  "obligacion_declarar": {
+   "norma": "Art. 96 LIRPF (apartado 2 en la redacción del RDL 13/2022: alta en el RETA)",
+   "fuente": "AEAT Manual Práctico Renta 2025, ¿Quiénes están obligados a presentar declaración? → Delimitación de la obligación de declarar en el IRPF",
+   "estado": "confirmado",
+   "trabajo_un_pagador": 22000,
+   "trabajo_varios_pagadores": 15876,
+   "segundo_pagador_umbral": 1500,
+   "capital_y_ganancias_con_retencion": 1600,
+   "rentas_inmobiliarias_imputadas": 1000,
+   "rentas_totales_minimas": 1000,
+   "perdidas_patrimoniales_maximas": 500
+  },
   "deduccion_maternidad": {
    "norma": "Art. 81 LIRPF",
    "estado": "provisional",

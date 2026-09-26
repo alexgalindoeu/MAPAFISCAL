@@ -927,3 +927,43 @@ creciente). La **base** de la deducción (los donativos, no la deducción) no pu
 🟡 Pendiente: el 9 % del régimen especial de Cataluña, el límite de 9.040 € en tributación
 conjunta (el motor lo aplica una vez por declaración) y los donativos a otras entidades y
 partidos políticos.
+
+## Obligación de declarar (art. 96 LIRPF, 2026-09-26)
+
+`R/14_obligacion.R` y `obligacionDeclarar()` en `web/js/irpfsim.js`; test
+`tests/testthat/test-obligacion-declarar.R`; casos `obl_*` del validador, que ahora compara
+también la obligación (`obl`). Fuente: Manual Práctico Renta 2025, *Delimitación de la
+obligación de declarar en el IRPF*. Solo régimen común: en los forales el motor devuelve
+`NA` / `null` (tienen regulación propia, no modelada).
+
+Por declarante:
+1. **Alta en el RETA** (autónomos): obligado en todo caso. El motor lo supone si hay
+   rendimientos de actividad económica (`alta_reta` lo puede fijar).
+2. **No obligado** si sus rentas proceden solo de: trabajo ≤ **22.000 €** (≤ **15.876 €** si el
+   segundo y siguientes pagadores suman más de **1.500 €**); capital mobiliario y ganancias
+   con retención ≤ **1.600 €**; rentas inmobiliarias imputadas ≤ **1.000 €**.
+3. **No obligado** si en total (trabajo, capital, actividades y ganancias) no pasa de
+   **1.000 €** y las pérdidas son inferiores a **500 €**.
+4. En otro caso, obligado.
+
+Además: para aplicar la deducción por vivienda anterior a 2013 o reducir por aportaciones a
+planes de pensiones hay que presentarla; y si no es obligatoria pero sale a devolver, la
+web avisa de que conviene presentarla.
+
+| Caso | Resultado |
+|---|---|
+| Trabajo 22.000 € de un pagador | no obligado |
+| Trabajo 22.001 € | obligado (trabajo) |
+| Trabajo 20.000 €, 2.000 € de otros pagadores | obligado (límite 15.876 €) |
+| Trabajo 20.000 €, 1.500 € de otros pagadores | no obligado |
+| Trabajo 20.000 € + 1.000 € de intereses + 600 € de dividendos | no obligado (1.600 €) |
+| Trabajo 20.000 € + 1.601 € de intereses | obligado (capital) |
+| Actividad económica de 300 € | obligado (RETA) |
+| Solo 800 € de alquiler | no obligado (≤ 1.000 €) |
+| Solo 1.200 € de alquiler | obligado |
+| Trabajo 15.000 € + 300 € de alquiler | obligado (no son solo rentas del trabajo) |
+| SMI (16.576 €) con 400 € de retenciones | no obligado; conviene presentarla (a devolver 400 €) |
+
+🟡 Simplificaciones, siempre del lado de «obligado»: las ganancias o pérdidas por ventas se
+tratan como no sometidas a retención (acciones) y no se modelan las pensiones
+compensatorias, los pagadores no obligados a retener ni los tipos fijos de retención.

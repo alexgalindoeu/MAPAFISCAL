@@ -38,6 +38,7 @@ estatal <- list(
   deduccion_obtencion_rendimientos_trabajo = est$deduccion_obtencion_rendimientos_trabajo,
   deduccion_vivienda_transitoria = est$deduccion_vivienda_transitoria,
   deduccion_donativos = est$deduccion_donativos,
+  obligacion_declarar = est$obligacion_declarar,
   deduccion_maternidad = est$deduccion_maternidad,
   deduccion_familia_numerosa_y_discapacidad_cargo = est$deduccion_familia_numerosa_y_discapacidad_cargo
 )

@@ -402,13 +402,23 @@ deduccion_familia_numerosa_y_discapacidad_cargo:
 # 12. OBLIGACIÓN DE DECLARAR (art. 96 LIRPF) — informativo, no altera la cuota
 # -----------------------------------------------------------------------------
 obligacion_declarar:
-  norma: "Art. 96 LIRPF"
-  estado: provisional
+  norma: "Art. 96 LIRPF (apartado 2 en la redacción del RDL 13/2022: alta en el RETA)"
+  fuente: "AEAT Manual Práctico Renta 2025, ¿Quiénes están obligados a presentar declaración? → Delimitación de la obligación de declarar en el IRPF"
+  # No obligados si las rentas proceden SOLO de: trabajo ≤ 22.000 € (15.876 € si el 2.º y
+  # siguientes pagadores suman más de 1.500 €); capital mobiliario y ganancias con retención
+  # ≤ 1.600 €; rentas inmobiliarias imputadas, Letras del Tesoro y ayudas públicas ≤ 1.000 €.
+  # Tampoco si en total (trabajo, capital, actividades y ganancias) no pasan de 1.000 € y las
+  # pérdidas son inferiores a 500 €. Obligados en todo caso: alta en el RETA en el ejercicio.
+  # Para aplicar la deducción por vivienda (régimen transitorio) o reducir por aportaciones a
+  # planes de pensiones hay que presentarla. Los límites no se multiplican en conjunta.
+  estado: confirmado
   trabajo_un_pagador: 22000
-  trabajo_varios_pagadores: 15876    # confirmar cifra 2025
+  trabajo_varios_pagadores: 15876
   segundo_pagador_umbral: 1500
   capital_y_ganancias_con_retencion: 1600
   rentas_inmobiliarias_imputadas: 1000
+  rentas_totales_minimas: 1000       # trabajo + capital + actividades + ganancias
+  perdidas_patrimoniales_maximas: 500  # «de cuantía inferior a 500 euros»
 
 # -----------------------------------------------------------------------------
 # 13. GRAVÁMENES ESPECIALES
