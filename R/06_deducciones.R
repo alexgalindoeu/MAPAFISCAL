@@ -64,8 +64,12 @@ deducciones_estatales <- function(hogar, P, rentas, base_liquidable_total, perso
 #     taper_individual / taper_conjunta: [desde, hasta] -> reducción lineal del importe
 #       (o del `limite` en las porcentuales) cuando la base está entre ambos umbrales
 #     grupo: variantes excluyentes de una misma deducción; solo se aplica la mayor
+#     base_max_por_miembro_uf: base de la UF <= importe x nº de miembros (declarantes +
+#       descendientes < 18); requiere_familia_numerosa_reciente (hogar$familia_numerosa_reciente)
 #   fija_por_ascendiente: edad_ascendiente_min, ascendiente_discapacidad (false/"65_mas"),
 #     edad_ascendiente_min_discapacidad, requiere_minimo_ascendiente (ver el bloque del tipo)
+#   tipo: "porcentaje_campos_hijo" -> varios campos por hijo con límite único por hijo
+#     (campos, limite, limite_si_campo, primer_ciclo; ver el bloque del tipo)
 deducciones_autonomicas <- function(hogar, P, rentas, modo = "individual", base_total = 0,
                                     cuota_integra_autonomica = NA_real_, minimo = 0,
                                     declarante_id = NULL) {
@@ -116,7 +120,8 @@ deducciones_autonomicas <- function(hogar, P, rentas, modo = "individual", base_
   # (regla general de las leyes autonómicas). `prorratea_progenitores: false` lo impide.
   es_familiar <- function(d) {
     tipo <- g(d, "tipo")
-    tipo %in% c("fija_por_hijo", "fija_por_hijo_nacido", "porcentaje_campo_hijo", "fija_por_ascendiente") ||
+    tipo %in% c("fija_por_hijo", "fija_por_hijo_nacido", "porcentaje_campo_hijo",
+                "porcentaje_campos_hijo", "fija_por_ascendiente") ||
       (identical(tipo, "fija") && (!is.null(g(d,"requiere_familia_numerosa")) ||
          !is.null(g(d,"familia_numerosa_categoria")) || isTRUE(g(d,"requiere_monoparental")) ||
          !is.null(g(d,"descendientes_min")) || isTRUE(g(d,"requiere_dependiente_a_cargo")) ||
@@ -134,6 +139,15 @@ deducciones_autonomicas <- function(hogar, P, rentas, modo = "individual", base_
     if (!is.null(g(d,"base_min_individual")) && !es_conj && b < g(d,"base_min_individual")) return(FALSE)
     if (!is.null(g(d,"base_min_conjunta"))   &&  es_conj && b < g(d,"base_min_conjunta"))   return(FALSE)
     if (!is.null(g(d,"base_max_unidad_familiar")) && base_uf > g(d,"base_max_unidad_familiar")) return(FALSE)
+    # límite de la UF proporcional a sus miembros (Madrid, art. 18.2 DL 1/2010): miembros =
+    # declarantes + descendientes menores de 18 (aproximación de la unidad familiar)
+    bpm <- g(d, "base_max_por_miembro_uf")
+    if (!is.null(bpm)) {
+      n_uf <- length(decs) + sum(vapply(desc, function(h) (h$edad %||% 99) < 18, logical(1)))
+      if (base_uf > bpm * n_uf) return(FALSE)
+    }
+    if (isTRUE(g(d, "requiere_familia_numerosa_reciente")) &&
+        !isTRUE(hogar$familia_numerosa_reciente)) return(FALSE)
     nd <- length(desc)
     if (!is.null(g(d,"descendientes_min")) && nd < g(d,"descendientes_min")) return(FALSE)
     if (!is.null(g(d,"descendientes_max")) && nd > g(d,"descendientes_max")) return(FALSE)
@@ -234,6 +248,24 @@ deducciones_autonomicas <- function(hogar, P, rentas, modo = "individual", base_
         if (!is.null(g(d,"edad_hijo_max")) && (h$edad %||% 99) > g(d,"edad_hijo_max")) next
         v <- (h[[campo]] %||% 0) * porc
         if (!is.null(lim)) v <- min(v, lim)
+        val <- val + v
+      }
+
+    } else if (identical(tipo, "porcentaje_campos_hijo")) {
+      # varios gastos por hijo, cada uno con su porcentaje (`campos: {campo: porcentaje}`),
+      # y un único límite por hijo: `limite`, que sube a `limite_si_campo$limite` si el hijo
+      # tiene gasto en `limite_si_campo$campo`; `primer_ciclo`: hasta `edad_hijo_max` solo
+      # cuentan sus `campos` y el límite es el suyo (Madrid, art. 11 DL 1/2010)
+      cp <- g(d, "campos"); lsc <- g(d, "limite_si_campo"); pc <- g(d, "primer_ciclo")
+      for (h in desc) {
+        if (!is.null(g(d,"edad_hijo_max")) && (h$edad %||% 99) > g(d,"edad_hijo_max")) next
+        en_pc <- !is.null(pc) && (h$edad %||% 99) <= pc$edad_hijo_max
+        usados <- if (en_pc) unlist(pc$campos) else names(cp)
+        v <- sum(vapply(usados, function(k) (h[[k]] %||% 0) * cp[[k]], numeric(1)))
+        l <- if (en_pc) pc$limite
+             else if (!is.null(lsc) && (h[[lsc$campo]] %||% 0) > 0) lsc$limite
+             else lim
+        if (!is.null(l)) v <- min(v, l)
         val <- val + v
       }
 

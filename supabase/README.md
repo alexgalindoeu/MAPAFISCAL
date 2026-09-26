@@ -131,9 +131,18 @@ Pasos, por si hay que repetirlos (p. ej. en modo live):
 4. Comprobación: el `curl` de arriba responde 400. Después, `pagosActivos: true` en
    `web/config.js` (en una PR).
 
-Para pasar a **modo live**: repetir en el modo live de Stripe el producto, los tres precios
-con sus `lookup_key`, el portal y el webhook, y cambiar `STRIPE_SECRET_KEY` y
-`STRIPE_WEBHOOK_SECRET` por los de live.
+**Modo live (2026-09-26).** Ya están creados en el modo live de la cuenta GALINDX el
+producto **Mapafiscal Gestor** (`prod_VKhBZJor3exCoM`), los tres precios con sus
+`lookup_key` (IVA incluido) y el portal de cliente, que por defecto vuelve a
+`…/MAPAFISCAL/#gestor`. Para cobrar de verdad falta lo que solo puede hacer Alex:
+- activar la cuenta de Stripe para pagos reales (datos del negocio y cuenta bancaria);
+- crear el webhook en live, con la misma URL y los mismos eventos;
+- en Supabase, cambiar `STRIPE_SECRET_KEY` y `STRIPE_WEBHOOK_SECRET` por los de live, y
+  dejar `SITE_ORIGIN` en `https://alexgalindoeu.github.io`, sin `localhost`.
+
+Con las claves live, las cuentas de prueba siguen en la base de datos, pero sus
+suscripciones de test ya no existen para Stripe y su portal falla. Para volver a probar en
+modo test hay que volver a poner las claves de test.
 
 ## Autenticación
 
