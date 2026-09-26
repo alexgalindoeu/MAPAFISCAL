@@ -13,14 +13,21 @@ const leer = ruta => readFileSync(join(WEB, ruta), "utf8");
 // JSON compacto y seguro dentro de <script>: "</" nunca puede cerrar la etiqueta.
 const jsonEmbebido = ruta => JSON.stringify(JSON.parse(leer(ruta))).replace(/<\//g, "<\\/");
 
+// La versión autónoma es siempre la demo: sin Supabase (ni supabase-js) y sin pagos,
+// aunque web/config.js esté configurado para producción.
+const FORZAR_DEMO = "window.MAPAFISCAL_CONFIG = Object.assign(window.MAPAFISCAL_CONFIG || {}, { demo: true, pagosActivos: false });\n";
+const SUPABASE_JS = /<script src="https:\/\/cdn\.jsdelivr\.net\/npm\/@supabase\/supabase-js@[^"]+"[^>]*><\/script>\n?/;
+
 export function empaquetar() {
   let html = leer("index.html");
   const sustituir = (buscado, nuevo) => {
     if (!html.includes(buscado)) throw new Error("No se encuentra en index.html: " + buscado);
     html = html.replace(buscado, () => nuevo);
   };
+  if (!SUPABASE_JS.test(html)) throw new Error("No se encuentra en index.html el <script> de supabase-js");
+  html = html.replace(SUPABASE_JS, "");
   sustituir('<link rel="stylesheet" href="css/mapafiscal.css">', "<style>\n" + leer("css/mapafiscal.css") + "</style>");
-  sustituir('<script src="config.js"></script>', "<script>\n" + leer("config.js") + "</script>\n" +
+  sustituir('<script src="config.js"></script>', "<script>\n" + leer("config.js") + FORZAR_DEMO + "</script>\n" +
     '<script type="application/json" id="datos-params">' + jsonEmbebido("datos/params.json") + "</script>\n" +
     '<script type="application/json" id="datos-mapa">' + jsonEmbebido("datos/mapa_es.json") + "</script>");
   sustituir('<script src="js/irpfsim.js"></script>', "<script>\n" + leer("js/irpfsim.js") + "</script>");

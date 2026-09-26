@@ -504,6 +504,12 @@
 
   // ---- cuentas y clientes (Supabase) ----------------------------------------------------
   const dlgAcceso = $("dlg-acceso"), dlgGuardar = $("dlg-guardar");
+  // El enlace mágico vuelve a la página sin hash (Supabase le añade #access_token=…);
+  // la vista a la que ir después se recuerda aquí (la pestaña del enlace es otra).
+  const TRAS_ACCESO = "mapafiscal.trasAcceso";
+  const recordar = (clave, valor) => { try { valor == null ? localStorage.removeItem(clave) : localStorage.setItem(clave, valor); } catch (e) { /* sin almacenamiento */ } };
+  const recordado = clave => { try { return localStorage.getItem(clave); } catch (e) { return null; } };
+  const paginaActual = () => location.origin + location.pathname;
   function abrirAcceso(motivo) {
     if (!sb) { irA("clientes"); return; }
     $("acceso-msg").textContent = motivo || ""; $("acceso-msg").className = "mensaje";
@@ -513,7 +519,8 @@
     const email = $("acceso-email").value.trim(), msg = $("acceso-msg");
     if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) { msg.textContent = "Escribe un correo válido."; msg.className = "mensaje error"; return; }
     $("btn-enviar-enlace").disabled = true;
-    const { error } = await sb.auth.signInWithOtp({ email, options: { emailRedirectTo: location.origin + location.pathname + "#clientes" } });
+    recordar(TRAS_ACCESO, vistaActual() === "planes" ? "planes" : "clientes");
+    const { error } = await sb.auth.signInWithOtp({ email, options: { emailRedirectTo: paginaActual() } });
     $("btn-enviar-enlace").disabled = false;
     if (error) { msg.textContent = "No se pudo enviar el enlace: " + error.message; msg.className = "mensaje error"; }
     else { msg.textContent = `Te hemos enviado un enlace a ${email}. Ábrelo desde este navegador para entrar.`; msg.className = "mensaje ok"; }
@@ -536,7 +543,11 @@
     if (vistaActual() === "clientes") pintarClientes();
     if (vistaActual() === "planes") pintarPlanes();
   }
-  if (sb) sb.auth.onAuthStateChange(() => { cargarSesion(); });
+  if (sb) sb.auth.onAuthStateChange(evento => {
+    const destino = recordado(TRAS_ACCESO);
+    if (evento === "SIGNED_IN" && destino) { recordar(TRAS_ACCESO, null); setTimeout(() => irA(destino), 0); }
+    setTimeout(cargarSesion, 0);    // fuera del callback: supabase-js no admite llamadas de auth dentro
+  });
   if (!sb) $("btn-cuenta").hidden = true;
 
   function pintarClientes() {
@@ -564,12 +575,13 @@
         ${limite ? ` · ${sesion.clientes.length} de ${limite} clientes de prueba` : ` · ${sesion.clientes.length} clientes`}</span>
       <span>${plan === "gratis" ? '<a class="btn btn-txt btn-sm" href="#planes">Mejorar plan</a>' : (CFG.pagosActivos ? '<button class="btn btn-txt btn-sm" type="button" id="cli-portal">Gestionar suscripción</button>' : "")}
       <button class="btn btn-txt btn-sm" type="button" id="cli-salir">Cerrar sesión</button></span></div>`;
+    const aviso = avisoPago ? `<div class="aviso-demo" role="status" style="background:var(--gana-suave);color:var(--gana)">${AVISOS_PAGO[avisoPago]}</div>` : "";
     if (!sesion.clientes.length) {
-      cont.innerHTML = barra + `<div class="tarjeta estado-vacio"><h2>Todavía no tienes clientes</h2>
+      cont.innerHTML = aviso + barra + `<div class="tarjeta estado-vacio"><h2>Todavía no tienes clientes</h2>
         <p>Rellena la calculadora con la situación de un cliente y pulsa «Guardar como cliente». Quedará aquí para abrirla, actualizarla o imprimir su informe.</p>
         <a class="btn btn-pri" href="#calculadora">Ir a la calculadora</a></div>`;
     } else {
-      cont.innerHTML = barra + `<div class="tarjeta tarjeta-tabla" style="margin-top:0"><div class="envoltorio"><table class="tabla-clientes">
+      cont.innerHTML = aviso + barra + `<div class="tarjeta tarjeta-tabla" style="margin-top:0"><div class="envoltorio"><table class="tabla-clientes">
         <thead><tr><th>Cliente</th><th>Territorio</th><th class="num">Cuota líquida</th><th class="num">Resultado</th><th>Actualizado</th><th class="acc"><span class="sr">Acciones</span></th></tr></thead>
         <tbody>${lista.map(c => {
           const r = c.resultado || {};
@@ -656,25 +668,55 @@
   });
 
   // ---- planes, lista de espera y pagos ----------------------------------------------------
+  // Vuelta de Stripe (#gestor?pago=ok): el webhook cambia el plan en unos segundos.
+  const AVISOS_PAGO = {
+    esperando: "Pago completado. Estamos activando tu plan Gestor…",
+    activado: "Plan Gestor activado. ¡Gracias por suscribirte!",
+    retraso: "Pago recibido. Tu plan se activará en unos minutos: recarga la página si no lo ves."
+  };
+  let avisoPago = sb && /pago=ok/.test(location.hash) ? "esperando" : null;
+  async function esperarPlan(intentos) {
+    await cargarSesion();
+    if (!sesion.usuario) { avisoPago = null; return; }
+    if (sesion.perfil && sesion.perfil.plan !== "gratis") avisoPago = "activado";
+    else if (intentos > 1) { setTimeout(() => esperarPlan(intentos - 1), 2000); return; }
+    else avisoPago = "retraso";
+    try { history.replaceState(null, "", "#clientes"); } catch (e) { /* sin historial */ }
+    pintarClientes();
+  }
+  // Al volver de Stripe con «Atrás» la página puede salir de la caché con el botón desactivado.
+  window.addEventListener("pageshow", e => { if (e.persisted && vistaActual() === "planes") pintarPlanes(); });
+
   let periodo = "mensual";
   document.querySelectorAll('input[name="periodo"]').forEach(r => r.addEventListener("change", () => { periodo = r.value; pintarPlanes(); }));
 
+  // Abre Stripe (checkout o portal) a través de una Edge Function; devuelve false si no se pudo.
+  const ERRORES_PAGO = {
+    ya_suscrito: "Ya tienes una suscripción activa. Puedes cambiarla desde «Gestionar suscripción» en tu cuenta.",
+    sin_suscripcion: "No encontramos ninguna suscripción asociada a tu cuenta.",
+    pagos_no_configurados: "El pago no está disponible todavía. Apúntate a la lista de espera y te avisamos.",
+    precio_no_configurado: "El pago no está disponible todavía. Apúntate a la lista de espera y te avisamos."
+  };
   async function irAFuncion(nombre, cuerpo) {
-    const { data, error } = await sb.functions.invoke(nombre, { body: cuerpo });
-    if (error || !data || !data.url) {
-      alert("El pago no está disponible todavía. Apúntate a la lista de espera y te avisamos.");
-      return;
-    }
-    location.href = data.url;
+    const { data, error } = await sb.functions.invoke(nombre, { body: { ...cuerpo, volver: paginaActual() } });
+    if (!error && data && data.url) { location.href = data.url; return true; }
+    let codigo = null;
+    try { codigo = (await error.context.json()).error; } catch (e) { /* sin cuerpo JSON */ }
+    if (codigo === "sin_sesion") { abrirAcceso("Tu sesión ha caducado. Vuelve a acceder con tu correo."); return false; }
+    alert(ERRORES_PAGO[codigo] || "No se ha podido abrir el pago. Inténtalo de nuevo en unos minutos.");
+    if (codigo === "ya_suscrito") cargarSesion();
+    return false;
   }
 
+  const importe = n => Number.isInteger(n) ? eur0(n) : eur(n);
   function pintarPlanes() {
     const pr = CFG.precios || {};
     const plan = sesion.perfil ? sesion.perfil.plan : "gratis";
-    const precioGestor = periodo === "anual"
-      ? `${pr.gestorAnual} €<small> / año</small>` : `${pr.gestorMensual} €<small> / mes</small>`;
-    const notaGestor = periodo === "anual" && pr.gestorMensual
-      ? `Equivale a ${(pr.gestorAnual / 12).toFixed(2).replace(".", ",")} € al mes. IVA no incluido.` : "IVA no incluido.";
+    const PERIODO = { semanal: [pr.gestorSemanal, "semana"], mensual: [pr.gestorMensual, "mes"], anual: [pr.gestorAnual, "año"] };
+    const [cifra, unidad] = PERIODO[periodo] || PERIODO.mensual;
+    const precioGestor = `${importe(cifra)}<small> / ${unidad}</small>`;
+    const notaGestor = periodo === "anual" && pr.gestorAnual
+      ? `Equivale a ${eur(pr.gestorAnual / 12)} al mes. IVA no incluido.` : "IVA no incluido.";
     const ctaGestor = plan !== "gratis"
       ? `<button class="btn btn-sec" type="button" disabled>Tu plan actual</button>`
       : (CFG.pagosActivos && sb ? `<button class="btn btn-pri" type="button" id="cta-gestor">Suscribirme</button>`
@@ -701,12 +743,14 @@
         <button class="btn btn-sec" type="button" data-espera="despacho">Hablemos</button>
         <div class="espera" id="espera-despacho" hidden></div>
       </div>`;
-    $("nota-precios").textContent = CFG.preciosOrientativos
-      ? "Precios orientativos: la suscripción todavía no está abierta. Apúntate y te avisaremos." : "";
+    $("nota-precios").textContent = CFG.pagosActivos
+      ? "Pago seguro con Stripe. Puedes cambiar de periodo o darte de baja cuando quieras desde tu cuenta."
+      : CFG.preciosOrientativos ? "Precios orientativos: la suscripción todavía no está abierta. Apúntate y te avisaremos." : "";
     const cta = $("cta-gestor");
-    if (cta) cta.addEventListener("click", () => {
+    if (cta) cta.addEventListener("click", async () => {
       if (!sesion.usuario) { abrirAcceso("Accede con tu correo para suscribirte."); return; }
-      irAFuncion("crear-checkout", { plan: "gestor", periodo });
+      cta.disabled = true; cta.textContent = "Abriendo el pago…";
+      if (!await irAFuncion("crear-checkout", { plan: "gestor", periodo })) { cta.disabled = false; cta.textContent = "Suscribirme"; }
     });
   }
   $("planes").addEventListener("click", e => {
@@ -779,10 +823,6 @@
     if (v === "clientes") pintarClientes();
     if (v === "planes") pintarPlanes();
     if (v === "metodologia") pintarCobertura();
-    if (/pago=ok/.test(location.hash)) {
-      $("cli-contenido").insertAdjacentHTML("afterbegin", `<div class="aviso-demo" style="background:var(--gana-suave);color:var(--gana)">Pago completado. Tu plan se actualiza en unos segundos.</div>`);
-      setTimeout(cargarSesion, 3000);
-    }
     window.scrollTo(0, 0);
   }
   window.addEventListener("hashchange", () => { const v = vistaDeHash(); if (v) { vistaSel = v; mostrarVista(); } });
@@ -790,5 +830,5 @@
 
   // ---- arranque --------------------------------------------------------------------------
   pintarHijos(); pintarGastosTerritorio(); recalcular(); mostrarVista();
-  cargarSesion();
+  if (avisoPago) esperarPlan(15); else cargarSesion();
 })();
