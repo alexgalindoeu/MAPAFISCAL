@@ -81,7 +81,7 @@ Supabase automáticamente: no hay que definirlas.
 
 ### Puesta en marcha (la hace Alex; nadie más teclea claves secretas)
 
-**Estado (2026-09-26): configurado y probado en modo test** en la cuenta de Stripe GALINDX
+**Estado (2026-09-26): configurado, probado en modo test y activado en la web** (`pagosActivos: true`) en la cuenta de Stripe GALINDX
 (modo de prueba, no el *sandbox*): producto **Mapafiscal Gestor** (`prod_VKaFIrhMte2Qh3`)
 con sus tres precios (IVA incluido), portal de cliente por defecto, webhook con los cuatro
 eventos y los secretos de abajo. Probado desde `http://localhost:8080`: acceso por enlace
