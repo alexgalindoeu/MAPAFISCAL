@@ -20,18 +20,19 @@ sin hijos; sin otras rentas; retenciones 3.500 €.
 | (−) Cotizaciones SS | −1.905 | |
 | (−) Otros gastos art. 19.2.f | −2.000 | |
 | **Rendimiento neto previo** | 30.000 − 3.905 | 26.095,00 |
-| (−) Reducción art. 20 | RNT 26.095 > 19.747,50 ⇒ 0 | 0,00 |
+| (−) Reducción art. 20 | íntegro − gastos a) a e) = 28.095 > 19.747,50 ⇒ 0 | 0,00 |
 | **Rendimiento neto del trabajo = Base imponible general** | | 26.095,00 |
 | Base liquidable general | (sin reducciones) | 26.095,00 |
-| Mínimo del contribuyente | art. 57 | 5.550,00 |
+| Mínimo del contribuyente | art. 57 (estatal) | 5.550,00 |
+| Mínimo del contribuyente autonómico | art. 2 DL 1/2010 de Madrid (solo tramo autonómico) | 5.956,65 |
 | Cuota íntegra **estatal** | escala art. 63 (26.095) − escala(5.550) = 2.997,00 − 527,25 | **2.469,75** |
-| Cuota íntegra **autonómica** (Madrid) | escala CM (26.095) − escala(5.550) = 2.647,09 − 471,75 | **2.175,34** |
-| Cuota íntegra total | | 4.645,09 |
+| Cuota íntegra **autonómica** (Madrid) | escala CM (26.095) − escala(5.956,65) = 2.647,09 − 506,32 | **2.140,78** |
+| Cuota íntegra total | | 4.610,53 |
 | Deducciones | ninguna | 0,00 |
-| **Cuota líquida total** | | **4.645,09** |
+| **Cuota líquida total** | | **4.610,53** |
 | (−) Retenciones | | −3.500,00 |
-| **Cuota diferencial** (a ingresar) | | **1.145,09** |
-| Tipo medio efectivo | 4.645,09 / 26.095 | 17,80 % |
+| **Cuota diferencial** (a ingresar) | | **1.110,53** |
+| Tipo medio efectivo | 4.610,53 / 26.095 | 17,67 % |
 
 Detalle escala autonómica Madrid sobre 26.095:
 `13.362,22×8,5% + 5.642,41×10,7% + 7.090,37×12,8% = 1.135,79 + 603,74 + 907,57 = 2.647,09`.
@@ -53,8 +54,8 @@ Detalle escala autonómica Madrid sobre 26.095:
 | **Cuota líquida total** | | **4.525,60** |
 | Tipo medio efectivo | 4.525,60 / 25.095 | 18,03 % |
 
-Comparación con el Caso A: **mismo perfil, mismo salario** ⇒ Madrid 4.645,09 € /
-Bizkaia 4.525,60 € (−2,6 %). Con hijos y ahorro la diferencia se amplía por el
+Comparación con el Caso A: **mismo perfil, mismo salario** ⇒ Madrid 4.610,53 € /
+Bizkaia 4.525,60 € (−1,8 %). Con hijos y ahorro la diferencia se amplía por el
 distinto tratamiento (deducción de cuota foral vs. mínimo en base).
 
 ---
@@ -812,3 +813,49 @@ mínimo personal y familiar.
   residente en Aragón con base liquidable general 23.900 €, del ahorro 2.800 € y mínimo
   5.550 €. Estatal 2.667,75 − 527,25 + 266 = **2.406,50 €**; autonómica (escala de Aragón)
   2.621,89 − 527,25 + 266 = **2.360,64 €**. El motor da las dos cifras al céntimo.
+
+## Mínimos personales y familiares autonómicos (art. 46.1.a Ley 22/2009, issue #18)
+
+Test `tests/testthat/test-minimos-autonomicos.R`; casos `minaut_*`, `soltero30_ES-MD` y
+`da61_aeat_md` del validador (R ↔ JS, que ahora compara también el mínimo autonómico).
+
+La cuota íntegra estatal se calcula con el mínimo estatal (arts. 57 a 61 LIRPF) y la
+autonómica con el de la comunidad. Solo cambian los importes; los límites de rentas, las
+edades, la convivencia y el prorrateo son los estatales. Si la base general no agota el
+mínimo autonómico, el resto va a la base del ahorro, igual que con el estatal. Fuente:
+Manual Práctico Renta 2025, *Cuadro comparativo de los importes de los mínimos personales y
+familiares, estatal y autonómicos para 2025*, y la página de cada comunidad.
+
+| CCAA (norma) | Contribuyente (+65 / +75) | Descendientes 1.º–4.º+ (< 3 años) | Ascendientes (+75) | Discapacidad 33 % / 65 % / asistencia |
+|---|---|---|---|---|
+| Estatal (arts. 57–60) | 5.550 (1.150 / 1.400) | 2.400 / 2.700 / 4.000 / 4.500 (2.800) | 1.150 (1.400) | 3.000 / 9.000 / 3.000 |
+| Andalucía (art. 23 bis Ley 5/2021) | 5.790 (1.200 / 1.460) | 2.510 / 2.820 / 4.170 / 4.700 (2.920) | 1.200 (1.460) | 3.130 / 9.390 / 3.130 |
+| Asturias (arts. 2 bis–2 quinquies DL 2/2014) | 6.105 (1.265 / 1.540) | 2.640 / 2.970 / 4.400 / 4.950 (3.080) | 1.265 (1.540) | 3.300 / 9.900 / 3.300 |
+| Illes Balears (art. 2 DL 1/2014) | 5.550; **6.105 si > 65** (1.265 / 1.540) | 2.400 / 2.970 / 4.400 / 4.950 (2.800) | 1.265 (1.540) | 3.300 / 9.900 / 3.300 |
+| Canarias (art. 18 quater DL 1/2009) | 5.606 (1.162 / 1.414) | 2.424 / 2.727 / 4.040 / 4.545 (2.828) | 1.162 (1.414) | 3.030 / 9.090 / 3.030 |
+| Galicia (art. 4 bis DL 1/2011) | 5.789 (1.199 / 1.460) | 2.503 / 2.816 / 4.172 / 4.694 (2.920) | 1.199 (1.460) | 3.129 / 9.387 / 3.129 |
+| Madrid (arts. 2–2 quater DL 1/2010) | 5.956,65 (1.234,26 / 1.502,58) | 2.575,85 / 2.897,83 / 4.400 / 4.950 (3.005,16) | 1.234,26 (1.502,58) | 3.219,81 / 9.659,44 / 3.219,81 |
+| La Rioja (art. 31 bis Ley 10/2017) | estatal | estatal | estatal | solo descendientes: 3.300 / 9.900; asistencia 3.000 |
+| C. Valenciana (art. 2 bis Ley 13/1997) | 6.105 (1.265 / 1.540) | 2.640 / 2.970 / 4.400 / 4.950 (3.080) | 1.265 (1.540) | 3.300 / 9.900 / 3.300 |
+| Cataluña (art. 611-2 DL 1/2024), Castilla y León (art. 1 bis DL 1/2013) | estatal | estatal | estatal | estatal |
+
+### Comprobación numérica
+
+- **Ejemplo 1 de la AEAT** (Madrid, 16.500 € íntegros, 1.200 € de cotizaciones): base
+  liquidable 6.782 €; estatal (6.782 − 5.550) × 9,5 % = **117,04 €**; autonómica
+  (6.782 − 5.956,65) × 8,5 % = **70,15 €**; cuota íntegra total **187,19 €**, la misma que la
+  AEAT.
+- **Caso A** (Madrid, 30.000 €): autonómica 2.647,09 − 5.956,65 × 8,5 % = 2.647,09 − 506,32
+  = **2.140,78 €** (antes 2.175,34 €); cuota líquida **4.610,53 €**.
+- **C. Valenciana**, monoparental con hijos de 1 y 5 años: estatal 5.550 + 2.400 + 2.800 +
+  2.700 = 13.450 €; autonómico 6.105 + 2.640 + 3.080 + 2.970 = **14.795 €**.
+- **Illes Balears**, 70 años: estatal 6.700 €; autonómico 6.105 + 1.265 = **7.370 €**. Con
+  40 años, 5.550 € en los dos.
+- **La Rioja**, hijo de 10 años con discapacidad del 33 %: estatal 5.550 + 2.400 + 3.000 =
+  10.950 €; autonómico 5.550 + 2.400 + **3.300** = 11.250 €.
+- **Madrid, solo 10.000 € de intereses**: el mínimo va entero a la base del ahorro. Estatal
+  990 − 527,25 = 462,75 €; autonómica 990 − 5.956,65 × 9,5 % = **424,12 €**.
+
+🟡 Las puertas de renta de las deducciones autonómicas que restan el mínimo
+(`base_gate: menos_minimo`) siguen usando el mínimo estatal; cada ley autonómica dice cuál
+aplica y está sin cotejar.

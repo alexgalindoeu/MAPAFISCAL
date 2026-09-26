@@ -22,7 +22,7 @@ provisionales o parciales · ⛔ pendiente (hook presente, no calcula).
 | Integración y compensación (arts. 47–49) | ✅ (límites 25 %) | ✅ (reglas estatales) | ✅ (reglas estatales) |
 | Reducciones de base (previsión social, p. compensatorias) | 🟡 | 🟡 (límites EPSV) | ⛔ |
 | Tributación individual vs. conjunta (elige la mínima) | ✅ | ✅ | 🟡 |
-| Mínimo personal y familiar | ✅ estatal (en base, con prorrateo art. 61) · ⛔ importes autonómicos propios de 10 CCAA (se usa el estatal también en el tramo autonómico) | ✅ (deducción de cuota) | ✅ personal + familiar (deducción de cuota, con prorrateo) |
+| Mínimo personal y familiar | ✅ estatal (en base, con prorrateo art. 61) · ✅ importes autonómicos propios para el tramo autonómico (8 CCAA; Cataluña y Castilla y León mantienen los estatales) | ✅ (deducción de cuota) | ✅ personal + familiar (deducción de cuota, con prorrateo) |
 | Anualidades por alimentos a hijos (escala separada) | ✅ | ⛔ | ⛔ |
 | Deducciones estatales de cuota (vivienda transit., donativos) | 🟡 | — | — |
 | Deducciones autonómicas de cuota | 🟡 motor genérico dirigido por datos. **Las 15 CCAA de régimen común con catálogo cargado** (5–18 deducciones cada una, las de mayor incidencia), con reducción lineal por base (taper), variantes excluyentes y reparto entre progenitores en individual. Deducciones rurales / de despoblación cargadas en 9 CCAA (datos de municipio del hogar). Quedan pendientes las de inversión/donativos y algunas rurales ligadas al año de traslado | — | — |

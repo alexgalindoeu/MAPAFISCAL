@@ -11,10 +11,11 @@ test_that("Caso A — soltero 30.000 € trabajo, Madrid (régimen común)", {
   liq <- liquidar(caso_soltero("ES-MD", retenciones = 3500))
   expect_equal(liq$base_liquidable_general, 26095)
   expect_equal(liq$cuota_integra_estatal, 2469.75)
-  expect_equal(liq$cuota_integra_autonomica, 2175.34)
-  expect_equal(liq$cuota_liquida_total, 4645.09)
-  expect_equal(liq$cuota_diferencial, 1145.09)
-  expect_equal(round(liq$tipo_medio_efectivo, 4), 0.178)
+  # mínimo autonómico de Madrid 5.956,65 € (art. 2 DL 1/2010): 2.647,09 − 506,32
+  expect_equal(liq$cuota_integra_autonomica, 2140.78)
+  expect_equal(liq$cuota_liquida_total, 4610.53)
+  expect_equal(liq$cuota_diferencial, 1110.53)
+  expect_equal(round(liq$tipo_medio_efectivo, 4), 0.1767)
 })
 
 test_that("Caso B — soltero 30.000 € trabajo, Bizkaia (foral PV)", {
