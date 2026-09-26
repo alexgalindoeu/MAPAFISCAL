@@ -817,6 +817,8 @@
       m += edad >= 75 ? num(mp.incremento_75) : edad >= 65 ? num(mp.incremento_65) : 0;
       if (c.discapacidad === "33_64") m += num(mp.incremento_discapacidad_33_64);
       if (c.discapacidad === "65_mas") m += num(mp.incremento_discapacidad_65_mas);
+      // unidad monoparental en tributación conjunta (art. 75.4.ª)
+      if (modo === "conjunta" && hogar.tipoUnidadFamiliar === "monoparental") m += num(mp.incremento_monoparental_conjunta);
       dedMin += m;
     }
 
@@ -829,9 +831,11 @@
       // solteros menores de 30 años (o con discapacidad, a cualquier edad) y rentas <= IPREM
       const descNv = hogar.miembros.filter(m => m.rol === "descendiente" && num(m.rentasPropias) <= limR &&
         (num(m.edad, 0) < num(mf.edad_maxima_descendiente, 30) || (m.discapacidad && m.discapacidad !== "no")));
-      // incremento del ordinal 1.º por rentas del sujeto pasivo (art. 62.9.b.b´.2.º): no se prorratea
-      const rentasInc = (modo === "conjunta" || !contribsNv.length) ? r.baseImponibleGeneral + r.baseImponibleAhorro : rentasSp(contribsNv[0]);
-      const pctInc = incrementoDescendientesNavarra(rentasInc, mf.incremento_rentas_descendientes);
+      // incremento del ordinal 1.º por las rentas de cada sujeto pasivo (art. 62.9.b.b´.2.º): cada
+      // uno lo aplica sobre su parte; en conjunta, media de los factores de los sujetos pasivos
+      const factorDe = p => 1 + incrementoDescendientesNavarra(rentasSp(p), mf.incremento_rentas_descendientes) / 100;
+      const sps = modo === "conjunta" ? decsNv : contribsNv;
+      const factorInc = sps.length ? sps.reduce((s, p) => s + factorDe(p), 0) / sps.length : 1;
       descNv.forEach((d, i) => {
         const key = i < 5 ? String(i + 1) : "6+";
         let imp = num(mf.descendientes.importes[key] != null ? mf.descendientes.importes[key] : mf.descendientes.importes["6+"]);
@@ -839,7 +843,7 @@
         let disc = 0;
         if (d.discapacidad === "33_64") disc = num(mf.descendientes.incremento_discapacidad_33_64);
         if (d.discapacidad === "65_mas") disc = num(mf.descendientes.incremento_discapacidad_65_mas);
-        dedFam += imp * prorrNv * (1 + pctInc / 100) + disc * prorrNv;
+        dedFam += imp * prorrNv * factorInc + disc * prorrNv;
       });
       hogar.miembros.filter(m => m.rol === "ascendiente" && num(m.rentasPropias) <= limR &&
         (num(m.edad, 0) >= 65 || (m.discapacidad && m.discapacidad !== "no"))).forEach(a => {

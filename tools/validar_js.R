@@ -424,6 +424,18 @@ add("nc_min_pareja_hijos", "ES-NC", "biparental", "no",
     list(list(id="d1",rol="declarante",edad=40, trabajo=list(dinerarias=27000,cotizacionesSs=1714.5)), list(id="d2",rol="conyuge",edad=39),
          list(id="h1",rol="descendiente",edad=7), list(id="h2",rol="descendiente",edad=31), list(id="h3",rol="descendiente",edad=1)))
 
+# 15. Navarra: ejemplo 4 del manual de Hacienda Foral y monoparental en conjunta (art. 75.4.ª)
+add("nc_ejemplo4_manual", "ES-NC", "biparental", "no",
+    list(persona("d1","declarante",40, trabajo=list(dinerarias=16000, cotizaciones_ss=0)),
+         persona("d2","conyuge",38, trabajo=list(dinerarias=27000, cotizaciones_ss=0)),
+         persona("h1","descendiente",7), persona("h2","descendiente",5), persona("h3","descendiente",2)),
+    list(list(id="d1",rol="declarante",edad=40, trabajo=list(dinerarias=16000,cotizacionesSs=0)),
+         list(id="d2",rol="conyuge",edad=38, trabajo=list(dinerarias=27000,cotizacionesSs=0)),
+         list(id="h1",rol="descendiente",edad=7), list(id="h2",rol="descendiente",edad=5), list(id="h3",rol="descendiente",edad=2)))
+add("nc_monoparental_conjunta", "ES-NC", "monoparental", "no",
+    list(persona("d1","declarante",42, trabajo=list(dinerarias=34000, cotizaciones_ss=2159)), persona("h1","descendiente",9), persona("h2","descendiente",12)),
+    list(list(id="d1",rol="declarante",edad=42, trabajo=list(dinerarias=34000,cotizacionesSs=2159)), list(id="h1",rol="descendiente",edad=9), list(id="h2",rol="descendiente",edad=12)))
+
 out <- lapply(casos, function(c) list(
   js = c$js,
   ref = list(
