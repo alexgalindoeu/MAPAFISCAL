@@ -174,8 +174,9 @@
    "anios_arrastre": 4
   },
   "reduccion_prevision_social": {
-   "norma": "Arts. 51–52 LIRPF; DA 16ª",
-   "estado": "provisional",
+   "norma": "Arts. 51.6 y 52.1 LIRPF; DA 16.ª LIRPF",
+   "fuente": "AEAT Manual Práctico Renta 2025, Reducciones por aportaciones a sistemas de previsión social → 6.2 Límites y exceso de aportaciones",
+   "estado": "confirmado",
    "limite_general_abs": 1500,
    "limite_general_pct_rend": 0.3,
    "incremento_contribucion_empresarial": 8500,

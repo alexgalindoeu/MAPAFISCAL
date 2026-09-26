@@ -924,9 +924,9 @@ creciente). La **base** de la deducción (los donativos, no la deducción) no pu
 - Madrid, 30.000 € y 12.000 € pagados: 9.040 × 15 % = **1.356 €** (678 € por cuota). Cuota
   líquida 4.610,53 − 1.356 = **3.254,53 €**. Con 4.000 € pagados, 600 €.
 
-🟡 Pendiente: el 9 % del régimen especial de Cataluña, el límite de 9.040 € en tributación
-conjunta (el motor lo aplica una vez por declaración) y los donativos a otras entidades y
-partidos políticos.
+🟡 Pendiente: el 9 % del régimen especial de Cataluña y los donativos a otras entidades y
+partidos políticos. En conjunta el límite de 9.040 € es uno por declaración (art. 84 LIRPF:
+la conjunta no amplía límites salvo previsión expresa).
 
 ## Obligación de declarar (art. 96 LIRPF, 2026-09-26)
 
@@ -967,3 +967,29 @@ web avisa de que conviene presentarla.
 🟡 Simplificaciones, siempre del lado de «obligado»: las ganancias o pérdidas por ventas se
 tratan como no sometidas a retención (acciones) y no se modelan las pensiones
 compensatorias, los pagadores no obligados a retener ni los tipos fijos de retención.
+
+## Planes de pensiones: límites por partícipe (arts. 51.6 y 52.1 LIRPF, 2026-09-26)
+
+Test `tests/testthat/test-prevision-social.R`; casos `ps_pareja_md` y `ps_empresa_cm` del
+validador. Fuente: Manual Práctico Renta 2025, *6.2 Límites y exceso de aportaciones*.
+
+Por cada partícipe, aportaciones + contribuciones empresariales reducen hasta el menor de:
+(a) el **30 %** de sus rendimientos netos del trabajo (art. 19: íntegro menos gastos, antes de
+la reducción del art. 20) y de actividades, y (b) **1.500 €** más hasta **8.500 €** si hay
+contribuciones empresariales. «Estos límites se aplicarán individualmente a cada partícipe
+integrado en la unidad familiar». Antes el motor sumaba las aportaciones de toda la unidad
+con un solo límite y aplicaba el 30 % sobre el rendimiento ya reducido y solo a la aportación
+individual.
+
+- Soltero, 30.000 €: aporta 1.500 → reduce **1.500**; aporta 3.000 → 1.500; con 2.000 € de
+  contribución empresarial → **3.500**.
+- 18.000 € y 1.143 € de cotizaciones, aporta 1.500 y la empresa 8.000: rendimiento del art. 19
+  = 18.000 − 1.143 − 2.000 = 14.857; límite mín(30 % × 14.857; 1.500 + 8.000) = **4.457,10 €**
+  (antes, 9.500 €).
+- Autónomo en directa simplificada con 4.000 €: 3.800 € netos → 30 % = **1.140 €**.
+- Pareja en conjunta (Madrid, 30.000 y 20.000 €, 1.500 € cada uno): **3.000 €** (antes, 1.500).
+  Con 42.000 y 6.000 €: 1.500 + 30 % × (6.000 − 381 − 2.000) = 1.500 + 1.085,70 = **2.585,70 €**.
+
+🟡 No modelados: los coeficientes de las aportaciones del trabajador al mismo plan de empleo,
+el incremento de 4.250 € de autónomos, los 5.000 € de seguros colectivos de dependencia, los
+excesos de ejercicios anteriores y las aportaciones al plan del cónyuge.

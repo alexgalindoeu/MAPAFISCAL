@@ -14,6 +14,7 @@ agregar_rentas <- function(personas, P, regimen) {
   pensiones_comp <- 0
   retenciones <- 0
   anualidades <- 0
+  prevision_por_persona <- list()   # límites de previsión social: por partícipe (art. 52.1)
 
   for (pe in personas) {
     t <- rn_trabajo_previo(pe, P, regimen)
@@ -41,6 +42,11 @@ agregar_rentas <- function(personas, P, regimen) {
     if (!is.null(ps)) {
       prev_social_ind <- prev_social_ind + (ps$aportacion_individual %||% 0)
       prev_social_emp <- prev_social_emp + (ps$contribucion_empresarial %||% 0)
+      # base del límite del 30 %: rendimientos netos del trabajo (art. 19, antes de la
+      # reducción del art. 20) y de actividades económicas de ESTE partícipe
+      prevision_por_persona[[length(prevision_por_persona) + 1]] <- list(
+        individual = ps$aportacion_individual %||% 0, empresarial = ps$contribucion_empresarial %||% 0,
+        base_limite = max(0, t$previo + ac))
     }
     rd <- pe$reducciones
     if (!is.null(rd)) {
@@ -81,6 +87,7 @@ agregar_rentas <- function(personas, P, regimen) {
     base_imponible_ahorro = ic$base_imponible_ahorro,
     prevision_social_individual = prev_social_ind,
     prevision_social_empresarial = prev_social_emp,
+    prevision_por_persona = prevision_por_persona,
     pensiones_compensatorias = pensiones_comp,
     anualidades_alimentos = anualidades,
     retenciones = retenciones
@@ -93,14 +100,18 @@ aplicar_reducciones_base <- function(rentas, hogar, P, modo) {
   big <- rentas$base_imponible_general
   bia <- rentas$base_imponible_ahorro
 
-  # Previsión social (arts. 51-52): aportación individual limitada a min(1.500 €, 30 % de
-  # rendimientos del trabajo + actividades); las contribuciones empresariales añaden hasta 8.500 €.
+  # Previsión social (arts. 51.6 y 52.1): por cada partícipe, aportaciones + contribuciones
+  # empresariales hasta el menor de (a) el 30 % de sus rendimientos netos del trabajo y de
+  # actividades y (b) 1.500 € más hasta 8.500 € de contribuciones empresariales. Los límites
+  # se aplican individualmente también en tributación conjunta.
   rs <- e$reduccion_prevision_social
-  rend_base <- rentas$trabajo_neto + max(0, rentas$actividades)
-  red_ps_ind <- min(rentas$prevision_social_individual, rs$limite_general_abs,
-                    rs$limite_general_pct_rend * rend_base)
-  red_ps_emp <- min(rentas$prevision_social_empresarial, rs$incremento_contribucion_empresarial)
-  red_ps <- min(red_ps_ind + red_ps_emp, max(0, big))
+  red_ps <- 0
+  for (x in rentas$prevision_por_persona %||% list()) {
+    limite <- min(rs$limite_general_pct_rend * x$base_limite,
+                  rs$limite_general_abs + min(rs$incremento_contribucion_empresarial, x$empresarial))
+    red_ps <- red_ps + min(x$individual + x$empresarial, limite)
+  }
+  red_ps <- min(red_ps, max(0, big))
   big <- big - red_ps
 
   # Pensiones compensatorias (agota BIG; resto a BIA)
