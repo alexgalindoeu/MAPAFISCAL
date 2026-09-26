@@ -75,7 +75,7 @@ la web pública.
 
 ## Pendiente antes de abrir al público
 
-1. Secretos de Stripe en Supabase y webhook (`supabase/README.md`); precios definitivos
+1. Cobros configurados y probados en modo test (2026-09-26); faltan precios definitivos
    (ahora 19,99 €/semana para la campaña de la renta, 39,99 €/mes y 290 €/año, IVA
    incluido, provisionales); productos y webhook en modo live.
 2. URL pública: GitHub Pages (`https://alexgalindoeu.github.io/MAPAFISCAL/`); configurarla

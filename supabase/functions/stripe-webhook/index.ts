@@ -29,7 +29,7 @@ async function sincronizar(s: Stripe, id: string) {
   if (actual?.suscripcion_proveedor_id && actual.suscripcion_proveedor_id !== sub.id &&
       ACTIVOS.has(actual.estado) && !ACTIVOS.has(sub.status)) return;
 
-  const { error: e1 } = await db.from("suscripciones").upsert({
+  const fila = {
     gestor_id: gestorId,
     plan,
     estado: sub.status,
@@ -38,7 +38,11 @@ async function sincronizar(s: Stripe, id: string) {
     suscripcion_proveedor_id: sub.id,
     periodo_fin: finPeriodo(sub),
     actualizado_en: new Date().toISOString(),
-  });
+  };
+  // Al pagar, Stripe envía varios eventos a la vez: si dos crean la fila a la vez, el
+  // segundo choca con la clave única del cliente (23505); al repetirlo ya es una actualización.
+  let { error: e1 } = await db.from("suscripciones").upsert(fila);
+  if (e1?.code === "23505") ({ error: e1 } = await db.from("suscripciones").upsert(fila));
   if (e1) throw e1;
   const { error: e2 } = await db.from("perfiles")
     .update({ plan: ACTIVOS.has(sub.status) ? plan : "gratis" }).eq("id", gestorId);
