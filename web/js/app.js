@@ -181,7 +181,8 @@
     const d1 = {
       id: "d1", rol: "declarante", edad: num("f-edad") || 40, discapacidad: $("f-discapacidad").value,
       desempleado: $("f-desempleado").checked,
-      trabajo: salario > 0 ? { dinerarias: salario, cotizacionesSs: num("f-ss"), pensionJubilacion: $("f-pension").checked } : null,
+      trabajo: salario > 0 ? { dinerarias: salario, cotizacionesSs: num("f-ss"), pensionJubilacion: $("f-pension").checked,
+        otrosPagadores: num("f-otros-pagadores") } : null,
       capitalMobiliario: (num("f-intereses") > 0 || num("f-dividendos") > 0) ? { intereses: num("f-intereses"), dividendos: num("f-dividendos") } : null,
       capitalInmobiliario: num("f-alquileres") > 0 ? [{ ingresos: num("f-alquileres"), gastosDeducibles: 0 }] : null,
       actividades: num("f-actividad") > 0 ? { metodo: "directa_simplificada", rendimientoNetoPrevio: num("f-actividad") } : null,
@@ -230,6 +231,7 @@
     set("f-salario", d1.trabajo ? d1.trabajo.dinerarias : 0);
     set("f-ss", d1.trabajo ? d1.trabajo.cotizacionesSs : 0); ssManual = true;
     $("f-pension").checked = !!(d1.trabajo && d1.trabajo.pensionJubilacion);
+    set("f-otros-pagadores", d1.trabajo ? d1.trabajo.otrosPagadores : 0);
     $("f-municipio").value = h.municipioHabitantes != null ? h.municipioHabitantes : "";
     $("f-despoblada").checked = !!h.zonaDespoblada;
     set("f-intereses", d1.capitalMobiliario ? d1.capitalMobiliario.intereses : 0);
@@ -301,6 +303,37 @@
   const etqProvisional = '<span class="etq etq-prov" title="Importe o requisitos pendientes de cotejo con la norma">provisional</span>';
   const nombreDed = id => NOMBRES_DED[id] || id.replace(/([A-Z])/g, " $1").replace(/_/g, " ").trim().toLowerCase().replace(/^./, c => c.toUpperCase());
 
+  // ¿hay que presentar la declaración? (art. 96 LIRPF, calculado por el motor)
+  function pintarObligacion(liq, reg) {
+    const ob = liq.obligacionDeclarar, o = P.estatal.obligacion_declarar;
+    if (!ob || ob.obligado === null) {
+      $("res-obligacion").textContent = reg === "comun" ? "" : "Obligación de declarar: los territorios forales tienen su propia regulación, que esta herramienta no evalúa.";
+      return;
+    }
+    const quien = id => id === "d1" ? "tú" : "tu pareja";
+    const MOTIVO = {
+      alta_reta: () => "tienes rendimientos de una actividad económica (autónomos de alta en el RETA declaran siempre)",
+      trabajo: x => `los rendimientos del trabajo superan ${eur0(x.limiteTrabajo)}${x.limiteTrabajo < o.trabajo_un_pagador ? " (límite con más de un pagador)" : ""}`,
+      capital: () => `los intereses, dividendos y ganancias con retención superan ${eur0(o.capital_y_ganancias_con_retencion)}`,
+      imputaciones: () => `las rentas inmobiliarias imputadas superan ${eur0(o.rentas_inmobiliarias_imputadas)}`,
+      otras_rentas: () => "hay rentas distintas del trabajo o del ahorro con retención (alquileres, ventas de acciones o fondos…)"
+    };
+    const obligados = Object.entries(ob.porPersona).filter(([, x]) => x.obligado);
+    let txt;
+    if (ob.obligado) {
+      txt = "<b>Estás obligado a presentar la declaración</b>: " + obligados.map(([id, x]) =>
+        (obligados.length > 1 || id !== "d1" ? quien(id) + ", " : "") + MOTIVO[x.motivo](x)).join("; ") + ".";
+    } else {
+      txt = "<b>No estás obligado a declarar</b> (art. 96 LIRPF)";
+      if (ob.convienePresentar) txt += `, pero te conviene: te devolverían ${eur(Math.abs(liq.cuotaDiferencial))}`;
+      txt += ".";
+      const para = new Set(Object.values(ob.porPersona).flatMap(x => x.paraAplicar));
+      const PARA = { vivienda_transitoria: "la deducción por vivienda anterior a 2013", prevision_social: "la reducción por aportaciones a planes de pensiones" };
+      if (para.size) txt += " Para aplicar " + [...para].map(p => PARA[p]).join(" y ") + " tienes que presentarla.";
+    }
+    $("res-obligacion").innerHTML = txt;
+  }
+
   function recalcular() {
     const terr = selTerr.value;
     const hogar = construirHogar(terr);
@@ -341,6 +374,7 @@
       <div><dt>Tipo marginal</dt><dd>${pct(tipoMarginal(liq, terr))}</dd></div>
       <div><dt>Mejor modalidad</dt><dd>${liq.modoTributacionElegido === "conjunta" ? "Conjunta" : "Individual"}</dd></div>`;
     $("btn-guardar-cliente").textContent = clienteAbierto ? "Guardar cambios del cliente" : "Guardar como cliente";
+    pintarObligacion(liq, reg);
 
     // desglose
     const filas = [];

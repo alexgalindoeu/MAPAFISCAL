@@ -50,6 +50,7 @@ liquidar <- function(hogar, parametros = NULL, modo = "auto") {
     individual = resultados$individual$cuota_resultante_autoliquidacion,
     conjunta   = if (!is.null(resultados$conjunta)) resultados$conjunta$cuota_resultante_autoliquidacion else NA_real_
   )
+  liq$obligacion_declarar <- obligacion_declarar(hogar, P, liq$cuota_diferencial)
   liq$avisos_parametros <- avisos_parametros()
   class(liq) <- "irpfsim_liquidacion"
   liq

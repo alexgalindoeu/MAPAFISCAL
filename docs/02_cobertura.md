@@ -31,6 +31,7 @@ provisionales o parciales · ⛔ pendiente (hook presente, no calcula).
 | Bonificación Ceuta/Melilla (art. 68.4, 60 %) | fuera de alcance (Ceuta y Melilla descartadas) | — | — |
 | Deducciones "impropias" (maternidad, familia numerosa) | 🟡 | — | — |
 | Cuota diferencial (retenciones como input) | ✅ | ✅ | ✅ |
+| Obligación de declarar (art. 96) | ✅ (simplificada del lado de «obligado») | ⛔ normativa foral | ⛔ normativa foral |
 
 ## 2. Parámetros por jurisdicción (ejercicio 2025)
 

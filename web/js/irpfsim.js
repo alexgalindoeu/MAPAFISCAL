@@ -906,6 +906,49 @@
     return base;
   }
 
+  // ---- Obligación de declarar (art. 96 LIRPF, régimen común) -----------------
+  // Por declarante. Mismas simplificaciones que el motor R (R/14_obligacion.R): ganancias
+  // como no sometidas a retención y actividad económica = alta en el RETA.
+  function obligacionDeclararPersona(pe, P) {
+    const o = P.estatal.obligacion_declarar, tr = pe.trabajo;
+    const trabajo = tr ? num(tr.dinerarias) + num(tr.especie) : 0;
+    const otrosPagadores = tr ? num(tr.otrosPagadores) : 0;
+    const cm = pe.capitalMobiliario;
+    const capitalRet = cm ? Object.values(cm).reduce((s, v) => s + (typeof v === "number" ? Math.max(0, v) : 0), 0) : 0;
+    const imput = imputacionInmobiliaria(pe, P);
+    const alquileres = (pe.capitalInmobiliario || []).reduce((s, im) => s + Math.max(0, num(im.ingresos)), 0);
+    const act = rnActividades(pe, P);
+    const hayActividad = !!pe.actividades;
+    const gan = (pe.ganancias || []).map(el => num(el.valorTransmision) - num(el.valorAdquisicion));
+    gan.push(num(pe.gananciasPerdidasNoTransmision));
+    const ganancias = gan.filter(g => g > 0).reduce((s, g) => s + g, 0);
+    const perdidas = -gan.filter(g => g < 0).reduce((s, g) => s + g, 0);
+    const paraAplicar = [];
+    if (num(pe.viviendaTransitoriaPagos) > 0) paraAplicar.push("vivienda_transitoria");
+    const ps = pe.previsionSocial;
+    if (ps && num(ps.aportacionIndividual) + num(ps.contribucionEmpresarial) > 0) paraAplicar.push("prevision_social");
+    const limiteTrabajo = otrosPagadores > o.segundo_pagador_umbral ? o.trabajo_varios_pagadores : o.trabajo_un_pagador;
+    const altaReta = pe.altaReta != null ? !!pe.altaReta : hayActividad;
+    const res = (obligado, motivo) => ({ obligado, motivo, limiteTrabajo, paraAplicar });
+    if (altaReta) return res(true, "alta_reta");
+    const soloAbc = alquileres === 0 && !hayActividad && ganancias === 0 && perdidas === 0;
+    if (soloAbc && trabajo <= limiteTrabajo && capitalRet <= o.capital_y_ganancias_con_retencion &&
+        imput <= o.rentas_inmobiliarias_imputadas) return res(false, "limites");
+    const total = trabajo + capitalRet + alquileres + Math.max(0, act) + ganancias;
+    if (total <= o.rentas_totales_minimas && perdidas < o.perdidas_patrimoniales_maximas) return res(false, "rentas_minimas");
+    const motivo = trabajo > limiteTrabajo ? "trabajo" : capitalRet > o.capital_y_ganancias_con_retencion ? "capital"
+      : imput > o.rentas_inmobiliarias_imputadas ? "imputaciones" : "otras_rentas";
+    return res(true, motivo);
+  }
+  function obligacionDeclarar(hogar, P, regimen, cuotaDiferencial) {
+    if (regimen !== "comun") return { obligado: null, convienePresentar: null, porPersona: {} };
+    const porPersona = {};
+    for (const d of hogar.miembros.filter(m => m.rol === "declarante" || m.rol === "conyuge"))
+      porPersona[d.id] = obligacionDeclararPersona(d, P);
+    const obligado = Object.values(porPersona).some(x => x.obligado);
+    return { obligado, convienePresentar: !obligado && cuotaDiferencial < 0, porPersona };
+  }
+
   function liquidar(hogar, P, modo) {
     modo = modo || "auto";
     const terrCode = hogar.territorio;
@@ -937,6 +980,7 @@
     liq.ejercicio = P.ejercicio;
     liq.modoTributacionElegido = elegido;
     liq.comparativa = { individual: res.individual ? res.individual.cuotaResultanteAutoliquidacion : null, conjunta: res.conjunta ? res.conjunta.cuotaResultanteAutoliquidacion : null };
+    liq.obligacionDeclarar = obligacionDeclarar(hogar, P, regimen, liq.cuotaDiferencial);
     return liq;
   }
 
