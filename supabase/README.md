@@ -50,6 +50,8 @@ curl -i -X POST https://pqiqrcvuztxrwrwizppj.supabase.co/functions/v1/stripe-web
 
 **Precios.** Las funciones buscan el precio por su `lookup_key`: `gestor_semanal`,
 `gestor_mensual` y `gestor_anual` (19,99 €/semana, 39,99 €/mes y 290 €/año, provisionales).
+Los importes llevan el **IVA incluido** (`tax_behavior: inclusive`): Stripe cobra exactamente
+esa cifra, y si se activa Stripe Tax desglosa el IVA dentro de ella.
 Para cambiar un precio, crea uno nuevo en el mismo producto y transfiérele la `lookup_key`
 (Stripe → producto → precio → *Lookup key*, o `transfer_lookup_key` en la API); no hace
 falta tocar código ni secretos. Actualiza también `precios` en `web/config.js`. Si se define

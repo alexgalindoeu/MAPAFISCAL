@@ -76,8 +76,8 @@ la web pública.
 ## Pendiente antes de abrir al público
 
 1. Secretos de Stripe en Supabase y webhook (`supabase/README.md`); precios definitivos
-   (ahora 19,99 €/semana, 39,99 €/mes y 290 €/año, provisionales) y si se muestran con
-   IVA o sin él; productos y webhook en modo live.
+   (ahora 19,99 €/semana para la campaña de la renta, 39,99 €/mes y 290 €/año, IVA
+   incluido, provisionales); productos y webhook en modo live.
 2. URL pública: GitHub Pages (`https://alexgalindoeu.github.io/MAPAFISCAL/`); configurarla
    en Supabase Auth.
 3. SMTP propio para los correos de acceso (el de Supabase tiene un límite bajo).

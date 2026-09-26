@@ -718,8 +718,8 @@
     const PERIODO = { semanal: [pr.gestorSemanal, "semana"], mensual: [pr.gestorMensual, "mes"], anual: [pr.gestorAnual, "año"] };
     const [cifra, unidad] = PERIODO[periodo] || PERIODO.mensual;
     const precioGestor = `${importe(cifra)}<small> / ${unidad}</small>`;
-    const notaGestor = periodo === "anual" && pr.gestorAnual
-      ? `Equivale a ${eur(pr.gestorAnual / 12)} al mes. IVA no incluido.` : "IVA no incluido.";
+    const notaGestor = periodo === "anual" && pr.gestorAnual ? `Equivale a ${eur(pr.gestorAnual / 12)} al mes. IVA incluido.`
+      : periodo === "semanal" ? "Pensado para la campaña de la renta. IVA incluido." : "IVA incluido.";
     const ctaGestor = plan !== "gratis"
       ? `<button class="btn btn-sec" type="button" disabled>Tu plan actual</button>`
       : (CFG.pagosActivos && sb ? `<button class="btn btn-pri" type="button" id="cta-gestor">Suscribirme</button>`
