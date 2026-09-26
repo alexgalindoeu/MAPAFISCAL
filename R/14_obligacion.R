@@ -13,7 +13,7 @@
 obligacion_declarar_persona <- function(pe, P) {
   o <- P$estatal$obligacion_declarar
   tr <- pe$trabajo
-  trabajo <- if (is.null(tr)) 0 else (tr$dinerarias %||% 0) + (tr$especie %||% 0)
+  trabajo <- integro_trabajo(pe)
   otros_pagadores <- if (is.null(tr)) 0 else (tr$otros_pagadores %||% 0)
   # B: capital mobiliario (íntegros positivos, sometidos a retención)
   cm <- pe$capital_mobiliario

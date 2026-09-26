@@ -32,12 +32,19 @@
   }
 
   // ---- Rendimientos ---------------------------------------------------------
+  // Rendimiento íntegro del trabajo: dinerarias y especie más las contribuciones
+  // empresariales a previsión social imputadas al trabajador (art. 17.1.e LIRPF)
+  function integroTrabajo(pe) {
+    const tr = pe.trabajo || {};
+    return num(tr.dinerarias) + num(tr.especie) + num(pe.previsionSocial && pe.previsionSocial.contribucionEmpresarial);
+  }
+
   // Rendimiento neto que fija la cuantía de la reducción del art. 20: íntegro − gastos
   // a) a e) del art. 19.2, sin los «otros gastos» de la letra f)
   function rnTrabajoPrevioArt20(pe) {
-    const tr = pe.trabajo;
-    if (!tr) return 0;
-    let integro = num(tr.dinerarias) + num(tr.especie);
+    let integro = integroTrabajo(pe);
+    if (!pe.trabajo && integro === 0) return 0;
+    const tr = pe.trabajo || {};
     const irr = tr.rendimientoIrregular;
     if (irr && num(irr.importe) > 0 && num(irr.anios) > 2) {
       integro -= Math.min(irr.importe, 300000) * 0.30;
@@ -48,8 +55,8 @@
   // Rendimiento neto previo a la reducción (tras la letra f, limitada al íntegro menos
   // el resto de gastos)
   function rnTrabajoPrevio(pe, P, regimen) {
-    const tr = pe.trabajo;
-    if (!tr) return 0;
+    if (!pe.trabajo && integroTrabajo(pe) === 0) return 0;
+    const tr = pe.trabajo || {};
     const previoArt20 = rnTrabajoPrevioArt20(pe);
     let otros = 0;
     if (regimen === "comun") {
@@ -517,10 +524,10 @@
     const d = P.estatal.deduccion_obtencion_rendimientos_trabajo;
     if (!d || cuotaIntegraTotal <= 0) return { total: 0, detalle: {} };
     const filas = personas.map(pe => {
-      const tr = pe.trabajo;
-      const rit = tr ? num(tr.dinerarias) + num(tr.especie) : 0;
-      const neto = tr ? Math.max(0, rit - num(tr.cotizacionesSs) - num(tr.otrosGastos)) : 0;
-      const laboral = !!tr && !tr.pensionJubilacion;
+      const tr = pe.trabajo || {};
+      const rit = integroTrabajo(pe);
+      const neto = Math.max(0, rit - num(tr.cotizacionesSs) - num(tr.otrosGastos));
+      const laboral = rit > 0 && !tr.pensionJubilacion;
       const cm = rnCapitalMobiliario(pe, P, "comun");
       let gan = num(pe.gananciasPerdidasNoTransmision);
       for (const el of (pe.ganancias || [])) { const g = gananciaElemento(el, P, "comun"); gan += g.ahorro + g.general; }
@@ -953,7 +960,7 @@
   // como no sometidas a retención y actividad económica = alta en el RETA.
   function obligacionDeclararPersona(pe, P) {
     const o = P.estatal.obligacion_declarar, tr = pe.trabajo;
-    const trabajo = tr ? num(tr.dinerarias) + num(tr.especie) : 0;
+    const trabajo = integroTrabajo(pe);
     const otrosPagadores = tr ? num(tr.otrosPagadores) : 0;
     const cm = pe.capitalMobiliario;
     const capitalRet = cm ? Object.values(cm).reduce((s, v) => s + (typeof v === "number" ? Math.max(0, v) : 0), 0) : 0;
