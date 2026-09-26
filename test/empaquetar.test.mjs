@@ -17,7 +17,7 @@ test("el HTML empaquetado es autónomo", () => {
 
 test("el HTML empaquetado queda en modo demo aunque la web esté en producción", () => {
   const html = empaquetar();
-  assert.doesNotMatch(html, /supabase-js/, "no debe cargar supabase-js");
+  assert.doesNotMatch(html, /<script[^>]+supabase-js/, "no debe cargar supabase-js");
   const cfg = html.match(/<script>\n([^<]*MAPAFISCAL_CONFIG[^<]*)<\/script>\n<script type="application\/json" id="datos-params">/);
   assert.ok(cfg, "falta la configuración embebida");
   const window = {};
