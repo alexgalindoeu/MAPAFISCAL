@@ -1297,61 +1297,120 @@ territorios:
           base_max_conjunta: 37322.20
           base_max_unidad_familiar: 61860
           prorratea_progenitores: true
+        # Art. 13 bis: solo para quien OBTIENE el título de familia numerosa con efectos desde
+        # el 1-1-2023, en ese ejercicio y en los dos siguientes (hogar$familia_numerosa_reciente;
+        # si no se informa, no se aplica). Límite de renta del art. 18.2: suma de bases de la
+        # UF <= 30.930 € x nº de miembros (miembros = declarantes + descendientes menores de
+        # 18, aproximación de la UF; misma base aproximada que `base_max_unidad_familiar`).
         - id: familia_numerosa_general
-          norma: "Art. 13 bis DL 1/2010 Madrid"
-          estado: provisional   # límite de renta real = 30.930 € x nº de miembros de la unidad familiar (no modelado; casi nunca vinculante en FN)
+          norma: "Arts. 13 bis y 18.2 DL 1/2010 Madrid"
+          estado: confirmado
+          fuente: "Arts. 13 bis y 18.2 DL 1/2010, redacción de la Ley 13/2023 (BOE-A-2024-5610) y de la Ley 5/2024 (BOE-A-2025-3303), vigente en 2025; AEAT Manual Práctico Renta 2025, Parte 2, Comunidad de Madrid, «Por la obtención de la condición de familia numerosa de categoría general o especial» (https://sede.agenciatributaria.gob.es/Sede/ayuda/manuales-videos-folletos/manuales-practicos/irpf-2025-deducciones-autonomicas/comunidad-madrid/obtencion-condicion-familia-numerosa.html)"
           tipo: porcentaje_cuota_autonomica
           sobre_cuota_integra: true
           porcentaje: 0.50
           limite: 6186
           limite_conjunta: 12372
           familia_numerosa_categoria: general
+          requiere_familia_numerosa_reciente: true
+          base_max_por_miembro_uf: 30930
         - id: familia_numerosa_especial
-          norma: "Art. 13 bis DL 1/2010 Madrid"
-          estado: provisional   # ídem: límite de renta por nº de miembros no modelado
+          norma: "Arts. 13 bis y 18.2 DL 1/2010 Madrid"
+          estado: confirmado
+          fuente: "Arts. 13 bis y 18.2 DL 1/2010, redacción de la Ley 13/2023 (BOE-A-2024-5610) y de la Ley 5/2024 (BOE-A-2025-3303), vigente en 2025; AEAT Manual Práctico Renta 2025, Parte 2, Comunidad de Madrid, «Por la obtención de la condición de familia numerosa de categoría general o especial» (https://sede.agenciatributaria.gob.es/Sede/ayuda/manuales-videos-folletos/manuales-practicos/irpf-2025-deducciones-autonomicas/comunidad-madrid/obtencion-condicion-familia-numerosa.html)"
           tipo: porcentaje_cuota_autonomica
           sobre_cuota_integra: true
           porcentaje: 1.00
           limite: 12372
           limite_conjunta: 24744
           familia_numerosa_categoria: especial
+          requiere_familia_numerosa_reciente: true
+          base_max_por_miembro_uf: 30930
         - id: cuidado_ascendientes
           norma: "Art. 7 bis DL 1/2010 Madrid"
           tipo: fija_por_ascendiente
           importe: 515.50        # por ascendiente > 65 o con discapacidad >= 33 % con derecho a mínimo por ascendientes
           edad_ascendiente_min: 65
           prorratea_progenitores: true
+        # Art. 11 bis: 25 % de las cotizaciones al Sistema Especial de Empleados de Hogar,
+        # límite 463,95 € (40 % y 618,60 € para titulares de familia numerosa). Supuestos
+        # modelados, como variantes excluyentes del grupo `empleada_hogar_md`:
+        #   a) hijo menor de 3 años con mínimo por descendientes, y el contribuyente y el otro
+        #      progenitor con actividad por cuenta propia o ajena (requiere_progenitores_trabajan);
+        #   d) contribuyente con discapacidad >= 33 % (sin requisito de actividad).
+        # Los supuestos b) y c) (convivir con un familiar dependiente > 65 años o con
+        # discapacidad >= 33 %) están en `pendientes`. Aproximaciones: el hijo cuenta el año
+        # entero si tiene <= 2 años a 31-12 (la ley prorratea por meses) y no se comprueban
+        # las 40 horas mensuales. Límite de renta del art. 18.2 como en el art. 13 bis.
         - id: cuidado_hijos_menores_3_empleada_hogar
-          norma: "Art. 11 bis DL 1/2010 Madrid"
-          estado: provisional   # la variante de familia numerosa (40 %/618,60 €) y los supuestos de convivencia con dependiente/discapacitado no se modelan
+          norma: "Arts. 11 bis.2.a) y 18.2 DL 1/2010 Madrid"
+          estado: confirmado
+          fuente: "Arts. 11 bis y 18.2 DL 1/2010, redacción de la Ley 13/2023 (BOE-A-2024-5610), vigente en 2025; AEAT Manual Práctico Renta 2025, Parte 2, Comunidad de Madrid, «Por cuidado de hijos menores de 3 años, mayores dependientes y personas con discapacidad» (https://sede.agenciatributaria.gob.es/Sede/ayuda/manuales-videos-folletos/manuales-practicos/irpf-2025-deducciones-autonomicas/comunidad-madrid/cuidado-hijos-menores-mayores-discapacitados.html)"
           tipo: porcentaje_campo
           campo: cuotas_ss_empleada_hogar
           porcentaje: 0.25
           limite: 463.95
+          grupo: empleada_hogar_md
           descendiente_edad_max: 2
-        - id: gastos_educativos_escolaridad
-          norma: "Art. 11 DL 1/2010 Madrid"
-          estado: provisional   # el límite por hijo es combinado (927,90 € con escolaridad, 1.031 € en 1er ciclo infantil); el DSL aplica un tope fijo sobre el gasto de escolaridad
+          requiere_progenitores_trabajan: true
+          base_max_por_miembro_uf: 30930
+        - id: cuidado_hijos_menores_3_empleada_hogar_fn
+          norma: "Arts. 11 bis.1 (familia numerosa), 11 bis.2.a) y 18.2 DL 1/2010 Madrid"
+          estado: confirmado
+          fuente: "Arts. 11 bis y 18.2 DL 1/2010, redacción de la Ley 13/2023 (BOE-A-2024-5610), vigente en 2025; AEAT Manual Práctico Renta 2025, Parte 2, Comunidad de Madrid, «Por cuidado de hijos menores de 3 años, mayores dependientes y personas con discapacidad» (https://sede.agenciatributaria.gob.es/Sede/ayuda/manuales-videos-folletos/manuales-practicos/irpf-2025-deducciones-autonomicas/comunidad-madrid/cuidado-hijos-menores-mayores-discapacitados.html)"
           tipo: porcentaje_campo
-          campo: gastos_escolaridad
-          porcentaje: 0.15
-          limite: 927.90
-        - id: gastos_educativos_idiomas
-          norma: "Art. 11 DL 1/2010 Madrid"
-          estado: provisional   # límite combinado idiomas + vestuario = 412,40 €/hijo; aquí se aplica por separado
+          campo: cuotas_ss_empleada_hogar
+          porcentaje: 0.40
+          limite: 618.60
+          grupo: empleada_hogar_md
+          requiere_familia_numerosa: true
+          descendiente_edad_max: 2
+          requiere_progenitores_trabajan: true
+          base_max_por_miembro_uf: 30930
+        - id: empleada_hogar_contribuyente_discapacidad
+          norma: "Arts. 11 bis.2.d) y 18.2 DL 1/2010 Madrid"
+          estado: confirmado
+          fuente: "Arts. 11 bis y 18.2 DL 1/2010, redacción de la Ley 13/2023 (BOE-A-2024-5610), vigente en 2025; AEAT Manual Práctico Renta 2025, Parte 2, Comunidad de Madrid, «Por cuidado de hijos menores de 3 años, mayores dependientes y personas con discapacidad» (https://sede.agenciatributaria.gob.es/Sede/ayuda/manuales-videos-folletos/manuales-practicos/irpf-2025-deducciones-autonomicas/comunidad-madrid/cuidado-hijos-menores-mayores-discapacitados.html)"
           tipo: porcentaje_campo
-          campo: gastos_idiomas
-          porcentaje: 0.15
+          campo: cuotas_ss_empleada_hogar
+          porcentaje: 0.25
+          limite: 463.95
+          grupo: empleada_hogar_md
+          requiere_discapacidad_contribuyente: true
+          base_max_por_miembro_uf: 30930
+        - id: empleada_hogar_contribuyente_discapacidad_fn
+          norma: "Arts. 11 bis.1 (familia numerosa), 11 bis.2.d) y 18.2 DL 1/2010 Madrid"
+          estado: confirmado
+          fuente: "Arts. 11 bis y 18.2 DL 1/2010, redacción de la Ley 13/2023 (BOE-A-2024-5610), vigente en 2025; AEAT Manual Práctico Renta 2025, Parte 2, Comunidad de Madrid, «Por cuidado de hijos menores de 3 años, mayores dependientes y personas con discapacidad» (https://sede.agenciatributaria.gob.es/Sede/ayuda/manuales-videos-folletos/manuales-practicos/irpf-2025-deducciones-autonomicas/comunidad-madrid/cuidado-hijos-menores-mayores-discapacitados.html)"
+          tipo: porcentaje_campo
+          campo: cuotas_ss_empleada_hogar
+          porcentaje: 0.40
+          limite: 618.60
+          grupo: empleada_hogar_md
+          requiere_familia_numerosa: true
+          requiere_discapacidad_contribuyente: true
+          base_max_por_miembro_uf: 30930
+        # Art. 11: por hijo con mínimo por descendientes, 15 % de escolaridad e idiomas y 5 %
+        # de vestuario escolar, con UN límite por hijo: 412,40 €, que sube a 927,90 € si hay
+        # gasto de escolaridad y a 1.031 € en el primer ciclo de infantil (0-2 años, donde
+        # solo cuenta la escolaridad). Prorrateo entre progenitores en individual (art. 11.5).
+        # Límite de renta del art. 18.2 como en el art. 13 bis.
+        - id: gastos_educativos
+          norma: "Arts. 11 y 18.2 DL 1/2010 Madrid"
+          estado: confirmado
+          fuente: "Arts. 11 y 18.2 DL 1/2010, redacción de la Ley 13/2023 (BOE-A-2024-5610), vigente en 2025; AEAT Manual Práctico Renta 2025, Parte 2, Comunidad de Madrid, «Por gastos educativos» (https://sede.agenciatributaria.gob.es/Sede/ayuda/manuales-videos-folletos/manuales-practicos/irpf-2025-deducciones-autonomicas/comunidad-madrid/gastos-educativos.html)"
+          tipo: porcentaje_campos_hijo
+          campos:
+            gastos_escolaridad: 0.15
+            gastos_idiomas: 0.15
+            gastos_vestuario_escolar: 0.05
           limite: 412.40
-        - id: gastos_educativos_vestuario
-          norma: "Art. 11 DL 1/2010 Madrid"
-          estado: provisional
-          tipo: porcentaje_campo
-          campo: gastos_vestuario_escolar
-          porcentaje: 0.05
-          limite: 412.40
+          limite_si_campo: { campo: gastos_escolaridad, limite: 927.90 }
+          primer_ciclo: { edad_hijo_max: 2, limite: 1031, campos: [gastos_escolaridad] }
+          base_max_por_miembro_uf: 30930
       pendientes:
         - acogimiento_no_remunerado_mayores_65     # 1.546,50 € — requiere flag de acogimiento
+        - empleada_hogar_familiar_dependiente_o_discapacidad  # art. 11 bis.2.b) y c): falta un campo de grado de dependencia y de familiar con discapacidad >= 33 %
         - acogimiento_familiar_menores
         - familias_dos_mas_descendientes_ingresos_reducidos  # 10 % cuota autonómica si base UF < 24.000 y 2+ desc.
         - intereses_prestamos_vivienda_jovenes_30   # % sobre intereses del préstamo — falta el campo

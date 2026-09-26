@@ -68,10 +68,13 @@ nuevo_hogar <- function(id_hogar, territorio, miembros, ejercicio = 2025,
                         tipo_unidad_familiar = "ninguna",
                         familia_numerosa = "no", titulo_familia_numerosa = FALSE,
                         parto_multiple = FALSE,
-                        municipio_habitantes = NULL, zona_despoblada = FALSE) {
+                        municipio_habitantes = NULL, zona_despoblada = FALSE,
+                        familia_numerosa_reciente = FALSE) {
   # municipio_habitantes: población del municipio de residencia (NULL = no informada);
   # zona_despoblada: el municipio figura en la lista oficial de zonas rurales o en riesgo
   # de despoblación de la comunidad (cada CCAA publica la suya).
+  # familia_numerosa_reciente: el reconocimiento del título de familia numerosa tiene
+  # efectos en el ejercicio o en los dos anteriores (Madrid, art. 13 bis DL 1/2010).
   h <- structure(list(
     id_hogar = id_hogar, territorio = territorio, ejercicio = ejercicio,
     tipo_unidad_familiar = tipo_unidad_familiar,
@@ -80,6 +83,7 @@ nuevo_hogar <- function(id_hogar, territorio, miembros, ejercicio = 2025,
     parto_multiple = parto_multiple,
     municipio_habitantes = municipio_habitantes,
     zona_despoblada = isTRUE(zona_despoblada),
+    familia_numerosa_reciente = isTRUE(familia_numerosa_reciente),
     miembros = miembros
   ), class = "irpfsim_hogar")
   validar_hogar(h)
