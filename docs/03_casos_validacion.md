@@ -67,12 +67,14 @@ distinto tratamiento (deducción de cuota foral vs. mínimo en base).
 | Rendimiento neto previo | 30.000 − 1.905 | 28.095,00 |
 | Base liquidable general | (Navarra canaliza el beneficio del trabajo por la deducción en cuota) | 28.095,00 |
 | Cuota íntegra (tarifa foral art. 59) | 4.458×13% + 5.572×22% + 11.145×25% + 6.920×28% | **6.529,23** |
-| (−) Deducción por mínimo personal (art. 62.9.a) | 1.084 + incremento por renta 283,85 | −1.367,85 |
+| (−) Deducción por mínimo personal (art. 62.9.a) | 1.084 + 150 (rentas ≤ 30.000) | −1.234,00 |
 | (−) Deducción por trabajo (art. 62.5) | RNT 28.095 ∈ (17.500, 35.000] ⇒ 700 | −700,00 |
-| **Cuota líquida total** | | **4.461,38** |
+| **Cuota líquida total** | | **4.595,23** |
 
-Soltero sin hijos ⇒ el mínimo familiar (art. 62.9.b, ya implementado: 483 €/1er
-descendiente…) no aplica. Faltan las deducciones de vivienda y familia numerosa de Navarra.
+Soltero sin hijos ⇒ el mínimo familiar (art. 62.9.b) no aplica. Importes del art. 62.9 según el
+texto literal de la Ley Foral 22/2023 (BOE-A-2024-1694), vigente en 2025; hasta el 2026-09-26 el
+motor usaba una fuente secundaria que daba 1.367,85 € de mínimo personal (ver la sección
+«Navarra: mínimos del art. 62.9»).
 
 ---
 
@@ -993,3 +995,37 @@ individual.
 🟡 No modelados: los coeficientes de las aportaciones del trabajador al mismo plan de empleo,
 el incremento de 4.250 € de autónomos, los 5.000 € de seguros colectivos de dependencia, los
 excesos de ejercicios anteriores y las aportaciones al plan del cónyuge.
+
+## Navarra: mínimos del art. 62.9 (2026-09-26)
+
+Test `tests/testthat/test-navarra-minimos.R`; casos `nc_min_*` y los demás de Navarra del
+validador. Fuente: texto literal del art. 62.9 a), b) y c) del TR del IRPF de Navarra en la
+redacción de la Ley Foral 22/2023 (BOE-A-2024-1694, art. primero.Doce), vigente en 2025: la LF
+20/2024 no lo modifica y la LF 17/2025 lo cambia desde 2026. Hasta ahora el motor usaba una
+fuente secundaria (1.084 € + hasta 1.054 € que bajaban de 17.500 a 32.000 € de base, y los
+incrementos por edad sumados).
+
+- **Mínimo personal**: 1.084 € por sujeto pasivo; + 264 € desde los 65 años **o** 585 € desde
+  los 75; + 766 € / 2.757 € por discapacidad; + **150 €** si sus rentas (incluidas las exentas;
+  el motor usa su base imponible) no superan 30.000 €.
+- **Descendientes** solteros menores de 30 años (o con discapacidad) que conviven y no superan
+  el IPREM: 483 / 512 / 732 / 981 / 1.111 / 1.286 €, + 644 € si son menores de 3 años. Si las
+  rentas del sujeto pasivo no superan 30.000 €, ese importe sube un **40 %** (hasta 20.000 €) o
+  un 40 − 50 × (rentas − 20.000) / 20.000 % entre 20.000 y 30.000 €. La discapacidad del
+  descendiente (674 € / 2.360 €) no lleva ese incremento.
+- **Ascendientes**: 264 € (65 años) o 585 € (75), + discapacidad.
+
+### Comprobación numérica
+
+- **Caso C** (30.000 €, 1.905 € de cotizaciones, base 28.095 €): mínimo personal 1.084 + 150 =
+  **1.234 €** (antes 1.367,85); cuota líquida 6.529,23 − 1.234 − 700 = **4.595,23 €**.
+- 30.001 € sin cotizaciones: base 30.001 > 30.000 ⇒ 1.084 €.
+- 70 años con 20.000 €: 1.084 + 150 + 264 = 1.498 €. 80 años: 1.084 + 150 + 585 = 1.819 €.
+- Un hijo de 5 años con 16.857 € de rentas: 483 × 1,40 = **676,20 €**; con 25.000 €:
+  40 − 50 × 5.000 / 20.000 = 27,5 % ⇒ 483 × 1,275 = 615,83 €; con 30.000 €: 15 % ⇒ 555,45 €;
+  con 30.001 €: 483 €.
+- Hijo de 30 años sin discapacidad: no da derecho; de 35 con discapacidad del 33 %: 483 + 674.
+
+🟡 Provisional: el importe del IPREM como límite de rentas del familiar (se usa 8.400 €, el
+anual de 14 pagas de 600 €; puede ser 7.200 €) y, en tributación conjunta, qué rentas fijan
+el incremento del 40 % (el motor usa la base imponible de la unidad).

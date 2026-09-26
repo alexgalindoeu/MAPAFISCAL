@@ -775,6 +775,15 @@
     return Math.min(val, aplicarEscala(rnt, P.navarra.escala_general_foral));
   }
 
+  // Porcentaje de incremento del mínimo por descendientes de Navarra (art. 62.9.b.b´.2.º):
+  // 40 % hasta 20.000 € de rentas; entre 20.000 y 30.000 €, 40 − 50 × exceso / 20.000 (dos
+  // decimales); nada por encima de 30.000 €.
+  function incrementoDescendientesNavarra(rentas, cfg) {
+    if (!cfg || rentas > cfg.umbral_final) return 0;
+    if (rentas <= cfg.umbral_pleno) return cfg.porcentaje_maximo;
+    return red2(cfg.porcentaje_maximo - cfg.coeficiente * (rentas - cfg.umbral_pleno) / cfg.umbral_pleno);
+  }
+
   function liquidarNavarraScope(hogar, P, modo, declaranteId) {
     const J = P.navarra;
     const personas = modo === "conjunta"
@@ -798,14 +807,14 @@
     const contribsNv = modo === "conjunta" ? decsNv
       : (declaranteId != null ? decsNv.filter(m => m.id === declaranteId) : decsNv.slice(0, 1));
     let dedMin = 0;
+    // rentas de cada sujeto pasivo: su base imponible (el motor no modela rentas exentas)
+    const rentasSp = p => { const rr = agregarRentas([p], P, "foral_navarra"); return rr.baseImponibleGeneral + rr.baseImponibleAhorro; };
     for (const c of contribsNv) {
-      let inc;
-      if (baseTotal <= (mp.umbral_pleno || 17500)) inc = num(mp.incremento_rentas_bajas);
-      else if (baseTotal >= (mp.umbral_cero_incremento || 32000)) inc = 0;
-      else inc = num(mp.incremento_rentas_bajas) * (1 - (baseTotal - mp.umbral_pleno) / (mp.umbral_cero_incremento - mp.umbral_pleno));
-      let m = num(mp.importe_general) + Math.max(0, inc);
-      if (num(c.edad, 0) >= 65) m += num(mp.incremento_65);
-      if (num(c.edad, 0) >= 75) m += num(mp.incremento_75);
+      let m = num(mp.importe_general);
+      if (rentasSp(c) <= num(mp.umbral_rentas_bajas)) m += num(mp.incremento_rentas_bajas);
+      // 264 € desde los 65 años o 585 € desde los 75 (uno u otro)
+      const edad = num(c.edad, 0);
+      m += edad >= 75 ? num(mp.incremento_75) : edad >= 65 ? num(mp.incremento_65) : 0;
       if (c.discapacidad === "33_64") m += num(mp.incremento_discapacidad_33_64);
       if (c.discapacidad === "65_mas") m += num(mp.incremento_discapacidad_65_mas);
       dedMin += m;
@@ -817,14 +826,20 @@
     let dedFam = 0;
     if (mf) {
       const limR = num(mf.limite_rentas_familiar, 8000);
-      const descNv = hogar.miembros.filter(m => m.rol === "descendiente" && num(m.rentasPropias) <= limR);
+      // solteros menores de 30 años (o con discapacidad, a cualquier edad) y rentas <= IPREM
+      const descNv = hogar.miembros.filter(m => m.rol === "descendiente" && num(m.rentasPropias) <= limR &&
+        (num(m.edad, 0) < num(mf.edad_maxima_descendiente, 30) || (m.discapacidad && m.discapacidad !== "no")));
+      // incremento del ordinal 1.º por rentas del sujeto pasivo (art. 62.9.b.b´.2.º): no se prorratea
+      const rentasInc = (modo === "conjunta" || !contribsNv.length) ? r.baseImponibleGeneral + r.baseImponibleAhorro : rentasSp(contribsNv[0]);
+      const pctInc = incrementoDescendientesNavarra(rentasInc, mf.incremento_rentas_descendientes);
       descNv.forEach((d, i) => {
         const key = i < 5 ? String(i + 1) : "6+";
         let imp = num(mf.descendientes.importes[key] != null ? mf.descendientes.importes[key] : mf.descendientes.importes["6+"]);
         if (num(d.edad, 99) < 3) imp += num(mf.descendientes.incremento_menor_3_anios);
-        if (d.discapacidad === "33_64") imp += num(mf.descendientes.incremento_discapacidad_33_64);
-        if (d.discapacidad === "65_mas") imp += num(mf.descendientes.incremento_discapacidad_65_mas);
-        dedFam += imp * prorrNv;
+        let disc = 0;
+        if (d.discapacidad === "33_64") disc = num(mf.descendientes.incremento_discapacidad_33_64);
+        if (d.discapacidad === "65_mas") disc = num(mf.descendientes.incremento_discapacidad_65_mas);
+        dedFam += imp * prorrNv * (1 + pctInc / 100) + disc * prorrNv;
       });
       hogar.miembros.filter(m => m.rol === "ascendiente" && num(m.rentasPropias) <= limR &&
         (num(m.edad, 0) >= 65 || (m.discapacidad && m.discapacidad !== "no"))).forEach(a => {
