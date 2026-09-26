@@ -16,13 +16,18 @@ claves de Stripe viven únicamente como secretos del servidor y **no están en e
 | `deducciones`, `deducciones_pendientes` | todos | servicio | catálogo de deducciones autonómicas modeladas / pendientes |
 | vista `cobertura_deducciones` | todos | — | resumen por territorio |
 | `perfiles` | el propio usuario | el usuario (solo `nombre`, `despacho`); el `plan` solo el webhook | cuenta del gestor |
-| `clientes` | el propio gestor | el propio gestor | perfiles de cliente (alias + hogar + última liquidación) |
+| `clientes` | el propio gestor, con plan de pago | el propio gestor, con plan de pago | perfiles de cliente (alias + hogar + última liquidación) |
 | `lista_espera` | nadie (solo panel) | cualquiera (insert) | acceso anticipado |
 | `suscripciones` | el propio gestor | solo el webhook | estado de la suscripción de Stripe |
 
 - Al registrarse un usuario se crea su fila en `perfiles` (trigger `privado.crear_perfil`).
-- Límite de clientes por plan en `privado.limite_clientes()`: **3 en el plan gratuito**,
-  ilimitados en Gestor/Despacho (cámbialo ahí si decides otra cosa).
+- **«Mis clientes» solo con plan de pago** (migración `20260926130000_clientes_solo_plan_pago`,
+  sustituye al antiguo plan gratuito de 3 clientes): las políticas de `clientes` exigen,
+  además de ser el propio gestor, que `perfiles.plan` no sea `gratis`. Sin plan, los clientes
+  guardados quedan ocultos (no se ven ni se editan) y reaparecen si vuelve a suscribirse.
+  Dos funciones RPC, solo para el propio usuario: `contar_mis_clientes()` (cuántos tiene,
+  aunque estén ocultos) y `borrar_mis_clientes()` (los borra todos: derecho de supresión).
+  Son `SECURITY DEFINER` a propósito; el asesor de seguridad de Supabase las señala.
 - Minimización de datos (RGPD): no se guarda NIF ni nombre real del cliente, solo el alias
   que elija el gestor.
 
@@ -64,7 +69,7 @@ suscripción en Stripe, así un evento que llega tarde no deshace uno posterior.
 Stripe manda tres eventos casi a la vez; si dos crean la fila de `suscripciones` a la vez,
 el segundo choca con la clave única del cliente (23505) y se repite como actualización.
 Los estados `active`, `trialing` y `past_due` dan el plan; el resto lo devuelve a `gratis`
-(los clientes guardados se conservan, pero no se pueden añadir más de 3).
+(los clientes guardados se conservan, ocultos).
 
 **Orígenes y vuelta.** `SITE_ORIGIN` admite varios orígenes separados por comas (CORS).
 La web envía su propia URL (`volver`) y, si su origen está en la lista, Stripe vuelve a esa
@@ -80,7 +85,8 @@ Supabase automáticamente: no hay que definirlas.
 (modo de prueba, no el *sandbox*): producto **Mapafiscal Gestor** (`prod_VKaFIrhMte2Qh3`)
 con sus tres precios (IVA incluido), portal de cliente por defecto, webhook con los cuatro
 eventos y los secretos de abajo. Probado desde `http://localhost:8080`: acceso por enlace
-mágico, límite de 3 clientes en el plan gratuito, pago con tarjeta de prueba (mensual y
+mágico, «Mis clientes» bloqueado sin plan (cuenta de prueba sin plan: RLS rechaza leer y
+guardar), pago con tarjeta de prueba (mensual y
 semanal), webhook → `perfiles.plan = gestor`, `409 ya_suscrito`, portal de facturación con
 vuelta a la web, y baja → `gratis`. (En el *sandbox* «Entorno de prueba de GALINDX» hay una
 copia del producto sin uso.)

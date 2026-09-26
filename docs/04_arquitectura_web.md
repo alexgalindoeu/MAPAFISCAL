@@ -67,6 +67,12 @@ cuenta lo cambia únicamente el webhook de Stripe. Al volver del pago (`#gestor?
 la web consulta el perfil cada 2 s hasta que el webhook activa el plan (máximo 30 s).
 Detalle y puesta en marcha: `supabase/README.md`, sección *Cobros (Stripe)*.
 
+«Mis clientes» es exclusivo del plan de pago (decisión de 2026-09-26; ya no hay plan
+gratuito con 3 clientes). Lo impone la RLS de `clientes`; la web lo refleja: sin plan, la
+pestaña sale atenuada con un candado y la vista muestra una cartera de ejemplo difuminada
+con «Se desbloquea con el plan Gestor» y el enlace a *Planes*; «Guardar como cliente» lleva
+a esa misma vista. Tras una baja, los clientes quedan ocultos y el gestor puede borrarlos.
+
 ## La API R (plumber) y el dashboard Shiny
 
 Siguen disponibles (`inst/plumber/`, `inst/shiny/`) para usos internos: microsimulación

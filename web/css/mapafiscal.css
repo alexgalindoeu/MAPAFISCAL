@@ -297,6 +297,20 @@ details.mas:not([open]) summary { margin-bottom: 0; }
 .estado-vacio { text-align: center; padding: 48px 20px; }
 .estado-vacio h2 { font-size: 20px; margin-bottom: 8px; }
 .estado-vacio p { color: var(--tinta-2); max-width: 52ch; margin: 0 auto 18px; }
+/* «Mis clientes» sin plan de pago: pestaña atenuada con candado y vista difuminada */
+.icono-candado { width: 13px; height: 13px; fill: none; stroke: currentColor; stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; flex: none; }
+.nav a.bloqueada { gap: 6px; }
+.nav a.bloqueada span { filter: blur(.6px); opacity: .6; }
+.nav a.bloqueada .icono-candado { opacity: .8; }
+.bloqueo { display: grid; }
+.bloqueo > * { grid-area: 1 / 1; }
+.bloqueo-fondo { filter: blur(5px); opacity: .55; pointer-events: none; user-select: none; }
+.bloqueo-tarjeta { position: relative; z-index: 1; align-self: start; justify-self: center; width: min(460px, 100%); margin-top: 28px; text-align: center; padding: 28px 24px; box-shadow: var(--sombra-alta); }
+.bloqueo-tarjeta h2 { font-size: 20px; margin-bottom: 8px; }
+.bloqueo-tarjeta > p { color: var(--tinta-2); margin: 0 auto 18px; }
+.bloqueo-tarjeta .ayuda { margin: 14px 0 0; font-size: 13px; }
+.bloqueo-icono { display: inline-grid; place-items: center; width: 44px; height: 44px; border-radius: 999px; background: var(--marca-suave); color: var(--marca-tinta); margin-bottom: 12px; }
+.bloqueo-icono .icono-candado { width: 20px; height: 20px; }
 .cuenta-barra { display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap; font-size: 14px; color: var(--tinta-2); margin-bottom: 14px; }
 .plan-chip { display: inline-block; font-size: 12px; font-weight: 700; padding: 2px 8px; border-radius: 999px; background: var(--marca-suave); color: var(--marca-tinta); margin-left: 6px; }
 
