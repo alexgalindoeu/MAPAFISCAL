@@ -18,9 +18,11 @@ claves de Stripe viven únicamente como secretos del servidor y **no están en e
 | `perfiles` | el propio usuario | el usuario (solo `nombre`, `despacho`); el `plan` solo el webhook | cuenta del gestor |
 | `clientes` | el propio gestor, con plan de pago | el propio gestor, con plan de pago | perfiles de cliente (alias + hogar + última liquidación) |
 | `lista_espera` | nadie (solo panel) | cualquiera (insert) | acceso anticipado |
-| `suscripciones` | el propio gestor | solo el webhook | estado de la suscripción de Stripe |
+| `suscripciones` | el propio gestor | solo el webhook | estado de la suscripción de Stripe: periodo (`semanal`, `mensual`, `anual`), fin del periodo y `termina_en` si no se renueva |
 
-- Al registrarse un usuario se crea su fila en `perfiles` (trigger `privado.crear_perfil`).
+- Al registrarse un usuario se crea su fila en `perfiles` (trigger `privado.crear_perfil`); si
+  entra con Google, `nombre` toma el de su cuenta de Google (migración
+  `20260926210000_suscripciones_periodo_perfil`). El usuario lo cambia en la pestaña *Perfil*.
 - **«Mis clientes» solo con plan de pago** (migración `20260926130000_clientes_solo_plan_pago`,
   sustituye al antiguo plan gratuito de 3 clientes): las políticas de `clientes` exigen,
   además de ser el propio gestor, que `perfiles.plan` no sea `gratis`. Sin plan, los clientes
@@ -44,9 +46,11 @@ base de datos, así el catálogo no puede desincronizarse del motor JS.
 |---|---|---|
 | `crear-checkout` | sí | crea la sesión de Stripe Checkout del plan Gestor (semanal, mensual o anual); responde `409 ya_suscrito` si ya hay una suscripción activa |
 | `stripe-webhook` | no (firma de Stripe) | sincroniza `suscripciones` y `perfiles.plan` |
-| `portal-facturacion` | sí | abre el portal de cliente de Stripe (tarjeta, periodo, facturas, baja) |
+| `portal-facturacion` | sí | abre el portal de cliente de Stripe (tarjeta, periodo, facturas, baja); `vista` elige a qué pestaña se vuelve (`perfil`, `clientes`; por defecto `#gestor`) |
+| `borrar-cuenta` | sí | borra la cuenta (derecho de supresión): cancela al momento sus suscripciones, borra el usuario y, en cascada, perfil, clientes y suscripción. Pide `{ confirmar: correo }` |
 
-Sin `STRIPE_SECRET_KEY` las tres responden `503 pagos_no_configurados`. Para comprobar si
+Sin `STRIPE_SECRET_KEY` las tres primeras responden `503 pagos_no_configurados` (y `borrar-cuenta`
+solo si la cuenta tiene una suscripción que cancelar). Para comprobar si
 están configuradas, un `POST` vacío al webhook debe responder **400** (`sin_firma`), no 503:
 
 ```bash
@@ -68,6 +72,19 @@ el secreto `STRIPE_PRICE_GESTOR_<PERIODO>` con un `price_…`, tiene prioridad.
 suscripción en Stripe, así un evento que llega tarde no deshace uno posterior. Al pagar,
 Stripe manda tres eventos casi a la vez; si dos crean la fila de `suscripciones` a la vez,
 el segundo choca con la clave única del cliente (23505) y se repite como actualización.
+Guarda también el periodo (del intervalo del precio: semana, mes o año) y `termina_en`, la
+fecha en que acaba el acceso si la suscripción no se renueva (`ended_at`, `cancel_at` o el fin
+de periodo con `cancel_at_period_end`); la pestaña *Perfil* muestra «Próxima renovación» o
+«Termina el». Las suscripciones sin `gestor_id` en sus metadatos (ajenas o de una cuenta
+borrada) se ignoran, y si la cuenta ya no existe (23503) el evento se da por atendido.
+
+**Borrar la cuenta** (`borrar-cuenta`, pestaña *Perfil*). Antes de borrar el usuario quita
+`gestor_id` de los metadatos de sus suscripciones vivas y las cancela al momento, sin
+reembolso; el webhook ignora esos eventos. El cliente de Stripe se conserva, marcado con
+`cuenta_borrada`, si tiene facturas (hay que conservarlas por ley); si no, se borra. Si Stripe
+falla no se borra nada. Un cliente o una suscripción que no existe en el modo actual de Stripe
+(`resource_missing`, p. ej. datos de prueba tras pasar a live) no bloquea el borrado; tampoco
+en `crear-checkout` (crea un cliente nuevo) ni en `portal-facturacion` (`404 sin_suscripcion`).
 Los estados `active`, `trialing` y `past_due` dan el plan; el resto lo devuelve a `gratis`
 (los clientes guardados se conservan, ocultos).
 
@@ -120,8 +137,34 @@ con sus `lookup_key`, el portal y el webhook, y cambiar `STRIPE_SECRET_KEY` y
 
 ## Autenticación
 
-La web usa inicio de sesión por **enlace mágico** (email, sin contraseña). El enlace vuelve
-a la misma página que lo pidió (sin hash) y la web recuerda si había que ir a *Mis
-clientes* o a *Planes*. Esa página tiene que estar en *Redirect URLs* (paso 3); si no,
-Supabase manda al usuario a *Site URL*. Para producción conviene configurar un SMTP propio
-(el de Supabase tiene un límite bajo de envíos por hora).
+La web inicia sesión con **Google** (`signInWithOAuth`) o con un **enlace mágico** por correo
+(`signInWithOtp`), sin contraseñas; si la cuenta no existe, se crea. Los dos vuelven a la misma
+página que los pidió (sin hash), así que esa página tiene que estar en *Redirect URLs* (paso 3);
+si no, Supabase manda al usuario a *Site URL*. La web recuerda en `localStorage` qué había que
+hacer al volver: ir a *Mis clientes*, *Planes* o *Perfil* o, si se pulsó «Suscribirme» sin
+sesión, seguir directamente al pago con el mismo plan y periodo (durante 2 horas). El botón de
+Google solo aparece si el proveedor está activado (lo consulta en `/auth/v1/settings`).
+
+**Activar Google** (lo hace Alex; el *Client Secret* no va al repo ni se le pasa a nadie):
+
+1. [Google Auth Platform](https://console.cloud.google.com/auth/overview) (Google Cloud, proyecto
+   nuevo o existente): *Branding* con el nombre «Mapafiscal» y el correo de asistencia;
+   *Audience* → externo y **publicar la app** (en modo prueba solo entran los usuarios de
+   prueba); *Data Access* → `openid`, `…/auth/userinfo.email` y `…/auth/userinfo.profile`.
+2. *Clients* → *Create client* → **Aplicación web**. *Authorized JavaScript origins*:
+   `https://alexgalindoeu.github.io` y `http://localhost:8080`. *Authorized redirect URIs*:
+   `https://pqiqrcvuztxrwrwizppj.supabase.co/auth/v1/callback`. Guarda el Client ID y el
+   Client Secret.
+3. Supabase → Authentication → Sign In / Providers → **Google**: activarlo y pegar el Client
+   ID y el Client Secret.
+4. Supabase → Authentication → URL Configuration: *Site URL*
+   `https://alexgalindoeu.github.io/MAPAFISCAL/`; *Redirect URLs*
+   `https://alexgalindoeu.github.io/MAPAFISCAL/**` y `http://localhost:8080/**`.
+
+Si una persona ya tenía cuenta por correo, al entrar con Google con el mismo correo Supabase
+enlaza las dos identidades (Google verifica el correo). En la pantalla de Google aparece el
+dominio `pqiqrcvuztxrwrwizppj.supabase.co` hasta que se verifique la marca o se use un
+dominio propio en Supabase.
+
+Para producción conviene configurar un SMTP propio: el de Supabase solo envía unos pocos
+correos por hora («email rate limit exceeded»).

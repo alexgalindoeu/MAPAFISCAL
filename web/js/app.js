@@ -546,38 +546,102 @@
   $("ranking").addEventListener("click", e => { const tr = e.target.closest("tr[data-t]"); if (tr) elegirTerritorio(tr.dataset.t); });
 
   // ---- cuentas y clientes (Supabase) ----------------------------------------------------
-  const dlgAcceso = $("dlg-acceso"), dlgGuardar = $("dlg-guardar");
-  // El enlace mágico vuelve a la página sin hash (Supabase le añade #access_token=…);
-  // la vista a la que ir después se recuerda aquí (la pestaña del enlace es otra).
-  const TRAS_ACCESO = "mapafiscal.trasAcceso";
+  const dlgAcceso = $("dlg-acceso"), dlgGuardar = $("dlg-guardar"), dlgBorrar = $("dlg-borrar");
+  // El enlace mágico y Google vuelven a la página sin hash (Supabase le añade #access_token=…).
+  // Lo que había que hacer después se recuerda aquí, porque la pestaña del enlace es otra: la
+  // vista a la que ir y, si se entró para suscribirse, el plan y el periodo elegidos.
+  const TRAS_ACCESO = "mapafiscal.trasAcceso", PAGO_PENDIENTE = "mapafiscal.pagoPendiente";
   const recordar = (clave, valor) => { try { valor == null ? localStorage.removeItem(clave) : localStorage.setItem(clave, valor); } catch (e) { /* sin almacenamiento */ } };
   const recordado = clave => { try { return localStorage.getItem(clave); } catch (e) { return null; } };
   const paginaActual = () => location.origin + location.pathname;
-  function abrirAcceso(motivo) {
+
+  // ¿Está activado el acceso con Google en Supabase (Authentication → Providers)? Mientras no
+  // lo esté, el diálogo solo ofrece el enlace por correo.
+  let google = null;
+  function comprobarGoogle() {
+    if (!google) google = fetch(CFG.supabaseUrl + "/auth/v1/settings", { headers: { apikey: CFG.supabaseKey } })
+      .then(r => r.ok ? r.json() : {}).then(s => !!(s.external && s.external.google)).catch(() => false);
+    return google;
+  }
+
+  let accesoPara = null;         // { destino, pago } del diálogo de acceso abierto
+  function abrirAcceso(motivo, para) {
     if (!sb) { irA("clientes"); return; }
-    $("acceso-msg").textContent = motivo || ""; $("acceso-msg").className = "mensaje";
+    const v = vistaActual();
+    accesoPara = para || { destino: ["planes", "clientes", "perfil"].includes(v) ? v : "cuenta" };
+    const texto = $("acceso-motivo");
+    texto.textContent = motivo || "Sin contraseñas: te enviamos un enlace de acceso a tu correo.";
+    comprobarGoogle().then(g => {
+      $("acceso-google").hidden = !g;
+      if (g && !motivo) texto.textContent = "Sin contraseñas: entra con tu cuenta de Google o con un enlace en tu correo.";
+    });
+    $("acceso-msg").textContent = ""; $("acceso-msg").className = "mensaje";
+    $("btn-google").disabled = false; $("btn-enviar-enlace").disabled = false;
     dlgAcceso.showModal(); $("acceso-email").focus();
+  }
+  // Antes de enviar el enlace o de ir a Google: qué hacer al volver con la sesión iniciada.
+  function prepararVuelta() {
+    const p = accesoPara || { destino: "cuenta" };
+    recordar(TRAS_ACCESO, p.destino);
+    recordar(PAGO_PENDIENTE, p.pago ? JSON.stringify({ ...p.pago, t: Date.now() }) : null);
   }
   $("btn-enviar-enlace").addEventListener("click", async () => {
     const email = $("acceso-email").value.trim(), msg = $("acceso-msg");
     if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) { msg.textContent = "Escribe un correo válido."; msg.className = "mensaje error"; return; }
     $("btn-enviar-enlace").disabled = true;
-    recordar(TRAS_ACCESO, vistaActual() === "planes" ? "planes" : "clientes");
+    prepararVuelta();
     const { error } = await sb.auth.signInWithOtp({ email, options: { emailRedirectTo: paginaActual() } });
     $("btn-enviar-enlace").disabled = false;
     if (error) { msg.textContent = "No se pudo enviar el enlace: " + error.message; msg.className = "mensaje error"; }
     else { msg.textContent = `Te hemos enviado un enlace a ${email}. Ábrelo desde este navegador para entrar.`; msg.className = "mensaje ok"; }
   });
-  $("btn-cuenta").addEventListener("click", () => { if (sesion.usuario) irA("clientes"); else abrirAcceso(); });
+  $("btn-google").addEventListener("click", async () => {
+    const msg = $("acceso-msg");
+    $("btn-google").disabled = true;
+    prepararVuelta();
+    const { error } = await sb.auth.signInWithOAuth({ provider: "google", options: { redirectTo: paginaActual() } });
+    if (error) { $("btn-google").disabled = false; msg.textContent = "No se pudo abrir Google: " + error.message; msg.className = "mensaje error"; }
+  });
+  $("btn-cuenta").addEventListener("click", () => { if (sesion.usuario) irA("perfil"); else abrirAcceso(); });
 
+  // Tras iniciar sesión: seguir al pago que se quería hacer o ir a la vista pedida. Solo lo
+  // hace la pestaña visible: si el enlace del correo abre otra pestaña, la anterior no se mueve.
+  function continuarTrasAcceso() {
+    if (document.visibilityState === "hidden") return;
+    const destino = recordado(TRAS_ACCESO);
+    let pago = null;
+    try { pago = JSON.parse(recordado(PAGO_PENDIENTE) || "null"); } catch (e) { /* valor dañado */ }
+    recordar(TRAS_ACCESO, null); recordar(PAGO_PENDIENTE, null);
+    const vigente = pago && Date.now() - pago.t < 2 * 3600e3;
+    if (vigente && !tienePlan()) { elegirPeriodo(pago.periodo); irA("planes"); iniciarPago(); return; }
+    if (vigente) { irA("perfil"); return; }       // ya tenía plan: su suscripción está en Perfil
+    if (destino) irA(destino === "cuenta" ? (tienePlan() ? "clientes" : "perfil") : destino);
+  }
+
+  // Botón de la barra: «Acceder» sin sesión; con sesión, la inicial del usuario, que lleva a Perfil.
+  const nombreDe = u => { const m = u.user_metadata || {}; return (sesion.perfil && sesion.perfil.nombre) || m.full_name || m.name || ""; };
+  function pintarCuenta() {
+    const b = $("btn-cuenta"), u = sesion.usuario;
+    document.querySelector('.nav a[data-vista="perfil"]').hidden = !u;
+    if (!u) { b.className = "btn btn-sec btn-sm"; b.textContent = "Acceder"; b.removeAttribute("title"); b.removeAttribute("aria-label"); return; }
+    b.className = "btn btn-avatar";
+    b.textContent = (nombreDe(u) || u.email || "?").trim().charAt(0);
+    b.title = u.email; b.setAttribute("aria-label", "Perfil de " + u.email);
+  }
+
+  let pendienteTrasAcceso = false;
   async function cargarSesion() {
     if (!sb) return;
     const { data } = await sb.auth.getSession();
     sesion.usuario = data.session ? data.session.user : null;
-    sesion.ocultos = 0;
+    sesion.ocultos = 0; sesion.suscripcion = null;
     if (sesion.usuario) {
-      const p = await sb.from("perfiles").select("nombre, despacho, plan").eq("id", sesion.usuario.id).maybeSingle();
+      const [p, s] = await Promise.all([
+        sb.from("perfiles").select("nombre, despacho, plan").eq("id", sesion.usuario.id).maybeSingle(),
+        sb.from("suscripciones").select("plan, estado, periodo, periodo_fin, termina_en").eq("gestor_id", sesion.usuario.id).maybeSingle()
+      ]);
       sesion.perfil = p.data || { plan: "gratis" };
+      sesion.suscripcion = s.data || null;
       if (tienePlan()) {
         const c = await sb.from("clientes").select("id, alias, notas, territorio, hogar, cuota_liquida, resultado, actualizado_en").order("actualizado_en", { ascending: false });
         sesion.clientes = c.data || [];
@@ -588,16 +652,22 @@
         sesion.ocultos = n.data || 0;
       }
     } else { sesion.perfil = null; sesion.clientes = []; }
-    $("btn-cuenta").textContent = sesion.usuario ? "Mi cuenta" : "Acceder";
+    pintarCuenta();
     marcarPestanaClientes();
     if (vistaActual() === "clientes") pintarClientes();
     if (vistaActual() === "planes") pintarPlanes();
+    if (vistaActual() === "perfil") pintarPerfil();
+    if (pendienteTrasAcceso && sesion.usuario) { pendienteTrasAcceso = false; continuarTrasAcceso(); }
   }
   if (sb) sb.auth.onAuthStateChange(evento => {
-    const destino = recordado(TRAS_ACCESO);
-    if (evento === "SIGNED_IN" && destino) { recordar(TRAS_ACCESO, null); setTimeout(() => irA(destino), 0); }
+    if (evento === "SIGNED_IN") {
+      pendienteTrasAcceso = true;
+      // con un pago pendiente, mientras se carga la cuenta se muestra ya «Planes»
+      if (recordado(PAGO_PENDIENTE) && document.visibilityState !== "hidden") setTimeout(() => irA("planes"), 0);
+    }
     setTimeout(cargarSesion, 0);    // fuera del callback: supabase-js no admite llamadas de auth dentro
   });
+  if (sb) comprobarGoogle();
   if (!sb) $("btn-cuenta").hidden = true;
 
   // «Mis clientes» solo con un plan de pago activo (la base de datos lo exige por RLS).
@@ -763,41 +833,74 @@
     try { history.replaceState(null, "", "#clientes"); } catch (e) { /* sin historial */ }
     pintarClientes();
   }
-  // Al volver de Stripe con «Atrás» la página puede salir de la caché con el botón desactivado.
-  window.addEventListener("pageshow", e => { if (e.persisted && vistaActual() === "planes") pintarPlanes(); });
+  // Al volver de Stripe o de Google con «Atrás» la página puede salir de la caché con botones desactivados.
+  window.addEventListener("pageshow", e => {
+    if (!e.persisted) return;
+    $("btn-google").disabled = false;
+    if (vistaActual() === "planes") pintarPlanes();
+    if (vistaActual() === "perfil") pintarPerfil();
+  });
 
   let periodo = "mensual";
   document.querySelectorAll('input[name="periodo"]').forEach(r => r.addEventListener("change", () => { periodo = r.value; pintarPlanes(); }));
+  function elegirPeriodo(p) {
+    const r = document.querySelector(`input[name="periodo"][value="${p}"]`);
+    if (r) { r.checked = true; periodo = p; }
+  }
 
   // Abre Stripe (checkout o portal) a través de una Edge Function; devuelve false si no se pudo.
   const ERRORES_PAGO = {
-    ya_suscrito: "Ya tienes una suscripción activa. Puedes cambiarla desde «Gestionar suscripción» en tu cuenta.",
+    ya_suscrito: "Ya tienes una suscripción activa. Puedes cambiarla desde «Gestionar suscripción» en tu perfil.",
     sin_suscripcion: "No encontramos ninguna suscripción asociada a tu cuenta.",
-    pagos_no_configurados: "El pago no está disponible todavía. Apúntate a la lista de espera y te avisamos.",
-    precio_no_configurado: "El pago no está disponible todavía. Apúntate a la lista de espera y te avisamos."
+    pagos_no_configurados: "El pago no está disponible en este momento. Inténtalo de nuevo más tarde.",
+    precio_no_configurado: "El pago no está disponible en este momento. Inténtalo de nuevo más tarde."
   };
   async function irAFuncion(nombre, cuerpo) {
     const { data, error } = await sb.functions.invoke(nombre, { body: { ...cuerpo, volver: paginaActual() } });
     if (!error && data && data.url) { location.href = data.url; return true; }
     let codigo = null;
     try { codigo = (await error.context.json()).error; } catch (e) { /* sin cuerpo JSON */ }
-    if (codigo === "sin_sesion") { abrirAcceso("Tu sesión ha caducado. Vuelve a acceder con tu correo."); return false; }
+    if (codigo === "sin_sesion") {
+      abrirAcceso("Tu sesión ha caducado. Vuelve a iniciar sesión para continuar.",
+        nombre === "crear-checkout" ? { destino: "planes", pago: { plan: cuerpo.plan, periodo: cuerpo.periodo } } : undefined);
+      return false;
+    }
     alert(ERRORES_PAGO[codigo] || "No se ha podido abrir el pago. Inténtalo de nuevo en unos minutos.");
     if (codigo === "ya_suscrito") cargarSesion();
     return false;
   }
 
   const importe = n => Number.isInteger(n) ? eur0(n) : eur(n);
+  function precioPeriodo(p) {
+    const pr = CFG.precios || {};
+    const PERIODO = { semanal: [pr.gestorSemanal, "semana"], mensual: [pr.gestorMensual, "mes"], anual: [pr.gestorAnual, "año"] };
+    return PERIODO[p] || PERIODO.mensual;
+  }
+
+  // «Suscribirme» lleva directo a Stripe Checkout. Sin sesión, primero se inicia sesión (enlace o
+  // Google) y, al volver, se sigue al pago con el mismo plan y periodo (continuarTrasAcceso).
+  async function iniciarPago() {
+    const pago = { plan: "gestor", periodo };
+    if (!sesion.usuario) {
+      const [cifra, unidad] = precioPeriodo(periodo);
+      abrirAcceso(`Inicia sesión o crea tu cuenta para continuar al pago del plan Gestor ${periodo} (${importe(cifra)} / ${unidad}, IVA incluido).`,
+        { destino: "planes", pago });
+      return;
+    }
+    const cta = $("cta-gestor");
+    if (cta) { cta.disabled = true; cta.textContent = "Abriendo el pago…"; }
+    if (!await irAFuncion("crear-checkout", pago) && vistaActual() === "planes") pintarPlanes();
+  }
+
   function pintarPlanes() {
     const pr = CFG.precios || {};
     const plan = sesion.perfil ? sesion.perfil.plan : "gratis";
-    const PERIODO = { semanal: [pr.gestorSemanal, "semana"], mensual: [pr.gestorMensual, "mes"], anual: [pr.gestorAnual, "año"] };
-    const [cifra, unidad] = PERIODO[periodo] || PERIODO.mensual;
+    const [cifra, unidad] = precioPeriodo(periodo);
     const precioGestor = `${importe(cifra)}<small> / ${unidad}</small>`;
     const notaGestor = periodo === "anual" && pr.gestorAnual ? `Equivale a ${eur(pr.gestorAnual / 12)} al mes. IVA incluido.`
       : periodo === "semanal" ? "Pensado para la campaña de la renta. IVA incluido." : "IVA incluido.";
     const ctaGestor = plan !== "gratis"
-      ? `<button class="btn btn-sec" type="button" disabled>Tu plan actual</button>`
+      ? `<a class="btn btn-sec" href="#perfil">Tu plan actual · ver suscripción</a>`
       : (CFG.pagosActivos && sb ? `<button class="btn btn-pri" type="button" id="cta-gestor">Suscribirme</button>`
         : `<button class="btn btn-pri" type="button" data-espera="gestor">Quiero acceso anticipado</button>`);
     $("planes").innerHTML = `
@@ -823,14 +926,10 @@
         <div class="espera" id="espera-despacho" hidden></div>
       </div>`;
     $("nota-precios").textContent = CFG.pagosActivos
-      ? "Pago seguro con Stripe. Puedes cambiar de periodo o darte de baja cuando quieras desde tu cuenta."
+      ? "Pago seguro con Stripe. Puedes cambiar de periodo o darte de baja cuando quieras desde tu perfil."
       : CFG.preciosOrientativos ? "Precios orientativos: la suscripción todavía no está abierta. Apúntate y te avisaremos." : "";
     const cta = $("cta-gestor");
-    if (cta) cta.addEventListener("click", async () => {
-      if (!sesion.usuario) { abrirAcceso("Accede con tu correo para suscribirte."); return; }
-      cta.disabled = true; cta.textContent = "Abriendo el pago…";
-      if (!await irAFuncion("crear-checkout", { plan: "gestor", periodo })) { cta.disabled = false; cta.textContent = "Suscribirme"; }
-    });
+    if (cta) cta.addEventListener("click", iniciarPago);
   }
   $("planes").addEventListener("click", e => {
     const b = e.target.closest("[data-espera]");
@@ -856,6 +955,124 @@
     msg.textContent = error ? "Ya estabas en la lista. ¡Gracias!" : "Apuntado. Te avisaremos."; msg.className = "mensaje ok";
   });
 
+  // ---- perfil: cuenta, plan y suscripción --------------------------------------------------
+  const fechaLarga = f => new Date(f).toLocaleDateString("es-ES", { day: "numeric", month: "long", year: "numeric" });
+  const ESTADOS = {
+    active: ["Activa", "ok"], trialing: ["En periodo de prueba", "ok"], past_due: ["Pago pendiente", "aviso"],
+    unpaid: ["Impagada", "aviso"], incomplete: ["Pago sin completar", "aviso"], incomplete_expired: ["Pago no completado", ""],
+    canceled: ["Cancelada", ""], paused: ["En pausa", ""]
+  };
+  const VIGENTES = new Set(["active", "trialing", "past_due"]);                     // dan el plan
+  const COBRABLES = new Set(["active", "trialing", "past_due", "unpaid", "incomplete", "paused"]);
+  const PLAN_TXT = { gratis: "Gratis", gestor: "Gestor", despacho: "Despacho" };
+  const PERIODO_TXT = { semanal: "Semanal", mensual: "Mensual", anual: "Anual" };
+
+  function pintarPerfil() {
+    const cont = $("perfil-contenido"), u = sesion.usuario;
+    if (!sb || !u) {
+      cont.innerHTML = `<div class="tarjeta estado-vacio"><h2>Inicia sesión para ver tu perfil</h2>
+        <p>Aquí verás tu cuenta, tu plan y tu suscripción.</p>
+        ${sb ? '<button class="btn btn-pri" type="button" id="perfil-acceder">Iniciar sesión</button>' : ""}</div>`;
+      const b = $("perfil-acceder");
+      if (b) b.addEventListener("click", () => abrirAcceso(null, { destino: "perfil" }));
+      return;
+    }
+    const p = sesion.perfil || { plan: "gratis" }, s = sesion.suscripcion, conPlan = tienePlan();
+    const prov = (u.app_metadata && (u.app_metadata.providers || [u.app_metadata.provider])) || [];
+    const acceso = [prov.includes("google") ? "Google" : "", prov.includes("email") ? "enlace por correo" : ""].filter(Boolean).join(" y ") || "enlace por correo";
+
+    // suscripción
+    const [estTxt, estCls] = s ? (ESTADOS[s.estado] || [s.estado, ""]) : ["", ""];
+    const datos = [];
+    if (s && s.periodo) datos.push(["Facturación", PERIODO_TXT[s.periodo]]);
+    if (s && VIGENTES.has(s.estado)) {
+      if (s.termina_en) datos.push(["Termina el", fechaLarga(s.termina_en)]);
+      else if (s.periodo_fin) datos.push(["Próxima renovación", fechaLarga(s.periodo_fin)]);
+    } else if (s && s.termina_en) datos.push(["Terminó el", fechaLarga(s.termina_en)]);
+    const nota = s && s.estado === "past_due" ? "No se ha podido cobrar la última cuota y Stripe lo está reintentando. Revisa tu tarjeta en «Gestionar suscripción»."
+      : s && VIGENTES.has(s.estado) && s.termina_en ? "Has cancelado la renovación: mantienes el plan hasta esa fecha. Puedes reactivarla en «Gestionar suscripción»."
+      : conPlan ? "Cambia de periodo o de tarjeta, descarga tus facturas o date de baja en «Gestionar suscripción»."
+      : "Con el plan Gestor desbloqueas «Mis clientes»: tu cartera guardada, la optimización por cliente y los informes.";
+    const tSus = `<div class="tarjeta"><h2>Plan ${esc(PLAN_TXT[p.plan] || p.plan)}${s ? ` <span class="chip-estado ${estCls}">${esc(estTxt)}</span>` : ""}</h2>
+      ${datos.length ? `<dl class="datos">${datos.map(([a, b]) => `<dt>${a}</dt><dd>${esc(b)}</dd>`).join("")}</dl>` : ""}
+      <p>${nota}</p>
+      <div class="perfil-acciones">${conPlan ? "" : '<a class="btn btn-pri" href="#planes">Ver planes</a>'}
+        ${s && CFG.pagosActivos ? `<button class="btn btn-sec" type="button" id="perfil-portal">${conPlan ? "Gestionar suscripción" : "Ver facturas"}</button>` : ""}</div></div>`;
+
+    // clientes
+    const n = conPlan ? sesion.clientes.length : sesion.ocultos, nTxt = `${n} ${n === 1 ? "cliente guardado" : "clientes guardados"}`;
+    const tCli = `<div class="tarjeta"><h2>Mis clientes</h2><p>${conPlan ? (n ? `Tienes ${nTxt}.` : "Todavía no has guardado ningún cliente.")
+        : (n ? `Tienes ${nTxt}, ocultos hasta que reactives el plan Gestor.` : "«Mis clientes» se desbloquea con el plan Gestor.")}</p>
+      <div class="perfil-acciones"><a class="btn btn-sec" href="#clientes">Ir a Mis clientes</a></div></div>`;
+
+    // cuenta
+    const tCuenta = `<div class="tarjeta"><h2>Cuenta</h2>
+      <dl class="datos"><dt>Correo</dt><dd>${esc(u.email)}</dd><dt>Acceso</dt><dd>Con ${esc(acceso)}</dd>
+        ${u.created_at ? `<dt>Alta</dt><dd>${fechaLarga(u.created_at)}</dd>` : ""}</dl>
+      <div class="campo"><label for="perfil-nombre">Nombre</label><input type="text" id="perfil-nombre" maxlength="120" autocomplete="name" value="${esc(nombreDe(u))}"></div>
+      <div class="campo"><label for="perfil-despacho">Despacho o gestoría <span class="ayuda">(opcional)</span></label><input type="text" id="perfil-despacho" maxlength="160" autocomplete="organization" value="${esc(p.despacho || "")}"></div>
+      <div class="perfil-acciones"><button class="btn btn-sec" type="button" id="perfil-guardar">Guardar</button><span class="mensaje" id="perfil-msg" role="status"></span></div></div>`;
+    const tBorrar = `<div class="tarjeta zona-peligro"><h2>Borrar la cuenta</h2>
+      <p>Borra tu cuenta y tus datos: el perfil y los clientes guardados${s && COBRABLES.has(s.estado) ? ". Tu suscripción se cancela en el acto" : ""}. No se puede deshacer.</p>
+      <div class="perfil-acciones"><button class="btn btn-peligro" type="button" id="perfil-borrar">Borrar mi cuenta</button></div></div>`;
+
+    cont.innerHTML = `<div class="perfil"><div class="perfil-col">${tSus}${tCli}</div><div class="perfil-col">${tCuenta}${tBorrar}</div></div>
+      <div class="perfil-acciones" style="margin-top:20px"><button class="btn btn-sec" type="button" id="perfil-salir">Cerrar sesión</button></div>`;
+
+    const portal = $("perfil-portal");
+    if (portal) portal.addEventListener("click", async () => {
+      portal.disabled = true;
+      if (!await irAFuncion("portal-facturacion", { vista: "perfil" })) portal.disabled = false;
+    });
+    $("perfil-guardar").addEventListener("click", async () => {
+      const msg = $("perfil-msg"), b = $("perfil-guardar");
+      const fila = { nombre: $("perfil-nombre").value.trim() || null, despacho: $("perfil-despacho").value.trim() || null };
+      b.disabled = true;
+      const { error } = await sb.from("perfiles").update(fila).eq("id", u.id);
+      b.disabled = false;
+      if (error) { msg.textContent = "No se pudo guardar: " + error.message; msg.className = "mensaje error"; return; }
+      Object.assign(sesion.perfil, fila); pintarCuenta();
+      msg.textContent = "Guardado."; msg.className = "mensaje ok";
+    });
+    $("perfil-salir").addEventListener("click", async () => { await sb.auth.signOut(); cerrarCliente(); irA("calculadora"); });
+    $("perfil-borrar").addEventListener("click", () => {
+      $("borrar-suscripcion").hidden = !(s && COBRABLES.has(s.estado));
+      $("borrar-email").value = ""; $("borrar-msg").textContent = ""; $("borrar-msg").className = "mensaje";
+      $("btn-confirmar-borrar").hidden = false; $("btn-confirmar-borrar").disabled = false;
+      $("btn-cancelar-borrar").textContent = "Cancelar";
+      dlgBorrar.showModal(); $("borrar-email").focus();
+    });
+  }
+
+  // Borrar la cuenta (derecho de supresión): la Edge Function cancela la suscripción y borra
+  // la cuenta con su perfil y sus clientes. Se confirma escribiendo el correo de la cuenta.
+  const ERRORES_BORRAR = {
+    confirmacion_no_valida: "El correo no coincide con el de tu cuenta.",
+    sin_sesion: "Tu sesión ha caducado. Vuelve a iniciar sesión y repite la operación.",
+    error_stripe: "No se ha podido cancelar tu suscripción en Stripe, así que no se ha borrado nada. Inténtalo de nuevo en unos minutos.",
+    pagos_no_configurados: "Ahora mismo no se puede cancelar tu suscripción, así que no se ha borrado nada. Inténtalo de nuevo más tarde."
+  };
+  $("btn-confirmar-borrar").addEventListener("click", async () => {
+    const msg = $("borrar-msg"), b = $("btn-confirmar-borrar"), u = sesion.usuario;
+    const correo = $("borrar-email").value.trim();
+    if (!u || correo.toLowerCase() !== (u.email || "").toLowerCase()) { msg.textContent = "Escribe el correo de tu cuenta tal cual."; msg.className = "mensaje error"; return; }
+    b.disabled = true; msg.textContent = "Borrando tu cuenta…"; msg.className = "mensaje";
+    const { data, error } = await sb.functions.invoke("borrar-cuenta", { body: { confirmar: correo } });
+    if (error || !data || !data.borrada) {
+      let codigo = null;
+      try { codigo = (await error.context.json()).error; } catch (e) { /* sin cuerpo JSON */ }
+      b.disabled = false;
+      msg.textContent = ERRORES_BORRAR[codigo] || "No se ha podido borrar la cuenta. Inténtalo de nuevo en unos minutos.";
+      msg.className = "mensaje error";
+      return;
+    }
+    await sb.auth.signOut({ scope: "local" });       // el usuario ya no existe en el servidor
+    cerrarCliente();
+    b.hidden = true; $("btn-cancelar-borrar").textContent = "Cerrar";
+    msg.textContent = "Tu cuenta y tus datos se han borrado."; msg.className = "mensaje ok";
+    irA("calculadora");
+  });
+
   // ---- metodología: cobertura -------------------------------------------------------------
   function pintarCobertura() {
     const filas = ORDEN.filter(t => T[t]).map(t => {
@@ -871,7 +1088,7 @@
   }
 
   // ---- navegación -------------------------------------------------------------------------
-  const VISTAS = ["calculadora", "comparar", "clientes", "planes", "metodologia"];
+  const VISTAS = ["calculadora", "comparar", "clientes", "planes", "perfil", "metodologia"];
   let vistaSel = null;           // vista elegida en esta sesión (no depende de poder tocar el hash)
   function vistaDeHash() {
     const h = location.hash.slice(1).split("?")[0];
@@ -901,6 +1118,7 @@
     if (v === "comparar") pintarComparacion();
     if (v === "clientes") pintarClientes();
     if (v === "planes") pintarPlanes();
+    if (v === "perfil") pintarPerfil();
     if (v === "metodologia") pintarCobertura();
     window.scrollTo(0, 0);
   }
