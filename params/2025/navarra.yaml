@@ -53,23 +53,36 @@ escala_ahorro_foral:
     - { hasta: .inf,   tipo: 0.28 }
 
 minimo_personal_deduccion:
-  norma: "Art. 62.9.a) DFL 4/2008 (TR IRPF Navarra)"
-  fuente: "guiafiscal.es (1.084 € base; 2.138 € para bases bajas); rentanavarra.com"
-  estado: provisional   # cotejar tabla exacta de incremento por renta en el BON 2025
-  # El mínimo personal opera como deducción de la cuota (importe fijo, no aplicando tarifa).
+  norma: "Art. 62.9.a) DFL 4/2008 (TR IRPF Navarra), redacción de la Ley Foral 22/2023, art. primero.Doce (efectos 2024; sin cambios en 2025: la LF 20/2024 no lo modifica y la LF 17/2025 lo hace desde 2026)"
+  fuente: "BOE-A-2024-1694 (texto literal del art. 62.9 a), b) y c))"
+  # Deducción de la cuota (importe fijo por sujeto pasivo): 1.084 €, más 264 € desde los 65
+  # años o 585 € desde los 75 (uno u otro), más 766 € / 2.757 € por discapacidad, más 150 € si
+  # las rentas del sujeto pasivo, incluidas las exentas, no superan 30.000 €. El motor toma
+  # como «rentas» su base imponible (no modela rentas exentas).
+  estado: confirmado
   importe_general: 1084
-  incremento_rentas_bajas: 1054       # 1.084 + 1.054 ≈ 2.138 para BASE <= umbral_pleno
-  umbral_pleno: 17500
-  umbral_cero_incremento: 32000
+  incremento_rentas_bajas: 150
+  umbral_rentas_bajas: 30000
   incremento_65: 264
-  incremento_75: 585                  # adicional al de 65
+  incremento_75: 585                  # sustituye al de 65 (no se suman)
   incremento_discapacidad_33_64: 766
   incremento_discapacidad_65_mas: 2757
 
 minimo_familiar_deduccion:
-  norma: "Art. 62.9.b) DFL 4/2008 (TR IRPF Navarra)"
-  fuente: "rentanavarra.com — resumen deducciones IRPF Navarra 2025 (fuente secundaria; cotejar con BON)"
+  norma: "Art. 62.9.b) y c) DFL 4/2008 (TR IRPF Navarra), redacción de la Ley Foral 22/2023, art. primero.Doce"
+  fuente: "BOE-A-2024-1694 (texto literal del art. 62.9)"
+  # Descendientes solteros menores de 30 años (o con discapacidad), que convivan y no tengan
+  # rentas superiores al IPREM: 483 / 512 / 732 / 981 / 1.111 / 1.286 €, más 644 € si son menores
+  # de 3 años. Si las rentas del sujeto pasivo no superan 30.000 €, ese importe se incrementa un
+  # 40 % (hasta 20.000 €) o un 40 − 50 × (rentas − 20.000) / 20.000 % (redondeado a 2 decimales)
+  # entre 20.000 y 30.000 €. Ascendientes: 264 € (65 años) o 585 € (75). Discapacidad del
+  # familiar: 674 € / 2.360 €. Se prorratea entre sujetos pasivos con derecho, salvo el
+  # incremento. Provisional: el importe del IPREM que se usa como límite de rentas (ver
+  # limite_rentas_familiar) y, en tributación conjunta, las rentas que fijan el incremento
+  # (el motor usa la base imponible de la unidad).
   estado: provisional
+  edad_maxima_descendiente: 30
+  incremento_rentas_descendientes: { porcentaje_maximo: 40, umbral_pleno: 20000, umbral_final: 30000, coeficiente: 50 }
   descendientes:
     importes: { "1": 483, "2": 512, "3": 732, "4": 981, "5": 1111, "6+": 1286 }
     incremento_menor_3_anios: 644
@@ -80,7 +93,7 @@ minimo_familiar_deduccion:
     importe_75: 585
     incremento_discapacidad_33_64: 674
     incremento_discapacidad_65_mas: 2360
-  limite_rentas_familiar: 8000   # aprox.; el descendiente/ascendiente no debe superar este umbral
+  limite_rentas_familiar: 8400   # IPREM anual 2025 (600 €/mes; 14 pagas = 8.400 €, 12 pagas = 7.200 €): sin cotejar cuál aplica
 
 reduccion_rendimientos_trabajo:
   norma: "Art. 55 TR IRPF Navarra"

@@ -58,7 +58,7 @@ provisionales o parciales · ⛔ pendiente (hook presente, no calcula).
 | Bizkaia | ✅ | ✅ | 🟡 | 🟡 | NF 13/2013; DF Gipuzkoa Modelo 109 (2025) (armonizado); Cuatrecasas 05/2025 |
 | Gipuzkoa | ✅ | ✅ | ✅ | ✅ familiares / 🟡 otras | DF Gipuzkoa, Modelo 109 (2025) |
 | Araba/Álava | ✅ | ✅ | 🟡 | 🟡 | NF 33/2013 (armonizado) |
-| Navarra | ✅ | ✅ | 🟡 personal + familiar (art. 62.9, importes de fuente secundaria) + trabajo (art. 62.5) | ✅ alquiler 62.2 (BOE) · 🟡 emancipación, pensiones de jubilación · ⛔ familia numerosa, donativos | TR IRPF (DFL 4/2008), LF 22/2023 y LF 20/2024 (BOE); guiafiscal / rentanavarra.com para el art. 62.9 (cotejar con BON) |
+| Navarra | ✅ | ✅ | ✅ personal + familiar (art. 62.9, texto de la LF 22/2023 en el BOE; 🟡 importe del IPREM) + trabajo (art. 62.5) | ✅ alquiler 62.2 (BOE) · 🟡 emancipación, pensiones de jubilación · ⛔ donativos (no hay deducción específica por familia numerosa en 2025: va por el mínimo familiar) | TR IRPF (DFL 4/2008), LF 22/2023 (art. 62.9) y LF 20/2024 (BOE) |
 | Ejercicio **2026** | ✅ solo País Vasco (tarifa + ahorro) | ✅ | hereda 2025 | hereda 2025 | NF 7/2025, NF 2/2025, etc. |
 
 ## 3. Muestra sintética y métricas
@@ -103,10 +103,10 @@ provisionales o parciales · ⛔ pendiente (hook presente, no calcula).
    (`grupo`), reparto entre progenitores por defecto, municipio (población y zona
    despoblada, con incremento por municipio pequeño) y desempleo.
 2. **Módulos (estimación objetiva) no modelados.** Entran como rendimiento neto exógeno.
-3. **Navarra**: escala + mínimo personal y familiar (art. 62.9, importes de fuente
-   secundaria, cotejar con el BON) + trabajo (art. 62.5) + alquiler (art. 62.2, texto del
-   BOE) + emancipación (68 quinquies.A) y complemento de pensiones de jubilación (68.B),
-   ambas sobre la cuota diferencial. Faltan familia numerosa, donativos y la tributación
+3. **Navarra**: escala + mínimo personal y familiar (art. 62.9, texto literal de la LF
+   22/2023; provisional solo el importe del IPREM) + trabajo (art. 62.5) + alquiler (art.
+   62.2, texto del BOE) + emancipación (68 quinquies.A) y complemento de pensiones de
+   jubilación (68.B), ambas sobre la cuota diferencial. Faltan donativos y la tributación
    conjunta foral completa.
 4. **Reducción del trabajo por perceptor** se aproxima usando "otras rentas" del conjunto
    del ámbito (exacto para hogares monoperceptores; conservador para biperceptores).

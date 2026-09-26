@@ -411,6 +411,19 @@ add("ps_empresa_cm", "ES-CM", "ninguna", "no",
     list(persona("d1","declarante",40, trabajo=list(dinerarias=18000, cotizaciones_ss=1143), prevision_social=list(aportacion_individual=1500, contribucion_empresarial=8000))),
     list(list(id="d1",rol="declarante",edad=40, trabajo=list(dinerarias=18000,cotizacionesSs=1143), previsionSocial=list(aportacionIndividual=1500, contribucionEmpresarial=8000))))
 
+# 14. Navarra: mínimos del art. 62.9 (Ley Foral 22/2023)
+add("nc_min_hijo_rentas_bajas", "ES-NC", "monoparental", "no",
+    list(persona("d1","declarante",38, trabajo=list(dinerarias=18000, cotizaciones_ss=1143)), persona("h1","descendiente",2)),
+    list(list(id="d1",rol="declarante",edad=38, trabajo=list(dinerarias=18000,cotizacionesSs=1143)), list(id="h1",rol="descendiente",edad=2)))
+add("nc_min_80", "ES-NC", "ninguna", "no",
+    list(persona("d1","declarante",80, trabajo=list(dinerarias=22000, cotizaciones_ss=0))),
+    list(list(id="d1",rol="declarante",edad=80, trabajo=list(dinerarias=22000,cotizacionesSs=0))))
+add("nc_min_pareja_hijos", "ES-NC", "biparental", "no",
+    list(persona("d1","declarante",40, trabajo=list(dinerarias=27000, cotizaciones_ss=1714.5)), persona("d2","conyuge",39),
+         persona("h1","descendiente",7), persona("h2","descendiente",31), persona("h3","descendiente",1)),
+    list(list(id="d1",rol="declarante",edad=40, trabajo=list(dinerarias=27000,cotizacionesSs=1714.5)), list(id="d2",rol="conyuge",edad=39),
+         list(id="h1",rol="descendiente",edad=7), list(id="h2",rol="descendiente",edad=31), list(id="h3",rol="descendiente",edad=1)))
+
 out <- lapply(casos, function(c) list(
   js = c$js,
   ref = list(
