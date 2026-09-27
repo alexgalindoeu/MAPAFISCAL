@@ -69,12 +69,14 @@ nuevo_hogar <- function(id_hogar, territorio, miembros, ejercicio = 2025,
                         familia_numerosa = "no", titulo_familia_numerosa = FALSE,
                         parto_multiple = FALSE,
                         municipio_habitantes = NULL, zona_despoblada = FALSE,
-                        familia_numerosa_reciente = FALSE) {
+                        familia_numerosa_reciente = FALSE, titulo_monoparental = "no") {
   # municipio_habitantes: población del municipio de residencia (NULL = no informada);
   # zona_despoblada: el municipio figura en la lista oficial de zonas rurales o en riesgo
   # de despoblación de la comunidad (cada CCAA publica la suya).
   # familia_numerosa_reciente: el reconocimiento del título de familia numerosa tiene
   # efectos en el ejercicio o en los dos anteriores (Madrid, art. 13 bis DL 1/2010).
+  # titulo_monoparental: "no" | "general" | "especial", título autonómico de familia
+  # monoparental (p. ej. C. Valenciana, Decreto 19/2018).
   h <- structure(list(
     id_hogar = id_hogar, territorio = territorio, ejercicio = ejercicio,
     tipo_unidad_familiar = tipo_unidad_familiar,
@@ -84,6 +86,7 @@ nuevo_hogar <- function(id_hogar, territorio, miembros, ejercicio = 2025,
     municipio_habitantes = municipio_habitantes,
     zona_despoblada = isTRUE(zona_despoblada),
     familia_numerosa_reciente = isTRUE(familia_numerosa_reciente),
+    titulo_monoparental = titulo_monoparental %||% "no",
     miembros = miembros
   ), class = "irpfsim_hogar")
   validar_hogar(h)
@@ -121,7 +124,9 @@ hogar_desde_json <- function(txt) {
     tipo_unidad_familiar = x$tipo_unidad_familiar %||% "ninguna",
     familia_numerosa = x$familia_numerosa %||% "no",
     titulo_familia_numerosa = x$titulo_familia_numerosa %||% FALSE,
-    parto_multiple = x$parto_multiple %||% FALSE
+    parto_multiple = x$parto_multiple %||% FALSE,
+    titulo_monoparental = x$titulo_monoparental %||% "no",
+    familia_numerosa_reciente = isTRUE(x$familia_numerosa_reciente)
   )
 }
 

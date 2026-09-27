@@ -58,7 +58,11 @@ deducciones_estatales <- function(hogar, P, rentas, base_liquidable_total, perso
 #     base_max_individual, base_max_conjunta, base_max_unidad_familiar,
 #     edad_max, edad_min, requiere_familia_numerosa (TRUE/"especial"),
 #     prorratea_progenitores (TRUE -> /2 en individual con 2 declarantes),
-#     requiere_desempleo (algún declarante con `desempleado: TRUE`),
+#     requiere_desempleo (algún declarante con `desempleado: TRUE`), prorratea_desempleo
+#       (importe x meses en desempleo de los declarantes / 12, `meses_desempleo`),
+#     requiere_titulo_monoparental ("general"/"especial", hogar$titulo_monoparental),
+#     descendientes_sin_deduccion (id de otra deducción: sus descendientes no cuentan en
+#       descendientes_min/max),
 #     requiere_progenitores_trabajan (todos los declarantes con trabajo o actividad)
 #   Modificadores:
 #     taper_individual / taper_conjunta: [desde, hasta] -> reducción lineal del importe
@@ -163,6 +167,18 @@ deducciones_autonomicas <- function(hogar, P, rentas, modo = "individual", base_
     if (isTRUE(g(d, "requiere_familia_numerosa_reciente")) &&
         !isTRUE(hogar$familia_numerosa_reciente)) return(FALSE)
     nd <- length(desc)
+    # `descendientes_sin_deduccion: <id>`: no cuentan los descendientes que dan derecho a
+    # la deducción <id> de la misma lista, si esta pasa sus puertas (C. Valenciana, art.
+    # 4.Uno.aa: los incrementos por despoblamiento son incompatibles con los de nacimiento)
+    sd <- g(d, "descendientes_sin_deduccion")
+    if (!is.null(sd)) {
+      d2 <- Find(function(x) identical(g(x, "id"), sd), da$lista)
+      if (!is.null(d2) && pasa_puertas(d2)) {
+        v2 <- g(d2, "anios_ventana") %||% 1
+        nd <- sum(vapply(desc, function(h) !((h$edad %||% 99) <= v2 - 1 || isTRUE(h$nacido_en_ejercicio)),
+                         logical(1)))
+      }
+    }
     if (!is.null(g(d,"descendientes_min")) && nd < g(d,"descendientes_min")) return(FALSE)
     if (!is.null(g(d,"descendientes_max")) && nd > g(d,"descendientes_max")) return(FALSE)
     if (!is.null(g(d,"descendiente_edad_max")) &&
@@ -181,6 +197,8 @@ deducciones_autonomicas <- function(hogar, P, rentas, modo = "individual", base_
       if (!identical(cat_h, fnc)) return(FALSE)
     }
     if (isTRUE(g(d,"requiere_monoparental")) && hogar$tipo_unidad_familiar != "monoparental") return(FALSE)
+    rtm <- g(d, "requiere_titulo_monoparental")   # título autonómico, categoría exacta
+    if (!is.null(rtm) && !identical(hogar$titulo_monoparental %||% "no", rtm)) return(FALSE)
     if (isTRUE(g(d,"requiere_dependiente_a_cargo"))) {
       # persona dependiente = ascendiente >= 75 años, o ascendiente/descendiente con
       # grado de discapacidad >= 65 % ("65_mas"), cualquiera que sea su edad.
@@ -330,6 +348,13 @@ deducciones_autonomicas <- function(hogar, P, rentas, modo = "individual", base_
     }
 
     if (!taper_en_limite) val <- val * ft
+    # prorrateo por el tiempo en desempleo: suma de los meses de los declarantes en
+    # desempleo (12 si no se informa), con el límite del año (C. Valenciana, art. 4.Uno.v)
+    if (isTRUE(g(d, "prorratea_desempleo"))) {
+      meses <- sum(vapply(declarantes(hogar), function(p)
+        if (isTRUE(p$desempleado)) (p$meses_desempleo %||% 12) else 0, numeric(1)))
+      val <- val * min(12, meses) / 12
+    }
     # incremento por residir en un municipio pequeño (p. ej. +20 % en Galicia, < 5.000 hab.)
     fm <- g(d, "incremento_municipio")
     if (!is.null(fm) && !is.null(hogar$municipio_habitantes) && hogar$municipio_habitantes <= fm$hab_max)

@@ -1,8 +1,14 @@
-# Publica web/ en GitHub Pages. Se lanza a mano (Actions → Publicar web → Run workflow)
-# y requiere Settings → Pages → Source: "GitHub Actions".
+# Publica web/ en GitHub Pages. Se lanza solo en cada push a main que cambie web/ (o este
+# fichero), y también a mano (Actions → Publicar web → Run workflow).
+# Requiere Settings → Pages → Source: "GitHub Actions".
 name: Publicar web
 
 on:
+  push:
+    branches: [main]
+    paths:
+      - "web/**"
+      - ".github/workflows/pages.yml"
   workflow_dispatch:
 
 permissions:
