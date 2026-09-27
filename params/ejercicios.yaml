@@ -1,0 +1,15 @@
+# =============================================================================
+# EJERCICIOS DEL MOTOR
+# =============================================================================
+# Cada ejercicio tiene su carpeta params/<año>/ con estatal.yaml, autonomico.yaml,
+# foral_pais_vasco.yaml y navarra.yaml. Un fichero puede heredar de otro ejercicio con
+# `meta: hereda_de: "<año>/<fichero>.yaml"` y recoger solo lo que cambia (ver
+# fusionar_params() en R/01_parametros.R).
+#
+# tools/exportar_params.R escribe el ejercicio `por_defecto` en web/datos/params.json y
+# cada uno de los demás en web/datos/params_<año>.json. La web solo ofrece los
+# `publicados`; los demás se exportan para el validador y para probarlos.
+# =============================================================================
+
+por_defecto: 2025
+publicados: [2025]

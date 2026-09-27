@@ -1,9 +1,14 @@
-# Monta tools/validar_js.html (autónomo) a partir de params.json, irpfsim.js, casos.json
+# Monta tools/validar_js.html (autónomo) a partir de los params de cada ejercicio, irpfsim.js y casos.json
 source("R/cargar.R"); irpfsim_cargar(".")
 source("tools/exportar_params.R")   # refresca params.json de los YAML
 source("tools/validar_js.R")        # refresca casos.json (referencia del motor R)
 engine <- paste(readLines("web/js/irpfsim.js", warn = FALSE, encoding = "UTF-8"), collapse = "\n")
-params <- as.character(jsonlite::minify(paste(readLines("web/datos/params.json", warn = FALSE, encoding = "UTF-8"), collapse = "\n")))
+# parámetros de cada ejercicio (params.json y params_<año>.json), por año
+ficheros_params <- list.files("web/datos", pattern = "^params(_[0-9]{4})?\\.json$", full.names = TRUE)
+params <- paste0("{", paste(vapply(ficheros_params, function(f) {
+  j <- as.character(jsonlite::minify(paste(readLines(f, warn = FALSE, encoding = "UTF-8"), collapse = "\n")))
+  sprintf("\"%d\": %s", jsonlite::fromJSON(j)$ejercicio, j)
+}, character(1)), collapse = ",\n"), "}")
 casos  <- readLines("tools/casos.json", warn = FALSE, encoding = "UTF-8")[1]
 
 html <- sprintf('<!doctype html><meta charset="utf-8"><title>Validador JS vs R</title>
@@ -11,13 +16,13 @@ html <- sprintf('<!doctype html><meta charset="utf-8"><title>Validador JS vs R</
 <pre id="out">corriendo...</pre>
 <script>%s</script>
 <script>
-const P = %s;
+const PS = %s;
 const CASOS = %s;
 const tol = 0.02;
 let lines = [], nbad = 0;
 for (const [id, c] of Object.entries(CASOS)) {
   let liq;
-  try { liq = irpfsim.liquidar(c.js, P, "auto"); }
+  try { liq = irpfsim.liquidar(c.js, PS[c.js.ejercicio], "auto"); }
   catch (e) { lines.push("ERROR " + id + ": " + e.message); nbad++; continue; }
   const checks = [
     ["blg", liq.baseLiquidableGeneral, c.ref.blg],

@@ -1,0 +1,16 @@
+# =============================================================================
+# PARÁMETROS IRPF — NÚCLEO ESTATAL (territorio común) — EJERCICIO 2026
+# =============================================================================
+# EN PREPARACIÓN. Hereda todo de params/2025/estatal.yaml; aquí solo va lo que cambia
+# en 2026, con su norma y su fuente (BOE consolidado de la Ley 35/2006:
+# https://www.boe.es/buscar/act.php?id=BOE-A-2006-20764, y normas de 2025-2026).
+# Mientras un bloque no se haya cotejado para 2026 vale lo de 2025: por eso el
+# ejercicio no está en `publicados` (params/ejercicios.yaml).
+# =============================================================================
+
+meta:
+  jurisdiccion: estatal
+  ejercicio: 2026
+  regimen: comun
+  hereda_de: "2025/estatal.yaml"
+  estado_ejercicio: en_preparacion
