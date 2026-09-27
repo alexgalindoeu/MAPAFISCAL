@@ -643,7 +643,7 @@
     b.title = u.email; b.setAttribute("aria-label", "Perfil de " + u.email);
   }
 
-  let pendienteTrasAcceso = false;
+  let pendienteTrasAcceso = false, sesionCargada = false;
   async function cargarSesion() {
     if (!sb) return;
     const { data } = await sb.auth.getSession();
@@ -666,6 +666,7 @@
         sesion.ocultos = n.data || 0;
       }
     } else { sesion.perfil = null; sesion.clientes = []; }
+    sesionCargada = true;
     pintarCuenta();
     marcarPestanaClientes();
     if (vistaActual() === "clientes") pintarClientes();
@@ -983,6 +984,7 @@
 
   function pintarPerfil() {
     const cont = $("perfil-contenido"), u = sesion.usuario;
+    if (sb && !sesionCargada) { cont.innerHTML = `<p class="vacio">Cargando tu perfil…</p>`; return; }
     if (!sb || !u) {
       cont.innerHTML = `<div class="tarjeta estado-vacio"><h2>Inicia sesión para ver tu perfil</h2>
         <p>Aquí verás tu cuenta, tu plan y tu suscripción.</p>
