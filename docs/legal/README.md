@@ -17,13 +17,9 @@ Enlazadas en el pie de `web/index.html` y citadas desde la casilla de aceptació
 
 ## Qué falta para poder publicar
 
-**1. El correo de contacto.** Una IA no puede crear cuentas de correo. Recomendación: una
-cuenta nueva y neutra (no con el nombre de Alex), por ejemplo de Gmail. Cuando exista:
-- ponla en `contacto` de `web/config.js` (ahora mismo es `hola@mapafiscal.es`, un marcador que
-  no existe: mientras siga así, `npm run test` y «Publicar web» fallan a propósito, ver más
-  abajo);
-- úsala también como remitente del SMTP propio de Supabase (`Authentication → Emails → SMTP
-  Settings`; el de serie de Supabase solo entrega a los correos del equipo del proyecto).
+**1. ~~El correo de contacto~~ Hecho.** `contacto@mapafiscal.es` (Cloudflare Email Routing,
+con MX y SPF comprobados desde fuera), ya puesto en `contacto` de `web/config.js`. El SMTP
+propio (Brevo) también lo configuró Alex directamente en Supabase.
 
 **2. Los datos del titular**, para el aviso legal, la privacidad y las condiciones. **No van
 en el repositorio**, que es público y guarda su historial para siempre: se añaden en

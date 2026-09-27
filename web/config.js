@@ -17,9 +17,7 @@ window.MAPAFISCAL_CONFIG = {
   preciosOrientativos: true,
 
   // Buzón de contacto: sale en los textos legales (web/legal/) y en los enlaces mailto.
-  // «hola@mapafiscal.es» es un marcador que NO existe: mientras siga, «Publicar web» falla
-  // (tools/rellenar_titular.mjs) para no publicar los textos legales con un correo falso.
-  contacto: "hola@mapafiscal.es",
+  contacto: "contacto@mapafiscal.es",
 
   // Versión vigente de las condiciones (fecha de legal/condiciones.html). Al cambiarla, la web
   // vuelve a pedir la aceptación a quien aceptó una versión anterior.
