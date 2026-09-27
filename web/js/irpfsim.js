@@ -347,10 +347,12 @@
       if (d.base_max_unidad_familiar != null && bUf > d.base_max_unidad_familiar) return false;
       // límite de la UF por miembro (Madrid, art. 18.2): declarantes + descendientes < 18
       if (d.base_max_por_miembro_uf != null &&
-          bUf > d.base_max_por_miembro_uf * (decs.length + desc.filter(h => num(h.edad, 99) < 18).length)) return false;
+          bUf > d.base_max_por_miembro_uf * (decs.length + desc.filter(h => num(h.edad, 99) <= num(d.miembros_uf_hijos_edad_max, 17)).length)) return false;
       if (d.requiere_familia_numerosa_reciente && !hogar.familiaNumerosaReciente) return false;
       // descendientes_sin_deduccion: no cuentan los que dan derecho a esa otra deducción
-      let nd = desc.length;
+      // descendientes_edad_max_cuenta: descendientes_min/max solo cuentan a los de edad <= E
+      let nd = d.descendientes_edad_max_cuenta != null
+        ? desc.filter(h => num(h.edad, 99) <= d.descendientes_edad_max_cuenta).length : desc.length;
       if (d.descendientes_sin_deduccion != null) {
         const d2 = da.lista.find(x => x.id === d.descendientes_sin_deduccion);
         if (d2 && pasaPuertas(d2)) {
@@ -446,22 +448,30 @@
           val += v;
         }
       } else if (d.tipo === "fija_por_hijo_nacido") {
-        const ventana = num(d.anios_ventana, 1);
-        const esNacido = h => num(h.edad, 99) <= ventana - 1 || h.nacidoEnEjercicio;
+        const ventana = num(d.anios_ventana, 1), desde = num(d.anios_ventana_desde, 1);
+        // anios_ventana_desde: la ventana empieza en el N-ésimo ejercicio (edad >= N − 1)
+        const esNacido = h => desde > 1
+          ? (!h.nacidoEnEjercicio && num(h.edad, 99) >= desde - 1 && num(h.edad, 99) <= ventana - 1)
+          : (num(h.edad, 99) <= ventana - 1 || h.nacidoEnEjercicio);
+        // duplica_hijo_discapacidad: x2 por hijo con discapacidad >= 33 %
+        const fHijo = h => (d.duplica_hijo_discapacidad && h.discapacidad && h.discapacidad !== "no") ? 2 : 1;
         if (d.importes_por_orden) {
           const ord = desc.slice().sort((a, b) => num(b.edad, 0) - num(a.edad, 0));
           val = 0;
-          ord.forEach((h, k) => { if (esNacido(h)) { const key = k < 2 ? String(k + 1) : "3+"; val += num(d.importes_por_orden[key] != null ? d.importes_por_orden[key] : d.importes_por_orden["3+"]); } });
+          ord.forEach((h, k) => { if (esNacido(h)) { const key = k < 2 ? String(k + 1) : "3+"; val += num(d.importes_por_orden[key] != null ? d.importes_por_orden[key] : d.importes_por_orden["3+"]) * fHijo(h); } });
         } else {
           const impH = (esConj && d.importe_conjunta != null) ? d.importe_conjunta : num(d.importe);
-          val = desc.filter(esNacido).length * impH;
+          val = desc.filter(esNacido).reduce((s, h) => s + impH * fHijo(h), 0);
           if (hogar.partoMultiple) val += num(d.importe_multiple != null ? d.importe_multiple : impH);
         }
       } else if (d.tipo === "fija_por_hijo") {
         const hh = desc.filter(h => (d.edad_hijo_min == null || num(h.edad, 99) >= d.edad_hijo_min) &&
                                     (d.edad_hijo_max == null || num(h.edad, 99) <= d.edad_hijo_max));
         // hijos_desde_orden: solo cuentan a partir del N-ésimo
-        val = Math.max(0, hh.length - (num(d.hijos_desde_orden, 1) - 1)) * num(d.importe);
+        let nH = Math.max(0, hh.length - (num(d.hijos_desde_orden, 1) - 1));
+        // duplica_hijo_discapacidad: cada hijo con discapacidad >= 33 % cuenta dos veces
+        if (d.duplica_hijo_discapacidad && nH > 0) nH += hh.slice(-nH).filter(h => h.discapacidad && h.discapacidad !== "no").length;
+        val = nH * num(d.importe);
       } else if (d.tipo === "fija_por_ascendiente") {
         // por edad o por discapacidad (ascendiente_discapacidad: omitido = cualquier grado,
         // false = no cuenta, "65_mas" = solo ese grado); requiere_minimo_ascendiente: mismo
@@ -487,6 +497,14 @@
       // incremento por residir en un municipio pequeño (p. ej. +20 % en Galicia, < 5.000 hab.)
       const fm = d.incremento_municipio;
       if (fm && hogar.municipioHabitantes != null && hogar.municipioHabitantes <= fm.hab_max) val *= fm.factor;
+      // factor_discapacidad: multiplica el importe si alguien del grupo tiene esa discapacidad
+      const fd = d.factor_discapacidad;
+      if (fd) {
+        const grupoFd = fd.de === "contribuyente_o_descendientes" ? ambito.concat(desc)
+          : fd.de === "declarantes_o_descendientes" ? decs.concat(desc) : ambito;
+        const cumple = p => { const di = p.discapacidad || "no"; return fd.grado === "65_mas" ? di === "65_mas" : di !== "no"; };
+        if (grupoFd.some(cumple)) val *= num(fd.factor, 2);
+      }
       if (prorratea(d) && indCompartido) val /= nProg;
       if (val > 0) cand.push({ id: d.id || "ded", val, grupo: d.grupo });
     }
