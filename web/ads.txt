@@ -1,0 +1,6 @@
+# ads.txt de Mapafiscal (Authorized Digital Sellers, IAB Tech Lab).
+# PLACEHOLDER: sin la cuenta de AdSense de Alex todavía. No sustituye a nada real.
+# Cuando exista la cuenta, esta línea se cambia por:
+#   google.com, pub-XXXXXXXXXXXXXXXX, DIRECT, f08c47fec0942fa0
+# con el ID de editor real (es público, no un secreto). Hasta entonces, esta rama no se
+# fusiona con este fichero tal cual: ver negocio/anuncios.md §6, fase A.

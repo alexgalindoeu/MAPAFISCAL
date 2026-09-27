@@ -13,9 +13,9 @@ const leer = ruta => readFileSync(join(WEB, ruta), "utf8");
 // JSON compacto y seguro dentro de <script>: "</" nunca puede cerrar la etiqueta.
 const jsonEmbebido = ruta => JSON.stringify(JSON.parse(leer(ruta))).replace(/<\//g, "<\\/");
 
-// La versión autónoma es siempre la demo: sin Supabase (ni supabase-js) y sin pagos,
-// aunque web/config.js esté configurado para producción.
-const FORZAR_DEMO = "window.MAPAFISCAL_CONFIG = Object.assign(window.MAPAFISCAL_CONFIG || {}, { demo: true, pagosActivos: false });\n";
+// La versión autónoma es siempre la demo: sin Supabase (ni supabase-js), sin pagos y sin
+// anuncios, aunque web/config.js esté configurado para producción.
+const FORZAR_DEMO = "window.MAPAFISCAL_CONFIG = Object.assign(window.MAPAFISCAL_CONFIG || {}, { demo: true, pagosActivos: false, anuncios: false });\n";
 const SUPABASE_JS = /<script src="https:\/\/cdn\.jsdelivr\.net\/npm\/@supabase\/supabase-js@[^"]+"[^>]*><\/script>\n?/;
 
 export function empaquetar() {
