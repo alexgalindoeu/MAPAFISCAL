@@ -1118,3 +1118,25 @@ actualizado a 02-02-2026), 2026-09-26:
   carácter general, más los 150 € si las rentas no superan 30.000 €).
 - Tabla del mínimo personal del manual: 1.084 / 1.348 (65) / 1.669 (75) / 1.850 y 3.841
   (discapacidad) / 2.114, 2.435, 4.105, 4.426 (combinaciones): coincide con el motor.
+
+## Varios ejercicios (2026-09-27)
+
+Test `tests/testthat/test-ejercicios.R`; casos `ej2026_*` del validador.
+
+- Cada ejercicio tiene su carpeta `params/<año>/`. Un fichero puede declarar
+  `meta: hereda_de: "2025/<fichero>.yaml"` y recoger solo lo que cambia.
+- `fusionar_params()`:
+  - fusiona por clave las listas con nombre;
+  - sustituye enteras las listas sin nombre (`tramos`, la `lista` de deducciones);
+  - elimina las claves con valor `~`.
+- Si falta el fichero de un ejercicio, el motor da error: nunca toma otro año en silencio.
+- `params/ejercicios.yaml` fija el ejercicio por defecto, que se exporta a
+  `web/datos/params.json`. Los demás van a `params_<año>.json`. `publicados` dice cuáles
+  ofrece la web.
+- Corrige un fallo anterior: la herencia del País Vasco 2026 usaba `modifyList()`, que no
+  sustituye las listas sin nombre, así que se seguían aplicando los tramos de 2025. Con
+  `fusionar_params()` se aplica la tarifa general de 2026 (primer tramo hasta 18.080 € en
+  lugar de 17.720 €) y la escala del ahorro nueva (19 % hasta 7.500 €). Soltero en Bizkaia con
+  30.000 € de salario: la cuota líquida de 2026 es menor que la de 2025.
+- 2026 está `en_preparacion`. Hereda de 2025 todo lo que aún no se ha cotejado, por eso no
+  está en `publicados`.

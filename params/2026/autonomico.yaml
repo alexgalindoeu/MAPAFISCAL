@@ -1,0 +1,14 @@
+# =============================================================================
+# PARÁMETROS IRPF — TRAMO AUTONÓMICO (CCAA de régimen común) — EJERCICIO 2026
+# =============================================================================
+# EN PREPARACIÓN. Hereda todo de params/2025/autonomico.yaml; aquí solo van los
+# cambios de 2026 por territorio (escala, mínimos, deducciones), con su norma y su
+# fuente. Ojo con la herencia: `deducciones_autonomicas: lista:` es una lista sin
+# nombre, así que si un territorio la redefine para 2026 hay que escribirla entera.
+# =============================================================================
+
+meta:
+  ejercicio: 2026
+  regimen: comun
+  hereda_de: "2025/autonomico.yaml"
+  estado_ejercicio: en_preparacion

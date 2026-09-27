@@ -1,5 +1,5 @@
 {
- "ejercicio": 2025,
+ "ejercicio": 2026,
  "generado": "2026-09-27",
  "ejercicios": {
   "por_defecto": 2025,
@@ -281,31 +281,31 @@
  "foral_pv": {
   "escala_general_foral": [
    {
-    "hasta": 17720,
+    "hasta": 18080,
     "tipo": 0.23
    },
    {
-    "hasta": 35440,
+    "hasta": 36160,
     "tipo": 0.28
    },
    {
-    "hasta": 53160,
+    "hasta": 54240,
     "tipo": 0.35
    },
    {
-    "hasta": 75910,
+    "hasta": 77450,
     "tipo": 0.4
    },
    {
-    "hasta": 105130,
+    "hasta": 107260,
     "tipo": 0.45
    },
    {
-    "hasta": 140130,
+    "hasta": 142960,
     "tipo": 0.46
    },
    {
-    "hasta": 204270,
+    "hasta": 208390,
     "tipo": 0.47
    },
    {
@@ -315,24 +315,40 @@
   ],
   "escala_ahorro_foral": [
    {
-    "hasta": 2500,
+    "hasta": 7500,
+    "tipo": 0.19
+   },
+   {
+    "hasta": 15500,
     "tipo": 0.2
    },
    {
-    "hasta": 10000,
-    "tipo": 0.21
-   },
-   {
-    "hasta": 15000,
+    "hasta": 30000,
     "tipo": 0.22
    },
    {
-    "hasta": 30000,
-    "tipo": 0.23
+    "hasta": 50000,
+    "tipo": 0.24
+   },
+   {
+    "hasta": 90000,
+    "tipo": 0.255
+   },
+   {
+    "hasta": 120000,
+    "tipo": 0.26
+   },
+   {
+    "hasta": 240000,
+    "tipo": 0.265
+   },
+   {
+    "hasta": 300000,
+    "tipo": 0.27
    },
    {
     "hasta": null,
-    "tipo": 0.25
+    "tipo": 0.28
    }
   ],
   "bonificacion_trabajo": {

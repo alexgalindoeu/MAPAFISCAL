@@ -16,6 +16,7 @@ meta:
   ejercicio: 2026
   regimen: foral_pais_vasco
   hereda_de: "2025/foral_pais_vasco.yaml"
+  estado_ejercicio: en_preparacion
   territorios: [ES-PV-BI, ES-PV-SS, ES-PV-VI]
 
 comun:
