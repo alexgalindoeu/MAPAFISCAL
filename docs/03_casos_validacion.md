@@ -653,14 +653,15 @@ y AEAT *Manual Práctico Renta 2025, Parte 2 — Deducciones autonómicas / Comu
 | Nacimiento o adopción (a) | **600 / 750 / 900 €** por orden del hijo (1º/2º/3º+), en el año del nacimiento y los **dos siguientes**; prorrateo entre progenitores; taper 27–30 k / 44–47 k. *(Hasta 2024: 300 € solo el año del nacimiento.)* |
 | Familia numerosa general (d) | **330 €**; taper 27–30 k / 44–47 k; prorrateo |
 | Familia numerosa especial (d) | **660 €**; taper **31–35 k / 54–58 k**; prorrateo |
-| Familia monoparental (d) | **330 €** (categoría general); **no se acumula** con familia numerosa (`familia_numerosa_categoria: "no"`) (🟡 la especial, 660 €, exige título que no se modela) |
+| Familia monoparental (d) | **330 €** con el título de familia monoparental de la Generalitat de categoría general; **660 €** con el de categoría especial (límites 35.000 / 58.000, taper 31–35 k / 54–58 k). Exige el título (Decreto 19/2018; `titulo_monoparental`, que la web pregunta). Es la misma deducción que la de familia numerosa: las cuatro variantes forman el `grupo: fn_monoparental_vc` |
 | Custodia en guarderías < 3 años (e) | **15 %**, límite **297 €/hijo** (el límite se reduce en la franja de taper); exige que **todos los progenitores convivientes trabajen** (`requiere_progenitores_trabajan`); prorrateo |
 | Contribuyente con discapacidad ≥ 33 % y ≥ 65 años (g) | **197 €**; taper |
-| Ascendientes > 75 (o > 65 con discapacidad ≥ 65 %) (h) | **197 €/ascendiente**; taper; prorrateo (🟡 el tipo cuenta también ascendientes < 75 con cualquier discapacidad) |
+| Ascendientes > 75 (o > 65 con discapacidad ≥ 65 %) (h) | **197 €/ascendiente** de edad > 75 (≥ 76 en el motor), o > 65 con discapacidad ≥ 65 %, con convivencia ≥ 6 meses y rentas ≤ 8.000 €; taper; prorrateo |
 | Arrendamiento de vivienda habitual (n) | variantes **excluyentes** (`grupo: arrendamiento_vc`, se aplica la mayor): **20 %/800 €** general · **25 %/950 €** si ≤ 35 años **o** discapacidad ≥ 65 % · **30 %/1.100 €** si ambas; límites reducidos por el taper |
-| Material escolar (v) | **110 €/hijo** de 6 a 16 años **solo si el contribuyente u otro progenitor conviviente está en desempleo** e inscrito como demandante (`requiere_desempleo`; nuevo campo `desempleado`); prorrateo; taper (🟡 edad aproxima la escolarización) |
+| Material escolar (v) | **110 €/hijo** de 6 a 16 años (primaria, ESO o educación especial) **solo si el contribuyente u otro progenitor conviviente está en desempleo** e inscrito como demandante (`requiere_desempleo`), **prorrateado por el tiempo en desempleo** (suma de los meses de los dos, con el límite del año: `prorratea_desempleo`, `meses_desempleo`); prorrateo; taper |
 | Abonos culturales (x) | **21 %**, base máxima **165 €**; rentas < 50.000 € |
-| Contribuyentes con dos o más descendientes (t) | **10 % de la cuota íntegra autonómica**; suma de bases imponibles ≤ **30.000 €** (🟡 en individual con dos progenitores el motor solo ve la base del declarante) |
+| Contribuyentes con dos o más descendientes (t) | **10 % de la cuota íntegra autonómica**; suma de bases imponibles ≤ **30.000 €** (🟡 en individual con dos progenitores el motor solo ve la base del declarante, y usa bases liquidables) |
+| Residencia en municipio en riesgo de despoblamiento (aa) | **330 €**, más **132 / 198 / 264 €** según los descendientes con mínimo, sin contar los que dan derecho a la deducción por nacimiento (`descendientes_sin_deduccion: nacimiento_adopcion`); el incremento se prorratea entre progenitores |
 
 > **Corrección 2026-09-25.** La versión anterior aplicaba el material escolar a
 > cualquier familia (en realidad exige desempleo) y el nacimiento a 300 € solo el año
@@ -671,7 +672,7 @@ y AEAT *Manual Práctico Renta 2025, Parte 2 — Deducciones autonómicas / Comu
 
 Monoparental, trabajo 32.000 €, cotizaciones 1.500 € → rendimiento neto
 32.000 − 1.500 − 2.000 = **28.500 €** (sin reducción del art. 20). Factor
-`1 − (28.500 − 27.000)/3.000 = 0,5` → familia monoparental 330 × 0,5 = **165 €**.
+`1 − (28.500 − 27.000)/3.000 = 0,5` → familia monoparental (con título general) 330 × 0,5 = **165 €**.
 Con 5.000 € de alquiler y 30 años: variante joven `min(25 % · 5.000, 950 × 0,5)` = **475 €**
 (la general daría `min(1.000, 400)` = 400 → se aplica la joven).
 
@@ -682,11 +683,29 @@ Familia monoparental en la CV, trabajo 27.000 € (cot. SS 1.714); 1 hijo de 1 a
 Base liquidable 21.136 € (< 27.000, sin taper).
 
 - Nacimiento (1er hijo, dentro de la ventana de 3 ejercicios): **600 €**.
-- Familia monoparental: **330 €**.
+- Familia monoparental: **0 €**: el hogar no tiene el título de la Generalitat (hasta el
+  cotejo de 2026-09-26 se daban 330 € a toda familia monoparental).
 - Custodia en guardería: 15 % · 3.000 = 450 → **297 €** (tope).
 - Ascendiente > 75: **197 €**.
 - Abonos culturales: 21 % · min(400, 165) = **34,65 €**.
-- Deducciones autonómicas = **1.458,65 €**, idénticas en R y en `irpfsim.js`.
+- Deducciones autonómicas = **1.128,65 €**, que absorben la cuota íntegra autonómica
+  (780,72 € en conjunta); cuota líquida = cuota estatal = 968,40 €, idéntica en R y en
+  `irpfsim.js`.
+
+### Cotejo con la fuente (2026-09-26, issue #16)
+
+Art. 4 de la Ley 13/1997 en la redacción vigente a 31-12-2025 (consolidación del BOE,
+`BOE-A-1998-8202`: Ley 5/2025 y Decreto-ley 14/2025) y subpáginas del Manual Práctico
+Renta 2025.
+
+| Caso | Cálculo | Resultado |
+|---|---|---|
+| `vc_asc_disc`: ascendiente de 70 años con discapacidad ≥ 65 % y 4.000 € de rentas; otro de 81 con 9.000 € | solo cuenta el primero (el segundo supera 8.000 €) | 197 € (cuota líquida 502,35 + 223,95 − 197 = **529,30 €**) |
+| Test: ascendiente de 75 años sin discapacidad / de 65 con 65 % / de 70 con 33-64 % | no es > 75 / no es > 65 / grado < 65 % | 0 € |
+| `vc_mono_especial`: monoparental con título especial, 30.400 € de trabajo, 2 hijos (8 y 13), 6 meses en desempleo; conjunta, base 24.320 € | 660 + 2 · 110 · 6/12 = 770; dos o más descendientes 10 % · (1.573,65 − 770) = 80,37 | **850,37 €** (cuota líquida 2.442,28 €) |
+| Test: pareja en conjunta, 8 + 7 meses en desempleo, un hijo de 10 | min(12, 15)/12 = 1 | 110 € |
+| `vc_despobl_nacimiento`: monoparental en zona de despoblamiento, 36.000 € de trabajo, hijos de 6 y 1 años; conjunta | nacimiento (2.º hijo) 750; 330; incremento solo por el hijo de 6 → 132; dos o más descendientes 78,72 | **1.290,72 €** (cuota líquida 2.923,08 €) |
+| Test: el mismo hogar con base > 30.000 € en individual | sin deducción por nacimiento → cuentan los dos hijos | incremento **198 €** |
 
 Casos R↔JS adicionales: `vc_taper` (taper + grupo de alquiler + desempleo + nacimiento
 de 2º hijo) y `vc_guarderia_2prog` (guardería con dos progenitores que trabajan, prorrateo).

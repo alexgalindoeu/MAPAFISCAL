@@ -342,8 +342,17 @@
       if (d.base_max_por_miembro_uf != null &&
           baseTotal > d.base_max_por_miembro_uf * (decs.length + desc.filter(h => num(h.edad, 99) < 18).length)) return false;
       if (d.requiere_familia_numerosa_reciente && !hogar.familiaNumerosaReciente) return false;
-      if (d.descendientes_min != null && desc.length < d.descendientes_min) return false;
-      if (d.descendientes_max != null && desc.length > d.descendientes_max) return false;
+      // descendientes_sin_deduccion: no cuentan los que dan derecho a esa otra deducción
+      let nd = desc.length;
+      if (d.descendientes_sin_deduccion != null) {
+        const d2 = da.lista.find(x => x.id === d.descendientes_sin_deduccion);
+        if (d2 && pasaPuertas(d2)) {
+          const v2 = num(d2.anios_ventana, 1);
+          nd = desc.filter(h => !(num(h.edad, 99) <= v2 - 1 || h.nacidoEnEjercicio)).length;
+        }
+      }
+      if (d.descendientes_min != null && nd < d.descendientes_min) return false;
+      if (d.descendientes_max != null && nd > d.descendientes_max) return false;
       if (d.descendiente_edad_max != null && !desc.some(h => num(h.edad, 99) <= d.descendiente_edad_max)) return false;
       if (!ambito.some(p => pasaPersonales(d, p))) return false;
       if (d.requiere_familia_numerosa === "especial" && hogar.familiaNumerosa !== "especial") return false;
@@ -354,6 +363,7 @@
         if (catH !== d.familia_numerosa_categoria) return false;
       }
       if (d.requiere_monoparental && hogar.tipoUnidadFamiliar !== "monoparental") return false;
+      if (d.requiere_titulo_monoparental != null && (hogar.tituloMonoparental || "no") !== d.requiere_titulo_monoparental) return false;
       if (d.requiere_dependiente_a_cargo) {
         const hayDep = asc.some(p => num(p.edad, 0) >= 75) ||
           asc.concat(desc).some(p => (p.discapacidad || "no") === "65_mas");
@@ -462,6 +472,11 @@
         val = cuenta * num(d.importe);
       }
       if (!taperEnLimite) val *= ft;
+      // prorrateo por los meses en desempleo de los declarantes (12 si no se informa)
+      if (d.prorratea_desempleo) {
+        const meses = decs.reduce((s, p) => s + (p.desempleado ? num(p.mesesDesempleo, 12) : 0), 0);
+        val *= Math.min(12, meses) / 12;
+      }
       // incremento por residir en un municipio pequeño (p. ej. +20 % en Galicia, < 5.000 hab.)
       const fm = d.incremento_municipio;
       if (fm && hogar.municipioHabitantes != null && hogar.municipioHabitantes <= fm.hab_max) val *= fm.factor;
