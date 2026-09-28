@@ -1,25 +1,23 @@
-// Rellena los datos del titular en los textos legales justo antes de publicar la web.
+// Rellena el correo de contacto en los textos legales justo antes de publicar la web.
 //
-// El repositorio es público y guarda todo su historial, así que los datos personales del
-// titular no se escriben en él: son variables de GitHub (Settings → Secrets and variables →
-// Actions → Variables) que el workflow «Publicar web» pasa como variables de entorno.
+// REGLA ABSOLUTA (28-09-2026, tras exponer por error el nombre, el NIF y el domicilio reales
+// de Alex en la web pública): ningún dato personal identificativo del titular se publica en
+// ningún sitio de la web. Los textos legales (web/legal/) solo usan el nombre comercial
+// «Mapafiscal» y el correo de contacto. Si algún día una norma exige identificar al titular
+// con más detalle (LSSI art. 10, RGPD art. 13, TRLGDCU art. 21.3), se lo plantea antes a Alex
+// en el chat, dejando muy claro que sería público, y se espera su decisión expresa — nunca se
+// reintroduce un hueco {{TITULAR_…}} en una página que se publica sola.
 //
-//   TITULAR_NOMBRE      nombre y apellidos o razón social           (obligatoria)
-//   TITULAR_NIF         NIF                                         (obligatoria)
-//   TITULAR_DOMICILIO   domicilio completo                          (obligatoria)
-//   TITULAR_REGISTRO    datos del Registro Mercantil, si es sociedad (opcional: si falta,
-//                       desaparece la línea entera que la contiene)
-//
-// El correo ({{CONTACTO}}) sale de `contacto` en web/config.js. Si falta algún dato o queda
-// algún {{…}} sin rellenar, termina con error y no se publica nada con huecos.
+// El correo ({{CONTACTO}}) sale de `contacto` en web/config.js, no del repositorio (que es
+// público). Si el correo es el marcador de pruebas o queda algún {{…}} sin rellenar, termina
+// con error y no se publica nada a medias.
 //
 //   node tools/rellenar_titular.mjs [carpeta]      (por defecto: web)
 import { readFileSync, readdirSync, writeFileSync } from "node:fs";
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
-export const OBLIGATORIOS = ["TITULAR_NOMBRE", "TITULAR_NIF", "TITULAR_DOMICILIO", "CONTACTO"];
-export const OPCIONALES = ["TITULAR_REGISTRO"];
+export const OBLIGATORIOS = ["CONTACTO"];
 // Marcador de web/config.js que no es un buzón real.
 export const CONTACTO_FALSO = "hola@mapafiscal.es";
 
@@ -44,27 +42,24 @@ export function faltan(datos) {
 
 // Devuelve el HTML relleno y la lista de huecos que no se han podido rellenar.
 export function rellenar(html, datos) {
-  const lineas = html.split("\n").filter(l => !OPCIONALES.some(k => !datos[k] && l.includes(`{{${k}}}`)));
-  const salida = lineas.join("\n").replace(HUECO, (m, k) => (datos[k] ? escapar(datos[k]) : m));
+  const salida = html.replace(HUECO, (m, k) => (datos[k] ? escapar(datos[k]) : m));
   const quedan = [...new Set(salida.match(HUECO) || [])];
   return { html: salida, quedan };
 }
 
-// Páginas que pueden llevar huecos: index.html (información básica de protección de datos en
-// los diálogos) y las páginas legales.
+// Páginas que pueden llevar el hueco del correo: index.html (información básica de protección
+// de datos en los diálogos) y las páginas legales.
 export function paginas(web) {
   return ["index.html", ...readdirSync(join(web, "legal")).filter(f => f.endsWith(".html")).sort().map(f => join("legal", f))];
 }
 
 if (process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {
   const web = resolve(process.argv[2] || join(dirname(fileURLToPath(import.meta.url)), "..", "web"));
-  const datos = {};
-  for (const k of [...OBLIGATORIOS, ...OPCIONALES]) datos[k] = (process.env[k] || "").trim();
-  datos.CONTACTO = contactoDeConfig(readFileSync(join(web, "config.js"), "utf8"));
+  const datos = { CONTACTO: contactoDeConfig(readFileSync(join(web, "config.js"), "utf8")) };
   const f = faltan(datos);
   if (f.length) {
-    console.error(`::error::Faltan datos del titular para los textos legales: ${f.join(", ")}. ` +
-      "Ponlos en GitHub → Settings → Secrets and variables → Actions → Variables (el correo, en web/config.js). Ver docs/legal/README.md.");
+    console.error(`::error::Falta el correo de contacto para los textos legales: ${f.join(", ")}. ` +
+      "Ponlo en `contacto`, en web/config.js. Ver docs/legal/README.md.");
     process.exit(1);
   }
   let error = false;
@@ -73,7 +68,7 @@ if (process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.ur
     const { html, quedan } = rellenar(readFileSync(ruta, "utf8"), datos);
     if (quedan.length) { console.error(`::error file=web/${p.replace(/\\/g, "/")}::Huecos sin rellenar: ${quedan.join(", ")}`); error = true; continue; }
     writeFileSync(ruta, html);
-    console.log(`web/${p.replace(/\\/g, "/")}: datos del titular rellenados`);
+    console.log(`web/${p.replace(/\\/g, "/")}: correo de contacto rellenado`);
   }
   if (error) process.exit(1);
 }

@@ -32,15 +32,10 @@ jobs:
         with:
           node-version: 22
       - run: npm test
-      # Los datos del titular (aviso legal, privacidad y condiciones) no están en el repo, que
-      # es público: son variables de GitHub (Settings → Secrets and variables → Actions →
-      # Variables). Si falta alguna, o el correo de web/config.js es el marcador, no se publica.
-      - name: Datos del titular en los textos legales
-        env:
-          TITULAR_NOMBRE: ${{ vars.TITULAR_NOMBRE }}
-          TITULAR_NIF: ${{ vars.TITULAR_NIF }}
-          TITULAR_DOMICILIO: ${{ vars.TITULAR_DOMICILIO }}
-          TITULAR_REGISTRO: ${{ vars.TITULAR_REGISTRO }}
+      # Los textos legales no llevan datos personales del titular (regla absoluta, 28-09-2026):
+      # solo el nombre comercial y el correo de contacto. Si ese correo sigue siendo el
+      # marcador de pruebas, esto falla y no se publica.
+      - name: Correo de contacto en los textos legales
         run: node tools/rellenar_titular.mjs
       - uses: actions/configure-pages@v6
       - uses: actions/upload-pages-artifact@v5

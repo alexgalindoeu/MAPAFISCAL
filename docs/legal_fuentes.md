@@ -7,7 +7,10 @@ Fuentes primarias usadas para redactar `web/legal/*.html`. Todas se han leído d
 
 - **LSSI** — Ley 34/2002, de 11 de julio, de servicios de la sociedad de la información y de
   comercio electrónico. Texto consolidado: BOE-A-2002-13758.
-  - Art. 10 (identificación del titular) → aviso legal, apartado 1.
+  - Art. 10 (identificación del titular) → aviso legal, apartado 1. **Sin cumplir desde el
+    28-09-2026** por decisión de Alex (ver `docs/legal/README.md`, «Regla absoluta»): el
+    aviso legal ya no da el nombre, el NIF ni el domicilio del titular, que exige este
+    artículo. Es una decisión suya, tomada con esa información.
   - Art. 21 y anexo (letra f, "comunicación comercial"; letra d, "destinatario del servicio") →
     correo comercial, respuesta a Lanzamiento.
   - Art. 22.2 (cookies y almacenamiento local) → política de cookies.

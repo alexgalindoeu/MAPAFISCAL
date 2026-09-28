@@ -1,50 +1,46 @@
 # Textos legales de Mapafiscal
 
-Estado: **listos para publicar en cuanto Alex ponga tres cosas** (ver más abajo). Las páginas
-finales están en `web/legal/` (no aquí: aquí quedan solo estos apuntes y las fuentes, en
-`docs/legal_fuentes.md`). Un profesional debería revisarlas antes de publicarlas, aunque eso
-no tiene por qué bloquear el resto del trabajo.
+Estado: **publicados**. Las páginas están en `web/legal/` (no aquí: aquí quedan solo estos
+apuntes y las fuentes, en `docs/legal_fuentes.md`). Un profesional debería revisarlas en algún
+momento, sin que eso bloquee nada.
 
 | Página | Para qué |
 |---|---|
-| [`../../web/legal/aviso-legal.html`](../../web/legal/aviso-legal.html) | Identificación del titular (LSSI, art. 10) |
+| [`../../web/legal/aviso-legal.html`](../../web/legal/aviso-legal.html) | Qué es Mapafiscal, naturaleza orientativa de los cálculos y condiciones de uso |
 | [`../../web/legal/privacidad.html`](../../web/legal/privacidad.html) | Política de privacidad (RGPD y LOPDGDD) |
 | [`../../web/legal/condiciones.html`](../../web/legal/condiciones.html) | Condiciones del plan Gestor + encargo del tratamiento (art. 28 RGPD) de «Mis clientes» |
 | [`../../web/legal/cookies.html`](../../web/legal/cookies.html) | Qué guarda la web en el navegador (hoy: nada que necesite consentimiento) |
 
 Enlazadas en el pie de `web/index.html` y citadas desde la casilla de aceptación de
-`#dlg-acceso` (rama `local/cuentas-perfil`).
+`#dlg-acceso`.
 
-## Qué falta para poder publicar
+## Regla absoluta: sin datos personales de Alex en la web (28-09-2026)
 
-**1. ~~El correo de contacto~~ Hecho.** `contacto@mapafiscal.es` (Cloudflare Email Routing,
-con MX y SPF comprobados desde fuera), ya puesto en `contacto` de `web/config.js`. El SMTP
-propio (Brevo) también lo configuró Alex directamente en Supabase.
+**Incidente.** Los primeros textos (PR #46) identificaban al titular con su nombre, NIF y
+domicilio en `{{TITULAR_NOMBRE}}`, `{{TITULAR_NIF}}` y `{{TITULAR_DOMICILIO}}`, siguiendo al
+pie de la letra el artículo 10 de la LSSI. En cuanto Alex rellenó esas variables en GitHub y se
+publicó la web, sus datos reales quedaron públicos en `mapafiscal.es/legal/`. Chocaba con lo
+que había pedido desde el principio («me gustaría permanecer anónimo en la web») y le molestó,
+con razón: aunque el diseño avisaba de que esa página era el sitio legalmente correcto para
+esos datos, no se le preguntó de nuevo justo antes de exponerlos de verdad. Se corrigió con
+urgencia (PR #55, `local/quitar-datos-titular`): las tres páginas usan ahora solo el nombre
+comercial «Mapafiscal» y `contacto@mapafiscal.es`.
 
-**2. Los datos del titular**, para el aviso legal, la privacidad y las condiciones. **No van
-en el repositorio**, que es público y guarda su historial para siempre: se añaden en
-GitHub → Settings → Secrets and variables → Actions → **Variables**:
+**Regla, desde ahora:** ningún dato personal identificativo de Alex (nombre, NIF, domicilio…)
+se publica en ningún sitio de la web, bajo ningún concepto. Si una norma parece exigir algo
+más (por ejemplo, la identificación del titular de la LSSI art. 10, o del art. 21.3 TRLGDCU si
+llega a vender a consumidores), **se le plantea antes a Alex en el chat**, dejando muy claro
+que la respuesta sería pública, y se espera su decisión expresa — nunca se automatiza ni se
+vuelve a meter un hueco `{{TITULAR_…}}` en una página que se publica sola. `tools/rellenar_titular.mjs`
+ya no conoce ese campo (solo rellena `{{CONTACTO}}`, que es el buzón que Alex decidió hacer
+público) y dos tests (`test/legal.test.mjs`) lo comprueban: que no aparezca ningún
+`{{TITULAR_…}}` en las páginas legales, y que ningún hueco desconocido pase desapercibido.
 
-| Variable | Qué es | Obligatoria |
-|---|---|---|
-| `TITULAR_NOMBRE` | Nombre y apellidos (autónomo) o razón social (sociedad) | sí |
-| `TITULAR_NIF` | NIF | sí |
-| `TITULAR_DOMICILIO` | Domicilio a efectos de notificaciones. Como autónomo, consulta con un gestor si te vale una dirección profesional en vez de la de tu casa | sí |
-| `TITULAR_REGISTRO` | Datos registrales (Registro Mercantil, colegio profesional…), solo si aplica | no: si se deja vacía, la línea entera desaparece de las páginas |
-
-El workflow «Publicar web» (`.github/workflows/pages.yml`) las pasa a
-`node tools/rellenar_titular.mjs`, que sustituye los `{{TITULAR_…}}` de `web/index.html` y de
-`web/legal/*.html` justo antes de desplegar. Si falta una variable obligatoria, o si el
-correo de `web/config.js` sigue siendo el marcador, el workflow falla con un error explícito
-y no publica nada a medias. `npm test` comprueba además que ninguna página lleve `BORRADOR`
-ni huecos entre corchetes (`[NIF]`, `[FECHA]`…), así que ya no puede quedar nada sin rellenar
-por descuido.
-
-**3. Decidir la fórmula.** Como autónomo aparecen tu nombre y tu NIF; con una SL, el nombre,
-el CIF y el domicilio de la sociedad (tu nombre como administrador seguiría constando en el
-Registro Mercantil, que es público). Cobrar suscripciones es una actividad económica: alta
-censal, IVA e IRPF y, si es habitual, alta de autónomo. Coordínalo con un gestor antes de
-activar el modo real de Stripe.
+Consecuencia legal, sin resolver todavía: sin esos datos, el aviso legal deja de cumplir la
+LSSI art. 10 (y, si algún día vende a consumidores, el art. 21.3 TRLGDCU). Es una decisión de
+Alex, tomada con esa información — no algo que se pueda arreglar sin su OK. Detalle de qué
+exige cada norma y las opciones (autónomo, SL, WHOIS de `.es`…), en el hilo de esta
+conversación y en `Desktop\mapafiscal-coordinacion\TABLERO.md`.
 
 ## Decisiones ya tomadas en estos textos
 
@@ -54,7 +50,8 @@ activar el modo real de Stripe.
   expreso de inicio inmediato del servicio.
 - Sin banner de cookies: hoy la web solo guarda almacenamiento técnico exceptuado (art. 22.2
   LSSI; ver `web/legal/cookies.html`). En cuanto haya anuncios (decisión de Alex, 26-09) hará
-  falta una CMP: lo coordina la sesión «Anuncios y monetización de Mapafiscal».
+  falta una CMP: lo coordina la sesión «Anuncios y monetización de Mapafiscal», con un banner
+  simple (Aceptar de un clic, Rechazar con el mismo peso, sin muro).
 - Encargo del tratamiento de «Mis clientes»: el gestor es el responsable, Mapafiscal el
   encargado (art. 28 RGPD), con Supabase como subencargado autorizado.
 - Guardar la aceptación: `perfiles.condiciones_version` + `perfiles.condiciones_aceptadas_en`
