@@ -542,8 +542,8 @@ Fuente: Ley 5/2021 de Tributos Cedidos de Andalucía, arts. 10-22 bis, y AEAT
 
 | Deducción (art.) | Regla |
 |---|---|
-| Nacimiento o adopción (11) | **200 €/hijo** nacido o adoptado (+200 € el 1.er año si parto múltiple) |
-| Arrendamiento de vivienda habitual (10) | **15 %**, límite **1.200 €**; ≤ 35 años (también > 65, discapacidad, víctimas); *base ≤ 25.000 / 30.000* |
+| Nacimiento o adopción (11) | **200 €/hijo** nacido o adoptado, o **400 €/hijo** si el municipio de residencia tiene problemas de despoblación (< 3.000 hab., lista anual; sustituye al general, `grupo: nacimiento_an`); parto múltiple: **+200 €/hijo** (no una sola vez) |
+| Arrendamiento de vivienda habitual (10) | **15 %**, límite **1.200 €** (**1.500 €** si el contribuyente tiene discapacidad, `grupo: alquiler_an`); ≤ 35 años (también > 65, discapacidad, víctimas); *base ≤ 25.000 / 30.000* |
 | Familia numerosa general (14) | **200 €**; *base ≤ 25.000 / 30.000* (art. 14.3) |
 | Familia numerosa especial (14) | **+200 €** (400 € en total); *base ≤ 25.000 / 30.000* |
 | Familia monoparental (13) | **100 €**; *base ≤ 80.000 / 100.000* |
@@ -609,6 +609,44 @@ no tenía esa puerta. Matrimonio en conjunta con tres hijos y un solo sueldo:
 personas con discapacidad, inversión en vivienda protegida joven, adopción
 internacional, inversión en sociedades, defensa jurídica laboral, donativos
 ecológicos, gastos veterinarios y familias celíacas.
+
+### Cotejo con la fuente (2026-09-28, issue #26)
+
+Dos entradas que no estaban marcadas como `provisional` (por eso quedaron fuera de la
+PR del #16), cotejadas con el art. 11 y el art. 10.2 de la Ley 5/2021 y con el Manual
+Práctico Renta 2025, Parte 2, Andalucía.
+
+**Nacimiento o adopción (art. 11).** «400 euros por cada hijo nacido, adoptado o por
+cada menor en régimen de acogimiento... si el contribuyente reside en un municipio con
+problemas de despoblación» (menos de 3.000 hab., resolución anual de la Dirección
+General de Tributos). Es una cuantía alternativa a los 200 €, no una suma: se modela
+con una segunda entrada, `nacimiento_adopcion_despoblacion` (importe 400,
+`requiere_zona_despoblada: true`), en el mismo `grupo: nacimiento_an` que la general (se
+aplica la mayor). El incremento por parto, adopción o acogimiento múltiple —«la cuantía
+correspondiente de la deducción se incrementará en 200 euros por cada hijo»— es **por
+cada hijo** del parto múltiple, no una sola vez por el hogar: clave nueva
+`multiple_por_hijo: true` en el tipo `fija_por_hijo_nacido` (R y JS). Antes el motor
+sumaba el incremento una sola vez y no tenía la variante de 400 €.
+
+| Caso | Cálculo | Resultado |
+|---|---|---|
+| 1 recién nacido, municipio normal | 200 € | 200 € |
+| 1 recién nacido, municipio despoblado | 400 € (sustituye, no suma, al general) | 400 € |
+| Gemelos, municipio normal | (200 + 200) × 2 | **800 €** |
+| Trillizos, municipio despoblado (`an_nacimiento_multiple_despobl`) | (400 + 200) × 3 | **1.800 €** |
+
+🟡 Sigue sin modelarse la incompatibilidad «en todo caso» con la deducción «Para familia
+numerosa» (art. 11): un hogar que en el mismo año tiene un recién nacido y ya es familia
+numerosa podría acumular las dos deducciones en el motor, cuando la ley exige elegir una.
+
+**Alquiler de vivienda habitual, discapacidad (art. 10.2).** «1.500 euros anuales, en el
+caso de que el contribuyente tenga la consideración de persona con discapacidad» (en
+vez de 1.200 €). Nueva entrada `arrendamiento_vivienda_habitual_discapacidad` (límite
+1.500, `requiere_discapacidad_contribuyente: true`), en el `grupo: alquiler_an` con la
+general. Test `an_alquiler_discapacidad`: 30 años, discapacidad 33-64 %, 28.000 € de
+trabajo (base 24.222 € ≤ 25.000), 12.000 € de alquiler: 15 % · 12.000 = 1.800 → topado a
+**1.500 €** (con el tope antiguo de 1.200 € la cuota líquida final habría sido distinta,
+porque a esta base la deducción no absorbe toda la cuota autonómica).
 
 ---
 

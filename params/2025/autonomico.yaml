@@ -72,20 +72,56 @@ territorios:
       estado: cargado
       fuente: "Ley 5/2021 de Tributos Cedidos de Andalucía, arts. 10-22 bis; AEAT Manual Práctico Renta 2025, Parte 2 — Deducciones autonómicas / Andalucía"
       lista:
+        # Nacimiento o adopción (art. 11): 200 €/hijo, o 400 €/hijo si el contribuyente reside en
+        # un municipio con problemas de despoblación (< 3.000 hab., lista anual de la Consejería;
+        # aquí aproximada con `requiere_zona_despoblada`) — la Junta la sustituye, no la suma; las
+        # dos variantes forman el `grupo: nacimiento_an` (se aplica la mayor). El incremento de
+        # parto/adopción/acogimiento múltiple (200 €) es POR CADA HIJO nacido en el parto múltiple
+        # (`multiple_por_hijo: true`), no una sola vez por el hogar.
+        # 🟡 Incompatible «en todo caso» con la deducción «Para familia numerosa» (no modelado: un
+        # hogar que además es familia numerosa podría acumular las dos en el motor).
         - id: nacimiento_adopcion
           norma: "Art. 11 Ley 5/2021"
+          estado: confirmado
+          fuente: "Art. 11 Ley 5/2021, redacción vigente en 2025 (BOE-A-2021-17915); AEAT Manual Práctico Renta 2025, Parte 2, Andalucía, «Por nacimiento, adopción de hijos o acogimiento familiar de menores» (https://sede.agenciatributaria.gob.es/Sede/ayuda/manuales-videos-folletos/manuales-practicos/irpf-2025-deducciones-autonomicas/comunidad-autonoma-andalucia/nacimiento-adopcion-acogimiento.html)"
           tipo: fija_por_hijo_nacido
           importe: 200
           importe_multiple: 200
+          multiple_por_hijo: true
           anios_ventana: 1
+          grupo: nacimiento_an
+        - id: nacimiento_adopcion_despoblacion
+          norma: "Art. 11 Ley 5/2021"
+          estado: confirmado
+          fuente: "Art. 11 Ley 5/2021, redacción vigente en 2025 (BOE-A-2021-17915); art. 8 (municipios con problemas de despoblación); AEAT Manual Práctico Renta 2025, Parte 2, Andalucía, «Por nacimiento, adopción de hijos o acogimiento familiar de menores» (https://sede.agenciatributaria.gob.es/Sede/ayuda/manuales-videos-folletos/manuales-practicos/irpf-2025-deducciones-autonomicas/comunidad-autonoma-andalucia/nacimiento-adopcion-acogimiento.html)"
+          tipo: fija_por_hijo_nacido
+          importe: 400
+          importe_multiple: 200
+          multiple_por_hijo: true
+          anios_ventana: 1
+          requiere_zona_despoblada: true
+          grupo: nacimiento_an
         - id: arrendamiento_vivienda_habitual
-          norma: "Art. 10 Ley 5/2021"
+          norma: "Art. 10.1 Ley 5/2021"
           tipo: porcentaje_campo
           campo: alquiler_vivienda_pagos
           porcentaje: 0.15
           limite: 1200
+          grupo: alquiler_an
           edad_max: 35
           edad_min_alt: 65      # también aplican >65, víctimas de violencia/terrorismo y personas con discapacidad
+          base_max_individual: 25000
+          base_max_conjunta: 30000
+        - id: arrendamiento_vivienda_habitual_discapacidad
+          norma: "Art. 10.2 Ley 5/2021"
+          estado: confirmado
+          fuente: "Art. 10.2 Ley 5/2021, redacción vigente en 2025 (BOE-A-2021-17915); AEAT Manual Práctico Renta 2025, Parte 2, Andalucía, «Por cantidades invertidas en el alquiler de la vivienda habitual» (https://sede.agenciatributaria.gob.es/Sede/ayuda/manuales-videos-folletos/manuales-practicos/irpf-2025-deducciones-autonomicas/comunidad-autonoma-andalucia/cantidades-invertidas-alquiler-vivienda-habitual.html)"
+          tipo: porcentaje_campo
+          campo: alquiler_vivienda_pagos
+          porcentaje: 0.15
+          limite: 1500
+          grupo: alquiler_an
+          requiere_discapacidad_contribuyente: true
           base_max_individual: 25000
           base_max_conjunta: 30000
         - id: familia_numerosa_general

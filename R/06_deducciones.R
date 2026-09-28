@@ -53,6 +53,8 @@ deducciones_estatales <- function(hogar, P, rentas, base_liquidable_total, perso
 #     tipo: "porcentaje_campo_hijo" -> lo anterior, por cada descendiente que cumpla `edad_hijo_max`
 #     tipo: "fija_por_hijo_nacido"  -> `importe` por descendiente nacido en el ejercicio
 #                                      (age <= `anios_ventana`-1); `importe_multiple` si parto múltiple
+#                                      (una vez por el hogar; `multiple_por_hijo: true` -> por
+#                                      cada hijo nacido en el parto múltiple)
 #     tipo: "fija"                  -> `importe` (una vez)
 #   Puertas comunes (todas opcionales):
 #     base_max_individual, base_max_conjunta, base_max_unidad_familiar,
@@ -301,7 +303,12 @@ deducciones_autonomicas <- function(hogar, P, rentas, modo = "individual", base_
       } else {
         imp_h <- if (es_conj && !is.null(g(d,"importe_conjunta"))) g(d,"importe_conjunta") else (g(d,"importe") %||% 0)
         val <- length(nacidos) * imp_h
-        if (isTRUE(hogar$parto_multiple)) val <- val + (g(d,"importe_multiple") %||% imp_h)
+        if (isTRUE(hogar$parto_multiple)) {
+          im <- g(d,"importe_multiple") %||% imp_h
+          # `multiple_por_hijo`: el incremento es por cada hijo nacido en el parto múltiple,
+          # no una sola vez por el hogar (p. ej. Andalucía, art. 11.3 Ley 5/2021)
+          val <- val + if (isTRUE(g(d, "multiple_por_hijo"))) im * length(nacidos) else im
+        }
       }
 
     } else if (identical(tipo, "fija_por_hijo")) {
