@@ -49,30 +49,24 @@ test("el HTML empaquetado enlaza los textos legales de la web publicada", () => 
   for (const p of LEGALES) assert.ok(html.includes(`href="${WEB_PUBLICA}legal/${p}"`), `falta el enlace a ${p}`);
 });
 
-test("rellenar pone los datos escapados, quita la línea opcional vacía y avisa de lo que falta", () => {
-  const html = "<dd>{{TITULAR_NOMBRE}}</dd>\n<dd>{{TITULAR_REGISTRO}}</dd>\n<a href=\"mailto:{{CONTACTO}}\">{{CONTACTO}}</a>\n{{TITULAR_NIF}}";
-  const datos = { TITULAR_NOMBRE: "Ejemplo & Cía <SL>", TITULAR_NIF: "", CONTACTO: "buzon@example.com" };
-  const r = rellenar(html, datos);
-  assert.match(r.html, /<dd>Ejemplo &amp; Cía &lt;SL&gt;<\/dd>/);
-  assert.doesNotMatch(r.html, /TITULAR_REGISTRO/);
-  assert.match(r.html, /mailto:buzon@example\.com">buzon@example\.com</);
-  assert.deepEqual(r.quedan, ["{{TITULAR_NIF}}"]);
-  const lleno = rellenar(html, { ...datos, TITULAR_NIF: "X", TITULAR_REGISTRO: "Registro Mercantil de Ejemplo, hoja 1" });
-  assert.deepEqual(lleno.quedan, []);
-  assert.match(lleno.html, /<dd>Registro Mercantil de Ejemplo, hoja 1<\/dd>/);
+test("rellenar pone el correo escapado y avisa de los huecos que quedan", () => {
+  const html = "<a href=\"mailto:{{CONTACTO}}\">{{CONTACTO}}</a>\n<dd>{{TITULAR_NOMBRE}}</dd>";
+  const r = rellenar(html, { CONTACTO: "buzon&co@example.com" });
+  assert.match(r.html, /mailto:buzon&amp;co@example\.com">buzon&amp;co@example\.com</);
+  assert.deepEqual(r.quedan, ["{{TITULAR_NOMBRE}}"], "un hueco del titular tiene que impedir la publicación");
   assert.equal(escapar("`${x}`\\"), "&#96;&#36;&#123;x&#125;&#96;&#92;");
 });
 
-test("sin datos del titular o con el correo de marcador no se puede publicar", () => {
-  assert.deepEqual(faltan({ TITULAR_NOMBRE: "A", TITULAR_NIF: "B", TITULAR_DOMICILIO: "C", CONTACTO: "d@example.com" }), []);
-  assert.deepEqual(faltan({ TITULAR_NOMBRE: "A", TITULAR_NIF: "", TITULAR_DOMICILIO: "C", CONTACTO: "d@example.com" }), ["TITULAR_NIF"]);
-  assert.equal(faltan({ TITULAR_NOMBRE: "A", TITULAR_NIF: "B", TITULAR_DOMICILIO: "C", CONTACTO: CONTACTO_FALSO }).length, 1);
+test("sin correo real no se puede publicar", () => {
+  assert.deepEqual(faltan({ CONTACTO: "d@example.com" }), []);
+  assert.deepEqual(faltan({ CONTACTO: "" }), ["CONTACTO"]);
+  assert.equal(faltan({ CONTACTO: CONTACTO_FALSO }).length, 1);
   assert.equal(contactoDeConfig('window.X = {\n  contacto: "buzon@example.com"\n};'), "buzon@example.com");
   assert.ok(contactoDeConfig(leer("config.js")), "web/config.js no tiene `contacto`");
 });
 
-test("con todos los datos, ninguna página publicable queda con huecos", () => {
-  const datos = { TITULAR_NOMBRE: "Nombre", TITULAR_NIF: "00000000T", TITULAR_DOMICILIO: "Calle, 1", CONTACTO: "buzon@example.com" };
+test("con el correo, ninguna página publicable queda con huecos (ni datos del titular)", () => {
+  const datos = { CONTACTO: "buzon@example.com" };
   const lista = paginas(fileURLToPath(WEB));
   assert.ok(lista.includes("index.html"));
   for (const p of lista) assert.deepEqual(rellenar(leer(p.replace(/\\/g, "/")), datos).quedan, [], p);
