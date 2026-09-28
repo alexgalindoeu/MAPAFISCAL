@@ -1,8 +1,14 @@
-# Publica web/ en GitHub Pages. Se lanza a mano (Actions → Publicar web → Run workflow)
-# y requiere Settings → Pages → Source: "GitHub Actions".
+# Publica web/ en GitHub Pages. Se lanza solo en cada push a main que cambie web/ (o este
+# fichero), y también a mano (Actions → Publicar web → Run workflow).
+# Requiere Settings → Pages → Source: "GitHub Actions".
 name: Publicar web
 
 on:
+  push:
+    branches: [main]
+    paths:
+      - "web/**"
+      - ".github/workflows/pages.yml"
   workflow_dispatch:
 
 permissions:
@@ -26,6 +32,11 @@ jobs:
         with:
           node-version: 22
       - run: npm test
+      # Rellena {{CONTACTO}} con el correo de web/config.js. No se pasa ningún dato personal: lo
+      # que va en `env:` sale en claro en el registro público de la ejecución. Si queda algún
+      # hueco sin rellenar, o el correo es el marcador, no se publica.
+      - name: Correo de contacto en los textos legales
+        run: node tools/rellenar_titular.mjs
       - uses: actions/configure-pages@v6
       - uses: actions/upload-pages-artifact@v5
         with:

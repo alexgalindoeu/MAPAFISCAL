@@ -150,6 +150,14 @@
         <button class="btn btn-txt btn-sm" type="button" data-quitar="${i}" aria-label="Quitar hijo ${i + 1}">Quitar</button>
       </li>`;
     }).join("");
+    pintarTituloMonoparental();
+  }
+  // título autonómico de familia monoparental (C. Valenciana, Decreto 19/2018): se pregunta
+  // si hay hijos y algún territorio lo exige (cuenta también al comparar territorios)
+  const pideTituloMonoparental = Object.values(T).some(t =>
+    ((t.deducciones_autonomicas && t.deducciones_autonomicas.lista) || []).some(d => d.requiere_titulo_monoparental != null));
+  function pintarTituloMonoparental() {
+    $("campo-titulo-monoparental").hidden = !pideTituloMonoparental || hijos.length === 0;
   }
   function pintarGastosTerritorio() {
     const terr = selTerr.value, { hogar: campos } = camposDe(terr);
@@ -175,6 +183,7 @@
     if (t.dataset.hijo != null && t.dataset.campo) hijos[+t.dataset.hijo].gastos[t.dataset.campo] = parseFloat(t.value) || 0;
     if (t.dataset.gasto) gastosHogar[t.dataset.gasto] = parseFloat(t.value) || 0;
     if (t.name === "pareja") $("bloque-pareja").hidden = t.value !== "si";
+    if (t.id === "f-desempleado") $("campo-meses-desempleo").hidden = !t.checked;
     if (t.id === "f-familia-numerosa") pintarFnReciente();
     recalcular();
   });
@@ -192,6 +201,7 @@
     const d1 = {
       id: "d1", rol: "declarante", edad: num("f-edad") || 40, discapacidad: $("f-discapacidad").value,
       desempleado: $("f-desempleado").checked,
+      mesesDesempleo: $("f-desempleado").checked ? Math.max(1, Math.min(12, Math.round(num("f-meses-desempleo")) || 12)) : undefined,
       trabajo: salario > 0 ? { dinerarias: salario, cotizacionesSs: num("f-ss"), pensionJubilacion: $("f-pension").checked,
         otrosPagadores: num("f-otros-pagadores") } : null,
       capitalMobiliario: (num("f-intereses") > 0 || num("f-dividendos") > 0) ? { intereses: num("f-intereses"), dividendos: num("f-dividendos") } : null,
@@ -230,6 +240,7 @@
       familiaNumerosaReciente: $("f-familia-numerosa").value !== "no" && $("f-fn-reciente").checked,
       municipioHabitantes: Number.isFinite(hab) && hab > 0 ? hab : null,
       zonaDespoblada: $("f-despoblada").checked,
+      tituloMonoparental: $("campo-titulo-monoparental").hidden ? "no" : $("f-titulo-monoparental").value,
       miembros
     };
   }
@@ -259,6 +270,8 @@
     set("f-retenciones", d1.retenciones); set("f-edad", d1.edad);
     $("f-discapacidad").value = d1.discapacidad || "no";
     $("f-desempleado").checked = !!d1.desempleado;
+    $("f-meses-desempleo").value = d1.mesesDesempleo || 12; $("campo-meses-desempleo").hidden = !d1.desempleado;
+    $("f-titulo-monoparental").value = h.tituloMonoparental || "no";
     document.querySelector(`input[name="pareja"][value="${d2 ? "si" : "no"}"]`).checked = true;
     $("bloque-pareja").hidden = !d2;
     if (d2) { set("f-pareja-edad", d2.edad); set("f-pareja-salario", d2.trabajo ? d2.trabajo.dinerarias : 0); }
@@ -266,7 +279,7 @@
     $("f-fn-reciente").checked = !!h.familiaNumerosaReciente; pintarFnReciente();
     const asc = h.miembros.filter(m => m.rol === "ascendiente");
     $("f-ascendientes").value = asc.length >= 2 ? "75x2" : asc.length ? (asc[0].edad >= 75 ? "75" : "65") : "0";
-    const conocidos = new Set(["id", "rol", "edad", "discapacidad", "desempleado", "trabajo", "capitalMobiliario", "capitalInmobiliario",
+    const conocidos = new Set(["id", "rol", "edad", "discapacidad", "desempleado", "mesesDesempleo", "trabajo", "capitalMobiliario", "capitalInmobiliario",
       "actividades", "ganancias", "previsionSocial", "alquilerViviendaPagos", "adquisicionViviendaPagos", "retenciones", "rentasPropias", "nacidoEnEjercicio",
       "viviendaTransitoriaPagos", "donativos", "donativosRecurrentes"]);
     const snake = s => s.replace(/[A-Z]/g, c => "_" + c.toLowerCase());

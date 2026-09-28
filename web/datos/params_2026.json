@@ -1,6 +1,6 @@
 {
- "ejercicio": 2025,
- "generado": "2026-09-27",
+ "ejercicio": 2026,
+ "generado": "2026-09-28",
  "ejercicios": {
   "por_defecto": 2025,
   "publicados": [
@@ -210,12 +210,12 @@
    "incremento_minimo_contribuyente": 1980
   },
   "deduccion_obtencion_rendimientos_trabajo": {
-   "norma": "DA 61.ª LIRPF, añadida por la DF 3.ª de la Ley 5/2025, de 24 de julio (efectos 1-1-2025)",
-   "fuente": "BOE-A-2025-15424 (texto de la DA 61.ª); AEAT Manual Práctico Renta 2025, Deducciones de la cuota líquida total → Deducción por obtención de rendimientos del trabajo, y sus ejemplos 1 a 3",
+   "norma": "DA 61.ª LIRPF, en la redacción del art. 28 del RDL 5/2026, de 17 de febrero (efectos 1-1-2026; convalidado por Resolución de 18-3-2026, BOE-A-2026-6483)",
+   "fuente": "BOE-A-2026-3810 (RDL 5/2026, art. 28); texto consolidado de la LIRPF en el BOE (BOE-A-2006-20764), DA 61.ª",
    "estado": "provisional",
-   "importe_maximo": 340,
-   "umbral_pleno": 16576,
-   "umbral_final": 18276,
+   "importe_maximo": 590.89,
+   "umbral_pleno": 17094,
+   "umbral_final": 20048.45,
    "coef_reduccion": 0.2,
    "limite_otras_rentas": 6500
   },
@@ -281,31 +281,31 @@
  "foral_pv": {
   "escala_general_foral": [
    {
-    "hasta": 17720,
+    "hasta": 18080,
     "tipo": 0.23
    },
    {
-    "hasta": 35440,
+    "hasta": 36160,
     "tipo": 0.28
    },
    {
-    "hasta": 53160,
+    "hasta": 54240,
     "tipo": 0.35
    },
    {
-    "hasta": 75910,
+    "hasta": 77450,
     "tipo": 0.4
    },
    {
-    "hasta": 105130,
+    "hasta": 107260,
     "tipo": 0.45
    },
    {
-    "hasta": 140130,
+    "hasta": 142960,
     "tipo": 0.46
    },
    {
-    "hasta": 204270,
+    "hasta": 208390,
     "tipo": 0.47
    },
    {
@@ -315,24 +315,40 @@
   ],
   "escala_ahorro_foral": [
    {
-    "hasta": 2500,
+    "hasta": 7500,
+    "tipo": 0.19
+   },
+   {
+    "hasta": 15500,
     "tipo": 0.2
    },
    {
-    "hasta": 10000,
-    "tipo": 0.21
-   },
-   {
-    "hasta": 15000,
+    "hasta": 30000,
     "tipo": 0.22
    },
    {
-    "hasta": 30000,
-    "tipo": 0.23
+    "hasta": 50000,
+    "tipo": 0.24
+   },
+   {
+    "hasta": 90000,
+    "tipo": 0.255
+   },
+   {
+    "hasta": 120000,
+    "tipo": 0.26
+   },
+   {
+    "hasta": 240000,
+    "tipo": 0.265
+   },
+   {
+    "hasta": 300000,
+    "tipo": 0.27
    },
    {
     "hasta": null,
-    "tipo": 0.25
+    "tipo": 0.28
    }
   ],
   "bonificacion_trabajo": {

@@ -1,6 +1,7 @@
 // Coherencia estructural de web/datos/params.json.
 import { test } from "node:test";
 import assert from "node:assert/strict";
+import { readdirSync, readFileSync } from "node:fs";
 import { P } from "./ayuda.mjs";
 
 const REGIMENES = new Set(["comun", "foral_pais_vasco", "foral_navarra"]);
@@ -65,5 +66,24 @@ test("deducciones autonómicas: identificadores únicos por territorio", () => {
     const lista = (t.deducciones_autonomicas && t.deducciones_autonomicas.lista) || [];
     const ids = lista.map(d => d.id);
     assert.equal(new Set(ids).size, ids.length, `${codigo}: ids repetidos`);
+  }
+});
+
+test("ejercicios: el por defecto es params.json y los demás, params_<año>.json con la misma estructura", () => {
+  assert.equal(P.ejercicios.por_defecto, P.ejercicio);
+  assert.ok(P.ejercicios.publicados.includes(P.ejercicio));
+  const dir = new URL("../web/datos/", import.meta.url);
+  for (const f of readdirSync(dir).filter(n => /^params_\d{4}\.json$/.test(n))) {
+    const Q = JSON.parse(readFileSync(new URL(f, dir), "utf8"));
+    assert.equal(f, `params_${Q.ejercicio}.json`);
+    assert.notEqual(Q.ejercicio, P.ejercicio);
+    assert.deepEqual(Q.ejercicios, P.ejercicios, `${f}: bloque «ejercicios» distinto`);
+    assert.deepEqual(Object.keys(Q).sort(), Object.keys(P).sort(), `${f}: claves de primer nivel`);
+    assert.deepEqual(Object.keys(Q.estatal).sort(), Object.keys(P.estatal).sort(), `${f}: bloques estatales`);
+    assert.deepEqual(Object.keys(Q.territorios).sort(), Object.keys(P.territorios).sort(), `${f}: territorios`);
+    comprobarEscala(Q.estatal.escala_general_estatal, `${f} general estatal`);
+    comprobarEscala(Q.foral_pv.escala_general_foral, `${f} general País Vasco`);
+    comprobarEscala(Q.foral_pv.escala_ahorro_foral, `${f} ahorro País Vasco`);
+    comprobarEscala(Q.navarra.escala_general_foral, `${f} general Navarra`);
   }
 });

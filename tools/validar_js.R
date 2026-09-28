@@ -5,15 +5,16 @@ source("R/cargar.R"); irpfsim_cargar(".")
 # Cada caso: función que devuelve list(js = <hogar en forma JS>, hogar = <irpfsim_hogar>)
 casos <- list()
 add <- function(id, territorio, uf, fnum, miembros_r, miembros_js, municipio = NULL, despoblada = FALSE,
-                fn_reciente = FALSE) {
-  h <- nuevo_hogar(id, territorio, miembros_r, 2025, tipo_unidad_familiar = uf, familia_numerosa = fnum,
+                fn_reciente = FALSE, titulo_mono = "no", ejercicio = 2025) {
+  h <- nuevo_hogar(id, territorio, miembros_r, ejercicio, tipo_unidad_familiar = uf, familia_numerosa = fnum,
                    municipio_habitantes = municipio, zona_despoblada = despoblada,
-                   familia_numerosa_reciente = fn_reciente)
-  js <- list(territorio = territorio, ejercicio = 2025, tipoUnidadFamiliar = uf,
+                   familia_numerosa_reciente = fn_reciente, titulo_monoparental = titulo_mono)
+  js <- list(territorio = territorio, ejercicio = ejercicio, tipoUnidadFamiliar = uf,
              familiaNumerosa = fnum, miembros = miembros_js)
   if (!is.null(municipio)) js$municipioHabitantes <- municipio
   if (despoblada) js$zonaDespoblada <- TRUE
   if (fn_reciente) js$familiaNumerosaReciente <- TRUE
+  if (titulo_mono != "no") js$tituloMonoparental <- titulo_mono
   casos[[id]] <<- list(js = js, liq = liquidar(h))
 }
 
@@ -285,6 +286,36 @@ add("md_empleada_fn", "ES-MD", "biparental", "general",
          list(id="h3",rol="descendiente",edad=8)))
 
 # 5k. C. Valenciana — taper 27.000-30.000, variantes de alquiler (grupo), desempleo, nacimiento 2025
+# 5k0. C. Valenciana (cotejo #16) — ascendientes (art. 4.Uno.h): cuenta el de 70 años con
+# discapacidad >= 65 % y rentas <= 8.000; no el de 81 con 9.000 € de rentas
+add("vc_asc_disc", "ES-VC", "ninguna", "no",
+    list(persona("d1","declarante",52, trabajo=list(dinerarias=26000, cotizaciones_ss=1651)),
+         persona("a1","ascendiente",70, discapacidad="65_mas", rentas_propias=4000),
+         persona("a2","ascendiente",81, rentas_propias=9000)),
+    list(list(id="d1",rol="declarante",edad=52, trabajo=list(dinerarias=26000,cotizacionesSs=1651)),
+         list(id="a1",rol="ascendiente",edad=70, discapacidad="65_mas", rentasPropias=4000),
+         list(id="a2",rol="ascendiente",edad=81, rentasPropias=9000)))
+
+# 5k1. C. Valenciana (cotejo #16) — título de familia monoparental especial (660 €) y
+# material escolar con 6 meses en desempleo (55 € por hijo de 6 a 16)
+add("vc_mono_especial", "ES-VC", "monoparental", "no",
+    list(persona("d1","declarante",41, trabajo=list(dinerarias=30400, cotizaciones_ss=1930),
+                 desempleado=TRUE, meses_desempleo=6),
+         persona("h1","descendiente",8), persona("h2","descendiente",13)),
+    list(list(id="d1",rol="declarante",edad=41, trabajo=list(dinerarias=30400,cotizacionesSs=1930),
+              desempleado=TRUE, mesesDesempleo=6),
+         list(id="h1",rol="descendiente",edad=8), list(id="h2",rol="descendiente",edad=13)),
+    titulo_mono = "especial")
+
+# 5k2. C. Valenciana (cotejo #16) — despoblamiento: el hijo de 1 año tiene deducción por
+# nacimiento y no cuenta para el incremento (132 € por el de 6 años)
+add("vc_despobl_nacimiento", "ES-VC", "monoparental", "no",
+    list(persona("d1","declarante",36, trabajo=list(dinerarias=36000, cotizaciones_ss=2286)),
+         persona("h1","descendiente",6), persona("h2","descendiente",1)),
+    list(list(id="d1",rol="declarante",edad=36, trabajo=list(dinerarias=36000,cotizacionesSs=2286)),
+         list(id="h1",rol="descendiente",edad=6), list(id="h2",rol="descendiente",edad=1)),
+    municipio = 800, despoblada = TRUE)
+
 add("vc_taper", "ES-VC", "monoparental", "no",
     list(persona("d1","declarante",30, trabajo=list(dinerarias=32000, cotizaciones_ss=1500),
                  alquiler_vivienda_pagos=5000, desempleado=TRUE),
@@ -481,6 +512,25 @@ add("nc_ejemplo4_manual", "ES-NC", "biparental", "no",
 add("nc_monoparental_conjunta", "ES-NC", "monoparental", "no",
     list(persona("d1","declarante",42, trabajo=list(dinerarias=34000, cotizaciones_ss=2159)), persona("h1","descendiente",9), persona("h2","descendiente",12)),
     list(list(id="d1",rol="declarante",edad=42, trabajo=list(dinerarias=34000,cotizacionesSs=2159)), list(id="h1",rol="descendiente",edad=9), list(id="h2",rol="descendiente",edad=12)))
+
+# 16. Varios ejercicios: 2026 en el País Vasco (tarifa general deflactada, escala del ahorro nueva)
+add("ej2026_pv_bi", "ES-PV-BI", "ninguna", "no",
+    list(persona("d1","declarante",40, trabajo=list(dinerarias=30000, cotizaciones_ss=1905),
+                 capital_mobiliario=list(intereses=12000), retenciones=4000)),
+    list(list(id="d1",rol="declarante",edad=40, trabajo=list(dinerarias=30000,cotizacionesSs=1905),
+              capitalMobiliario=list(intereses=12000), retenciones=4000)), ejercicio = 2026)
+add("ej2026_md", "ES-MD", "ninguna", "no",
+    list(persona("d1","declarante",40, trabajo=list(dinerarias=30000, cotizaciones_ss=1905), retenciones=4000)),
+    list(list(id="d1",rol="declarante",edad=40, trabajo=list(dinerarias=30000,cotizacionesSs=1905), retenciones=4000)),
+    ejercicio = 2026)
+
+# 17. Ejercicio 2026, núcleo estatal: DA 61.ª del RDL 5/2026 (590,89 € hasta el SMI de 17.094 €)
+add("ej2026_smi_cm", "ES-CM", "ninguna", "no",
+    list(persona("d1","declarante",40, trabajo=list(dinerarias=17094, cotizaciones_ss=1111.11))),
+    list(list(id="d1",rol="declarante",edad=40, trabajo=list(dinerarias=17094,cotizacionesSs=1111.11))), ejercicio = 2026)
+add("ej2026_da61_tramo", "ES-MD", "ninguna", "no",
+    list(persona("d1","declarante",40, trabajo=list(dinerarias=18500, cotizaciones_ss=1202.50), retenciones=900)),
+    list(list(id="d1",rol="declarante",edad=40, trabajo=list(dinerarias=18500,cotizacionesSs=1202.50), retenciones=900)), ejercicio = 2026)
 
 out <- lapply(casos, function(c) list(
   js = c$js,

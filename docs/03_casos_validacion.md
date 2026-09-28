@@ -631,14 +631,15 @@ y AEAT *Manual Práctico Renta 2025, Parte 2 — Deducciones autonómicas / Comu
 | Nacimiento o adopción (a) | **600 / 750 / 900 €** por orden del hijo (1º/2º/3º+), en el año del nacimiento y los **dos siguientes**; prorrateo entre progenitores; taper 27–30 k / 44–47 k. *(Hasta 2024: 300 € solo el año del nacimiento.)* |
 | Familia numerosa general (d) | **330 €**; taper 27–30 k / 44–47 k; prorrateo |
 | Familia numerosa especial (d) | **660 €**; taper **31–35 k / 54–58 k**; prorrateo |
-| Familia monoparental (d) | **330 €** (categoría general); **no se acumula** con familia numerosa (`familia_numerosa_categoria: "no"`) (🟡 la especial, 660 €, exige título que no se modela) |
+| Familia monoparental (d) | **330 €** con el título de familia monoparental de la Generalitat de categoría general; **660 €** con el de categoría especial (límites 35.000 / 58.000, taper 31–35 k / 54–58 k). Exige el título (Decreto 19/2018; `titulo_monoparental`, que la web pregunta). Es la misma deducción que la de familia numerosa: las cuatro variantes forman el `grupo: fn_monoparental_vc` |
 | Custodia en guarderías < 3 años (e) | **15 %**, límite **297 €/hijo** (el límite se reduce en la franja de taper); exige que **todos los progenitores convivientes trabajen** (`requiere_progenitores_trabajan`); prorrateo |
 | Contribuyente con discapacidad ≥ 33 % y ≥ 65 años (g) | **197 €**; taper |
-| Ascendientes > 75 (o > 65 con discapacidad ≥ 65 %) (h) | **197 €/ascendiente**; taper; prorrateo (🟡 el tipo cuenta también ascendientes < 75 con cualquier discapacidad) |
+| Ascendientes > 75 (o > 65 con discapacidad ≥ 65 %) (h) | **197 €/ascendiente** de edad > 75 (≥ 76 en el motor), o > 65 con discapacidad ≥ 65 %, con convivencia ≥ 6 meses y rentas ≤ 8.000 €; taper; prorrateo |
 | Arrendamiento de vivienda habitual (n) | variantes **excluyentes** (`grupo: arrendamiento_vc`, se aplica la mayor): **20 %/800 €** general · **25 %/950 €** si ≤ 35 años **o** discapacidad ≥ 65 % · **30 %/1.100 €** si ambas; límites reducidos por el taper |
-| Material escolar (v) | **110 €/hijo** de 6 a 16 años **solo si el contribuyente u otro progenitor conviviente está en desempleo** e inscrito como demandante (`requiere_desempleo`; nuevo campo `desempleado`); prorrateo; taper (🟡 edad aproxima la escolarización) |
+| Material escolar (v) | **110 €/hijo** de 6 a 16 años (primaria, ESO o educación especial) **solo si el contribuyente u otro progenitor conviviente está en desempleo** e inscrito como demandante (`requiere_desempleo`), **prorrateado por el tiempo en desempleo** (suma de los meses de los dos, con el límite del año: `prorratea_desempleo`, `meses_desempleo`); prorrateo; taper |
 | Abonos culturales (x) | **21 %**, base máxima **165 €**; rentas < 50.000 € |
-| Contribuyentes con dos o más descendientes (t) | **10 % de la cuota íntegra autonómica**; suma de bases imponibles ≤ **30.000 €** (🟡 en individual con dos progenitores el motor solo ve la base del declarante) |
+| Contribuyentes con dos o más descendientes (t) | **10 % de la cuota íntegra autonómica**; suma de bases imponibles ≤ **30.000 €** (🟡 en individual con dos progenitores el motor solo ve la base del declarante, y usa bases liquidables) |
+| Residencia en municipio en riesgo de despoblamiento (aa) | **330 €**, más **132 / 198 / 264 €** según los descendientes con mínimo, sin contar los que dan derecho a la deducción por nacimiento (`descendientes_sin_deduccion: nacimiento_adopcion`); el incremento se prorratea entre progenitores |
 
 > **Corrección 2026-09-25.** La versión anterior aplicaba el material escolar a
 > cualquier familia (en realidad exige desempleo) y el nacimiento a 300 € solo el año
@@ -649,7 +650,7 @@ y AEAT *Manual Práctico Renta 2025, Parte 2 — Deducciones autonómicas / Comu
 
 Monoparental, trabajo 32.000 €, cotizaciones 1.500 € → rendimiento neto
 32.000 − 1.500 − 2.000 = **28.500 €** (sin reducción del art. 20). Factor
-`1 − (28.500 − 27.000)/3.000 = 0,5` → familia monoparental 330 × 0,5 = **165 €**.
+`1 − (28.500 − 27.000)/3.000 = 0,5` → familia monoparental (con título general) 330 × 0,5 = **165 €**.
 Con 5.000 € de alquiler y 30 años: variante joven `min(25 % · 5.000, 950 × 0,5)` = **475 €**
 (la general daría `min(1.000, 400)` = 400 → se aplica la joven).
 
@@ -660,11 +661,29 @@ Familia monoparental en la CV, trabajo 27.000 € (cot. SS 1.714); 1 hijo de 1 a
 Base liquidable 21.136 € (< 27.000, sin taper).
 
 - Nacimiento (1er hijo, dentro de la ventana de 3 ejercicios): **600 €**.
-- Familia monoparental: **330 €**.
+- Familia monoparental: **0 €**: el hogar no tiene el título de la Generalitat (hasta el
+  cotejo de 2026-09-26 se daban 330 € a toda familia monoparental).
 - Custodia en guardería: 15 % · 3.000 = 450 → **297 €** (tope).
 - Ascendiente > 75: **197 €**.
 - Abonos culturales: 21 % · min(400, 165) = **34,65 €**.
-- Deducciones autonómicas = **1.458,65 €**, idénticas en R y en `irpfsim.js`.
+- Deducciones autonómicas = **1.128,65 €**, que absorben la cuota íntegra autonómica
+  (780,72 € en conjunta); cuota líquida = cuota estatal = 968,40 €, idéntica en R y en
+  `irpfsim.js`.
+
+### Cotejo con la fuente (2026-09-26, issue #16)
+
+Art. 4 de la Ley 13/1997 en la redacción vigente a 31-12-2025 (consolidación del BOE,
+`BOE-A-1998-8202`: Ley 5/2025 y Decreto-ley 14/2025) y subpáginas del Manual Práctico
+Renta 2025.
+
+| Caso | Cálculo | Resultado |
+|---|---|---|
+| `vc_asc_disc`: ascendiente de 70 años con discapacidad ≥ 65 % y 4.000 € de rentas; otro de 81 con 9.000 € | solo cuenta el primero (el segundo supera 8.000 €) | 197 € (cuota líquida 502,35 + 223,95 − 197 = **529,30 €**) |
+| Test: ascendiente de 75 años sin discapacidad / de 65 con 65 % / de 70 con 33-64 % | no es > 75 / no es > 65 / grado < 65 % | 0 € |
+| `vc_mono_especial`: monoparental con título especial, 30.400 € de trabajo, 2 hijos (8 y 13), 6 meses en desempleo; conjunta, base 24.320 € | 660 + 2 · 110 · 6/12 = 770; dos o más descendientes 10 % · (1.573,65 − 770) = 80,37 | **850,37 €** (cuota líquida 2.442,28 €) |
+| Test: pareja en conjunta, 8 + 7 meses en desempleo, un hijo de 10 | min(12, 15)/12 = 1 | 110 € |
+| `vc_despobl_nacimiento`: monoparental en zona de despoblamiento, 36.000 € de trabajo, hijos de 6 y 1 años; conjunta | nacimiento (2.º hijo) 750; 330; incremento solo por el hijo de 6 → 132; dos o más descendientes 78,72 | **1.290,72 €** (cuota líquida 2.923,08 €) |
+| Test: el mismo hogar con base > 30.000 € en individual | sin deducción por nacimiento → cuentan los dos hijos | incremento **198 €** |
 
 Casos R↔JS adicionales: `vc_taper` (taper + grupo de alquiler + desempleo + nacimiento
 de 2º hijo) y `vc_guarderia_2prog` (guardería con dos progenitores que trabajan, prorrateo).
@@ -1099,3 +1118,58 @@ actualizado a 02-02-2026), 2026-09-26:
   carácter general, más los 150 € si las rentas no superan 30.000 €).
 - Tabla del mínimo personal del manual: 1.084 / 1.348 (65) / 1.669 (75) / 1.850 y 3.841
   (discapacidad) / 2.114, 2.435, 4.105, 4.426 (combinaciones): coincide con el motor.
+
+## Varios ejercicios (2026-09-27)
+
+Test `tests/testthat/test-ejercicios.R`; casos `ej2026_*` del validador.
+
+- Cada ejercicio tiene su carpeta `params/<año>/`. Un fichero puede declarar
+  `meta: hereda_de: "2025/<fichero>.yaml"` y recoger solo lo que cambia.
+- `fusionar_params()`:
+  - fusiona por clave las listas con nombre;
+  - sustituye enteras las listas sin nombre (`tramos`, la `lista` de deducciones);
+  - elimina las claves con valor `~`.
+- Si falta el fichero de un ejercicio, el motor da error: nunca toma otro año en silencio.
+- `params/ejercicios.yaml` fija el ejercicio por defecto, que se exporta a
+  `web/datos/params.json`. Los demás van a `params_<año>.json`. `publicados` dice cuáles
+  ofrece la web.
+- Corrige un fallo anterior: la herencia del País Vasco 2026 usaba `modifyList()`, que no
+  sustituye las listas sin nombre, así que se seguían aplicando los tramos de 2025. Con
+  `fusionar_params()` se aplica la tarifa general de 2026 (primer tramo hasta 18.080 € en
+  lugar de 17.720 €) y la escala del ahorro nueva (19 % hasta 7.500 €). Soltero en Bizkaia con
+  30.000 € de salario: la cuota líquida de 2026 es menor que la de 2025.
+- 2026 está `en_preparacion`. Hereda de 2025 todo lo que aún no se ha cotejado, por eso no
+  está en `publicados`.
+
+## Ejercicio 2026: núcleo estatal (2026-09-28)
+
+Test `tests/testthat/test-2026-estatal.R`; casos `ej2026_smi_cm` y `ej2026_da61_tramo` del
+validador. Fuente: texto consolidado de la Ley 35/2006 en el BOE (actualizado a 09-09-2026).
+
+- Solo cambia la DA 61.ª (RDL 5/2026, art. 28, convalidado): 590,89 € si los rendimientos
+  íntegros del trabajo no pasan de 17.094 € (SMI de 2026: 1.221 € × 14); entre 17.094 € y
+  20.048,45 €, 590,89 − 0,2 × (íntegros − 17.094). La forma es la de 2025: el motor no cambia.
+- Escalas, mínimos, arts. 19 y 20, previsión social, conjunta y obligación de declarar: sin
+  redacción con efectos posteriores al 1-1-2025, se heredan de 2025.
+- Deducciones con plazo (no las calcula el motor): eficiencia energética (DA 50.ª) hasta el
+  31-12-2026 (rehabilitación de edificios, hasta el 31-12-2027); vehículos eléctricos y puntos
+  de recarga (DA 58.ª) hasta el 31-12-2026; autoconsumo renovable nueva (DA 62.ª), 10 % o
+  20 % con base de 5.000 €, pagos de 2026. Todo por el RDL 7/2026, convalidado.
+
+### Comprobación numérica (Castilla-La Mancha, escala autonómica = estatal, soltero de 40 años)
+
+SMI de 2026, 17.094 € íntegros y 1.111,11 € de cotizaciones (6,50 %):
+
+| Paso | 2026 | 2025 |
+|---|---:|---:|
+| Íntegros − cotizaciones | 15.982,89 | 15.982,89 |
+| Reducción art. 20: 7.302 − 1,75 × (15.982,89 − 14.852) | 5.322,94 | 5.322,94 |
+| Base liquidable general: 15.982,89 − 2.000 − 5.322,94 | 8.659,95 | 8.659,95 |
+| Cuota íntegra: 2 × 9,5 % × (8.659,95 − 5.550) | 590,89 | 590,89 |
+| DA 61.ª | 590,89 | 340 − 0,2 × 518 = 236,40 |
+| **Cuota resultante** | **0** | **354,49** |
+
+Tramo decreciente, 18.500 € y 1.202,50 €: neto 17.297,50; art. 20: 7.302 − 1,75 × 2.445,50 =
+3.022,38; base 12.275,13; cuota íntegra 2 × 9,5 % × 6.725,13 = 1.277,77; DA 61.ª: 590,89 −
+0,2 × 1.406 = 309,69; cuota resultante 968,08. Con 20.000 € la deducción es de 9,69 € y con
+20.048,45 €, cero. Con 6.600 € de intereses (otras rentas > 6.500 €), cero.

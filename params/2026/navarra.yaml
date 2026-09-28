@@ -1,0 +1,14 @@
+# =============================================================================
+# PARÁMETROS IRPF — COMUNIDAD FORAL DE NAVARRA — EJERCICIO 2026
+# =============================================================================
+# EN PREPARACIÓN. Hereda todo de params/2025/navarra.yaml; aquí solo van los cambios
+# de 2026 (entre ellos, los mínimos del art. 62.9 en la redacción de la LF 17/2025),
+# con su norma y su fuente.
+# =============================================================================
+
+meta:
+  ejercicio: 2026
+  regimen: foral_navarra
+  territorio: ES-NC
+  hereda_de: "2025/navarra.yaml"
+  estado_ejercicio: en_preparacion

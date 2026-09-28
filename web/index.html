@@ -122,6 +122,8 @@
             <select id="f-discapacidad"><option value="no">Ninguna</option><option value="33_64">33 % – 64 %</option><option value="65_mas">65 % o más</option></select></div>
         </div>
         <label class="casilla"><input type="checkbox" id="f-desempleado"> Estoy en desempleo e inscrito como demandante de empleo</label>
+        <div class="campo" id="campo-meses-desempleo" hidden><label for="f-meses-desempleo">¿Cuántos meses de 2025 has estado en desempleo?</label>
+          <input type="number" id="f-meses-desempleo" min="1" max="12" step="1" value="12"></div>
 
         <div class="campo">
           <span class="etiqueta" id="lbl-pareja">¿Tienes cónyuge o pareja en la unidad familiar?</span>
@@ -148,6 +150,8 @@
           <div class="campo"><label for="f-ascendientes">Ascendientes que conviven contigo</label>
             <select id="f-ascendientes"><option value="0">Ninguno</option><option value="65">Uno de 65 a 74 años</option><option value="75">Uno de 75 años o más</option><option value="75x2">Dos de 75 años o más</option></select></div>
         </div>
+        <div class="campo" id="campo-titulo-monoparental" hidden><label for="f-titulo-monoparental">Título autonómico de familia monoparental</label>
+          <select id="f-titulo-monoparental"><option value="no">No tengo</option><option value="general">Categoría general</option><option value="especial">Categoría especial</option></select></div>
         <label class="casilla" id="casilla-fn-reciente" hidden><input type="checkbox" id="f-fn-reciente"> Obtuvimos el título de familia numerosa con efectos de 2023 o posterior (lo exige la deducción de la Comunidad de Madrid)</label>
       </fieldset>
 
@@ -335,6 +339,7 @@
   <div class="contenedor pie-in">
     <p><b>Mapafiscal</b> ofrece estimaciones con fines informativos. No es una liquidación oficial ni asesoramiento fiscal.</p>
     <p class="pie-sec"><a href="#metodologia">Cómo calculamos</a> · Normativa del ejercicio 2025 · Motor validado R ↔ JavaScript · Cartografía: <span title="es-atlas (MIT) sobre datos del Instituto Geográfico Nacional, CC BY 4.0">© Instituto Geográfico Nacional (CC BY 4.0)</span></p>
+    <p class="pie-sec"><a href="legal/aviso-legal.html">Aviso legal</a> · <a href="legal/privacidad.html">Privacidad</a> · <a href="legal/condiciones.html">Condiciones</a> · <a href="legal/cookies.html">Cookies</a> · <a href="legal/aviso-legal.html#contacto">Contacto</a></p>
   </div>
 </footer>
 
@@ -349,7 +354,7 @@
     </ul>
     <div class="acceso-legal" id="acceso-legal" hidden>
       <label class="casilla"><input type="checkbox" id="acceso-acepto"> <span>Uso Mapafiscal para mi actividad profesional, acepto las <a href="legal/condiciones.html" target="_blank" rel="noopener">Condiciones</a> y he leído la <a href="legal/privacidad.html" target="_blank" rel="noopener">Política de privacidad</a>.</span></label>
-      <p class="info-datos">Responsable: {{TITULAR_NOMBRE}}. Usamos tu correo para darte acceso y gestionar tu cuenta y tu plan. Puedes ejercer tus derechos de acceso, rectificación, supresión y demás como se explica en la <a href="legal/privacidad.html#derechos" target="_blank" rel="noopener">política de privacidad</a>.</p>
+      <p class="info-datos">Responsable: <a href="legal/privacidad.html#responsable" target="_blank" rel="noopener">Mapafiscal</a>. Usamos tu correo para darte acceso y gestionar tu cuenta y tu plan. Puedes ejercer tus derechos de acceso, rectificación, supresión y demás como se explica en la <a href="legal/privacidad.html#derechos" target="_blank" rel="noopener">política de privacidad</a>.</p>
     </div>
     <div id="acceso-google" hidden>
       <button class="btn btn-pri btn-google" type="button" id="btn-google"><svg viewBox="0 0 48 48" aria-hidden="true"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/><path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/></svg>Continuar con Google</button>
@@ -369,7 +374,7 @@
     <h2 id="t-condiciones">Antes de seguir</h2>
     <p>Para usar tu cuenta, acepta las condiciones vigentes.</p>
     <label class="casilla"><input type="checkbox" id="condiciones-acepto"> <span>Uso Mapafiscal para mi actividad profesional, acepto las <a href="legal/condiciones.html" target="_blank" rel="noopener">Condiciones</a> y he leído la <a href="legal/privacidad.html" target="_blank" rel="noopener">Política de privacidad</a>.</span></label>
-    <p class="info-datos">Responsable: {{TITULAR_NOMBRE}}. Usamos tu correo para darte acceso y gestionar tu cuenta y tu plan. Puedes ejercer tus derechos de acceso, rectificación, supresión y demás como se explica en la <a href="legal/privacidad.html#derechos" target="_blank" rel="noopener">política de privacidad</a>.</p>
+    <p class="info-datos">Responsable: <a href="legal/privacidad.html#responsable" target="_blank" rel="noopener">Mapafiscal</a>. Usamos tu correo para darte acceso y gestionar tu cuenta y tu plan. Puedes ejercer tus derechos de acceso, rectificación, supresión y demás como se explica en la <a href="legal/privacidad.html#derechos" target="_blank" rel="noopener">política de privacidad</a>.</p>
     <p class="mensaje" id="condiciones-msg" role="status"></p>
     <div class="dialogo-acciones">
       <button class="btn btn-sec" type="button" id="btn-condiciones-salir">Cerrar sesión</button>
