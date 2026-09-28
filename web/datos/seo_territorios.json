@@ -1,0 +1,1324 @@
+{
+ "ejercicio": 2025,
+ "generado": "2026-09-28",
+ "territorios": {
+  "ES-AN": {
+   "territorio": "ES-AN",
+   "nombre": "Andalucía",
+   "regimen": "comun",
+   "escala_combinada": {
+    "tramos": [
+     {
+      "hasta": 12450,
+      "tipo": 0.19
+     },
+     {
+      "hasta": 13000,
+      "tipo": 0.215
+     },
+     {
+      "hasta": 20200,
+      "tipo": 0.24
+     },
+     {
+      "hasta": 21100,
+      "tipo": 0.27
+     },
+     {
+      "hasta": 35200,
+      "tipo": 0.3
+     },
+     {
+      "hasta": 60000,
+      "tipo": 0.37
+     },
+     {
+      "hasta": 300000,
+      "tipo": 0.45
+     },
+     {
+      "hasta": null,
+      "tipo": 0.47
+     }
+    ],
+    "fuente_estatal": {
+     "norma": "Art. 63.1.1º LIRPF",
+     "fuente": "AEAT Manual Renta 2025 — Gravamen estatal base liquidable general"
+    },
+    "fuente_autonomica": {
+     "norma": "Art. 23 Ley 5/2021 de Tributos Cedidos de Andalucía",
+     "fuente": "AEAT Manual Renta 2025 — Gravamen autonómico Andalucía"
+    }
+   },
+   "minimo_contribuyente": {
+    "general": 5550,
+    "general_territorio": 5790,
+    "tiene_minimo_propio": true,
+    "fuente_estatal": {
+     "norma": "Art. 57 LIRPF",
+     "fuente": "AEAT Manual Renta 2025 — cuadro-resumen mínimo personal y familiar"
+    },
+    "fuente_autonomica": {
+     "norma": "Art. 23 bis Ley 5/2021, de 20 de octubre, de Tributos Cedidos de la Comunidad Autónoma de Andalucía",
+     "fuente": "AEAT Manual Práctico Renta 2025 — Mínimo personal y familiar autonómico: Comunidad Autónoma de Andalucía; y Cuadro comparativo de los importes de los mínimos personales y familiares, estatal y autonómicos para 2025"
+    }
+   },
+   "deducciones": {
+    "modeladas": 11,
+    "provisionales": 0,
+    "pendientes": 9
+   }
+  },
+  "ES-AR": {
+   "territorio": "ES-AR",
+   "nombre": "Aragón",
+   "regimen": "comun",
+   "escala_combinada": {
+    "tramos": [
+     {
+      "hasta": 12450,
+      "tipo": 0.19
+     },
+     {
+      "hasta": 13072.5,
+      "tipo": 0.215
+     },
+     {
+      "hasta": 20200,
+      "tipo": 0.24
+     },
+     {
+      "hasta": 21210,
+      "tipo": 0.27
+     },
+     {
+      "hasta": 35200,
+      "tipo": 0.3
+     },
+     {
+      "hasta": 36960,
+      "tipo": 0.335
+     },
+     {
+      "hasta": 52500,
+      "tipo": 0.37
+     },
+     {
+      "hasta": 60000,
+      "tipo": 0.39
+     },
+     {
+      "hasta": 80000,
+      "tipo": 0.455
+     },
+     {
+      "hasta": 90000,
+      "tipo": 0.465
+     },
+     {
+      "hasta": 130000,
+      "tipo": 0.475
+     },
+     {
+      "hasta": 300000,
+      "tipo": 0.48
+     },
+     {
+      "hasta": null,
+      "tipo": 0.5
+     }
+    ],
+    "fuente_estatal": {
+     "norma": "Art. 63.1.1º LIRPF",
+     "fuente": "AEAT Manual Renta 2025 — Gravamen estatal base liquidable general"
+    },
+    "fuente_autonomica": {
+     "norma": "Art. 110-1 TR Disposiciones tributos cedidos de Aragón (DL 1/2005)",
+     "fuente": "AEAT Manual Renta 2025 — Gravamen autonómico Aragón"
+    }
+   },
+   "minimo_contribuyente": {
+    "general": 5550,
+    "general_territorio": 5550,
+    "tiene_minimo_propio": false,
+    "fuente_estatal": {
+     "norma": "Art. 57 LIRPF",
+     "fuente": "AEAT Manual Renta 2025 — cuadro-resumen mínimo personal y familiar"
+    },
+    "fuente_autonomica": null
+   },
+   "deducciones": {
+    "modeladas": 8,
+    "provisionales": 6,
+    "pendientes": 13
+   }
+  },
+  "ES-AS": {
+   "territorio": "ES-AS",
+   "nombre": "Principado de Asturias",
+   "regimen": "comun",
+   "escala_combinada": {
+    "tramos": [
+     {
+      "hasta": 12450,
+      "tipo": 0.185
+     },
+     {
+      "hasta": 17707.2,
+      "tipo": 0.24
+     },
+     {
+      "hasta": 20200,
+      "tipo": 0.26
+     },
+     {
+      "hasta": 33007.2,
+      "tipo": 0.29
+     },
+     {
+      "hasta": 35200,
+      "tipo": 0.342
+     },
+     {
+      "hasta": 53407.2,
+      "tipo": 0.377
+     },
+     {
+      "hasta": 60000,
+      "tipo": 0.4
+     },
+     {
+      "hasta": 70000,
+      "tipo": 0.44
+     },
+     {
+      "hasta": 90000,
+      "tipo": 0.45
+     },
+     {
+      "hasta": 175000,
+      "tipo": 0.475
+     },
+     {
+      "hasta": 300000,
+      "tipo": 0.485
+     },
+     {
+      "hasta": null,
+      "tipo": 0.505
+     }
+    ],
+    "fuente_estatal": {
+     "norma": "Art. 63.1.1º LIRPF",
+     "fuente": "AEAT Manual Renta 2025 — Gravamen estatal base liquidable general"
+    },
+    "fuente_autonomica": {
+     "norma": "Art. 2 TR tributos cedidos de Asturias (DL 2/2014), mod. Ley 3/2025 (efectos 2025)",
+     "fuente": "AEAT Manual Renta 2025 — Gravamen autonómico Asturias"
+    }
+   },
+   "minimo_contribuyente": {
+    "general": 5550,
+    "general_territorio": 6105,
+    "tiene_minimo_propio": true,
+    "fuente_estatal": {
+     "norma": "Art. 57 LIRPF",
+     "fuente": "AEAT Manual Renta 2025 — cuadro-resumen mínimo personal y familiar"
+    },
+    "fuente_autonomica": {
+     "norma": "Arts. 2 bis, 2 ter, 2 quater y 2 quinquies DL 2/2014, de 22 de octubre (TR tributos cedidos del Principado de Asturias)",
+     "fuente": "AEAT Manual Práctico Renta 2025 — Mínimo personal y familiar autonómico: Comunidad Autónoma del Principado de Asturias; y Cuadro comparativo de los importes de los mínimos personales y familiares, estatal y autonómicos para 2025"
+    }
+   },
+   "deducciones": {
+    "modeladas": 10,
+    "provisionales": 5,
+    "pendientes": 16
+   }
+  },
+  "ES-IB": {
+   "territorio": "ES-IB",
+   "nombre": "Illes Balears",
+   "regimen": "comun",
+   "escala_combinada": {
+    "tramos": [
+     {
+      "hasta": 10000,
+      "tipo": 0.185
+     },
+     {
+      "hasta": 12450,
+      "tipo": 0.2075
+     },
+     {
+      "hasta": 18000,
+      "tipo": 0.2325
+     },
+     {
+      "hasta": 20200,
+      "tipo": 0.2625
+     },
+     {
+      "hasta": 30000,
+      "tipo": 0.2925
+     },
+     {
+      "hasta": 35200,
+      "tipo": 0.325
+     },
+     {
+      "hasta": 48000,
+      "tipo": 0.36
+     },
+     {
+      "hasta": 60000,
+      "tipo": 0.375
+     },
+     {
+      "hasta": 70000,
+      "tipo": 0.415
+     },
+     {
+      "hasta": 90000,
+      "tipo": 0.4425
+     },
+     {
+      "hasta": 120000,
+      "tipo": 0.4525
+     },
+     {
+      "hasta": 175000,
+      "tipo": 0.4625
+     },
+     {
+      "hasta": 300000,
+      "tipo": 0.4725
+     },
+     {
+      "hasta": null,
+      "tipo": 0.4925
+     }
+    ],
+    "fuente_estatal": {
+     "norma": "Art. 63.1.1º LIRPF",
+     "fuente": "AEAT Manual Renta 2025 — Gravamen estatal base liquidable general"
+    },
+    "fuente_autonomica": {
+     "norma": "Art. 1 TR disposiciones legales de les Illes Balears en tributos cedidos (DL 1/2014)",
+     "fuente": "AEAT Manual Renta 2025 — Gravamen autonómico Illes Balears"
+    }
+   },
+   "minimo_contribuyente": {
+    "general": 5550,
+    "general_territorio": 5550,
+    "tiene_minimo_propio": false,
+    "fuente_estatal": {
+     "norma": "Art. 57 LIRPF",
+     "fuente": "AEAT Manual Renta 2025 — cuadro-resumen mínimo personal y familiar"
+    },
+    "fuente_autonomica": null
+   },
+   "deducciones": {
+    "modeladas": 5,
+    "provisionales": 4,
+    "pendientes": 16
+   }
+  },
+  "ES-CN": {
+   "territorio": "ES-CN",
+   "nombre": "Canarias",
+   "regimen": "comun",
+   "escala_combinada": {
+    "tramos": [
+     {
+      "hasta": 12450,
+      "tipo": 0.185
+     },
+     {
+      "hasta": 13748,
+      "tipo": 0.21
+     },
+     {
+      "hasta": 19422,
+      "tipo": 0.235
+     },
+     {
+      "hasta": 20200,
+      "tipo": 0.26
+     },
+     {
+      "hasta": 35200,
+      "tipo": 0.29
+     },
+     {
+      "hasta": 35924,
+      "tipo": 0.325
+     },
+     {
+      "hasta": 57566,
+      "tipo": 0.37
+     },
+     {
+      "hasta": 60000,
+      "tipo": 0.42
+     },
+     {
+      "hasta": 93268,
+      "tipo": 0.46
+     },
+     {
+      "hasta": 123745,
+      "tipo": 0.475
+     },
+     {
+      "hasta": 300000,
+      "tipo": 0.485
+     },
+     {
+      "hasta": null,
+      "tipo": 0.505
+     }
+    ],
+    "fuente_estatal": {
+     "norma": "Art. 63.1.1º LIRPF",
+     "fuente": "AEAT Manual Renta 2025 — Gravamen estatal base liquidable general"
+    },
+    "fuente_autonomica": {
+     "norma": "Art. 18 bis TR tributos cedidos de Canarias (DL 1/2009), mod. Ley 9/2025 (efectos 2025)",
+     "fuente": "AEAT Manual Renta 2025 — Gravamen autonómico Canarias"
+    }
+   },
+   "minimo_contribuyente": {
+    "general": 5550,
+    "general_territorio": 5606,
+    "tiene_minimo_propio": true,
+    "fuente_estatal": {
+     "norma": "Art. 57 LIRPF",
+     "fuente": "AEAT Manual Renta 2025 — cuadro-resumen mínimo personal y familiar"
+    },
+    "fuente_autonomica": {
+     "norma": "Art. 18 quater DL 1/2009, de 21 de abril (TR tributos cedidos de Canarias)",
+     "fuente": "AEAT Manual Práctico Renta 2025 — Mínimo personal y familiar autonómico: Comunidad Autónoma de Canarias; y Cuadro comparativo de los importes de los mínimos personales y familiares, estatal y autonómicos para 2025"
+    }
+   },
+   "deducciones": {
+    "modeladas": 6,
+    "provisionales": 2,
+    "pendientes": 6
+   }
+  },
+  "ES-CB": {
+   "territorio": "ES-CB",
+   "nombre": "Cantabria",
+   "regimen": "comun",
+   "escala_combinada": {
+    "tramos": [
+     {
+      "hasta": 12450,
+      "tipo": 0.18
+     },
+     {
+      "hasta": 13000,
+      "tipo": 0.205
+     },
+     {
+      "hasta": 20200,
+      "tipo": 0.23
+     },
+     {
+      "hasta": 21000,
+      "tipo": 0.26
+     },
+     {
+      "hasta": 35200,
+      "tipo": 0.295
+     },
+     {
+      "hasta": 60000,
+      "tipo": 0.365
+     },
+     {
+      "hasta": 90000,
+      "tipo": 0.45
+     },
+     {
+      "hasta": 300000,
+      "tipo": 0.47
+     },
+     {
+      "hasta": null,
+      "tipo": 0.49
+     }
+    ],
+    "fuente_estatal": {
+     "norma": "Art. 63.1.1º LIRPF",
+     "fuente": "AEAT Manual Renta 2025 — Gravamen estatal base liquidable general"
+    },
+    "fuente_autonomica": {
+     "norma": "Art. 1 TR Ley de Medidas Fiscales de Cantabria (DL 62/2008)",
+     "fuente": "AEAT Manual Renta 2025 — Gravamen autonómico Cantabria"
+    }
+   },
+   "minimo_contribuyente": {
+    "general": 5550,
+    "general_territorio": 5550,
+    "tiene_minimo_propio": false,
+    "fuente_estatal": {
+     "norma": "Art. 57 LIRPF",
+     "fuente": "AEAT Manual Renta 2025 — cuadro-resumen mínimo personal y familiar"
+    },
+    "fuente_autonomica": null
+   },
+   "deducciones": {
+    "modeladas": 9,
+    "provisionales": 5,
+    "pendientes": 10
+   }
+  },
+  "ES-CM": {
+   "territorio": "ES-CM",
+   "nombre": "Castilla-La Mancha",
+   "regimen": "comun",
+   "escala_combinada": {
+    "tramos": [
+     {
+      "hasta": 12450,
+      "tipo": 0.19
+     },
+     {
+      "hasta": 20200,
+      "tipo": 0.24
+     },
+     {
+      "hasta": 35200,
+      "tipo": 0.3
+     },
+     {
+      "hasta": 60000,
+      "tipo": 0.37
+     },
+     {
+      "hasta": 300000,
+      "tipo": 0.45
+     },
+     {
+      "hasta": null,
+      "tipo": 0.47
+     }
+    ],
+    "fuente_estatal": {
+     "norma": "Art. 63.1.1º LIRPF",
+     "fuente": "AEAT Manual Renta 2025 — Gravamen estatal base liquidable general"
+    },
+    "fuente_autonomica": {
+     "norma": "Art. 13 bis Ley 8/2013 de Medidas Tributarias de Castilla-La Mancha",
+     "fuente": "AEAT Manual Renta 2025 — Gravamen autonómico Castilla-La Mancha (coincide con la supletoria estatal)"
+    }
+   },
+   "minimo_contribuyente": {
+    "general": 5550,
+    "general_territorio": 5550,
+    "tiene_minimo_propio": false,
+    "fuente_estatal": {
+     "norma": "Art. 57 LIRPF",
+     "fuente": "AEAT Manual Renta 2025 — cuadro-resumen mínimo personal y familiar"
+    },
+    "fuente_autonomica": null
+   },
+   "deducciones": {
+    "modeladas": 11,
+    "provisionales": 5,
+    "pendientes": 12
+   }
+  },
+  "ES-CL": {
+   "territorio": "ES-CL",
+   "nombre": "Castilla y León",
+   "regimen": "comun",
+   "escala_combinada": {
+    "tramos": [
+     {
+      "hasta": 12450,
+      "tipo": 0.185
+     },
+     {
+      "hasta": 20200,
+      "tipo": 0.24
+     },
+     {
+      "hasta": 35200,
+      "tipo": 0.29
+     },
+     {
+      "hasta": 53407.2,
+      "tipo": 0.37
+     },
+     {
+      "hasta": 60000,
+      "tipo": 0.4
+     },
+     {
+      "hasta": 300000,
+      "tipo": 0.44
+     },
+     {
+      "hasta": null,
+      "tipo": 0.46
+     }
+    ],
+    "fuente_estatal": {
+     "norma": "Art. 63.1.1º LIRPF",
+     "fuente": "AEAT Manual Renta 2025 — Gravamen estatal base liquidable general"
+    },
+    "fuente_autonomica": {
+     "norma": "Art. 1 TR tributos propios y cedidos de Castilla y León (DL 1/2013)",
+     "fuente": "AEAT Manual Renta 2025 — Gravamen autonómico Castilla y León"
+    }
+   },
+   "minimo_contribuyente": {
+    "general": 5550,
+    "general_territorio": 5550,
+    "tiene_minimo_propio": false,
+    "fuente_estatal": {
+     "norma": "Art. 57 LIRPF",
+     "fuente": "AEAT Manual Renta 2025 — cuadro-resumen mínimo personal y familiar"
+    },
+    "fuente_autonomica": null
+   },
+   "deducciones": {
+    "modeladas": 10,
+    "provisionales": 1,
+    "pendientes": 11
+   }
+  },
+  "ES-CT": {
+   "territorio": "ES-CT",
+   "nombre": "Cataluña",
+   "regimen": "comun",
+   "escala_combinada": {
+    "tramos": [
+     {
+      "hasta": 12450,
+      "tipo": 0.19
+     },
+     {
+      "hasta": 12500,
+      "tipo": 0.215
+     },
+     {
+      "hasta": 20200,
+      "tipo": 0.245
+     },
+     {
+      "hasta": 22000,
+      "tipo": 0.275
+     },
+     {
+      "hasta": 33000,
+      "tipo": 0.31
+     },
+     {
+      "hasta": 35200,
+      "tipo": 0.34
+     },
+     {
+      "hasta": 53000,
+      "tipo": 0.375
+     },
+     {
+      "hasta": 60000,
+      "tipo": 0.4
+     },
+     {
+      "hasta": 90000,
+      "tipo": 0.44
+     },
+     {
+      "hasta": 120000,
+      "tipo": 0.46
+     },
+     {
+      "hasta": 175000,
+      "tipo": 0.47
+     },
+     {
+      "hasta": 300000,
+      "tipo": 0.48
+     },
+     {
+      "hasta": null,
+      "tipo": 0.5
+     }
+    ],
+    "fuente_estatal": {
+     "norma": "Art. 63.1.1º LIRPF",
+     "fuente": "AEAT Manual Renta 2025 — Gravamen estatal base liquidable general"
+    },
+    "fuente_autonomica": {
+     "norma": "Art. 611-1 DL 1/2024 (libro sexto del Código Tributario de Cataluña)",
+     "fuente": "AEAT Manual Renta 2025 — Gravamen autonómico Cataluña"
+    }
+   },
+   "minimo_contribuyente": {
+    "general": 5550,
+    "general_territorio": 5550,
+    "tiene_minimo_propio": false,
+    "fuente_estatal": {
+     "norma": "Art. 57 LIRPF",
+     "fuente": "AEAT Manual Renta 2025 — cuadro-resumen mínimo personal y familiar"
+    },
+    "fuente_autonomica": null
+   },
+   "deducciones": {
+    "modeladas": 7,
+    "provisionales": 0,
+    "pendientes": 6
+   }
+  },
+  "ES-EX": {
+   "territorio": "ES-EX",
+   "nombre": "Extremadura",
+   "regimen": "comun",
+   "escala_combinada": {
+    "tramos": [
+     {
+      "hasta": 12450,
+      "tipo": 0.175
+     },
+     {
+      "hasta": 20200,
+      "tipo": 0.22
+     },
+     {
+      "hasta": 24200,
+      "tipo": 0.31
+     },
+     {
+      "hasta": 35200,
+      "tipo": 0.325
+     },
+     {
+      "hasta": 60000,
+      "tipo": 0.395
+     },
+     {
+      "hasta": 80200,
+      "tipo": 0.46
+     },
+     {
+      "hasta": 99200,
+      "tipo": 0.465
+     },
+     {
+      "hasta": 120200,
+      "tipo": 0.47
+     },
+     {
+      "hasta": 300000,
+      "tipo": 0.475
+     },
+     {
+      "hasta": null,
+      "tipo": 0.495
+     }
+    ],
+    "fuente_estatal": {
+     "norma": "Art. 63.1.1º LIRPF",
+     "fuente": "AEAT Manual Renta 2025 — Gravamen estatal base liquidable general"
+    },
+    "fuente_autonomica": {
+     "norma": "Art. 1 TR disposiciones legales de Extremadura en tributos cedidos (DL 1/2018)",
+     "fuente": "AEAT Manual Renta 2025 — Gravamen autonómico Extremadura"
+    }
+   },
+   "minimo_contribuyente": {
+    "general": 5550,
+    "general_territorio": 5550,
+    "tiene_minimo_propio": false,
+    "fuente_estatal": {
+     "norma": "Art. 57 LIRPF",
+     "fuente": "AEAT Manual Renta 2025 — cuadro-resumen mínimo personal y familiar"
+    },
+    "fuente_autonomica": null
+   },
+   "deducciones": {
+    "modeladas": 6,
+    "provisionales": 4,
+    "pendientes": 12
+   }
+  },
+  "ES-GA": {
+   "territorio": "ES-GA",
+   "nombre": "Galicia",
+   "regimen": "comun",
+   "escala_combinada": {
+    "tramos": [
+     {
+      "hasta": 12450,
+      "tipo": 0.185
+     },
+     {
+      "hasta": 12985.35,
+      "tipo": 0.21
+     },
+     {
+      "hasta": 20200,
+      "tipo": 0.2365
+     },
+     {
+      "hasta": 21068.6,
+      "tipo": 0.2665
+     },
+     {
+      "hasta": 35200,
+      "tipo": 0.299
+     },
+     {
+      "hasta": 60000,
+      "tipo": 0.369
+     },
+     {
+      "hasta": 300000,
+      "tipo": 0.45
+     },
+     {
+      "hasta": null,
+      "tipo": 0.47
+     }
+    ],
+    "fuente_estatal": {
+     "norma": "Art. 63.1.1º LIRPF",
+     "fuente": "AEAT Manual Renta 2025 — Gravamen estatal base liquidable general"
+    },
+    "fuente_autonomica": {
+     "norma": "Art. 4 TR disposiciones legales de Galicia en tributos cedidos (DL 1/2011)",
+     "fuente": "AEAT Manual Renta 2025 — Gravamen autonómico Galicia"
+    }
+   },
+   "minimo_contribuyente": {
+    "general": 5550,
+    "general_territorio": 5789,
+    "tiene_minimo_propio": true,
+    "fuente_estatal": {
+     "norma": "Art. 57 LIRPF",
+     "fuente": "AEAT Manual Renta 2025 — cuadro-resumen mínimo personal y familiar"
+    },
+    "fuente_autonomica": {
+     "norma": "Art. 4 bis DL 1/2011, de 28 de julio (TR tributos cedidos de Galicia)",
+     "fuente": "AEAT Manual Práctico Renta 2025 — Mínimo personal y familiar autonómico: Comunidad Autónoma de Galicia; y Cuadro comparativo de los importes de los mínimos personales y familiares, estatal y autonómicos para 2025"
+    }
+   },
+   "deducciones": {
+    "modeladas": 9,
+    "provisionales": 6,
+    "pendientes": 9
+   }
+  },
+  "ES-MD": {
+   "territorio": "ES-MD",
+   "nombre": "Comunidad de Madrid",
+   "regimen": "comun",
+   "escala_combinada": {
+    "tramos": [
+     {
+      "hasta": 12450,
+      "tipo": 0.18
+     },
+     {
+      "hasta": 13362.22,
+      "tipo": 0.205
+     },
+     {
+      "hasta": 19004.63,
+      "tipo": 0.227
+     },
+     {
+      "hasta": 20200,
+      "tipo": 0.248
+     },
+     {
+      "hasta": 35200,
+      "tipo": 0.278
+     },
+     {
+      "hasta": 35425.68,
+      "tipo": 0.313
+     },
+     {
+      "hasta": 57320.4,
+      "tipo": 0.359
+     },
+     {
+      "hasta": 60000,
+      "tipo": 0.39
+     },
+     {
+      "hasta": 300000,
+      "tipo": 0.43
+     },
+     {
+      "hasta": null,
+      "tipo": 0.45
+     }
+    ],
+    "fuente_estatal": {
+     "norma": "Art. 63.1.1º LIRPF",
+     "fuente": "AEAT Manual Renta 2025 — Gravamen estatal base liquidable general"
+    },
+    "fuente_autonomica": {
+     "norma": "Art. 1 TR disposiciones legales de la Comunidad de Madrid en tributos cedidos (DL 1/2010)",
+     "fuente": "AEAT Manual Renta 2025 — Gravamen autonómico Comunidad de Madrid"
+    }
+   },
+   "minimo_contribuyente": {
+    "general": 5550,
+    "general_territorio": 5956.65,
+    "tiene_minimo_propio": true,
+    "fuente_estatal": {
+     "norma": "Art. 57 LIRPF",
+     "fuente": "AEAT Manual Renta 2025 — cuadro-resumen mínimo personal y familiar"
+    },
+    "fuente_autonomica": {
+     "norma": "Arts. 2, 2 bis, 2 ter y 2 quater DL 1/2010, de 21 de octubre (TR tributos cedidos de la Comunidad de Madrid)",
+     "fuente": "AEAT Manual Práctico Renta 2025 — Mínimo personal y familiar autonómico: Comunidad de Madrid; y Cuadro comparativo de los importes de los mínimos personales y familiares, estatal y autonómicos para 2025"
+    }
+   },
+   "deducciones": {
+    "modeladas": 10,
+    "provisionales": 0,
+    "pendientes": 18
+   }
+  },
+  "ES-MC": {
+   "territorio": "ES-MC",
+   "nombre": "Región de Murcia",
+   "regimen": "comun",
+   "escala_combinada": {
+    "tramos": [
+     {
+      "hasta": 12450,
+      "tipo": 0.19
+     },
+     {
+      "hasta": 20200,
+      "tipo": 0.232
+     },
+     {
+      "hasta": 34000,
+      "tipo": 0.283
+     },
+     {
+      "hasta": 35200,
+      "tipo": 0.329
+     },
+     {
+      "hasta": 60000,
+      "tipo": 0.364
+     },
+     {
+      "hasta": 300000,
+      "tipo": 0.45
+     },
+     {
+      "hasta": null,
+      "tipo": 0.47
+     }
+    ],
+    "fuente_estatal": {
+     "norma": "Art. 63.1.1º LIRPF",
+     "fuente": "AEAT Manual Renta 2025 — Gravamen estatal base liquidable general"
+    },
+    "fuente_autonomica": {
+     "norma": "Art. 2 TR disposiciones legales de la Región de Murcia en tributos cedidos (DL 1/2010)",
+     "fuente": "AEAT Manual Renta 2025 — Gravamen autonómico Región de Murcia"
+    }
+   },
+   "minimo_contribuyente": {
+    "general": 5550,
+    "general_territorio": 5550,
+    "tiene_minimo_propio": false,
+    "fuente_estatal": {
+     "norma": "Art. 57 LIRPF",
+     "fuente": "AEAT Manual Renta 2025 — cuadro-resumen mínimo personal y familiar"
+    },
+    "fuente_autonomica": null
+   },
+   "deducciones": {
+    "modeladas": 7,
+    "provisionales": 3,
+    "pendientes": 17
+   }
+  },
+  "ES-RI": {
+   "territorio": "ES-RI",
+   "nombre": "La Rioja",
+   "regimen": "comun",
+   "escala_combinada": {
+    "tramos": [
+     {
+      "hasta": 12450,
+      "tipo": 0.175
+     },
+     {
+      "hasta": 20200,
+      "tipo": 0.226
+     },
+     {
+      "hasta": 35200,
+      "tipo": 0.286
+     },
+     {
+      "hasta": 40000,
+      "tipo": 0.363
+     },
+     {
+      "hasta": 50000,
+      "tipo": 0.368
+     },
+     {
+      "hasta": 60000,
+      "tipo": 0.375
+     },
+     {
+      "hasta": 120000,
+      "tipo": 0.47
+     },
+     {
+      "hasta": 300000,
+      "tipo": 0.495
+     },
+     {
+      "hasta": null,
+      "tipo": 0.515
+     }
+    ],
+    "fuente_estatal": {
+     "norma": "Art. 63.1.1º LIRPF",
+     "fuente": "AEAT Manual Renta 2025 — Gravamen estatal base liquidable general"
+    },
+    "fuente_autonomica": {
+     "norma": "Art. 31 Ley 10/2017 de La Rioja (mod. Ley 13/2023, efectos 2024)",
+     "fuente": "AEAT Manual Renta 2025 — Gravamen autonómico La Rioja"
+    }
+   },
+   "minimo_contribuyente": {
+    "general": 5550,
+    "general_territorio": 5550,
+    "tiene_minimo_propio": false,
+    "fuente_estatal": {
+     "norma": "Art. 57 LIRPF",
+     "fuente": "AEAT Manual Renta 2025 — cuadro-resumen mínimo personal y familiar"
+    },
+    "fuente_autonomica": null
+   },
+   "deducciones": {
+    "modeladas": 7,
+    "provisionales": 7,
+    "pendientes": 17
+   }
+  },
+  "ES-VC": {
+   "territorio": "ES-VC",
+   "nombre": "Comunitat Valenciana",
+   "regimen": "comun",
+   "escala_combinada": {
+    "tramos": [
+     {
+      "hasta": 12000,
+      "tipo": 0.185
+     },
+     {
+      "hasta": 12450,
+      "tipo": 0.215
+     },
+     {
+      "hasta": 20200,
+      "tipo": 0.24
+     },
+     {
+      "hasta": 22000,
+      "tipo": 0.27
+     },
+     {
+      "hasta": 32000,
+      "tipo": 0.3
+     },
+     {
+      "hasta": 35200,
+      "tipo": 0.325
+     },
+     {
+      "hasta": 42000,
+      "tipo": 0.36
+     },
+     {
+      "hasta": 52000,
+      "tipo": 0.385
+     },
+     {
+      "hasta": 60000,
+      "tipo": 0.41
+     },
+     {
+      "hasta": 62000,
+      "tipo": 0.45
+     },
+     {
+      "hasta": 72000,
+      "tipo": 0.475
+     },
+     {
+      "hasta": 100000,
+      "tipo": 0.49
+     },
+     {
+      "hasta": 150000,
+      "tipo": 0.5
+     },
+     {
+      "hasta": 200000,
+      "tipo": 0.51
+     },
+     {
+      "hasta": 300000,
+      "tipo": 0.52
+     },
+     {
+      "hasta": null,
+      "tipo": 0.54
+     }
+    ],
+    "fuente_estatal": {
+     "norma": "Art. 63.1.1º LIRPF",
+     "fuente": "AEAT Manual Renta 2025 — Gravamen estatal base liquidable general"
+    },
+    "fuente_autonomica": {
+     "norma": "Art. 2 Ley 13/1997 de la Comunitat Valenciana",
+     "fuente": "AEAT Manual Renta 2025 — Gravamen autonómico Comunitat Valenciana"
+    }
+   },
+   "minimo_contribuyente": {
+    "general": 5550,
+    "general_territorio": 6105,
+    "tiene_minimo_propio": true,
+    "fuente_estatal": {
+     "norma": "Art. 57 LIRPF",
+     "fuente": "AEAT Manual Renta 2025 — cuadro-resumen mínimo personal y familiar"
+    },
+    "fuente_autonomica": {
+     "norma": "Art. 2 bis Ley 13/1997, de 23 de diciembre (tramo autonómico del IRPF de la Comunitat Valenciana)",
+     "fuente": "AEAT Manual Práctico Renta 2025 — Mínimo personal y familiar autonómico: Comunitat Valenciana; y Cuadro comparativo de los importes de los mínimos personales y familiares, estatal y autonómicos para 2025"
+    }
+   },
+   "deducciones": {
+    "modeladas": 19,
+    "provisionales": 1,
+    "pendientes": 12
+   }
+  },
+  "ES-PV-BI": {
+   "territorio": "ES-PV-BI",
+   "nombre": "Bizkaia",
+   "regimen": "foral_pais_vasco",
+   "escala_combinada": {
+    "tramos": [
+     {
+      "hasta": 17720,
+      "tipo": 0.23
+     },
+     {
+      "hasta": 35440,
+      "tipo": 0.28
+     },
+     {
+      "hasta": 53160,
+      "tipo": 0.35
+     },
+     {
+      "hasta": 75910,
+      "tipo": 0.4
+     },
+     {
+      "hasta": 105130,
+      "tipo": 0.45
+     },
+     {
+      "hasta": 140130,
+      "tipo": 0.46
+     },
+     {
+      "hasta": 204270,
+      "tipo": 0.47
+     },
+     {
+      "hasta": null,
+      "tipo": 0.49
+     }
+    ],
+    "fuente_estatal": null,
+    "fuente_autonomica": {
+     "norma": "Art. 75 NF 13/2013 Bizkaia / art. 75 NF 3/2014 Gipuzkoa / art. 74 NF 33/2013 Araba",
+     "fuente": "DF Gipuzkoa, Modelo 109 (2025) — tabla de gravamen general"
+    }
+   },
+   "minimo_contribuyente": null,
+   "deducciones": null
+  },
+  "ES-PV-SS": {
+   "territorio": "ES-PV-SS",
+   "nombre": "Gipuzkoa",
+   "regimen": "foral_pais_vasco",
+   "escala_combinada": {
+    "tramos": [
+     {
+      "hasta": 17720,
+      "tipo": 0.23
+     },
+     {
+      "hasta": 35440,
+      "tipo": 0.28
+     },
+     {
+      "hasta": 53160,
+      "tipo": 0.35
+     },
+     {
+      "hasta": 75910,
+      "tipo": 0.4
+     },
+     {
+      "hasta": 105130,
+      "tipo": 0.45
+     },
+     {
+      "hasta": 140130,
+      "tipo": 0.46
+     },
+     {
+      "hasta": 204270,
+      "tipo": 0.47
+     },
+     {
+      "hasta": null,
+      "tipo": 0.49
+     }
+    ],
+    "fuente_estatal": null,
+    "fuente_autonomica": {
+     "norma": "Art. 75 NF 13/2013 Bizkaia / art. 75 NF 3/2014 Gipuzkoa / art. 74 NF 33/2013 Araba",
+     "fuente": "DF Gipuzkoa, Modelo 109 (2025) — tabla de gravamen general"
+    }
+   },
+   "minimo_contribuyente": null,
+   "deducciones": null
+  },
+  "ES-PV-VI": {
+   "territorio": "ES-PV-VI",
+   "nombre": "Araba/Álava",
+   "regimen": "foral_pais_vasco",
+   "escala_combinada": {
+    "tramos": [
+     {
+      "hasta": 17720,
+      "tipo": 0.23
+     },
+     {
+      "hasta": 35440,
+      "tipo": 0.28
+     },
+     {
+      "hasta": 53160,
+      "tipo": 0.35
+     },
+     {
+      "hasta": 75910,
+      "tipo": 0.4
+     },
+     {
+      "hasta": 105130,
+      "tipo": 0.45
+     },
+     {
+      "hasta": 140130,
+      "tipo": 0.46
+     },
+     {
+      "hasta": 204270,
+      "tipo": 0.47
+     },
+     {
+      "hasta": null,
+      "tipo": 0.49
+     }
+    ],
+    "fuente_estatal": null,
+    "fuente_autonomica": {
+     "norma": "Art. 75 NF 13/2013 Bizkaia / art. 75 NF 3/2014 Gipuzkoa / art. 74 NF 33/2013 Araba",
+     "fuente": "DF Gipuzkoa, Modelo 109 (2025) — tabla de gravamen general"
+    }
+   },
+   "minimo_contribuyente": null,
+   "deducciones": null
+  },
+  "ES-NC": {
+   "territorio": "ES-NC",
+   "nombre": "Comunidad Foral de Navarra",
+   "regimen": "foral_navarra",
+   "escala_combinada": {
+    "tramos": [
+     {
+      "hasta": 4458,
+      "tipo": 0.13
+     },
+     {
+      "hasta": 10030,
+      "tipo": 0.22
+     },
+     {
+      "hasta": 21175,
+      "tipo": 0.25
+     },
+     {
+      "hasta": 35663,
+      "tipo": 0.28
+     },
+     {
+      "hasta": 51266,
+      "tipo": 0.365
+     },
+     {
+      "hasta": 66869,
+      "tipo": 0.415
+     },
+     {
+      "hasta": 89159,
+      "tipo": 0.44
+     },
+     {
+      "hasta": 139310,
+      "tipo": 0.47
+     },
+     {
+      "hasta": 195034,
+      "tipo": 0.49
+     },
+     {
+      "hasta": 334344,
+      "tipo": 0.505
+     },
+     {
+      "hasta": null,
+      "tipo": 0.52
+     }
+    ],
+    "fuente_estatal": null,
+    "fuente_autonomica": {
+     "norma": "Art. 59.1 TR IRPF Navarra (DFL 4/2008), redacción LF 22/2023",
+     "fuente": "BON; guiafiscal.es/irpf/navarra (tabla literal); Iberley Escala IRPF Navarra"
+    }
+   },
+   "minimo_contribuyente": null,
+   "deducciones": null
+  }
+ }
+}

@@ -7,7 +7,8 @@
     "test": "node --test test/*.test.mjs",
     "empaquetar": "node tools/empaquetar.mjs",
     "servir": "node tools/servir.mjs",
-    "validar": "node tools/validar_js_node.js"
+    "validar": "node tools/validar_js_node.js",
+    "generar:seo": "node tools/generar_paginas_seo.mjs"
   },
   "engines": {
     "node": ">=20"
