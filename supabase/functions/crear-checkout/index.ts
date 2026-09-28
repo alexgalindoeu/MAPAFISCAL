@@ -34,6 +34,15 @@ Deno.serve(async (req) => {
 
     // Un solo cliente de Stripe por gestor, aunque abandone el checkout y lo repita.
     let customer = sus?.cliente_proveedor_id ?? undefined;
+    if (customer) {
+      // Puede no existir en este modo de Stripe (un cliente de prueba tras pasar a live) o estar borrado.
+      try {
+        if ((await s.customers.retrieve(customer)).deleted) customer = undefined;
+      } catch (e) {
+        if ((e as { code?: string })?.code !== "resource_missing") throw e;
+        customer = undefined;
+      }
+    }
     if (!customer) {
       const previos = await s.customers.search({ query: `metadata['gestor_id']:'${user.id}'`, limit: 1 });
       customer = previos.data[0]?.id ??

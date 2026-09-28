@@ -23,6 +23,7 @@
       <a href="#comparar" data-vista="comparar">Comparar territorios</a>
       <a href="#clientes" data-vista="clientes">Mis clientes</a>
       <a href="#planes" data-vista="planes">Planes</a>
+      <a href="#perfil" data-vista="perfil" hidden>Perfil</a>
     </nav>
     <div class="appbar-der">
       <span class="chip-ejercicio" title="Ejercicio fiscal">IRPF 2025</span>
@@ -267,9 +268,21 @@
     <details><summary>¿Puedo guardar clientes sin suscribirme?</summary><p>No. «Mis clientes» forma parte del plan Gestor: con la suscripción activa guardas todos los clientes que quieras. La calculadora y el comparador siguen siendo gratuitos y sin cuenta.</p></details>
     <details><summary>¿Qué pasa con mis clientes si cancelo?</summary><p>Mantienes el acceso hasta el final del periodo pagado. Después, tus clientes quedan guardados pero ocultos, y vuelven a aparecer si reactivas el plan. Si prefieres que los borremos, puedes eliminarlos tú mismo desde «Mis clientes».</p></details>
     <details><summary>¿Qué datos de mis clientes guardáis?</summary><p>Solo lo necesario para el cálculo: un alias que eliges tú y las cifras de la declaración. No pedimos NIF ni nombre completo. Cada gestor solo puede ver sus propios clientes; los datos se alojan en la Unión Europea.</p></details>
-    <details><summary>¿Puedo cancelar cuando quiera?</summary><p>Sí. La suscripción se gestiona desde el portal de facturación y se puede cancelar en cualquier momento; mantienes el acceso hasta el final del periodo pagado.</p></details>
+    <details><summary>¿Puedo cancelar cuando quiera?</summary><p>Sí. La suscripción se gestiona desde el portal de facturación, en tu perfil, y se puede cancelar en cualquier momento; mantienes el acceso hasta el final del periodo pagado.</p></details>
+    <details><summary>¿Puedo borrar mi cuenta?</summary><p>Sí, desde tu perfil. Se borran tu cuenta y tus clientes guardados, y si tienes una suscripción se cancela en el acto. Las facturas se conservan porque la ley obliga a guardarlas.</p></details>
     <details><summary>¿Es asesoramiento fiscal?</summary><p>No. Mapafiscal es una herramienta de cálculo y estimación: no sustituye a un asesor ni es una liquidación oficial de la Agencia Tributaria.</p></details>
   </div>
+</section>
+
+<!-- =========================== PERFIL =========================== -->
+<section class="vista" id="v-perfil" aria-labelledby="t-perfil" hidden>
+  <div class="cabecera-vista">
+    <div>
+      <h1 id="t-perfil">Perfil</h1>
+      <p class="entradilla">Tu cuenta, tu plan y tu suscripción.</p>
+    </div>
+  </div>
+  <div id="perfil-contenido"></div>
 </section>
 
 <!-- =========================== METODOLOGÍA =========================== -->
@@ -312,13 +325,31 @@
 
 <dialog class="dialogo" id="dlg-acceso" aria-labelledby="t-acceso">
   <form method="dialog" class="dialogo-in" id="form-acceso">
-    <h2 id="t-acceso">Accede a tu espacio de gestor</h2>
-    <p>Te enviamos un enlace de acceso a tu correo. Sin contraseñas.</p>
+    <h2 id="t-acceso">Inicia sesión o crea tu cuenta</h2>
+    <p id="acceso-motivo"></p>
+    <div id="acceso-google" hidden>
+      <button class="btn btn-sec btn-google" type="button" id="btn-google"><svg viewBox="0 0 48 48" aria-hidden="true"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/><path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/></svg>Continuar con Google</button>
+      <p class="separador"><span>o con un enlace en tu correo</span></p>
+    </div>
     <div class="campo"><label for="acceso-email">Correo electrónico</label><input type="email" id="acceso-email" required autocomplete="email" placeholder="nombre@despacho.es"></div>
     <p class="mensaje" id="acceso-msg" role="status"></p>
     <div class="dialogo-acciones">
       <button class="btn btn-sec" value="cancelar" type="submit" formnovalidate>Cancelar</button>
       <button class="btn btn-pri" type="button" id="btn-enviar-enlace">Enviar enlace</button>
+    </div>
+  </form>
+</dialog>
+
+<dialog class="dialogo" id="dlg-borrar" aria-labelledby="t-borrar">
+  <form method="dialog" class="dialogo-in" id="form-borrar">
+    <h2 id="t-borrar">Borrar tu cuenta</h2>
+    <p>Se borrarán tu cuenta, tu perfil y todos tus clientes guardados. No se puede deshacer.</p>
+    <p id="borrar-suscripcion" hidden>Tu suscripción se cancelará ahora mismo, sin reembolso del periodo en curso. Las facturas se conservan en Stripe, porque la ley obliga a guardarlas.</p>
+    <div class="campo"><label for="borrar-email">Escribe tu correo para confirmar</label><input type="email" id="borrar-email" autocomplete="off" spellcheck="false"></div>
+    <p class="mensaje" id="borrar-msg" role="status"></p>
+    <div class="dialogo-acciones">
+      <button class="btn btn-sec" value="cancelar" type="submit" formnovalidate id="btn-cancelar-borrar">Cancelar</button>
+      <button class="btn btn-peligro-lleno" type="button" id="btn-confirmar-borrar">Borrar mi cuenta</button>
     </div>
   </form>
 </dialog>
