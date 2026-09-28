@@ -532,6 +532,29 @@ add("ej2026_da61_tramo", "ES-MD", "ninguna", "no",
     list(persona("d1","declarante",40, trabajo=list(dinerarias=18500, cotizaciones_ss=1202.50), retenciones=900)),
     list(list(id="d1",rol="declarante",edad=40, trabajo=list(dinerarias=18500,cotizacionesSs=1202.50), retenciones=900)), ejercicio = 2026)
 
+# 18. Ejercicio 2026, forales: +2 % en el País Vasco (overrides de Bizkaia y Araba) y LF 17/2025 en Navarra
+fam26_r <- list(persona("d1","declarante",45, trabajo=list(dinerarias=40000, cotizaciones_ss=2540)),
+                persona("h1","descendiente",8), persona("h2","descendiente",4))
+fam26_js <- list(list(id="d1",rol="declarante",edad=45, trabajo=list(dinerarias=40000,cotizacionesSs=2540)),
+                 list(id="h1",rol="descendiente",edad=8), list(id="h2",rol="descendiente",edad=4))
+add("ej2026_pv_ss_familia", "ES-PV-SS", "ninguna", "no", fam26_r, fam26_js, ejercicio = 2026)
+add("ej2026_pv_vi_familia", "ES-PV-VI", "ninguna", "no", fam26_r, fam26_js, ejercicio = 2026)
+add("ej2026_pv_bi_gran_dependencia", "ES-PV-BI", "ninguna", "no",
+    list(persona("d1","declarante",50, trabajo=list(dinerarias=40000, cotizaciones_ss=2540), discapacidad="65_mas", ayuda_terceros=TRUE)),
+    list(list(id="d1",rol="declarante",edad=50, trabajo=list(dinerarias=40000,cotizacionesSs=2540), discapacidad="65_mas", ayudaTerceros=TRUE)),
+    ejercicio = 2026)
+add("ej2026_pv_ss_ahorro", "ES-PV-SS", "ninguna", "no",
+    list(persona("d1","declarante",40, capital_mobiliario=list(intereses=15400))),
+    list(list(id="d1",rol="declarante",edad=40, capitalMobiliario=list(intereses=15400))), ejercicio = 2026)
+for (b in list(c(15000, 953), c(24000, 1524), c(33000, 2096)))
+  add(sprintf("ej2026_nc_%d", b[1]), "ES-NC", "ninguna", "no",
+      list(persona("d1","declarante",40, trabajo=list(dinerarias=b[1], cotizaciones_ss=b[2]))),
+      list(list(id="d1",rol="declarante",edad=40, trabajo=list(dinerarias=b[1],cotizacionesSs=b[2]))), ejercicio = 2026)
+add("ej2026_nc_pension", "ES-NC", "ninguna", "no",
+    list(persona("d1","declarante",70, trabajo=list(dinerarias=14000, cotizaciones_ss=0, pension_jubilacion=TRUE))),
+    list(list(id="d1",rol="declarante",edad=70, trabajo=list(dinerarias=14000,cotizacionesSs=0, pensionJubilacion=TRUE))),
+    ejercicio = 2026)
+
 out <- lapply(casos, function(c) list(
   js = c$js,
   ref = list(

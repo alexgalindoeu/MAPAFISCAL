@@ -1173,3 +1173,50 @@ Tramo decreciente, 18.500 € y 1.202,50 €: neto 17.297,50; art. 20: 7.302 −
 3.022,38; base 12.275,13; cuota íntegra 2 × 9,5 % × 6.725,13 = 1.277,77; DA 61.ª: 590,89 −
 0,2 × 1.406 = 309,69; cuota resultante 968,08. Con 20.000 € la deducción es de 9,69 € y con
 20.048,45 €, cero. Con 6.600 € de intereses (otras rentas > 6.500 €), cero.
+
+## Ejercicio 2026: territorios forales (2026-09-28)
+
+Test `tests/testthat/test-2026-forales.R`; casos `ej2026_pv_*` y `ej2026_nc_*` del validador.
+
+**País Vasco.** Gipuzkoa (NF 6/2025, BOG 31-12-2025) y Bizkaia (NF 7/2025, BOB 30-12-2025)
+deflactan la tarifa general un 2 % y suben un 2 % la reducción por conjunta (4.896 €), la
+minoración (1.615 €) y las deducciones por descendientes (682 / 844 / 1.421 / 1.680 / 2.195 €;
+394 € por menor de 6 años), ascendientes (328 €), discapacidad (906 / 1.294 / 1.552 €) y edad
+(393 / 714 €). Gran dependencia: 2.040 € en Gipuzkoa (sin cambio) y 1.935 € en Bizkaia
+(override). Araba (NF 21/2025, BOTHA 29-12-2025) sube conjunta, tarifa, minoración y edad, pero
+no descendientes, ascendientes ni discapacidad (override con los importes de 2025,
+provisional). Escala del ahorro de 2026 (NF 1/2025 de Gipuzkoa, art. 76.1): 19 % hasta 7.500 €,
+20 % hasta 15.000 € (antes figuraba 15.500 €), 22 %, 24 %, 25,5 %, 26 %, 26,5 %, 27 % y 28 %
+desde 300.000 €.
+
+El motor JS aplica ahora todos los overrides del territorio sobre el bloque común (como
+`cargar_parametros()` en R); antes solo el incremento por menor de 6 años.
+
+| Caso (40.000 € de salario, 2.540 € de cotizaciones) | Cuota íntegra | Minoración | Deducción | Cuota líquida |
+|---|---:|---:|---:|---:|
+| Gipuzkoa, hijos de 8 y 4 años, 2025 | 8.762,80 | 1.583 | 668 + 827 + 386 = 1.881 | 5.298,80 |
+| Gipuzkoa, hijos de 8 y 4 años, 2026 | 8.744,80 | 1.615 | 682 + 844 + 394 = 1.920 | 5.209,80 |
+| Araba, hijos de 8 y 4 años, 2026 | 8.744,80 | 1.615 | 1.881 | 5.248,80 |
+| Bizkaia, gran dependencia, 2026 | 8.744,80 | 1.615 | 1.935 | 5.194,80 |
+
+Base liquidable general: 37.460 − 3.000 (bonificación del trabajo) = 34.460. Tarifa de 2026:
+4.158,40 + 16.380 × 28 % = 8.744,80 (2025: 4.075,60 + 16.740 × 28 % = 8.762,80). Ahorro de
+15.400 € en Gipuzkoa: 2.925 + 400 × 22 % = 3.013 (2025: 3.267).
+
+**Navarra (LF 17/2025, BOE-A-2026-3910).**
+
+- Mínimo personal (art. 62.9.a): el incremento por rentas pasa de 150 € fijos hasta 30.000 € a
+  1.280 € hasta 17.500 €; 1.280 − 0,0904 × (rentas − 17.500) hasta 30.000 €; 150 − 0,075 ×
+  (rentas − 30.000) hasta 32.000 €. Regla nueva en R y JS (`incremento_rentas`, por tramos).
+- Deducción por trabajo (art. 62.5): 1.400 € hasta 12.500 € de RNT y 1.400 − 0,14 × (RNT −
+  12.500) hasta 17.500 €. Pensión de jubilación (art. 68.B): hasta 15.400 € (30.800 € en
+  unidad familiar). Escalas y mínimo familiar, sin cambios.
+
+| Salario (cotizaciones) | RNT | Cuota íntegra | Mínimo personal | Trabajo | Cuota 2026 | Cuota 2025 |
+|---|---:|---:|---:|---:|---:|---:|
+| 15.000 (953) | 14.047 | 2.809,63 | 1.084 + 1.280 | 1.400 − 0,14 × 1.547 = 1.183,42 | 0 | 530,33 |
+| 24.000 (1.524) | 22.476 | 4.955,91 | 1.084 + 830,17 | 700 | 2.341,74 | 3.021,91 |
+| 33.000 (2.096) | 30.904 | 7.315,75 | 1.084 + 82,20 | 700 | 5.449,55 | 5.531,75 |
+
+Pensionista de 70 años con 14.000 € de jubilación: cuota líquida 0 y deducción del art. 68.B de
+15.400 − 14.000 = 1.400 € (cuota diferencial −1.400; en 2025, 249,88 − 490 = −240,12).

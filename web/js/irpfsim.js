@@ -706,8 +706,25 @@
   }
 
   // ---- País Vasco -------------------------------------------------------
+  // Como fusionar_params() de R/01_parametros.R: objetos por clave, listas enteras, null borra.
+  function fusionarParams(base, cambios) {
+    const out = Object.assign({}, base);
+    for (const k of Object.keys(cambios || {})) {
+      const v = cambios[k];
+      if (v === null) delete out[k];
+      else if (v && typeof v === "object" && !Array.isArray(v) && out[k] && typeof out[k] === "object" && !Array.isArray(out[k]))
+        out[k] = fusionarParams(out[k], v);
+      else out[k] = v;
+    }
+    return out;
+  }
+
   function liquidarPaisVascoScope(hogar, terrCode, P, modo, declaranteId) {
-    const J = P.foral_pv;
+    // Overrides del territorio sobre el bloque común, como cargar_parametros() en R.
+    const ovT = (P.foral_pv.overrides && P.foral_pv.overrides[terrCode]) || {};
+    const ovParams = {};
+    for (const k of Object.keys(ovT)) if (k !== "nombre" && k !== "norma_base") ovParams[k] = ovT[k];
+    const J = fusionarParams(P.foral_pv, ovParams);
     const personas = modo === "conjunta"
       ? hogar.miembros.filter(m => m.rol === "declarante" || m.rol === "conyuge" || m.rol === "descendiente")
       : hogar.miembros.filter(m => m.id === declaranteId);
@@ -729,7 +746,6 @@
     if (nombre === "Bizkaia") minCuota = J.minoracion_cuota.importe_bizkaia || minCuota;
     if (nombre === "Araba/Álava") minCuota = J.minoracion_cuota.importe_araba || minCuota;
 
-    const ovT = (J.overrides && J.overrides[terrCode]) || {};
     const ded = deduccionesForalesPv(hogar, J, modo, blg + bla, ovT, declaranteId);
     const cuotaLiquida = Math.max(0, cuotaIntegra - minCuota - ded.total);
     const bit = r.baseImponibleGeneral + r.baseImponibleAhorro;
@@ -823,6 +839,14 @@
     return red2(cfg.porcentaje_maximo - cfg.coeficiente * (rentas - cfg.umbral_pleno) / cfg.umbral_pleno);
   }
 
+  // Importe por tramos lineales {hasta, base, coef, desde}; por encima del último, cero
+  // (incremento del mínimo personal de Navarra desde 2026, art. 62.9.a) c´) a e´)).
+  function importePorTramos(x, tramos) {
+    for (const tr of tramos)
+      if (tr.hasta == null || x <= tr.hasta) return Math.max(0, tr.base - num(tr.coef) * (x - num(tr.desde)));
+    return 0;
+  }
+
   function liquidarNavarraScope(hogar, P, modo, declaranteId) {
     const J = P.navarra;
     const personas = modo === "conjunta"
@@ -850,7 +874,10 @@
     const rentasSp = p => { const rr = agregarRentas([p], P, "foral_navarra"); return rr.baseImponibleGeneral + rr.baseImponibleAhorro; };
     for (const c of contribsNv) {
       let m = num(mp.importe_general);
-      if (rentasSp(c) <= num(mp.umbral_rentas_bajas)) m += num(mp.incremento_rentas_bajas);
+      // incremento por rentas: por tramos lineales desde 2026 (LF 17/2025); hasta 2025, fijo bajo el umbral
+      const rs = rentasSp(c);
+      if (mp.incremento_rentas) m += red2(importePorTramos(rs, mp.incremento_rentas));
+      else if (rs <= num(mp.umbral_rentas_bajas)) m += num(mp.incremento_rentas_bajas);
       // 264 € desde los 65 años o 585 € desde los 75 (uno u otro)
       const edad = num(c.edad, 0);
       m += edad >= 75 ? num(mp.incremento_75) : edad >= 65 ? num(mp.incremento_65) : 0;

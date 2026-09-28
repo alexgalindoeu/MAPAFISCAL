@@ -319,7 +319,7 @@
     "tipo": 0.19
    },
    {
-    "hasta": 15500,
+    "hasta": 15000,
     "tipo": 0.2
    },
    {
@@ -378,18 +378,18 @@
    "limite_discapacidad_propio": 24250
   },
   "reduccion_tributacion_conjunta": {
-   "norma": "Art. 75 NF 13/2013 y equivalentes",
-   "fuente": "DF Gipuzkoa, Modelo 109 (2025)",
+   "norma": "Art. 73 NF 3/2014 Gipuzkoa, NF 13/2013 Bizkaia y NF 33/2013 Araba (redacción de 2026)",
+   "fuente": "NF 6/2025 Gipuzkoa, DF 1.ª.Uno; NF 7/2025 Bizkaia, art. 48; NF 21/2025 Araba, art. 2.4.º.Tres",
    "estado": "confirmado",
-   "importe": 4800
+   "importe": 4896
   },
   "minoracion_cuota": {
-   "norma": "Art. 77 NF 13/2013 y equivalentes",
-   "fuente": "DF Gipuzkoa Modelo 109 (2025); DFB (Bizkaia 2025)",
+   "norma": "Art. 77 NF 3/2014 Gipuzkoa, NF 13/2013 Bizkaia y NF 33/2013 Araba (redacción de 2026)",
+   "fuente": "NF 6/2025 Gipuzkoa, DF 1.ª.Tres; NF 7/2025 Bizkaia, art. 50; NF 21/2025 Araba, art. 2.4.º.Cinco",
    "estado": "confirmado",
-   "importe_gipuzkoa": 1583,
+   "importe_gipuzkoa": 1615,
    "importe_bizkaia": 1615,
-   "importe_araba": 1583
+   "importe_araba": 1615
   },
   "exencion_dividendos": {
    "norma": "Art. 9.24 NF 13/2013 Bizkaia (y equivalentes forales)",
@@ -398,59 +398,59 @@
    "importe": 1500
   },
   "deduccion_descendientes": {
-   "norma": "Art. 79 NF 3/2014 Gipuzkoa (y equivalentes)",
-   "fuente": "DF Gipuzkoa Modelo 109 (2025); DFB (Bizkaia 2025) — importes por orden idénticos en los 3 TH",
+   "norma": "Art. 79 NF 3/2014 Gipuzkoa y NF 13/2013 Bizkaia (redacción de 2026)",
+   "fuente": "NF 6/2025 Gipuzkoa, DF 1.ª.Cuatro; NF 7/2025 Bizkaia, art. 51",
    "estado": "confirmado",
    "importes": {
-    "1": 668,
-    "2": 827,
-    "3": 1393,
-    "4": 1647,
-    "5+": 2151
+    "1": 682,
+    "2": 844,
+    "3": 1421,
+    "4": 1680,
+    "5+": 2195
    },
-   "incremento_menor_6_anios": 386
+   "incremento_menor_6_anios": 394
   },
   "deduccion_ascendientes": {
-   "norma": "Art. 80 NF 3/2014 y equivalentes",
-   "fuente": "DF Gipuzkoa, Modelo 109 (2025)",
+   "norma": "Art. 81.1 NF 3/2014 Gipuzkoa y NF 13/2013 Bizkaia (redacción de 2026)",
+   "fuente": "NF 6/2025 Gipuzkoa, DF 1.ª.Cinco; NF 7/2025 Bizkaia, art. 52",
    "estado": "confirmado",
-   "importe": 321
+   "importe": 328
   },
   "deduccion_discapacidad": {
-   "norma": "Art. 82 NF 3/2014 y equivalentes",
-   "fuente": "DF Gipuzkoa, Modelo 109 (2025)",
+   "norma": "Art. 82.1 NF 3/2014 Gipuzkoa (redacción de 2026); Bizkaia, ver override",
+   "fuente": "NF 6/2025 Gipuzkoa, DF 1.ª.Seis",
    "estado": "confirmado",
-   "grado_33_64": 888,
-   "grado_65_mas_o_dependencia_moderada": 1268,
-   "grado_75_15_39_puntos_o_dependencia_severa": 1521,
+   "grado_33_64": 906,
+   "grado_65_mas_o_dependencia_moderada": 1294,
+   "grado_75_15_39_puntos_o_dependencia_severa": 1552,
    "grado_75_40_puntos_o_gran_dependencia": 2040
   },
   "deduccion_edad": {
-   "norma": "Art. 82 NF 3/2014 y equivalentes",
-   "fuente": "DF Gipuzkoa, Modelo 109 (2025)",
+   "norma": "Art. 83 NF 3/2014 Gipuzkoa, NF 13/2013 Bizkaia y NF 33/2013 Araba (redacción de 2026); en conjunta, art. 100.d) NF 3/2014 y equivalentes",
+   "fuente": "NF 6/2025 Gipuzkoa, DF 1.ª.Siete; NF 7/2025 Bizkaia, art. 54; NF 21/2025 Araba, art. 2.4.º.Siete",
    "estado": "confirmado",
    "individual": {
     "edad_65": {
-     "importe": 385,
+     "importe": 393,
      "base_plena": 20000,
      "base_cero": 30000,
-     "coef_reduccion": 0.0385
+     "coef_reduccion": 0.0393
     },
     "edad_75": {
-     "importe": 700,
+     "importe": 714,
      "base_plena": 20000,
      "base_cero": 30000,
-     "coef_reduccion": 0.07
+     "coef_reduccion": 0.0714
     }
    },
    "conjunta": {
     "edad_65": {
-     "importe": 385,
+     "importe": 393,
      "base_plena": 35000,
      "base_cero": 35000
     },
     "edad_75": {
-     "importe": 700,
+     "importe": 714,
      "base_plena": 35000,
      "base_cero": 35000
     }
@@ -514,10 +514,14 @@
    "ES-PV-BI": {
     "nombre": "Bizkaia",
     "norma_base": "Norma Foral 13/2013",
-    "fuente": "DFB — Deducciones IRPF Bizkaia 2025 (bizkaia.eus); deia.eus 02-04-2025",
+    "fuente": "NF 7/2025, de Presupuestos de Bizkaia para 2026 (BOB 30-12-2025), arts. 48 a 54",
     "deduccion_descendientes": {
      "estado": "confirmado",
      "incremento_menor_6_anios": 394
+    },
+    "deduccion_discapacidad": {
+     "norma": "Art. 82.1 NF 13/2013 Bizkaia (redacción del art. 53 de la NF 7/2025)",
+     "grado_75_40_puntos_o_gran_dependencia": 1935
     }
    },
    "ES-PV-SS": {
@@ -528,10 +532,39 @@
     "nombre": "Araba/Álava",
     "norma_base": "Norma Foral 33/2013",
     "deduccion_descendientes": {
-     "estado": "provisional"
+     "estado": "provisional",
+     "importes": {
+      "1": 668,
+      "2": 827,
+      "3": 1393,
+      "4": 1647,
+      "5+": 2151
+     },
+     "incremento_menor_6_anios": 386
     },
     "minoracion_cuota": {
-     "estado": "provisional"
+     "estado": "confirmado"
+    },
+    "deduccion_anualidades_alimentos_hijos": {
+     "estado": "provisional",
+     "limites": {
+      "1": 200.4,
+      "2": 248.1,
+      "3": 417.9,
+      "4": 494.1,
+      "5+": 645.3
+     }
+    },
+    "deduccion_ascendientes": {
+     "estado": "provisional",
+     "importe": 321
+    },
+    "deduccion_discapacidad": {
+     "estado": "provisional",
+     "grado_33_64": 888,
+     "grado_65_mas_o_dependencia_moderada": 1268,
+     "grado_75_15_39_puntos_o_dependencia_severa": 1521,
+     "grado_75_40_puntos_o_gran_dependencia": 2040
     }
    }
   }
@@ -610,17 +643,35 @@
    }
   ],
   "minimo_personal_deduccion": {
-   "norma": "Art. 62.9.a) DFL 4/2008 (TR IRPF Navarra), redacción de la Ley Foral 22/2023, art. primero.Doce (efectos 2024; sin cambios en 2025: la LF 20/2024 no lo modifica y la LF 17/2025 lo hace desde 2026)",
-   "fuente": "BOE-A-2024-1694 (texto literal del art. 62.9 a), b) y c)); Hacienda Foral de Navarra, Manual teórico Renta y Patrimonio 2025 (actualizado a 02-02-2026), apartados «Por mínimo personal» y «Por mínimo familiar»",
+   "norma": "Art. 62.9.a) DFL 4/2008 (TR IRPF Navarra): a´) y b´) en la redacción de la LF 22/2023; c´), d´) y e´) en la del art. primero.Catorce de la LF 17/2025 (efectos 1-1-2026)",
+   "fuente": "BOE-A-2026-3910 (LF 17/2025, art. primero.Catorce); BOE-A-2024-1694 (LF 22/2023) para el resto del art. 62.9.a)",
    "estado": "confirmado",
    "importe_general": 1084,
-   "incremento_rentas_bajas": 150,
-   "umbral_rentas_bajas": 30000,
    "incremento_65": 264,
    "incremento_75": 585,
    "incremento_discapacidad_33_64": 766,
    "incremento_discapacidad_65_mas": 2757,
-   "incremento_monoparental_conjunta": 668
+   "incremento_monoparental_conjunta": 668,
+   "incremento_rentas": [
+    {
+     "hasta": 17500,
+     "base": 1280,
+     "coef": 0,
+     "desde": 0
+    },
+    {
+     "hasta": 30000,
+     "base": 1280,
+     "coef": 0.0904,
+     "desde": 17500
+    },
+    {
+     "hasta": 32000,
+     "base": 150,
+     "coef": 0.075,
+     "desde": 30000
+    }
+   ]
   },
   "minimo_familiar_deduccion": {
    "norma": "Art. 62.9.b) y c) DFL 4/2008 (TR IRPF Navarra), redacción de la Ley Foral 22/2023, art. primero.Doce",
@@ -657,7 +708,7 @@
   "deduccion_trabajo_cuota": {
    "tramos": [
     {
-     "hasta": 10500,
+     "hasta": 12500,
      "base": 1400,
      "coef": 0,
      "desde": 0
@@ -665,8 +716,8 @@
     {
      "hasta": 17500,
      "base": 1400,
-     "coef": 0.1,
-     "desde": 10500
+     "coef": 0.14,
+     "desde": 12500
     },
     {
      "hasta": 35000,
@@ -718,12 +769,12 @@
    "rentas_max_unidad_familiar": 33000
   },
   "deduccion_pension_jubilacion": {
-   "norma": "Art. 68.B DFL 4/2008, redacción de la Ley Foral 20/2024, art. primero.Trece (efectos 2025)",
-   "fuente": "BOE-A-2025-719 (Ley Foral 20/2024, de 26 de diciembre)",
+   "norma": "Art. 68.B y C DFL 4/2008 (TR IRPF Navarra), en la redacción del art. primero.Dieciséis de la LF 17/2025 (efectos 1-1-2026)",
+   "fuente": "BOE-A-2026-3910 (LF 17/2025, art. primero.Dieciséis)",
    "estado": "provisional",
-   "umbral": 14490,
+   "umbral": 15400,
    "rentas_max_individual": 21619.59,
-   "rentas_max_unidad_familiar": 28980
+   "rentas_max_unidad_familiar": 30800
   },
   "dt_abatimiento_pre1994": {
    "norma": "DT TR IRPF Navarra (equivalente a la DT 9ª LIRPF)",
