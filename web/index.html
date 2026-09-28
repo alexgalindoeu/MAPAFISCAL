@@ -9,9 +9,19 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500&display=swap">
 <link rel="stylesheet" href="css/mapafiscal.css">
+<meta name="google-adsense-account" content="ca-pub-3028486034839853">
 </head>
 <body>
 <!--CUERPO-->
+<!-- Carriles de anuncios en el margen de la página (solo pantallas muy anchas; ver
+     .anuncio-carril en mapafiscal.css). Vacíos y ocultos hasta que anuncios.js decida
+     mostrarlos: nunca para quien tiene plan Gestor ni con anuncios:false. -->
+<aside class="anuncio-carril anuncio-carril-izq" id="anuncio-rail-izq" hidden>
+  <span class="anuncio-etiqueta">Publicidad</span>
+</aside>
+<aside class="anuncio-carril anuncio-carril-der" id="anuncio-rail-der" hidden>
+  <span class="anuncio-etiqueta">Publicidad</span>
+</aside>
 <header class="appbar">
   <div class="appbar-in">
     <a class="marca" href="#inicio" aria-label="Mapafiscal, inicio">
@@ -201,6 +211,10 @@
       </div>
 
       <p class="res-pie"><a href="#metodologia">Cómo calculamos</a></p>
+
+      <div class="tarjeta anuncio anuncio-calc" id="anuncio-calc" hidden>
+        <span class="anuncio-etiqueta">Publicidad</span>
+      </div>
     </aside>
   </div>
 </section>
@@ -232,6 +246,11 @@
       <table class="ranking" id="ranking"></table>
     </div>
   </div>
+
+  <div class="tarjeta anuncio anuncio-comparar" id="anuncio-comparar" hidden>
+    <span class="anuncio-etiqueta">Publicidad</span>
+  </div>
+
   <p class="nota nota-pie" id="comp-nota"></p>
 </section>
 
@@ -414,5 +433,6 @@
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.49.4/dist/umd/supabase.js" integrity="sha384-rwykjmWNwVxboyFmvK9OXN0wj9hnMHA2aAHtits54DuACyCq0M2PrSNxhRb+hvXT" crossorigin="anonymous"></script>
 <script src="js/irpfsim.js"></script>
 <script src="js/app.js"></script>
+<script src="js/anuncios.js"></script>
 </body>
 </html>

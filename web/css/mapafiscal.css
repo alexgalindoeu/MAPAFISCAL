@@ -462,10 +462,35 @@ details.mas:not([open]) summary { margin-bottom: 0; }
 
 /* ---- impresión: informe de cliente --------------------------------------------- */
 @media print {
-  .appbar, .pie, .formulario, .acciones-res, .cabecera-acciones, .res-pie, .res-pista, .nav { display: none !important; }
+  .appbar, .pie, .formulario, .acciones-res, .cabecera-acciones, .res-pie, .res-pista, .nav,
+  .anuncio, .anuncio-carril { display: none !important; }
   body { background: #fff; }
   .calc { display: block; }
   .tarjeta { box-shadow: none; break-inside: avoid; }
+}
+
+/* ---- anuncios -------------------------------------------------------------------
+   Huecos en flujo (.anuncio, dentro de .resultado y bajo .comparar) y carriles fijos en
+   el margen de la página para pantallas muy anchas (.anuncio-carril, "como en los
+   periódicos"). Los pone anuncios.js: aquí solo el espacio reservado, para que nada
+   salte al cargar, y la etiqueta "Publicidad" que exige distinguirlos del contenido. */
+.anuncio { min-height: 250px; display: flex; flex-direction: column; align-items: center;
+  justify-content: center; gap: 8px; }
+.anuncio[hidden] { display: none; }
+.anuncio-etiqueta { font-size: 11px; color: var(--tinta-3); text-transform: uppercase;
+  letter-spacing: .04em; align-self: flex-start; }
+.anuncio ins { width: 100%; }
+
+.anuncio-carril { position: fixed; top: 84px; width: 160px; z-index: 10; display: none;
+  flex-direction: column; align-items: center; gap: 6px; }
+.anuncio-carril[hidden] { display: none; }
+.anuncio-carril-izq { right: calc(50% + 636px); }
+.anuncio-carril-der { left: calc(50% + 636px); }
+/* 636px = mitad de .contenedor (1240px / 2) + 16px de margen antes del carril. Solo caben
+   sin apretar el contenido a partir de ~1600px; por debajo, se quedan sin mostrar y el
+   hueco en flujo (.anuncio-calc / .anuncio-comparar) hace su papel igual. */
+@media (min-width: 1600px) {
+  .anuncio-carril:not([hidden]) { display: flex; }
 }
 
 /* ---- pantallas muy estrechas ---------------------------------------------------- */
