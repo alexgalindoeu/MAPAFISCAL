@@ -70,15 +70,27 @@ deducciones_estatales <- function(hogar, P, rentas, base_liquidable_total, perso
 #     taper_individual / taper_conjunta: [desde, hasta] -> reducción lineal del importe
 #       (o del `limite` en las porcentuales) cuando la base está entre ambos umbrales
 #     grupo: variantes excluyentes de una misma deducción; solo se aplica la mayor
+#     suma_bases: "imponibles" -> las puertas y el taper usan la suma de bases imponibles
+#       general y del ahorro (0435 + 0460) en vez de la de bases liquidables (por defecto);
+#     base_gate: "menos_minimo" -> base imponible − mínimo del gravamen autonómico (0520)
 #     base_max_por_miembro_uf: base de la UF <= importe x nº de miembros (declarantes +
 #       descendientes < 18); requiere_familia_numerosa_reciente (hogar$familia_numerosa_reciente)
+#     requiere_discapacidad_65_de: "declarantes_o_descendientes" | "contribuyente_o_descendientes"
+#     (en fija_por_hijo) hijos_desde_orden: N -> solo cuentan los hijos a partir del N-ésimo
+#     (en fija_por_hijo_nacido) anios_ventana_desde: N -> la ventana empieza en el N-ésimo año
+#     duplica_hijo_discapacidad (fija_por_hijo[_nacido]): x2 por hijo con discapacidad >= 33 %
+#     descendientes_edad_max_cuenta: E -> descendientes_min/max solo cuentan edad <= E
+#     factor_discapacidad: {factor, grado: "33"|"65_mas", de: "contribuyente"|
+#       "contribuyente_o_descendientes"|"declarantes_o_descendientes"}
+#     miembros_uf_hijos_edad_max (base_max_por_miembro_uf): edad máxima de los hijos que
+#       cuentan como miembros de la UF (17 por defecto)
 #   fija_por_ascendiente: edad_ascendiente_min, ascendiente_discapacidad (false/"65_mas"),
 #     edad_ascendiente_min_discapacidad, requiere_minimo_ascendiente (ver el bloque del tipo)
 #   tipo: "porcentaje_campos_hijo" -> varios campos por hijo con límite único por hijo
 #     (campos, limite, limite_si_campo, primer_ciclo; ver el bloque del tipo)
 deducciones_autonomicas <- function(hogar, P, rentas, modo = "individual", base_total = 0,
                                     cuota_integra_autonomica = NA_real_, minimo = 0,
-                                    declarante_id = NULL) {
+                                    declarante_id = NULL, minimo_autonomico = minimo) {
   da <- P$jurisdiccion$deducciones_autonomicas
   if (is.null(da) || identical(da$estado, "pendiente") ||
       !length(da$lista %||% list())) {
@@ -92,6 +104,16 @@ deducciones_autonomicas <- function(hogar, P, rentas, modo = "individual", base_
   n_prog  <- length(declarantes(hogar))
   base_ind <- base_total
   base_uf  <- base_total   # aproximación: base del ámbito liquidado (ver docs/02_cobertura §5.4)
+  # Suma de las bases IMPONIBLES general y del ahorro (casillas 0435 + 0460), antes de las
+  # reducciones: la usan las puertas con `suma_bases: imponibles` y `base_gate: menos_minimo`
+  # (base imponible − mínimo personal y familiar del gravamen autonómico, casilla 0520).
+  base_imp <- if (is.null(rentas$base_imponible_general)) base_total else
+    rentas$base_imponible_general + (rentas$base_imponible_ahorro %||% 0)
+  base_puerta <- function(d) {
+    if (identical(g(d, "base_gate"), "menos_minimo")) return(max(0, base_imp - minimo_autonomico))
+    if (identical(g(d, "suma_bases"), "imponibles")) return(base_imp)
+    base_ind
+  }
   desc <- descendientes(hogar)
 
   # Ámbito personal: en individual, el declarante que se liquida; en conjunta, todos.
@@ -139,22 +161,27 @@ deducciones_autonomicas <- function(hogar, P, rentas, modo = "individual", base_
   }
 
   pasa_puertas <- function(d) {
-    b <- if (identical(g(d,"base_gate"), "menos_minimo")) max(0, base_total - minimo) else base_ind
+    b <- base_puerta(d)
     if (!is.null(g(d,"base_max_individual")) && !es_conj && b > g(d,"base_max_individual")) return(FALSE)
     if (!is.null(g(d,"base_max_conjunta"))   &&  es_conj && b > g(d,"base_max_conjunta"))   return(FALSE)
     if (!is.null(g(d,"base_min_individual")) && !es_conj && b < g(d,"base_min_individual")) return(FALSE)
     if (!is.null(g(d,"base_min_conjunta"))   &&  es_conj && b < g(d,"base_min_conjunta"))   return(FALSE)
-    if (!is.null(g(d,"base_max_unidad_familiar")) && base_uf > g(d,"base_max_unidad_familiar")) return(FALSE)
+    b_uf <- if (identical(g(d, "suma_bases"), "imponibles")) base_imp else base_uf
+    if (!is.null(g(d,"base_max_unidad_familiar")) && b_uf > g(d,"base_max_unidad_familiar")) return(FALSE)
     # límite de la UF proporcional a sus miembros (Madrid, art. 18.2 DL 1/2010): miembros =
     # declarantes + descendientes menores de 18 (aproximación de la unidad familiar)
     bpm <- g(d, "base_max_por_miembro_uf")
     if (!is.null(bpm)) {
-      n_uf <- length(decs) + sum(vapply(desc, function(h) (h$edad %||% 99) < 18, logical(1)))
-      if (base_uf > bpm * n_uf) return(FALSE)
+      e_uf <- g(d, "miembros_uf_hijos_edad_max") %||% 17   # Galicia (libros): hijos < 25 -> 24
+      n_uf <- length(decs) + sum(vapply(desc, function(h) (h$edad %||% 99) <= e_uf, logical(1)))
+      if (b_uf > bpm * n_uf) return(FALSE)
     }
     if (isTRUE(g(d, "requiere_familia_numerosa_reciente")) &&
         !isTRUE(hogar$familia_numerosa_reciente)) return(FALSE)
-    nd <- length(desc)
+    # `descendientes_edad_max_cuenta: E`: descendientes_min/max solo cuentan a los de edad <= E
+    # (Galicia: «dos o más hijos menores de edad», «dos o más hijos de 3 o menos años»)
+    emc <- g(d, "descendientes_edad_max_cuenta")
+    nd <- if (is.null(emc)) length(desc) else sum(vapply(desc, function(h) (h$edad %||% 99) <= emc, logical(1)))
     # `descendientes_sin_deduccion: <id>`: no cuentan los descendientes que dan derecho a
     # la deducción <id> de la misma lista, si esta pasa sus puertas (C. Valenciana, art.
     # 4.Uno.aa: los incrementos por despoblamiento son incompatibles con los de nacimiento)
@@ -202,6 +229,14 @@ deducciones_autonomicas <- function(hogar, P, rentas, modo = "individual", base_
       if (!hay) return(FALSE)
     }
     if (isTRUE(g(d,"requiere_parto_multiple")) && !isTRUE(hogar$parto_multiple)) return(FALSE)
+    # discapacidad >= 65 % de algún declarante (o, con "contribuyente_o_descendientes", de la
+    # persona del ámbito liquidado) o de algún descendiente (CyL art. 3; Galicia art. 5.Tres)
+    r65 <- g(d, "requiere_discapacidad_65_de")
+    if (!is.null(r65)) {
+      quien <- c(if (identical(r65, "contribuyente_o_descendientes")) ambito else decs, desc)
+      if (!any(vapply(quien, function(p) identical(p$discapacidad %||% "no", "65_mas"), logical(1))))
+        return(FALSE)
+    }
     # municipio de residencia: población máxima y/o lista oficial de zonas despobladas
     mh <- g(d, "municipio_hab_max")
     if (!is.null(mh) && (is.null(hogar$municipio_habitantes) || hogar$municipio_habitantes > mh)) return(FALSE)
@@ -226,7 +261,7 @@ deducciones_autonomicas <- function(hogar, P, rentas, modo = "individual", base_
     tp <- if (es_conj) g(d, "taper_conjunta") else g(d, "taper_individual")
     if (is.null(tp)) return(1)
     tp <- unlist(tp)
-    b <- if (identical(g(d,"base_gate"), "menos_minimo")) max(0, base_total - minimo) else base_ind
+    b <- base_puerta(d)
     if (b <= tp[1]) return(1)
     max(0, min(1, 1 - (b - tp[1]) / (tp[2] - tp[1])))
   }
@@ -291,18 +326,28 @@ deducciones_autonomicas <- function(hogar, P, rentas, modo = "individual", base_
 
     } else if (identical(tipo, "fija_por_hijo_nacido")) {
       ventana <- (g(d,"anios_ventana") %||% 1)
-      es_nacido <- function(h) (h$edad %||% 99) <= ventana - 1 || isTRUE(h$nacido_en_ejercicio)
+      # `anios_ventana_desde: N`: la ventana empieza en el N-ésimo ejercicio (edad >= N − 1),
+      # p. ej. los dos años siguientes al nacimiento (Galicia, art. 5.Dos.2)
+      desde <- g(d, "anios_ventana_desde") %||% 1
+      es_nacido <- function(h) {
+        if (desde > 1) return(!isTRUE(h$nacido_en_ejercicio) && (h$edad %||% 99) >= desde - 1 &&
+                                (h$edad %||% 99) <= ventana - 1)
+        (h$edad %||% 99) <= ventana - 1 || isTRUE(h$nacido_en_ejercicio)
+      }
+      # `duplica_hijo_discapacidad`: x2 por cada hijo con discapacidad >= 33 % (Galicia 5.Dos.4)
+      f_hijo <- function(h) if (isTRUE(g(d, "duplica_hijo_discapacidad")) &&
+                                 !identical(h$discapacidad %||% "no", "no")) 2 else 1
       nacidos <- Filter(es_nacido, desc)
       ipo <- g(d, "importes_por_orden")
       if (!is.null(ipo)) {
         ord <- order(vapply(desc, function(h) -(h$edad %||% 0), numeric(1)))
         for (k in seq_along(desc)) if (es_nacido(desc[[ord[k]]])) {
           key <- if (k <= 2) as.character(k) else "3+"
-          val <- val + (ipo[[key]] %||% ipo[["3+"]] %||% 0)
+          val <- val + (ipo[[key]] %||% ipo[["3+"]] %||% 0) * f_hijo(desc[[ord[k]]])
         }
       } else {
         imp_h <- if (es_conj && !is.null(g(d,"importe_conjunta"))) g(d,"importe_conjunta") else (g(d,"importe") %||% 0)
-        val <- length(nacidos) * imp_h
+        val <- sum(vapply(nacidos, function(h) imp_h * f_hijo(h), numeric(1)))
         if (isTRUE(hogar$parto_multiple)) {
           im <- g(d,"importe_multiple") %||% imp_h
           # `multiple_por_hijo`: el incremento es por cada hijo nacido en el parto múltiple,
@@ -314,7 +359,11 @@ deducciones_autonomicas <- function(hogar, P, rentas, modo = "individual", base_
     } else if (identical(tipo, "fija_por_hijo")) {
       hh <- Filter(function(h) (is.null(g(d,"edad_hijo_min")) || (h$edad %||% 99) >= g(d,"edad_hijo_min")) &&
                                (is.null(g(d,"edad_hijo_max")) || (h$edad %||% 99) <= g(d,"edad_hijo_max")), desc)
-      val <- length(hh) * (g(d,"importe") %||% 0)
+      # `hijos_desde_orden: N`: solo cuentan a partir del N-ésimo (p. ej. 1.000 € desde el sexto)
+      n_h <- max(0, length(hh) - ((g(d, "hijos_desde_orden") %||% 1) - 1))
+      if (isTRUE(g(d, "duplica_hijo_discapacidad")))   # cada hijo con discapacidad >= 33 % cuenta dos veces
+        n_h <- n_h + sum(vapply(utils::tail(hh, n_h), function(h) !identical(h$discapacidad %||% "no", "no"), logical(1)))
+      val <- n_h * (g(d,"importe") %||% 0)
 
     } else if (identical(tipo, "fija_por_ascendiente")) {
       # cuenta el ascendiente por edad (`edad_ascendiente_min`) o por discapacidad;
@@ -352,6 +401,20 @@ deducciones_autonomicas <- function(hogar, P, rentas, modo = "individual", base_
     fm <- g(d, "incremento_municipio")
     if (!is.null(fm) && !is.null(hogar$municipio_habitantes) && hogar$municipio_habitantes <= fm$hab_max)
       val <- val * fm$factor
+    # `factor_discapacidad: {factor, grado, de}`: multiplica el importe si alguien del grupo
+    # tiene la discapacidad (grado "33" = cualquiera >= 33 %; "65_mas") (Galicia 5.Tres, 5.Siete)
+    fd <- g(d, "factor_discapacidad")
+    if (!is.null(fd)) {
+      grupo_fd <- switch(fd$de %||% "contribuyente",
+                         contribuyente = ambito,
+                         contribuyente_o_descendientes = c(ambito, desc),
+                         declarantes_o_descendientes = c(decs, desc))
+      cumple <- function(p) {
+        di <- p$discapacidad %||% "no"
+        if (identical(fd$grado, "65_mas")) identical(di, "65_mas") else !identical(di, "no")
+      }
+      if (any(vapply(grupo_fd, cumple, logical(1)))) val <- val * (fd$factor %||% 2)
+    }
     if (prorratea(d) && ind_compartido) val <- val / n_prog
     if (val > 0) cand[[length(cand) + 1]] <- list(id = g(d,"id") %||% "ded", val = val,
                                                   grupo = g(d, "grupo"))

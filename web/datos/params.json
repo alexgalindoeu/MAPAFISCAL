@@ -788,6 +788,7 @@
       "edad_max": 35,
       "edad_min_alt": 65,
       "base_max_individual": 25000,
+      "suma_bases": "imponibles",
       "base_max_conjunta": 30000
      },
      {
@@ -802,6 +803,7 @@
       "grupo": "alquiler_an",
       "requiere_discapacidad_contribuyente": true,
       "base_max_individual": 25000,
+      "suma_bases": "imponibles",
       "base_max_conjunta": 30000
      },
      {
@@ -811,6 +813,7 @@
       "importe": 200,
       "requiere_familia_numerosa": true,
       "base_max_individual": 25000,
+      "suma_bases": "imponibles",
       "base_max_conjunta": 30000
      },
      {
@@ -820,6 +823,7 @@
       "importe": 200,
       "requiere_familia_numerosa": "especial",
       "base_max_individual": 25000,
+      "suma_bases": "imponibles",
       "base_max_conjunta": 30000
      },
      {
@@ -829,6 +833,7 @@
       "importe": 100,
       "requiere_monoparental": true,
       "base_max_individual": 80000,
+      "suma_bases": "imponibles",
       "base_max_conjunta": 100000
      },
      {
@@ -843,6 +848,7 @@
       "requiere_minimo_ascendiente": true,
       "requiere_monoparental": true,
       "base_max_individual": 80000,
+      "suma_bases": "imponibles",
       "base_max_conjunta": 100000
      },
      {
@@ -852,6 +858,7 @@
       "importe": 150,
       "requiere_discapacidad_contribuyente": true,
       "base_max_individual": 25000,
+      "suma_bases": "imponibles",
       "base_max_conjunta": 30000
      },
      {
@@ -862,6 +869,7 @@
       "porcentaje": 0.15,
       "limite": 150,
       "base_max_individual": 80000,
+      "suma_bases": "imponibles",
       "base_max_conjunta": 100000
      },
      {
@@ -1782,6 +1790,7 @@
       "importe_multiple": 300,
       "anios_ventana": 1,
       "base_max_individual": 27000,
+      "suma_bases": "imponibles",
       "base_max_conjunta": 36000
      },
      {
@@ -1791,6 +1800,7 @@
       "importe": 200,
       "requiere_familia_numerosa": true,
       "base_max_individual": 27000,
+      "suma_bases": "imponibles",
       "base_max_conjunta": 36000
      },
      {
@@ -1800,6 +1810,7 @@
       "importe": 200,
       "requiere_familia_numerosa": "especial",
       "base_max_individual": 27000,
+      "suma_bases": "imponibles",
       "base_max_conjunta": 36000
      },
      {
@@ -1809,6 +1820,7 @@
       "importe": 200,
       "requiere_monoparental": true,
       "base_max_individual": 27000,
+      "suma_bases": "imponibles",
       "base_max_conjunta": 36000
      },
      {
@@ -1820,6 +1832,7 @@
       "limite": 500,
       "edad_hijo_max": 2,
       "base_max_individual": 27000,
+      "suma_bases": "imponibles",
       "base_max_conjunta": 36000
      },
      {
@@ -1829,6 +1842,7 @@
       "importe": 300,
       "requiere_discapacidad_grado": "65_mas",
       "base_max_individual": 27000,
+      "suma_bases": "imponibles",
       "base_max_conjunta": 36000
      },
      {
@@ -1839,6 +1853,7 @@
       "importe": 150,
       "edad_min": 76,
       "base_max_individual": 27000,
+      "suma_bases": "imponibles",
       "base_max_conjunta": 36000
      },
      {
@@ -1849,6 +1864,7 @@
       "importe": 150,
       "edad_ascendiente_min": 76,
       "base_max_individual": 27000,
+      "suma_bases": "imponibles",
       "base_max_conjunta": 36000
      },
      {
@@ -1860,6 +1876,7 @@
       "limite": 500,
       "edad_max": 36,
       "base_max_individual": 27000,
+      "suma_bases": "imponibles",
       "base_max_conjunta": 36000
      },
      {
@@ -1946,10 +1963,53 @@
      {
       "id": "familia_numerosa",
       "norma": "Art. 3 DL 1/2013 CyL",
-      "estado": "provisional",
+      "estado": "confirmado",
+      "fuente": "AEAT Manual Práctico Renta 2025, Parte 2, Castilla y León, «Por familia numerosa» (https://sede.agenciatributaria.gob.es/Sede/ayuda/manuales-videos-folletos/manuales-practicos/irpf-2025-deducciones-autonomicas/comunidad-autonoma-castilla-leon/familia-numerosa.html); arts. 3 y 10 DL 1/2013 (el texto refundido no está consolidado en el BOE)",
       "tipo": "fija",
       "importe": 600,
+      "requiere_familia_numerosa": true,
+      "descendientes_max": 3
+     },
+     {
+      "id": "familia_numerosa_4_descendientes",
+      "norma": "Art. 3 DL 1/2013 CyL",
+      "estado": "confirmado",
+      "fuente": "AEAT Manual Práctico Renta 2025, Parte 2, Castilla y León, «Por familia numerosa» (https://sede.agenciatributaria.gob.es/Sede/ayuda/manuales-videos-folletos/manuales-practicos/irpf-2025-deducciones-autonomicas/comunidad-autonoma-castilla-leon/familia-numerosa.html)",
+      "tipo": "fija",
+      "importe": 1500,
+      "requiere_familia_numerosa": true,
+      "descendientes_min": 4,
+      "descendientes_max": 4
+     },
+     {
+      "id": "familia_numerosa_5_descendientes",
+      "norma": "Art. 3 DL 1/2013 CyL",
+      "estado": "confirmado",
+      "fuente": "AEAT Manual Práctico Renta 2025, Parte 2, Castilla y León, «Por familia numerosa» (https://sede.agenciatributaria.gob.es/Sede/ayuda/manuales-videos-folletos/manuales-practicos/irpf-2025-deducciones-autonomicas/comunidad-autonoma-castilla-leon/familia-numerosa.html)",
+      "tipo": "fija",
+      "importe": 2500,
+      "requiere_familia_numerosa": true,
+      "descendientes_min": 5
+     },
+     {
+      "id": "familia_numerosa_desde_6_descendiente",
+      "norma": "Art. 3 DL 1/2013 CyL",
+      "estado": "confirmado",
+      "fuente": "AEAT Manual Práctico Renta 2025, Parte 2, Castilla y León, «Por familia numerosa» (https://sede.agenciatributaria.gob.es/Sede/ayuda/manuales-videos-folletos/manuales-practicos/irpf-2025-deducciones-autonomicas/comunidad-autonoma-castilla-leon/familia-numerosa.html)",
+      "tipo": "fija_por_hijo",
+      "importe": 1000,
+      "hijos_desde_orden": 6,
       "requiere_familia_numerosa": true
+     },
+     {
+      "id": "familia_numerosa_discapacidad",
+      "norma": "Art. 3 DL 1/2013 CyL",
+      "estado": "confirmado",
+      "fuente": "AEAT Manual Práctico Renta 2025, Parte 2, Castilla y León, «Por familia numerosa» (https://sede.agenciatributaria.gob.es/Sede/ayuda/manuales-videos-folletos/manuales-practicos/irpf-2025-deducciones-autonomicas/comunidad-autonoma-castilla-leon/familia-numerosa.html)",
+      "tipo": "fija",
+      "importe": 600,
+      "requiere_familia_numerosa": true,
+      "requiere_discapacidad_65_de": "declarantes_o_descendientes"
      },
      {
       "id": "arrendamiento_vivienda_habitual_joven",
@@ -2339,14 +2399,17 @@
     "lista": [
      {
       "id": "nacimiento_adopcion_renta_baja",
-      "norma": "Art. 5.Dos DL 1/2011",
+      "norma": "Art. 5.Dos.1.b), 3 y 4 DL 1/2011",
+      "estado": "confirmado",
+      "fuente": "Art. 5.Dos DL 1/2011, redacción vigente en 2025 (BOE-A-2011-18161); AEAT Manual Práctico Renta 2025, Parte 2, Galicia, «Por nacimiento o adopción de hijos» (https://sede.agenciatributaria.gob.es/Sede/ayuda/manuales-videos-folletos/manuales-practicos/irpf-2025-deducciones-autonomicas/comunidad-autonoma-galicia/nacimiento-adopcion-hijos.html)",
       "tipo": "fija_por_hijo_nacido",
-      "anios_ventana": 3,
+      "anios_ventana": 1,
       "importes_por_orden": {
        "1": 360,
        "2": 1200,
        "3+": 2400
       },
+      "duplica_hijo_discapacidad": true,
       "base_gate": "menos_minimo",
       "base_max_individual": 22000,
       "base_max_conjunta": 22000,
@@ -2356,12 +2419,31 @@
       }
      },
      {
+      "id": "nacimiento_adopcion_renta_baja_anios_siguientes",
+      "norma": "Art. 5.Dos.2.b), 3 y 4 DL 1/2011",
+      "estado": "confirmado",
+      "fuente": "Art. 5.Dos DL 1/2011, redacción vigente en 2025 (BOE-A-2011-18161); AEAT Manual Práctico Renta 2025, Parte 2, Galicia, «Por nacimiento o adopción de hijos» (https://sede.agenciatributaria.gob.es/Sede/ayuda/manuales-videos-folletos/manuales-practicos/irpf-2025-deducciones-autonomicas/comunidad-autonoma-galicia/nacimiento-adopcion-hijos.html)",
+      "tipo": "fija_por_hijo_nacido",
+      "anios_ventana": 3,
+      "anios_ventana_desde": 2,
+      "importes_por_orden": {
+       "1": 360,
+       "2": 1200,
+       "3+": 2400
+      },
+      "duplica_hijo_discapacidad": true,
+      "base_gate": "menos_minimo",
+      "base_max_individual": 22000,
+      "base_max_conjunta": 22000
+     },
+     {
       "id": "nacimiento_adopcion_renta_media",
-      "norma": "Art. 5.Dos DL 1/2011",
+      "norma": "Art. 5.Dos.1.a) DL 1/2011",
       "tipo": "fija_por_hijo_nacido",
       "anios_ventana": 1,
       "importe": 300,
       "importe_multiple": 360,
+      "duplica_hijo_discapacidad": true,
       "base_gate": "menos_minimo",
       "base_min_individual": 22000.01,
       "base_min_conjunta": 22000.01,
@@ -2372,88 +2454,198 @@
      },
      {
       "id": "nacimiento_adopcion_anios_siguientes_renta_media",
-      "norma": "Art. 5.Dos DL 1/2011",
-      "estado": "provisional",
+      "norma": "Art. 5.Dos.2.a), 3 y 4 DL 1/2011",
+      "estado": "confirmado",
+      "fuente": "Art. 5.Dos DL 1/2011, redacción vigente en 2025 (BOE-A-2011-18161); AEAT Manual Práctico Renta 2025, Parte 2, Galicia, «Por nacimiento o adopción de hijos» (https://sede.agenciatributaria.gob.es/Sede/ayuda/manuales-videos-folletos/manuales-practicos/irpf-2025-deducciones-autonomicas/comunidad-autonoma-galicia/nacimiento-adopcion-hijos.html)",
       "tipo": "fija_por_hijo",
       "importe": 300,
       "edad_hijo_min": 1,
       "edad_hijo_max": 2,
+      "duplica_hijo_discapacidad": true,
       "base_gate": "menos_minimo",
       "base_min_individual": 22000.01,
       "base_min_conjunta": 22000.01,
       "base_max_individual": 31000,
-      "base_max_conjunta": 31000,
-      "incremento_municipio": {
-       "hab_max": 4999,
-       "factor": 1.2
-      }
+      "base_max_conjunta": 31000
      },
      {
       "id": "familias_dos_hijos",
       "norma": "Art. 5.Tres.1 DL 1/2011",
+      "estado": "confirmado",
+      "fuente": "Art. 5.Tres DL 1/2011, redacción de la Ley 10/2023 (BOE-A-2024-2777), vigente en 2025; AEAT Manual Práctico Renta 2025, Parte 2, Galicia, «Para familias con dos hijos e hijas» (https://sede.agenciatributaria.gob.es/Sede/ayuda/manuales-videos-folletos/manuales-practicos/irpf-2025-deducciones-autonomicas/comunidad-autonoma-galicia/familias-dos-hijos-hijas.html)",
       "tipo": "fija",
       "importe": 250,
       "descendientes_min": 2,
-      "descendientes_max": 2
+      "descendientes_max": 2,
+      "familia_numerosa_categoria": "no",
+      "factor_discapacidad": {
+       "factor": 2,
+       "grado": "65_mas",
+       "de": "contribuyente_o_descendientes"
+      }
      },
      {
       "id": "familia_numerosa",
-      "norma": "Art. 5.Tres.2 DL 1/2011",
+      "norma": "Art. 5.Tres.2.a) DL 1/2011",
+      "estado": "confirmado",
+      "fuente": "Art. 5.Tres DL 1/2011, redacción de la Ley 10/2023 (BOE-A-2024-2777), vigente en 2025; AEAT Manual Práctico Renta 2025, Parte 2, Galicia, «Por familia numerosa» (https://sede.agenciatributaria.gob.es/Sede/ayuda/manuales-videos-folletos/manuales-practicos/irpf-2025-deducciones-autonomicas/comunidad-autonoma-galicia/familia-numerosa.html)",
+      "tipo": "fija",
+      "importe": 250,
+      "familia_numerosa_categoria": "general",
+      "descendientes_max": 2,
+      "factor_discapacidad": {
+       "factor": 2,
+       "grado": "65_mas",
+       "de": "contribuyente_o_descendientes"
+      }
+     },
+     {
+      "id": "familia_numerosa_especial_hasta_2_hijos",
+      "norma": "Art. 5.Tres.2.a) DL 1/2011",
+      "estado": "confirmado",
+      "fuente": "Art. 5.Tres DL 1/2011, redacción de la Ley 10/2023 (BOE-A-2024-2777), vigente en 2025; AEAT Manual Práctico Renta 2025, Parte 2, Galicia, «Por familia numerosa» (https://sede.agenciatributaria.gob.es/Sede/ayuda/manuales-videos-folletos/manuales-practicos/irpf-2025-deducciones-autonomicas/comunidad-autonoma-galicia/familia-numerosa.html)",
+      "tipo": "fija",
+      "importe": 400,
+      "familia_numerosa_categoria": "especial",
+      "descendientes_max": 2,
+      "factor_discapacidad": {
+       "factor": 2,
+       "grado": "65_mas",
+       "de": "contribuyente_o_descendientes"
+      }
+     },
+     {
+      "id": "familia_numerosa_mas_2_hijos",
+      "norma": "Art. 5.Tres.2.b) DL 1/2011",
+      "estado": "confirmado",
+      "fuente": "Art. 5.Tres DL 1/2011 y exposición de motivos de la Ley 10/2023 (BOE-A-2024-2777); AEAT Manual Práctico Renta 2025, Parte 2, Galicia, «Por familia numerosa» (https://sede.agenciatributaria.gob.es/Sede/ayuda/manuales-videos-folletos/manuales-practicos/irpf-2025-deducciones-autonomicas/comunidad-autonoma-galicia/familia-numerosa.html)",
+      "tipo": "fija",
+      "importe": 250,
+      "familia_numerosa_categoria": "general",
+      "descendientes_min": 3,
+      "factor_discapacidad": {
+       "factor": 2,
+       "grado": "65_mas",
+       "de": "contribuyente_o_descendientes"
+      }
+     },
+     {
+      "id": "familia_numerosa_especial_mas_2_hijos",
+      "norma": "Art. 5.Tres.2.b) DL 1/2011",
       "estado": "provisional",
       "tipo": "fija",
       "importe": 250,
-      "requiere_familia_numerosa": true
+      "familia_numerosa_categoria": "especial",
+      "descendientes_min": 3,
+      "factor_discapacidad": {
+       "factor": 2,
+       "grado": "65_mas",
+       "de": "contribuyente_o_descendientes"
+      }
+     },
+     {
+      "id": "familia_numerosa_incremento_por_hijo",
+      "norma": "Art. 5.Tres.2.b) DL 1/2011",
+      "estado": "confirmado",
+      "fuente": "Art. 5.Tres DL 1/2011 y exposición de motivos de la Ley 10/2023 (BOE-A-2024-2777): «a partir de la tercera hija o hijo la deducción aumenta en 250 euros por cada hija o hijo»; AEAT Manual Práctico Renta 2025, Parte 2, Galicia, «Por familia numerosa»",
+      "tipo": "fija_por_hijo",
+      "importe": 250,
+      "hijos_desde_orden": 3,
+      "requiere_familia_numerosa": true,
+      "factor_discapacidad": {
+       "factor": 2,
+       "grado": "65_mas",
+       "de": "contribuyente_o_descendientes"
+      }
      },
      {
       "id": "arrendamiento_vivienda_habitual_general",
       "norma": "Art. 5.Siete DL 1/2011",
-      "estado": "provisional",
+      "estado": "confirmado",
+      "fuente": "Art. 5.Siete DL 1/2011, redacción vigente en 2025 (BOE-A-2011-18161); AEAT Manual Práctico Renta 2025, Parte 2, Galicia, «Por alquiler de la vivienda habitual» (https://sede.agenciatributaria.gob.es/Sede/ayuda/manuales-videos-folletos/manuales-practicos/irpf-2025-deducciones-autonomicas/comunidad-autonoma-galicia/alquiler-vivienda-habitual.html)",
       "tipo": "porcentaje_campo",
       "campo": "alquiler_vivienda_pagos",
       "porcentaje": 0.1,
       "limite": 300,
+      "grupo": "alquiler_ga",
       "edad_max": 36,
-      "descendientes_max": 1,
-      "base_gate": "menos_minimo",
+      "suma_bases": "imponibles",
       "base_max_individual": 22000,
-      "base_max_conjunta": 31000
+      "base_max_conjunta": 22000,
+      "factor_discapacidad": {
+       "factor": 2,
+       "grado": "33",
+       "de": "contribuyente"
+      }
      },
      {
       "id": "arrendamiento_vivienda_habitual_dos_hijos",
       "norma": "Art. 5.Siete DL 1/2011",
-      "estado": "provisional",
+      "estado": "confirmado",
+      "fuente": "Art. 5.Siete DL 1/2011, redacción vigente en 2025 (BOE-A-2011-18161); AEAT Manual Práctico Renta 2025, Parte 2, Galicia, «Por alquiler de la vivienda habitual» (https://sede.agenciatributaria.gob.es/Sede/ayuda/manuales-videos-folletos/manuales-practicos/irpf-2025-deducciones-autonomicas/comunidad-autonoma-galicia/alquiler-vivienda-habitual.html)",
       "tipo": "porcentaje_campo",
       "campo": "alquiler_vivienda_pagos",
       "porcentaje": 0.2,
       "limite": 600,
+      "grupo": "alquiler_ga",
       "edad_max": 36,
       "descendientes_min": 2,
+      "descendientes_edad_max_cuenta": 17,
+      "suma_bases": "imponibles",
+      "base_max_individual": 22000,
+      "base_max_conjunta": 22000,
+      "factor_discapacidad": {
+       "factor": 2,
+       "grado": "33",
+       "de": "contribuyente"
+      }
+     },
+     {
+      "id": "cuidado_hijos_menores",
+      "norma": "Art. 5.Cinco DL 1/2011",
+      "estado": "confirmado",
+      "fuente": "Art. 5.Cinco DL 1/2011, redacción vigente en 2025 (BOE-A-2011-18161); AEAT Manual Práctico Renta 2025, Parte 2, Galicia, «Por cuidado de hijos menores» (https://sede.agenciatributaria.gob.es/Sede/ayuda/manuales-videos-folletos/manuales-practicos/irpf-2025-deducciones-autonomicas/comunidad-autonoma-galicia/cuidado-hijos-menores.html)",
+      "tipo": "porcentaje_campo",
+      "campo": "gastos_cuidado_hijos",
+      "porcentaje": 0.3,
+      "limite": 400,
+      "grupo": "cuidado_ga",
+      "descendiente_edad_max": 3,
+      "requiere_progenitores_trabajan": true,
       "base_gate": "menos_minimo",
       "base_max_individual": 22000,
       "base_max_conjunta": 31000
      },
      {
-      "id": "cuidado_hijos_menores",
+      "id": "cuidado_hijos_menores_dos",
       "norma": "Art. 5.Cinco DL 1/2011",
-      "estado": "provisional",
+      "estado": "confirmado",
+      "fuente": "Art. 5.Cinco DL 1/2011, redacción vigente en 2025 (BOE-A-2011-18161); AEAT Manual Práctico Renta 2025, Parte 2, Galicia, «Por cuidado de hijos menores» (https://sede.agenciatributaria.gob.es/Sede/ayuda/manuales-videos-folletos/manuales-practicos/irpf-2025-deducciones-autonomicas/comunidad-autonoma-galicia/cuidado-hijos-menores.html)",
       "tipo": "porcentaje_campo",
       "campo": "gastos_cuidado_hijos",
       "porcentaje": 0.3,
-      "limite": 400,
+      "limite": 600,
+      "grupo": "cuidado_ga",
+      "descendientes_min": 2,
+      "descendientes_edad_max_cuenta": 3,
+      "requiere_progenitores_trabajan": true,
       "base_gate": "menos_minimo",
       "base_max_individual": 22000,
       "base_max_conjunta": 31000
      },
      {
       "id": "libros_texto_material_escolar",
-      "norma": "Art. 5.Veinticinco DL 1/2011",
-      "estado": "provisional",
-      "tipo": "porcentaje_campo",
+      "norma": "Art. 5.Veinticinco DL 1/2011 (añadido por la Ley 5/2025)",
+      "estado": "confirmado",
+      "fuente": "Art. 5.Veinticinco DL 1/2011, añadido por el art. 2 de la Ley 5/2025 de Galicia con efectos desde el 1-1-2025 (DF 3.ª.2; BOE-A-2026-3385); AEAT Manual Práctico Renta 2025, Parte 2, Galicia, «Por la adquisición de libros de texto y material escolar» (https://sede.agenciatributaria.gob.es/Sede/ayuda/manuales-videos-folletos/manuales-practicos/irpf-2025-deducciones-autonomicas/comunidad-autonoma-galicia/adquisicion-libros-texto-material-escolar.html)",
+      "tipo": "porcentaje_campo_hijo",
       "campo": "gastos_libros_texto",
       "porcentaje": 0.15,
-      "base_gate": "menos_minimo",
-      "base_max_individual": 22000,
-      "base_max_conjunta": 31000
+      "limite": 105,
+      "edad_hijo_max": 16,
+      "suma_bases": "imponibles",
+      "base_max_por_miembro_uf": 30000,
+      "miembros_uf_hijos_edad_max": 24
      }
     ],
     "pendientes": [
@@ -2536,6 +2728,7 @@
       "limite": 1237.2,
       "edad_max": 40,
       "base_max_individual": 26414.22,
+      "suma_bases": "imponibles",
       "base_max_conjunta": 37322.2,
       "base_max_unidad_familiar": 61860
      },
@@ -2547,6 +2740,7 @@
       "importe_multiple": 721.7,
       "anios_ventana": 3,
       "base_max_individual": 30930,
+      "suma_bases": "imponibles",
       "base_max_conjunta": 37322.2,
       "base_max_unidad_familiar": 61860,
       "prorratea_progenitores": true
@@ -2563,7 +2757,8 @@
       "limite_conjunta": 12372,
       "familia_numerosa_categoria": "general",
       "requiere_familia_numerosa_reciente": true,
-      "base_max_por_miembro_uf": 30930
+      "base_max_por_miembro_uf": 30930,
+      "suma_bases": "imponibles"
      },
      {
       "id": "familia_numerosa_especial",
@@ -2577,7 +2772,8 @@
       "limite_conjunta": 24744,
       "familia_numerosa_categoria": "especial",
       "requiere_familia_numerosa_reciente": true,
-      "base_max_por_miembro_uf": 30930
+      "base_max_por_miembro_uf": 30930,
+      "suma_bases": "imponibles"
      },
      {
       "id": "cuidado_ascendientes",
@@ -2599,7 +2795,8 @@
       "grupo": "empleada_hogar_md",
       "descendiente_edad_max": 2,
       "requiere_progenitores_trabajan": true,
-      "base_max_por_miembro_uf": 30930
+      "base_max_por_miembro_uf": 30930,
+      "suma_bases": "imponibles"
      },
      {
       "id": "cuidado_hijos_menores_3_empleada_hogar_fn",
@@ -2614,7 +2811,8 @@
       "requiere_familia_numerosa": true,
       "descendiente_edad_max": 2,
       "requiere_progenitores_trabajan": true,
-      "base_max_por_miembro_uf": 30930
+      "base_max_por_miembro_uf": 30930,
+      "suma_bases": "imponibles"
      },
      {
       "id": "empleada_hogar_contribuyente_discapacidad",
@@ -2627,7 +2825,8 @@
       "limite": 463.95,
       "grupo": "empleada_hogar_md",
       "requiere_discapacidad_contribuyente": true,
-      "base_max_por_miembro_uf": 30930
+      "base_max_por_miembro_uf": 30930,
+      "suma_bases": "imponibles"
      },
      {
       "id": "empleada_hogar_contribuyente_discapacidad_fn",
@@ -2641,7 +2840,8 @@
       "grupo": "empleada_hogar_md",
       "requiere_familia_numerosa": true,
       "requiere_discapacidad_contribuyente": true,
-      "base_max_por_miembro_uf": 30930
+      "base_max_por_miembro_uf": 30930,
+      "suma_bases": "imponibles"
      },
      {
       "id": "gastos_educativos",
@@ -2664,7 +2864,8 @@
        "limite": 1031,
        "campos": "gastos_escolaridad"
       },
-      "base_max_por_miembro_uf": 30930
+      "base_max_por_miembro_uf": 30930,
+      "suma_bases": "imponibles"
      }
     ],
     "pendientes": [
@@ -3335,6 +3536,7 @@
       "porcentaje": 0.1,
       "min_descendientes": 2,
       "base_max_individual": 30000,
+      "suma_bases": "imponibles",
       "base_max_conjunta": 30000
      },
      {

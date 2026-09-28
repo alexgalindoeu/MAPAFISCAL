@@ -173,3 +173,19 @@ test_that("Andalucía: alquiler con discapacidad, límite 1.500 € en vez de 1.
   expect_equal(d2[["arrendamiento_vivienda_habitual"]], 1200)
   expect_null(d2[["arrendamiento_vivienda_habitual_discapacidad"]])
 })
+
+test_that("Andalucía: los límites de renta usan la suma de bases IMPONIBLES (casillas 0435 + 0460)", {
+  # 30 años, 30.000 € de trabajo: base imponible 26.095 > 25.000. Con 1.500 € al plan de
+  # pensiones la base liquidable baja a 24.595, pero la deducción por alquiler (art. 10.1.a)
+  # mira la base imponible -> no aplica.
+  d <- persona("d1","declarante",30, trabajo=list(dinerarias=30000, cotizaciones_ss=1905),
+               prevision_social=list(aportacion_individual=1500), alquiler_vivienda_pagos=6000)
+  l <- liquidar(nuevo_hogar("v","ES-AN", list(d)), modo="individual")
+  expect_lt(l$base_liquidable_general, 25000)
+  expect_null(l$deducciones_autonomicas$detalle$arrendamiento_vivienda_habitual)
+  # sin la aportación, la base imponible es la misma y tampoco aplica; con 24.000 € de
+  # trabajo (base imponible 20.476) sí: 15 % de 6.000 = 900
+  d2 <- persona("d1","declarante",30, trabajo=list(dinerarias=24000, cotizaciones_ss=1524),
+                alquiler_vivienda_pagos=6000)
+  expect_equal(liquidar(nuevo_hogar("v","ES-AN", list(d2)))$deducciones_autonomicas$detalle$arrendamiento_vivienda_habitual, 900)
+})
