@@ -107,6 +107,7 @@ function layout({ title, description, canonical, breadcrumb, main, generado }) {
   <div class="contenedor pie-in">
     <p><b>Mapafiscal</b> ofrece estimaciones con fines informativos. No es una liquidación oficial ni asesoramiento fiscal.</p>
     <p class="pie-sec"><a href="/index.html#metodologia">Cómo calculamos</a> · Normativa del ejercicio 2025 · Motor validado R ↔ JavaScript · Datos generados el ${esc(generado)}</p>
+    <p class="pie-sec"><a href="/legal/aviso-legal.html">Aviso legal</a> · <a href="/legal/privacidad.html">Privacidad</a> · <a href="/legal/condiciones.html">Condiciones</a> · <a href="/legal/cookies.html">Cookies</a> · <a href="/legal/aviso-legal.html#contacto">Contacto</a></p>
   </div>
 </footer>
 </body>
@@ -255,7 +256,7 @@ escribirPagina("comparar-sueldo", paginaIndiceSalarios()); urls.push("/comparar-
 const hoy = territorios.generado;
 const sitemap = `<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-<url><loc>${SITIO}/index.html</loc><lastmod>${hoy}</lastmod><changefreq>weekly</changefreq><priority>1.0</priority></url>
+<url><loc>${SITIO}/</loc><lastmod>${hoy}</lastmod><changefreq>weekly</changefreq><priority>1.0</priority></url>
 ${urls.map(u => `<url><loc>${SITIO}${u}</loc><lastmod>${hoy}</lastmod><changefreq>monthly</changefreq><priority>0.7</priority></url>`).join("\n")}
 </urlset>
 `;
