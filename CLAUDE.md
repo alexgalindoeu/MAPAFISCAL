@@ -19,6 +19,8 @@ Rscript tools/montar_validador.R             # params + casos + tools/validar_js
 node tools/validar_js_node.js                # mismo validador sin navegador
 Rscript tools/generar_mapa.R                 # data/geo -> web/datos/mapa_es.json
 Rscript tools/sincronizar_supabase.R         # params.json -> supabase/seed/ (catálogo)
+Rscript tools/generar_datos_seo.R            # motor -> web/datos/seo_territorios.json y seo_comparativas.json
+node tools/generar_paginas_seo.mjs           # esos JSON -> páginas web/irpf/*, web/comparar-sueldo/*, sitemap.xml
 ```
 
 Si cambias una regla en R: (1) haz el mismo cambio en `web/js/irpfsim.js`, (2) añade el

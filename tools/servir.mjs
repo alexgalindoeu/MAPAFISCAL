@@ -9,12 +9,15 @@ const TIPOS = { ".html": "text/html; charset=utf-8", ".css": "text/css; charset=
 const puerto = Number(process.argv[2] || 8080);
 
 createServer(async (req, res) => {
-  const ruta = normalize(decodeURIComponent(new URL(req.url, "http://x").pathname)).replace(/^([/\\])+/, "");
+  const pathname = decodeURIComponent(new URL(req.url, "http://x").pathname);
+  const esDirectorio = pathname.endsWith("/");
+  const ruta = normalize(pathname).replace(/^([/\\])+/, "");
   const fichero = join(WEB, ruta || "index.html");
   if (!fichero.startsWith(WEB)) { res.writeHead(403).end(); return; }
   try {
-    const cuerpo = await readFile(fichero.endsWith("/") ? join(fichero, "index.html") : fichero);
-    res.writeHead(200, { "content-type": TIPOS[extname(fichero)] || "application/octet-stream" }).end(cuerpo);
+    const servido = esDirectorio ? join(fichero, "index.html") : fichero;
+    const cuerpo = await readFile(servido);
+    res.writeHead(200, { "content-type": TIPOS[extname(servido)] || "application/octet-stream" }).end(cuerpo);
   } catch {
     res.writeHead(404).end("No encontrado");
   }

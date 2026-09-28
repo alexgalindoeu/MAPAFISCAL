@@ -1,0 +1,690 @@
+{
+ "ejercicio": 2025,
+ "generado": "2026-09-27",
+ "supuesto": "Una persona declarante, 40 años, un único rendimiento del trabajo de 12 pagas, sin cónyuge ni hijos, sin vivienda ni deducciones autonómicas. Cotización a la Seguridad Social: 6,35 % del salario (el valor por defecto de la calculadora), sin aplicar el tope máximo de cotización. No es una liquidación oficial ni tiene en cuenta tu situación real.",
+ "ss_tipo": 0.0635,
+ "salarios": [
+  20000,
+  30000,
+  40000,
+  60000,
+  100000
+ ],
+ "comparativas": {
+  "20000": [
+   {
+    "puesto": 1,
+    "territorio": "ES-PV-BI",
+    "nombre": "Bizkaia",
+    "cuota_liquida_total": 1404.1,
+    "tipo_medio_efectivo": 0.107
+   },
+   {
+    "puesto": 2,
+    "territorio": "ES-PV-SS",
+    "nombre": "Gipuzkoa",
+    "cuota_liquida_total": 1436.1,
+    "tipo_medio_efectivo": 0.1094
+   },
+   {
+    "puesto": 3,
+    "territorio": "ES-PV-VI",
+    "nombre": "Araba/Álava",
+    "cuota_liquida_total": 1436.1,
+    "tipo_medio_efectivo": 0.1094
+   },
+   {
+    "puesto": 4,
+    "territorio": "ES-EX",
+    "nombre": "Extremadura",
+    "cuota_liquida_total": 1893.91,
+    "tipo_medio_efectivo": 0.1216
+   },
+   {
+    "puesto": 5,
+    "territorio": "ES-MD",
+    "nombre": "Comunidad de Madrid",
+    "cuota_liquida_total": 1895.62,
+    "tipo_medio_efectivo": 0.1217
+   },
+   {
+    "puesto": 6,
+    "territorio": "ES-RI",
+    "nombre": "La Rioja",
+    "cuota_liquida_total": 1912.63,
+    "tipo_medio_efectivo": 0.1228
+   },
+   {
+    "puesto": 7,
+    "territorio": "ES-CB",
+    "nombre": "Cantabria",
+    "cuota_liquida_total": 1945.86,
+    "tipo_medio_efectivo": 0.125
+   },
+   {
+    "puesto": 8,
+    "territorio": "ES-CN",
+    "nombre": "Canarias",
+    "cuota_liquida_total": 1972.22,
+    "tipo_medio_efectivo": 0.1267
+   },
+   {
+    "puesto": 9,
+    "territorio": "ES-AS",
+    "nombre": "Principado de Asturias",
+    "cuota_liquida_total": 1975.36,
+    "tipo_medio_efectivo": 0.1269
+   },
+   {
+    "puesto": 10,
+    "territorio": "ES-GA",
+    "nombre": "Galicia",
+    "cuota_liquida_total": 1978.69,
+    "tipo_medio_efectivo": 0.1271
+   },
+   {
+    "puesto": 11,
+    "territorio": "ES-VC",
+    "nombre": "Comunitat Valenciana",
+    "cuota_liquida_total": 1988.86,
+    "tipo_medio_efectivo": 0.1277
+   },
+   {
+    "puesto": 12,
+    "territorio": "ES-AN",
+    "nombre": "Andalucía",
+    "cuota_liquida_total": 2023.26,
+    "tipo_medio_efectivo": 0.1299
+   },
+   {
+    "puesto": 13,
+    "territorio": "ES-CL",
+    "nombre": "Castilla y León",
+    "cuota_liquida_total": 2025.31,
+    "tipo_medio_efectivo": 0.1301
+   },
+   {
+    "puesto": 14,
+    "territorio": "ES-MC",
+    "nombre": "Región de Murcia",
+    "cuota_liquida_total": 2034.85,
+    "tipo_medio_efectivo": 0.1307
+   },
+   {
+    "puesto": 15,
+    "territorio": "ES-AR",
+    "nombre": "Aragón",
+    "cuota_liquida_total": 2044.25,
+    "tipo_medio_efectivo": 0.1313
+   },
+   {
+    "puesto": 16,
+    "territorio": "ES-NC",
+    "nombre": "Comunidad Foral de Navarra",
+    "cuota_liquida_total": 2046.38,
+    "tipo_medio_efectivo": 0.1093
+   },
+   {
+    "puesto": 17,
+    "territorio": "ES-IB",
+    "nombre": "Illes Balears",
+    "cuota_liquida_total": 2057.04,
+    "tipo_medio_efectivo": 0.1321
+   },
+   {
+    "puesto": 18,
+    "territorio": "ES-CM",
+    "nombre": "Castilla-La Mancha",
+    "cuota_liquida_total": 2059.81,
+    "tipo_medio_efectivo": 0.1323
+   },
+   {
+    "puesto": 19,
+    "territorio": "ES-CT",
+    "nombre": "Cataluña",
+    "cuota_liquida_total": 2073.91,
+    "tipo_medio_efectivo": 0.1332
+   }
+  ],
+  "30000": [
+   {
+    "puesto": 1,
+    "territorio": "ES-PV-BI",
+    "nombre": "Bizkaia",
+    "cuota_liquida_total": 4525.6,
+    "tipo_medio_efectivo": 0.1803
+   },
+   {
+    "puesto": 2,
+    "territorio": "ES-PV-SS",
+    "nombre": "Gipuzkoa",
+    "cuota_liquida_total": 4557.6,
+    "tipo_medio_efectivo": 0.1816
+   },
+   {
+    "puesto": 3,
+    "territorio": "ES-PV-VI",
+    "nombre": "Araba/Álava",
+    "cuota_liquida_total": 4557.6,
+    "tipo_medio_efectivo": 0.1816
+   },
+   {
+    "puesto": 4,
+    "territorio": "ES-NC",
+    "nombre": "Comunidad Foral de Navarra",
+    "cuota_liquida_total": 4595.23,
+    "tipo_medio_efectivo": 0.1636
+   },
+   {
+    "puesto": 5,
+    "territorio": "ES-MD",
+    "nombre": "Comunidad de Madrid",
+    "cuota_liquida_total": 4610.53,
+    "tipo_medio_efectivo": 0.1767
+   },
+   {
+    "puesto": 6,
+    "territorio": "ES-RI",
+    "nombre": "La Rioja",
+    "cuota_liquida_total": 4644.97,
+    "tipo_medio_efectivo": 0.178
+   },
+   {
+    "puesto": 7,
+    "territorio": "ES-CB",
+    "nombre": "Cantabria",
+    "cuota_liquida_total": 4721.78,
+    "tipo_medio_efectivo": 0.1809
+   },
+   {
+    "puesto": 8,
+    "territorio": "ES-EX",
+    "nombre": "Extremadura",
+    "cuota_liquida_total": 4768.38,
+    "tipo_medio_efectivo": 0.1827
+   },
+   {
+    "puesto": 9,
+    "territorio": "ES-MC",
+    "nombre": "Región de Murcia",
+    "cuota_liquida_total": 4777.29,
+    "tipo_medio_efectivo": 0.1831
+   },
+   {
+    "puesto": 10,
+    "territorio": "ES-CN",
+    "nombre": "Canarias",
+    "cuota_liquida_total": 4789.26,
+    "tipo_medio_efectivo": 0.1835
+   },
+   {
+    "puesto": 11,
+    "territorio": "ES-GA",
+    "nombre": "Galicia",
+    "cuota_liquida_total": 4808.05,
+    "tipo_medio_efectivo": 0.1843
+   },
+   {
+    "puesto": 12,
+    "territorio": "ES-VC",
+    "nombre": "Comunitat Valenciana",
+    "cuota_liquida_total": 4814.55,
+    "tipo_medio_efectivo": 0.1845
+   },
+   {
+    "puesto": 13,
+    "territorio": "ES-AS",
+    "nombre": "Principado de Asturias",
+    "cuota_liquida_total": 4845.96,
+    "tipo_medio_efectivo": 0.1857
+   },
+   {
+    "puesto": 14,
+    "territorio": "ES-CL",
+    "nombre": "Castilla y León",
+    "cuota_liquida_total": 4846.05,
+    "tipo_medio_efectivo": 0.1857
+   },
+   {
+    "puesto": 15,
+    "territorio": "ES-AN",
+    "nombre": "Andalucía",
+    "cuota_liquida_total": 4875.95,
+    "tipo_medio_efectivo": 0.1869
+   },
+   {
+    "puesto": 16,
+    "territorio": "ES-AR",
+    "nombre": "Aragón",
+    "cuota_liquida_total": 4893.64,
+    "tipo_medio_efectivo": 0.1875
+   },
+   {
+    "puesto": 17,
+    "territorio": "ES-IB",
+    "nombre": "Illes Balears",
+    "cuota_liquida_total": 4923.79,
+    "tipo_medio_efectivo": 0.1887
+   },
+   {
+    "puesto": 18,
+    "territorio": "ES-CM",
+    "nombre": "Castilla-La Mancha",
+    "cuota_liquida_total": 4939.5,
+    "tipo_medio_efectivo": 0.1893
+   },
+   {
+    "puesto": 19,
+    "territorio": "ES-CT",
+    "nombre": "Cataluña",
+    "cuota_liquida_total": 4972.7,
+    "tipo_medio_efectivo": 0.1906
+   }
+  ],
+  "40000": [
+   {
+    "puesto": 1,
+    "territorio": "ES-PV-BI",
+    "nombre": "Bizkaia",
+    "cuota_liquida_total": 7147.8,
+    "tipo_medio_efectivo": 0.2074
+   },
+   {
+    "puesto": 2,
+    "territorio": "ES-PV-SS",
+    "nombre": "Gipuzkoa",
+    "cuota_liquida_total": 7179.8,
+    "tipo_medio_efectivo": 0.2084
+   },
+   {
+    "puesto": 3,
+    "territorio": "ES-PV-VI",
+    "nombre": "Araba/Álava",
+    "cuota_liquida_total": 7179.8,
+    "tipo_medio_efectivo": 0.2084
+   },
+   {
+    "puesto": 4,
+    "territorio": "ES-MD",
+    "nombre": "Comunidad de Madrid",
+    "cuota_liquida_total": 7224.68,
+    "tipo_medio_efectivo": 0.2037
+   },
+   {
+    "puesto": 5,
+    "territorio": "ES-RI",
+    "nombre": "La Rioja",
+    "cuota_liquida_total": 7343.38,
+    "tipo_medio_efectivo": 0.2071
+   },
+   {
+    "puesto": 6,
+    "territorio": "ES-CB",
+    "nombre": "Cantabria",
+    "cuota_liquida_total": 7502.65,
+    "tipo_medio_efectivo": 0.2116
+   },
+   {
+    "puesto": 7,
+    "territorio": "ES-MC",
+    "nombre": "Región de Murcia",
+    "cuota_liquida_total": 7503.84,
+    "tipo_medio_efectivo": 0.2116
+   },
+   {
+    "puesto": 8,
+    "territorio": "ES-CN",
+    "nombre": "Canarias",
+    "cuota_liquida_total": 7514.21,
+    "tipo_medio_efectivo": 0.2119
+   },
+   {
+    "puesto": 9,
+    "territorio": "ES-NC",
+    "nombre": "Comunidad Foral de Navarra",
+    "cuota_liquida_total": 7569.38,
+    "tipo_medio_efectivo": 0.2021
+   },
+   {
+    "puesto": 10,
+    "territorio": "ES-CL",
+    "nombre": "Castilla y León",
+    "cuota_liquida_total": 7582.7,
+    "tipo_medio_efectivo": 0.2138
+   },
+   {
+    "puesto": 11,
+    "territorio": "ES-GA",
+    "nombre": "Galicia",
+    "cuota_liquida_total": 7626.39,
+    "tipo_medio_efectivo": 0.2151
+   },
+   {
+    "puesto": 12,
+    "territorio": "ES-AS",
+    "nombre": "Principado de Asturias",
+    "cuota_liquida_total": 7698.45,
+    "tipo_medio_efectivo": 0.2171
+   },
+   {
+    "puesto": 13,
+    "territorio": "ES-AN",
+    "nombre": "Andalucía",
+    "cuota_liquida_total": 7703.65,
+    "tipo_medio_efectivo": 0.2172
+   },
+   {
+    "puesto": 14,
+    "territorio": "ES-AR",
+    "nombre": "Aragón",
+    "cuota_liquida_total": 7712.24,
+    "tipo_medio_efectivo": 0.2175
+   },
+   {
+    "puesto": 15,
+    "territorio": "ES-VC",
+    "nombre": "Comunitat Valenciana",
+    "cuota_liquida_total": 7719.65,
+    "tipo_medio_efectivo": 0.2177
+   },
+   {
+    "puesto": 16,
+    "territorio": "ES-CM",
+    "nombre": "Castilla-La Mancha",
+    "cuota_liquida_total": 7767.2,
+    "tipo_medio_efectivo": 0.219
+   },
+   {
+    "puesto": 17,
+    "territorio": "ES-EX",
+    "nombre": "Extremadura",
+    "cuota_liquida_total": 7830.2,
+    "tipo_medio_efectivo": 0.2208
+   },
+   {
+    "puesto": 18,
+    "territorio": "ES-IB",
+    "nombre": "Illes Balears",
+    "cuota_liquida_total": 7849.6,
+    "tipo_medio_efectivo": 0.2214
+   },
+   {
+    "puesto": 19,
+    "territorio": "ES-CT",
+    "nombre": "Cataluña",
+    "cuota_liquida_total": 7958.75,
+    "tipo_medio_efectivo": 0.2244
+   }
+  ],
+  "60000": [
+   {
+    "puesto": 1,
+    "territorio": "ES-PV-BI",
+    "nombre": "Bizkaia",
+    "cuota_liquida_total": 13636.2,
+    "tipo_medio_efectivo": 0.2564
+   },
+   {
+    "puesto": 2,
+    "territorio": "ES-PV-SS",
+    "nombre": "Gipuzkoa",
+    "cuota_liquida_total": 13668.2,
+    "tipo_medio_efectivo": 0.257
+   },
+   {
+    "puesto": 3,
+    "territorio": "ES-PV-VI",
+    "nombre": "Araba/Álava",
+    "cuota_liquida_total": 13668.2,
+    "tipo_medio_efectivo": 0.257
+   },
+   {
+    "puesto": 4,
+    "territorio": "ES-MD",
+    "nombre": "Comunidad de Madrid",
+    "cuota_liquida_total": 13948.75,
+    "tipo_medio_efectivo": 0.2574
+   },
+   {
+    "puesto": 5,
+    "territorio": "ES-RI",
+    "nombre": "La Rioja",
+    "cuota_liquida_total": 14242.65,
+    "tipo_medio_efectivo": 0.2628
+   },
+   {
+    "puesto": 6,
+    "territorio": "ES-MC",
+    "nombre": "Región de Murcia",
+    "cuota_liquida_total": 14321.56,
+    "tipo_medio_efectivo": 0.2643
+   },
+   {
+    "puesto": 7,
+    "territorio": "ES-CB",
+    "nombre": "Cantabria",
+    "cuota_liquida_total": 14339.1,
+    "tipo_medio_efectivo": 0.2646
+   },
+   {
+    "puesto": 8,
+    "territorio": "ES-CN",
+    "nombre": "Canarias",
+    "cuota_liquida_total": 14423.43,
+    "tipo_medio_efectivo": 0.2662
+   },
+   {
+    "puesto": 9,
+    "territorio": "ES-CL",
+    "nombre": "Castilla y León",
+    "cuota_liquida_total": 14536.28,
+    "tipo_medio_efectivo": 0.2682
+   },
+   {
+    "puesto": 10,
+    "territorio": "ES-GA",
+    "nombre": "Galicia",
+    "cuota_liquida_total": 14537.76,
+    "tipo_medio_efectivo": 0.2683
+   },
+   {
+    "puesto": 11,
+    "territorio": "ES-AR",
+    "nombre": "Aragón",
+    "cuota_liquida_total": 14623.64,
+    "tipo_medio_efectivo": 0.2699
+   },
+   {
+    "puesto": 12,
+    "territorio": "ES-AN",
+    "nombre": "Andalucía",
+    "cuota_liquida_total": 14633.75,
+    "tipo_medio_efectivo": 0.27
+   },
+   {
+    "puesto": 13,
+    "territorio": "ES-IB",
+    "nombre": "Illes Balears",
+    "cuota_liquida_total": 14685.25,
+    "tipo_medio_efectivo": 0.271
+   },
+   {
+    "puesto": 14,
+    "territorio": "ES-CM",
+    "nombre": "Castilla-La Mancha",
+    "cuota_liquida_total": 14697.3,
+    "tipo_medio_efectivo": 0.2712
+   },
+   {
+    "puesto": 15,
+    "territorio": "ES-AS",
+    "nombre": "Principado de Asturias",
+    "cuota_liquida_total": 14777.67,
+    "tipo_medio_efectivo": 0.2727
+   },
+   {
+    "puesto": 16,
+    "territorio": "ES-VC",
+    "nombre": "Comunitat Valenciana",
+    "cuota_liquida_total": 14821.95,
+    "tipo_medio_efectivo": 0.2735
+   },
+   {
+    "puesto": 17,
+    "territorio": "ES-NC",
+    "nombre": "Comunidad Foral de Navarra",
+    "cuota_liquida_total": 14902.83,
+    "tipo_medio_efectivo": 0.2652
+   },
+   {
+    "puesto": 18,
+    "territorio": "ES-CT",
+    "nombre": "Cataluña",
+    "cuota_liquida_total": 15012.25,
+    "tipo_medio_efectivo": 0.277
+   },
+   {
+    "puesto": 19,
+    "territorio": "ES-EX",
+    "nombre": "Extremadura",
+    "cuota_liquida_total": 15228.55,
+    "tipo_medio_efectivo": 0.281
+   }
+  ],
+  "100000": [
+   {
+    "puesto": 1,
+    "territorio": "ES-PV-BI",
+    "nombre": "Bizkaia",
+    "cuota_liquida_total": 29357.2,
+    "tipo_medio_efectivo": 0.3239
+   },
+   {
+    "puesto": 2,
+    "territorio": "ES-PV-SS",
+    "nombre": "Gipuzkoa",
+    "cuota_liquida_total": 29389.2,
+    "tipo_medio_efectivo": 0.3242
+   },
+   {
+    "puesto": 3,
+    "territorio": "ES-PV-VI",
+    "nombre": "Araba/Álava",
+    "cuota_liquida_total": 29389.2,
+    "tipo_medio_efectivo": 0.3242
+   },
+   {
+    "puesto": 4,
+    "territorio": "ES-MD",
+    "nombre": "Comunidad de Madrid",
+    "cuota_liquida_total": 29727.11,
+    "tipo_medio_efectivo": 0.3244
+   },
+   {
+    "puesto": 5,
+    "territorio": "ES-IB",
+    "nombre": "Illes Balears",
+    "cuota_liquida_total": 30610.63,
+    "tipo_medio_efectivo": 0.334
+   },
+   {
+    "puesto": 6,
+    "territorio": "ES-MC",
+    "nombre": "Región de Murcia",
+    "cuota_liquida_total": 30678.9,
+    "tipo_medio_efectivo": 0.3347
+   },
+   {
+    "puesto": 7,
+    "territorio": "ES-CB",
+    "nombre": "Cantabria",
+    "cuota_liquida_total": 30735.25,
+    "tipo_medio_efectivo": 0.3354
+   },
+   {
+    "puesto": 8,
+    "territorio": "ES-CL",
+    "nombre": "Castilla y León",
+    "cuota_liquida_total": 30786.28,
+    "tipo_medio_efectivo": 0.3359
+   },
+   {
+    "puesto": 9,
+    "territorio": "ES-GA",
+    "nombre": "Galicia",
+    "cuota_liquida_total": 30924.15,
+    "tipo_medio_efectivo": 0.3374
+   },
+   {
+    "puesto": 10,
+    "territorio": "ES-AN",
+    "nombre": "Andalucía",
+    "cuota_liquida_total": 31025.95,
+    "tipo_medio_efectivo": 0.3385
+   },
+   {
+    "puesto": 11,
+    "territorio": "ES-CM",
+    "nombre": "Castilla-La Mancha",
+    "cuota_liquida_total": 31089.5,
+    "tipo_medio_efectivo": 0.3392
+   },
+   {
+    "puesto": 12,
+    "territorio": "ES-NC",
+    "nombre": "Comunidad Foral de Navarra",
+    "cuota_liquida_total": 31252.98,
+    "tipo_medio_efectivo": 0.3337
+   },
+   {
+    "puesto": 13,
+    "territorio": "ES-CN",
+    "nombre": "Canarias",
+    "cuota_liquida_total": 31253.83,
+    "tipo_medio_efectivo": 0.341
+   },
+   {
+    "puesto": 14,
+    "territorio": "ES-AS",
+    "nombre": "Principado de Asturias",
+    "cuota_liquida_total": 31285.42,
+    "tipo_medio_efectivo": 0.3414
+   },
+   {
+    "puesto": 15,
+    "territorio": "ES-CT",
+    "nombre": "Cataluña",
+    "cuota_liquida_total": 31295.25,
+    "tipo_medio_efectivo": 0.3415
+   },
+   {
+    "puesto": 16,
+    "territorio": "ES-RI",
+    "nombre": "La Rioja",
+    "cuota_liquida_total": 31296.9,
+    "tipo_medio_efectivo": 0.3415
+   },
+   {
+    "puesto": 17,
+    "territorio": "ES-AR",
+    "nombre": "Aragón",
+    "cuota_liquida_total": 31423.29,
+    "tipo_medio_efectivo": 0.3429
+   },
+   {
+    "puesto": 18,
+    "territorio": "ES-EX",
+    "nombre": "Extremadura",
+    "cuota_liquida_total": 32139.75,
+    "tipo_medio_efectivo": 0.3507
+   },
+   {
+    "puesto": 19,
+    "territorio": "ES-VC",
+    "nombre": "Comunitat Valenciana",
+    "cuota_liquida_total": 32482.55,
+    "tipo_medio_efectivo": 0.3544
+   }
+  ]
+ }
+}
