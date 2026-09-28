@@ -16,5 +16,10 @@ window.MAPAFISCAL_CONFIG = {
   precios: { gestorSemanal: 19.99, gestorMensual: 39.99, gestorAnual: 290 },
   preciosOrientativos: true,
 
-  contacto: "hola@mapafiscal.es"
+  // Buzón de contacto: sale en los textos legales (web/legal/) y en los enlaces mailto.
+  contacto: "contacto@mapafiscal.es",
+
+  // Versión vigente de las condiciones (fecha de legal/condiciones.html). Al cambiarla, la web
+  // vuelve a pedir la aceptación a quien aceptó una versión anterior.
+  condicionesVersion: "2026-09-27"
 };

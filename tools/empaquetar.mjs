@@ -17,6 +17,8 @@ const jsonEmbebido = ruta => JSON.stringify(JSON.parse(leer(ruta))).replace(/<\/
 // aunque web/config.js esté configurado para producción.
 const FORZAR_DEMO = "window.MAPAFISCAL_CONFIG = Object.assign(window.MAPAFISCAL_CONFIG || {}, { demo: true, pagosActivos: false });\n";
 const SUPABASE_JS = /<script src="https:\/\/cdn\.jsdelivr\.net\/npm\/@supabase\/supabase-js@[^"]+"[^>]*><\/script>\n?/;
+// El HTML autónomo no lleva las páginas legales: sus enlaces apuntan a las de la web publicada.
+export const WEB_PUBLICA = "https://mapafiscal.es/";
 
 export function empaquetar() {
   let html = leer("index.html");
@@ -32,6 +34,7 @@ export function empaquetar() {
     '<script type="application/json" id="datos-mapa">' + jsonEmbebido("datos/mapa_es.json") + "</script>");
   sustituir('<script src="js/irpfsim.js"></script>', "<script>\n" + leer("js/irpfsim.js") + "</script>");
   sustituir('<script src="js/app.js"></script>', "<script>\n" + leer("js/app.js") + "</script>");
+  html = html.replace(/href="legal\//g, `href="${WEB_PUBLICA}legal/`);
   return html;
 }
 

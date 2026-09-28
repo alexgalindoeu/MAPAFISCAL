@@ -547,6 +547,14 @@ add("ej2026_md", "ES-MD", "ninguna", "no",
     list(list(id="d1",rol="declarante",edad=40, trabajo=list(dinerarias=30000,cotizacionesSs=1905), retenciones=4000)),
     ejercicio = 2026)
 
+# 17. Ejercicio 2026, núcleo estatal: DA 61.ª del RDL 5/2026 (590,89 € hasta el SMI de 17.094 €)
+add("ej2026_smi_cm", "ES-CM", "ninguna", "no",
+    list(persona("d1","declarante",40, trabajo=list(dinerarias=17094, cotizaciones_ss=1111.11))),
+    list(list(id="d1",rol="declarante",edad=40, trabajo=list(dinerarias=17094,cotizacionesSs=1111.11))), ejercicio = 2026)
+add("ej2026_da61_tramo", "ES-MD", "ninguna", "no",
+    list(persona("d1","declarante",40, trabajo=list(dinerarias=18500, cotizaciones_ss=1202.50), retenciones=900)),
+    list(list(id="d1",rol="declarante",edad=40, trabajo=list(dinerarias=18500,cotizacionesSs=1202.50), retenciones=900)), ejercicio = 2026)
+
 out <- lapply(casos, function(c) list(
   js = c$js,
   ref = list(
