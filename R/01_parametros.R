@@ -15,6 +15,58 @@
   .normalizar_inf(x)
 }
 
+# --- Varios ejercicios --------------------------------------------------------
+# Cada ejercicio tiene su carpeta params/<año>/ con los cuatro ficheros (estatal,
+# autonomico, foral_pais_vasco, navarra). Un fichero puede declarar
+# `meta: hereda_de: "<año>/<fichero>.yaml"`: entonces parte de ese fichero y solo
+# recoge lo que cambia. Nunca se toma otro año en silencio: si falta el fichero, error.
+
+# Fusión de parámetros para la herencia: las listas con nombre se fusionan por clave
+# (recursivo); las listas sin nombre (`tramos`, la `lista` de deducciones) y los valores
+# sueltos se sustituyen enteros; una clave con valor nulo (`~` en YAML) se elimina.
+fusionar_params <- function(base, cambios) {
+  es_mapa <- function(x) is.list(x) && length(x) > 0 && !is.null(names(x)) && all(nzchar(names(x)))
+  for (k in names(cambios)) {
+    v <- cambios[[k]]
+    if (is.null(v)) base[[k]] <- NULL
+    else if (es_mapa(v) && es_mapa(base[[k]])) base[[k]] <- fusionar_params(base[[k]], v)
+    else base[[k]] <- v
+  }
+  base
+}
+
+#' Lee un fichero de parámetros de un ejercicio, resolviendo su herencia.
+leer_params <- function(ejercicio, fichero, base = .params_dir()) {
+  ruta <- file.path(base, as.character(ejercicio), fichero)
+  if (!file.exists(ruta))
+    stop(sprintf("irpfsim: falta params/%s/%s.", ejercicio, fichero), call. = FALSE)
+  .resolver_herencia(ruta, base, character())
+}
+
+.resolver_herencia <- function(ruta, base, vistos) {
+  if (ruta %in% vistos) stop("irpfsim: herencia circular en ", ruta, call. = FALSE)
+  x <- .leer_yaml(ruta)
+  padre <- x$meta$hereda_de
+  if (is.null(padre)) return(x)
+  ruta_padre <- file.path(base, padre)
+  if (!file.exists(ruta_padre)) stop(sprintf("irpfsim: %s hereda de %s, que no existe.", ruta, padre), call. = FALSE)
+  r <- fusionar_params(.resolver_herencia(ruta_padre, base, c(vistos, ruta)), x)
+  r$meta$hereda_de <- padre
+  r
+}
+
+#' Ejercicios con parámetros (carpetas params/<año>/ con estatal.yaml).
+ejercicios_disponibles <- function(base = .params_dir()) {
+  d <- list.dirs(base, full.names = FALSE, recursive = FALSE)
+  d <- d[grepl("^[0-9]{4}$", d) & file.exists(file.path(base, d, "estatal.yaml"))]
+  sort(as.integer(d))
+}
+
+#' Ejercicio por defecto y ejercicios que ofrece la web (params/ejercicios.yaml).
+ejercicios_config <- function(base = .params_dir()) {
+  .leer_yaml(file.path(base, "ejercicios.yaml"))
+}
+
 #' Devuelve el "régimen" de un territorio.
 regimen_territorio <- function(territorio) {
   if (territorio %in% c("ES-PV-BI", "ES-PV-SS", "ES-PV-VI")) return("foral_pais_vasco")
@@ -36,16 +88,16 @@ TERRITORIOS <- c(
 #' definiciones de renta), y `$jurisdiccion` (la escala/deducciones específicas).
 #'
 #' @param territorio código de TERRITORIOS
-#' @param ejercicio  año (2025 por defecto; 2026 disponible parcialmente)
+#' @param ejercicio  año con carpeta en params/ (ver `ejercicios_disponibles()`)
 cargar_parametros <- function(territorio, ejercicio = 2025) {
   if (!territorio %in% TERRITORIOS)
     stop(sprintf("irpfsim: territorio desconocido '%s'.", territorio), call. = FALSE)
   base <- .params_dir()
-  dir_e <- file.path(base, as.character(ejercicio))
-  if (!dir.exists(dir_e)) stop(sprintf("irpfsim: no hay parámetros para el ejercicio %s.", ejercicio), call. = FALSE)
+  if (!dir.exists(file.path(base, as.character(ejercicio))))
+    stop(sprintf("irpfsim: no hay parámetros para el ejercicio %s.", ejercicio), call. = FALSE)
 
   reg <- regimen_territorio(territorio)
-  estatal <- .leer_yaml(file.path(base, "2025", "estatal.yaml"))   # definiciones de renta comunes de referencia
+  estatal <- leer_params(ejercicio, "estatal.yaml", base)   # también definiciones de renta comunes
 
   p <- list(
     meta = list(territorio = territorio, ejercicio = ejercicio, regimen = reg),
@@ -53,65 +105,35 @@ cargar_parametros <- function(territorio, ejercicio = 2025) {
   )
 
   if (reg == "comun") {
-    auto <- .leer_yaml(file.path(base, "2025", "autonomico.yaml"))
-    if (ejercicio != 2025 && file.exists(file.path(dir_e, "autonomico.yaml")))
-      auto <- .leer_yaml(file.path(dir_e, "autonomico.yaml"))
+    auto <- leer_params(ejercicio, "autonomico.yaml", base)
     terr <- auto$territorios[[territorio]]
     if (is.null(terr)) stop(sprintf("irpfsim: sin bloque autonómico para %s.", territorio), call. = FALSE)
-    if (ejercicio == 2025) {
-      # escala estatal del ejercicio pedido
-      p$jurisdiccion <- list(
-        tipo = "comun",
-        nombre = terr$nombre,
-        escala_general_estatal    = estatal$escala_general_estatal$tramos,
-        escala_general_autonomica = terr$escala_general_autonomica$tramos,
-        escala_ahorro_estatal     = estatal$escala_ahorro_estatal$tramos,
-        escala_ahorro_autonomica  = estatal$escala_ahorro_autonomica$tramos,
-        bonificacion_residencia   = terr$bonificacion_residencia,
-        deducciones_autonomicas   = terr$deducciones_autonomicas,
-        minimo_autonomico         = terr$minimo_autonomico
-      )
-    } else {
-      est_e <- .leer_yaml(file.path(dir_e, "estatal.yaml"))
-      p$estatal <- est_e
-      p$jurisdiccion <- list(
-        tipo = "comun", nombre = terr$nombre,
-        escala_general_estatal    = est_e$escala_general_estatal$tramos,
-        escala_general_autonomica = terr$escala_general_autonomica$tramos,
-        escala_ahorro_estatal     = est_e$escala_ahorro_estatal$tramos,
-        escala_ahorro_autonomica  = est_e$escala_ahorro_autonomica$tramos,
-        bonificacion_residencia   = terr$bonificacion_residencia,
-        deducciones_autonomicas   = terr$deducciones_autonomicas,
-        minimo_autonomico         = terr$minimo_autonomico
-      )
-    }
+    p$jurisdiccion <- list(
+      tipo = "comun",
+      nombre = terr$nombre,
+      escala_general_estatal    = estatal$escala_general_estatal$tramos,
+      escala_general_autonomica = terr$escala_general_autonomica$tramos,
+      escala_ahorro_estatal     = estatal$escala_ahorro_estatal$tramos,
+      escala_ahorro_autonomica  = estatal$escala_ahorro_autonomica$tramos,
+      bonificacion_residencia   = terr$bonificacion_residencia,
+      deducciones_autonomicas   = terr$deducciones_autonomicas,
+      minimo_autonomico         = terr$minimo_autonomico
+    )
     if (!is.null(terr$deducciones_autonomicas$estado) &&
         terr$deducciones_autonomicas$estado == "pendiente")
       registrar_aviso(sprintf("[%s] deducciones autonómicas PENDIENTES de carga (solo escala aplicada).", territorio))
 
   } else if (reg == "foral_pais_vasco") {
-    fpath <- file.path(dir_e, "foral_pais_vasco.yaml")
-    if (!file.exists(fpath)) fpath <- file.path(base, "2025", "foral_pais_vasco.yaml")
-    pv <- .leer_yaml(fpath)
-    # herencia 2026 -> 2025 para lo no sobreescrito
-    if (!is.null(pv$meta$hereda_de)) {
-      basep <- .leer_yaml(file.path(base, pv$meta$hereda_de))
-      pv$comun <- modifyList(basep$comun, pv$comun)
-      if (is.null(pv$overrides)) pv$overrides <- basep$overrides
-      for (nm in setdiff(names(basep), c("meta","comun","overrides")))
-        if (is.null(pv[[nm]])) pv[[nm]] <- basep[[nm]]
-    }
+    pv <- leer_params(ejercicio, "foral_pais_vasco.yaml", base)
     ov <- pv$overrides[[territorio]] %||% list()
-    jur <- modifyList(pv$comun, ov[setdiff(names(ov), c("nombre","norma_base"))])
+    jur <- fusionar_params(pv$comun, ov[setdiff(names(ov), c("nombre","norma_base"))])
     jur$tipo <- "foral_pais_vasco"
     jur$nombre <- ov$nombre %||% territorio
     p$jurisdiccion <- jur
     registrar_aviso(sprintf("[%s] módulo foral PV: coef. actualización inmuebles y algunas deducciones PENDIENTES.", territorio))
 
   } else if (reg == "foral_navarra") {
-    npath <- file.path(dir_e, "navarra.yaml")
-    if (!file.exists(npath)) npath <- file.path(base, "2025", "navarra.yaml")
-    nv <- .leer_yaml(npath)
+    nv <- leer_params(ejercicio, "navarra.yaml", base)
     nv$tipo <- "foral_navarra"
     nv$nombre <- "Comunidad Foral de Navarra"
     p$jurisdiccion <- nv

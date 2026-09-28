@@ -5,11 +5,11 @@ source("R/cargar.R"); irpfsim_cargar(".")
 # Cada caso: función que devuelve list(js = <hogar en forma JS>, hogar = <irpfsim_hogar>)
 casos <- list()
 add <- function(id, territorio, uf, fnum, miembros_r, miembros_js, municipio = NULL, despoblada = FALSE,
-                fn_reciente = FALSE, titulo_mono = "no") {
-  h <- nuevo_hogar(id, territorio, miembros_r, 2025, tipo_unidad_familiar = uf, familia_numerosa = fnum,
+                fn_reciente = FALSE, titulo_mono = "no", ejercicio = 2025) {
+  h <- nuevo_hogar(id, territorio, miembros_r, ejercicio, tipo_unidad_familiar = uf, familia_numerosa = fnum,
                    municipio_habitantes = municipio, zona_despoblada = despoblada,
                    familia_numerosa_reciente = fn_reciente, titulo_monoparental = titulo_mono)
-  js <- list(territorio = territorio, ejercicio = 2025, tipoUnidadFamiliar = uf,
+  js <- list(territorio = territorio, ejercicio = ejercicio, tipoUnidadFamiliar = uf,
              familiaNumerosa = fnum, miembros = miembros_js)
   if (!is.null(municipio)) js$municipioHabitantes <- municipio
   if (despoblada) js$zonaDespoblada <- TRUE
@@ -577,6 +577,25 @@ add("nc_ejemplo4_manual", "ES-NC", "biparental", "no",
 add("nc_monoparental_conjunta", "ES-NC", "monoparental", "no",
     list(persona("d1","declarante",42, trabajo=list(dinerarias=34000, cotizaciones_ss=2159)), persona("h1","descendiente",9), persona("h2","descendiente",12)),
     list(list(id="d1",rol="declarante",edad=42, trabajo=list(dinerarias=34000,cotizacionesSs=2159)), list(id="h1",rol="descendiente",edad=9), list(id="h2",rol="descendiente",edad=12)))
+
+# 16. Varios ejercicios: 2026 en el País Vasco (tarifa general deflactada, escala del ahorro nueva)
+add("ej2026_pv_bi", "ES-PV-BI", "ninguna", "no",
+    list(persona("d1","declarante",40, trabajo=list(dinerarias=30000, cotizaciones_ss=1905),
+                 capital_mobiliario=list(intereses=12000), retenciones=4000)),
+    list(list(id="d1",rol="declarante",edad=40, trabajo=list(dinerarias=30000,cotizacionesSs=1905),
+              capitalMobiliario=list(intereses=12000), retenciones=4000)), ejercicio = 2026)
+add("ej2026_md", "ES-MD", "ninguna", "no",
+    list(persona("d1","declarante",40, trabajo=list(dinerarias=30000, cotizaciones_ss=1905), retenciones=4000)),
+    list(list(id="d1",rol="declarante",edad=40, trabajo=list(dinerarias=30000,cotizacionesSs=1905), retenciones=4000)),
+    ejercicio = 2026)
+
+# 17. Ejercicio 2026, núcleo estatal: DA 61.ª del RDL 5/2026 (590,89 € hasta el SMI de 17.094 €)
+add("ej2026_smi_cm", "ES-CM", "ninguna", "no",
+    list(persona("d1","declarante",40, trabajo=list(dinerarias=17094, cotizaciones_ss=1111.11))),
+    list(list(id="d1",rol="declarante",edad=40, trabajo=list(dinerarias=17094,cotizacionesSs=1111.11))), ejercicio = 2026)
+add("ej2026_da61_tramo", "ES-MD", "ninguna", "no",
+    list(persona("d1","declarante",40, trabajo=list(dinerarias=18500, cotizaciones_ss=1202.50), retenciones=900)),
+    list(list(id="d1",rol="declarante",edad=40, trabajo=list(dinerarias=18500,cotizacionesSs=1202.50), retenciones=900)), ejercicio = 2026)
 
 out <- lapply(casos, function(c) list(
   js = c$js,
