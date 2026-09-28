@@ -132,25 +132,62 @@ vivienda (613-1) lo aplica ya la deducción estatal transitoria (DT 18ª LIRPF);
 
 ## Deducciones autonómicas — Galicia (DL 1/2011)
 
-Codificadas en `tests/testthat/test-ded-cv-ga.R`. 7 deducciones (de ~24).
+Codificadas en `tests/testthat/test-ded-cv-ga.R` y `test-ded-municipio.R`. 7 deducciones
+(de ~24), en 15 entradas del YAML. Cotejadas el 2026-09-26 (issue #16) con el art. 5 del
+DL 1/2011 en la redacción vigente en 2025 (consolidación del BOE, `BOE-A-2011-18161`: Leyes
+10/2023, 5/2024 y 5/2025) y con las subpáginas del Manual Práctico Renta 2025.
 
-| Deducción (art.) | Regla | Comprobación |
+«Base − mínimo» es la suma de bases imponibles menos el mínimo del gravamen **autonómico**
+(casilla 0520): `base_gate: menos_minimo`, ver «Puertas de renta».
+
+| Deducción (art.) | Regla |
+|---|---|
+| Nacimiento o adopción (5.Dos) | Año del nacimiento: *(base − mínimo) ≤ 22.000* → 360 / 1.200 / 2.400 € por orden; *> 22.000* → 300 €/hijo (360 € en parto múltiple); **+20 %** en municipios < 5.000 hab. Dos años siguientes (`anios_ventana_desde: 2`): ≤ 22.000 → 360 / 1.200 / 2.400 €; 22.000,01-31.000 → 300 €; **sin** el +20 %. Todo **×2** si el hijo tiene discapacidad ≥ 33 % (`duplica_hijo_discapacidad`). Prorrateo |
+| Familias con dos hijos (5.Tres.1) | 250 € con exactamente 2 descendientes; **incompatible** con la de familia numerosa; ×2 si el contribuyente o un descendiente tiene discapacidad ≥ 65 % (`factor_discapacidad`) |
+| Familia numerosa (5.Tres.2) | Hasta 2 hijos: **250 €** (**400 €** con título especial). Más de 2: **250 € + 250 € por hijo desde el tercero** (`hijos_desde_orden: 3`; exposición de motivos de la Ley 10/2023). ×2 con discapacidad ≥ 65 % del contribuyente o de un descendiente. 🟡 Especial con más de 2 hijos: se parte de 250 € (la ley no aclara si son 400 €) |
+| Alquiler vivienda habitual (5.Siete) | ≤ 35 años; **base imponible ≤ 22.000 €** en individual y en conjunta (`suma_bases: imponibles`, sin restar el mínimo). 10 % / 300 €, o 20 % / 600 € con **2 o más hijos menores de edad** (`descendientes_edad_max_cuenta: 17`; variantes del `grupo: alquiler_ga`). **×2** si el arrendatario tiene discapacidad ≥ 33 % |
+| Cuidado de hijos menores (5.Cinco) | 30 % de empleada de hogar o escuela 0-3, límite **400 €** o **600 €** con 2 o más hijos de ≤ 3 años (`grupo: cuidado_ga`). Exige hijo de ≤ 3 años a 31-12 y **los dos progenitores con actividad**; *(base − mínimo) ≤ 22.000 / 31.000* |
+| Libros de texto y material escolar (5.Veinticinco) | Nueva desde 2025 (Ley 5/2025). **15 %**, límite **105 € por descendiente** (campo por hijo, ≤ 16 años). Renta per cápita de la UF ≤ **30.000 €** (`base_max_por_miembro_uf`, miembros = declarantes + hijos < 25). 🟡 Usa la renta del propio ejercicio (la ley, la del anterior); no cuenta doble a los miembros con discapacidad; no comprueba el tope de 300 € de gasto en material ni las becas; en 2025 solo cuentan las facturas de julio a diciembre |
+
+### Comprobación numérica (cotejo 2026-09-26)
+
+Tests en `test-ded-cv-ga.R` y `test-ded-municipio.R`:
+
+| Caso | Cálculo | Resultado |
 |---|---|---|
-| Nacimiento o adopción (5.Dos) | *(base − mínimo) ≤ 22.000*: 360 / 1.200 / 2.400 € por orden. *> 22.000*: 300 €/hijo (360 parto múltiple). Solo año del nacimiento. | 2 recién nacidos renta baja → 1.560 €; renta media → 300 € |
-| Familias con dos hijos (5.Tres.1) | 250 € (exactamente 2 descendientes que dan mínimo) | 2 hijos → 250 €; 3 hijos → 0 |
-| Familia numerosa (5.Tres.2) | 250 € (🟡 no se modela el +250 €/hijo desde el 3.º ni el ×2 por discapacidad) | 3 hijos FN → 250 € |
-| Alquiler vivienda habitual (5.Siete) | 10 % / 300 € (general, ≤ 1 hijo); 20 % / 600 € (2+ hijos). ≤ 35 años, *(base − mínimo) ≤ 22.000 / 31.000* | joven sin hijos, alquiler 6.000 → 300 € |
-| Cuidado de hijos menores (5.Cinco) | 30 % de empleada de hogar / escuela 0-3, máx. 400 € (🟡 no el de 600 €); *(base − mínimo) ≤ 22.000 / 31.000* | — |
-| Libros de texto y material escolar (5.Veinticinco) | 15 % (🟡 tabla de tramos no modelada; tope de renta 22.000 / 31.000) | — |
+| FN general, 2 / 4 hijos | 250 / 250 + 2 · 250 | 250 € / 750 € |
+| FN especial, 2 hijos | | 400 € |
+| FN, 3 hijos, uno con discapacidad ≥ 65 % | (250 + 250) · 2 | 1.000 € |
+| 2 hijos sin título de FN (con / sin discapacidad ≥ 65 %) | familias con dos hijos | 500 € / 250 € |
+| Alquiler 4.000 €, sueldo 22.000 (base imponible 18.603) | 10 % → 400 → 300 | 300 € |
+| El mismo, sueldo 27.000 (base imponible 23.286 > 22.000) | aunque base − mínimo < 22.000 | 0 € |
+| El mismo, con hijos de 4 y 9 años | 20 % → 800 → 600 | 600 € |
+| El mismo, con hijos de 4 y 19 años | solo un menor | 300 € |
+| El mismo, arrendatario con discapacidad 33-64 % | 300 · 2 | 600 € |
+| Cuidado de hijos, gasto 3.000 €, pareja que trabaja; hijo de 2 / hijos de 1 y 3 / de 1 y 6 | 900 → 400 / 600 / 400 | 400 / 600 / 400 € |
+| El mismo con un hijo de 5 años, o con el cónyuge sin trabajo | | 0 € |
+| Libros: hijos de 8 (400 €) y 13 años (900 €) | 60 + min(135, 105) | 165 € |
+| El mismo con 100.000 € de sueldo (3 miembros: base imponible 91.650 > 90.000) | | 0 € |
+| Recién nacido con discapacidad 33-64 %, renta baja | 360 · 2 | 720 € |
+| Hijo de 1 año (2.º por orden) en municipio de 3.500 hab. | sin +20 % en los años siguientes | 1.200 € |
+| Recién nacido (2.º por orden) en municipio de 3.500 hab. | 1.200 · 1,2 | 1.440 € |
+
+Casos R↔JS: `ga_fn_4_disc` (4 hijos, uno con discapacidad ≥ 65 %: (250 + 500) · 2 = 1.500 €,
+750 € por progenitor en individual; el cónyuge con menos renta aplica además 4.800 / 2 =
+2.400 € por el hijo de 2 años, que es el 4.º por orden y tiene discapacidad),
+`ga_alquiler_disc` (600 €) y `ga_cuidado_libros` (600 € de cuidado; 90 € de libros, 45 €
+por progenitor; 2.400 / 2 = 1.200 € por progenitor por el hijo de 1 año, 3.º por orden).
 
 **Pendientes** (inversión/donativos o condicionadas a municipio < 5.000 hab / aldeas
 modelo, que el DSL no modela): acogimiento, discapacidad ≥ 65 % con ayuda de terceros,
 nuevas tecnologías, inversión en acciones, donaciones I+D+i, climatización/ACS,
-rehabilitación en centros históricos, eficiencia energética, incremento del 20 % del
-nacimiento en municipios pequeños.
+rehabilitación en centros históricos, eficiencia energética. Parto múltiple en renta media:
+la ley da 360 € por hijo y el motor suma 360 € una sola vez (se corrige en #26).
 
 **DSL:** se añadieron las puertas `base_min_individual/conjunta` (deducción solo por
-encima de una renta) y `descendientes_min/max` (nº exacto de descendientes).
+encima de una renta) y `descendientes_min/max` (nº exacto de descendientes). *(2026-09-26)*
+`anios_ventana_desde`, `duplica_hijo_discapacidad`, `descendientes_edad_max_cuenta`,
+`factor_discapacidad` y `miembros_uf_hijos_edad_max`.
 
 ---
 
@@ -161,7 +198,7 @@ Codificadas en `tests/testthat/test-ded-cyl.R`. 8 deducciones (de ~18).
 | Deducción (art.) | Regla |
 |---|---|
 | Nacimiento o adopción (4) | 1.010 / 1.475 / 2.351 € por orden (🟡 importes del medio rural más altos, no modelados). Solo año del nacimiento |
-| Familia numerosa (3) | 600 € (🟡 no el +1.000 €/hijo desde el 6.º ni el ×2 por discapacidad) |
+| Familia numerosa (3) | **600 €** en general; **1.500 €** con 4 descendientes; **2.500 €** con 5, más **1.000 €** por cada descendiente desde el sexto (`hijos_desde_orden: 6`); **+600 €** si algún cónyuge o descendiente tiene discapacidad ≥ 65 % (`requiere_discapacidad_65_de`). Sin límite de renta; prorrateo |
 | Alquiler vivienda habitual jóvenes (7.4) | 20 %, límite 459 €, ≤ 35 años |
 | Cuidado de hijos — empleada de hogar (5.1) | 30 %, límite 322 € |
 | Cuidado de hijos — escuela infantil de la Comunidad (5.1) | 100 %, límite 1.320 € |
@@ -175,7 +212,29 @@ nacimiento, acoplada), gastos de adopción, deducciones de inversión y donativo
 vivienda joven en el medio rural (condicionada a municipio), movilidad sostenible.
 
 **DSL:** se añadieron las puertas `descendiente_edad_max` (exige un descendiente por
-debajo de una edad) y `requiere_discapacidad_grado` (`"33_64"` / `"65_mas"`).
+debajo de una edad) y `requiere_discapacidad_grado` (`"33_64"` / `"65_mas"`). *(2026-09-26)*
+`hijos_desde_orden` en `fija_por_hijo` y la puerta `requiere_discapacidad_65_de`
+(`"declarantes_o_descendientes"` o `"contribuyente_o_descendientes"`).
+
+### Cotejo con la fuente (2026-09-26, issue #16)
+
+Familia numerosa, según la subpágina del Manual Práctico Renta 2025. El DL 1/2013 de
+Castilla y León no está consolidado en el BOE. Tests en `test-ded-cyl.R`, familia
+monoparental con 40.000 € de trabajo:
+
+| Descendientes | Cálculo | Deducción |
+|---|---|---|
+| 3 | general | 600 € |
+| 4 | | 1.500 € |
+| 5 (especial) | | 2.500 € |
+| 7 (especial) | 2.500 + 1.000 (6.º) + 1.000 (7.º) | 4.500 € |
+| 3, uno con discapacidad ≥ 65 % | 600 + 600 | 1.200 € |
+| 3, uno con discapacidad 33-64 % | sin incremento | 600 € |
+| 4, pareja en individual | 1.500 / 2 | 750 € cada uno |
+
+`cyl_fn_7` (validador): pareja con 90.000 + 60.000 € de trabajo, 7 descendientes, uno
+con discapacidad ≥ 65 %; en individual, cada progenitor aplica (2.500 + 2.000 + 600) / 2 =
+**2.550 €** (5.100 € en total; cuota líquida total 26.986,96 €).
 
 ---
 
@@ -504,9 +563,13 @@ Con dos progenitores en individual, cada uno aplica la mitad (hijo de 10 años: 
 70.000 € de trabajo y un hijo, la base (63.555 €) supera 2 × 30.930 = 61.860 € → 0 €.
 
 `md_educativos_uf` (validador): pareja con un solo sueldo de 135.000 € y dos hijos (4
-miembros → 123.720 €). En individual, la base de d1 (124.427 €) supera el límite → 0 €.
-En conjunta (121.027 €) aplica: hijo de 7 años 900 + 135 + 15 = 1.050 → 927,90; hijo de 2
-años 15 % · 9.000 = 1.350 → 1.031 (los idiomas no cuentan en el primer ciclo) → **1.958,90 €**.
+miembros → 123.720 €). El art. 18.2 mira la suma de bases **imponibles** de la UF
+(124.427 €), que supera el límite en las dos modalidades → **0 €**. La base liquidable de
+la conjunta (121.027 €, tras la reducción de 3.400 €) no cuenta: hasta la corrección de
+bases imponibles (2026-09-26) el motor la usaba y daba 1.958,90 €. Con 132.000 € de sueldo
+(base imponible 121.618 €) sí aplica (test): hijo de 7 años 900 + 135 + 15 = 1.050 →
+927,90; hijo de 2 años 15 % · 9.000 = 1.350 → 1.031 (los idiomas no cuentan en el primer
+ciclo) → **1.958,90 €**.
 
 **Pendientes:** acogimiento no remunerado de mayores (1.546,50 €, requiere flag),
 familias con dos o más descendientes e ingresos reducidos (10 % de la cuota), intereses
@@ -774,6 +837,56 @@ adquisición, traslado) condicionada a municipio.
 > que el acceso `d$limite` (partial matching de `$` en R) resolvía silenciosamente a
 > `d$limite_pct_cuota_autonomica`. Corregido usando `[[` con coincidencia exacta en
 > todo el motor de deducciones + `options(warnPartialMatchDollar = TRUE)`.
+
+---
+
+## Puertas de renta: bases imponibles y mínimo autonómico (corrección 2026-09-26, #16 y #22)
+
+Codificado en `test-ded-andalucia.R`, `test-ded-cv-ga.R` y `test-ded-cataluna.R`; casos
+R↔JS `an_bases_plan`, `ga_minimo_aut` y `ct_alquiler_bi`.
+
+**Error corregido.** Las puertas de renta de las deducciones autonómicas usaban siempre la
+suma de las bases **liquidables** (general + ahorro), y `base_gate: menos_minimo` restaba
+el mínimo personal y familiar **estatal**. Pero muchas leyes autonómicas miran la suma de
+las bases **imponibles** (casillas 0435 + 0460), que es anterior a las reducciones por
+planes de pensiones y por tributación conjunta. Y el Manual de Renta 2025 resta el mínimo
+del gravamen **autonómico** (casilla 0520) en todas las deducciones de «base menos
+mínimo»: Galicia, Castilla y León y Cataluña. Con planes de pensiones, en conjunta o con
+mínimo autonómico propio, el motor aplicaba deducciones a quien no tenía derecho, o al
+revés.
+
+**Regla ahora (R y JS):**
+
+| Clave | Base de la puerta y del taper |
+|---|---|
+| (por defecto) | base liquidable general + del ahorro |
+| `suma_bases: imponibles` | base imponible general + del ahorro (0435 + 0460) |
+| `base_gate: menos_minimo` | base imponible − mínimo del gravamen autonómico (0520) |
+
+Marcadas con `suma_bases: imponibles`: todas las de Andalucía y Castilla-La Mancha con
+límite de renta; todas las de Madrid con límite de renta, tanto las del art. 18.1
+(alquiler, nacimiento) como las del límite de la UF por miembro del art. 18.2 (familia
+numerosa, empleada de hogar, gastos educativos: `base_max_por_miembro_uf` usa también la
+base imponible); y dos o más descendientes de la C. Valenciana. El resto de la C.
+Valenciana usa bases liquidables (casillas 0500 + 0510), que es el valor por defecto.
+
+**Comprobación numérica.**
+
+- Andalucía (`an_bases_plan`): 30 años, 30.000 € de trabajo (cot. 1.905) → base imponible
+  26.095 €; con 1.500 € al plan de pensiones, la liquidable queda en 24.595 €. El alquiler
+  (art. 10) exige base imponible ≤ 25.000 → **no aplica** (antes: 15 % · 6.000 = 900 €).
+  Con 24.000 € de trabajo (base imponible 20.476 €) sí: **900 €**.
+- Galicia (`ga_minimo_aut`, test en individual): monoparental con un recién nacido, base
+  imponible 32.800 €. Con el mínimo estatal (5.550 + 2.400 + 2.800 = 10.750) quedaría
+  22.050 € (> 22.000 → 300 €). Con el autonómico gallego (5.789 + 2.503 + 2.920 = 11.212)
+  queda 21.588 € (≤ 22.000) → **360 €** (primer hijo, tramo de renta baja).
+- Cataluña (`ct_alquiler_bi`): 30 años, 41.164 € de trabajo (cot. 2.614) → base imponible
+  36.550 €; − 5.550 = 31.000 > 30.000 → el alquiler del art. 612-3 **no aplica**, aunque
+  con 1.500 € al plan de pensiones la base liquidable menos el mínimo quede en 29.500 €.
+
+**Pendiente:** en tributación individual de una pareja, las puertas «de la unidad familiar»
+(`base_max_unidad_familiar`, y la del art. 4.Uno.t de la C. Valenciana) solo ven la base
+del declarante liquidado, no la suma de los dos.
 
 ---
 

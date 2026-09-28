@@ -297,8 +297,14 @@
   }
 
   // ---- Deducciones autonómicas (DSL, común) ------------------------------
-  function deduccionesAutonomicas(hogar, terr, P, modo, baseTotal, cuotaIntegraAut, minimo, declaranteId) {
+  function deduccionesAutonomicas(hogar, terr, P, modo, baseTotal, cuotaIntegraAut, minimo, declaranteId, baseImponible, minimoAut) {
     minimo = minimo || 0;
+    // suma de bases imponibles (0435 + 0460) y mínimo del gravamen autonómico (0520): los usan
+    // `suma_bases: imponibles` y `base_gate: menos_minimo` (base imponible − mínimo autonómico)
+    const baseImp = baseImponible != null ? baseImponible : baseTotal;
+    const minAut = minimoAut != null ? minimoAut : minimo;
+    const basePuerta = d => d.base_gate === "menos_minimo" ? Math.max(0, baseImp - minAut)
+      : (d.suma_bases === "imponibles" ? baseImp : baseTotal);
     const da = terr.deducciones_autonomicas;
     if (!da || da.estado === "pendiente" || !da.lista || !da.lista.length) return { detalle: {}, total: 0, estado: da ? da.estado : "pendiente" };
     const esConj = modo === "conjunta";
@@ -332,18 +338,21 @@
     const prorratea = d => d.prorratea_progenitores == null ? esFamiliar(d) : !!d.prorratea_progenitores;
 
     const pasaPuertas = d => {
-      const b = d.base_gate === "menos_minimo" ? Math.max(0, baseTotal - minimo) : baseTotal;
+      const b = basePuerta(d);
       if (d.base_max_individual != null && !esConj && b > d.base_max_individual) return false;
       if (d.base_max_conjunta != null && esConj && b > d.base_max_conjunta) return false;
       if (d.base_min_individual != null && !esConj && b < d.base_min_individual) return false;
       if (d.base_min_conjunta != null && esConj && b < d.base_min_conjunta) return false;
-      if (d.base_max_unidad_familiar != null && baseTotal > d.base_max_unidad_familiar) return false;
+      const bUf = d.suma_bases === "imponibles" ? baseImp : baseTotal;
+      if (d.base_max_unidad_familiar != null && bUf > d.base_max_unidad_familiar) return false;
       // límite de la UF por miembro (Madrid, art. 18.2): declarantes + descendientes < 18
       if (d.base_max_por_miembro_uf != null &&
-          baseTotal > d.base_max_por_miembro_uf * (decs.length + desc.filter(h => num(h.edad, 99) < 18).length)) return false;
+          bUf > d.base_max_por_miembro_uf * (decs.length + desc.filter(h => num(h.edad, 99) <= num(d.miembros_uf_hijos_edad_max, 17)).length)) return false;
       if (d.requiere_familia_numerosa_reciente && !hogar.familiaNumerosaReciente) return false;
       // descendientes_sin_deduccion: no cuentan los que dan derecho a esa otra deducción
-      let nd = desc.length;
+      // descendientes_edad_max_cuenta: descendientes_min/max solo cuentan a los de edad <= E
+      let nd = d.descendientes_edad_max_cuenta != null
+        ? desc.filter(h => num(h.edad, 99) <= d.descendientes_edad_max_cuenta).length : desc.length;
       if (d.descendientes_sin_deduccion != null) {
         const d2 = da.lista.find(x => x.id === d.descendientes_sin_deduccion);
         if (d2 && pasaPuertas(d2)) {
@@ -372,6 +381,11 @@
       if (d.requiere_familiar_discapacidad_65 &&
           !asc.concat(desc).some(p => (p.discapacidad || "no") === "65_mas")) return false;
       if (d.requiere_parto_multiple && !hogar.partoMultiple) return false;
+      // discapacidad >= 65 % de un declarante (o de la persona del ámbito) o de un descendiente
+      if (d.requiere_discapacidad_65_de != null) {
+        const quien = (d.requiere_discapacidad_65_de === "contribuyente_o_descendientes" ? ambito : decs).concat(desc);
+        if (!quien.some(p => (p.discapacidad || "no") === "65_mas")) return false;
+      }
       // municipio de residencia: población máxima y/o lista oficial de zonas despobladas
       if (d.municipio_hab_max != null && (hogar.municipioHabitantes == null || hogar.municipioHabitantes > d.municipio_hab_max)) return false;
       if (d.requiere_zona_despoblada && !hogar.zonaDespoblada) return false;
@@ -386,7 +400,7 @@
     const factorTaper = d => {
       const tp = esConj ? d.taper_conjunta : d.taper_individual;
       if (!tp) return 1;
-      const b = d.base_gate === "menos_minimo" ? Math.max(0, baseTotal - minimo) : baseTotal;
+      const b = basePuerta(d);
       if (b <= tp[0]) return 1;
       return Math.max(0, Math.min(1, 1 - (b - tp[0]) / (tp[1] - tp[0])));
     };
@@ -434,15 +448,20 @@
           val += v;
         }
       } else if (d.tipo === "fija_por_hijo_nacido") {
-        const ventana = num(d.anios_ventana, 1);
-        const esNacido = h => num(h.edad, 99) <= ventana - 1 || h.nacidoEnEjercicio;
+        const ventana = num(d.anios_ventana, 1), desde = num(d.anios_ventana_desde, 1);
+        // anios_ventana_desde: la ventana empieza en el N-ésimo ejercicio (edad >= N − 1)
+        const esNacido = h => desde > 1
+          ? (!h.nacidoEnEjercicio && num(h.edad, 99) >= desde - 1 && num(h.edad, 99) <= ventana - 1)
+          : (num(h.edad, 99) <= ventana - 1 || h.nacidoEnEjercicio);
+        // duplica_hijo_discapacidad: x2 por hijo con discapacidad >= 33 %
+        const fHijo = h => (d.duplica_hijo_discapacidad && h.discapacidad && h.discapacidad !== "no") ? 2 : 1;
         if (d.importes_por_orden) {
           const ord = desc.slice().sort((a, b) => num(b.edad, 0) - num(a.edad, 0));
           val = 0;
-          ord.forEach((h, k) => { if (esNacido(h)) { const key = k < 2 ? String(k + 1) : "3+"; val += num(d.importes_por_orden[key] != null ? d.importes_por_orden[key] : d.importes_por_orden["3+"]); } });
+          ord.forEach((h, k) => { if (esNacido(h)) { const key = k < 2 ? String(k + 1) : "3+"; val += num(d.importes_por_orden[key] != null ? d.importes_por_orden[key] : d.importes_por_orden["3+"]) * fHijo(h); } });
         } else {
           const impH = (esConj && d.importe_conjunta != null) ? d.importe_conjunta : num(d.importe);
-          val = desc.filter(esNacido).length * impH;
+          val = desc.filter(esNacido).reduce((s, h) => s + impH * fHijo(h), 0);
           if (hogar.partoMultiple) {
             const im = num(d.importe_multiple != null ? d.importe_multiple : impH);
             // multiple_por_hijo: el incremento es por cada hijo nacido en el parto múltiple
@@ -452,7 +471,11 @@
       } else if (d.tipo === "fija_por_hijo") {
         const hh = desc.filter(h => (d.edad_hijo_min == null || num(h.edad, 99) >= d.edad_hijo_min) &&
                                     (d.edad_hijo_max == null || num(h.edad, 99) <= d.edad_hijo_max));
-        val = hh.length * num(d.importe);
+        // hijos_desde_orden: solo cuentan a partir del N-ésimo
+        let nH = Math.max(0, hh.length - (num(d.hijos_desde_orden, 1) - 1));
+        // duplica_hijo_discapacidad: cada hijo con discapacidad >= 33 % cuenta dos veces
+        if (d.duplica_hijo_discapacidad && nH > 0) nH += hh.slice(-nH).filter(h => h.discapacidad && h.discapacidad !== "no").length;
+        val = nH * num(d.importe);
       } else if (d.tipo === "fija_por_ascendiente") {
         // por edad o por discapacidad (ascendiente_discapacidad: omitido = cualquier grado,
         // false = no cuenta, "65_mas" = solo ese grado); requiere_minimo_ascendiente: mismo
@@ -478,6 +501,14 @@
       // incremento por residir en un municipio pequeño (p. ej. +20 % en Galicia, < 5.000 hab.)
       const fm = d.incremento_municipio;
       if (fm && hogar.municipioHabitantes != null && hogar.municipioHabitantes <= fm.hab_max) val *= fm.factor;
+      // factor_discapacidad: multiplica el importe si alguien del grupo tiene esa discapacidad
+      const fd = d.factor_discapacidad;
+      if (fd) {
+        const grupoFd = fd.de === "contribuyente_o_descendientes" ? ambito.concat(desc)
+          : fd.de === "declarantes_o_descendientes" ? decs.concat(desc) : ambito;
+        const cumple = p => { const di = p.discapacidad || "no"; return fd.grado === "65_mas" ? di === "65_mas" : di !== "no"; };
+        if (grupoFd.some(cumple)) val *= num(fd.factor, 2);
+      }
       if (prorratea(d) && indCompartido) val /= nProg;
       if (val > 0) cand.push({ id: d.id || "ded", val, grupo: d.grupo });
     }
@@ -668,7 +699,8 @@
     const cuotaIntegraEstatal = cigEst + ciaEst;
     const cuotaIntegraAutonomica = cigAut + ciaAut;
 
-    const dedAut = deduccionesAutonomicas(hogar, terr, P, modo, blg + bla, cuotaIntegraAutonomica, mpf.total, declaranteId);
+    const dedAut = deduccionesAutonomicas(hogar, terr, P, modo, blg + bla, cuotaIntegraAutonomica, mpf.total, declaranteId,
+      r.baseImponibleGeneral + r.baseImponibleAhorro, minimoAut);
     const dedEst = deduccionesEstatales(personas, P, blg + bla);
     let clEst = Math.max(0, cuotaIntegraEstatal - dedEst.totalEstatal);
     let clAut = Math.max(0, cuotaIntegraAutonomica - dedAut.total - dedEst.totalAutonomico);

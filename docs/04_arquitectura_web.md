@@ -12,11 +12,11 @@ eligió **web estática + motor en el navegador + Supabase** (sin servidor propi
    ▼                                      ▼
  web/  (GitHub Pages)                Supabase `mapafiscal` (UE)
  ├─ index.html · js/app.js · css/          ├─ catálogo normativo (lectura pública)
- ├─ js/irpfsim.js ← motor JS (≡ motor R)   ├─ auth (enlace mágico) + perfiles
+ ├─ js/irpfsim.js ← motor JS (≡ motor R)   ├─ auth (Google, enlace mágico) + perfiles
  └─ datos/params.json · mapa_es.json       ├─ clientes (RLS por gestor)
         │                                  ├─ lista_espera (solo insert)
         │ supabase-js (clave publicable)   ├─ suscripciones (solo webhook)
-        └────────────────────────────────▶ └─ Edge Functions: crear-checkout,
+        └────────────────────────────────▶ └─ Edge Functions: crear-checkout, borrar-cuenta,
                                               stripe-webhook, portal-facturacion ─▶ Stripe
 ```
 
@@ -61,11 +61,25 @@ comprueba.
 ## Pagos
 
 Plan Gestor con Stripe Checkout (suscripción semanal, mensual o anual) y portal de cliente
-de Stripe para cambiar de periodo, tarjeta o darse de baja. La web solo llama a las Edge
-Functions (`crear-checkout`, `portal-facturacion`) con la sesión del gestor; el plan de la
-cuenta lo cambia únicamente el webhook de Stripe. Al volver del pago (`#gestor?pago=ok`),
-la web consulta el perfil cada 2 s hasta que el webhook activa el plan (máximo 30 s).
-Detalle y puesta en marcha: `supabase/README.md`, sección *Cobros (Stripe)*.
+de Stripe para cambiar de periodo, tarjeta o darse de baja. En *Planes*, «Suscribirme» lleva
+directo a Stripe Checkout; sin sesión, primero se inicia sesión (Google o enlace por correo) y
+al volver la web sigue sola al pago con el plan y el periodo elegidos. La web solo llama a las
+Edge Functions (`crear-checkout`, `portal-facturacion`, `borrar-cuenta`) con la sesión del
+gestor; el plan de la cuenta lo cambia únicamente el webhook de Stripe. Al volver del pago
+(`#gestor?pago=ok`), la web consulta el perfil cada 2 s hasta que el webhook activa el plan
+(máximo 30 s). Detalle y puesta en marcha: `supabase/README.md`, secciones *Cobros (Stripe)* y
+*Autenticación*.
+
+## Cuentas y perfil
+
+Con la sesión iniciada aparecen la pestaña *Perfil* y, en la barra, la inicial del usuario en
+lugar de «Acceder». *Perfil* muestra el plan y el estado de la suscripción (activa, pago
+pendiente, cancelada…), el periodo de facturación y la próxima renovación o la fecha en que
+termina; «Gestionar suscripción» abre el portal de Stripe y vuelve a *Perfil*. También muestra
+el correo, cómo se entra (Google o enlace), el nombre (el de Google por defecto) y el despacho,
+editables; un acceso a *Mis clientes*, «Cerrar sesión» y «Borrar mi cuenta» (derecho de
+supresión, RGPD). Para borrar la cuenta hay que escribir el correo; la Edge Function
+`borrar-cuenta` cancela antes la suscripción y después borra la cuenta, el perfil y los clientes.
 
 «Mis clientes» es exclusivo del plan de pago (decisión de 2026-09-26; ya no hay plan
 gratuito con 3 clientes). Lo impone la RLS de `clientes`; la web lo refleja: sin plan, la

@@ -7,9 +7,9 @@ window.MAPAFISCAL_CONFIG = {
   supabaseKey: "sb_publishable_H5plGsoIk0bKwlu2Kdf1kQ_1pTPoaFl",
 
   // Cobro con Stripe (Edge Functions crear-checkout / portal-facturacion). En false, los
-  // botones de pago apuntan a la lista de espera. Ponlo en true solo cuando el webhook
-  // responda 400 (y no 503) a un POST vacío: ver supabase/README.md.
-  pagosActivos: false,
+  // botones de pago apuntan a la lista de espera. Activado el 2026-09-26 (Alex), con el
+  // backend configurado y probado en modo test: ver supabase/README.md.
+  pagosActivos: true,
 
   // Precios mostrados en Planes. Tienen que coincidir con los de Stripe (lookup_key
   // gestor_semanal, gestor_mensual, gestor_anual). Orientativos hasta que se cierren.

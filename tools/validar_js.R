@@ -80,6 +80,38 @@ add("ct_deducciones", "ES-CT", "ninguna", "no",
               inversionAngelInversor=10000)))
 
 # 5d. Galicia — nacimiento por orden (renta baja) + familias dos hijos + libros
+# 3a1. Galicia (cotejo #16) — familia numerosa con 4 hijos, uno con discapacidad >= 65 %:
+# (250 + 2 x 250) x 2 = 1.500 €, prorrateado entre los progenitores en individual
+add("ga_fn_4_disc", "ES-GA", "biparental", "general",
+    list(persona("d1","declarante",45, trabajo=list(dinerarias=60000, cotizaciones_ss=3810)),
+         persona("d2","conyuge",43, trabajo=list(dinerarias=30000, cotizaciones_ss=1905)),
+         persona("h1","descendiente",2, discapacidad="65_mas"), persona("h2","descendiente",5),
+         persona("h3","descendiente",8), persona("h4","descendiente",11)),
+    list(list(id="d1",rol="declarante",edad=45, trabajo=list(dinerarias=60000,cotizacionesSs=3810)),
+         list(id="d2",rol="conyuge",edad=43, trabajo=list(dinerarias=30000,cotizacionesSs=1905)),
+         list(id="h1",rol="descendiente",edad=2, discapacidad="65_mas"), list(id="h2",rol="descendiente",edad=5),
+         list(id="h3",rol="descendiente",edad=8), list(id="h4",rol="descendiente",edad=11)))
+# 3a2. Galicia (cotejo #16) — alquiler de un joven con discapacidad 33-64 %: base imponible
+# 21.412 <= 22.000; 10 % de 4.000 = 400 -> 300, duplicado = 600 €
+add("ga_alquiler_disc", "ES-GA", "ninguna", "no",
+    list(persona("d1","declarante",30, discapacidad="33_64",
+                 trabajo=list(dinerarias=25000, cotizaciones_ss=1588), alquiler_vivienda_pagos=4000)),
+    list(list(id="d1",rol="declarante",edad=30, discapacidad="33_64",
+              trabajo=list(dinerarias=25000,cotizacionesSs=1588), alquilerViviendaPagos=4000)))
+# 3a3. Galicia (cotejo #16) — cuidado de dos hijos de <= 3 años con los dos progenitores
+# trabajando (30 % de 3.000 = 900 -> 600) y libros de un hijo de 8 años (15 % de 600 = 90)
+add("ga_cuidado_libros", "ES-GA", "biparental", "no",
+    list({d <- persona("d1","declarante",36, trabajo=list(dinerarias=34000, cotizaciones_ss=2159));
+          d$gastos_cuidado_hijos <- 3000; d},
+         persona("d2","conyuge",35, trabajo=list(dinerarias=26000, cotizaciones_ss=1651)),
+         persona("h1","descendiente",1), persona("h2","descendiente",3),
+         {h <- persona("h3","descendiente",8); h$gastos_libros_texto <- 600; h}),
+    list(list(id="d1",rol="declarante",edad=36, trabajo=list(dinerarias=34000,cotizacionesSs=2159),
+              gastosCuidadoHijos=3000),
+         list(id="d2",rol="conyuge",edad=35, trabajo=list(dinerarias=26000,cotizacionesSs=1651)),
+         list(id="h1",rol="descendiente",edad=1), list(id="h2",rol="descendiente",edad=3),
+         list(id="h3",rol="descendiente",edad=8, gastosLibrosTexto=600)))
+
 add("ga_familia", "ES-GA", "monoparental", "no",
     list(persona("d1","declarante",34, trabajo=list(dinerarias=24000, cotizaciones_ss=1524)),
          persona("h1","descendiente",0, nacido_en_ejercicio=TRUE),
@@ -89,6 +121,18 @@ add("ga_familia", "ES-GA", "monoparental", "no",
          list(id="h2",rol="descendiente",edad=8, gastosLibrosTexto=200)))
 
 # 5e. Castilla y León — discapacidad + cuidado hijos
+# 3b0. Castilla y León (cotejo #16) — familia numerosa con 7 descendientes, uno con
+# discapacidad >= 65 %: 2.500 + 2 x 1.000 (6.º y 7.º) + 600 = 5.100 €, prorrateado en individual
+add("cyl_fn_7", "ES-CL", "biparental", "especial",
+    c(list(persona("d1","declarante",46, trabajo=list(dinerarias=90000, cotizaciones_ss=5715)),
+           persona("d2","conyuge",44, trabajo=list(dinerarias=60000, cotizaciones_ss=3810)),
+           persona("h1","descendiente",4, discapacidad="65_mas")),
+      lapply(2:7, function(i) persona(paste0("h", i), "descendiente", 2 * i + 1))),
+    c(list(list(id="d1",rol="declarante",edad=46, trabajo=list(dinerarias=90000,cotizacionesSs=5715)),
+           list(id="d2",rol="conyuge",edad=44, trabajo=list(dinerarias=60000,cotizacionesSs=3810)),
+           list(id="h1",rol="descendiente",edad=4, discapacidad="65_mas")),
+      lapply(2:7, function(i) list(id=paste0("h", i), rol="descendiente", edad=2 * i + 1))))
+
 add("cyl_disc", "ES-CL", "ninguna", "no",
     list({p <- persona("d1","declarante",70, discapacidad="65_mas",
                        trabajo=list(dinerarias=20000, cotizaciones_ss=1270)); p}),
@@ -338,6 +382,27 @@ add("vc_despobl_nacimiento", "ES-VC", "monoparental", "no",
     list(list(id="d1",rol="declarante",edad=36, trabajo=list(dinerarias=36000,cotizacionesSs=2286)),
          list(id="h1",rol="descendiente",edad=6), list(id="h2",rol="descendiente",edad=1)),
     municipio = 800, despoblada = TRUE)
+# 5j0. Bases imponibles y mínimo autonómico en las puertas de renta (cotejo #16, #22)
+# Andalucía: el alquiler (art. 10) mira la base imponible (26.095 > 25.000) aunque el plan
+# de pensiones deje la liquidable en 24.595
+add("an_bases_plan", "ES-AN", "ninguna", "no",
+    list(persona("d1","declarante",30, trabajo=list(dinerarias=30000, cotizaciones_ss=1905),
+                 prevision_social=list(aportacion_individual=1500), alquiler_vivienda_pagos=6000)),
+    list(list(id="d1",rol="declarante",edad=30, trabajo=list(dinerarias=30000,cotizacionesSs=1905),
+              previsionSocial=list(aportacionIndividual=1500), alquilerViviendaPagos=6000)))
+# Galicia: nacimiento con base imponible − mínimo AUTONÓMICO (21.588 <= 22.000 -> 360 €)
+add("ga_minimo_aut", "ES-GA", "monoparental", "no",
+    list(persona("d1","declarante",34, trabajo=list(dinerarias=37160, cotizaciones_ss=2360)),
+         persona("h1","descendiente",0, nacido_en_ejercicio=TRUE)),
+    list(list(id="d1",rol="declarante",edad=34, trabajo=list(dinerarias=37160,cotizacionesSs=2360)),
+         list(id="h1",rol="descendiente",edad=0, nacidoEnEjercicio=TRUE)))
+# Cataluña: alquiler (art. 612-3) con base imponible − mínimo = 31.000 > 30.000; la base
+# liquidable con plan de pensiones (29.500) ya no cuenta
+add("ct_alquiler_bi", "ES-CT", "ninguna", "no",
+    list(persona("d1","declarante",30, trabajo=list(dinerarias=41164, cotizaciones_ss=2614),
+                 prevision_social=list(aportacion_individual=1500), alquiler_vivienda_pagos=8000)),
+    list(list(id="d1",rol="declarante",edad=30, trabajo=list(dinerarias=41164,cotizacionesSs=2614),
+              previsionSocial=list(aportacionIndividual=1500), alquilerViviendaPagos=8000)))
 
 add("vc_taper", "ES-VC", "monoparental", "no",
     list(persona("d1","declarante",30, trabajo=list(dinerarias=32000, cotizaciones_ss=1500),

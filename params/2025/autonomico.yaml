@@ -111,6 +111,7 @@ territorios:
           edad_max: 35
           edad_min_alt: 65      # también aplican >65, víctimas de violencia/terrorismo y personas con discapacidad
           base_max_individual: 25000
+          suma_bases: imponibles       # casillas 0435 + 0460
           base_max_conjunta: 30000
         - id: arrendamiento_vivienda_habitual_discapacidad
           norma: "Art. 10.2 Ley 5/2021"
@@ -123,6 +124,7 @@ territorios:
           grupo: alquiler_an
           requiere_discapacidad_contribuyente: true
           base_max_individual: 25000
+          suma_bases: imponibles       # casillas 0435 + 0460, como el apartado 1 (#43)
           base_max_conjunta: 30000
         - id: familia_numerosa_general
           norma: "Art. 14 Ley 5/2021"
@@ -130,6 +132,7 @@ territorios:
           importe: 200
           requiere_familia_numerosa: true
           base_max_individual: 25000   # art. 14.3 (suma de bases imponibles general y del ahorro)
+          suma_bases: imponibles       # casillas 0435 + 0460
           base_max_conjunta: 30000
         - id: familia_numerosa_especial
           norma: "Art. 14 Ley 5/2021"
@@ -137,6 +140,7 @@ territorios:
           importe: 200          # 400 total en especial; 200 adicional sobre la general
           requiere_familia_numerosa: especial
           base_max_individual: 25000   # art. 14.3
+          suma_bases: imponibles       # casillas 0435 + 0460
           base_max_conjunta: 30000
         - id: familia_monoparental
           norma: "Art. 13 Ley 5/2021"
@@ -144,6 +148,7 @@ territorios:
           importe: 100
           requiere_monoparental: true
           base_max_individual: 80000
+          suma_bases: imponibles       # casillas 0435 + 0460
           base_max_conjunta: 100000
         - id: familia_monoparental_ascendientes_75
           norma: "Art. 13.2 y 13.3 Ley 5/2021 (incremento)"
@@ -156,6 +161,7 @@ territorios:
           requiere_minimo_ascendiente: true
           requiere_monoparental: true
           base_max_individual: 80000
+          suma_bases: imponibles       # casillas 0435 + 0460
           base_max_conjunta: 100000
         - id: contribuyente_discapacidad
           norma: "Art. 16 Ley 5/2021"
@@ -163,6 +169,7 @@ territorios:
           importe: 150
           requiere_discapacidad_contribuyente: true   # grado >= 33 %
           base_max_individual: 25000
+          suma_bases: imponibles       # casillas 0435 + 0460
           base_max_conjunta: 30000
         - id: gastos_educativos_idiomas_informatica
           norma: "Art. 15 Ley 5/2021"
@@ -171,6 +178,7 @@ territorios:
           porcentaje: 0.15
           limite: 150            # por descendiente
           base_max_individual: 80000
+          suma_bases: imponibles       # casillas 0435 + 0460
           base_max_conjunta: 100000
         # Ayuda doméstica (art. 19.1): dos supuestos alternativos, mismo importe -> variantes
         # excluyentes del grupo `ayuda_domestica`. Sin límite de base.
@@ -771,6 +779,7 @@ territorios:
           importe_multiple: 300
           anios_ventana: 1
           base_max_individual: 27000
+          suma_bases: imponibles       # casillas 0435 + 0460
           base_max_conjunta: 36000
         - id: familia_numerosa_general
           norma: "Art. 2 Ley 8/2013 CLM"
@@ -778,6 +787,7 @@ territorios:
           importe: 200
           requiere_familia_numerosa: true
           base_max_individual: 27000
+          suma_bases: imponibles       # casillas 0435 + 0460
           base_max_conjunta: 36000
         - id: familia_numerosa_especial
           norma: "Art. 2 Ley 8/2013 CLM"
@@ -785,6 +795,7 @@ territorios:
           importe: 200
           requiere_familia_numerosa: especial
           base_max_individual: 27000
+          suma_bases: imponibles       # casillas 0435 + 0460
           base_max_conjunta: 36000
         - id: familia_monoparental
           norma: "Art. 2 bis Ley 8/2013 CLM"
@@ -792,6 +803,7 @@ territorios:
           importe: 200
           requiere_monoparental: true
           base_max_individual: 27000
+          suma_bases: imponibles       # casillas 0435 + 0460
           base_max_conjunta: 36000
         - id: gastos_guarderia
           norma: "Art. 3 bis Ley 8/2013 CLM"
@@ -801,6 +813,7 @@ territorios:
           limite: 500            # por hijo < 3 (250 € el año en que cumple 3)
           edad_hijo_max: 2
           base_max_individual: 27000
+          suma_bases: imponibles       # casillas 0435 + 0460
           base_max_conjunta: 36000
         - id: discapacidad_contribuyente
           norma: "Art. 4 Ley 8/2013 CLM"
@@ -808,6 +821,7 @@ territorios:
           importe: 300
           requiere_discapacidad_grado: "65_mas"
           base_max_individual: 27000
+          suma_bases: imponibles       # casillas 0435 + 0460
           base_max_conjunta: 36000
         - id: contribuyente_mayor_75
           norma: "Art. 6.1 Ley 8/2013 CLM"
@@ -816,6 +830,7 @@ territorios:
           importe: 150
           edad_min: 76           # "mayores de 75 años"
           base_max_individual: 27000
+          suma_bases: imponibles       # casillas 0435 + 0460
           base_max_conjunta: 36000
         - id: cuidado_ascendientes_75
           norma: "Art. 6.2 Ley 8/2013 CLM"
@@ -824,6 +839,7 @@ territorios:
           importe: 150
           edad_ascendiente_min: 76
           base_max_individual: 27000
+          suma_bases: imponibles       # casillas 0435 + 0460
           base_max_conjunta: 36000
         - id: arrendamiento_vivienda_habitual_joven
           norma: "Art. 9 Ley 8/2013 CLM"
@@ -833,6 +849,7 @@ territorios:
           limite: 500
           edad_max: 36
           base_max_individual: 27000
+          suma_bases: imponibles       # casillas 0435 + 0460
           base_max_conjunta: 36000
         # --- condicionadas al municipio de residencia (zonas escasamente pobladas, Ley 2/2021) ---
         - id: residencia_zona_rural_menos_2000
@@ -895,12 +912,51 @@ territorios:
           tipo: fija_por_hijo_nacido
           anios_ventana: 1
           importes_por_orden: { "1": 1010, "2": 1475, "3+": 2351 }
+        # Familia numerosa (art. 3): el importe depende del número de descendientes con
+        # mínimo por descendientes: 600 € en general, 1.500 € con 4, 2.500 € con 5 y 1.000 €
+        # más por cada uno desde el sexto; +600 € si algún cónyuge o descendiente tiene
+        # discapacidad >= 65 %. Sin límite de renta. Se prorratea entre los progenitores.
         - id: familia_numerosa
           norma: "Art. 3 DL 1/2013 CyL"
-          estado: provisional   # 600 € general; 1.500 € (4 desc.); 2.500 € (5) + 1.000 €/desc. desde el 6º; +600 discapacidad >=65 %
+          estado: confirmado
+          fuente: "AEAT Manual Práctico Renta 2025, Parte 2, Castilla y León, «Por familia numerosa» (https://sede.agenciatributaria.gob.es/Sede/ayuda/manuales-videos-folletos/manuales-practicos/irpf-2025-deducciones-autonomicas/comunidad-autonoma-castilla-leon/familia-numerosa.html); arts. 3 y 10 DL 1/2013 (el texto refundido no está consolidado en el BOE)"
           tipo: fija
           importe: 600
           requiere_familia_numerosa: true
+          descendientes_max: 3
+        - id: familia_numerosa_4_descendientes
+          norma: "Art. 3 DL 1/2013 CyL"
+          estado: confirmado
+          fuente: "AEAT Manual Práctico Renta 2025, Parte 2, Castilla y León, «Por familia numerosa» (https://sede.agenciatributaria.gob.es/Sede/ayuda/manuales-videos-folletos/manuales-practicos/irpf-2025-deducciones-autonomicas/comunidad-autonoma-castilla-leon/familia-numerosa.html)"
+          tipo: fija
+          importe: 1500
+          requiere_familia_numerosa: true
+          descendientes_min: 4
+          descendientes_max: 4
+        - id: familia_numerosa_5_descendientes
+          norma: "Art. 3 DL 1/2013 CyL"
+          estado: confirmado
+          fuente: "AEAT Manual Práctico Renta 2025, Parte 2, Castilla y León, «Por familia numerosa» (https://sede.agenciatributaria.gob.es/Sede/ayuda/manuales-videos-folletos/manuales-practicos/irpf-2025-deducciones-autonomicas/comunidad-autonoma-castilla-leon/familia-numerosa.html)"
+          tipo: fija
+          importe: 2500
+          requiere_familia_numerosa: true
+          descendientes_min: 5
+        - id: familia_numerosa_desde_6_descendiente
+          norma: "Art. 3 DL 1/2013 CyL"
+          estado: confirmado
+          fuente: "AEAT Manual Práctico Renta 2025, Parte 2, Castilla y León, «Por familia numerosa» (https://sede.agenciatributaria.gob.es/Sede/ayuda/manuales-videos-folletos/manuales-practicos/irpf-2025-deducciones-autonomicas/comunidad-autonoma-castilla-leon/familia-numerosa.html)"
+          tipo: fija_por_hijo
+          importe: 1000          # por cada descendiente a partir del sexto
+          hijos_desde_orden: 6
+          requiere_familia_numerosa: true
+        - id: familia_numerosa_discapacidad
+          norma: "Art. 3 DL 1/2013 CyL"
+          estado: confirmado
+          fuente: "AEAT Manual Práctico Renta 2025, Parte 2, Castilla y León, «Por familia numerosa» (https://sede.agenciatributaria.gob.es/Sede/ayuda/manuales-videos-folletos/manuales-practicos/irpf-2025-deducciones-autonomicas/comunidad-autonoma-castilla-leon/familia-numerosa.html)"
+          tipo: fija
+          importe: 600           # incremento único si algún cónyuge o descendiente tiene discapacidad >= 65 %
+          requiere_familia_numerosa: true
+          requiere_discapacidad_65_de: declarantes_o_descendientes
         - id: arrendamiento_vivienda_habitual_joven
           norma: "Art. 7.4 DL 1/2013 CyL"
           tipo: porcentaje_campo
@@ -1187,95 +1243,214 @@ territorios:
       estado: cargado
       fuente: "TR tributos cedidos de Galicia (DL 1/2011), art. 5; AEAT Manual Práctico Renta 2025, Parte 2 — Deducciones autonómicas / Galicia"
       lista:
-        # Nacimiento (art. 5.Dos): año del nacimiento y los dos siguientes; +20 % en municipios
-        # de menos de 5.000 habitantes. Renta = base imponible − mínimo personal y familiar.
+        # Nacimiento o adopción (art. 5.Dos). Renta = base imponible − mínimo del gravamen
+        # autonómico (casilla 0520; `base_gate: menos_minimo`).
+        # · Año del nacimiento (5.Dos.1): <= 22.000 -> 360 / 1.200 / 2.400 € por orden;
+        #   >= 22.000,01 -> 300 € por hijo (360 € en parto múltiple). +20 % en municipios de
+        #   menos de 5.000 habitantes.
+        # · Dos años siguientes (5.Dos.2): <= 22.000 -> 360 / 1.200 / 2.400 € por orden;
+        #   22.000,01-31.000 -> 300 €. Sin el +20 %, que el apartado 2 no prevé.
+        # · Se duplica si el hijo tiene discapacidad >= 33 % (5.Dos.4). Prorrateo (5.Dos.3).
         - id: nacimiento_adopcion_renta_baja
-          norma: "Art. 5.Dos DL 1/2011"
+          norma: "Art. 5.Dos.1.b), 3 y 4 DL 1/2011"
+          estado: confirmado
+          fuente: "Art. 5.Dos DL 1/2011, redacción vigente en 2025 (BOE-A-2011-18161); AEAT Manual Práctico Renta 2025, Parte 2, Galicia, «Por nacimiento o adopción de hijos» (https://sede.agenciatributaria.gob.es/Sede/ayuda/manuales-videos-folletos/manuales-practicos/irpf-2025-deducciones-autonomicas/comunidad-autonoma-galicia/nacimiento-adopcion-hijos.html)"
           tipo: fija_por_hijo_nacido
-          anios_ventana: 3                 # ejercicio del nacimiento y los dos siguientes
+          anios_ventana: 1
           importes_por_orden: { "1": 360, "2": 1200, "3+": 2400 }
+          duplica_hijo_discapacidad: true
           base_gate: menos_minimo
           base_max_individual: 22000
           base_max_conjunta: 22000
           incremento_municipio: { hab_max: 4999, factor: 1.20 }
+        - id: nacimiento_adopcion_renta_baja_anios_siguientes
+          norma: "Art. 5.Dos.2.b), 3 y 4 DL 1/2011"
+          estado: confirmado
+          fuente: "Art. 5.Dos DL 1/2011, redacción vigente en 2025 (BOE-A-2011-18161); AEAT Manual Práctico Renta 2025, Parte 2, Galicia, «Por nacimiento o adopción de hijos» (https://sede.agenciatributaria.gob.es/Sede/ayuda/manuales-videos-folletos/manuales-practicos/irpf-2025-deducciones-autonomicas/comunidad-autonoma-galicia/nacimiento-adopcion-hijos.html)"
+          tipo: fija_por_hijo_nacido
+          anios_ventana: 3
+          anios_ventana_desde: 2             # solo los dos ejercicios siguientes al del nacimiento
+          importes_por_orden: { "1": 360, "2": 1200, "3+": 2400 }
+          duplica_hijo_discapacidad: true
+          base_gate: menos_minimo
+          base_max_individual: 22000
+          base_max_conjunta: 22000
         - id: nacimiento_adopcion_renta_media
-          norma: "Art. 5.Dos DL 1/2011"
+          norma: "Art. 5.Dos.1.a) DL 1/2011"
           tipo: fija_por_hijo_nacido
           anios_ventana: 1                 # año del nacimiento: sin límite superior de renta
           importe: 300
-          importe_multiple: 360
+          importe_multiple: 360            # 🟡 la ley da 360 € POR HIJO en parto múltiple; el motor suma 360 una vez (se corrige en #26)
+          duplica_hijo_discapacidad: true
           base_gate: menos_minimo
           base_min_individual: 22000.01
           base_min_conjunta: 22000.01
           incremento_municipio: { hab_max: 4999, factor: 1.20 }
         - id: nacimiento_adopcion_anios_siguientes_renta_media
-          norma: "Art. 5.Dos DL 1/2011"
-          estado: provisional   # la duplicación por discapacidad >= 33 % del hijo no se modela
+          norma: "Art. 5.Dos.2.a), 3 y 4 DL 1/2011"
+          estado: confirmado
+          fuente: "Art. 5.Dos DL 1/2011, redacción vigente en 2025 (BOE-A-2011-18161); AEAT Manual Práctico Renta 2025, Parte 2, Galicia, «Por nacimiento o adopción de hijos» (https://sede.agenciatributaria.gob.es/Sede/ayuda/manuales-videos-folletos/manuales-practicos/irpf-2025-deducciones-autonomicas/comunidad-autonoma-galicia/nacimiento-adopcion-hijos.html)"
           tipo: fija_por_hijo
           importe: 300                     # por hijo nacido en los dos ejercicios anteriores
           edad_hijo_min: 1
           edad_hijo_max: 2
+          duplica_hijo_discapacidad: true
           base_gate: menos_minimo
           base_min_individual: 22000.01
           base_min_conjunta: 22000.01
           base_max_individual: 31000
           base_max_conjunta: 31000
-          incremento_municipio: { hab_max: 4999, factor: 1.20 }
+        # Familias con hijos (art. 5.Tres): dos deducciones incompatibles entre sí (5.Tres.4),
+        # las dos duplicadas si el contribuyente o un descendiente tiene discapacidad >= 65 %.
+        # Sin límite de renta. Prorrateo entre los contribuyentes con derecho (5.Tres.3).
         - id: familias_dos_hijos
           norma: "Art. 5.Tres.1 DL 1/2011"
-          tipo: fija
-          importe: 250          # 500 € si el contribuyente o un hijo tiene discapacidad >= 65 %
-          descendientes_min: 2
-          descendientes_max: 2
-        - id: familia_numerosa
-          norma: "Art. 5.Tres.2 DL 1/2011"
-          estado: provisional   # 250 € (hasta 2 hijos) + 250 €/hijo adicional (>2); 500/800 si discapacidad >= 65 %
+          estado: confirmado
+          fuente: "Art. 5.Tres DL 1/2011, redacción de la Ley 10/2023 (BOE-A-2024-2777), vigente en 2025; AEAT Manual Práctico Renta 2025, Parte 2, Galicia, «Para familias con dos hijos e hijas» (https://sede.agenciatributaria.gob.es/Sede/ayuda/manuales-videos-folletos/manuales-practicos/irpf-2025-deducciones-autonomicas/comunidad-autonoma-galicia/familias-dos-hijos-hijas.html)"
           tipo: fija
           importe: 250
+          descendientes_min: 2
+          descendientes_max: 2
+          familia_numerosa_categoria: "no"   # incompatible con la de familia numerosa (5.Tres.4)
+          factor_discapacidad: { factor: 2, grado: "65_mas", de: contribuyente_o_descendientes }
+        # Familia numerosa (5.Tres.2): hasta dos hijos, 250 € (400 € con título especial); con más
+        # de dos, «la deducción se incrementará en 250 euros adicionales por cada hijo»: según la
+        # exposición de motivos de la Ley 10/2023 (BOE-A-2024-2777), «a partir de la tercera hija
+        # o hijo la deducción aumenta en 250 euros por cada hija o hijo» -> 250 + 250 x (n − 2).
+        - id: familia_numerosa
+          norma: "Art. 5.Tres.2.a) DL 1/2011"
+          estado: confirmado
+          fuente: "Art. 5.Tres DL 1/2011, redacción de la Ley 10/2023 (BOE-A-2024-2777), vigente en 2025; AEAT Manual Práctico Renta 2025, Parte 2, Galicia, «Por familia numerosa» (https://sede.agenciatributaria.gob.es/Sede/ayuda/manuales-videos-folletos/manuales-practicos/irpf-2025-deducciones-autonomicas/comunidad-autonoma-galicia/familia-numerosa.html)"
+          tipo: fija
+          importe: 250
+          familia_numerosa_categoria: general
+          descendientes_max: 2
+          factor_discapacidad: { factor: 2, grado: "65_mas", de: contribuyente_o_descendientes }
+        - id: familia_numerosa_especial_hasta_2_hijos
+          norma: "Art. 5.Tres.2.a) DL 1/2011"
+          estado: confirmado
+          fuente: "Art. 5.Tres DL 1/2011, redacción de la Ley 10/2023 (BOE-A-2024-2777), vigente en 2025; AEAT Manual Práctico Renta 2025, Parte 2, Galicia, «Por familia numerosa» (https://sede.agenciatributaria.gob.es/Sede/ayuda/manuales-videos-folletos/manuales-practicos/irpf-2025-deducciones-autonomicas/comunidad-autonoma-galicia/familia-numerosa.html)"
+          tipo: fija
+          importe: 400
+          familia_numerosa_categoria: especial
+          descendientes_max: 2
+          factor_discapacidad: { factor: 2, grado: "65_mas", de: contribuyente_o_descendientes }
+        - id: familia_numerosa_mas_2_hijos
+          norma: "Art. 5.Tres.2.b) DL 1/2011"
+          estado: confirmado
+          fuente: "Art. 5.Tres DL 1/2011 y exposición de motivos de la Ley 10/2023 (BOE-A-2024-2777); AEAT Manual Práctico Renta 2025, Parte 2, Galicia, «Por familia numerosa» (https://sede.agenciatributaria.gob.es/Sede/ayuda/manuales-videos-folletos/manuales-practicos/irpf-2025-deducciones-autonomicas/comunidad-autonoma-galicia/familia-numerosa.html)"
+          tipo: fija
+          importe: 250
+          familia_numerosa_categoria: general
+          descendientes_min: 3
+          factor_discapacidad: { factor: 2, grado: "65_mas", de: contribuyente_o_descendientes }
+        - id: familia_numerosa_especial_mas_2_hijos
+          norma: "Art. 5.Tres.2.b) DL 1/2011"
+          # Categoría especial con más de dos hijos: la ley no dice si el importe de partida es el
+          # de 250 € o el de 400 € de la letra a) (que habla de «familias de hasta dos hijos»). Se
+          # usa 250 €, el mínimo seguro. Falta un criterio de la AEAT o de ATRIGA.
+          estado: provisional
+          tipo: fija
+          importe: 250
+          familia_numerosa_categoria: especial
+          descendientes_min: 3
+          factor_discapacidad: { factor: 2, grado: "65_mas", de: contribuyente_o_descendientes }
+        - id: familia_numerosa_incremento_por_hijo
+          norma: "Art. 5.Tres.2.b) DL 1/2011"
+          estado: confirmado
+          fuente: "Art. 5.Tres DL 1/2011 y exposición de motivos de la Ley 10/2023 (BOE-A-2024-2777): «a partir de la tercera hija o hijo la deducción aumenta en 250 euros por cada hija o hijo»; AEAT Manual Práctico Renta 2025, Parte 2, Galicia, «Por familia numerosa»"
+          tipo: fija_por_hijo
+          importe: 250                     # por cada hijo a partir del tercero
+          hijos_desde_orden: 3
           requiere_familia_numerosa: true
+          factor_discapacidad: { factor: 2, grado: "65_mas", de: contribuyente_o_descendientes }
+        # Alquiler de vivienda habitual (5.Siete): <= 35 años; base imponible (antes del mínimo)
+        # <= 22.000 € en individual y en conjunta. 10 % / 300 €, o 20 % / 600 € con dos o más
+        # hijos menores de edad (variantes del grupo `alquiler_ga`). Duplicado si el arrendatario
+        # tiene discapacidad >= 33 %.
         - id: arrendamiento_vivienda_habitual_general
           norma: "Art. 5.Siete DL 1/2011"
-          estado: provisional   # límite (base − mínimo); se usa 22.000 / 31.000
+          estado: confirmado
+          fuente: "Art. 5.Siete DL 1/2011, redacción vigente en 2025 (BOE-A-2011-18161); AEAT Manual Práctico Renta 2025, Parte 2, Galicia, «Por alquiler de la vivienda habitual» (https://sede.agenciatributaria.gob.es/Sede/ayuda/manuales-videos-folletos/manuales-practicos/irpf-2025-deducciones-autonomicas/comunidad-autonoma-galicia/alquiler-vivienda-habitual.html)"
           tipo: porcentaje_campo
           campo: alquiler_vivienda_pagos
           porcentaje: 0.10
           limite: 300
+          grupo: alquiler_ga
           edad_max: 36
-          descendientes_max: 1
-          base_gate: menos_minimo
+          suma_bases: imponibles
           base_max_individual: 22000
-          base_max_conjunta: 31000
+          base_max_conjunta: 22000
+          factor_discapacidad: { factor: 2, grado: "33", de: contribuyente }
         - id: arrendamiento_vivienda_habitual_dos_hijos
           norma: "Art. 5.Siete DL 1/2011"
-          estado: provisional
+          estado: confirmado
+          fuente: "Art. 5.Siete DL 1/2011, redacción vigente en 2025 (BOE-A-2011-18161); AEAT Manual Práctico Renta 2025, Parte 2, Galicia, «Por alquiler de la vivienda habitual» (https://sede.agenciatributaria.gob.es/Sede/ayuda/manuales-videos-folletos/manuales-practicos/irpf-2025-deducciones-autonomicas/comunidad-autonoma-galicia/alquiler-vivienda-habitual.html)"
           tipo: porcentaje_campo
           campo: alquiler_vivienda_pagos
           porcentaje: 0.20
           limite: 600
+          grupo: alquiler_ga
           edad_max: 36
           descendientes_min: 2
-          base_gate: menos_minimo
+          descendientes_edad_max_cuenta: 17  # hijos menores de edad
+          suma_bases: imponibles
           base_max_individual: 22000
-          base_max_conjunta: 31000
+          base_max_conjunta: 22000
+          factor_discapacidad: { factor: 2, grado: "33", de: contribuyente }
+        # Cuidado de hijos menores (5.Cinco): 30 % de lo pagado a una empleada de hogar o a una
+        # escuela infantil 0-3, con límite de 400 € (600 € con dos o más hijos de 3 años o
+        # menos; variantes del grupo `cuidado_ga`). Hijos de <= 3 años a 31-12; los dos
+        # progenitores con actividad; base imponible − mínimo autonómico <= 22.000 / 31.000.
         - id: cuidado_hijos_menores
           norma: "Art. 5.Cinco DL 1/2011"
-          estado: provisional   # 600 € si 2+ hijos <= 3 años (no distinguido); prorrateo entre progenitores
+          estado: confirmado
+          fuente: "Art. 5.Cinco DL 1/2011, redacción vigente en 2025 (BOE-A-2011-18161); AEAT Manual Práctico Renta 2025, Parte 2, Galicia, «Por cuidado de hijos menores» (https://sede.agenciatributaria.gob.es/Sede/ayuda/manuales-videos-folletos/manuales-practicos/irpf-2025-deducciones-autonomicas/comunidad-autonoma-galicia/cuidado-hijos-menores.html)"
           tipo: porcentaje_campo
           campo: gastos_cuidado_hijos
           porcentaje: 0.30
           limite: 400
+          grupo: cuidado_ga
+          descendiente_edad_max: 3
+          requiere_progenitores_trabajan: true
           base_gate: menos_minimo
           base_max_individual: 22000
           base_max_conjunta: 31000
-        - id: libros_texto_material_escolar
-          norma: "Art. 5.Veinticinco DL 1/2011"
-          estado: provisional   # tabla de tramos por (base − mínimo); se usa el 15 % con tope de renta 22.000/31.000
+        - id: cuidado_hijos_menores_dos
+          norma: "Art. 5.Cinco DL 1/2011"
+          estado: confirmado
+          fuente: "Art. 5.Cinco DL 1/2011, redacción vigente en 2025 (BOE-A-2011-18161); AEAT Manual Práctico Renta 2025, Parte 2, Galicia, «Por cuidado de hijos menores» (https://sede.agenciatributaria.gob.es/Sede/ayuda/manuales-videos-folletos/manuales-practicos/irpf-2025-deducciones-autonomicas/comunidad-autonoma-galicia/cuidado-hijos-menores.html)"
           tipo: porcentaje_campo
+          campo: gastos_cuidado_hijos
+          porcentaje: 0.30
+          limite: 600
+          grupo: cuidado_ga
+          descendientes_min: 2
+          descendientes_edad_max_cuenta: 3   # «dos o más hijos de 3 o menos años» (AEAT)
+          requiere_progenitores_trabajan: true
+          base_gate: menos_minimo
+          base_max_individual: 22000
+          base_max_conjunta: 31000
+        # Libros de texto y material escolar (5.Veinticinco, añadido por la Ley 5/2025 de Galicia
+        # con efectos desde el 1-1-2025): 15 %, límite 105 € por descendiente matriculado en
+        # primaria, ESO o educación especial en un centro sostenido con fondos públicos. Renta
+        # per cápita de la UF <= 30.000 € (`base_max_por_miembro_uf`; miembros: declarantes e
+        # hijos menores de 25). Aproximaciones: el motor usa la renta del propio ejercicio (la
+        # ley, la del anterior) y no cuenta doble a los miembros con discapacidad; no se
+        # comprueban el tope de 300 € de gasto en material ni las becas incompatibles. En 2025
+        # solo cuentan las facturas de julio a diciembre (DA 5.ª Ley 5/2025).
+        - id: libros_texto_material_escolar
+          norma: "Art. 5.Veinticinco DL 1/2011 (añadido por la Ley 5/2025)"
+          estado: confirmado
+          fuente: "Art. 5.Veinticinco DL 1/2011, añadido por el art. 2 de la Ley 5/2025 de Galicia con efectos desde el 1-1-2025 (DF 3.ª.2; BOE-A-2026-3385); AEAT Manual Práctico Renta 2025, Parte 2, Galicia, «Por la adquisición de libros de texto y material escolar» (https://sede.agenciatributaria.gob.es/Sede/ayuda/manuales-videos-folletos/manuales-practicos/irpf-2025-deducciones-autonomicas/comunidad-autonoma-galicia/adquisicion-libros-texto-material-escolar.html)"
+          tipo: porcentaje_campo_hijo
           campo: gastos_libros_texto
           porcentaje: 0.15
-          base_gate: menos_minimo
-          base_max_individual: 22000
-          base_max_conjunta: 31000
+          limite: 105                      # por descendiente
+          edad_hijo_max: 16
+          suma_bases: imponibles
+          base_max_por_miembro_uf: 30000
+          miembros_uf_hijos_edad_max: 24
       pendientes:
         - acogimiento_menores
         - contribuyentes_discapacidad_65_ayuda_terceros
@@ -1321,6 +1496,7 @@ territorios:
           limite: 1237.20
           edad_max: 40
           base_max_individual: 26414.22
+          suma_bases: imponibles       # casillas 0435 + 0460
           base_max_conjunta: 37322.20
           base_max_unidad_familiar: 61860
         - id: nacimiento_adopcion
@@ -1330,6 +1506,7 @@ territorios:
           importe_multiple: 721.70
           anios_ventana: 3         # ejercicio del nacimiento + 2 siguientes
           base_max_individual: 30930
+          suma_bases: imponibles       # casillas 0435 + 0460
           base_max_conjunta: 37322.20
           base_max_unidad_familiar: 61860
           prorratea_progenitores: true
@@ -1350,6 +1527,7 @@ territorios:
           familia_numerosa_categoria: general
           requiere_familia_numerosa_reciente: true
           base_max_por_miembro_uf: 30930
+          suma_bases: imponibles       # art. 18.2: base imponible de la UF (0435 + 0460)
         - id: familia_numerosa_especial
           norma: "Arts. 13 bis y 18.2 DL 1/2010 Madrid"
           estado: confirmado
@@ -1362,6 +1540,7 @@ territorios:
           familia_numerosa_categoria: especial
           requiere_familia_numerosa_reciente: true
           base_max_por_miembro_uf: 30930
+          suma_bases: imponibles       # art. 18.2: base imponible de la UF (0435 + 0460)
         - id: cuidado_ascendientes
           norma: "Art. 7 bis DL 1/2010 Madrid"
           tipo: fija_por_ascendiente
@@ -1390,6 +1569,7 @@ territorios:
           descendiente_edad_max: 2
           requiere_progenitores_trabajan: true
           base_max_por_miembro_uf: 30930
+          suma_bases: imponibles       # art. 18.2: base imponible de la UF (0435 + 0460)
         - id: cuidado_hijos_menores_3_empleada_hogar_fn
           norma: "Arts. 11 bis.1 (familia numerosa), 11 bis.2.a) y 18.2 DL 1/2010 Madrid"
           estado: confirmado
@@ -1403,6 +1583,7 @@ territorios:
           descendiente_edad_max: 2
           requiere_progenitores_trabajan: true
           base_max_por_miembro_uf: 30930
+          suma_bases: imponibles       # art. 18.2: base imponible de la UF (0435 + 0460)
         - id: empleada_hogar_contribuyente_discapacidad
           norma: "Arts. 11 bis.2.d) y 18.2 DL 1/2010 Madrid"
           estado: confirmado
@@ -1414,6 +1595,7 @@ territorios:
           grupo: empleada_hogar_md
           requiere_discapacidad_contribuyente: true
           base_max_por_miembro_uf: 30930
+          suma_bases: imponibles       # art. 18.2: base imponible de la UF (0435 + 0460)
         - id: empleada_hogar_contribuyente_discapacidad_fn
           norma: "Arts. 11 bis.1 (familia numerosa), 11 bis.2.d) y 18.2 DL 1/2010 Madrid"
           estado: confirmado
@@ -1426,6 +1608,7 @@ territorios:
           requiere_familia_numerosa: true
           requiere_discapacidad_contribuyente: true
           base_max_por_miembro_uf: 30930
+          suma_bases: imponibles       # art. 18.2: base imponible de la UF (0435 + 0460)
         # Art. 11: por hijo con mínimo por descendientes, 15 % de escolaridad e idiomas y 5 %
         # de vestuario escolar, con UN límite por hijo: 412,40 €, que sube a 927,90 € si hay
         # gasto de escolaridad y a 1.031 € en el primer ciclo de infantil (0-2 años, donde
@@ -1444,6 +1627,7 @@ territorios:
           limite_si_campo: { campo: gastos_escolaridad, limite: 927.90 }
           primer_ciclo: { edad_hijo_max: 2, limite: 1031, campos: [gastos_escolaridad] }
           base_max_por_miembro_uf: 30930
+          suma_bases: imponibles       # art. 18.2: base imponible de la UF (0435 + 0460)
       pendientes:
         - acogimiento_no_remunerado_mayores_65     # 1.546,50 € — requiere flag de acogimiento
         - empleada_hogar_familiar_dependiente_o_discapacidad  # art. 11 bis.2.b) y c): falta un campo de grado de dependencia y de familiar con discapacidad >= 33 %
@@ -1887,6 +2071,7 @@ territorios:
           porcentaje: 0.10
           min_descendientes: 2
           base_max_individual: 30000
+          suma_bases: imponibles       # casillas 0435 + 0460
           base_max_conjunta: 30000
         # --- condicionadas al municipio de residencia (beneficiarios del Fondo de Cooperación Municipal contra el despoblamiento) ---
         - id: residencia_municipio_despoblamiento

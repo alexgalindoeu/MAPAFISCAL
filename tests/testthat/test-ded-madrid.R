@@ -113,3 +113,23 @@ test_that("Madrid: gastos educativos con límite único por hijo (art. 11)", {
     hijo("h1", 10, esc = 5000)), tipo_unidad_familiar="monoparental")
   expect_null(liquidar(h3, modo="individual")$deducciones_autonomicas$detalle$gastos_educativos)
 })
+
+test_that("Madrid: el límite de la UF (art. 18.2) usa la base IMPONIBLE, también en conjunta", {
+  # pareja con 2 hijos (4 miembros -> 123.720 €) y un solo sueldo de 135.000 €: base
+  # imponible 124.427 €; en conjunta la liquidable baja a 121.027 € por la reducción de
+  # 3.400 €, pero el límite mira la imponible -> no aplica en ninguna modalidad
+  hijo <- function(id, edad, esc = 0, idi = 0) { h <- persona(id, "descendiente", edad)
+    h$gastos_escolaridad <- esc; h$gastos_idiomas <- idi; h }
+  h <- nuevo_hogar("v","ES-MD", list(
+    persona("d1","declarante",45, trabajo=list(dinerarias=135000, cotizaciones_ss=8573)),
+    persona("d2","conyuge",43), hijo("h1", 7, 6000, 900), hijo("h2", 2, 9000)),
+    tipo_unidad_familiar="biparental")
+  for (m in c("individual", "conjunta"))
+    expect_null(liquidar(h, modo=m)$deducciones_autonomicas$detalle$gastos_educativos)
+  # con 132.000 € (base imponible 121.618 <= 123.720) sí aplica: 927,90 + 1.031 = 1.958,90
+  h2 <- nuevo_hogar("v","ES-MD", list(
+    persona("d1","declarante",45, trabajo=list(dinerarias=132000, cotizaciones_ss=8382)),
+    persona("d2","conyuge",43), hijo("h1", 7, 6000, 900), hijo("h2", 2, 9000)),
+    tipo_unidad_familiar="biparental")
+  expect_equal(liquidar(h2, modo="conjunta")$deducciones_autonomicas$detalle$gastos_educativos, 1958.90)
+})
