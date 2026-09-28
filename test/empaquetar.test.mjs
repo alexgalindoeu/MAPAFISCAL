@@ -24,6 +24,13 @@ test("el HTML empaquetado queda en modo demo aunque la web esté en producción"
   new Function("window", cfg[1])(window);
   assert.equal(window.MAPAFISCAL_CONFIG.demo, true);
   assert.equal(window.MAPAFISCAL_CONFIG.pagosActivos, false);
+  assert.equal(window.MAPAFISCAL_CONFIG.anuncios, false);
+});
+
+test("el HTML empaquetado nunca lleva anuncios ni sus redes", () => {
+  const html = empaquetar();
+  assert.doesNotMatch(html, /adsbygoogle|googlesyndication|fundingchoices/i,
+    "la demo no debe contener ni rastro de AdSense: negocio/anuncios.md §4.4");
 });
 
 test("web/config.js solo lleva la clave publicable de Supabase", () => {

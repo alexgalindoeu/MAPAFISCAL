@@ -17,6 +17,9 @@ const jsonEmbebido = ruta => JSON.stringify(JSON.parse(leer(ruta))).replace(/<\/
 // anuncios, aunque web/config.js esté configurado para producción.
 const FORZAR_DEMO = "window.MAPAFISCAL_CONFIG = Object.assign(window.MAPAFISCAL_CONFIG || {}, { demo: true, pagosActivos: false, anuncios: false });\n";
 const SUPABASE_JS = /<script src="https:\/\/cdn\.jsdelivr\.net\/npm\/@supabase\/supabase-js@[^"]+"[^>]*><\/script>\n?/;
+// La demo nunca lleva anuncios.js: se quita entero (no se incrusta como irpfsim.js/app.js)
+// para que el HTML autónomo no contenga ni un rastro de "adsbygoogle" o "googlesyndication".
+const ANUNCIOS_JS = /<script src="js\/anuncios\.js"><\/script>\n?/;
 
 export function empaquetar() {
   let html = leer("index.html");
@@ -26,6 +29,8 @@ export function empaquetar() {
   };
   if (!SUPABASE_JS.test(html)) throw new Error("No se encuentra en index.html el <script> de supabase-js");
   html = html.replace(SUPABASE_JS, "");
+  if (!ANUNCIOS_JS.test(html)) throw new Error("No se encuentra en index.html el <script> de anuncios.js");
+  html = html.replace(ANUNCIOS_JS, "");
   sustituir('<link rel="stylesheet" href="css/mapafiscal.css">', "<style>\n" + leer("css/mapafiscal.css") + "</style>");
   sustituir('<script src="config.js"></script>', "<script>\n" + leer("config.js") + FORZAR_DEMO + "</script>\n" +
     '<script type="application/json" id="datos-params">' + jsonEmbebido("datos/params.json") + "</script>\n" +

@@ -16,12 +16,12 @@ window.MAPAFISCAL_CONFIG = {
   precios: { gestorSemanal: 19.99, gestorMensual: 39.99, gestorAnual: 290 },
   preciosOrientativos: true,
 
-  contacto: "hola@mapafiscal.es",
+  contacto: "contacto@mapafiscal.es",
 
   // Anuncios (AdSense) en los huecos laterales de la calculadora y de "Comparar". En false,
   // no se carga nada de Google ni la CMP: no hay banner de cookies porque no hace falta. No
   // se muestran nunca a quien tiene plan Pro. La versión autónoma (empaquetar.mjs) fuerza
   // esto a false, igual que hace con pagosActivos.
-  anuncios: false,
-  adsenseCliente: "" // "ca-pub-…", cuando Alex tenga la cuenta de AdSense aprobada
+  anuncios: false, // en true cuando AdSense apruebe el sitio (ver negocio/anuncios.md §5)
+  adsenseCliente: "ca-pub-3028486034839853"
 };
