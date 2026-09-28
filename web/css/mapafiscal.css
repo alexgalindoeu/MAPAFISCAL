@@ -102,8 +102,6 @@ h1, h2, h3 { text-wrap: balance; margin: 0; }
 .nav a:hover { color: var(--tinta); }
 .nav a[aria-current="page"] { color: var(--marca); border-bottom-color: var(--marca); }
 .appbar-der { margin-left: auto; display: flex; align-items: center; gap: 12px; flex: none; }
-.chip-ejercicio { font-size: 12px; font-weight: 600; color: var(--tinta-2); background: var(--superficie-2);
-  border: 1px solid var(--linea); border-radius: 6px; padding: 3px 8px; }
 
 /* ---- botones ---------------------------------------------------------------- */
 .btn { font: inherit; font-weight: 600; font-size: 14px; border-radius: 8px; padding: 9px 16px; cursor: pointer;
@@ -130,6 +128,34 @@ h1, h2, h3 { text-wrap: balance; margin: 0; }
 .cabecera-centrada .entradilla { margin-left: auto; margin-right: auto; }
 .cliente-abierto { font-size: 14px; color: var(--tinta-2); background: var(--marca-suave); border-radius: 8px; padding: 6px 12px; }
 .cliente-abierto b { color: var(--marca-tinta); }
+
+/* ---- portada (inicio) ------------------------------------------------------ */
+.portada { display: grid; grid-template-columns: minmax(0, 1fr); gap: 24px; align-items: center; padding: 12px 0 8px; }
+@media (min-width: 900px) { .portada { grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr); gap: 40px; } }
+.portada-texto h1 { font-size: clamp(28px, 4vw, 40px); font-weight: 700; letter-spacing: -.02em; line-height: 1.15; }
+.portada-texto .entradilla { font-size: 16px; margin-top: 12px; }
+.portada-acciones { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 22px; }
+.portada-destacado { background: var(--superficie); border: 1px solid var(--linea); border-radius: var(--radio);
+  box-shadow: var(--sombra-alta); padding: 24px; }
+.portada-destacado .destacado-etq { font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: .06em;
+  color: var(--marca-tinta); background: var(--marca-suave); border-radius: 999px; padding: 3px 10px; display: inline-block; }
+.portada-destacado h2 { font-size: 20px; margin: 12px 0 6px; }
+.portada-destacado p { color: var(--tinta-2); margin: 0 0 16px; }
+.herramientas { display: grid; grid-template-columns: minmax(0, 1fr); gap: 14px; margin: 40px 0 32px; }
+@media (min-width: 700px) { .herramientas { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (min-width: 1040px) { .herramientas { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+.herramienta { display: block; background: var(--superficie); border: 1px solid var(--linea); border-radius: var(--radio);
+  box-shadow: var(--sombra); padding: 18px 20px; text-decoration: none; color: inherit; transition: border-color .15s, box-shadow .15s; }
+.herramienta:hover { border-color: var(--marca); box-shadow: var(--sombra-alta); color: inherit; }
+.herramienta h3 { font-size: 16px; margin-bottom: 6px; }
+.herramienta p { color: var(--tinta-2); font-size: 14px; margin: 0; }
+.garantias { list-style: none; margin: 0 0 24px; padding: 0; display: grid; grid-template-columns: minmax(0, 1fr); gap: 10px;
+  color: var(--tinta-2); font-size: 14px; }
+@media (min-width: 700px) { .garantias { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+.garantias li { padding-left: 20px; position: relative; }
+.garantias li::before { content: ""; position: absolute; left: 2px; top: 6px; width: 10px; height: 6px;
+  border-left: 2px solid var(--marca); border-bottom: 2px solid var(--marca); transform: rotate(-45deg); }
+.garantias b { color: var(--tinta); }
 
 /* ---- tarjetas ------------------------------------------------------------- */
 .tarjeta { background: var(--superficie); border: 1px solid var(--linea); border-radius: var(--radio); box-shadow: var(--sombra); padding: 20px; }
@@ -386,6 +412,14 @@ details.mas:not([open]) summary { margin-bottom: 0; }
 .separador::before, .separador::after { content: ""; flex: 1; border-top: 1px solid var(--linea); }
 .btn-peligro-lleno { background: var(--pierde); color: var(--superficie); }
 .btn-peligro-lleno:hover { filter: brightness(.92); }
+
+.ventajas { list-style: none; margin: 0 0 18px; padding: 0; display: flex; flex-direction: column; gap: 7px; font-size: 14px; color: var(--tinta-2); }
+.ventajas li { padding-left: 22px; position: relative; }
+.ventajas li::before { content: ""; position: absolute; left: 2px; top: 5px; width: 12px; height: 7px;
+  border-left: 2px solid var(--marca); border-bottom: 2px solid var(--marca); transform: rotate(-45deg); }
+.acceso-legal { margin-bottom: 4px; }
+.acceso-legal .casilla { margin-bottom: 8px; }
+.info-datos { font-size: 12px; color: var(--tinta-3); margin: 0 0 16px; line-height: 1.5; }
 
 /* ---- perfil ------------------------------------------------------------------- */
 .btn-avatar { width: 34px; height: 34px; border-radius: 999px; padding: 0; display: inline-grid; place-items: center;

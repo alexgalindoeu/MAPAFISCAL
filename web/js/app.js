@@ -34,7 +34,6 @@
     return;
   }
   const T = P.territorios;
-  $("pie-generado").textContent = "parámetros generados el " + P.generado.split("-").reverse().join("/");
 
   // ---- Supabase ----------------------------------------------------------------------
   const sb = (!CFG.demo && CFG.supabaseUrl && window.supabase)
@@ -591,29 +590,67 @@
     return google;
   }
 
+  // ---- casilla de aceptación de las condiciones (Legales, rama local/textos-legales) --------
+  // CFG.condicionesVersion no existe hasta que se fusione esa rama: hasta entonces no se exige
+  // la casilla, para no bloquear el acceso con una condición que no se puede cumplir.
+  const dlgCondiciones = $("dlg-condiciones");
+  const ACEPTO_PENDIENTE = "mapafiscal.aceptoPendiente";
+  const legalListo = () => !!CFG.condicionesVersion;
+  function condicionesOk() {
+    if (!legalListo() || $("acceso-acepto").checked) return true;
+    const msg = $("acceso-msg");
+    msg.textContent = "Marca la casilla para continuar."; msg.className = "mensaje error";
+    $("acceso-acepto").focus();
+    return false;
+  }
+  // Sesión con las condiciones al día: nada que hacer. Si no, hay que volver a pedirlas (una
+  // versión nueva, o una cuenta de antes de que existiera esta casilla): diálogo modal, sin
+  // banners, que no deja seguir usando la cuenta hasta que se acepten.
+  function comprobarCondiciones() {
+    if (!legalListo() || !sesion.usuario) { if (dlgCondiciones.open) dlgCondiciones.close(); return; }
+    if (sesion.perfil && sesion.perfil.condiciones_version === CFG.condicionesVersion) { if (dlgCondiciones.open) dlgCondiciones.close(); return; }
+    if (dlgCondiciones.open) return;
+    $("condiciones-acepto").checked = false;
+    $("condiciones-msg").textContent = ""; $("condiciones-msg").className = "mensaje";
+    dlgCondiciones.showModal();
+  }
+  $("btn-condiciones-aceptar").addEventListener("click", async () => {
+    const msg = $("condiciones-msg"), b = $("btn-condiciones-aceptar");
+    if (!$("condiciones-acepto").checked) { msg.textContent = "Tienes que marcar la casilla para continuar."; msg.className = "mensaje error"; return; }
+    b.disabled = true;
+    const { error } = await sb.rpc("aceptar_condiciones", { p_version: CFG.condicionesVersion });
+    b.disabled = false;
+    if (error) { msg.textContent = "No se pudo guardar: " + error.message; msg.className = "mensaje error"; return; }
+    sesion.perfil.condiciones_version = CFG.condicionesVersion;
+    dlgCondiciones.close();
+  });
+  $("btn-condiciones-salir").addEventListener("click", async () => { await sb.auth.signOut(); dlgCondiciones.close(); cerrarCliente(); irA("inicio"); });
+
   let accesoPara = null;         // { destino, pago } del diálogo de acceso abierto
   function abrirAcceso(motivo, para) {
     if (!sb) { irA("clientes"); return; }
     const v = vistaActual();
     accesoPara = para || { destino: ["planes", "clientes", "perfil"].includes(v) ? v : "cuenta" };
     const texto = $("acceso-motivo");
-    texto.textContent = motivo || "Sin contraseñas: te enviamos un enlace de acceso a tu correo.";
-    comprobarGoogle().then(g => {
-      $("acceso-google").hidden = !g;
-      if (g && !motivo) texto.textContent = "Sin contraseñas: entra con tu cuenta de Google o con un enlace en tu correo.";
-    });
+    texto.textContent = motivo || ""; texto.hidden = !motivo;
+    comprobarGoogle().then(g => { $("acceso-google").hidden = !g; });
+    $("acceso-legal").hidden = !legalListo();
+    if (legalListo()) $("acceso-acepto").checked = false;
     $("acceso-msg").textContent = ""; $("acceso-msg").className = "mensaje";
     $("btn-google").disabled = false; $("btn-enviar-enlace").disabled = false;
     dlgAcceso.showModal(); $("acceso-email").focus();
   }
-  // Antes de enviar el enlace o de ir a Google: qué hacer al volver con la sesión iniciada.
+  // Antes de enviar el enlace o de ir a Google: qué hacer al volver con la sesión iniciada, y si
+  // se aceptaron las condiciones en esta pestaña (la pestaña que recibe la sesión puede ser otra).
   function prepararVuelta() {
     const p = accesoPara || { destino: "cuenta" };
     recordar(TRAS_ACCESO, p.destino);
     recordar(PAGO_PENDIENTE, p.pago ? JSON.stringify({ ...p.pago, t: Date.now() }) : null);
+    recordar(ACEPTO_PENDIENTE, (legalListo() && $("acceso-acepto").checked) ? CFG.condicionesVersion : null);
   }
   $("btn-enviar-enlace").addEventListener("click", async () => {
     const email = $("acceso-email").value.trim(), msg = $("acceso-msg");
+    if (!condicionesOk()) return;
     if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) { msg.textContent = "Escribe un correo válido."; msg.className = "mensaje error"; return; }
     $("btn-enviar-enlace").disabled = true;
     prepararVuelta();
@@ -624,11 +661,13 @@
   });
   $("btn-google").addEventListener("click", async () => {
     const msg = $("acceso-msg");
+    if (!condicionesOk()) return;
     $("btn-google").disabled = true;
     prepararVuelta();
     const { error } = await sb.auth.signInWithOAuth({ provider: "google", options: { redirectTo: paginaActual() } });
     if (error) { $("btn-google").disabled = false; msg.textContent = "No se pudo abrir Google: " + error.message; msg.className = "mensaje error"; }
   });
+  $("btn-entrar").addEventListener("click", () => abrirAcceso());
   $("btn-cuenta").addEventListener("click", () => { if (sesion.usuario) irA("perfil"); else abrirAcceso(); });
 
   // Tras iniciar sesión: seguir al pago que se quería hacer o ir a la vista pedida. Solo lo
@@ -645,12 +684,18 @@
     if (destino) irA(destino === "cuenta" ? (tienePlan() ? "clientes" : "perfil") : destino);
   }
 
-  // Botón de la barra: «Acceder» sin sesión; con sesión, la inicial del usuario, que lleva a Perfil.
+  // Botones de la barra: «Entrar» y «Crear cuenta» sin sesión; con sesión, solo un avatar con la
+  // inicial del usuario (sustituye a los dos), que lleva a Perfil.
   const nombreDe = u => { const m = u.user_metadata || {}; return (sesion.perfil && sesion.perfil.nombre) || m.full_name || m.name || ""; };
   function pintarCuenta() {
-    const b = $("btn-cuenta"), u = sesion.usuario;
-    document.querySelector('.nav a[data-vista="perfil"]').hidden = !u;
-    if (!u) { b.className = "btn btn-sec btn-sm"; b.textContent = "Acceder"; b.removeAttribute("title"); b.removeAttribute("aria-label"); return; }
+    const b = $("btn-cuenta"), e = $("btn-entrar"), u = sesion.usuario;
+    if (!u) {
+      e.hidden = false;
+      b.className = "btn btn-pri btn-sm"; b.textContent = "Crear cuenta";
+      b.removeAttribute("title"); b.removeAttribute("aria-label");
+      return;
+    }
+    e.hidden = true;
     b.className = "btn btn-avatar";
     b.textContent = (nombreDe(u) || u.email || "?").trim().charAt(0);
     b.title = u.email; b.setAttribute("aria-label", "Perfil de " + u.email);
@@ -664,11 +709,21 @@
     sesion.ocultos = 0; sesion.suscripcion = null;
     if (sesion.usuario) {
       const [p, s] = await Promise.all([
-        sb.from("perfiles").select("nombre, despacho, plan").eq("id", sesion.usuario.id).maybeSingle(),
+        sb.from("perfiles").select("nombre, despacho, plan, condiciones_version").eq("id", sesion.usuario.id).maybeSingle(),
         sb.from("suscripciones").select("plan, estado, periodo, periodo_fin, termina_en").eq("gestor_id", sesion.usuario.id).maybeSingle()
       ]);
       sesion.perfil = p.data || { plan: "gratis" };
       sesion.suscripcion = s.data || null;
+      // Aceptación pendiente de esta pestaña (o de la que recibió el enlace/Google): se guarda
+      // en cuanto se conoce el perfil, sin esperar a que el usuario vuelva a marcar la casilla.
+      const pendiente = recordado(ACEPTO_PENDIENTE);
+      if (pendiente) {
+        recordar(ACEPTO_PENDIENTE, null);
+        if (pendiente !== sesion.perfil.condiciones_version) {
+          const { error } = await sb.rpc("aceptar_condiciones", { p_version: pendiente });
+          if (!error) sesion.perfil.condiciones_version = pendiente;
+        }
+      }
       if (tienePlan()) {
         const c = await sb.from("clientes").select("id, alias, notas, territorio, hogar, cuota_liquida, resultado, actualizado_en").order("actualizado_en", { ascending: false });
         sesion.clientes = c.data || [];
@@ -682,6 +737,7 @@
     sesionCargada = true;
     pintarCuenta();
     marcarPestanaClientes();
+    comprobarCondiciones();
     if (vistaActual() === "clientes") pintarClientes();
     if (vistaActual() === "planes") pintarPlanes();
     if (vistaActual() === "perfil") pintarPerfil();
@@ -929,8 +985,7 @@
       : periodo === "semanal" ? "Pensado para la campaña de la renta. IVA incluido." : "IVA incluido.";
     const ctaGestor = plan !== "gratis"
       ? `<a class="btn btn-sec" href="#perfil">Tu plan actual · ver suscripción</a>`
-      : (CFG.pagosActivos && sb ? `<button class="btn btn-pri" type="button" id="cta-gestor">Suscribirme</button>`
-        : `<button class="btn btn-pri" type="button" data-espera="gestor">Quiero acceso anticipado</button>`);
+      : `<button class="btn btn-pri" type="button" id="cta-gestor">Suscribirme</button>`;
     $("planes").innerHTML = `
       <div class="plan">
         <h2>Gratis</h2><p class="plan-para">Para calcular tu propia declaración.</p>
@@ -942,46 +997,13 @@
         <span class="plan-cinta">Para asesores y gestorías</span>
         <h2>Gestor</h2><p class="plan-para">Tu cartera de clientes, siempre calculada.</p>
         <div class="plan-precio">${precioGestor}</div><p class="plan-precio-nota">${notaGestor}</p>
-        <ul><li>Todo lo del plan Gratis</li><li>Mis clientes: tu cartera, sin límite y guardada en la nube (UE)</li><li>Optimización por cliente: pensiones, conjunta, deducciones</li><li>Informe de cada cliente listo para imprimir</li><li>Recalcular la cartera cuando cambia la normativa</li></ul>
+        <ul><li>Todo lo del plan Gratis</li><li>Mis clientes: tu cartera, sin límite y guardada en la nube (UE)</li><li>Optimización por cliente: pensiones, conjunta, deducciones</li><li>Informe de cada cliente listo para imprimir</li><li>Recalcular la cartera cuando cambia la normativa</li><li>Sin anuncios</li></ul>
         ${ctaGestor}
-        <div class="espera" id="espera-gestor" hidden></div>
-      </div>
-      <div class="plan">
-        <h2>Despacho</h2><p class="plan-para">Para equipos con varios asesores.</p>
-        <div class="plan-precio texto">A medida</div><p class="plan-precio-nota">Según usuarios y volumen.</p>
-        <ul><li>Todo lo del plan Gestor</li><li>Varias cuentas en el mismo despacho</li><li>API para integrar con tu software de gestión</li><li>Soporte prioritario</li></ul>
-        <button class="btn btn-sec" type="button" data-espera="despacho">Hablemos</button>
-        <div class="espera" id="espera-despacho" hidden></div>
       </div>`;
-    $("nota-precios").textContent = CFG.pagosActivos
-      ? "Pago seguro con Stripe. Puedes cambiar de periodo o darte de baja cuando quieras desde tu perfil."
-      : CFG.preciosOrientativos ? "Precios orientativos: la suscripción todavía no está abierta. Apúntate y te avisaremos." : "";
+    $("nota-precios").textContent = "Pago seguro con Stripe. Puedes cambiar de periodo o darte de baja cuando quieras desde tu perfil.";
     const cta = $("cta-gestor");
     if (cta) cta.addEventListener("click", iniciarPago);
   }
-  $("planes").addEventListener("click", e => {
-    const b = e.target.closest("[data-espera]");
-    if (!b) return;
-    const plan = b.dataset.espera, caja = $("espera-" + plan);
-    if (!sb) { location.href = `mailto:${CFG.contacto || ""}?subject=${encodeURIComponent("Mapafiscal — plan " + plan)}`; return; }
-    caja.hidden = false;
-    caja.innerHTML = `<label class="ayuda" for="espera-email-${plan}">Te escribimos en cuanto abramos el plan ${plan === "gestor" ? "Gestor" : "Despacho"}.</label>
-      <div class="fila"><input type="email" id="espera-email-${plan}" placeholder="tu@correo.es" autocomplete="email" value="${esc(sesion.usuario ? sesion.usuario.email : "")}"><button class="btn btn-pri btn-sm" type="button" data-apuntar="${plan}">Apuntarme</button></div>
-      <p class="mensaje" id="espera-msg-${plan}" role="status"></p>`;
-    b.hidden = true;
-    $("espera-email-" + plan).focus();
-  });
-  $("planes").addEventListener("click", async e => {
-    const b = e.target.closest("[data-apuntar]");
-    if (!b) return;
-    const plan = b.dataset.apuntar, email = $("espera-email-" + plan).value.trim(), msg = $("espera-msg-" + plan);
-    if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) { msg.textContent = "Escribe un correo válido."; msg.className = "mensaje error"; return; }
-    b.disabled = true;
-    const { error } = await sb.from("lista_espera").insert({ email, plan, origen: "web-planes" });
-    b.disabled = false;
-    if (error && error.code !== "23505") { msg.textContent = "No se pudo guardar: " + error.message; msg.className = "mensaje error"; return; }
-    msg.textContent = error ? "Ya estabas en la lista. ¡Gracias!" : "Apuntado. Te avisaremos."; msg.className = "mensaje ok";
-  });
 
   // ---- perfil: cuenta, plan y suscripción --------------------------------------------------
   const fechaLarga = f => new Date(f).toLocaleDateString("es-ES", { day: "numeric", month: "long", year: "numeric" });
@@ -1063,7 +1085,7 @@
       Object.assign(sesion.perfil, fila); pintarCuenta();
       msg.textContent = "Guardado."; msg.className = "mensaje ok";
     });
-    $("perfil-salir").addEventListener("click", async () => { await sb.auth.signOut(); cerrarCliente(); irA("calculadora"); });
+    $("perfil-salir").addEventListener("click", async () => { await sb.auth.signOut(); cerrarCliente(); irA("inicio"); });
     $("perfil-borrar").addEventListener("click", () => {
       $("borrar-suscripcion").hidden = !(s && COBRABLES.has(s.estado));
       $("borrar-email").value = ""; $("borrar-msg").textContent = ""; $("borrar-msg").className = "mensaje";
@@ -1099,7 +1121,7 @@
     cerrarCliente();
     b.hidden = true; $("btn-cancelar-borrar").textContent = "Cerrar";
     msg.textContent = "Tu cuenta y tus datos se han borrado."; msg.className = "mensaje ok";
-    irA("calculadora");
+    irA("inicio");
   });
 
   // ---- metodología: cobertura -------------------------------------------------------------
@@ -1116,15 +1138,32 @@
     $("cobertura").innerHTML = `<thead><tr><th>Territorio</th><th class="num">Modeladas</th><th class="num">Provisionales</th><th>Del catálogo oficial</th></tr></thead><tbody>${filas.join("")}</tbody>`;
   }
 
+  // ---- inicio: portada con acceso a las herramientas ---------------------------------------
+  // Solo herramientas que ya existen (nada de «próximamente»). El hueco destacado cambia según
+  // el mes (CFG.destacados, un objeto mes(0-11) -> clave de HERRAMIENTAS; lo rellena Lanzamiento
+  // en web/config.js); sin esa tabla, se destaca el comparador.
+  const HERRAMIENTAS = {
+    calculadora: { titulo: "Calculadora de la renta", texto: "¿A pagar o a devolver? Tu IRPF 2025 con tu situación real, al detalle.", href: "#calculadora" },
+    comparar: { titulo: "Comparador de territorios", texto: "¿Cuánto ahorrarías si cambiaras de comunidad? Compara los 19 territorios fiscales.", href: "#comparar" },
+    clientes: { titulo: "Mis clientes", texto: "Para asesores y gestorías: guarda tu cartera de clientes, siempre recalculada.", href: "#clientes", plan: true }
+  };
+  function pintarInicio() {
+    $("herramientas").innerHTML = Object.values(HERRAMIENTAS).map(h => `
+      <a class="herramienta" href="${h.href}"><h3>${esc(h.titulo)}${h.plan ? ' <span class="plan-chip">Gestor</span>' : ""}</h3><p>${esc(h.texto)}</p></a>`).join("");
+    const dest = HERRAMIENTAS[(CFG.destacados && CFG.destacados[new Date().getMonth()]) || "comparar"] || HERRAMIENTAS.comparar;
+    $("portada-destacado").innerHTML = `<span class="destacado-etq">Te puede interesar</span>
+      <h2>${esc(dest.titulo)}</h2><p>${esc(dest.texto)}</p><a class="btn btn-pri" href="${dest.href}">Probarlo</a>`;
+  }
+
   // ---- navegación -------------------------------------------------------------------------
-  const VISTAS = ["calculadora", "comparar", "clientes", "planes", "perfil", "metodologia"];
+  const VISTAS = ["inicio", "calculadora", "comparar", "clientes", "planes", "perfil", "metodologia"];
   let vistaSel = null;           // vista elegida en esta sesión (no depende de poder tocar el hash)
   function vistaDeHash() {
     const h = location.hash.slice(1).split("?")[0];
     if (h === "gestor") return "clientes";
     return VISTAS.includes(h) ? h : null;
   }
-  function vistaActual() { return vistaSel || vistaDeHash() || "calculadora"; }
+  function vistaActual() { return vistaSel || vistaDeHash() || "inicio"; }
   function irA(v) {
     vistaSel = v;
     try { history.replaceState(null, "", "#" + v); } catch (e) { /* entorno sin historial (vista previa) */ }
@@ -1144,6 +1183,7 @@
     document.body.classList.toggle("en-calculadora", v === "calculadora");
     document.querySelectorAll(".nav a").forEach(a => a.toggleAttribute("aria-current", a.dataset.vista === v));
     document.querySelectorAll(".nav a[aria-current]").forEach(a => a.setAttribute("aria-current", "page"));
+    if (v === "inicio") pintarInicio();
     if (v === "comparar") pintarComparacion();
     if (v === "clientes") pintarClientes();
     if (v === "planes") pintarPlanes();
