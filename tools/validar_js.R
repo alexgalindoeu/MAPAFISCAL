@@ -5,16 +5,18 @@ source("R/cargar.R"); irpfsim_cargar(".")
 # Cada caso: función que devuelve list(js = <hogar en forma JS>, hogar = <irpfsim_hogar>)
 casos <- list()
 add <- function(id, territorio, uf, fnum, miembros_r, miembros_js, municipio = NULL, despoblada = FALSE,
-                fn_reciente = FALSE, titulo_mono = "no", ejercicio = 2025) {
+                fn_reciente = FALSE, titulo_mono = "no", ejercicio = 2025, parto_multiple = FALSE) {
   h <- nuevo_hogar(id, territorio, miembros_r, ejercicio, tipo_unidad_familiar = uf, familia_numerosa = fnum,
                    municipio_habitantes = municipio, zona_despoblada = despoblada,
-                   familia_numerosa_reciente = fn_reciente, titulo_monoparental = titulo_mono)
+                   familia_numerosa_reciente = fn_reciente, titulo_monoparental = titulo_mono,
+                   parto_multiple = parto_multiple)
   js <- list(territorio = territorio, ejercicio = ejercicio, tipoUnidadFamiliar = uf,
              familiaNumerosa = fnum, miembros = miembros_js)
   if (!is.null(municipio)) js$municipioHabitantes <- municipio
   if (despoblada) js$zonaDespoblada <- TRUE
   if (fn_reciente) js$familiaNumerosaReciente <- TRUE
   if (titulo_mono != "no") js$tituloMonoparental <- titulo_mono
+  if (parto_multiple) js$partoMultiple <- TRUE
   casos[[id]] <<- list(js = js, liq = liquidar(h))
 }
 
@@ -186,6 +188,27 @@ add("vc_familia2", "ES-VC", "monoparental", "no",
               gastosAbonosCulturales=400),
          list(id="h1",rol="descendiente",edad=1, gastosGuarderia=3000),
          list(id="a1",rol="ascendiente",edad=80, rentasPropias=0)))
+
+# 5m0. Andalucía (cotejo #26) — alquiler con discapacidad, tope 1.500 € (no 1.200): base
+# 24.222 € (<= 25.000, dentro del límite), 15 % de 12.000 = 1.800 -> topado a 1.500
+add("an_alquiler_discapacidad", "ES-AN", "ninguna", "no",
+    list({d <- persona("d1","declarante",30, discapacidad="33_64",
+               trabajo=list(dinerarias=28000, cotizaciones_ss=1778)); d$alquiler_vivienda_pagos <- 12000; d}),
+    list(list(id="d1",rol="declarante",edad=30, discapacidad="33_64",
+              trabajo=list(dinerarias=28000,cotizacionesSs=1778), alquilerViviendaPagos=12000)))
+
+# 5m1. Andalucía (cotejo #26) — parto múltiple en municipio despoblado: (400 + 200) x 3 hijos
+# = 1.800 € (sustituye al general, no lo suma; el incremento de 200 € es por cada hijo)
+add("an_nacimiento_multiple_despobl", "ES-AN", "monoparental", "no",
+    list(persona("d1","declarante",34, trabajo=list(dinerarias=45000, cotizaciones_ss=2858)),
+         persona("h1","descendiente",0, nacido_en_ejercicio=TRUE),
+         persona("h2","descendiente",0, nacido_en_ejercicio=TRUE),
+         persona("h3","descendiente",0, nacido_en_ejercicio=TRUE)),
+    list(list(id="d1",rol="declarante",edad=34, trabajo=list(dinerarias=45000,cotizacionesSs=2858)),
+         list(id="h1",rol="descendiente",edad=0, nacidoEnEjercicio=TRUE),
+         list(id="h2",rol="descendiente",edad=0, nacidoEnEjercicio=TRUE),
+         list(id="h3",rol="descendiente",edad=0, nacidoEnEjercicio=TRUE)),
+    municipio = 2000, despoblada = TRUE, parto_multiple = TRUE)
 
 # 5n0. Andalucía — monoparental + ascendiente > 75 + idiomas/informática + deporte
 add("an_ascendiente", "ES-AN", "monoparental", "no",

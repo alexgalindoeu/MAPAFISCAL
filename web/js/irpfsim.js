@@ -443,7 +443,11 @@
         } else {
           const impH = (esConj && d.importe_conjunta != null) ? d.importe_conjunta : num(d.importe);
           val = desc.filter(esNacido).length * impH;
-          if (hogar.partoMultiple) val += num(d.importe_multiple != null ? d.importe_multiple : impH);
+          if (hogar.partoMultiple) {
+            const im = num(d.importe_multiple != null ? d.importe_multiple : impH);
+            // multiple_por_hijo: el incremento es por cada hijo nacido en el parto múltiple
+            val += d.multiple_por_hijo ? im * desc.filter(esNacido).length : im;
+          }
         }
       } else if (d.tipo === "fija_por_hijo") {
         const hh = desc.filter(h => (d.edad_hijo_min == null || num(h.edad, 99) >= d.edad_hijo_min) &&

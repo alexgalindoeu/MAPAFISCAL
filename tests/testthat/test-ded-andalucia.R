@@ -120,3 +120,56 @@ test_that("Andalucía: fomento del ejercicio físico 15 %, límite 100 €", {
   d2$gastos_deporte <- 400
   expect_equal(liquidar(nuevo_hogar("v","ES-AN", list(d2)))$deducciones_autonomicas$detalle$ejercicio_fisico_deporte, 60)
 })
+
+test_that("Andalucía: nacimiento con 400 € en municipio despoblado (sustituye, no suma, el general)", {
+  h <- nuevo_hogar("v","ES-AN", list(
+    persona("d1","declarante",34, trabajo=list(dinerarias=28000, cotizaciones_ss=1778)),
+    persona("h1","descendiente",0, nacido_en_ejercicio=TRUE)),
+    tipo_unidad_familiar="monoparental", municipio_habitantes=2500, zona_despoblada=TRUE)
+  d <- liquidar(h, modo="individual")$deducciones_autonomicas$detalle
+  expect_equal(d$nacimiento_adopcion_despoblacion, 400)
+  expect_null(d[["nacimiento_adopcion"]])
+
+  # sin zona despoblada -> el general, 200 €
+  h2 <- nuevo_hogar("v","ES-AN", list(
+    persona("d1","declarante",34, trabajo=list(dinerarias=28000, cotizaciones_ss=1778)),
+    persona("h1","descendiente",0, nacido_en_ejercicio=TRUE)), tipo_unidad_familiar="monoparental")
+  d2 <- liquidar(h2, modo="individual")$deducciones_autonomicas$detalle
+  expect_equal(d2$nacimiento_adopcion, 200)
+  expect_null(d2[["nacimiento_adopcion_despoblacion"]])
+})
+
+test_that("Andalucía: parto múltiple, el incremento de 200 € es por cada hijo (art. 11.3)", {
+  # gemelos, municipio normal: (200 + 200) x 2 = 800
+  h <- nuevo_hogar("v","ES-AN", list(
+    persona("d1","declarante",34, trabajo=list(dinerarias=30000, cotizaciones_ss=1905)),
+    persona("h1","descendiente",0, nacido_en_ejercicio=TRUE),
+    persona("h2","descendiente",0, nacido_en_ejercicio=TRUE)),
+    tipo_unidad_familiar="monoparental", parto_multiple=TRUE)
+  expect_equal(liquidar(h, modo="individual")$deducciones_autonomicas$detalle$nacimiento_adopcion, 800)
+
+  # trillizos en municipio despoblado: (400 + 200) x 3 = 1.800
+  h2 <- nuevo_hogar("v","ES-AN", list(
+    persona("d1","declarante",34, trabajo=list(dinerarias=30000, cotizaciones_ss=1905)),
+    persona("h1","descendiente",0, nacido_en_ejercicio=TRUE),
+    persona("h2","descendiente",0, nacido_en_ejercicio=TRUE),
+    persona("h3","descendiente",0, nacido_en_ejercicio=TRUE)),
+    tipo_unidad_familiar="monoparental", parto_multiple=TRUE, municipio_habitantes=2000, zona_despoblada=TRUE)
+  expect_equal(liquidar(h2, modo="individual")$deducciones_autonomicas$detalle$nacimiento_adopcion_despoblacion, 1800)
+})
+
+test_that("Andalucía: alquiler con discapacidad, límite 1.500 € en vez de 1.200 € (art. 10.2)", {
+  h <- persona("d1","declarante",30, discapacidad="33_64",
+               trabajo=list(dinerarias=24000, cotizaciones_ss=1524), alquiler_vivienda_pagos=12000)
+  d <- liquidar(nuevo_hogar("v","ES-AN", list(h)), modo="individual")$deducciones_autonomicas$detalle
+  # 15 % de 12.000 = 1.800 -> tope 1.500 (variante de discapacidad, no 1.200)
+  expect_equal(d$arrendamiento_vivienda_habitual_discapacidad, 1500)
+  expect_null(d[["arrendamiento_vivienda_habitual"]])
+
+  # sin discapacidad, mismo alquiler -> tope general 1.200
+  h2 <- persona("d1","declarante",30, trabajo=list(dinerarias=24000, cotizaciones_ss=1524),
+                alquiler_vivienda_pagos=12000)
+  d2 <- liquidar(nuevo_hogar("v","ES-AN", list(h2)), modo="individual")$deducciones_autonomicas$detalle
+  expect_equal(d2[["arrendamiento_vivienda_habitual"]], 1200)
+  expect_null(d2[["arrendamiento_vivienda_habitual_discapacidad"]])
+})
