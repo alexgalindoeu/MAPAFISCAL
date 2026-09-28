@@ -1140,3 +1140,36 @@ Test `tests/testthat/test-ejercicios.R`; casos `ej2026_*` del validador.
   30.000 € de salario: la cuota líquida de 2026 es menor que la de 2025.
 - 2026 está `en_preparacion`. Hereda de 2025 todo lo que aún no se ha cotejado, por eso no
   está en `publicados`.
+
+## Ejercicio 2026: núcleo estatal (2026-09-28)
+
+Test `tests/testthat/test-2026-estatal.R`; casos `ej2026_smi_cm` y `ej2026_da61_tramo` del
+validador. Fuente: texto consolidado de la Ley 35/2006 en el BOE (actualizado a 09-09-2026).
+
+- Solo cambia la DA 61.ª (RDL 5/2026, art. 28, convalidado): 590,89 € si los rendimientos
+  íntegros del trabajo no pasan de 17.094 € (SMI de 2026: 1.221 € × 14); entre 17.094 € y
+  20.048,45 €, 590,89 − 0,2 × (íntegros − 17.094). La forma es la de 2025: el motor no cambia.
+- Escalas, mínimos, arts. 19 y 20, previsión social, conjunta y obligación de declarar: sin
+  redacción con efectos posteriores al 1-1-2025, se heredan de 2025.
+- Deducciones con plazo (no las calcula el motor): eficiencia energética (DA 50.ª) hasta el
+  31-12-2026 (rehabilitación de edificios, hasta el 31-12-2027); vehículos eléctricos y puntos
+  de recarga (DA 58.ª) hasta el 31-12-2026; autoconsumo renovable nueva (DA 62.ª), 10 % o
+  20 % con base de 5.000 €, pagos de 2026. Todo por el RDL 7/2026, convalidado.
+
+### Comprobación numérica (Castilla-La Mancha, escala autonómica = estatal, soltero de 40 años)
+
+SMI de 2026, 17.094 € íntegros y 1.111,11 € de cotizaciones (6,50 %):
+
+| Paso | 2026 | 2025 |
+|---|---:|---:|
+| Íntegros − cotizaciones | 15.982,89 | 15.982,89 |
+| Reducción art. 20: 7.302 − 1,75 × (15.982,89 − 14.852) | 5.322,94 | 5.322,94 |
+| Base liquidable general: 15.982,89 − 2.000 − 5.322,94 | 8.659,95 | 8.659,95 |
+| Cuota íntegra: 2 × 9,5 % × (8.659,95 − 5.550) | 590,89 | 590,89 |
+| DA 61.ª | 590,89 | 340 − 0,2 × 518 = 236,40 |
+| **Cuota resultante** | **0** | **354,49** |
+
+Tramo decreciente, 18.500 € y 1.202,50 €: neto 17.297,50; art. 20: 7.302 − 1,75 × 2.445,50 =
+3.022,38; base 12.275,13; cuota íntegra 2 × 9,5 % × 6.725,13 = 1.277,77; DA 61.ª: 590,89 −
+0,2 × 1.406 = 309,69; cuota resultante 968,08. Con 20.000 € la deducción es de 9,69 € y con
+20.048,45 €, cero. Con 6.600 € de intereses (otras rentas > 6.500 €), cero.

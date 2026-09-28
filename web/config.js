@@ -7,21 +7,33 @@ window.MAPAFISCAL_CONFIG = {
   supabaseKey: "sb_publishable_H5plGsoIk0bKwlu2Kdf1kQ_1pTPoaFl",
 
   // Cobro con Stripe (Edge Functions crear-checkout / portal-facturacion). En false, los
-  // botones de pago apuntan a la lista de espera. Ponlo en true solo cuando el webhook
-  // responda 400 (y no 503) a un POST vacío: ver supabase/README.md.
-  pagosActivos: false,
+  // botones de pago apuntan a la lista de espera. Activado el 2026-09-26 (Alex), con el
+  // backend configurado y probado en modo test: ver supabase/README.md.
+  pagosActivos: true,
 
   // Precios mostrados en Planes. Tienen que coincidir con los de Stripe (lookup_key
   // gestor_semanal, gestor_mensual, gestor_anual). Orientativos hasta que se cierren.
   precios: { gestorSemanal: 19.99, gestorMensual: 39.99, gestorAnual: 290 },
   preciosOrientativos: true,
 
+  // Buzón de contacto: sale en los textos legales (web/legal/) y en los enlaces mailto.
   contacto: "contacto@mapafiscal.es",
+
+  // Versión vigente de las condiciones (fecha de legal/condiciones.html). Al cambiarla, la web
+  // vuelve a pedir la aceptación a quien aceptó una versión anterior.
+  condicionesVersion: "2026-09-27",
 
   // Anuncios (AdSense) en los huecos laterales de la calculadora y de "Comparar". En false,
   // no se carga nada de Google ni la CMP: no hay banner de cookies porque no hace falta. No
-  // se muestran nunca a quien tiene plan Pro. La versión autónoma (empaquetar.mjs) fuerza
+  // se muestran nunca a quien tiene plan Gestor. La versión autónoma (empaquetar.mjs) fuerza
   // esto a false, igual que hace con pagosActivos.
   anuncios: false, // en true cuando AdSense apruebe el sitio (ver negocio/anuncios.md §5)
-  adsenseCliente: "ca-pub-3028486034839853"
+  adsenseCliente: "ca-pub-3028486034839853",
+
+  // Bloques de anuncios: se crean en AdSense tras la aprobación (Anuncios → Por bloque de
+  // anuncios), uno por hueco. Vacíos, el hueco correspondiente no pide nada.
+  adsenseHuecoCalc: "",
+  adsenseHuecoComparar: "",
+  adsenseHuecoRailIzq: "",
+  adsenseHuecoRailDer: ""
 };

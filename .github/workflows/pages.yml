@@ -32,6 +32,11 @@ jobs:
         with:
           node-version: 22
       - run: npm test
+      # Rellena {{CONTACTO}} con el correo de web/config.js. No se pasa ningún dato personal: lo
+      # que va en `env:` sale en claro en el registro público de la ejecución. Si queda algún
+      # hueco sin rellenar, o el correo es el marcador, no se publica.
+      - name: Correo de contacto en los textos legales
+        run: node tools/rellenar_titular.mjs
       - uses: actions/configure-pages@v6
       - uses: actions/upload-pages-artifact@v5
         with:

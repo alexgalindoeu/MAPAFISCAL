@@ -15,11 +15,14 @@ const jsonEmbebido = ruta => JSON.stringify(JSON.parse(leer(ruta))).replace(/<\/
 
 // La versión autónoma es siempre la demo: sin Supabase (ni supabase-js), sin pagos y sin
 // anuncios, aunque web/config.js esté configurado para producción.
-const FORZAR_DEMO = "window.MAPAFISCAL_CONFIG = Object.assign(window.MAPAFISCAL_CONFIG || {}, { demo: true, pagosActivos: false, anuncios: false });\n";
+const FORZAR_DEMO = "window.MAPAFISCAL_CONFIG = Object.assign(window.MAPAFISCAL_CONFIG || {}, { demo: true, pagosActivos: false, anuncios: false, adsenseCliente: \"\", adsenseHuecoCalc: \"\", adsenseHuecoComparar: \"\", adsenseHuecoRailIzq: \"\", adsenseHuecoRailDer: \"\" });\n";
 const SUPABASE_JS = /<script src="https:\/\/cdn\.jsdelivr\.net\/npm\/@supabase\/supabase-js@[^"]+"[^>]*><\/script>\n?/;
 // La demo nunca lleva anuncios.js: se quita entero (no se incrusta como irpfsim.js/app.js)
 // para que el HTML autónomo no contenga ni un rastro de "adsbygoogle" o "googlesyndication".
 const ANUNCIOS_JS = /<script src="js\/anuncios\.js"><\/script>\n?/;
+const ADSENSE_META = /<meta name="google-adsense-account"[^>]*>\n?/;
+// El HTML autónomo no lleva las páginas legales: sus enlaces apuntan a las de la web publicada.
+export const WEB_PUBLICA = "https://mapafiscal.es/";
 
 export function empaquetar() {
   let html = leer("index.html");
@@ -31,12 +34,18 @@ export function empaquetar() {
   html = html.replace(SUPABASE_JS, "");
   if (!ANUNCIOS_JS.test(html)) throw new Error("No se encuentra en index.html el <script> de anuncios.js");
   html = html.replace(ANUNCIOS_JS, "");
+  if (!ADSENSE_META.test(html)) throw new Error("No se encuentra en index.html la <meta> de AdSense");
+  html = html.replace(ADSENSE_META, "");
   sustituir('<link rel="stylesheet" href="css/mapafiscal.css">', "<style>\n" + leer("css/mapafiscal.css") + "</style>");
-  sustituir('<script src="config.js"></script>', "<script>\n" + leer("config.js") + FORZAR_DEMO + "</script>\n" +
+  // El ID de editor de AdSense no debe quedar ni como texto en la demo, aunque FORZAR_DEMO lo
+  // sobrescriba en tiempo de ejecución: se redacta en el propio config.js incrustado.
+  const configSinAdsense = leer("config.js").replace(/ca-pub-\d+/, "");
+  sustituir('<script src="config.js"></script>', "<script>\n" + configSinAdsense + FORZAR_DEMO + "</script>\n" +
     '<script type="application/json" id="datos-params">' + jsonEmbebido("datos/params.json") + "</script>\n" +
     '<script type="application/json" id="datos-mapa">' + jsonEmbebido("datos/mapa_es.json") + "</script>");
   sustituir('<script src="js/irpfsim.js"></script>', "<script>\n" + leer("js/irpfsim.js") + "</script>");
   sustituir('<script src="js/app.js"></script>', "<script>\n" + leer("js/app.js") + "</script>");
+  html = html.replace(/href="legal\//g, `href="${WEB_PUBLICA}legal/`);
   return html;
 }
 

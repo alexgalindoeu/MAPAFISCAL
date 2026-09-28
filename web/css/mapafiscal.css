@@ -380,6 +380,33 @@ details.mas:not([open]) summary { margin-bottom: 0; }
 .dialogo p { color: var(--tinta-2); margin: 0 0 16px; font-size: 14px; }
 .dialogo-acciones { display: flex; justify-content: flex-end; gap: 10px; margin-top: 18px; }
 
+.btn-google { width: 100%; display: flex; align-items: center; justify-content: center; gap: 10px; padding: 10px 16px; }
+.btn-google svg { width: 18px; height: 18px; flex: none; }
+.separador { display: flex; align-items: center; gap: 10px; font-size: 13px; color: var(--tinta-3); margin: 16px 0 !important; }
+.separador::before, .separador::after { content: ""; flex: 1; border-top: 1px solid var(--linea); }
+.btn-peligro-lleno { background: var(--pierde); color: var(--superficie); }
+.btn-peligro-lleno:hover { filter: brightness(.92); }
+
+/* ---- perfil ------------------------------------------------------------------- */
+.btn-avatar { width: 34px; height: 34px; border-radius: 999px; padding: 0; display: inline-grid; place-items: center;
+  background: var(--marca); color: var(--sobre-marca); font-size: 15px; text-transform: uppercase; }
+.btn-avatar:hover { background: var(--marca-hover); color: var(--sobre-marca); }
+.perfil { display: grid; grid-template-columns: minmax(0, 1fr); gap: 16px; }
+@media (min-width: 900px) { .perfil { grid-template-columns: repeat(2, minmax(0, 1fr)); align-items: start; } }
+.perfil .tarjeta + .tarjeta { margin-top: 0; }
+.perfil-col { display: grid; gap: 16px; align-content: start; }
+.perfil h2 { font-size: 17px; margin-bottom: 14px; display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.perfil p { color: var(--tinta-2); font-size: 14px; margin: 0 0 14px; }
+.datos { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 8px 16px; font-size: 14px; margin: 0 0 16px; }
+.datos dt { color: var(--tinta-3); }
+.datos dd { margin: 0; overflow-wrap: anywhere; }
+.perfil-acciones { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; }
+.chip-estado { font-size: 12px; font-weight: 700; padding: 2px 8px; border-radius: 999px; background: var(--superficie-2); color: var(--tinta-2); }
+.chip-estado.ok { background: var(--gana-suave); color: var(--gana); }
+.chip-estado.aviso { background: var(--aviso-suave); color: var(--aviso); }
+.zona-peligro { border-color: var(--pierde-suave); }
+.zona-peligro h2 { color: var(--pierde); }
+
 .sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
 .aviso-demo { background: var(--aviso-suave); color: var(--aviso); border-radius: 8px; padding: 10px 14px; font-size: 14px; margin-bottom: 16px; }
 
