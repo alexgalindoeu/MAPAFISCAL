@@ -15,7 +15,7 @@ createServer(async (req, res) => {
   const fichero = join(WEB, ruta || "index.html");
   if (!fichero.startsWith(WEB)) { res.writeHead(403).end(); return; }
   try {
-    const servido = esDirectorio ? join(fichero, "index.html") : fichero;
+    const servido = esDirectorio && ruta ? join(fichero, "index.html") : fichero;
     const cuerpo = await readFile(servido);
     res.writeHead(200, { "content-type": TIPOS[extname(servido)] || "application/octet-stream" }).end(cuerpo);
   } catch {
