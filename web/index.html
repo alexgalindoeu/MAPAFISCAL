@@ -8,6 +8,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@100..125,600..800&family=Public+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500&display=swap">
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
 <link rel="stylesheet" href="css/mapafiscal.css">
 <meta name="google-adsense-account" content="ca-pub-3028486034839853">
 </head>
@@ -23,13 +24,13 @@
 <aside class="anuncio-carril anuncio-carril-der" id="anuncio-rail-der" hidden>
   <span class="anuncio-etiqueta">Publicidad</span>
 </aside>
-<header class="appbar">
+<header class="appbar con-menu" id="appbar">
   <div class="appbar-in">
     <a class="marca" href="#inicio" aria-label="Mapafiscal, inicio">
       <svg class="marca-ico" viewBox="0 0 32 32" aria-hidden="true"><rect width="32" height="32" rx="8" class="marca-fondo"/><path class="marca-panel" d="M7 10.5 13 8v15.5L7 26z"/><path class="marca-panel-tu" d="M13 8l6 2.5V26l-6-2.5z"/><path class="marca-panel-2" d="M19 10.5 25 8v15.5L19 26z"/></svg>
       <span class="marca-txt">Mapafiscal</span>
     </a>
-    <nav class="nav" aria-label="Secciones">
+    <nav class="nav" id="nav-principal" aria-label="Secciones">
       <a href="#calculadora" data-vista="calculadora">Calculadora</a>
       <a href="#comparar" data-vista="comparar">Comparar territorios</a>
       <a href="#sueldo-neto" data-vista="sueldo-neto">Sueldo neto</a>
@@ -41,6 +42,7 @@
       <button class="btn btn-txt btn-sm" id="btn-entrar" type="button">Entrar</button>
       <button class="btn btn-pri btn-sm" id="btn-cuenta" type="button">Crear cuenta</button>
     </div>
+    <button class="btn btn-sec btn-sm menu-btn" id="btn-menu" type="button" aria-expanded="false" aria-controls="nav-principal"><svg viewBox="0 0 20 20" aria-hidden="true"><path d="M3 5.5h14M3 10h14M3 14.5h14"/></svg><span class="menu-btn-txt">Menú</span></button>
   </div>
 </header>
 
@@ -372,6 +374,7 @@
 <section class="vista" id="v-sueldo-neto" aria-labelledby="t-neto" hidden>
   <div class="cabecera-vista">
     <div>
+      <p class="antetitulo">Nómina · Seguridad Social e IRPF</p>
       <h1 id="t-neto">Sueldo neto por territorio</h1>
       <p class="entradilla" id="neto-entradilla">Lo que te queda de tu sueldo bruto tras la Seguridad Social y el IRPF del año, en tu territorio y en los 19 territorios fiscales.</p>
     </div>
@@ -406,7 +409,15 @@
       </fieldset>
     </form>
     <div class="resultado" aria-live="polite">
-      <div class="tarjeta tarjeta-resultado" id="neto-principal"></div>
+      <div class="tarjeta tarjeta-resultado" id="neto-tarjeta">
+        <div class="res-cab"><h2 class="rotulo">Resultado</h2><span class="chip" id="neto-chip"></span></div>
+        <div id="neto-principal"></div>
+        <div class="res-graficos" id="neto-graficos"></div>
+        <div class="acciones-res">
+          <a class="btn btn-pri" href="#calculadora">Calcular mi declaración</a>
+          <a class="btn btn-sec" href="#comparar">Comparar territorios</a>
+        </div>
+      </div>
       <div class="tarjeta">
         <h2 class="rotulo">Desglose</h2>
         <table class="desglose" id="neto-desglose"></table>
@@ -424,6 +435,7 @@
 <section class="vista" id="v-plan-pensiones" aria-labelledby="t-pp" hidden>
   <div class="cabecera-vista">
     <div>
+      <p class="antetitulo">Ahorro fiscal · plan de pensiones y donativos</p>
       <h1 id="t-pp">Ahorra en tu IRPF antes del 31 de diciembre</h1>
       <p class="entradilla" id="pp-entradilla">Cuánto te devuelve Hacienda por aportar a un plan de pensiones o por donar a una ONG este año, y cuánto conviene aportar.</p>
     </div>
@@ -465,7 +477,15 @@
       </fieldset>
     </form>
     <div class="resultado" aria-live="polite">
-      <div class="tarjeta tarjeta-resultado" id="pp-principal"></div>
+      <div class="tarjeta tarjeta-resultado" id="pp-tarjeta">
+        <div class="res-cab"><h2 class="rotulo">Resultado</h2><span class="chip" id="pp-chip"></span></div>
+        <div id="pp-principal"></div>
+        <div class="res-graficos" id="pp-graficos"></div>
+        <div class="acciones-res">
+          <a class="btn btn-pri" href="#calculadora">Calcular mi declaración</a>
+          <a class="btn btn-sec" href="#sueldo-neto">Ver mi sueldo neto</a>
+        </div>
+      </div>
       <div class="tarjeta">
         <h2 class="rotulo">Detalle</h2>
         <table class="desglose" id="pp-desglose"></table>

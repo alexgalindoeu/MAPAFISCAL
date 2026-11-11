@@ -37,6 +37,9 @@ export function empaquetar() {
   html = html.replace(ANUNCIOS_JS, "");
   if (!ADSENSE_META.test(html)) throw new Error("No se encuentra en index.html la <meta> de AdSense");
   html = html.replace(ADSENSE_META, "");
+  // el favicon va incrustado como data: URI (el HTML autónomo no tiene favicon.svg al lado)
+  sustituir('<link rel="icon" href="favicon.svg" type="image/svg+xml">',
+    '<link rel="icon" href="data:image/svg+xml,' + encodeURIComponent(leer("favicon.svg").trim()) + '" type="image/svg+xml">');
   sustituir('<link rel="stylesheet" href="css/mapafiscal.css">', "<style>\n" + leer("css/mapafiscal.css") + "</style>");
   // El ID de editor de AdSense no debe quedar ni como texto en la demo, aunque FORZAR_DEMO lo
   // sobrescriba en tiempo de ejecución: se redacta en el propio config.js incrustado.

@@ -14,6 +14,8 @@ test("el HTML empaquetado es autónomo", () => {
   assert.match(html, /global\.irpfsim = api/);
   assert.match(html, /window\.MAPAFISCAL_HERRAMIENTAS = Object\.assign/, "falta herramientas.js");
   assert.match(html, /<!--CUERPO-->[\s\S]*<!--\/CUERPO-->/);
+  assert.match(html, /<link rel="icon" href="data:image\/svg\+xml,/, "el favicon debe ir incrustado");
+  assert.doesNotMatch(html, /href="favicon\.svg"/);
 });
 
 test("el HTML empaquetado queda en modo demo aunque la web esté en producción", () => {

@@ -1465,6 +1465,20 @@
     document.dispatchEvent(new CustomEvent("mapafiscal:vista", { detail: { vista: v } }));
   }
   window.addEventListener("hashchange", () => { const v = vistaDeHash(); if (v) { vistaSel = v; mostrarVista({ moverFoco: true }); } });
+
+  // menú compacto de la barra superior (por debajo de ~1180 px la navegación se pliega en un
+  // desplegable; «Entrar / Crear cuenta» o el avatar siguen siempre a la vista)
+  function menu(abrir) {
+    $("appbar").classList.toggle("abierta", abrir);
+    $("btn-menu").setAttribute("aria-expanded", String(abrir));
+  }
+  $("btn-menu").addEventListener("click", () => menu(!$("appbar").classList.contains("abierta")));
+  $("nav-principal").addEventListener("click", e => { if (e.target.closest("a")) menu(false); });
+  document.addEventListener("click", e => { if (!e.target.closest("#appbar")) menu(false); });
+  document.addEventListener("mapafiscal:vista", () => menu(false));
+  document.addEventListener("keydown", e => {
+    if (e.key === "Escape" && $("appbar").classList.contains("abierta")) { menu(false); $("btn-menu").focus(); }
+  });
   $("bm-ver").addEventListener("click", e => { e.preventDefault(); $("t-res").scrollIntoView({ behavior: movimientoReducido() ? "auto" : "smooth", block: "start" }); });
 
   // ---- arranque --------------------------------------------------------------------------

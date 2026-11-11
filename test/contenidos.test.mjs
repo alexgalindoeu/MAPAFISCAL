@@ -54,7 +54,7 @@ test("sin avisos de provisional o incompleto, sin huecos y sin más correo que c
     const t = texto(html);
     assert.doesNotMatch(t, /provisional|incomplet|pendiente de|sin cotejar/i, r);
     assert.doesNotMatch(html, /\{\{|undefined|NaN/, r);
-    for (const [m] of html.matchAll(/[\w.+-]+@[\w-]+\.[\w.]+/g)) assert.equal(m, "contacto@mapafiscal.es", `${r}: ${m}`);
+    for (const [m] of html.matchAll(/[\w.+-]+@[a-z][\w-]*\.[a-z][\w.]*/gi)) assert.equal(m, "contacto@mapafiscal.es", `${r}: ${m}`);
   }
 });
 

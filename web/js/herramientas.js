@@ -175,6 +175,21 @@
   // ---- pintado común ------------------------------------------------------------------
   const fila = (concepto, importe, cls = "") => `<tr class="${cls}"><td>${concepto}</td><td class="cas"></td><td class="imp">${importe}</td></tr>`;
   const barra = (v, max) => `<span class="hr-barra"><i style="width:${max > 0 ? Math.max(2, Math.round(100 * v / max)) : 0}%"></i></span>`;
+  // barra de reparto como la del resultado de la calculadora (.barra-reparto + leyenda).
+  // partes: [{ n: nombre, v: importe, c: clase de .barra-reparto, color: variable CSS }]
+  function reparto(titulo, derecha, partes) {
+    const tot = partes.reduce((s, p) => s + Math.max(0, p.v), 0) || 1;
+    return `<div><div class="grafico-tit"><span>${titulo}</span><span>${derecha.replace(/ %/g, "&nbsp;%")}</span></div>
+      <div class="barra-reparto" role="img" aria-label="${esc(partes.map(p => `${p.n}: ${eur0(p.v)}`).join(", "))}">${partes.filter(p => p.v > 0)
+        .map(p => `<i class="${p.c}" style="flex-grow:${(p.v / tot).toFixed(4)}"></i>`).join("")}</div>
+      <ul class="leyenda-reparto">${partes.map(p => `<li><i style="background:var(${p.color})"></i>${esc(p.n)} <b>${eur0(Math.max(0, p.v))}</b></li>`).join("")}</ul></div>`;
+  }
+  // cabecera de la tarjeta de resultado: chip del territorio y color del borde
+  function cabecera(pre, P, terr, estado) {
+    $(pre + "-chip").textContent = `${nombre(P, terr)} · ${P.ejercicio}`;
+    $(pre + "-tarjeta").className = "tarjeta tarjeta-resultado" + (estado ? " " + estado : "");
+  }
+  const PARA_TI = { c: "neto", color: "--g-neto" }, IRPF = { c: "irpf", color: "--g-irpf" }, SS = { c: "ss", color: "--g-ss" };
 
   // ---- vista #sueldo-neto ---------------------------------------------------------------
   let modoNeto = /[?&]subida\b/.test(location.hash) ? "subida" : "neto";
@@ -190,7 +205,8 @@
     $("neto-lbl-bruto").textContent = enSubida ? "Sueldo bruto anual actual" : "Sueldo bruto anual";
     document.querySelectorAll('input[name="neto-modo"]').forEach(r => { r.checked = r.value === modoNeto; });
     let s;
-    try { s = caso(P, o); } catch (e) { $("neto-principal").innerHTML = `<p class="vacio">Revisa los datos introducidos.</p>`; return; }
+    try { s = caso(P, o); } catch (e) { $("neto-principal").innerHTML = `<p class="vacio">Revisa los datos introducidos.</p>`; $("neto-graficos").innerHTML = ""; return; }
+    cabecera("neto", P, terr, enSubida ? "gana" : "");
     $("neto-nota").textContent = notaEjercicio(P) + " Tributación individual o conjunta, la más favorable. Sin otras rentas ni deducciones por gastos: para tu caso completo, usa la calculadora.";
     if (enSubida) return pintarSubida(P, o);
 
@@ -201,6 +217,9 @@
       <p class="res-sub">No es la retención de la nómina: es lo que te queda una vez hecha la declaración de la renta.</p>
       <dl class="kpis"><div><dt>Al mes, en 12 pagas</dt><dd>${eur0(s.neto / 12)}</dd></div><div><dt>Al mes, en 14 pagas</dt><dd>${eur0(s.neto / 14)}</dd></div>
       <div><dt>Seguridad Social + IRPF</dt><dd>${pct(efectivo)}</dd></div></dl>`;
+    $("neto-graficos").innerHTML = o.bruto > 0 ? reparto(`De tus ${eur0(o.bruto)} brutos`, `te quedan el ${(100 * s.neto / o.bruto).toFixed(0)} %`, [
+      Object.assign({ n: "Para ti", v: s.neto }, PARA_TI), Object.assign({ n: "IRPF", v: s.irpf }, IRPF),
+      Object.assign({ n: "Seguridad Social", v: s.cotizaciones }, SS)]) : "";
     const t = P.estatal.cotizaciones_trabajador.tipos, desemp = o.tipoContrato === "temporal" ? t.desempleo_temporal : t.desempleo_indefinido;
     const drt = (liq.deduccionRendimientosTrabajo && liq.deduccionRendimientosTrabajo.total) || 0;
     const impr = (liq.deduccionesCuotaDiferencial && liq.deduccionesCuotaDiferencial.total) || 0;
@@ -234,8 +253,11 @@
     const nuevo = num("neto-nuevo"), r = subida(P, o, nuevo), terr = o.territorio;
     if (!(r.dBruto > 0)) {
       $("neto-principal").innerHTML = `<div class="res-etq">¿Cuánto neto gano con mi subida?</div><p class="vacio">Pon un sueldo nuevo mayor que el actual.</p>`;
-      $("neto-desglose").innerHTML = ""; $("neto-ranking").innerHTML = ""; return;
+      $("neto-desglose").innerHTML = ""; $("neto-ranking").innerHTML = ""; $("neto-graficos").innerHTML = ""; return;
     }
+    $("neto-graficos").innerHTML = reparto(`De tu subida de ${eur0(r.dBruto)} brutos`, `te quedan el ${(100 * r.dNeto / r.dBruto).toFixed(0)} %`, [
+      Object.assign({ n: "Para ti", v: r.dNeto }, PARA_TI), Object.assign({ n: "IRPF", v: r.dIrpf }, IRPF),
+      Object.assign({ n: "Seguridad Social", v: r.dCot }, SS)]);
     const quedan = 100 * r.dNeto / r.dBruto;
     $("neto-principal").innerHTML = `<div class="res-etq">Con la subida ganas al año, en neto · ${esc(nombre(P, terr))} · ${P.ejercicio}</div>
       <div class="res-cifra gana">+${eur0(r.dNeto)}</div>
@@ -282,7 +304,7 @@
     opcionesTerritorio(P, $("pp-territorio"), antes, filtro);
     const o = datosPp();
     try { if (modoPp === "plan") pintarPlan(P, o); else pintarDonativos(P, o); }
-    catch (e) { $("pp-principal").innerHTML = `<p class="vacio">Revisa los datos introducidos.</p>`; }
+    catch (e) { $("pp-principal").innerHTML = `<p class="vacio">Revisa los datos introducidos.</p>`; $("pp-graficos").innerHTML = ""; }
   }
 
   function pintarPlan(P, o) {
@@ -294,6 +316,12 @@
         ${r.exceso > 0.5 ? ` ${eur0(r.exceso)} superan tu límite y no reducen el IRPF de este año.` : ""}</p>
       <dl class="kpis"><div><dt>Tu límite este año</dt><dd>${eur0(r.limite)}</dd></div>
       <div><dt>Aportación que más ahorra</dt><dd>${eur0(r.optima)}</dd></div><div><dt>Ahorro máximo</dt><dd>${eur0(r.ahorroMax)}</dd></div></dl>`;
+    cabecera("pp", P, terr, r.ahorro > 0.5 ? "gana" : "");
+    const ap = r.aportacionComputable;
+    $("pp-graficos").innerHTML = (ap > 0 ? reparto(`De tu aportación de ${eur0(ap)}`, `Hacienda pone el ${(100 * r.ahorro / ap).toFixed(0)} %`, [
+      { n: "Te devuelve Hacienda", v: r.ahorro, c: "sobra", color: "--gana" }, Object.assign({ n: "Pones tú", v: Math.max(0, ap - r.ahorro) }, PARA_TI)]) : "") +
+      (r.limite > 0 ? reparto(`Tu límite de ${eur0(r.limite)}`, ap >= r.limite - 0.5 ? "lo agotas" : `te quedan ${eur0(r.limite - ap)}`, [
+        Object.assign({ n: "Aportas", v: ap }, IRPF), Object.assign({ n: "Margen hasta el límite", v: Math.max(0, r.limite - ap) }, PARA_TI)]) : "");
     const rs = P.estatal.reduccion_prevision_social, ct = H.cotizacionesTrabajador(o.bruto, P);
     const filas = [];
     if (reg === "comun") {
@@ -330,6 +358,9 @@
       <dl class="kpis"><div><dt>Primeros ${eur0(d.tramo1_limite)}</dt><dd>${pct(d.tramo1_porcentaje, 0)}</dd></div>
       <div><dt>Resto</dt><dd>${pct(o.donativosRecurrentes ? d.resto_porcentaje_recurrente : d.resto_porcentaje, 0)}</dd></div>
       <div><dt>Donativo máximo con deducción</dt><dd>${eur0(r.baseMax)}</dd></div></dl>`;
+    cabecera("pp", P, terr, r.ahorro > 0.5 ? "gana" : "");
+    $("pp-graficos").innerHTML = o.donativos > 0 ? reparto(`De tu donativo de ${eur0(o.donativos)}`, `Hacienda pone el ${(100 * r.ahorro / o.donativos).toFixed(0)} %`, [
+      { n: "Te devuelve Hacienda", v: r.ahorro, c: "sobra", color: "--gana" }, Object.assign({ n: "Pones tú", v: Math.max(0, r.coste) }, PARA_TI)]) : "";
     const base = Math.min(o.donativos, r.baseMax), resto = Math.max(0, base - d.tramo1_limite);
     const rp = o.donativosRecurrentes ? d.resto_porcentaje_recurrente : d.resto_porcentaje;
     const filas = [fila(`${pct(d.tramo1_porcentaje, 0)} de los primeros ${eur0(Math.min(base, d.tramo1_limite))}`, eur(Math.min(base, d.tramo1_limite) * d.tramo1_porcentaje))];
@@ -381,10 +412,20 @@
     // pulsar un territorio de una tabla lo elige
     $("neto-ranking").addEventListener("click", e => { const tr = e.target.closest("tr[data-t]"); if (tr) { $("neto-territorio").value = tr.dataset.t; pintarNeto(); } });
     $("pp-ranking").addEventListener("click", e => { const tr = e.target.closest("tr[data-t]"); if (tr) { $("pp-territorio").value = tr.dataset.t; pintarPp(); } });
+    // las herramientas se abren ya calculadas con el territorio que la persona haya elegido en la
+    // calculadora o en la portada (si no ha elegido otro aquí); si no, con Madrid
+    const tocado = {};
+    ["neto-territorio", "pp-territorio"].forEach(id => $(id).addEventListener("change", () => { tocado[id] = true; }));
+    const terrElegido = () => ["f-territorio", "mc-territorio"].map(id => $(id) && $(id).value)
+      .find(t => t && t !== "ES-MD" && P.territorios[t]) || null;
+    const sincronizar = id => {
+      const t = terrElegido(), sel = $(id);
+      if (!tocado[id] && t && [...(sel.options || [])].some(x => x.value === t)) sel.value = t;
+    };
     document.addEventListener("mapafiscal:vista", e => {
       const v = e.detail && e.detail.vista;
-      if (v === "sueldo-neto") pintarNeto();
-      if (v === "plan-pensiones") pintarPp();
+      if (v === "sueldo-neto") { sincronizar("neto-territorio"); pintarNeto(); }
+      if (v === "plan-pensiones") { sincronizar("pp-territorio"); pintarPp(); }
     });
     pintarSiVisible();
   }).catch(() => { /* app.js ya avisa si no hay datos */ });
