@@ -41,7 +41,5 @@ jobs:
           Rscript tools/validar_js.R
           node tools/validar_js_node.js
 
-      - name: Páginas SEO (web/irpf, web/comparar-sueldo) salen de seo_*.json
-        run: |
-          node tools/generar_paginas_seo.mjs
-          git diff --exit-code -- web/irpf web/comparar-sueldo web/sitemap.xml web/robots.txt
+      - name: Páginas SEO (web/irpf, web/comparar-sueldo, web/guias) salen de seo_*.json
+        run: node tools/generar_paginas_seo.mjs --comprobar

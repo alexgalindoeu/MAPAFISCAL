@@ -45,7 +45,8 @@ export function empaquetar() {
     '<script type="application/json" id="datos-mapa">' + jsonEmbebido("datos/mapa_es.json") + "</script>");
   sustituir('<script src="js/irpfsim.js"></script>', "<script>\n" + leer("js/irpfsim.js") + "</script>");
   sustituir('<script src="js/app.js"></script>', "<script>\n" + leer("js/app.js") + "</script>");
-  html = html.replace(/href="legal\//g, `href="${WEB_PUBLICA}legal/`);
+  // Las páginas legales, las de territorio y sueldo y las guías no van dentro: apuntan a la web publicada.
+  html = html.replace(/href="(legal|irpf|guias|comparar-sueldo)\//g, (m, dir) => `href="${WEB_PUBLICA}${dir}/`);
   return html;
 }
 

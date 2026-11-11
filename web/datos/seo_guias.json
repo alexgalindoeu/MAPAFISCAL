@@ -1,0 +1,1045 @@
+{
+ "ejercicio": 2025,
+ "generado": "2026-11-11",
+ "escalas": {
+  "estatal_2025": {
+   "norma": "Art. 63.1.1º LIRPF",
+   "fuente": "AEAT Manual Renta 2025 — Gravamen estatal base liquidable general",
+   "tramos": [
+    {
+     "hasta": 12450,
+     "tipo": 0.095
+    },
+    {
+     "hasta": 20200,
+     "tipo": 0.12
+    },
+    {
+     "hasta": 35200,
+     "tipo": 0.15
+    },
+    {
+     "hasta": 60000,
+     "tipo": 0.185
+    },
+    {
+     "hasta": 300000,
+     "tipo": 0.225
+    },
+    {
+     "hasta": null,
+     "tipo": 0.245
+    }
+   ]
+  },
+  "estatal_2026": {
+   "norma": "Art. 63.1.1º LIRPF",
+   "fuente": "AEAT Manual Renta 2025 — Gravamen estatal base liquidable general",
+   "tramos": [
+    {
+     "hasta": 12450,
+     "tipo": 0.095
+    },
+    {
+     "hasta": 20200,
+     "tipo": 0.12
+    },
+    {
+     "hasta": 35200,
+     "tipo": 0.15
+    },
+    {
+     "hasta": 60000,
+     "tipo": 0.185
+    },
+    {
+     "hasta": 300000,
+     "tipo": 0.225
+    },
+    {
+     "hasta": null,
+     "tipo": 0.245
+    }
+   ]
+  },
+  "ahorro_estatal_2025": {
+   "norma": "Art. 66.1 LIRPF (redacción con 5º tramo vigente desde 2025)",
+   "fuente": "AEAT Manual Renta 2025 — Gravamen estatal base liquidable del ahorro",
+   "tramos": [
+    {
+     "hasta": 6000,
+     "tipo": 0.095
+    },
+    {
+     "hasta": 50000,
+     "tipo": 0.105
+    },
+    {
+     "hasta": 200000,
+     "tipo": 0.115
+    },
+    {
+     "hasta": 300000,
+     "tipo": 0.135
+    },
+    {
+     "hasta": null,
+     "tipo": 0.15
+    }
+   ]
+  },
+  "ahorro_autonomica_2025": {
+   "norma": "Art. 76 LIRPF",
+   "fuente": "Art. 76 LIRPF — coincide con la parte estatal del art. 66 (⇒ tarifa del ahorro combinada 19/21/23/27/30 %)",
+   "tramos": [
+    {
+     "hasta": 6000,
+     "tipo": 0.095
+    },
+    {
+     "hasta": 50000,
+     "tipo": 0.105
+    },
+    {
+     "hasta": 200000,
+     "tipo": 0.115
+    },
+    {
+     "hasta": 300000,
+     "tipo": 0.135
+    },
+    {
+     "hasta": null,
+     "tipo": 0.15
+    }
+   ]
+  },
+  "ahorro_estatal_2026": {
+   "norma": "Art. 66.1 LIRPF (redacción con 5º tramo vigente desde 2025)",
+   "fuente": "AEAT Manual Renta 2025 — Gravamen estatal base liquidable del ahorro",
+   "tramos": [
+    {
+     "hasta": 6000,
+     "tipo": 0.095
+    },
+    {
+     "hasta": 50000,
+     "tipo": 0.105
+    },
+    {
+     "hasta": 200000,
+     "tipo": 0.115
+    },
+    {
+     "hasta": 300000,
+     "tipo": 0.135
+    },
+    {
+     "hasta": null,
+     "tipo": 0.15
+    }
+   ]
+  },
+  "ahorro_autonomica_2026": {
+   "norma": "Art. 76 LIRPF",
+   "fuente": "Art. 76 LIRPF — coincide con la parte estatal del art. 66 (⇒ tarifa del ahorro combinada 19/21/23/27/30 %)",
+   "tramos": [
+    {
+     "hasta": 6000,
+     "tipo": 0.095
+    },
+    {
+     "hasta": 50000,
+     "tipo": 0.105
+    },
+    {
+     "hasta": 200000,
+     "tipo": 0.115
+    },
+    {
+     "hasta": 300000,
+     "tipo": 0.135
+    },
+    {
+     "hasta": null,
+     "tipo": 0.15
+    }
+   ]
+  },
+  "pais_vasco_2025": {
+   "norma": "Art. 75 NF 13/2013 Bizkaia / art. 75 NF 3/2014 Gipuzkoa / art. 74 NF 33/2013 Araba",
+   "fuente": "DF Gipuzkoa, Modelo 109 (2025) — tabla de gravamen general",
+   "tramos": [
+    {
+     "hasta": 17720,
+     "tipo": 0.23
+    },
+    {
+     "hasta": 35440,
+     "tipo": 0.28
+    },
+    {
+     "hasta": 53160,
+     "tipo": 0.35
+    },
+    {
+     "hasta": 75910,
+     "tipo": 0.4
+    },
+    {
+     "hasta": 105130,
+     "tipo": 0.45
+    },
+    {
+     "hasta": 140130,
+     "tipo": 0.46
+    },
+    {
+     "hasta": 204270,
+     "tipo": 0.47
+    },
+    {
+     "hasta": null,
+     "tipo": 0.49
+    }
+   ]
+  },
+  "pais_vasco_2026": {
+   "norma": "Art. 75.1 NF 3/2014 Gipuzkoa (NF 6/2025, DF 1.ª.Dos), art. 75 NF 13/2013 Bizkaia (NF 7/2025, art. 49) y art. 75.1 NF 33/2013 Araba (NF 21/2025, art. 2.4.º.Cuatro)",
+   "fuente": "BOG n.º 250 (31-12-2025); BOB 30-12-2025; BOTHA n.º 147 (29-12-2025)",
+   "tramos": [
+    {
+     "hasta": 18080,
+     "tipo": 0.23
+    },
+    {
+     "hasta": 36160,
+     "tipo": 0.28
+    },
+    {
+     "hasta": 54240,
+     "tipo": 0.35
+    },
+    {
+     "hasta": 77450,
+     "tipo": 0.4
+    },
+    {
+     "hasta": 107260,
+     "tipo": 0.45
+    },
+    {
+     "hasta": 142960,
+     "tipo": 0.46
+    },
+    {
+     "hasta": 208390,
+     "tipo": 0.47
+    },
+    {
+     "hasta": null,
+     "tipo": 0.49
+    }
+   ]
+  },
+  "navarra_2025": {
+   "norma": "Art. 59.1 TR IRPF Navarra (DFL 4/2008), redacción LF 22/2023",
+   "fuente": "BON; guiafiscal.es/irpf/navarra (tabla literal); Iberley Escala IRPF Navarra",
+   "tramos": [
+    {
+     "hasta": 4458,
+     "tipo": 0.13
+    },
+    {
+     "hasta": 10030,
+     "tipo": 0.22
+    },
+    {
+     "hasta": 21175,
+     "tipo": 0.25
+    },
+    {
+     "hasta": 35663,
+     "tipo": 0.28
+    },
+    {
+     "hasta": 51266,
+     "tipo": 0.365
+    },
+    {
+     "hasta": 66869,
+     "tipo": 0.415
+    },
+    {
+     "hasta": 89159,
+     "tipo": 0.44
+    },
+    {
+     "hasta": 139310,
+     "tipo": 0.47
+    },
+    {
+     "hasta": 195034,
+     "tipo": 0.49
+    },
+    {
+     "hasta": 334344,
+     "tipo": 0.505
+    },
+    {
+     "hasta": null,
+     "tipo": 0.52
+    }
+   ]
+  },
+  "navarra_2026": {
+   "norma": "Art. 59.1 TR IRPF Navarra (DFL 4/2008), redacción LF 22/2023",
+   "fuente": "BON; guiafiscal.es/irpf/navarra (tabla literal); Iberley Escala IRPF Navarra",
+   "tramos": [
+    {
+     "hasta": 4458,
+     "tipo": 0.13
+    },
+    {
+     "hasta": 10030,
+     "tipo": 0.22
+    },
+    {
+     "hasta": 21175,
+     "tipo": 0.25
+    },
+    {
+     "hasta": 35663,
+     "tipo": 0.28
+    },
+    {
+     "hasta": 51266,
+     "tipo": 0.365
+    },
+    {
+     "hasta": 66869,
+     "tipo": 0.415
+    },
+    {
+     "hasta": 89159,
+     "tipo": 0.44
+    },
+    {
+     "hasta": 139310,
+     "tipo": 0.47
+    },
+    {
+     "hasta": 195034,
+     "tipo": 0.49
+    },
+    {
+     "hasta": 334344,
+     "tipo": 0.505
+    },
+    {
+     "hasta": null,
+     "tipo": 0.52
+    }
+   ]
+  }
+ },
+ "minimos": {
+  "contribuyente": {
+   "norma": "Art. 57 LIRPF",
+   "fuente": "AEAT Manual Renta 2025 — cuadro-resumen mínimo personal y familiar",
+   "estado": "confirmado",
+   "general": 5550,
+   "incremento_mayor_65": 1150,
+   "incremento_mayor_75": 1400
+  },
+  "descendientes": {
+   "norma": "Art. 58 LIRPF",
+   "fuente": "AEAT Manual Renta 2025",
+   "estado": "confirmado",
+   "importes": {
+    "1": 2400,
+    "2": 2700,
+    "3": 4000,
+    "4+": 4500
+   },
+   "incremento_menor_3_anios": 2800,
+   "limite_rentas_descendiente": 8000,
+   "limite_declaracion_descendiente": 1800,
+   "edad_maxima": 25
+  },
+  "ascendientes": {
+   "norma": "Art. 59 LIRPF",
+   "fuente": "AEAT Manual Renta 2025",
+   "estado": "confirmado",
+   "importe": 1150,
+   "incremento_mayor_75": 1400,
+   "limite_rentas_ascendiente": 8000,
+   "edad_minima": 65
+  },
+  "discapacidad": {
+   "norma": "Art. 60 LIRPF",
+   "fuente": "AEAT Manual Renta 2025",
+   "estado": "confirmado",
+   "grado_33_64": 3000,
+   "grado_65_mas": 9000,
+   "gastos_asistencia": 3000
+  },
+  "contribuyente_2026": {
+   "norma": "Art. 57 LIRPF",
+   "fuente": "AEAT Manual Renta 2025 — cuadro-resumen mínimo personal y familiar",
+   "estado": "confirmado",
+   "general": 5550,
+   "incremento_mayor_65": 1150,
+   "incremento_mayor_75": 1400
+  },
+  "descendientes_2026": {
+   "norma": "Art. 58 LIRPF",
+   "fuente": "AEAT Manual Renta 2025",
+   "estado": "confirmado",
+   "importes": {
+    "1": 2400,
+    "2": 2700,
+    "3": 4000,
+    "4+": 4500
+   },
+   "incremento_menor_3_anios": 2800,
+   "limite_rentas_descendiente": 8000,
+   "limite_declaracion_descendiente": 1800,
+   "edad_maxima": 25
+  },
+  "autonomicos": [
+   {
+    "territorio": "ES-AN",
+    "nombre": "Andalucía",
+    "norma": "Art. 23 bis Ley 5/2021, de 20 de octubre, de Tributos Cedidos de la Comunidad Autónoma de Andalucía",
+    "fuente": "AEAT Manual Práctico Renta 2025 — Mínimo personal y familiar autonómico: Comunidad Autónoma de Andalucía; y Cuadro comparativo de los importes de los mínimos personales y familiares, estatal y autonómicos para 2025",
+    "contribuyente": {
+     "general": 5790,
+     "incremento_mayor_65": 1200,
+     "incremento_mayor_75": 1460
+    },
+    "descendientes": {
+     "importes": {
+      "1": 2510,
+      "2": 2820,
+      "3": 4170,
+      "4+": 4700
+     },
+     "incremento_menor_3_anios": 2920
+    },
+    "ascendientes": {
+     "importe": 1200,
+     "incremento_mayor_75": 1460
+    },
+    "discapacidad": {
+     "grado_33_64": 3130,
+     "grado_65_mas": 9390,
+     "gastos_asistencia": 3130
+    }
+   },
+   {
+    "territorio": "ES-AS",
+    "nombre": "Principado de Asturias",
+    "norma": "Arts. 2 bis, 2 ter, 2 quater y 2 quinquies DL 2/2014, de 22 de octubre (TR tributos cedidos del Principado de Asturias)",
+    "fuente": "AEAT Manual Práctico Renta 2025 — Mínimo personal y familiar autonómico: Comunidad Autónoma del Principado de Asturias; y Cuadro comparativo de los importes de los mínimos personales y familiares, estatal y autonómicos para 2025",
+    "contribuyente": {
+     "general": 6105,
+     "incremento_mayor_65": 1265,
+     "incremento_mayor_75": 1540
+    },
+    "descendientes": {
+     "importes": {
+      "1": 2640,
+      "2": 2970,
+      "3": 4400,
+      "4+": 4950
+     },
+     "incremento_menor_3_anios": 3080
+    },
+    "ascendientes": {
+     "importe": 1265,
+     "incremento_mayor_75": 1540
+    },
+    "discapacidad": {
+     "grado_33_64": 3300,
+     "grado_65_mas": 9900,
+     "gastos_asistencia": 3300
+    }
+   },
+   {
+    "territorio": "ES-IB",
+    "nombre": "Illes Balears",
+    "norma": "Art. 2 DL 1/2014, de 6 de junio (TR tributos cedidos de las Illes Balears)",
+    "fuente": "AEAT Manual Práctico Renta 2025 — Mínimo personal y familiar autonómico: Comunidad Autónoma de las Illes Balears; y Cuadro comparativo de los importes de los mínimos personales y familiares, estatal y autonómicos para 2025",
+    "contribuyente": {
+     "general_mayor_65": 6105,
+     "incremento_mayor_65": 1265,
+     "incremento_mayor_75": 1540
+    },
+    "descendientes": {
+     "importes": {
+      "2": 2970,
+      "3": 4400,
+      "4+": 4950
+     }
+    },
+    "ascendientes": {
+     "importe": 1265,
+     "incremento_mayor_75": 1540
+    },
+    "discapacidad": {
+     "grado_33_64": 3300,
+     "grado_65_mas": 9900,
+     "gastos_asistencia": 3300
+    }
+   },
+   {
+    "territorio": "ES-CN",
+    "nombre": "Canarias",
+    "norma": "Art. 18 quater DL 1/2009, de 21 de abril (TR tributos cedidos de Canarias)",
+    "fuente": "AEAT Manual Práctico Renta 2025 — Mínimo personal y familiar autonómico: Comunidad Autónoma de Canarias; y Cuadro comparativo de los importes de los mínimos personales y familiares, estatal y autonómicos para 2025",
+    "contribuyente": {
+     "general": 5606,
+     "incremento_mayor_65": 1162,
+     "incremento_mayor_75": 1414
+    },
+    "descendientes": {
+     "importes": {
+      "1": 2424,
+      "2": 2727,
+      "3": 4040,
+      "4+": 4545
+     },
+     "incremento_menor_3_anios": 2828
+    },
+    "ascendientes": {
+     "importe": 1162,
+     "incremento_mayor_75": 1414
+    },
+    "discapacidad": {
+     "grado_33_64": 3030,
+     "grado_65_mas": 9090,
+     "gastos_asistencia": 3030
+    }
+   },
+   {
+    "territorio": "ES-CL",
+    "nombre": "Castilla y León",
+    "norma": "Art. 1 bis DL 1/2013, de 12 de septiembre (TR tributos propios y cedidos de Castilla y León)",
+    "fuente": "AEAT Manual Práctico Renta 2025 — Mínimo personal y familiar autonómico: Comunidad de Castilla y León; y Cuadro comparativo de los importes de los mínimos personales y familiares, estatal y autonómicos para 2025",
+    "contribuyente": null,
+    "descendientes": null,
+    "ascendientes": null,
+    "discapacidad": null
+   },
+   {
+    "territorio": "ES-CT",
+    "nombre": "Cataluña",
+    "norma": "Art. 611-2 DL 1/2024, de 12 de marzo (libro sexto del código tributario de Catalunya)",
+    "fuente": "AEAT Manual Práctico Renta 2025 — Mínimo personal y familiar autonómico: Comunidad Autónoma de Cataluña; y Cuadro comparativo de los importes de los mínimos personales y familiares, estatal y autonómicos para 2025",
+    "contribuyente": null,
+    "descendientes": null,
+    "ascendientes": null,
+    "discapacidad": null
+   },
+   {
+    "territorio": "ES-GA",
+    "nombre": "Galicia",
+    "norma": "Art. 4 bis DL 1/2011, de 28 de julio (TR tributos cedidos de Galicia)",
+    "fuente": "AEAT Manual Práctico Renta 2025 — Mínimo personal y familiar autonómico: Comunidad Autónoma de Galicia; y Cuadro comparativo de los importes de los mínimos personales y familiares, estatal y autonómicos para 2025",
+    "contribuyente": {
+     "general": 5789,
+     "incremento_mayor_65": 1199,
+     "incremento_mayor_75": 1460
+    },
+    "descendientes": {
+     "importes": {
+      "1": 2503,
+      "2": 2816,
+      "3": 4172,
+      "4+": 4694
+     },
+     "incremento_menor_3_anios": 2920
+    },
+    "ascendientes": {
+     "importe": 1199,
+     "incremento_mayor_75": 1460
+    },
+    "discapacidad": {
+     "grado_33_64": 3129,
+     "grado_65_mas": 9387,
+     "gastos_asistencia": 3129
+    }
+   },
+   {
+    "territorio": "ES-MD",
+    "nombre": "Comunidad de Madrid",
+    "norma": "Arts. 2, 2 bis, 2 ter y 2 quater DL 1/2010, de 21 de octubre (TR tributos cedidos de la Comunidad de Madrid)",
+    "fuente": "AEAT Manual Práctico Renta 2025 — Mínimo personal y familiar autonómico: Comunidad de Madrid; y Cuadro comparativo de los importes de los mínimos personales y familiares, estatal y autonómicos para 2025",
+    "contribuyente": {
+     "general": 5956.65,
+     "incremento_mayor_65": 1234.26,
+     "incremento_mayor_75": 1502.58
+    },
+    "descendientes": {
+     "importes": {
+      "1": 2575.85,
+      "2": 2897.83,
+      "3": 4400,
+      "4+": 4950
+     },
+     "incremento_menor_3_anios": 3005.16
+    },
+    "ascendientes": {
+     "importe": 1234.26,
+     "incremento_mayor_75": 1502.58
+    },
+    "discapacidad": {
+     "grado_33_64": 3219.81,
+     "grado_65_mas": 9659.44,
+     "gastos_asistencia": 3219.81
+    }
+   },
+   {
+    "territorio": "ES-RI",
+    "nombre": "La Rioja",
+    "norma": "Art. 31 bis Ley 10/2017, de 27 de octubre (La Rioja, impuestos propios y tributos cedidos)",
+    "fuente": "AEAT Manual Práctico Renta 2025 — Mínimo personal y familiar autonómico: Comunidad Autónoma de La Rioja; y Cuadro comparativo de los importes de los mínimos personales y familiares, estatal y autonómicos para 2025",
+    "contribuyente": null,
+    "descendientes": null,
+    "ascendientes": null,
+    "discapacidad": null
+   },
+   {
+    "territorio": "ES-VC",
+    "nombre": "Comunitat Valenciana",
+    "norma": "Art. 2 bis Ley 13/1997, de 23 de diciembre (tramo autonómico del IRPF de la Comunitat Valenciana)",
+    "fuente": "AEAT Manual Práctico Renta 2025 — Mínimo personal y familiar autonómico: Comunitat Valenciana; y Cuadro comparativo de los importes de los mínimos personales y familiares, estatal y autonómicos para 2025",
+    "contribuyente": {
+     "general": 6105,
+     "incremento_mayor_65": 1265,
+     "incremento_mayor_75": 1540
+    },
+    "descendientes": {
+     "importes": {
+      "1": 2640,
+      "2": 2970,
+      "3": 4400,
+      "4+": 4950
+     },
+     "incremento_menor_3_anios": 3080
+    },
+    "ascendientes": {
+     "importe": 1265,
+     "incremento_mayor_75": 1540
+    },
+    "discapacidad": {
+     "grado_33_64": 3300,
+     "grado_65_mas": 9900,
+     "gastos_asistencia": 3300
+    }
+   }
+  ]
+ },
+ "prevision_social": {
+  "reduccion": {
+   "norma": "Arts. 51.6 y 52.1 LIRPF; DA 16.ª LIRPF",
+   "fuente": "AEAT Manual Práctico Renta 2025, Reducciones por aportaciones a sistemas de previsión social → 6.2 Límites y exceso de aportaciones",
+   "estado": "confirmado",
+   "limite_general_abs": 1500,
+   "limite_general_pct_rend": 0.3,
+   "incremento_contribucion_empresarial": 8500,
+   "incremento_seguros_dependencia": 5000,
+   "limite_aportacion_conyuge": 1000,
+   "rentas_conyuge_maximas": 8000
+  },
+  "reduccion_2026": {
+   "norma": "Arts. 51.6 y 52.1 LIRPF; DA 16.ª LIRPF",
+   "fuente": "AEAT Manual Práctico Renta 2025, Reducciones por aportaciones a sistemas de previsión social → 6.2 Límites y exceso de aportaciones",
+   "estado": "confirmado",
+   "limite_general_abs": 1500,
+   "limite_general_pct_rend": 0.3,
+   "incremento_contribucion_empresarial": 8500,
+   "incremento_seguros_dependencia": 5000,
+   "limite_aportacion_conyuge": 1000,
+   "rentas_conyuge_maximas": 8000
+  },
+  "aportacion_ejemplo": 1500,
+  "supuesto": "Una persona declarante, 40 años, un único rendimiento del trabajo de 12 pagas, sin cónyuge ni hijos, sin vivienda ni deducciones autonómicas. Cotización a la Seguridad Social: 6,35 % del salario (el valor por defecto de la calculadora), sin aplicar el tope máximo de cotización. No es una liquidación oficial ni tiene en cuenta tu situación real.",
+  "ahorro": {
+   "30000": [
+    {
+     "territorio": "ES-AN",
+     "nombre": "Andalucía",
+     "ahorro": 450
+    },
+    {
+     "territorio": "ES-AR",
+     "nombre": "Aragón",
+     "ahorro": 450
+    },
+    {
+     "territorio": "ES-AS",
+     "nombre": "Principado de Asturias",
+     "ahorro": 435
+    },
+    {
+     "territorio": "ES-IB",
+     "nombre": "Illes Balears",
+     "ahorro": 438.75
+    },
+    {
+     "territorio": "ES-CN",
+     "nombre": "Canarias",
+     "ahorro": 435
+    },
+    {
+     "territorio": "ES-CB",
+     "nombre": "Cantabria",
+     "ahorro": 442.5
+    },
+    {
+     "territorio": "ES-CM",
+     "nombre": "Castilla-La Mancha",
+     "ahorro": 450
+    },
+    {
+     "territorio": "ES-CL",
+     "nombre": "Castilla y León",
+     "ahorro": 435
+    },
+    {
+     "territorio": "ES-CT",
+     "nombre": "Cataluña",
+     "ahorro": 465
+    },
+    {
+     "territorio": "ES-EX",
+     "nombre": "Extremadura",
+     "ahorro": 487.5
+    },
+    {
+     "territorio": "ES-GA",
+     "nombre": "Galicia",
+     "ahorro": 448.5
+    },
+    {
+     "territorio": "ES-MD",
+     "nombre": "Comunidad de Madrid",
+     "ahorro": 417
+    },
+    {
+     "territorio": "ES-MC",
+     "nombre": "Región de Murcia",
+     "ahorro": 424.5
+    },
+    {
+     "territorio": "ES-RI",
+     "nombre": "La Rioja",
+     "ahorro": 429
+    },
+    {
+     "territorio": "ES-VC",
+     "nombre": "Comunitat Valenciana",
+     "ahorro": 450
+    },
+    {
+     "territorio": "ES-PV-BI",
+     "nombre": "Bizkaia",
+     "ahorro": 420
+    },
+    {
+     "territorio": "ES-PV-SS",
+     "nombre": "Gipuzkoa",
+     "ahorro": 420
+    },
+    {
+     "territorio": "ES-PV-VI",
+     "nombre": "Araba/Álava",
+     "ahorro": 420
+    },
+    {
+     "territorio": "ES-NC",
+     "nombre": "Comunidad Foral de Navarra",
+     "ahorro": 0
+    }
+   ],
+   "45000": [
+    {
+     "territorio": "ES-AN",
+     "nombre": "Andalucía",
+     "ahorro": 555
+    },
+    {
+     "territorio": "ES-AR",
+     "nombre": "Aragón",
+     "ahorro": 555
+    },
+    {
+     "territorio": "ES-AS",
+     "nombre": "Principado de Asturias",
+     "ahorro": 565.5
+    },
+    {
+     "territorio": "ES-IB",
+     "nombre": "Illes Balears",
+     "ahorro": 540
+    },
+    {
+     "territorio": "ES-CN",
+     "nombre": "Canarias",
+     "ahorro": 555
+    },
+    {
+     "territorio": "ES-CB",
+     "nombre": "Cantabria",
+     "ahorro": 547.5
+    },
+    {
+     "territorio": "ES-CM",
+     "nombre": "Castilla-La Mancha",
+     "ahorro": 555
+    },
+    {
+     "territorio": "ES-CL",
+     "nombre": "Castilla y León",
+     "ahorro": 555
+    },
+    {
+     "territorio": "ES-CT",
+     "nombre": "Cataluña",
+     "ahorro": 562.5
+    },
+    {
+     "territorio": "ES-EX",
+     "nombre": "Extremadura",
+     "ahorro": 592.5
+    },
+    {
+     "territorio": "ES-GA",
+     "nombre": "Galicia",
+     "ahorro": 553.5
+    },
+    {
+     "territorio": "ES-MD",
+     "nombre": "Comunidad de Madrid",
+     "ahorro": 538.5
+    },
+    {
+     "territorio": "ES-MC",
+     "nombre": "Región de Murcia",
+     "ahorro": 546
+    },
+    {
+     "territorio": "ES-RI",
+     "nombre": "La Rioja",
+     "ahorro": 545.21
+    },
+    {
+     "territorio": "ES-VC",
+     "nombre": "Comunitat Valenciana",
+     "ahorro": 540
+    },
+    {
+     "territorio": "ES-PV-BI",
+     "nombre": "Bizkaia",
+     "ahorro": 525
+    },
+    {
+     "territorio": "ES-PV-SS",
+     "nombre": "Gipuzkoa",
+     "ahorro": 525
+    },
+    {
+     "territorio": "ES-PV-VI",
+     "nombre": "Araba/Álava",
+     "ahorro": 525
+    },
+    {
+     "territorio": "ES-NC",
+     "nombre": "Comunidad Foral de Navarra",
+     "ahorro": 0
+    }
+   ],
+   "60000": [
+    {
+     "territorio": "ES-AN",
+     "nombre": "Andalucía",
+     "ahorro": 555
+    },
+    {
+     "territorio": "ES-AR",
+     "nombre": "Aragón",
+     "ahorro": 585
+    },
+    {
+     "territorio": "ES-AS",
+     "nombre": "Principado de Asturias",
+     "ahorro": 583.51
+    },
+    {
+     "territorio": "ES-IB",
+     "nombre": "Illes Balears",
+     "ahorro": 562.5
+    },
+    {
+     "territorio": "ES-CN",
+     "nombre": "Canarias",
+     "ahorro": 555
+    },
+    {
+     "territorio": "ES-CB",
+     "nombre": "Cantabria",
+     "ahorro": 547.5
+    },
+    {
+     "territorio": "ES-CM",
+     "nombre": "Castilla-La Mancha",
+     "ahorro": 555
+    },
+    {
+     "territorio": "ES-CL",
+     "nombre": "Castilla y León",
+     "ahorro": 578.48
+    },
+    {
+     "territorio": "ES-CT",
+     "nombre": "Cataluña",
+     "ahorro": 592.25
+    },
+    {
+     "territorio": "ES-EX",
+     "nombre": "Extremadura",
+     "ahorro": 592.5
+    },
+    {
+     "territorio": "ES-GA",
+     "nombre": "Galicia",
+     "ahorro": 553.5
+    },
+    {
+     "territorio": "ES-MD",
+     "nombre": "Comunidad de Madrid",
+     "ahorro": 538.5
+    },
+    {
+     "territorio": "ES-MC",
+     "nombre": "Región de Murcia",
+     "ahorro": 546
+    },
+    {
+     "territorio": "ES-RI",
+     "nombre": "La Rioja",
+     "ahorro": 562.5
+    },
+    {
+     "territorio": "ES-VC",
+     "nombre": "Comunitat Valenciana",
+     "ahorro": 615
+    },
+    {
+     "territorio": "ES-PV-BI",
+     "nombre": "Bizkaia",
+     "ahorro": 526.5
+    },
+    {
+     "territorio": "ES-PV-SS",
+     "nombre": "Gipuzkoa",
+     "ahorro": 526.5
+    },
+    {
+     "territorio": "ES-PV-VI",
+     "nombre": "Araba/Álava",
+     "ahorro": 526.5
+    },
+    {
+     "territorio": "ES-NC",
+     "nombre": "Comunidad Foral de Navarra",
+     "ahorro": 0
+    }
+   ]
+  }
+ },
+ "donativos": {
+  "estatal": {
+   "norma": "Art. 68.3 y 69.1 LIRPF; art. 19 Ley 49/2002 (mod. RDL 6/2023)",
+   "fuente": "AEAT Manual Práctico Renta 2025, Deducciones por donativos → 3. Porcentajes de deducción; Límite aplicable",
+   "estado": "confirmado",
+   "ley49_2002": {
+    "tramo1_limite": 250,
+    "tramo1_porcentaje": 0.8,
+    "resto_porcentaje": 0.4,
+    "resto_porcentaje_recurrente": 0.45,
+    "limite_base_liquidable_pct": 0.1
+   },
+   "otras_fundaciones_porcentaje": 0.1,
+   "cuotas_afiliacion_partidos": {
+    "porcentaje": 0.2,
+    "base_maxima": 600
+   }
+  },
+  "estatal_2026": {
+   "norma": "Art. 68.3 y 69.1 LIRPF; art. 19 Ley 49/2002 (mod. RDL 6/2023)",
+   "fuente": "AEAT Manual Práctico Renta 2025, Deducciones por donativos → 3. Porcentajes de deducción; Límite aplicable",
+   "estado": "confirmado",
+   "ley49_2002": {
+    "tramo1_limite": 250,
+    "tramo1_porcentaje": 0.8,
+    "resto_porcentaje": 0.4,
+    "resto_porcentaje_recurrente": 0.45,
+    "limite_base_liquidable_pct": 0.1
+   },
+   "otras_fundaciones_porcentaje": 0.1,
+   "cuotas_afiliacion_partidos": {
+    "porcentaje": 0.2,
+    "base_maxima": 600
+   }
+  }
+ },
+ "obligacion_declarar": {
+  "estatal": {
+   "norma": "Art. 96 LIRPF (apartado 2 en la redacción del RDL 13/2022: alta en el RETA)",
+   "fuente": "AEAT Manual Práctico Renta 2025, ¿Quiénes están obligados a presentar declaración? → Delimitación de la obligación de declarar en el IRPF",
+   "estado": "confirmado",
+   "trabajo_un_pagador": 22000,
+   "trabajo_varios_pagadores": 15876,
+   "segundo_pagador_umbral": 1500,
+   "capital_y_ganancias_con_retencion": 1600,
+   "rentas_inmobiliarias_imputadas": 1000,
+   "rentas_totales_minimas": 1000,
+   "perdidas_patrimoniales_maximas": 500
+  },
+  "estatal_2026": {
+   "norma": "Art. 96 LIRPF (apartado 2 en la redacción del RDL 13/2022: alta en el RETA)",
+   "fuente": "AEAT Manual Práctico Renta 2025, ¿Quiénes están obligados a presentar declaración? → Delimitación de la obligación de declarar en el IRPF",
+   "estado": "confirmado",
+   "trabajo_un_pagador": 22000,
+   "trabajo_varios_pagadores": 15876,
+   "segundo_pagador_umbral": 1500,
+   "capital_y_ganancias_con_retencion": 1600,
+   "rentas_inmobiliarias_imputadas": 1000,
+   "rentas_totales_minimas": 1000,
+   "perdidas_patrimoniales_maximas": 500
+  }
+ },
+ "calendario": [
+  {
+   "ejercicio": 2025,
+   "norma": "Orden HAC/277/2026, de 25 de marzo, por la que se aprueban los modelos de declaración del IRPF y del Impuesto sobre el Patrimonio, ejercicio 2025 (arts. 7.1, 11.5, 12.2 y 12.3)",
+   "fuente": "BOE-A-2026-7041 (BOE núm. 76, de 27-03-2026)",
+   "boe": "BOE-A-2026-7041",
+   "publicada": "2026-03-27",
+   "estado": "confirmado",
+   "inicio": "2026-04-08",
+   "fin": "2026-06-30",
+   "fin_domiciliacion": "2026-06-25",
+   "fin_domiciliacion_solo_segundo_plazo": "2026-06-30",
+   "fraccionamiento": {
+    "primer_plazo_pct": 0.6,
+    "segundo_plazo_pct": 0.4,
+    "segundo_plazo_hasta": "2026-11-05",
+    "cargo_segundo_plazo_domiciliado": "2026-11-02"
+   }
+  }
+ ]
+}
