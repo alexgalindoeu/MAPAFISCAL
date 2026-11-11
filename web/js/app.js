@@ -229,7 +229,7 @@
   $("form").addEventListener("input", e => {
     const t = e.target;
     if ((t.id === "f-salario" || t.id === "f-pension") && !ssManual)
-      $("f-ss").value = $("f-pension").checked ? 0 : Math.round(num("f-salario") * 0.0635);
+      $("f-ss").value = $("f-pension").checked ? 0 : Math.round(irpfsim.cotizacionesTrabajador(num("f-salario"), P));
     if (t.id === "f-ss") { ssManual = true; $("ayuda-ss").textContent = "Importe introducido por ti."; }
     if (t.dataset.hijoEdad != null) {
       hijos[+t.dataset.hijoEdad].edad = Math.max(0, Math.min(30, parseInt(t.value, 10) || 0));
@@ -276,7 +276,7 @@
     if (pareja) {
       const ps = num("f-pareja-salario");
       miembros.push({ id: "d2", rol: "conyuge", edad: num("f-pareja-edad") || 40,
-        trabajo: ps > 0 ? { dinerarias: ps, cotizacionesSs: Math.round(ps * 0.0635) } : null, retenciones: 0 });
+        trabajo: ps > 0 ? { dinerarias: ps, cotizacionesSs: irpfsim.cotizacionesTrabajador(ps, P) } : null, retenciones: 0 });
     }
     hijos.forEach((h, i) => {
       const m = { id: "h" + (i + 1), rol: "descendiente", edad: h.edad, rentasPropias: 0, nacidoEnEjercicio: h.edad === 0 };
@@ -1455,6 +1455,7 @@
     if (v === "planes") pintarPlanes();
     if (v === "perfil") pintarPerfil();
     if (v === "metodologia") pintarCobertura();
+    document.dispatchEvent(new CustomEvent("mapafiscal:vista", { detail: { vista: v } }));   // herramientas.js
     window.scrollTo(0, 0);
     // el foco va al título de la vista, para que el lector de pantalla anuncie el cambio
     if (moverFoco) {
@@ -1467,6 +1468,10 @@
   $("bm-ver").addEventListener("click", e => { e.preventDefault(); $("t-res").scrollIntoView({ behavior: movimientoReducido() ? "auto" : "smooth", block: "start" }); });
 
   // ---- arranque --------------------------------------------------------------------------
+  // cotizaciones estimadas con la orden de cotización del ejercicio (no con un tipo fijo)
+  $("f-ss").value = Math.round(irpfsim.cotizacionesTrabajador(num("f-salario"), P));
+  $("ayuda-ss").textContent = `Estimadas con los tipos del trabajador de ${P.ejercicio} (contrato indefinido). Cámbialas si las conoces: vienen en tu certificado de retenciones.`;
+  document.addEventListener("mapafiscal:herramientas", () => { if (vistaActual() === "inicio") pintarInicio(); });
   document.querySelectorAll("[data-ejercicio]").forEach(el => { el.textContent = P.ejercicio; });
   document.querySelectorAll("[data-ejercicios]").forEach(el => { el.textContent = textoEjercicios(); });
   pintarSelectoresEjercicio(false);

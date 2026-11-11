@@ -2,7 +2,7 @@
 // el mismo formato que se publica como artifact en Claude.
 //
 //   node tools/empaquetar.mjs [salida]      (por defecto: dist/mapafiscal.html)
-import { readFileSync, writeFileSync, mkdirSync } from "node:fs";
+import { readFileSync, writeFileSync, mkdirSync, readdirSync } from "node:fs";
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
@@ -11,7 +11,8 @@ const WEB = join(RAIZ, "web");
 const leer = ruta => readFileSync(join(WEB, ruta), "utf8");
 
 // JSON compacto y seguro dentro de <script>: "</" nunca puede cerrar la etiqueta.
-const jsonEmbebido = ruta => JSON.stringify(JSON.parse(leer(ruta))).replace(/<\//g, "<\\/");
+const otrosEjercicios = () => readdirSync(join(WEB, "datos")).filter(n => /^params_\d{4}\.json$/.test(n)).sort();
+const jsonEmbebido =ruta => JSON.stringify(JSON.parse(leer(ruta))).replace(/<\//g, "<\\/");
 
 // La versión autónoma es siempre la demo: sin Supabase (ni supabase-js), sin pagos y sin
 // anuncios, aunque web/config.js esté configurado para producción.
@@ -42,9 +43,13 @@ export function empaquetar() {
   const configSinAdsense = leer("config.js").replace(/ca-pub-\d+/, "");
   sustituir('<script src="config.js"></script>', "<script>\n" + configSinAdsense + FORZAR_DEMO + "</script>\n" +
     '<script type="application/json" id="datos-params">' + jsonEmbebido("datos/params.json") + "</script>\n" +
-    '<script type="application/json" id="datos-mapa">' + jsonEmbebido("datos/mapa_es.json") + "</script>");
+    '<script type="application/json" id="datos-mapa">' + jsonEmbebido("datos/mapa_es.json") + "</script>" +
+    // los demás ejercicios (params_<año>.json -> id="datos-params-<año>"), para las herramientas
+    otrosEjercicios().map(f => `\n<script type="application/json" id="datos-${f.replace(".json", "").replace("_", "-")}">` +
+      jsonEmbebido("datos/" + f) + "</script>").join(""));
   sustituir('<script src="js/irpfsim.js"></script>', "<script>\n" + leer("js/irpfsim.js") + "</script>");
   sustituir('<script src="js/app.js"></script>', "<script>\n" + leer("js/app.js") + "</script>");
+  sustituir('<script src="js/herramientas.js"></script>', "<script>\n" + leer("js/herramientas.js") + "</script>");
   html = html.replace(/href="legal\//g, `href="${WEB_PUBLICA}legal/`);
   return html;
 }

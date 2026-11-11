@@ -32,6 +32,8 @@
     <nav class="nav" aria-label="Secciones">
       <a href="#calculadora" data-vista="calculadora">Calculadora</a>
       <a href="#comparar" data-vista="comparar">Comparar territorios</a>
+      <a href="#sueldo-neto" data-vista="sueldo-neto">Sueldo neto</a>
+      <a href="#plan-pensiones" data-vista="plan-pensiones">Ahorro fiscal</a>
       <a href="#clientes" data-vista="clientes">Mis clientes</a>
       <a href="#planes" data-vista="planes">Planes</a>
     </nav>
@@ -366,6 +368,117 @@
   </div>
 </section>
 
+<!-- =========================== SUELDO NETO (web/js/herramientas.js) =========================== -->
+<section class="vista" id="v-sueldo-neto" aria-labelledby="t-neto" hidden>
+  <div class="cabecera-vista">
+    <div>
+      <h1 id="t-neto">Sueldo neto por territorio</h1>
+      <p class="entradilla" id="neto-entradilla">Lo que te queda de tu sueldo bruto tras la Seguridad Social y el IRPF del año, en tu territorio y en los 19 territorios fiscales.</p>
+    </div>
+    <div class="cabecera-acciones">
+      <div class="segmentado" role="radiogroup" aria-label="Herramienta">
+        <label><input type="radio" name="neto-modo" value="neto" checked><span>Sueldo neto</span></label>
+        <label><input type="radio" name="neto-modo" value="subida"><span>¿Y con mi subida?</span></label>
+      </div>
+    </div>
+  </div>
+  <div class="calc">
+    <form class="formulario" id="neto-form" autocomplete="off" novalidate>
+      <fieldset class="bloque">
+        <legend><span class="paso">1</span>Tu sueldo</legend>
+        <div class="campo"><label for="neto-bruto" id="neto-lbl-bruto">Sueldo bruto anual</label>
+          <div class="con-sufijo"><input type="number" id="neto-bruto" min="0" step="500" value="30000" inputmode="decimal"><span>€</span></div></div>
+        <div class="campo" id="neto-campo-nuevo" hidden><label for="neto-nuevo">Sueldo bruto anual con la subida</label>
+          <div class="con-sufijo"><input type="number" id="neto-nuevo" min="0" step="500" value="33000" inputmode="decimal"><span>€</span></div></div>
+        <div class="campo"><label for="neto-contrato">Contrato</label>
+          <select id="neto-contrato"><option value="indefinido">Indefinido</option><option value="temporal">Temporal (duración determinada)</option></select></div>
+      </fieldset>
+      <fieldset class="bloque">
+        <legend><span class="paso">2</span>Residencia y familia</legend>
+        <div class="campo"><label for="neto-territorio">Territorio donde resides</label><select id="neto-territorio"></select></div>
+        <div class="rejilla2">
+          <div class="campo"><label for="neto-ejercicio">Ejercicio</label><select id="neto-ejercicio"></select></div>
+          <div class="campo"><label for="neto-edad">Tu edad</label><input type="number" id="neto-edad" min="16" max="110" step="1" value="35"></div>
+        </div>
+        <div class="campo"><label for="neto-hijos">Hijos que conviven contigo</label>
+          <select id="neto-hijos"><option value="0">Ninguno</option><option>1</option><option>2</option><option>3</option><option>4</option><option>5</option></select></div>
+        <div class="hr-edades" id="neto-edades"></div>
+      </fieldset>
+    </form>
+    <div class="resultado" aria-live="polite">
+      <div class="tarjeta tarjeta-resultado" id="neto-principal"></div>
+      <div class="tarjeta">
+        <h2 class="rotulo">Desglose</h2>
+        <table class="desglose" id="neto-desglose"></table>
+      </div>
+      <div class="tarjeta tarjeta-ranking">
+        <h2 class="rotulo" id="neto-t-ranking">Neto en los 19 territorios</h2>
+        <table class="ranking hr-ranking" id="neto-ranking"></table>
+      </div>
+      <p class="nota" id="neto-nota"></p>
+    </div>
+  </div>
+</section>
+
+<!-- =========================== PLAN DE PENSIONES Y DONATIVOS (web/js/herramientas.js) =========================== -->
+<section class="vista" id="v-plan-pensiones" aria-labelledby="t-pp" hidden>
+  <div class="cabecera-vista">
+    <div>
+      <h1 id="t-pp">Ahorra en tu IRPF antes del 31 de diciembre</h1>
+      <p class="entradilla" id="pp-entradilla">Cuánto te devuelve Hacienda por aportar a un plan de pensiones o por donar a una ONG este año, y cuánto conviene aportar.</p>
+    </div>
+    <div class="cabecera-acciones">
+      <div class="segmentado" role="radiogroup" aria-label="Herramienta">
+        <label><input type="radio" name="pp-modo" value="plan" checked><span>Plan de pensiones</span></label>
+        <label><input type="radio" name="pp-modo" value="donativos"><span>Donativos</span></label>
+      </div>
+    </div>
+  </div>
+  <div class="calc">
+    <form class="formulario" id="pp-form" autocomplete="off" novalidate>
+      <fieldset class="bloque">
+        <legend><span class="paso">1</span>Tus datos</legend>
+        <div class="campo"><label for="pp-bruto">Sueldo bruto anual</label>
+          <div class="con-sufijo"><input type="number" id="pp-bruto" min="0" step="500" value="40000" inputmode="decimal"><span>€</span></div></div>
+        <div class="campo"><label for="pp-territorio">Territorio donde resides</label><select id="pp-territorio"></select></div>
+        <div class="rejilla2">
+          <div class="campo"><label for="pp-edad">Tu edad</label><input type="number" id="pp-edad" min="16" max="110" step="1" value="45"></div>
+          <div class="campo"><label for="pp-hijos">Hijos</label>
+            <select id="pp-hijos"><option value="0">Ninguno</option><option>1</option><option>2</option><option>3</option><option>4</option></select></div>
+        </div>
+        <div class="hr-edades" id="pp-edades"></div>
+      </fieldset>
+      <fieldset class="bloque" id="pp-bloque-plan">
+        <legend><span class="paso">2</span>Plan de pensiones</legend>
+        <div class="campo"><label for="pp-aportacion">Lo que piensas aportar este año</label>
+          <div class="con-sufijo"><input type="number" id="pp-aportacion" min="0" step="100" value="1500" inputmode="decimal"><span>€</span></div>
+          <p class="ayuda">Tus aportaciones de todo el año, incluidas las que ya hayas hecho.</p></div>
+        <div class="campo"><label for="pp-empresa">Aportación de tu empresa a un plan de empleo <span class="ayuda">(si la hay)</span></label>
+          <div class="con-sufijo"><input type="number" id="pp-empresa" min="0" step="100" value="0" inputmode="decimal"><span>€</span></div></div>
+      </fieldset>
+      <fieldset class="bloque" id="pp-bloque-donativos" hidden>
+        <legend><span class="paso">2</span>Donativos</legend>
+        <div class="campo"><label for="pp-donativo">Lo que piensas donar este año a ONG y fundaciones</label>
+          <div class="con-sufijo"><input type="number" id="pp-donativo" min="0" step="10" value="250" inputmode="decimal"><span>€</span></div>
+          <p class="ayuda">Entidades acogidas a la Ley 49/2002 (la mayoría de ONG, fundaciones y la Iglesia).</p></div>
+        <label class="casilla"><input type="checkbox" id="pp-recurrente"> Ya doné a la misma entidad en 2024 y 2025, igual o más cada año</label>
+      </fieldset>
+    </form>
+    <div class="resultado" aria-live="polite">
+      <div class="tarjeta tarjeta-resultado" id="pp-principal"></div>
+      <div class="tarjeta">
+        <h2 class="rotulo">Detalle</h2>
+        <table class="desglose" id="pp-desglose"></table>
+      </div>
+      <div class="tarjeta tarjeta-ranking">
+        <h2 class="rotulo" id="pp-t-ranking">Ahorro por territorio</h2>
+        <table class="ranking hr-ranking" id="pp-ranking"></table>
+      </div>
+      <p class="nota" id="pp-nota"></p>
+    </div>
+  </div>
+</section>
+
 </main>
 
 <div class="barra-movil" id="barra-movil" aria-live="polite">
@@ -452,6 +565,7 @@
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.49.4/dist/umd/supabase.js" integrity="sha384-rwykjmWNwVxboyFmvK9OXN0wj9hnMHA2aAHtits54DuACyCq0M2PrSNxhRb+hvXT" crossorigin="anonymous"></script>
 <script src="js/irpfsim.js"></script>
 <script src="js/app.js"></script>
+<script src="js/herramientas.js"></script>
 <script src="js/anuncios.js"></script>
 </body>
 </html>

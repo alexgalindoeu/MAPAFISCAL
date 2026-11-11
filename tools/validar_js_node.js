@@ -18,6 +18,17 @@ const tol = 0.02;
 
 let nbad = 0;
 for (const [id, c] of Object.entries(CASOS)) {
+  if (c.neto) {   // cotizaciones del trabajador y sueldo neto (R/15_sueldo_neto.R)
+    let s;
+    try { s = irpfsim.sueldoNeto(c.js, PS[c.js.ejercicio]); }
+    catch (e) { console.log(`ERROR ${id}: ${e.message}`); nbad++; continue; }
+    const bad = [["cot", s.cotizaciones, c.ref.cot], ["irpf", s.irpf, c.ref.irpf], ["neto", s.neto, c.ref.neto],
+      ["cr", s.liquidacion.cuotaResultanteAutoliquidacion, c.ref.cr], ["modo", s.liquidacion.modoTributacionElegido, c.ref.modo]]
+      .filter(([, a, b]) => (typeof b === "number") ? Math.abs(a - b) > tol : a !== b);
+    if (bad.length) { nbad++; console.log(`FAIL ${id} :: ` + bad.map(([k, a, b]) => `${k} js=${a} r=${b}`).join(" | ")); }
+    else console.log(`ok   ${id}  neto=${s.neto.toFixed(2)}`);
+    continue;
+  }
   let liq;
   try { liq = irpfsim.liquidar(c.js, PS[c.js.ejercicio], "auto"); }
   catch (e) { console.log(`ERROR ${id}: ${e.message}`); nbad++; continue; }

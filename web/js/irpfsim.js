@@ -1224,7 +1224,61 @@
     return { cuotaActual: red2(cuota0), recomendaciones: recs };
   }
 
-  const api = { aplicarEscala, tipoMarginal, liquidar, compararTerritorios, optimizar };
+  // ---- Cotizaciones del trabajador y sueldo neto (R/15_sueldo_neto.R) ---------------
+  // Base mensual = bruto anual / 12, hasta la base máxima (por debajo de la base mínima de
+  // jornada completa se entiende jornada parcial y se cotiza por la retribución); el exceso
+  // sobre la base máxima paga la cotización adicional de solidaridad por tramos.
+  function cotizacionesTrabajadorDetalle(brutoAnual, P, tipoContrato) {
+    tipoContrato = tipoContrato || "indefinido";
+    if (tipoContrato !== "indefinido" && tipoContrato !== "temporal") throw new Error("tipoContrato debe ser 'indefinido' o 'temporal'");
+    const ct = (P.estatal || P).cotizaciones_trabajador;
+    if (!ct) throw new Error("faltan los parámetros cotizaciones_trabajador");
+    const t = ct.tipos;
+    const mensual = Math.max(0, num(brutoAnual)) / 12;
+    const base = Math.min(mensual, ct.base_maxima_mensual);
+    const tDes = tipoContrato === "temporal" ? t.desempleo_temporal : t.desempleo_indefinido;
+    const tipo = t.contingencias_comunes + t.formacion_profesional + t.mei + tDes;
+    let sol = 0, desde = ct.base_maxima_mensual;
+    for (const tr of ct.solidaridad.tramos) {
+      const hasta = tr.hasta == null ? Infinity : tr.hasta;
+      if (mensual > desde) sol += (Math.min(mensual, hasta) - desde) * tr.tipo;
+      desde = hasta;
+    }
+    return {
+      baseMensual: red2(base), tipo,
+      contingenciasComunes: red2(12 * base * t.contingencias_comunes), desempleo: red2(12 * base * tDes),
+      formacionProfesional: red2(12 * base * t.formacion_profesional), mei: red2(12 * base * t.mei),
+      ordinaria: red2(12 * base * tipo), solidaridad: red2(12 * sol), total: red2(12 * base * tipo + 12 * sol)
+    };
+  }
+  const cotizacionesTrabajador = (brutoAnual, P, tipoContrato) => cotizacionesTrabajadorDetalle(brutoAnual, P, tipoContrato).total;
+
+  // IRPF del año: cuota resultante menos las deducciones de la cuota diferencial (= cuota
+  // diferencial con retenciones nulas). Sueldo neto tras la declaración, no la nómina.
+  const irpfAnual = liq => red2(liq.cuotaResultanteAutoliquidacion - num(liq.deduccionesCuotaDiferencial && liq.deduccionesCuotaDiferencial.total));
+  function hogarAsalariado(o, P) {
+    const cot = cotizacionesTrabajador(o.bruto, P, o.tipoContrato);
+    const hijos = o.hijos || [];
+    const d1 = { id: "d1", rol: "declarante", edad: num(o.edad, 40),
+      trabajo: o.bruto > 0 ? { dinerarias: o.bruto, cotizacionesSs: cot } : null,
+      previsionSocial: num(o.aportacionPlan) > 0 ? { aportacionIndividual: o.aportacionPlan } : null,
+      donativos: num(o.donativos), donativosRecurrentes: !!o.donativosRecurrentes };
+    return {
+      cotizaciones: cot,
+      hogar: { territorio: o.territorio, ejercicio: P.ejercicio, tipoUnidadFamiliar: hijos.length ? "monoparental" : "ninguna", familiaNumerosa: "no",
+        miembros: [d1].concat(hijos.map((e, i) => ({ id: "h" + (i + 1), rol: "descendiente", edad: e, rentasPropias: 0, nacidoEnEjercicio: e === 0 }))) }
+    };
+  }
+  // o: { bruto, territorio, edad, hijos: [edades], tipoContrato, aportacionPlan, donativos }
+  function sueldoNeto(o, P) {
+    const { cotizaciones, hogar } = hogarAsalariado(o, P);
+    const liq = liquidar(hogar, P, "auto");
+    const irpf = irpfAnual(liq);
+    return { bruto: o.bruto, cotizaciones, irpf, neto: red2(o.bruto - cotizaciones - irpf), liquidacion: liq };
+  }
+
+  const api = { aplicarEscala, tipoMarginal, liquidar, compararTerritorios, optimizar,
+    cotizacionesTrabajador, cotizacionesTrabajadorDetalle, irpfAnual, sueldoNeto };
   if (typeof module !== "undefined" && module.exports) module.exports = api;
   global.irpfsim = api;
 })(typeof window !== "undefined" ? window : this);
