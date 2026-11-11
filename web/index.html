@@ -7,12 +7,13 @@
 <meta name="description" content="Calcula tu IRPF 2025 con tu situación real y compáralo en los 19 territorios fiscales de España.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@100..125,600..800&family=Public+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500&display=swap">
 <link rel="stylesheet" href="css/mapafiscal.css">
 <meta name="google-adsense-account" content="ca-pub-3028486034839853">
 </head>
 <body>
 <!--CUERPO-->
+<a class="salto-contenido" href="#contenido-principal">Saltar al contenido principal</a>
 <!-- Carriles de anuncios en el margen de la página (solo pantallas muy anchas; ver
      .anuncio-carril en mapafiscal.css). Vacíos y ocultos hasta que anuncios.js decida
      mostrarlos: nunca para quien tiene plan Gestor ni con anuncios:false. -->
@@ -25,7 +26,7 @@
 <header class="appbar">
   <div class="appbar-in">
     <a class="marca" href="#inicio" aria-label="Mapafiscal, inicio">
-      <svg class="marca-ico" viewBox="0 0 32 32" aria-hidden="true"><rect width="32" height="32" rx="7" class="marca-fondo"/><path d="M8 22V10l5 6 5-6v12" class="marca-trazo"/><path d="M21 13h4M21 17h4M21 21h4" class="marca-trazo"/></svg>
+      <svg class="marca-ico" viewBox="0 0 32 32" aria-hidden="true"><rect width="32" height="32" rx="8" class="marca-fondo"/><path class="marca-panel" d="M7 10.5 13 8v15.5L7 26z"/><path class="marca-panel-tu" d="M13 8l6 2.5V26l-6-2.5z"/><path class="marca-panel-2" d="M19 10.5 25 8v15.5L19 26z"/></svg>
       <span class="marca-txt">Mapafiscal</span>
     </a>
     <nav class="nav" aria-label="Secciones">
@@ -41,36 +42,50 @@
   </div>
 </header>
 
-<main class="contenedor">
+<main class="contenedor" id="contenido-principal" tabindex="-1">
 
 <!-- =========================== INICIO =========================== -->
 <section class="vista" id="v-inicio" aria-labelledby="t-inicio">
   <div class="portada">
     <div class="portada-texto">
-      <h1 id="t-inicio">Tu IRPF, calculado con la normativa de tu comunidad</h1>
-      <p class="entradilla">Calcula tu declaración de la renta 2025 y compárala en los 19 territorios fiscales de España: escala estatal y autonómica o foral, mínimos, reducciones y deducciones. Gratis, sin registrarte y sin que tus datos salgan de tu navegador.</p>
-      <div class="portada-acciones">
-        <a class="btn btn-pri" href="#calculadora">Calcular mi renta</a>
-        <a class="btn btn-sec" href="#comparar">Comparar territorios</a>
-      </div>
+      <p class="antetitulo">Atlas del IRPF · 19 territorios fiscales</p>
+      <h1 id="t-inicio">El mismo sueldo, <span class="subrayado">19&nbsp;IRPF distintos</span></h1>
+      <p class="entradilla">Cada comunidad y cada territorio foral tiene su escala, sus mínimos y sus deducciones. Calcula tu declaración con la normativa del tuyo y mira cuánto pagarías en el resto de España. Gratis, sin registrarte y sin que tus datos salgan de tu navegador.</p>
+      <form class="minicalc" id="minicalc" autocomplete="off" novalidate aria-label="Cálculo rápido">
+        <div class="minicalc-campos">
+          <div class="campo"><label for="mc-salario">Tu sueldo bruto anual</label><div class="con-sufijo"><input type="number" id="mc-salario" min="0" step="500" value="30000" inputmode="numeric"><span>€</span></div></div>
+          <div class="campo"><label for="mc-territorio">Dónde vives</label><select id="mc-territorio"></select></div>
+        </div>
+        <div class="minicalc-res" id="mc-res" aria-live="polite"></div>
+      </form>
     </div>
-    <div class="portada-destacado" id="portada-destacado"></div>
+    <div class="portada-mapa">
+      <h2 class="rotulo" id="t-mapa-portada">Lo que pagarías en cada territorio</h2>
+      <div class="mapa-envoltorio">
+        <svg id="mapa-portada" class="mapa-svg" role="group" aria-labelledby="t-mapa-portada"></svg>
+        <div class="mapa-tip" id="mapa-portada-tip" hidden></div>
+      </div>
+      <div class="leyenda" id="leyenda-portada"></div>
+      <p class="nota">Pulsa un territorio para ver tu cifra allí. Canarias, en el recuadro.</p>
+    </div>
   </div>
-  <h2 class="rotulo">Herramientas</h2>
+  <p class="dato-portada" id="dato-portada"></p>
+  <div class="seccion-cab"><h2>Herramientas</h2></div>
   <div class="herramientas" id="herramientas"></div>
-  <ul class="garantias">
-    <li><b>Normativa 2025</b> con la fuente de cada cifra: BOE, boletines autonómicos y forales.</li>
-    <li><b>Tus datos no salen de tu navegador</b>: el cálculo se hace en tu equipo.</li>
-    <li><b>Motor validado al céntimo</b> contra una implementación de referencia.</li>
-  </ul>
+  <div class="seccion-cab"><h2>Por qué fiarte de las cifras</h2></div>
+  <div class="rigor" id="rigor"></div>
 </section>
 
 <!-- =========================== CALCULADORA =========================== -->
 <section class="vista" id="v-calculadora" aria-labelledby="t-calc" hidden>
   <div class="cabecera-vista">
     <div>
+      <p class="antetitulo">Declaración de la renta · ejercicio <span data-ejercicio>2025</span></p>
       <h1 id="t-calc">Calcula tu IRPF</h1>
-      <p class="entradilla">Declaración de la renta del ejercicio 2025 con tu situación real: escala estatal y autonómica o foral, mínimos, reducciones y las deducciones autonómicas de tu territorio.</p>
+      <p class="entradilla">Con tu situación real: escala estatal y autonómica o foral, mínimos, reducciones y las deducciones de tu territorio. El resultado se actualiza mientras escribes.</p>
+    </div>
+    <div class="cabecera-acciones">
+      <div class="selector-ejercicio" data-selector-ejercicio="calc" hidden></div>
     </div>
     <div class="cabecera-acciones" id="barra-cliente" hidden>
       <span class="cliente-abierto">Cliente: <b id="cliente-alias"></b></span>
@@ -84,7 +99,7 @@
       <fieldset class="bloque">
         <legend><span class="paso">1</span>Residencia fiscal</legend>
         <div class="campo">
-          <label for="f-territorio">Comunidad o territorio foral donde residiste en 2025</label>
+          <label for="f-territorio">Comunidad o territorio foral donde residiste en <span data-ejercicio>2025</span></label>
           <select id="f-territorio"></select>
         </div>
         <div class="campo">
@@ -132,7 +147,7 @@
             <select id="f-discapacidad"><option value="no">Ninguna</option><option value="33_64">33 % – 64 %</option><option value="65_mas">65 % o más</option></select></div>
         </div>
         <label class="casilla"><input type="checkbox" id="f-desempleado"> Estoy en desempleo e inscrito como demandante de empleo</label>
-        <div class="campo" id="campo-meses-desempleo" hidden><label for="f-meses-desempleo">¿Cuántos meses de 2025 has estado en desempleo?</label>
+        <div class="campo" id="campo-meses-desempleo" hidden><label for="f-meses-desempleo">¿Cuántos meses de <span data-ejercicio>2025</span> has estado en desempleo?</label>
           <input type="number" id="f-meses-desempleo" min="1" max="12" step="1" value="12"></div>
 
         <div class="campo">
@@ -167,9 +182,9 @@
 
       <fieldset class="bloque">
         <legend><span class="paso">4</span>Vivienda y ahorro fiscal</legend>
-        <div class="campo"><label for="f-alquiler">Alquiler de tu vivienda habitual pagado en 2025</label><div class="con-sufijo"><input type="number" id="f-alquiler" min="0" step="50" value="0"><span>€</span></div></div>
-        <div class="campo" id="campo-compra" hidden><label for="f-compra">Pagos por la compra de tu vivienda habitual en 2025</label><div class="con-sufijo"><input type="number" id="f-compra" min="0" step="100" value="0"><span>€</span></div><p class="ayuda">Deducción foral por adquisición de vivienda (País Vasco).</p></div>
-        <div class="campo" id="campo-hipoteca"><label for="f-hipoteca">Hipoteca de tu vivienda habitual comprada antes de 2013: lo pagado en 2025</label><div class="con-sufijo"><input type="number" id="f-hipoteca" min="0" step="100" value="0"><span>€</span></div><p class="ayuda">Capital, intereses y seguros vinculados al préstamo. Solo si la compraste antes de 2013 (régimen transitorio).</p></div>
+        <div class="campo"><label for="f-alquiler">Alquiler de tu vivienda habitual pagado en <span data-ejercicio>2025</span></label><div class="con-sufijo"><input type="number" id="f-alquiler" min="0" step="50" value="0"><span>€</span></div></div>
+        <div class="campo" id="campo-compra" hidden><label for="f-compra">Pagos por la compra de tu vivienda habitual en <span data-ejercicio>2025</span></label><div class="con-sufijo"><input type="number" id="f-compra" min="0" step="100" value="0"><span>€</span></div><p class="ayuda">Deducción foral por adquisición de vivienda (País Vasco).</p></div>
+        <div class="campo" id="campo-hipoteca"><label for="f-hipoteca">Hipoteca de tu vivienda habitual comprada antes de 2013: lo pagado en <span data-ejercicio>2025</span></label><div class="con-sufijo"><input type="number" id="f-hipoteca" min="0" step="100" value="0"><span>€</span></div><p class="ayuda">Capital, intereses y seguros vinculados al préstamo. Solo si la compraste antes de 2013 (régimen transitorio).</p></div>
         <div class="campo"><label for="f-pensiones">Aportaciones a planes de pensiones o EPSV</label><div class="con-sufijo"><input type="number" id="f-pensiones" min="0" step="100" value="0"><span>€</span></div></div>
         <div class="campo" id="campo-donativos"><label for="f-donativos">Donativos a ONG y fundaciones de la Ley 49/2002</label><div class="con-sufijo"><input type="number" id="f-donativos" min="0" step="10" value="0"><span>€</span></div></div>
         <label class="casilla" id="casilla-donativos-rec"><input type="checkbox" id="f-donativos-rec"> Doné a la misma entidad en 2023 y 2024 sin bajar el importe</label>
@@ -183,10 +198,11 @@
     </form>
 
     <aside class="resultado" aria-live="polite" aria-labelledby="t-res">
-      <div class="tarjeta tarjeta-resultado">
-        <h2 class="rotulo" id="t-res">Resultado</h2>
+      <div class="tarjeta tarjeta-resultado" id="tarjeta-resultado">
+        <div class="res-cab"><h2 class="rotulo" id="t-res">Resultado</h2><span class="chip" id="res-chip"></span></div>
         <div id="res-principal"></div>
         <dl class="kpis" id="res-kpis"></dl>
+        <div class="res-graficos" id="res-graficos"></div>
         <p class="res-obligacion" id="res-obligacion"></p>
         <p class="res-pista" id="res-pista" hidden></p>
         <div class="acciones-res">
@@ -223,20 +239,23 @@
 <section class="vista" id="v-comparar" aria-labelledby="t-comp" hidden>
   <div class="cabecera-vista">
     <div>
+      <p class="antetitulo">Comparador · ejercicio <span data-ejercicio>2025</span></p>
       <h1 id="t-comp">La misma situación, en 19 territorios</h1>
       <p class="entradilla" id="comp-entradilla"></p>
     </div>
     <div class="cabecera-acciones">
+      <div class="selector-ejercicio" data-selector-ejercicio="comp" hidden></div>
       <div class="segmentado" role="radiogroup" aria-label="Qué mostrar">
         <label><input type="radio" name="metrica" value="cuota" checked><span>Cuota</span></label>
         <label><input type="radio" name="metrica" value="tipo"><span>Tipo medio</span></label>
       </div>
     </div>
   </div>
+  <dl class="comp-resumen" id="comp-resumen"></dl>
   <div class="comparar">
     <div class="tarjeta tarjeta-mapa">
       <div class="mapa-envoltorio">
-        <svg id="mapa" role="img" aria-labelledby="mapa-titulo"><title id="mapa-titulo">Mapa de España por territorio fiscal</title></svg>
+        <svg id="mapa" class="mapa-svg" role="group" aria-labelledby="mapa-titulo"><title id="mapa-titulo">Mapa de España por territorio fiscal</title></svg>
         <div class="mapa-tip" id="mapa-tip" hidden></div>
       </div>
       <div class="leyenda" id="leyenda"></div>
@@ -290,7 +309,7 @@
       <caption>Qué incluye cada plan</caption>
       <thead><tr><th scope="col">Función</th><th scope="col">Gratis</th><th scope="col">Gestor</th></tr></thead>
       <tbody>
-        <tr><th scope="row">Cálculo del IRPF 2025 y comparación entre los 19 territorios</th><td>✓</td><td>✓</td></tr>
+        <tr><th scope="row">Cálculo del IRPF <span data-ejercicios>2025</span> y comparación entre los 19 territorios</th><td>✓</td><td>✓</td></tr>
         <tr><th scope="row">Desglose con casillas de Renta Web y deducciones autonómicas</th><td>✓</td><td>✓</td></tr>
         <tr><th scope="row">Mis clientes: perfiles de cliente guardados</th><td>—</td><td>Ilimitados</td></tr>
         <tr><th scope="row">Optimización por cliente (pensiones, conjunta, deducciones)</th><td>—</td><td>✓</td></tr>
@@ -303,7 +322,7 @@
   <div class="faq">
     <h2>Preguntas frecuentes</h2>
     <details><summary>¿La calculadora seguirá siendo gratis?</summary><p>Sí. El cálculo y la comparación entre territorios son gratuitos y no requieren cuenta.</p></details>
-    <details><summary>¿De dónde salen los cálculos?</summary><p>De un motor abierto que reproduce la normativa del ejercicio 2025: la Ley del IRPF, las leyes de tributos cedidos de cada comunidad, las normas forales vascas y el texto refundido navarro, contrastados con el Manual Práctico de Renta de la AEAT. Cada parámetro indica su fuente y si está confirmado o es provisional. Ver <a href="#metodologia">Metodología</a>.</p></details>
+    <details><summary>¿De dónde salen los cálculos?</summary><p>De un motor abierto que reproduce la normativa del ejercicio <span data-ejercicio>2025</span>: la Ley del IRPF, las leyes de tributos cedidos de cada comunidad, las normas forales vascas y el texto refundido navarro, contrastados con el Manual Práctico de Renta de la AEAT. Cada parámetro indica su fuente y si está confirmado o es provisional. Ver <a href="#metodologia">Metodología</a>.</p></details>
     <details><summary>¿Puedo guardar clientes sin suscribirme?</summary><p>No. «Mis clientes» forma parte del plan Gestor: con la suscripción activa guardas todos los clientes que quieras. La calculadora y el comparador siguen siendo gratuitos y sin cuenta.</p></details>
     <details><summary>¿Qué pasa con mis clientes si cancelo?</summary><p>Mantienes el acceso hasta el final del periodo pagado. Después, tus clientes quedan guardados pero ocultos, y vuelven a aparecer si reactivas el plan. Si prefieres que los borremos, puedes eliminarlos tú mismo desde «Mis clientes».</p></details>
     <details><summary>¿Qué datos de mis clientes guardáis?</summary><p>Solo lo necesario para el cálculo: un alias que eliges tú y las cifras de la declaración. No pedimos NIF ni nombre completo. Cada gestor solo puede ver sus propios clientes; los datos se alojan en la Unión Europea.</p></details>
@@ -357,7 +376,7 @@
 <footer class="pie">
   <div class="contenedor pie-in">
     <p><b>Mapafiscal</b> ofrece estimaciones con fines informativos. No es una liquidación oficial ni asesoramiento fiscal.</p>
-    <p class="pie-sec"><a href="#metodologia">Cómo calculamos</a> · Normativa del ejercicio 2025 · Motor validado R ↔ JavaScript · Cartografía: <span title="es-atlas (MIT) sobre datos del Instituto Geográfico Nacional, CC BY 4.0">© Instituto Geográfico Nacional (CC BY 4.0)</span></p>
+    <p class="pie-sec"><a href="#metodologia">Cómo calculamos</a> · Normativa del ejercicio <span data-ejercicio>2025</span> · Motor validado R ↔ JavaScript · Cartografía: <span title="es-atlas (MIT) sobre datos del Instituto Geográfico Nacional, CC BY 4.0">© Instituto Geográfico Nacional (CC BY 4.0)</span></p>
     <p class="pie-sec"><a href="legal/aviso-legal.html">Aviso legal</a> · <a href="legal/privacidad.html">Privacidad</a> · <a href="legal/condiciones.html">Condiciones</a> · <a href="legal/cookies.html">Cookies</a> · <a href="legal/aviso-legal.html#contacto">Contacto</a></p>
   </div>
 </footer>
