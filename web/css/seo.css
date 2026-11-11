@@ -1,0 +1,25 @@
+/* =============================================================================
+   Mapafiscal — páginas SEO (por territorio y por sueldo)
+   Reutiliza los tokens y las clases de mapafiscal.css; esto solo añade lo que
+   esas páginas necesitan y el resto de la aplicación no.
+   ========================================================================== */
+
+body.pagina-seo { background: var(--fondo); color: var(--tinta); font: 15px/1.55 var(--sans); margin: 0; }
+
+.pagina-seo-main { padding: 28px 0 56px; }
+.pagina-seo-main h1 { font-size: clamp(22px, 3vw, 30px); margin: 4px 0 8px; letter-spacing: -.01em; }
+
+.migas { font-size: 13px; color: var(--tinta-3); margin: 0 0 14px; }
+.migas a { color: var(--tinta-3); text-decoration: underline; text-underline-offset: 2px; }
+.migas a:hover { color: var(--marca); }
+
+.pagina-seo .prosa { max-width: none; margin-top: 20px; display: flex; flex-direction: column; gap: 0; }
+.pagina-seo .prosa .tarjeta { margin-top: 16px; }
+.pagina-seo .prosa .tarjeta:first-child { margin-top: 0; }
+.pagina-seo .prosa p { max-width: 68ch; }
+.pagina-seo .prosa .tarjeta p { max-width: none; }
+
+.lista-enlaces { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 4px 24px; }
+.lista-enlaces li { border-bottom: 1px solid var(--linea); padding: 10px 0; }
+.lista-enlaces a { color: var(--tinta); text-decoration: none; font-weight: 500; }
+.lista-enlaces a:hover { color: var(--marca); text-decoration: underline; }
