@@ -1,15 +1,22 @@
 # =============================================================================
 # PARÁMETROS IRPF — TERRITORIOS HISTÓRICOS DEL PAÍS VASCO — EJERCICIO 2026
 # =============================================================================
-# Aprobado por: NF 2/2025 (Bizkaia), NF 3/2025 (Álava), NF 1/2025 (Gipuzkoa)
-#   + NF de Presupuestos 2026 (deflactación 2 % de la tarifa general).
-# Fuente: Iberley art. 75 NF 13/2013 (versión 2026); Cuatrecasas "País Vasco -
-#   Novedades tributarias para personas físicas 2025 y 2026" (mayo 2025).
+# Hereda de params/2025/foral_pais_vasco.yaml; aquí va lo que cambia en 2026.
 #
-# NOTA: para 2026 solo se sobreescriben las escalas (general y ahorro). El resto
-#   de parámetros hereda de params/2025/foral_pais_vasco.yaml salvo los que se
-#   vayan confirmando. Deducciones familiares 2026: +2 % sobre 2025 (pendiente
-#   de encaje exacto).
+# Normas de 2026 (cotejadas en el boletín el 28-09-2026):
+#   Gipuzkoa — NF 6/2025, de 19 de diciembre, de Presupuestos para 2026, DF 1.ª
+#              (BOG n.º 250, 31-12-2025): deflactación del 2 % de la tarifa general y
+#              +2 % en conjunta, minoración y deducciones familiares y personales.
+#              NF 1/2025, de 9 de mayo, art. 13.3 (efectos 1-1-2026): escala del ahorro.
+#   Bizkaia  — NF 7/2025, de 29 de diciembre, de Presupuestos para 2026, arts. 48 a 54
+#              (BOB 30-12-2025): mismas cifras que Gipuzkoa salvo gran dependencia.
+#   Araba    — NF 21/2025, de 19 de diciembre, de medidas tributarias para 2026, art. 2,
+#              apartado cuarto (BOTHA n.º 147, 29-12-2025): conjunta, tarifa, minoración y
+#              edad. No actualiza las deducciones por descendientes, ascendientes ni
+#              discapacidad (ver overrides).
+#
+# Sin cambios en 2026 (no los toca ninguna de las normas anteriores): bonificación del
+# trabajo (art. 23), previsión social, viudedad, vivienda y exención de dividendos.
 # =============================================================================
 
 meta:
@@ -22,8 +29,8 @@ meta:
 comun:
 
   escala_general_foral:
-    norma: "Art. 75 NF 13/2013 (redacción NF 7/2025 Presupuestos Bizkaia 2026) y equivalentes"
-    fuente: "Iberley art. 75 IRPF Bizkaia (versión 2026)"
+    norma: "Art. 75.1 NF 3/2014 Gipuzkoa (NF 6/2025, DF 1.ª.Dos), art. 75 NF 13/2013 Bizkaia (NF 7/2025, art. 49) y art. 75.1 NF 33/2013 Araba (NF 21/2025, art. 2.4.º.Cuatro)"
+    fuente: "BOG n.º 250 (31-12-2025); BOB 30-12-2025; BOTHA n.º 147 (29-12-2025)"
     estado: confirmado
     tramos:
       - { hasta: 18080,  tipo: 0.23 }
@@ -36,12 +43,14 @@ comun:
       - { hasta: .inf,   tipo: 0.49 }
 
   escala_ahorro_foral:
-    norma: "NF 2/2025 Bizkaia / NF 3/2025 Álava / NF 1/2025 Gipuzkoa (efectos 1-1-2026)"
-    fuente: "Cuatrecasas (mayo 2025) — nueva escala del ahorro 19 %–28 %"
-    estado: provisional   # transcripción de umbrales a cotejar con el texto foral consolidado
+    norma: "Art. 76.1 NF 3/2014 Gipuzkoa en la redacción del art. 13.3 de la NF 1/2025 (efectos 1-1-2026); escala armonizada: NF 2/2025 Bizkaia y NF 3/2025 Araba"
+    fuente: "NF 1/2025 de Gipuzkoa (BOG), tabla del art. 76.1 con cuotas acumuladas: 1.425 / 2.925 / 6.225 / 11.025 / 21.225 / 29.025 / 60.825 / 77.025"
+    estado: confirmado
+    # Corrige la transcripción provisional anterior: el segundo tramo acaba en 15.000 €,
+    # no en 15.500 €.
     tramos:
       - { hasta: 7500,   tipo: 0.19 }
-      - { hasta: 15500,  tipo: 0.20 }
+      - { hasta: 15000,  tipo: 0.20 }
       - { hasta: 30000,  tipo: 0.22 }
       - { hasta: 50000,  tipo: 0.24 }
       - { hasta: 90000,  tipo: 0.255 }
@@ -49,3 +58,92 @@ comun:
       - { hasta: 240000, tipo: 0.265 }
       - { hasta: 300000, tipo: 0.27 }
       - { hasta: .inf,   tipo: 0.28 }
+
+  reduccion_tributacion_conjunta:
+    norma: "Art. 73 NF 3/2014 Gipuzkoa, NF 13/2013 Bizkaia y NF 33/2013 Araba (redacción de 2026)"
+    fuente: "NF 6/2025 Gipuzkoa, DF 1.ª.Uno; NF 7/2025 Bizkaia, art. 48; NF 21/2025 Araba, art. 2.4.º.Tres"
+    estado: confirmado
+    importe: 4896
+
+  minoracion_cuota:
+    norma: "Art. 77 NF 3/2014 Gipuzkoa, NF 13/2013 Bizkaia y NF 33/2013 Araba (redacción de 2026)"
+    fuente: "NF 6/2025 Gipuzkoa, DF 1.ª.Tres; NF 7/2025 Bizkaia, art. 50; NF 21/2025 Araba, art. 2.4.º.Cinco"
+    estado: confirmado
+    importe_gipuzkoa: 1615
+    importe_bizkaia: 1615
+    importe_araba: 1615
+
+  deduccion_descendientes:
+    norma: "Art. 79 NF 3/2014 Gipuzkoa y NF 13/2013 Bizkaia (redacción de 2026)"
+    fuente: "NF 6/2025 Gipuzkoa, DF 1.ª.Cuatro; NF 7/2025 Bizkaia, art. 51"
+    estado: confirmado
+    importes: { "1": 682, "2": 844, "3": 1421, "4": 1680, "5+": 2195 }
+    incremento_menor_6_anios: 394   # igual en Gipuzkoa y Bizkaia en 2026
+
+  deduccion_anualidades_alimentos_hijos:
+    norma: "Art. 80 NF 3/2014 Gipuzkoa (redacción NF 1/2025): 15 %, con el límite por hijo del 30 % de la deducción del art. 79.1 que le corresponda"
+    fuente: "NF 1/2025 de Gipuzkoa, art. 80; importes del art. 79.1 de 2026 (NF 6/2025)"
+    estado: confirmado
+    porcentaje: 0.15
+    limites: { "1": 204.60, "2": 253.20, "3": 426.30, "4": 504.00, "5+": 658.50 }   # 30 % de 682 / 844 / 1.421 / 1.680 / 2.195
+
+  deduccion_ascendientes:
+    norma: "Art. 81.1 NF 3/2014 Gipuzkoa y NF 13/2013 Bizkaia (redacción de 2026)"
+    fuente: "NF 6/2025 Gipuzkoa, DF 1.ª.Cinco; NF 7/2025 Bizkaia, art. 52"
+    estado: confirmado
+    importe: 328
+
+  deduccion_discapacidad:
+    norma: "Art. 82.1 NF 3/2014 Gipuzkoa (redacción de 2026); Bizkaia, ver override"
+    fuente: "NF 6/2025 Gipuzkoa, DF 1.ª.Seis"
+    estado: confirmado
+    grado_33_64: 906
+    grado_65_mas_o_dependencia_moderada: 1294
+    grado_75_15_39_puntos_o_dependencia_severa: 1552
+    grado_75_40_puntos_o_gran_dependencia: 2040   # Gipuzkoa no lo actualiza en 2026
+
+  deduccion_edad:
+    norma: "Art. 83 NF 3/2014 Gipuzkoa, NF 13/2013 Bizkaia y NF 33/2013 Araba (redacción de 2026); en conjunta, art. 100.d) NF 3/2014 y equivalentes"
+    fuente: "NF 6/2025 Gipuzkoa, DF 1.ª.Siete; NF 7/2025 Bizkaia, art. 54; NF 21/2025 Araba, art. 2.4.º.Siete"
+    estado: confirmado
+    # En conjunta se aplica la misma deducción del art. 83 por cada contribuyente con la
+    # edad, si la base imponible conjunta no pasa de 35.000 € (sin tramo decreciente).
+    individual:
+      edad_65: { importe: 393, base_plena: 20000, base_cero: 30000, coef_reduccion: 0.0393 }
+      edad_75: { importe: 714, base_plena: 20000, base_cero: 30000, coef_reduccion: 0.0714 }
+    conjunta:
+      edad_65: { importe: 393, base_plena: 35000, base_cero: 35000 }
+      edad_75: { importe: 714, base_plena: 35000, base_cero: 35000 }
+
+# -----------------------------------------------------------------------------
+# OVERRIDES POR TERRITORIO (se fusionan con los de 2025)
+# -----------------------------------------------------------------------------
+overrides:
+  ES-PV-BI:
+    fuente: "NF 7/2025, de Presupuestos de Bizkaia para 2026 (BOB 30-12-2025), arts. 48 a 54"
+    deduccion_discapacidad:
+      norma: "Art. 82.1 NF 13/2013 Bizkaia (redacción del art. 53 de la NF 7/2025)"
+      grado_75_40_puntos_o_gran_dependencia: 1935   # Gipuzkoa: 2.040
+
+  ES-PV-VI:
+    # La NF 21/2025 no modifica los arts. 79 (descendientes), 81 (ascendientes) ni 82
+    # (discapacidad) de la NF 33/2013: siguen los importes de 2025, que para Araba ya
+    # estaban sin cotejar con su norma (se tomaron los de Gipuzkoa). Falta cotejarlos con
+    # la NF 33/2013 consolidada.
+    deduccion_descendientes:
+      estado: provisional
+      importes: { "1": 668, "2": 827, "3": 1393, "4": 1647, "5+": 2151 }
+      incremento_menor_6_anios: 386
+    deduccion_anualidades_alimentos_hijos:
+      estado: provisional
+      limites: { "1": 200.40, "2": 248.10, "3": 417.90, "4": 494.10, "5+": 645.30 }
+    deduccion_ascendientes:
+      estado: provisional
+      importe: 321
+    deduccion_discapacidad:
+      estado: provisional
+      grado_33_64: 888
+      grado_65_mas_o_dependencia_moderada: 1268
+      grado_75_15_39_puntos_o_dependencia_severa: 1521
+      grado_75_40_puntos_o_gran_dependencia: 2040
+    minoracion_cuota: { estado: confirmado }

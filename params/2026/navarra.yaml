@@ -1,9 +1,18 @@
 # =============================================================================
 # PARÁMETROS IRPF — COMUNIDAD FORAL DE NAVARRA — EJERCICIO 2026
 # =============================================================================
-# EN PREPARACIÓN. Hereda todo de params/2025/navarra.yaml; aquí solo van los cambios
-# de 2026 (entre ellos, los mínimos del art. 62.9 en la redacción de la LF 17/2025),
-# con su norma y su fuente.
+# Hereda de params/2025/navarra.yaml; aquí va lo que cambia en 2026.
+#
+# Norma: Ley Foral 17/2025, de 22 de diciembre, de modificación de diversos impuestos y
+#   otras medidas tributarias (BON 31-12-2025; BOE-A-2026-3910), art. primero. Cotejada
+#   en el BOE el 28-09-2026.
+#
+# Sin cambios en 2026 (la LF 17/2025 no toca los arts. 59, 60 ni 62.9.b) y c)): escala
+# general, escala del ahorro y mínimo familiar. El art. 62.2 (alquiler) se reescribe con
+# los mismos requisitos que ya recogía el motor (rentas <= 30.000 € y alquiler > 10 % de
+# las rentas). El nuevo art. 64.5 define las «rentas» de los arts. 62.2, 62.9.a), 68... sin
+# exenciones ni reducciones por irregularidad: el motor sigue usando la base imponible.
+# No modelado: el umbral de 17.000 € de la obligación de declarar (va por reglamento).
 # =============================================================================
 
 meta:
@@ -12,3 +21,40 @@ meta:
   territorio: ES-NC
   hereda_de: "2025/navarra.yaml"
   estado_ejercicio: en_preparacion
+
+minimo_personal_deduccion:
+  norma: "Art. 62.9.a) DFL 4/2008 (TR IRPF Navarra): a´) y b´) en la redacción de la LF 22/2023; c´), d´) y e´) en la del art. primero.Catorce de la LF 17/2025 (efectos 1-1-2026)"
+  fuente: "BOE-A-2026-3910 (LF 17/2025, art. primero.Catorce); BOE-A-2024-1694 (LF 22/2023) para el resto del art. 62.9.a)"
+  estado: confirmado
+  # El incremento por rentas deja de ser fijo (150 € hasta 30.000 €) y pasa a tres tramos:
+  # 1.280 € hasta 17.500 €; 1.280 − 0,0904 × (rentas − 17.500) hasta 30.000 € (150 € en
+  # 30.000); 150 − 0,075 × (rentas − 30.000) hasta 32.000 €; nada por encima.
+  incremento_rentas_bajas: ~
+  umbral_rentas_bajas: ~
+  incremento_rentas:
+    - { hasta: 17500, base: 1280, coef: 0,      desde: 0 }
+    - { hasta: 30000, base: 1280, coef: 0.0904, desde: 17500 }
+    - { hasta: 32000, base: 150,  coef: 0.075,  desde: 30000 }
+
+deduccion_trabajo_cuota:
+  norma: "Art. 62.5.1.º DFL 4/2008 (TR IRPF Navarra), letras a) y b) en la redacción del art. primero.Trece de la LF 17/2025 (efectos 1-1-2026)"
+  fuente: "BOE-A-2026-3910 (LF 17/2025, art. primero.Trece); letras c) a e) sin cambios"
+  estado: confirmado
+  # 1.400 € hasta 12.500 € de rendimientos netos del trabajo (antes, 10.500 €) y
+  # 1.400 − 0,14 × (RNT − 12.500) hasta 17.500 € (antes, coeficiente 0,1): en 17.500 € sigue
+  # dando 700 €. Los RNT se calculan con todos los íntegros, sin exenciones ni reducciones
+  # por irregularidad, menos los gastos deducibles.
+  tramos:
+    - { hasta: 12500, base: 1400, coef: 0,     desde: 0 }
+    - { hasta: 17500, base: 1400, coef: 0.14,  desde: 12500 }
+    - { hasta: 35000, base: 700,  coef: 0,     desde: 17500 }
+    - { hasta: 50000, base: 700,  coef: 0.02,  desde: 35000 }
+    - { hasta: .inf,  base: 400,  coef: 0,     desde: 50000 }
+
+deduccion_pension_jubilacion:
+  norma: "Art. 68.B y C DFL 4/2008 (TR IRPF Navarra), en la redacción del art. primero.Dieciséis de la LF 17/2025 (efectos 1-1-2026)"
+  fuente: "BOE-A-2026-3910 (LF 17/2025, art. primero.Dieciséis)"
+  estado: provisional   # mismas simplificaciones que en 2025 (complementos a mínimos, Patrimonio, rentas por la base imponible)
+  umbral: 15400                       # antes, 14.490 €
+  rentas_max_individual: 21619.59     # sin cambios
+  rentas_max_unidad_familiar: 30800   # antes, 28.980 €
