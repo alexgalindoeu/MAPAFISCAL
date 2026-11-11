@@ -1,6 +1,6 @@
 {
  "ejercicio": 2025,
- "generado": "2026-09-28",
+ "generado": "2026-11-11",
  "ejercicios": {
   "por_defecto": 2025,
   "publicados": [
@@ -276,6 +276,41 @@
    "ascendiente_o_descendiente_discapacidad": 1200,
    "conyuge_discapacidad": 1200,
    "rentas_conyuge_maximas": 8000
+  },
+  "cotizaciones_trabajador": {
+   "norma": "Orden PJC/178/2025, de 25 de febrero, de cotización para 2025: arts. 2 y 3 (bases), 4.a) (contingencias comunes), 16 (MEI), 17.1 (cotización adicional de solidaridad) y 33.2 (desempleo y formación profesional); arts. 19, 19 bis, 127 bis y 147 LGSS (RDLeg 8/2015)",
+   "fuente": "BOE-A-2025-3780 (https://www.boe.es/eli/es/o/2025/02/25/pjc178)",
+   "estado": "confirmado",
+   "base_maxima_mensual": 4909.5,
+   "base_minima_mensual": 1381.2,
+   "bases_minimas_grupo_1_3": [
+    1929,
+    1599.6,
+    1391.7
+   ],
+   "tipos": {
+    "contingencias_comunes": 0.047,
+    "desempleo_indefinido": 0.0155,
+    "desempleo_temporal": 0.016,
+    "formacion_profesional": 0.001,
+    "mei": 0.0013
+   },
+   "solidaridad": {
+    "tramos": [
+     {
+      "hasta": 5400.45,
+      "tipo": 0.0015
+     },
+     {
+      "hasta": 7364.25,
+      "tipo": 0.0017
+     },
+     {
+      "hasta": null,
+      "tipo": 0.0019
+     }
+    ]
+   }
   }
  },
  "foral_pv": {

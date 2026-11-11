@@ -174,7 +174,7 @@
   $("form").addEventListener("input", e => {
     const t = e.target;
     if ((t.id === "f-salario" || t.id === "f-pension") && !ssManual)
-      $("f-ss").value = $("f-pension").checked ? 0 : Math.round(num("f-salario") * 0.0635);
+      $("f-ss").value = $("f-pension").checked ? 0 : Math.round(irpfsim.cotizacionesTrabajador(num("f-salario"), P));
     if (t.id === "f-ss") { ssManual = true; $("ayuda-ss").textContent = "Importe introducido por ti."; }
     if (t.dataset.hijoEdad != null) {
       hijos[+t.dataset.hijoEdad].edad = Math.max(0, Math.min(30, parseInt(t.value, 10) || 0));
@@ -221,7 +221,7 @@
     if (pareja) {
       const ps = num("f-pareja-salario");
       miembros.push({ id: "d2", rol: "conyuge", edad: num("f-pareja-edad") || 40,
-        trabajo: ps > 0 ? { dinerarias: ps, cotizacionesSs: Math.round(ps * 0.0635) } : null, retenciones: 0 });
+        trabajo: ps > 0 ? { dinerarias: ps, cotizacionesSs: irpfsim.cotizacionesTrabajador(ps, P) } : null, retenciones: 0 });
     }
     hijos.forEach((h, i) => {
       const m = { id: "h" + (i + 1), rol: "descendiente", edad: h.edad, rentasPropias: 0, nacidoEnEjercicio: h.edad === 0 };
@@ -1148,15 +1148,15 @@
     clientes: { titulo: "Mis clientes", texto: "Para asesores y gestorías: guarda tu cartera de clientes, siempre recalculada.", href: "#clientes", plan: true }
   };
   function pintarInicio() {
-    $("herramientas").innerHTML = Object.values(HERRAMIENTAS).map(h => `
+    $("herramientas").innerHTML = Object.values(Object.assign({}, HERRAMIENTAS, window.MAPAFISCAL_HERRAMIENTAS)).map(h => `
       <a class="herramienta" href="${h.href}"><h3>${esc(h.titulo)}${h.plan ? ' <span class="plan-chip">Gestor</span>' : ""}</h3><p>${esc(h.texto)}</p></a>`).join("");
-    const dest = HERRAMIENTAS[(CFG.destacados && CFG.destacados[new Date().getMonth()]) || "comparar"] || HERRAMIENTAS.comparar;
+    const dest = Object.assign({}, HERRAMIENTAS, window.MAPAFISCAL_HERRAMIENTAS)[(CFG.destacados && CFG.destacados[new Date().getMonth()]) || "comparar"] || HERRAMIENTAS.comparar;
     $("portada-destacado").innerHTML = `<span class="destacado-etq">Te puede interesar</span>
       <h2>${esc(dest.titulo)}</h2><p>${esc(dest.texto)}</p><a class="btn btn-pri" href="${dest.href}">Probarlo</a>`;
   }
 
   // ---- navegación -------------------------------------------------------------------------
-  const VISTAS = ["inicio", "calculadora", "comparar", "clientes", "planes", "perfil", "metodologia"];
+  const VISTAS = ["inicio", "calculadora", "comparar", "clientes", "planes", "perfil", "metodologia", "sueldo-neto", "plan-pensiones"];
   let vistaSel = null;           // vista elegida en esta sesión (no depende de poder tocar el hash)
   function vistaDeHash() {
     const h = location.hash.slice(1).split("?")[0];
@@ -1189,12 +1189,17 @@
     if (v === "planes") pintarPlanes();
     if (v === "perfil") pintarPerfil();
     if (v === "metodologia") pintarCobertura();
+    document.dispatchEvent(new CustomEvent("mapafiscal:vista", { detail: { vista: v } }));   // herramientas.js
     window.scrollTo(0, 0);
   }
   window.addEventListener("hashchange", () => { const v = vistaDeHash(); if (v) { vistaSel = v; mostrarVista(); } });
   $("bm-ver").addEventListener("click", e => { e.preventDefault(); $("t-res").scrollIntoView({ behavior: "smooth", block: "start" }); });
 
   // ---- arranque --------------------------------------------------------------------------
+  // cotizaciones estimadas con la orden de cotización del ejercicio (no con un tipo fijo)
+  $("f-ss").value = Math.round(irpfsim.cotizacionesTrabajador(num("f-salario"), P));
+  $("ayuda-ss").textContent = `Estimadas con los tipos del trabajador de ${P.ejercicio} (contrato indefinido). Cámbialas si las conoces: vienen en tu certificado de retenciones.`;
+  document.addEventListener("mapafiscal:herramientas", () => { if (vistaActual() === "inicio") pintarInicio(); });
   pintarHijos(); pintarGastosTerritorio(); recalcular(); marcarPestanaClientes(); mostrarVista();
   if (avisoPago) esperarPlan(15); else cargarSesion();
 })();

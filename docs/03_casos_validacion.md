@@ -1371,3 +1371,82 @@ Base liquidable general: 37.460 − 3.000 (bonificación del trabajo) = 34.460. 
 
 Pensionista de 70 años con 14.000 € de jubilación: cuota líquida 0 y deducción del art. 68.B de
 15.400 − 14.000 = 1.400 € (cuota diferencial −1.400; en 2025, 249,88 − 490 = −240,12).
+
+## Cotizaciones del trabajador y sueldo neto (2026-11-11)
+
+Parámetros: bloque `cotizaciones_trabajador` de `params/<año>/estatal.yaml`. Fuentes: Orden
+PJC/178/2025 (BOE-A-2025-3780) y Orden PJC/297/2026 (BOE-A-2026-7296), arts. 2-3 (bases),
+4.a) (contingencias comunes), 16 (MEI), 17.1 (solidaridad) y 33.2 (desempleo y FP). Código:
+`cotizaciones_trabajador()` y `sueldo_neto()` en `R/15_sueldo_neto.R`, `cotizacionesTrabajador`
+y `sueldoNeto` en `irpfsim.js`. Tests: `tests/testthat/test-cotizaciones-trabajador.R`,
+`test/herramientas.test.mjs`; validador: casos `neto*`.
+
+Regla: base mensual = bruto / 12 (pagas extra prorrateadas), hasta la base máxima; cotización
+anual = 12 × base × tipo del trabajador. Por debajo de la base mínima de jornada completa se
+entiende jornada parcial (la base mínima se reduce en proporción) y se cotiza por la
+retribución. La retribución mensual por encima de la base máxima paga la cotización adicional
+de solidaridad (art. 19 bis LGSS) por tramos.
+
+| Tipo del trabajador | 2025 | 2026 |
+|---|---|---|
+| Contingencias comunes | 4,70 % | 4,70 % |
+| Desempleo indefinido / temporal | 1,55 % / 1,60 % | 1,55 % / 1,60 % |
+| Formación profesional | 0,10 % | 0,10 % |
+| MEI | 0,13 % | 0,15 % |
+| **Total indefinido / temporal** | **6,48 % / 6,53 %** | **6,50 % / 6,55 %** |
+| Base máxima mensual | 4.909,50 € | 5.101,20 € |
+| Base mínima (grupos 4-7) | 1.381,20 € | 1.424,40 € |
+| Solidaridad (tramo 1 / 2 / 3) | 0,15 / 0,17 / 0,19 % | 0,19 / 0,21 / 0,24 % |
+
+### Comprobación numérica de las cotizaciones
+
+- 2026, 30.000 €, indefinido: 12 × 2.500 × 6,50 % = **1.950,00 €** (2025: × 6,48 % = 1.944,00 €;
+  temporal 2026: × 6,55 % = 1.965,00 €).
+- 2026, 12.000 € (jornada parcial): 12.000 × 6,50 % = **780,00 €**.
+- 2026, 80.000 €, temporal: retribución mensual 6.666,67 €; base 5.101,20 €.
+  Ordinaria: 12 × 5.101,20 × 6,55 % = 4.009,54 €. Solidaridad: (5.611,32 − 5.101,20) × 0,19 %
+  + (6.666,67 − 5.611,32) × 0,21 % = 0,9692 + 2,2162 = 3,1855 €/mes → 38,23 €/año.
+  Total **4.047,77 €**.
+- 2025, 100.000 €, indefinido: mensual 8.333,33 €. Ordinaria: 12 × 4.909,50 × 6,48 % =
+  3.817,63 €. Solidaridad: 490,95 × 0,15 % + 1.963,80 × 0,17 % + 969,08 × 0,19 % = 0,7364 +
+  3,3385 + 1,8413 = 5,9161 €/mes → 70,99 €. Total **3.888,62 €**.
+
+### Sueldo neto anual (tras la declaración, no la retención de la nómina)
+
+neto = bruto − cotizaciones − IRPF del año, con IRPF = cuota resultante de la autoliquidación −
+deducciones de la cuota diferencial (maternidad, familia numerosa…), es decir, la cuota
+diferencial con retenciones nulas. Un declarante; con hijos, unidad monoparental (el motor
+elige individual o conjunta).
+
+Madrid, 2026, 30.000 €, 35 años, sin hijos:
+- rendimiento neto = 30.000 − 1.950 − 2.000 = 26.050 (sin reducción del art. 20: 28.050 > 19.747,50);
+- estatal: escala(26.050) − escala(5.550) = 2.990,25 − 527,25 = 2.463,00;
+- Madrid: 13.362,22 × 8,5 % + 5.642,41 × 10,7 % + 7.045,37 × 12,8 % − 5.956,65 × 8,5 % = 2.135,02;
+- IRPF 4.598,02; **neto 23.451,98 €** (1.954,33 €/mes en 12 pagas; 1.675,14 € en 14).
+- Castilla-La Mancha (escala autonómica = estatal): IRPF 2 × 2.463,00 = 4.926,00; neto 23.124,00 €.
+
+### ¿Cuánto neto gano con mi subida? (Madrid, 2026, de 30.000 a 33.000 €)
+
+- cotizaciones: +3.000 × 6,50 % = +195,00 €;
+- base liquidable: 26.050 → 28.855 (+2.805), todo en el tramo del 15 % estatal y del 12,8 % de
+  Madrid: IRPF +2.805 × 27,8 % = +779,79 €;
+- neto ganado: 3.000 − 195 − 779,79 = **2.025,21 €**; tipo marginal efectivo de la subida =
+  (195 + 779,79) / 3.000 = **32,49 %** (de cada 100 € te quedan 68 €).
+
+### Plan de pensiones antes del 31-12 (Madrid, 2026, 40.000 €, 45 años)
+
+- cotizaciones 2.600; rendimiento neto 40.000 − 2.600 − 2.000 = 35.400; límite = mín(30 % ×
+  35.400 = 10.620; 1.500) = **1.500 €**;
+- aportando 1.500: la base liquidable baja de 35.400 a 33.900. Estatal: 1.300 × 15 % + 200 ×
+  18,5 % = 232; Madrid: 1.500 × 12,8 % = 192. **Ahorro 424 €** (28 céntimos por euro). Aportar
+  más no ahorra más: la aportación óptima es el límite, 1.500 €.
+- 12.000 € de sueldo y 3.000 € de la empresa: rendimiento 15.000 − 780 − 2.000 = 12.220; límite
+  conjunto mín(3.666; 1.500 + 3.000) = 3.666, menos 3.000 de la empresa: **666 €** propios.
+- País Vasco: aportaciones propias hasta 5.000 € (`limite_individual_no_empleo`). Navarra (art.
+  55 de su TR del IRPF) no está en el motor: la herramienta no la incluye.
+
+### Donativos (deducción estatal, Ley 49/2002, régimen común; Madrid, 2026, 40.000 €)
+
+- 400 €: 250 × 80 % + 150 × 40 % = **260 €** de ahorro (te cuestan 140 €); si son recurrentes
+  (misma entidad, 3 años), 250 × 80 % + 150 × 45 % = 267,50 €. La base no puede pasar del 10 %
+  de la base liquidable (35.400 → 3.540 €).

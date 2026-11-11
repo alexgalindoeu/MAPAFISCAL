@@ -516,3 +516,19 @@ details.mas:not([open]) summary { margin-bottom: 0; }
   .barra-movil .bm-cifra.gana { color: var(--gana); }
   body.en-calculadora { padding-bottom: 72px; }
 }
+
+/* =============================================================================
+   Herramientas: sueldo neto, subida y ahorro fiscal (web/js/herramientas.js)
+   Bloque propio de esa vista; reutiliza .calc, .tarjeta, .kpis, .desglose y .ranking.
+   ========================================================================== */
+.hr-edades { display: grid; grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); gap: 8px; margin-top: 4px; }
+.hr-edades label { display: grid; gap: 4px; font-size: 13px; color: var(--tinta-2); }
+.hr-edades input { width: 100%; }
+.hr-ranking td:nth-child(2) { white-space: normal; }
+.hr-barra { display: block; height: 4px; margin-top: 4px; border-radius: 2px; background: var(--linea); overflow: hidden; max-width: 160px; }
+.hr-barra i { display: block; height: 100%; background: var(--marca); border-radius: 2px; }
+.ranking tr.tu .hr-barra i { background: var(--marca-tinta); }
+#neto-desglose thead th { font-size: 12px; font-weight: 600; color: var(--tinta-3); padding: 0 0 8px; text-align: right; }
+#neto-desglose thead th:first-child { text-align: left; }
+.desglose tr.hr-resta td { color: var(--tinta-2); }
+.desglose tr.hr-resta td:first-child { padding-left: 14px; }

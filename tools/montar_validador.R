@@ -21,6 +21,17 @@ const CASOS = %s;
 const tol = 0.02;
 let lines = [], nbad = 0;
 for (const [id, c] of Object.entries(CASOS)) {
+  if (c.neto) {
+    let s;
+    try { s = irpfsim.sueldoNeto(c.js, PS[c.js.ejercicio]); }
+    catch (e) { lines.push("ERROR " + id + ": " + e.message); nbad++; continue; }
+    const bad = [["cot", s.cotizaciones, c.ref.cot], ["irpf", s.irpf, c.ref.irpf], ["neto", s.neto, c.ref.neto],
+      ["cr", s.liquidacion.cuotaResultanteAutoliquidacion, c.ref.cr], ["modo", s.liquidacion.modoTributacionElegido, c.ref.modo]]
+      .filter(([k, a, b]) => (typeof b === "number") ? Math.abs(a - b) > tol : a !== b);
+    if (bad.length) { nbad++; lines.push("FAIL " + id + " :: " + bad.map(([k, a, b]) => k + " js=" + a + " r=" + b).join(" | ")); }
+    else lines.push("ok   " + id + "  neto=" + s.neto.toFixed(2));
+    continue;
+  }
   let liq;
   try { liq = irpfsim.liquidar(c.js, PS[c.js.ejercicio], "auto"); }
   catch (e) { lines.push("ERROR " + id + ": " + e.message); nbad++; continue; }

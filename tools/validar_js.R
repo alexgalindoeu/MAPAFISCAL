@@ -643,6 +643,18 @@ add("ej2026_nc_pension", "ES-NC", "ninguna", "no",
     list(list(id="d1",rol="declarante",edad=70, trabajo=list(dinerarias=14000,cotizacionesSs=0, pensionJubilacion=TRUE))),
     ejercicio = 2026)
 
+# 19. Cotizaciones del trabajador y sueldo neto (R/15_sueldo_neto.R ↔ irpfsim.sueldoNeto)
+casos_neto <- list(
+  list(id = "neto26_md_30000", bruto = 30000, territorio = "ES-MD", ejercicio = 2026),
+  list(id = "neto26_cm_temporal_hijo", bruto = 24000, territorio = "ES-CM", ejercicio = 2026, hijos = c(2), tipo_contrato = "temporal"),
+  list(id = "neto26_ct_80000_solidaridad", bruto = 80000, territorio = "ES-CT", ejercicio = 2026, edad = 50, hijos = c(8, 12)),
+  list(id = "neto25_an_100000", bruto = 100000, territorio = "ES-AN", ejercicio = 2025),
+  list(id = "neto26_smi_ex", bruto = 17094, territorio = "ES-EX", ejercicio = 2026, edad = 23),
+  list(id = "neto26_pv_bi_plan", bruto = 45000, territorio = "ES-PV-BI", ejercicio = 2026, aportacion_plan = 3000),
+  list(id = "neto26_nc_hijo", bruto = 38000, territorio = "ES-NC", ejercicio = 2026, hijos = c(0)),
+  list(id = "neto26_vc_plan_donativos", bruto = 52000, territorio = "ES-VC", ejercicio = 2026, aportacion_plan = 1500, donativos = 400)
+)
+
 out <- lapply(casos, function(c) list(
   js = c$js,
   ref = list(
@@ -656,6 +668,19 @@ out <- lapply(casos, function(c) list(
     obl = c$liq$obligacion_declarar$obligado
   )
 ))
+for (cn in casos_neto) {
+  s <- sueldo_neto(cn$bruto, cn$territorio, cn$ejercicio, edad = cn$edad %||% 40, hijos = cn$hijos %||% integer(),
+                   tipo_contrato = cn$tipo_contrato %||% "indefinido", aportacion_plan = cn$aportacion_plan %||% 0,
+                   donativos = cn$donativos %||% 0)
+  out[[cn$id]] <- list(
+    neto = TRUE,
+    js = list(bruto = cn$bruto, territorio = cn$territorio, ejercicio = cn$ejercicio, edad = cn$edad %||% 40,
+              hijos = I(cn$hijos %||% integer()), tipoContrato = cn$tipo_contrato %||% "indefinido",
+              aportacionPlan = cn$aportacion_plan %||% 0, donativos = cn$donativos %||% 0),
+    ref = list(cot = s$cotizaciones, irpf = s$irpf, neto = s$neto, cr = s$liquidacion$cuota_resultante_autoliquidacion,
+               modo = s$liquidacion$modo_tributacion_elegido))
+}
+
 dir.create("tools", showWarnings = FALSE)
 writeLines(jsonlite::toJSON(out, auto_unbox = TRUE, null = "null", digits = 6), "tools/casos.json")
 cat("casos.json:", length(out), "casos\n")

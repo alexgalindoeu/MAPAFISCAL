@@ -436,3 +436,35 @@ gravamen_premios_loteria:
   estado: confirmado
   exento: 40000
   tipo: 0.20
+
+# -----------------------------------------------------------------------------
+# COTIZACIONES DEL TRABAJADOR A LA SEGURIDAD SOCIAL (Régimen General) — 2025
+# -----------------------------------------------------------------------------
+# No es IRPF: sirve para estimar el gasto deducible del art. 19.2.a) LIRPF y el sueldo neto
+# (cotizaciones_trabajador() en R/15_sueldo_neto.R y en irpfsim.js). Solo la parte a cargo
+# de la persona trabajadora, en tanto por uno. Base mensual = retribución anual / 12 (pagas
+# extra prorrateadas), hasta la base máxima; la parte de la retribución que excede la base
+# máxima paga la cotización adicional de solidaridad por tramos de retribución mensual.
+# Las bases mínimas son de jornada completa: con jornada parcial se reducen en proporción a
+# la jornada, así que por debajo de ellas se toma la retribución como base. No modelados:
+# los grupos 1 a 3 con base mínima superior (titulados), las horas extraordinarias
+# (4,70 % / 2 %), los conceptos excluidos de la base (dietas, art. 147.2 LGSS) y los
+# regímenes especiales.
+cotizaciones_trabajador:
+  norma: "Orden PJC/178/2025, de 25 de febrero, de cotización para 2025: arts. 2 y 3 (bases), 4.a) (contingencias comunes), 16 (MEI), 17.1 (cotización adicional de solidaridad) y 33.2 (desempleo y formación profesional); arts. 19, 19 bis, 127 bis y 147 LGSS (RDLeg 8/2015)"
+  fuente: "BOE-A-2025-3780 (https://www.boe.es/eli/es/o/2025/02/25/pjc178)"
+  estado: confirmado
+  base_maxima_mensual: 4909.50
+  base_minima_mensual: 1381.20         # grupos 4 a 7 (8 a 11: 46,04 €/día), jornada completa
+  bases_minimas_grupo_1_3: [1929.00, 1599.60, 1391.70]   # informativas, no se aplican
+  tipos:
+    contingencias_comunes: 0.0470      # 28,30 % (23,60 % empresa)
+    desempleo_indefinido: 0.0155       # 7,05 % (5,50 % empresa); también fijos discontinuos y tiempo parcial
+    desempleo_temporal: 0.0160         # 8,30 % (6,70 % empresa); contratos de duración determinada
+    formacion_profesional: 0.0010      # 0,70 % (0,60 % empresa)
+    mei: 0.0013                        # 0,80 % (0,67 % empresa)
+  solidaridad:                          # sobre la retribución mensual que excede la base máxima
+    tramos:
+      - { hasta: 5400.45, tipo: 0.0015 }   # hasta el 10 % por encima: 0,92 % (0,77 % empresa)
+      - { hasta: 7364.25, tipo: 0.0017 }   # del 10 % al 50 %: 1,00 % (0,83 % empresa)
+      - { hasta: .inf,    tipo: 0.0019 }   # más del 50 %: 1,17 % (0,98 % empresa)
