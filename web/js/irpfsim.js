@@ -816,7 +816,9 @@
       desc.forEach((d, i) => {
         const key = i < 4 ? String(i + 1) : "5+";
         let imp = J.deduccion_descendientes.importes[key] || J.deduccion_descendientes.importes["5+"];
-        if (num(d.edad, 99) < 6) imp += inc6;
+        const edad = num(d.edad, 99);
+        if (edad < 6) imp += inc6;
+        else if (edad < 16) imp += num(J.deduccion_descendientes.incremento_6_a_15_anios);   // Araba, art. 79.2 NF 33/2013
         sd += imp;
       });
       sd *= prorr; detalle.descendientes = red2(sd); total += sd;

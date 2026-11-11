@@ -94,11 +94,11 @@ comun:
 
   minoracion_cuota:
     norma: "Art. 77 NF 13/2013 y equivalentes"
-    fuente: "DF Gipuzkoa Modelo 109 (2025); DFB (Bizkaia 2025)"
+    fuente: "DF Gipuzkoa Modelo 109 (2025); Bizkaia: art. 50 NF 10/2023 (BOB 30-12-2023), que no cambia en 2025 (la NF 3/2024 de Presupuestos para 2025 no toca el IRPF); Araba: NF 19/2024, art. 2.Tercero.Diez (BOTHA n.º 147, 30-12-2024)"
     estado: confirmado
     importe_gipuzkoa: 1583
-    importe_bizkaia: 1615
-    importe_araba: 1583        # PROVISIONAL — verificar en NF 33/2013 Araba
+    importe_bizkaia: 1583      # corregido: 1.615 es la cifra de 2026 (NF 7/2025)
+    importe_araba: 1583        # + 200 € por residir en núcleos de <= 500 hab. (art. 77.2 NF 33/2013): no modelado
 
   exencion_dividendos:
     norma: "Art. 9.24 NF 13/2013 Bizkaia (y equivalentes forales)"
@@ -138,14 +138,15 @@ comun:
     fuente: "DF Bizkaia / DF Gipuzkoa / DF Araba de módulos 2025 — POR LOCALIZAR"
 
 # -----------------------------------------------------------------------------
-# DEDUCCIONES FAMILIARES Y PERSONALES (importes de Gipuzkoa 2025; Bizkaia/Araba: verificar)
+# DEDUCCIONES FAMILIARES Y PERSONALES (importes de Gipuzkoa y Bizkaia 2025; Araba y la gran
+# dependencia de Bizkaia, en overrides)
 # -----------------------------------------------------------------------------
   deduccion_descendientes:
     norma: "Art. 79 NF 3/2014 Gipuzkoa (y equivalentes)"
-    fuente: "DF Gipuzkoa Modelo 109 (2025); DFB (Bizkaia 2025) — importes por orden idénticos en los 3 TH"
+    fuente: "DF Gipuzkoa Modelo 109 (2025); Bizkaia: art. 51 NF 10/2023 (BOB 30-12-2023) y Hacienda Foral de Bizkaia, ficha «Deducción por descendientes» (importes 2024-2025). Araba, ver override"
     estado: confirmado
     importes: { "1": 668, "2": 827, "3": 1393, "4": 1647, "5+": 2151 }
-    incremento_menor_6_anios: 386   # Gipuzkoa; Bizkaia 394 (ver override)
+    incremento_menor_6_anios: 386   # Gipuzkoa y Bizkaia (394 € es la cifra de 2026)
 
   deduccion_anualidades_alimentos_hijos:
     norma: "Art. 79 NF 3/2014 y equivalentes"
@@ -167,7 +168,7 @@ comun:
     grado_33_64: 888
     grado_65_mas_o_dependencia_moderada: 1268
     grado_75_15_39_puntos_o_dependencia_severa: 1521
-    grado_75_40_puntos_o_gran_dependencia: 2040
+    grado_75_40_puntos_o_gran_dependencia: 2040   # Gipuzkoa; Bizkaia y Araba, ver overrides
 
   deduccion_edad:
     norma: "Art. 82 NF 3/2014 y equivalentes"
@@ -232,10 +233,14 @@ overrides:
   ES-PV-BI:
     nombre: "Bizkaia"
     norma_base: "Norma Foral 13/2013"
-    fuente: "DFB — Deducciones IRPF Bizkaia 2025 (bizkaia.eus); deia.eus 02-04-2025"
-    deduccion_descendientes:
+    fuente: "NF 10/2023, de Presupuestos de Bizkaia para 2024 (BOB 30-12-2023), arts. 50 a 54, sin cambios en 2025; Hacienda Foral de Bizkaia, fichas de deducciones de Renta 2025 (dfb.microsoftcrmportals.com KA-01038 y KA-01510)"
+    # Corregido (11-11-2026): el override de 394 € por menor de 6 años era la cifra de 2026;
+    # en 2025 Bizkaia aplica 386 €, como el bloque común.
+    deduccion_discapacidad:
+      norma: "Art. 82.1 NF 13/2013 Bizkaia (redacción del art. 53 NF 10/2023, efectos 1-1-2024; mismos importes en 2025)"
+      fuente: "BOB 30-12-2023; Hacienda Foral de Bizkaia, ficha KA-01510 (columna «2024 y 2025»: 888 / 1.268 / 1.521 / 1.897)"
       estado: confirmado
-      incremento_menor_6_anios: 394   # Bizkaia (Gipuzkoa: 386)
+      grado_75_40_puntos_o_gran_dependencia: 1897   # Gipuzkoa: 2.040
 
   ES-PV-SS:
     nombre: "Gipuzkoa"
@@ -245,6 +250,29 @@ overrides:
   ES-PV-VI:
     nombre: "Araba/Álava"
     norma_base: "Norma Foral 33/2013"
-    deduccion_descendientes: { estado: provisional }
-    minoracion_cuota:        { estado: provisional }
+    fuente: "NF 19/2024, de 20 de diciembre, de medidas tributarias para 2025, art. 2.Tercero (efectos 1-1-2025), apartados Diez a Once quater (BOTHA n.º 147, 30-12-2024); la NF 3/2025 (BOTHA n.º 44, 16-04-2025) no cambia esos importes"
+    # Corregido (11-11-2026): antes se tomaban los importes de Gipuzkoa. Araba sube un 10 %
+    # los de descendientes, un 32 % ascendientes y un 15,5 % discapacidad.
+    deduccion_descendientes:
+      norma: "Art. 79.1 y 79.2 NF 33/2013 Araba (redacción NF 19/2024, art. 2.Tercero.Once)"
+      estado: confirmado
+      importes: { "1": 734.80, "2": 909.70, "3": 1532.30, "4": 1811.70, "5+": 2366.10 }
+      incremento_menor_6_anios: 424.60
+      incremento_6_a_15_anios: 68.20   # de 6 a 15 años inclusive; incompatible con el anterior
+    deduccion_anualidades_alimentos_hijos:
+      norma: "Art. 80 NF 33/2013 Araba (redacción NF 3/2025): 15 %, con el límite por hijo del 30 % de la deducción del art. 79.1"
+      estado: confirmado
+      limites: { "1": 220.44, "2": 272.91, "3": 459.69, "4": 543.51, "5+": 709.83 }   # 30 % de los importes del art. 79.1
+    deduccion_ascendientes:
+      norma: "Art. 81.1 NF 33/2013 Araba (redacción NF 19/2024, art. 2.Tercero.Once bis)"
+      estado: confirmado
+      importe: 423.72
+    deduccion_discapacidad:
+      norma: "Art. 82.1 NF 33/2013 Araba (redacción NF 19/2024, art. 2.Tercero.Once quater)"
+      estado: confirmado
+      grado_33_64: 1025.64
+      grado_65_mas_o_dependencia_moderada: 1464.54
+      grado_75_15_39_puntos_o_dependencia_severa: 1756.75
+      grado_75_40_puntos_o_gran_dependencia: 2191.03
+    minoracion_cuota: { estado: confirmado }
     # Especialidad: bonificación 35 % arrendamiento en zona de despoblación (art. 32 NF 33/2013).

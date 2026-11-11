@@ -26,7 +26,7 @@ provisionales o parciales · ⛔ pendiente (hook presente, no calcula).
 | Anualidades por alimentos a hijos (escala separada) | ✅ | ⛔ | ⛔ |
 | Deducciones estatales de cuota (vivienda transit., donativos) | ✅ vivienda anterior a 2013 (7,5 % + 7,5 %, 9.040 € por declaración también en conjunta) y donativos Ley 49/2002 (80 / 40 / 45 %, base ≤ 10 % de la base liquidable) · 🟡 régimen especial del 9 % de Cataluña, otras fundaciones y partidos | — | — |
 | Deducciones autonómicas de cuota | 🟡 motor genérico dirigido por datos. **Las 15 CCAA de régimen común con catálogo cargado** (5–18 deducciones cada una, las de mayor incidencia), con reducción lineal por base (taper), variantes excluyentes y reparto entre progenitores en individual. Deducciones rurales / de despoblación cargadas en 9 CCAA (datos de municipio del hogar). Quedan pendientes las de inversión/donativos y algunas rurales ligadas al año de traslado | — | — |
-| Deducciones forales familiares/personales | — | ✅ Gipuzkoa · 🟡 Bizkaia/Araba | ✅ mínimo personal y familiar, trabajo · 🟡 pensiones de jubilación (art. 68.B) · ⛔ familia numerosa |
+| Deducciones forales familiares/personales | — | ✅ Gipuzkoa · ✅ Bizkaia y Araba en minoración, descendientes, ascendientes y discapacidad · 🟡 resto en Bizkaia/Araba | ✅ mínimo personal y familiar, trabajo · 🟡 pensiones de jubilación (art. 68.B) · ⛔ familia numerosa |
 | Deducciones de vivienda/alquiler forales | — | ✅ | ✅ alquiler (art. 62.2) · 🟡 emancipación (art. 68 quinquies.A) · ⛔ adquisición (régimen transitorio) |
 | Bonificación Ceuta/Melilla (art. 68.4, 60 %) | fuera de alcance (Ceuta y Melilla descartadas) | — | — |
 | Deducciones "impropias" (maternidad, familia numerosa) | 🟡 | — | — |

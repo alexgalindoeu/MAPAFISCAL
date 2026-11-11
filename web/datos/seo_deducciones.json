@@ -465,15 +465,15 @@
    "bloques": {
     "minoracion_cuota": {
      "norma": "Art. 77 NF 13/2013 y equivalentes",
-     "fuente": "DF Gipuzkoa Modelo 109 (2025); DFB (Bizkaia 2025)",
+     "fuente": "DF Gipuzkoa Modelo 109 (2025); Bizkaia: art. 50 NF 10/2023 (BOB 30-12-2023), que no cambia en 2025 (la NF 3/2024 de Presupuestos para 2025 no toca el IRPF); Araba: NF 19/2024, art. 2.Tercero.Diez (BOTHA n.º 147, 30-12-2024)",
      "estado": "confirmado",
      "importe_gipuzkoa": 1583,
-     "importe_bizkaia": 1615,
+     "importe_bizkaia": 1583,
      "importe_araba": 1583
     },
     "deduccion_descendientes": {
      "norma": "Art. 79 NF 3/2014 Gipuzkoa (y equivalentes)",
-     "fuente": "DF Gipuzkoa Modelo 109 (2025); DFB (Bizkaia 2025) — importes por orden idénticos en los 3 TH",
+     "fuente": "DF Gipuzkoa Modelo 109 (2025); Bizkaia: art. 51 NF 10/2023 (BOB 30-12-2023) y Hacienda Foral de Bizkaia, ficha «Deducción por descendientes» (importes 2024-2025). Araba, ver override",
      "estado": "confirmado",
      "importes": {
       "1": 668,
@@ -482,7 +482,16 @@
       "4": 1647,
       "5+": 2151
      },
-     "incremento_menor_6_anios": 394
+     "incremento_menor_6_anios": 386
+    },
+    "deduccion_discapacidad": {
+     "norma": "Art. 82.1 NF 13/2013 Bizkaia (redacción del art. 53 NF 10/2023, efectos 1-1-2024; mismos importes en 2025)",
+     "fuente": "BOB 30-12-2023; Hacienda Foral de Bizkaia, ficha KA-01510 (columna «2024 y 2025»: 888 / 1.268 / 1.521 / 1.897)",
+     "estado": "confirmado",
+     "grado_33_64": 888,
+     "grado_65_mas_o_dependencia_moderada": 1268,
+     "grado_75_15_39_puntos_o_dependencia_severa": 1521,
+     "grado_75_40_puntos_o_gran_dependencia": 1897
     }
    }
   },
@@ -494,15 +503,15 @@
    "bloques": {
     "minoracion_cuota": {
      "norma": "Art. 77 NF 13/2013 y equivalentes",
-     "fuente": "DF Gipuzkoa Modelo 109 (2025); DFB (Bizkaia 2025)",
+     "fuente": "DF Gipuzkoa Modelo 109 (2025); Bizkaia: art. 50 NF 10/2023 (BOB 30-12-2023), que no cambia en 2025 (la NF 3/2024 de Presupuestos para 2025 no toca el IRPF); Araba: NF 19/2024, art. 2.Tercero.Diez (BOTHA n.º 147, 30-12-2024)",
      "estado": "confirmado",
      "importe_gipuzkoa": 1583,
-     "importe_bizkaia": 1615,
+     "importe_bizkaia": 1583,
      "importe_araba": 1583
     },
     "deduccion_descendientes": {
      "norma": "Art. 79 NF 3/2014 Gipuzkoa (y equivalentes)",
-     "fuente": "DF Gipuzkoa Modelo 109 (2025); DFB (Bizkaia 2025) — importes por orden idénticos en los 3 TH",
+     "fuente": "DF Gipuzkoa Modelo 109 (2025); Bizkaia: art. 51 NF 10/2023 (BOB 30-12-2023) y Hacienda Foral de Bizkaia, ficha «Deducción por descendientes» (importes 2024-2025). Araba, ver override",
      "estado": "confirmado",
      "importes": {
       "1": 668,
@@ -631,6 +640,36 @@
      "estado": "confirmado",
      "porcentaje": 0.3,
      "limite_anual": 3000
+    }
+   }
+  },
+  "ES-PV-VI": {
+   "territorio": "ES-PV-VI",
+   "nombre": "Araba/Álava",
+   "regimen": "foral_pais_vasco",
+   "norma_base": "Norma Foral 33/2013",
+   "bloques": {
+    "minoracion_cuota": {
+     "norma": "Art. 77 NF 13/2013 y equivalentes",
+     "fuente": "DF Gipuzkoa Modelo 109 (2025); Bizkaia: art. 50 NF 10/2023 (BOB 30-12-2023), que no cambia en 2025 (la NF 3/2024 de Presupuestos para 2025 no toca el IRPF); Araba: NF 19/2024, art. 2.Tercero.Diez (BOTHA n.º 147, 30-12-2024)",
+     "estado": "confirmado",
+     "importe_gipuzkoa": 1583,
+     "importe_bizkaia": 1583,
+     "importe_araba": 1583
+    },
+    "deduccion_descendientes": {
+     "norma": "Art. 79.1 y 79.2 NF 33/2013 Araba (redacción NF 19/2024, art. 2.Tercero.Once)",
+     "fuente": "DF Gipuzkoa Modelo 109 (2025); Bizkaia: art. 51 NF 10/2023 (BOB 30-12-2023) y Hacienda Foral de Bizkaia, ficha «Deducción por descendientes» (importes 2024-2025). Araba, ver override",
+     "estado": "confirmado",
+     "importes": {
+      "1": 734.8,
+      "2": 909.7,
+      "3": 1532.3,
+      "4": 1811.7,
+      "5+": 2366.1
+     },
+     "incremento_menor_6_anios": 424.6,
+     "incremento_6_a_15_anios": 68.2
     }
    }
   },

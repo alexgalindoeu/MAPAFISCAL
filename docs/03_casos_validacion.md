@@ -49,13 +49,14 @@ Detalle escala autonómica Madrid sobre 26.095:
 | (−) Bonificación del trabajo (art. 23 NF) | 28.095 > 23.000 ⇒ 3.000 | −3.000,00 |
 | **Rendimiento neto = Base liquidable general** | | 25.095,00 |
 | Cuota íntegra (tarifa foral art. 75) | 17.720×23% + 7.375×28% = 4.075,60 + 2.065,00 | **6.140,60** |
-| (−) Minoración de cuota (art. 77 NF, Bizkaia 2025) | | −1.615,00 |
+| (−) Minoración de cuota (art. 77 NF, Bizkaia 2025; art. 50 NF 10/2023) | | −1.583,00 |
 | (−) Deducciones familiares | soltero sin hijos ⇒ 0 | 0,00 |
-| **Cuota líquida total** | | **4.525,60** |
-| Tipo medio efectivo | 4.525,60 / 25.095 | 18,03 % |
+| **Cuota líquida total** | | **4.557,60** |
+| Tipo medio efectivo | 4.557,60 / 25.095 | 18,16 % |
 
 Comparación con el Caso A: **mismo perfil, mismo salario** ⇒ Madrid 4.610,53 € /
-Bizkaia 4.525,60 € (−1,8 %). Con hijos y ahorro la diferencia se amplía por el
+Bizkaia 4.557,60 € (−1,1 %). (Hasta el 11-11-2026 figuraba una minoración de 1.615 €, que es
+la de 2026.) Con hijos y ahorro la diferencia se amplía por el
 distinto tratamiento (deducción de cuota foral vs. mínimo en base).
 
 ---
@@ -1335,8 +1336,8 @@ minoración (1.615 €) y las deducciones por descendientes (682 / 844 / 1.421 /
 394 € por menor de 6 años), ascendientes (328 €), discapacidad (906 / 1.294 / 1.552 €) y edad
 (393 / 714 €). Gran dependencia: 2.040 € en Gipuzkoa (sin cambio) y 1.935 € en Bizkaia
 (override). Araba (NF 21/2025, BOTHA 29-12-2025) sube conjunta, tarifa, minoración y edad, pero
-no descendientes, ascendientes ni discapacidad (override con los importes de 2025,
-provisional). Escala del ahorro de 2026 (NF 1/2025 de Gipuzkoa, art. 76.1): 19 % hasta 7.500 €,
+no descendientes, ascendientes ni discapacidad: siguen los de 2025 de la NF 19/2024 (ver
+«Erratas forales de 2025» más abajo). Escala del ahorro de 2026 (NF 1/2025 de Gipuzkoa, art. 76.1): 19 % hasta 7.500 €,
 20 % hasta 15.000 € (antes figuraba 15.500 €), 22 %, 24 %, 25,5 %, 26 %, 26,5 %, 27 % y 28 %
 desde 300.000 €.
 
@@ -1347,7 +1348,7 @@ El motor JS aplica ahora todos los overrides del territorio sobre el bloque com�
 |---|---:|---:|---:|---:|
 | Gipuzkoa, hijos de 8 y 4 años, 2025 | 8.762,80 | 1.583 | 668 + 827 + 386 = 1.881 | 5.298,80 |
 | Gipuzkoa, hijos de 8 y 4 años, 2026 | 8.744,80 | 1.615 | 682 + 844 + 394 = 1.920 | 5.209,80 |
-| Araba, hijos de 8 y 4 años, 2026 | 8.744,80 | 1.615 | 1.881 | 5.248,80 |
+| Araba, hijos de 8 y 4 años, 2026 | 8.744,80 | 1.615 | 803,00 + 1.334,30 = 2.137,30 | 4.992,50 |
 | Bizkaia, gran dependencia, 2026 | 8.744,80 | 1.615 | 1.935 | 5.194,80 |
 
 Base liquidable general: 37.460 − 3.000 (bonificación del trabajo) = 34.460. Tarifa de 2026:
@@ -1450,3 +1451,60 @@ Madrid, 2026, 30.000 €, 35 años, sin hijos:
 - 400 €: 250 × 80 % + 150 × 40 % = **260 €** de ahorro (te cuestan 140 €); si son recurrentes
   (misma entidad, 3 años), 250 × 80 % + 150 × 45 % = 267,50 €. La base no puede pasar del 10 %
   de la base liquidable (35.400 → 3.540 €).
+## Ejercicio 2026: escalas y mínimos autonómicos (2026-11-11)
+
+Test `tests/testthat/test-2026-autonomico.R`; casos `ej2026_ex_*`, `ej2026_vc_*`,
+`ej2026_an_soltero30` y `ej2026_cn_soltero30` del validador. Fuentes: SGFAL, «Tributación
+Autonómica. Medidas 2026» (act. 23-09-2026), caps. I, II y IV; DOE núm. 149 (4-8-2026) y
+BOE-A-2026-17839 para Extremadura; DOGV núm. 10425 (10-8-2026) para la C. Valenciana.
+
+- Solo cambian dos escalas. **Extremadura** (Ley 2/2026, DF 2.ª.Uno, efectos 1-1-2026): 7,75 %
+  hasta 12.450 € y 9,75 % hasta 20.200 € (antes 8 % y 10 %). **C. Valenciana** (Ley 5/2026,
+  art. 18, efectos 1-1-2026): once tramos de 8,8 % a 29,35 % con los límites de 2025.
+- Las otras 13 escalas y los mínimos de las 10 CCAA que los regulan, comprobados sin cambios
+  (detalle por CCAA en la cabecera de `params/2026/autonomico.yaml`).
+- **Provisionales**: Andalucía, Galicia y Canarias tienen en tramitación un proyecto de ley
+  que cambiaría su escala con efectos desde el 1-1-2026 (−0,25 puntos en los cuatro primeros
+  tramos en AN y GA; deflactación de límites en CN). Se mantiene la escala vigente.
+
+### Comprobación numérica (soltero de 35 años, 30.000 € y 1.905 € de cotizaciones)
+
+Base liquidable general 26.095 € (28.095 − 2.000; sin reducción del art. 20). Cuota estatal
+2.997,00 − 5.550 × 9,5 % = 2.469,75 en todas.
+
+| CCAA | Escala sobre 26.095 | Mínimo × primer tipo | Cuota autonómica 2026 | 2025 |
+|---|---|---|---:|---:|
+| Extremadura | 964,875 + 755,625 + 640 + 1.895 × 17,5 % = 2.692,125 | 5.550 × 7,75 % = 430,125 | 2.262,00 | 2.298,63 |
+| C. Valenciana | 1.056 + 1.170 + 4.095 × 14,6 % = 2.823,87 | 6.105 × 8,8 % = 537,24 | 2.286,63 | 2.344,80 |
+| Andalucía, Canarias, Madrid | (sin cambios) | | 2.406,20 / 2.319,51 / 2.140,78 | igual |
+
+C. Valenciana, 120.000 € (4.900 € de cotizaciones): base 113.100; 19.264 + 13.100 × 27,35 % =
+22.846,85 − 537,24 = **22.309,61** (2025: 23.302,50 − 549,45 = 22.753,05).
+
+## Erratas forales de 2025 (2026-11-11)
+
+Cotejo con el boletín de `params/2025/foral_pais_vasco.yaml` y `params/2025/estatal.yaml`:
+
+- **Bizkaia, minoración**: 1.583 € (art. 77 NF 13/2013 en la redacción del art. 50 NF 10/2023,
+  BOB 30-12-2023; la NF 3/2024 de Presupuestos para 2025 no toca el IRPF). Figuraba 1.615 €,
+  que es la de 2026.
+- **Bizkaia, menor de 6 años**: 386 € (art. 51 NF 10/2023 y ficha KA-01038 de la Hacienda Foral,
+  «2025–2024»). El override de 394 € era la cifra de 2026: se quita.
+- **Gran dependencia**: 2.040 € solo en Gipuzkoa (Modelo 109 de 2025). Bizkaia, 1.897 € (art. 53
+  NF 10/2023; ficha KA-01510). Araba, 2.191,03 € (NF 19/2024).
+- **Araba** (NF 19/2024, art. 2.Tercero, BOTHA 30-12-2024; la NF 3/2025 no los cambia):
+  descendientes 734,80 / 909,70 / 1.532,30 / 1.811,70 / 2.366,10 €, +424,60 € por menor de 6 años
+  y, regla nueva en R y JS (`incremento_6_a_15_anios`), +68,20 € de 6 a 15 años; ascendientes
+  423,72 €; discapacidad 1.025,64 / 1.464,54 / 1.756,75 / 2.191,03 €; minoración 1.583 €
+  (confirmada; los 200 € por núcleos de hasta 500 habitantes no se modelan). La NF 21/2025 no
+  los actualiza en 2026.
+- **DA 50.ª.3 LIRPF**: base máxima anual de 5.000 € y base acumulada de 15.000 € (figuraba
+  15.000 como anual). El motor no calcula esta deducción.
+
+| Caso (40.000 € de salario, 2.540 € de cotizaciones; hijos de 8 y 4 años), 2025 | Cuota íntegra | Minoración | Descendientes | Cuota líquida |
+|---|---:|---:|---:|---:|
+| Bizkaia | 8.762,80 | 1.583 | 668 + 827 + 386 = 1.881 | 5.298,80 |
+| Araba | 8.762,80 | 1.583 | (734,80 + 68,20) + (909,70 + 424,60) = 2.137,30 | 5.042,50 |
+
+Gran dependencia, mismo salario sin hijos: Bizkaia 8.762,80 − 1.583 − 1.897 = 5.282,80; Araba
+8.762,80 − 1.583 − 2.191,03 = 4.988,77.

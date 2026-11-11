@@ -100,7 +100,9 @@ deducciones_forales_pv <- function(hogar, J, modo, base_total, declarante_id = N
     for (i in seq_along(desc)) {
       key <- if (i <= 4) as.character(i) else "5+"
       imp <- dd$importes[[key]] %||% dd$importes[["5+"]]
-      if ((desc[[i]]$edad %||% 99) < 6) imp <- imp + (dd$incremento_menor_6_anios %||% 0)
+      edad <- desc[[i]]$edad %||% 99
+      if (edad < 6) imp <- imp + (dd$incremento_menor_6_anios %||% 0)
+      else if (edad < 16) imp <- imp + (dd$incremento_6_a_15_anios %||% 0)   # Araba, art. 79.2 NF 33/2013
       sd <- sd + imp
     }
     sd <- sd * prorr
