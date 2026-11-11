@@ -2,13 +2,13 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 import { existsSync, readFileSync, readdirSync } from "node:fs";
 import { fileURLToPath } from "node:url";
-import { CONTACTO_FALSO, OBLIGATORIOS, OPCIONALES, contactoDeConfig, escapar, faltan, paginas, rellenar } from "../tools/rellenar_titular.mjs";
+import { CONTACTO_FALSO, OBLIGATORIOS, contactoDeConfig, escapar, faltan, paginas, rellenar } from "../tools/rellenar_titular.mjs";
 import { WEB_PUBLICA, empaquetar } from "../tools/empaquetar.mjs";
 
 const WEB = new URL("../web/", import.meta.url);
 const leer = ruta => readFileSync(new URL(ruta, WEB), "utf8");
 const LEGALES = ["aviso-legal.html", "privacidad.html", "condiciones.html", "cookies.html"];
-const CONOCIDOS = new Set([...OBLIGATORIOS, ...OPCIONALES]);
+const CONOCIDOS = new Set(OBLIGATORIOS);
 
 test("las cuatro páginas legales existen, con el diseño de la web y enlazadas entre sí", () => {
   const hay = readdirSync(new URL("legal/", WEB)).filter(f => f.endsWith(".html")).sort();
@@ -33,6 +33,17 @@ test("los textos publicables no llevan borradores ni huecos entre corchetes", ()
   }
 });
 
+// Regla absoluta desde el 28-09-2026: ningún dato personal identificativo del titular
+// (nombre, NIF, domicilio…) se publica en la web. Guarda contra que alguien reintroduzca esos
+// huecos sin querer: si aparecen, la aserción de arriba ya falla (no están en CONOCIDOS), y
+// esta lo deja explícito y con el motivo.
+test("no hay huecos de datos personales del titular en ninguna página legal", () => {
+  for (const p of LEGALES) {
+    assert.doesNotMatch(leer("legal/" + p), /\{\{TITULAR_/,
+      `${p}: un hueco {{TITULAR_…}} publicaría un dato personal de Alex — ver tools/rellenar_titular.mjs`);
+  }
+});
+
 test("el aviso legal dice que no es una liquidación oficial ni asesoramiento", () => {
   assert.match(leer("legal/aviso-legal.html"), /no es una liquidación oficial ni asesoramiento/);
 });
@@ -49,15 +60,19 @@ test("el HTML empaquetado enlaza los textos legales de la web publicada", () => 
   for (const p of LEGALES) assert.ok(html.includes(`href="${WEB_PUBLICA}legal/${p}"`), `falta el enlace a ${p}`);
 });
 
-test("rellenar pone el correo escapado y avisa de los huecos que quedan", () => {
-  const html = "<a href=\"mailto:{{CONTACTO}}\">{{CONTACTO}}</a>\n<dd>{{TITULAR_NOMBRE}}</dd>";
-  const r = rellenar(html, { CONTACTO: "buzon&co@example.com" });
-  assert.match(r.html, /mailto:buzon&amp;co@example\.com">buzon&amp;co@example\.com</);
-  assert.deepEqual(r.quedan, ["{{TITULAR_NOMBRE}}"], "un hueco del titular tiene que impedir la publicación");
+test("rellenar pone los datos escapados y avisa de los huecos que faltan", () => {
+  const html = "<dd>{{EJEMPLO}}</dd>\n<a href=\"mailto:{{CONTACTO}}\">{{CONTACTO}}</a>\n{{OTRO}}";
+  const datos = { EJEMPLO: "Ejemplo & Cía <SL>", OTRO: "", CONTACTO: "buzon@example.com" };
+  const r = rellenar(html, datos);
+  assert.match(r.html, /<dd>Ejemplo &amp; Cía &lt;SL&gt;<\/dd>/);
+  assert.match(r.html, /mailto:buzon@example\.com">buzon@example\.com</);
+  assert.deepEqual(r.quedan, ["{{OTRO}}"]);
+  const lleno = rellenar(html, { ...datos, OTRO: "X" });
+  assert.deepEqual(lleno.quedan, []);
   assert.equal(escapar("`${x}`\\"), "&#96;&#36;&#123;x&#125;&#96;&#92;");
 });
 
-test("sin correo real no se puede publicar", () => {
+test("sin correo o con el correo de marcador no se puede publicar", () => {
   assert.deepEqual(faltan({ CONTACTO: "d@example.com" }), []);
   assert.deepEqual(faltan({ CONTACTO: "" }), ["CONTACTO"]);
   assert.equal(faltan({ CONTACTO: CONTACTO_FALSO }).length, 1);
@@ -65,7 +80,7 @@ test("sin correo real no se puede publicar", () => {
   assert.ok(contactoDeConfig(leer("config.js")), "web/config.js no tiene `contacto`");
 });
 
-test("con el correo, ninguna página publicable queda con huecos (ni datos del titular)", () => {
+test("con el correo puesto, ninguna página publicable queda con huecos", () => {
   const datos = { CONTACTO: "buzon@example.com" };
   const lista = paginas(fileURLToPath(WEB));
   assert.ok(lista.includes("index.html"));

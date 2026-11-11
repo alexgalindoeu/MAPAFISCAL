@@ -1,10 +1,16 @@
 // Rellena el correo de contacto en los textos legales justo antes de publicar la web.
 //
-// El correo ({{CONTACTO}}) sale de `contacto` en web/config.js. La web ya no publica el
-// nombre, el NIF ni el domicilio del titular (decisión de Alex, 28-09-2026), así que este
-// script no lee ningún dato personal: un {{TITULAR_…}} que vuelva a aparecer en web/ se queda
-// sin rellenar, el script termina con error y no se publica nada. Tampoco se publica si el
-// correo sigue siendo el marcador.
+// REGLA ABSOLUTA (28-09-2026, tras exponer por error el nombre, el NIF y el domicilio reales
+// de Alex en la web pública): ningún dato personal identificativo del titular se publica en
+// ningún sitio de la web. Los textos legales (web/legal/) solo usan el nombre comercial
+// «Mapafiscal» y el correo de contacto. Si algún día una norma exige identificar al titular
+// con más detalle (LSSI art. 10, RGPD art. 13, TRLGDCU art. 21.3), se lo plantea antes a Alex
+// en el chat, dejando muy claro que sería público, y se espera su decisión expresa — nunca se
+// reintroduce un hueco {{TITULAR_…}} en una página que se publica sola.
+//
+// El correo ({{CONTACTO}}) sale de `contacto` en web/config.js, no del repositorio (que es
+// público). Si el correo es el marcador de pruebas o queda algún {{…}} sin rellenar, termina
+// con error y no se publica nada a medias.
 //
 //   node tools/rellenar_titular.mjs [carpeta]      (por defecto: web)
 import { readFileSync, readdirSync, writeFileSync } from "node:fs";
@@ -12,8 +18,6 @@ import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
 export const OBLIGATORIOS = ["CONTACTO"];
-// Huecos que, si no hay dato, se quitan con su línea entera. Ahora no hay ninguno.
-export const OPCIONALES = [];
 // Marcador de web/config.js que no es un buzón real.
 export const CONTACTO_FALSO = "hola@mapafiscal.es";
 
@@ -38,26 +42,24 @@ export function faltan(datos) {
 
 // Devuelve el HTML relleno y la lista de huecos que no se han podido rellenar.
 export function rellenar(html, datos) {
-  const lineas = html.split("\n").filter(l => !OPCIONALES.some(k => !datos[k] && l.includes(`{{${k}}}`)));
-  const salida = lineas.join("\n").replace(HUECO, (m, k) => (datos[k] ? escapar(datos[k]) : m));
+  const salida = html.replace(HUECO, (m, k) => (datos[k] ? escapar(datos[k]) : m));
   const quedan = [...new Set(salida.match(HUECO) || [])];
   return { html: salida, quedan };
 }
 
-// Páginas que pueden llevar huecos: index.html (información básica de protección de datos en
-// los diálogos) y las páginas legales.
+// Páginas que pueden llevar el hueco del correo: index.html (información básica de protección
+// de datos en los diálogos) y las páginas legales.
 export function paginas(web) {
   return ["index.html", ...readdirSync(join(web, "legal")).filter(f => f.endsWith(".html")).sort().map(f => join("legal", f))];
 }
 
 if (process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {
   const web = resolve(process.argv[2] || join(dirname(fileURLToPath(import.meta.url)), "..", "web"));
-  const datos = {};
-  datos.CONTACTO = contactoDeConfig(readFileSync(join(web, "config.js"), "utf8"));
+  const datos = { CONTACTO: contactoDeConfig(readFileSync(join(web, "config.js"), "utf8")) };
   const f = faltan(datos);
   if (f.length) {
     console.error(`::error::Falta el correo de contacto para los textos legales: ${f.join(", ")}. ` +
-      "Ponlo en `contacto` de web/config.js. Ver docs/legal/README.md.");
+      "Ponlo en `contacto`, en web/config.js. Ver docs/legal/README.md.");
     process.exit(1);
   }
   let error = false;
