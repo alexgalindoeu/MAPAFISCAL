@@ -1,0 +1,30 @@
+/* =============================================================================
+   Mapafiscal — guías (/guias/) y deducciones por territorio (/irpf/<t>/deducciones/)
+   Se carga después de mapafiscal.css y seo.css: reutiliza sus tokens y sus clases
+   (tarjeta, cobertura, rotulo, ayuda, btn) y solo añade lo propio de estas páginas.
+   ========================================================================== */
+
+.pagina-seo .prosa h3 { font-size: 15px; margin: 14px 0 6px; }
+.pagina-seo .prosa ul { padding-left: 20px; margin: 8px 0; }
+.pagina-seo .prosa li { margin: 4px 0; }
+
+.ficha-deduccion .supuesto { border-left: 3px solid var(--marca); padding: 6px 0 6px 12px; margin: 10px 0; }
+.ficha-deduccion .supuesto-importe { font-weight: 600; margin: 0 0 4px; }
+.ficha-deduccion .fuente { font-size: 13px; color: var(--tinta-3); margin-top: 12px; overflow-wrap: anywhere; }
+.pagina-seo a[rel="noopener"] { overflow-wrap: anywhere; }
+
+.indice-fichas ul { columns: 2 260px; }
+
+.faq details { border-top: 1px solid var(--linea); padding: 10px 0; }
+.faq details:first-of-type { border-top: 0; }
+.faq summary { cursor: pointer; font-weight: 600; }
+.faq details p { margin: 8px 0 0; }
+
+.dos-col { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 16px; }
+
+.lista-guias { list-style: none; margin: 0; padding: 0; }
+.lista-guias li { border-bottom: 1px solid var(--linea); padding: 12px 0; display: flex; flex-direction: column; gap: 2px; }
+.lista-guias li:last-child { border-bottom: 0; }
+.lista-guias a { font-weight: 600; color: var(--tinta); text-decoration: none; }
+.lista-guias a:hover { color: var(--marca); text-decoration: underline; }
+.lista-guias span { font-size: 14px; color: var(--tinta-3); }

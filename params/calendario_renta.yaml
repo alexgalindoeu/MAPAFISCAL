@@ -1,0 +1,27 @@
+# =============================================================================
+# CALENDARIO DE LA CAMPAÑA DE LA RENTA (IRPF, régimen común)
+# =============================================================================
+# Fechas de la campaña de cada ejercicio, tal y como las fija la orden ministerial que
+# aprueba el modelo 100. No las usa el motor: solo la guía «Calendario de la renta»
+# (tools/generar_datos_seo.R -> web/datos/seo_guias.json -> web/guias/calendario-renta/).
+# Cada campaña lleva su norma, su fuente primaria (BOE) y su estado, como el resto de params/.
+# Al publicarse la orden de la campaña siguiente (suele salir en marzo), se añade aquí otra
+# entrada y se regeneran los datos y las páginas.
+# =============================================================================
+
+campanas:
+  - ejercicio: 2025
+    norma: "Orden HAC/277/2026, de 25 de marzo, por la que se aprueban los modelos de declaración del IRPF y del Impuesto sobre el Patrimonio, ejercicio 2025 (arts. 7.1, 11.5, 12.2 y 12.3)"
+    fuente: "BOE-A-2026-7041 (BOE núm. 76, de 27-03-2026)"
+    boe: "BOE-A-2026-7041"
+    publicada: "2026-03-27"           # fecha del BOE
+    estado: confirmado
+    inicio: "2026-04-08"              # art. 7.1: borrador y declaraciones, cualquiera que sea su resultado
+    fin: "2026-06-30"                 # art. 7.1, ambos inclusive
+    fin_domiciliacion: "2026-06-25"   # art. 12.3: domiciliación del pago (único o primer plazo)
+    fin_domiciliacion_solo_segundo_plazo: "2026-06-30"   # art. 12.3: si solo se domicilia el segundo plazo
+    fraccionamiento:                  # art. 11.5: sin intereses ni recargo
+      primer_plazo_pct: 0.60          # al presentar la declaración
+      segundo_plazo_pct: 0.40
+      segundo_plazo_hasta: "2026-11-05"              # si se paga sin domiciliar (modelo 102)
+      cargo_segundo_plazo_domiciliado: "2026-11-02"  # art. 12.2

@@ -1,0 +1,675 @@
+{
+ "ejercicio": 2025,
+ "generado": "2026-11-11",
+ "territorios": {
+  "ES-AN": {
+   "territorio": "ES-AN",
+   "nombre": "Andalucía",
+   "regimen": "comun",
+   "fichas": [
+    {
+     "titulo": "Por nacimiento, adopción de hijos o acogimiento familiar de menores",
+     "url_aeat": "https://sede.agenciatributaria.gob.es/Sede/ayuda/manuales-videos-folletos/manuales-practicos/irpf-2025-deducciones-autonomicas/comunidad-autonoma-andalucia/nacimiento-adopcion-acogimiento.html",
+     "boe": [
+      "BOE-A-2021-17915"
+     ],
+     "normas": [
+      "Art. 11 Ley 5/2021"
+     ],
+     "supuestos": [
+      {
+       "id": "nacimiento_adopcion",
+       "norma": "Art. 11 Ley 5/2021",
+       "tipo": "fija_por_hijo_nacido",
+       "importe": 200,
+       "importe_multiple": 200,
+       "multiple_por_hijo": true,
+       "anios_ventana": 1,
+       "grupo": "nacimiento_an"
+      },
+      {
+       "id": "nacimiento_adopcion_despoblacion",
+       "norma": "Art. 11 Ley 5/2021",
+       "tipo": "fija_por_hijo_nacido",
+       "importe": 400,
+       "importe_multiple": 200,
+       "multiple_por_hijo": true,
+       "anios_ventana": 1,
+       "requiere_zona_despoblada": true,
+       "grupo": "nacimiento_an"
+      }
+     ]
+    },
+    {
+     "titulo": "Por ayuda doméstica",
+     "url_aeat": "https://sede.agenciatributaria.gob.es/Sede/ayuda/manuales-videos-folletos/manuales-practicos/irpf-2025-deducciones-autonomicas/comunidad-autonoma-andalucia/ayuda-domestica.html",
+     "boe": [
+      "BOE-A-2023-1604"
+     ],
+     "normas": [
+      "Art. 19.1.a) Ley 5/2021",
+      "Art. 19.1.b) Ley 5/2021"
+     ],
+     "supuestos": [
+      {
+       "id": "ayuda_domestica",
+       "norma": "Art. 19.1.a) Ley 5/2021",
+       "tipo": "porcentaje_campo",
+       "campo": "cuotas_ss_empleada_hogar",
+       "porcentaje": 0.2,
+       "limite": 500,
+       "grupo": "ayuda_domestica",
+       "descendientes_min": 1,
+       "requiere_progenitores_trabajan": true
+      },
+      {
+       "id": "ayuda_domestica_mayores_75",
+       "norma": "Art. 19.1.b) Ley 5/2021",
+       "tipo": "porcentaje_campo",
+       "campo": "cuotas_ss_empleada_hogar",
+       "porcentaje": 0.2,
+       "limite": 500,
+       "grupo": "ayuda_domestica",
+       "edad_min": 75
+      }
+     ]
+    },
+    {
+     "titulo": "Para fomentar el ejercicio físico y la práctica deportiva",
+     "url_aeat": "https://sede.agenciatributaria.gob.es/Sede/ayuda/manuales-videos-folletos/manuales-practicos/irpf-2025-deducciones-autonomicas/comunidad-autonoma-andalucia/fomentar-ejercicio-fisico-practica-deportiva.html",
+     "boe": [
+      "BOE-A-2026-945"
+     ],
+     "normas": [
+      "Art. 22 bis Ley 5/2021"
+     ],
+     "supuestos": [
+      {
+       "id": "ejercicio_fisico_deporte",
+       "norma": "Art. 22 bis Ley 5/2021",
+       "tipo": "porcentaje_campo",
+       "campo": "gastos_deporte",
+       "porcentaje": 0.15,
+       "limite": 100
+      }
+     ]
+    }
+   ]
+  },
+  "ES-CL": {
+   "territorio": "ES-CL",
+   "nombre": "Castilla y León",
+   "regimen": "comun",
+   "fichas": [
+    {
+     "titulo": "Por familia numerosa",
+     "url_aeat": "https://sede.agenciatributaria.gob.es/Sede/ayuda/manuales-videos-folletos/manuales-practicos/irpf-2025-deducciones-autonomicas/comunidad-autonoma-castilla-leon/familia-numerosa.html",
+     "boe": [
+
+     ],
+     "normas": [
+      "Art. 3 DL 1/2013 CyL"
+     ],
+     "supuestos": [
+      {
+       "id": "familia_numerosa",
+       "norma": "Art. 3 DL 1/2013 CyL",
+       "tipo": "fija",
+       "importe": 600,
+       "requiere_familia_numerosa": true,
+       "descendientes_max": 3
+      },
+      {
+       "id": "familia_numerosa_4_descendientes",
+       "norma": "Art. 3 DL 1/2013 CyL",
+       "tipo": "fija",
+       "importe": 1500,
+       "requiere_familia_numerosa": true,
+       "descendientes_min": 4,
+       "descendientes_max": 4
+      },
+      {
+       "id": "familia_numerosa_5_descendientes",
+       "norma": "Art. 3 DL 1/2013 CyL",
+       "tipo": "fija",
+       "importe": 2500,
+       "requiere_familia_numerosa": true,
+       "descendientes_min": 5
+      },
+      {
+       "id": "familia_numerosa_desde_6_descendiente",
+       "norma": "Art. 3 DL 1/2013 CyL",
+       "tipo": "fija_por_hijo",
+       "importe": 1000,
+       "hijos_desde_orden": 6,
+       "requiere_familia_numerosa": true
+      },
+      {
+       "id": "familia_numerosa_discapacidad",
+       "norma": "Art. 3 DL 1/2013 CyL",
+       "tipo": "fija",
+       "importe": 600,
+       "requiere_familia_numerosa": true,
+       "requiere_discapacidad_65_de": "declarantes_o_descendientes"
+      }
+     ]
+    }
+   ]
+  },
+  "ES-GA": {
+   "territorio": "ES-GA",
+   "nombre": "Galicia",
+   "regimen": "comun",
+   "fichas": [
+    {
+     "titulo": "Para familias con dos hijos e hijas",
+     "url_aeat": "https://sede.agenciatributaria.gob.es/Sede/ayuda/manuales-videos-folletos/manuales-practicos/irpf-2025-deducciones-autonomicas/comunidad-autonoma-galicia/familias-dos-hijos-hijas.html",
+     "boe": [
+      "BOE-A-2024-2777"
+     ],
+     "normas": [
+      "Art. 5.Tres.1 DL 1/2011"
+     ],
+     "supuestos": [
+      {
+       "id": "familias_dos_hijos",
+       "norma": "Art. 5.Tres.1 DL 1/2011",
+       "tipo": "fija",
+       "importe": 250,
+       "descendientes_min": 2,
+       "descendientes_max": 2,
+       "familia_numerosa_categoria": "no",
+       "factor_discapacidad": {
+        "factor": 2,
+        "grado": "65_mas",
+        "de": "contribuyente_o_descendientes"
+       }
+      }
+     ]
+    },
+    {
+     "titulo": "Por alquiler de la vivienda habitual",
+     "url_aeat": "https://sede.agenciatributaria.gob.es/Sede/ayuda/manuales-videos-folletos/manuales-practicos/irpf-2025-deducciones-autonomicas/comunidad-autonoma-galicia/alquiler-vivienda-habitual.html",
+     "boe": [
+      "BOE-A-2011-18161"
+     ],
+     "normas": [
+      "Art. 5.Siete DL 1/2011"
+     ],
+     "supuestos": [
+      {
+       "id": "arrendamiento_vivienda_habitual_general",
+       "norma": "Art. 5.Siete DL 1/2011",
+       "tipo": "porcentaje_campo",
+       "campo": "alquiler_vivienda_pagos",
+       "porcentaje": 0.1,
+       "limite": 300,
+       "grupo": "alquiler_ga",
+       "edad_max": 36,
+       "suma_bases": "imponibles",
+       "base_max_individual": 22000,
+       "base_max_conjunta": 22000,
+       "factor_discapacidad": {
+        "factor": 2,
+        "grado": "33",
+        "de": "contribuyente"
+       }
+      },
+      {
+       "id": "arrendamiento_vivienda_habitual_dos_hijos",
+       "norma": "Art. 5.Siete DL 1/2011",
+       "tipo": "porcentaje_campo",
+       "campo": "alquiler_vivienda_pagos",
+       "porcentaje": 0.2,
+       "limite": 600,
+       "grupo": "alquiler_ga",
+       "edad_max": 36,
+       "descendientes_min": 2,
+       "descendientes_edad_max_cuenta": 17,
+       "suma_bases": "imponibles",
+       "base_max_individual": 22000,
+       "base_max_conjunta": 22000,
+       "factor_discapacidad": {
+        "factor": 2,
+        "grado": "33",
+        "de": "contribuyente"
+       }
+      }
+     ]
+    },
+    {
+     "titulo": "Por cuidado de hijos menores",
+     "url_aeat": "https://sede.agenciatributaria.gob.es/Sede/ayuda/manuales-videos-folletos/manuales-practicos/irpf-2025-deducciones-autonomicas/comunidad-autonoma-galicia/cuidado-hijos-menores.html",
+     "boe": [
+      "BOE-A-2011-18161"
+     ],
+     "normas": [
+      "Art. 5.Cinco DL 1/2011"
+     ],
+     "supuestos": [
+      {
+       "id": "cuidado_hijos_menores",
+       "norma": "Art. 5.Cinco DL 1/2011",
+       "tipo": "porcentaje_campo",
+       "campo": "gastos_cuidado_hijos",
+       "porcentaje": 0.3,
+       "limite": 400,
+       "grupo": "cuidado_ga",
+       "descendiente_edad_max": 3,
+       "requiere_progenitores_trabajan": true,
+       "base_gate": "menos_minimo",
+       "base_max_individual": 22000,
+       "base_max_conjunta": 31000
+      },
+      {
+       "id": "cuidado_hijos_menores_dos",
+       "norma": "Art. 5.Cinco DL 1/2011",
+       "tipo": "porcentaje_campo",
+       "campo": "gastos_cuidado_hijos",
+       "porcentaje": 0.3,
+       "limite": 600,
+       "grupo": "cuidado_ga",
+       "descendientes_min": 2,
+       "descendientes_edad_max_cuenta": 3,
+       "requiere_progenitores_trabajan": true,
+       "base_gate": "menos_minimo",
+       "base_max_individual": 22000,
+       "base_max_conjunta": 31000
+      }
+     ]
+    },
+    {
+     "titulo": "Por la adquisición de libros de texto y material escolar",
+     "url_aeat": "https://sede.agenciatributaria.gob.es/Sede/ayuda/manuales-videos-folletos/manuales-practicos/irpf-2025-deducciones-autonomicas/comunidad-autonoma-galicia/adquisicion-libros-texto-material-escolar.html",
+     "boe": [
+      "BOE-A-2026-3385"
+     ],
+     "normas": [
+      "Art. 5.Veinticinco DL 1/2011 (añadido por la Ley 5/2025)"
+     ],
+     "supuestos": [
+      {
+       "id": "libros_texto_material_escolar",
+       "norma": "Art. 5.Veinticinco DL 1/2011 (añadido por la Ley 5/2025)",
+       "tipo": "porcentaje_campo_hijo",
+       "campo": "gastos_libros_texto",
+       "porcentaje": 0.15,
+       "limite": 105,
+       "edad_hijo_max": 16,
+       "suma_bases": "imponibles",
+       "base_max_por_miembro_uf": 30000,
+       "miembros_uf_hijos_edad_max": 24
+      }
+     ]
+    }
+   ]
+  },
+  "ES-MD": {
+   "territorio": "ES-MD",
+   "nombre": "Comunidad de Madrid",
+   "regimen": "comun",
+   "fichas": [
+    {
+     "titulo": "Por la obtención de la condición de familia numerosa de categoría general o especial",
+     "url_aeat": "https://sede.agenciatributaria.gob.es/Sede/ayuda/manuales-videos-folletos/manuales-practicos/irpf-2025-deducciones-autonomicas/comunidad-madrid/obtencion-condicion-familia-numerosa.html",
+     "boe": [
+      "BOE-A-2024-5610",
+      "BOE-A-2025-3303"
+     ],
+     "normas": [
+      "Arts. 13 bis y 18.2 DL 1/2010 Madrid"
+     ],
+     "supuestos": [
+      {
+       "id": "familia_numerosa_general",
+       "norma": "Arts. 13 bis y 18.2 DL 1/2010 Madrid",
+       "tipo": "porcentaje_cuota_autonomica",
+       "sobre_cuota_integra": true,
+       "porcentaje": 0.5,
+       "limite": 6186,
+       "limite_conjunta": 12372,
+       "familia_numerosa_categoria": "general",
+       "requiere_familia_numerosa_reciente": true,
+       "base_max_por_miembro_uf": 30930,
+       "suma_bases": "imponibles"
+      },
+      {
+       "id": "familia_numerosa_especial",
+       "norma": "Arts. 13 bis y 18.2 DL 1/2010 Madrid",
+       "tipo": "porcentaje_cuota_autonomica",
+       "sobre_cuota_integra": true,
+       "porcentaje": 1,
+       "limite": 12372,
+       "limite_conjunta": 24744,
+       "familia_numerosa_categoria": "especial",
+       "requiere_familia_numerosa_reciente": true,
+       "base_max_por_miembro_uf": 30930,
+       "suma_bases": "imponibles"
+      }
+     ]
+    },
+    {
+     "titulo": "Por gastos educativos",
+     "url_aeat": "https://sede.agenciatributaria.gob.es/Sede/ayuda/manuales-videos-folletos/manuales-practicos/irpf-2025-deducciones-autonomicas/comunidad-madrid/gastos-educativos.html",
+     "boe": [
+      "BOE-A-2024-5610"
+     ],
+     "normas": [
+      "Arts. 11 y 18.2 DL 1/2010 Madrid"
+     ],
+     "supuestos": [
+      {
+       "id": "gastos_educativos",
+       "norma": "Arts. 11 y 18.2 DL 1/2010 Madrid",
+       "tipo": "porcentaje_campos_hijo",
+       "campos": {
+        "gastos_escolaridad": 0.15,
+        "gastos_idiomas": 0.15,
+        "gastos_vestuario_escolar": 0.05
+       },
+       "limite": 412.4,
+       "limite_si_campo": {
+        "campo": "gastos_escolaridad",
+        "limite": 927.9
+       },
+       "primer_ciclo": {
+        "edad_hijo_max": 2,
+        "limite": 1031,
+        "campos": "gastos_escolaridad"
+       },
+       "base_max_por_miembro_uf": 30930,
+       "suma_bases": "imponibles"
+      }
+     ]
+    }
+   ]
+  },
+  "ES-VC": {
+   "territorio": "ES-VC",
+   "nombre": "Comunitat Valenciana",
+   "regimen": "comun",
+   "fichas": [
+    {
+     "titulo": "Por ascendientes mayores de 75 años o mayores de 65 años con discapacidad",
+     "url_aeat": "https://sede.agenciatributaria.gob.es/Sede/ayuda/manuales-videos-folletos/manuales-practicos/irpf-2025-deducciones-autonomicas/comunitat-valenciana/ascendientes-mayores-75-anos-mayores-discapacidad.html",
+     "boe": [
+      "BOE-A-1998-8202"
+     ],
+     "normas": [
+      "Art. 4.Uno.h), Cuatro y Cinco Ley 13/1997"
+     ],
+     "supuestos": [
+      {
+       "id": "ascendientes_75",
+       "norma": "Art. 4.Uno.h), Cuatro y Cinco Ley 13/1997",
+       "tipo": "fija_por_ascendiente",
+       "importe": 197,
+       "edad_ascendiente_min": 76,
+       "ascendiente_discapacidad": "65_mas",
+       "edad_ascendiente_min_discapacidad": 66,
+       "requiere_minimo_ascendiente": true,
+       "prorratea_progenitores": true,
+       "base_max_individual": 30000,
+       "base_max_conjunta": 47000,
+       "taper_individual": [
+        27000,
+        30000
+       ],
+       "taper_conjunta": [
+        44000,
+        47000
+       ]
+      }
+     ]
+    },
+    {
+     "titulo": "Por cantidades destinadas a la adquisición de material escolar",
+     "url_aeat": "https://sede.agenciatributaria.gob.es/Sede/ayuda/manuales-videos-folletos/manuales-practicos/irpf-2025-deducciones-autonomicas/comunitat-valenciana/cantidades-destinadas-adquisicion-material-escolar.html",
+     "boe": [
+      "BOE-A-2025-11959"
+     ],
+     "normas": [
+      "Art. 4.Uno.v), Cuatro y Cinco Ley 13/1997 (red. Ley 5/2025)"
+     ],
+     "supuestos": [
+      {
+       "id": "material_escolar",
+       "norma": "Art. 4.Uno.v), Cuatro y Cinco Ley 13/1997 (red. Ley 5/2025)",
+       "tipo": "fija_por_hijo",
+       "importe": 110,
+       "edad_hijo_min": 6,
+       "edad_hijo_max": 16,
+       "requiere_desempleo": true,
+       "prorratea_desempleo": true,
+       "prorratea_progenitores": true,
+       "base_max_individual": 30000,
+       "base_max_conjunta": 47000,
+       "taper_individual": [
+        27000,
+        30000
+       ],
+       "taper_conjunta": [
+        44000,
+        47000
+       ]
+      }
+     ]
+    }
+   ]
+  },
+  "ES-PV-BI": {
+   "territorio": "ES-PV-BI",
+   "nombre": "Bizkaia",
+   "regimen": "foral_pais_vasco",
+   "norma_base": "Norma Foral 13/2013",
+   "bloques": {
+    "minoracion_cuota": {
+     "norma": "Art. 77 NF 13/2013 y equivalentes",
+     "fuente": "DF Gipuzkoa Modelo 109 (2025); DFB (Bizkaia 2025)",
+     "estado": "confirmado",
+     "importe_gipuzkoa": 1583,
+     "importe_bizkaia": 1615,
+     "importe_araba": 1583
+    },
+    "deduccion_descendientes": {
+     "norma": "Art. 79 NF 3/2014 Gipuzkoa (y equivalentes)",
+     "fuente": "DF Gipuzkoa Modelo 109 (2025); DFB (Bizkaia 2025) — importes por orden idénticos en los 3 TH",
+     "estado": "confirmado",
+     "importes": {
+      "1": 668,
+      "2": 827,
+      "3": 1393,
+      "4": 1647,
+      "5+": 2151
+     },
+     "incremento_menor_6_anios": 394
+    }
+   }
+  },
+  "ES-PV-SS": {
+   "territorio": "ES-PV-SS",
+   "nombre": "Gipuzkoa",
+   "regimen": "foral_pais_vasco",
+   "norma_base": "Norma Foral 3/2014",
+   "bloques": {
+    "minoracion_cuota": {
+     "norma": "Art. 77 NF 13/2013 y equivalentes",
+     "fuente": "DF Gipuzkoa Modelo 109 (2025); DFB (Bizkaia 2025)",
+     "estado": "confirmado",
+     "importe_gipuzkoa": 1583,
+     "importe_bizkaia": 1615,
+     "importe_araba": 1583
+    },
+    "deduccion_descendientes": {
+     "norma": "Art. 79 NF 3/2014 Gipuzkoa (y equivalentes)",
+     "fuente": "DF Gipuzkoa Modelo 109 (2025); DFB (Bizkaia 2025) — importes por orden idénticos en los 3 TH",
+     "estado": "confirmado",
+     "importes": {
+      "1": 668,
+      "2": 827,
+      "3": 1393,
+      "4": 1647,
+      "5+": 2151
+     },
+     "incremento_menor_6_anios": 386
+    },
+    "deduccion_anualidades_alimentos_hijos": {
+     "norma": "Art. 79 NF 3/2014 y equivalentes",
+     "fuente": "DF Gipuzkoa, Modelo 109 (2025)",
+     "estado": "confirmado",
+     "porcentaje": 0.15,
+     "limites": {
+      "1": 200.4,
+      "2": 248.1,
+      "3": 417.9,
+      "4": 494.1,
+      "5+": 645.3
+     }
+    },
+    "deduccion_ascendientes": {
+     "norma": "Art. 80 NF 3/2014 y equivalentes",
+     "fuente": "DF Gipuzkoa, Modelo 109 (2025)",
+     "estado": "confirmado",
+     "importe": 321
+    },
+    "deduccion_discapacidad": {
+     "norma": "Art. 82 NF 3/2014 y equivalentes",
+     "fuente": "DF Gipuzkoa, Modelo 109 (2025)",
+     "estado": "confirmado",
+     "grado_33_64": 888,
+     "grado_65_mas_o_dependencia_moderada": 1268,
+     "grado_75_15_39_puntos_o_dependencia_severa": 1521,
+     "grado_75_40_puntos_o_gran_dependencia": 2040
+    },
+    "deduccion_edad": {
+     "norma": "Art. 82 NF 3/2014 y equivalentes",
+     "fuente": "DF Gipuzkoa, Modelo 109 (2025)",
+     "estado": "confirmado",
+     "individual": {
+      "edad_65": {
+       "importe": 385,
+       "base_plena": 20000,
+       "base_cero": 30000,
+       "coef_reduccion": 0.0385
+      },
+      "edad_75": {
+       "importe": 700,
+       "base_plena": 20000,
+       "base_cero": 30000,
+       "coef_reduccion": 0.07
+      }
+     },
+     "conjunta": {
+      "edad_65": {
+       "importe": 385,
+       "base_plena": 35000,
+       "base_cero": 35000
+      },
+      "edad_75": {
+       "importe": 700,
+       "base_plena": 35000,
+       "base_cero": 35000
+      }
+     }
+    },
+    "deduccion_viudedad": {
+     "norma": "NF 3/2014 y equivalentes",
+     "fuente": "DF Gipuzkoa, Modelo 109 (2025)",
+     "estado": "confirmado",
+     "importe": 200,
+     "base_plena": 20000,
+     "base_cero": 30000,
+     "coef_reduccion": 0.02,
+     "incompatible_con": "deduccion_edad"
+    },
+    "deduccion_alquiler_vivienda": {
+     "norma": "Art. 86 NF 3/2014 y equivalentes; NF 1/2025 (efectos 2025)",
+     "fuente": "DF Gipuzkoa, Modelo 109 (2025)",
+     "estado": "confirmado",
+     "general": {
+      "porcentaje": 0.2,
+      "limite": 1600
+     },
+     "colectivo_especial": {
+      "porcentaje": 0.35,
+      "limite": 2800
+     }
+    },
+    "deduccion_adquisicion_vivienda": {
+     "norma": "Arts. 87–89 NF 3/2014 y equivalentes; NF 1/2025",
+     "fuente": "DF Gipuzkoa, Modelo 109 (2025)",
+     "estado": "confirmado",
+     "credito_fiscal_vital": 36000,
+     "general": {
+      "porcentaje": 0.18,
+      "limite_anual": 1530
+     },
+     "colectivo_especial": {
+      "porcentaje": 0.23,
+      "limite_anual": 1955
+     },
+     "menor_36": {
+      "porcentaje": 0.23,
+      "limite_anual": 1955,
+      "sin_limite_anio_compra": true
+     },
+     "transitorio_pre_2012": {
+      "general": {
+       "porcentaje": 0.18,
+       "limite_anual": 2160
+      },
+      "colectivo_especial": {
+       "porcentaje": 0.23,
+       "limite_anual": 2760
+      }
+     },
+     "doble_limite_conjunta": true
+    },
+    "deduccion_patrimonio_protegido": {
+     "norma": "NF 3/2014 y equivalentes",
+     "fuente": "DF Gipuzkoa, Modelo 109 (2025)",
+     "estado": "confirmado",
+     "porcentaje": 0.3,
+     "limite_anual": 3000
+    }
+   }
+  },
+  "ES-NC": {
+   "territorio": "ES-NC",
+   "nombre": "Navarra",
+   "regimen": "foral_navarra",
+   "norma_base": "Decreto Foral Legislativo 4/2008, Texto Refundido de la Ley Foral del IRPF",
+   "bloques": {
+    "minimo_personal_deduccion": {
+     "norma": "Art. 62.9.a) DFL 4/2008 (TR IRPF Navarra), redacción de la Ley Foral 22/2023, art. primero.Doce (efectos 2024; sin cambios en 2025: la LF 20/2024 no lo modifica y la LF 17/2025 lo hace desde 2026)",
+     "fuente": "BOE-A-2024-1694 (texto literal del art. 62.9 a), b) y c)); Hacienda Foral de Navarra, Manual teórico Renta y Patrimonio 2025 (actualizado a 02-02-2026), apartados «Por mínimo personal» y «Por mínimo familiar»",
+     "estado": "confirmado",
+     "importe_general": 1084,
+     "incremento_rentas_bajas": 150,
+     "umbral_rentas_bajas": 30000,
+     "incremento_65": 264,
+     "incremento_75": 585,
+     "incremento_discapacidad_33_64": 766,
+     "incremento_discapacidad_65_mas": 2757,
+     "incremento_monoparental_conjunta": 668
+    },
+    "deduccion_alquiler_vivienda": {
+     "norma": "Art. 62.2 DFL 4/2008 (TR IRPF Navarra), redacción de la Ley Foral 22/2023, art. primero.Nueve (efectos 2024)",
+     "fuente": "BOE-A-2024-1694 (Ley Foral 22/2023, de 26 de diciembre); BOE-A-2025-719 (LF 20/2024: sin cambios en el art. 62.2)",
+     "estado": "confirmado",
+     "general": {
+      "porcentaje": 0.15,
+      "limite": 1500
+     },
+     "joven_o_monoparental": {
+      "porcentaje": 0.2,
+      "limite": 1600,
+      "edad_max": 30
+     },
+     "rentas_max": 30000,
+     "umbral_esfuerzo": 0.1
+    }
+   }
+  }
+ }
+}

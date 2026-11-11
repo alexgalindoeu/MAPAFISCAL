@@ -50,7 +50,8 @@ export function empaquetar() {
   sustituir('<script src="js/irpfsim.js"></script>', "<script>\n" + leer("js/irpfsim.js") + "</script>");
   sustituir('<script src="js/app.js"></script>', "<script>\n" + leer("js/app.js") + "</script>");
   sustituir('<script src="js/herramientas.js"></script>', "<script>\n" + leer("js/herramientas.js") + "</script>");
-  html = html.replace(/href="legal\//g, `href="${WEB_PUBLICA}legal/`);
+  // Las páginas legales, las de territorio y sueldo y las guías no van dentro: apuntan a la web publicada.
+  html = html.replace(/href="(legal|irpf|guias|comparar-sueldo)\//g, (m, dir) => `href="${WEB_PUBLICA}${dir}/`);
   return html;
 }
 
