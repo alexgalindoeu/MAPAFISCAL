@@ -25,17 +25,25 @@ window.MAPAFISCAL_CONFIG = {
   // vuelve a pedir la aceptación a quien aceptó una versión anterior.
   condicionesVersion: "2026-09-27",
 
-  // Anuncios (AdSense) en los huecos laterales de la calculadora y de "Comparar". En false,
-  // no se carga nada de Google ni la CMP: no hay banner de cookies porque no hace falta. No
-  // se muestran nunca a quien tiene plan Gestor. La versión autónoma (empaquetar.mjs) fuerza
-  // esto a false, igual que hace con pagosActivos.
-  anuncios: false, // en true cuando AdSense apruebe el sitio (ver negocio/anuncios.md §5)
+  // Anuncios (Google AdSense): carriles laterales en escritorio y huecos en el flujo. En
+  // false no se carga nada de Google ni la CMP, y no hay aviso de cookies porque no hace
+  // falta. Nunca para quien tiene plan de pago. La versión autónoma (empaquetar.mjs) lo fuerza
+  // a false. PARA ENCENDER: poner los data-ad-slot de abajo y `anuncios: true` en la misma PR
+  // (la política de cookies se adapta sola: legal/cookies.html lee este fichero).
+  anuncios: false,
   adsenseCliente: "ca-pub-3028486034839853",
 
-  // Bloques de anuncios: se crean en AdSense tras la aprobación (Anuncios → Por bloque de
-  // anuncios), uno por hueco. Vacíos, el hueco correspondiente no pide nada.
-  adsenseHuecoCalc: "",
-  adsenseHuecoComparar: "",
-  adsenseHuecoRailIzq: "",
-  adsenseHuecoRailDer: ""
+  // Consentimiento en el EEE: "google" = CMP certificada de Google («Privacidad y mensajes»
+  // de AdSense, mensaje RGPD publicado): sale sola con los anuncios, sin aviso propio.
+  // "propio" = aviso de Mapafiscal (Aceptar/Rechazar) y nada de Google hasta aceptar; solo
+  // como plan B, porque sin CMP certificada Google solo sirve anuncios limitados.
+  consentimiento: "google",
+
+  // data-ad-slot de cada bloque (AdSense → Anuncios → Por bloque de anuncios → Anuncios de
+  // display, «Adaptable»). Vacío, ese hueco no se muestra ni pide nada.
+  adsenseHuecoRailIzq: "",   // «mf-carril-izq»: carril izquierdo, escritorio ≥1280 px
+  adsenseHuecoRailDer: "",   // «mf-carril-der»: carril derecho, escritorio ≥1280 px
+  adsenseHuecoMovil: "",     // «mf-resultado-medio»: entre tarjetas del resultado, por debajo de 1280 px
+  adsenseHuecoCalc: "",      // «mf-resultado-final»: al final de la columna de resultados
+  adsenseHuecoComparar: ""   // «mf-comparar»: bajo el mapa y la tabla de Comparar
 };

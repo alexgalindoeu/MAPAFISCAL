@@ -14,14 +14,15 @@
 <body>
 <!--CUERPO-->
 <a class="salto-contenido" href="#contenido-principal">Saltar al contenido principal</a>
-<!-- Carriles de anuncios en el margen de la página (solo pantallas muy anchas; ver
+<!-- Carriles de anuncios a los lados del contenido (escritorio desde 1280 px; ver
      .anuncio-carril en mapafiscal.css). Vacíos y ocultos hasta que anuncios.js decida
-     mostrarlos: nunca para quien tiene plan Gestor ni con anuncios:false. -->
+     mostrarlos: nunca para quien tiene plan Gestor ni con anuncios:false. La etiqueta
+     solo puede ser «Anuncios» o «Enlaces patrocinados» (política de AdSense). -->
 <aside class="anuncio-carril anuncio-carril-izq" id="anuncio-rail-izq" hidden>
-  <span class="anuncio-etiqueta">Publicidad</span>
+  <span class="anuncio-etiqueta">Anuncios</span>
 </aside>
 <aside class="anuncio-carril anuncio-carril-der" id="anuncio-rail-der" hidden>
-  <span class="anuncio-etiqueta">Publicidad</span>
+  <span class="anuncio-etiqueta">Anuncios</span>
 </aside>
 <header class="appbar">
   <div class="appbar-in">
@@ -218,6 +219,10 @@
         <table class="desglose" id="res-desglose"></table>
       </div>
 
+      <div class="tarjeta anuncio anuncio-solo-estrecho" id="anuncio-calc-medio" hidden>
+        <span class="anuncio-etiqueta">Anuncios</span>
+      </div>
+
       <div class="tarjeta" id="tarjeta-deducciones">
         <h2 class="rotulo">Deducciones aplicadas</h2>
         <ul class="deducciones" id="res-deducciones"></ul>
@@ -231,7 +236,7 @@
       <p class="res-pie"><a href="#metodologia">Cómo calculamos</a></p>
 
       <div class="tarjeta anuncio anuncio-calc" id="anuncio-calc" hidden>
-        <span class="anuncio-etiqueta">Publicidad</span>
+        <span class="anuncio-etiqueta">Anuncios</span>
       </div>
     </aside>
   </div>
@@ -269,7 +274,7 @@
   </div>
 
   <div class="tarjeta anuncio anuncio-comparar" id="anuncio-comparar" hidden>
-    <span class="anuncio-etiqueta">Publicidad</span>
+    <span class="anuncio-etiqueta">Anuncios</span>
   </div>
 
   <p class="nota nota-pie" id="comp-nota"></p>
@@ -491,7 +496,7 @@
     <p><b>Mapafiscal</b> ofrece estimaciones con fines informativos. No es una liquidación oficial ni asesoramiento fiscal.</p>
     <p class="pie-sec"><a href="irpf/">IRPF por territorio</a> · <a href="guias/">Guías del IRPF</a> · <a href="comparar-sueldo/">Dónde se paga menos IRPF</a></p>
     <p class="pie-sec"><a href="#metodologia">Cómo calculamos</a> · Normativa del ejercicio <span data-ejercicio>2025</span> · Motor validado R ↔ JavaScript · Cartografía: <span title="es-atlas (MIT) sobre datos del Instituto Geográfico Nacional, CC BY 4.0">© Instituto Geográfico Nacional (CC BY 4.0)</span></p>
-    <p class="pie-sec"><a href="legal/aviso-legal.html">Aviso legal</a> · <a href="legal/privacidad.html">Privacidad</a> · <a href="legal/condiciones.html">Condiciones</a> · <a href="legal/cookies.html">Cookies</a> · <a href="legal/aviso-legal.html#contacto">Contacto</a></p>
+    <p class="pie-sec"><a href="legal/aviso-legal.html">Aviso legal</a> · <a href="legal/privacidad.html">Privacidad</a> · <a href="legal/condiciones.html">Condiciones</a> · <a href="legal/cookies.html">Cookies</a><span id="pie-configurar-cookies" hidden> · <a href="legal/cookies.html#publicidad">Configurar cookies</a></span> · <a href="legal/aviso-legal.html#contacto">Contacto</a></p>
   </div>
 </footer>
 
