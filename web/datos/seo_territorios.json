@@ -1,6 +1,6 @@
 {
  "ejercicio": 2025,
- "generado": "2026-09-28",
+ "generado": "2026-11-11",
  "territorios": {
   "ES-AN": {
    "territorio": "ES-AN",
@@ -64,7 +64,7 @@
     }
    },
    "deducciones": {
-    "modeladas": 11,
+    "modeladas": 13,
     "provisionales": 0,
     "pendientes": 9
    }
@@ -586,8 +586,8 @@
     "fuente_autonomica": null
    },
    "deducciones": {
-    "modeladas": 10,
-    "provisionales": 1,
+    "modeladas": 14,
+    "provisionales": 0,
     "pendientes": 11
    }
   },
@@ -809,8 +809,8 @@
     }
    },
    "deducciones": {
-    "modeladas": 9,
-    "provisionales": 6,
+    "modeladas": 15,
+    "provisionales": 1,
     "pendientes": 9
    }
   },
