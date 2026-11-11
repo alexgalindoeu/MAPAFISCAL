@@ -32,9 +32,9 @@ jobs:
         with:
           node-version: 22
       - run: npm test
-      # Rellena {{CONTACTO}} con el correo de web/config.js. No se pasa ningún dato personal: lo
-      # que va en `env:` sale en claro en el registro público de la ejecución. Si queda algún
-      # hueco sin rellenar, o el correo es el marcador, no se publica.
+      # Los textos legales no llevan datos personales del titular (regla absoluta, 28-09-2026):
+      # solo el nombre comercial y el correo de contacto. Si ese correo sigue siendo el
+      # marcador de pruebas, esto falla y no se publica.
       - name: Correo de contacto en los textos legales
         run: node tools/rellenar_titular.mjs
       # Añade ?v=<commit> a los CSS y JS de cada HTML de la copia que se publica, para que el
