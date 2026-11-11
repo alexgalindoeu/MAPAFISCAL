@@ -1,0 +1,44 @@
+/* =============================================================================
+   Mapafiscal — páginas legales (web/legal/*.html)
+   Texto largo sobre la base de mapafiscal.css: mismas variables, barra y pie.
+   ========================================================================== */
+
+.legal { padding-top: 28px; padding-bottom: 48px; }
+.legal-texto { max-width: 860px; margin: 0 auto; padding: clamp(20px, 4vw, 44px); }
+.legal-texto h1 { font-size: clamp(24px, 3vw, 30px); font-weight: 700; letter-spacing: -.02em; }
+.legal-fecha { color: var(--tinta-3); font-size: 13px; margin: 6px 0 22px; }
+.legal-texto h2 { font-size: 19px; margin: 34px 0 8px; scroll-margin-top: 80px; }
+.legal-texto h3 { font-size: 16px; margin: 24px 0 6px; scroll-margin-top: 80px; }
+.legal-texto p, .legal-texto li, .legal-texto dd { color: var(--tinta-2); max-width: 74ch; }
+.legal-texto p { margin: 0 0 12px; }
+.legal-texto ul, .legal-texto ol { padding-left: 22px; margin: 0 0 12px; }
+.legal-texto li + li { margin-top: 4px; }
+.legal-texto b, .legal-texto strong { color: var(--tinta); }
+.legal-texto code { font-family: var(--mono); font-size: 13px; background: var(--superficie-2); border: 1px solid var(--linea);
+  padding: 0 4px; border-radius: 4px; overflow-wrap: anywhere; }
+
+.legal-resumen { background: var(--marca-suave); border-radius: 8px; padding: 14px 18px; margin: 0 0 8px; }
+.legal-resumen p { margin: 0 0 6px; color: var(--tinta); }
+.legal-resumen ul { margin: 0; }
+
+.legal-ficha { display: grid; grid-template-columns: max-content 1fr; gap: 4px 16px; margin: 8px 0 14px; }
+.legal-ficha dt { font-weight: 600; color: var(--tinta); }
+.legal-ficha dd { margin: 0; overflow-wrap: anywhere; }
+
+.legal-tabla { overflow-x: auto; margin: 10px 0 16px; border: 1px solid var(--linea); border-radius: 8px; }
+.legal-tabla table { border-collapse: collapse; width: 100%; font-size: 14px; }
+.legal-tabla th, .legal-tabla td { text-align: left; vertical-align: top; padding: 9px 12px; border-bottom: 1px solid var(--linea); color: var(--tinta-2); }
+.legal-tabla tr:last-child td { border-bottom: 0; }
+.legal-tabla th { color: var(--tinta); font-weight: 600; background: var(--superficie-2); }
+
+.legal-modelo { border-left: 3px solid var(--linea-2); padding: 2px 0 2px 16px; margin: 8px 0 14px; }
+.legal-modelo p { margin: 0 0 6px; }
+
+@media (max-width: 560px) {
+  .legal-ficha { grid-template-columns: 1fr; gap: 0; }
+  .legal-ficha dd { margin-bottom: 8px; }
+}
+@media print {
+  .legal { padding: 0; }
+  .legal-texto { border: 0; box-shadow: none; padding: 0; }
+}

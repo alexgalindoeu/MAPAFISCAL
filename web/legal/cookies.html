@@ -1,0 +1,81 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Cookies · Mapafiscal</title>
+<meta name="description" content="Qué guarda Mapafiscal en tu navegador y por qué no necesita pedirte consentimiento.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500&display=swap">
+<link rel="stylesheet" href="../css/mapafiscal.css">
+<link rel="stylesheet" href="../css/legal.css">
+</head>
+<body>
+<header class="appbar">
+  <div class="appbar-in">
+    <a class="marca" href="../" aria-label="Mapafiscal, volver a la calculadora">
+      <svg class="marca-ico" viewBox="0 0 32 32" aria-hidden="true"><rect width="32" height="32" rx="7" class="marca-fondo"/><path d="M8 22V10l5 6 5-6v12" class="marca-trazo"/><path d="M21 13h4M21 17h4M21 21h4" class="marca-trazo"/></svg>
+      <span class="marca-txt">Mapafiscal</span>
+    </a>
+    <nav class="nav" aria-label="Textos legales">
+      <a href="aviso-legal.html">Aviso legal</a>
+      <a href="privacidad.html">Privacidad</a>
+      <a href="condiciones.html">Condiciones</a>
+      <a href="cookies.html" aria-current="page">Cookies</a>
+    </nav>
+  </div>
+</header>
+
+<main class="contenedor legal">
+<article class="tarjeta legal-texto">
+  <h1>Política de cookies</h1>
+  <p class="legal-fecha">Versión de 27 de septiembre de 2026</p>
+
+  <div class="legal-resumen">
+    <p><b>En resumen</b></p>
+    <ul>
+      <li>Mapafiscal <b>no usa cookies</b> ni herramientas de analítica o de publicidad.</li>
+      <li>Solo guarda en tu navegador lo imprescindible para que funcione lo que pides: tu sesión, si inicias sesión, y a qué pantalla volver después.</li>
+      <li>Por eso no te mostramos ningún aviso ni te pedimos consentimiento.</li>
+    </ul>
+  </div>
+
+  <h2 id="que-son">1. Qué son las cookies y el almacenamiento local</h2>
+  <p>Las cookies y otras técnicas parecidas, como el almacenamiento local del navegador (<code>localStorage</code>), permiten a una web guardar información en tu dispositivo y leerla después. El artículo 22.2 de la Ley 34/2002 (LSSI) exige tu consentimiento para usarlas, <b>salvo</b> cuando sirven solo para transmitir una comunicación o son estrictamente necesarias para prestar un servicio que has pedido expresamente.</p>
+
+  <h2 id="que-guardamos">2. Qué guarda Mapafiscal en tu navegador</h2>
+  <p>Mapafiscal no instala cookies. Solo usa el almacenamiento local, y únicamente cuando inicias sesión o vas a contratar un plan:</p>
+  <div class="legal-tabla"><table>
+    <thead><tr><th scope="col">Nombre</th><th scope="col">Para qué</th><th scope="col">Cuánto dura</th></tr></thead>
+    <tbody>
+      <tr><td><code>sb-pqiqrcvuztxrwrwizppj-auth-token</code></td><td>Mantener tu sesión iniciada para acceder a tu cuenta. La crea la librería de nuestra base de datos (Supabase) al entrar.</td><td>Hasta que cierras sesión o borras los datos del navegador</td></tr>
+      <tr><td><code>mapafiscal.trasAcceso</code></td><td>Recordar a qué pantalla volver después de iniciar sesión con el enlace del correo o con Google.</td><td>Se borra al volver</td></tr>
+      <tr><td><code>mapafiscal.pagoPendiente</code></td><td>Seguir con el pago del plan que elegiste si antes tenías que iniciar sesión.</td><td>Se borra al volver; caduca a las 2 horas</td></tr>
+    </tbody>
+  </table></div>
+  <p>Son propios de Mapafiscal, no se comparten con terceros y son estrictamente necesarios para los servicios que pides (iniciar sesión y contratar), por lo que están exentos de consentimiento (art. 22.2 LSSI). Los datos que escribes en la calculadora no se guardan en tu navegador ni se envían a ningún servidor.</p>
+
+  <h2 id="terceros">3. Servicios de terceros</h2>
+  <ul>
+    <li><b>Al cargar la web</b>, tu navegador descarga las tipografías de Google Fonts y una librería de jsDelivr. Estas descargas no instalan cookies, aunque esos servicios reciben tu dirección IP para poder enviarte los ficheros (ver la <a href="privacidad.html#visita">política de privacidad</a>).</li>
+    <li><b>Si pagas o gestionas tu suscripción</b>, lo haces en páginas de Stripe (<code>checkout.stripe.com</code> y <code>billing.stripe.com</code>), que usan sus propias cookies, necesarias para el pago y la prevención del fraude. Las explica la <a href="https://stripe.com/es/legal/cookies-policy" rel="noopener">política de cookies de Stripe</a>.</li>
+    <li><b>Si entras con Google</b>, lo haces en páginas de Google, con sus propias cookies. Las explica la <a href="https://policies.google.com/technologies/cookies?hl=es" rel="noopener">política de Google</a>.</li>
+  </ul>
+
+  <h2 id="borrar">4. Cómo borrarlo</h2>
+  <p>Al cerrar sesión se borra tu sesión. También puedes borrar todo lo que Mapafiscal guarda en tu navegador desde su configuración (en la mayoría, «Privacidad» → «Borrar datos de navegación» o «Datos de sitios web»). Si lo borras, tendrás que volver a iniciar sesión.</p>
+
+  <h2 id="cambios">5. Cambios</h2>
+  <p>Si en el futuro Mapafiscal usa cookies o técnicas que necesiten tu consentimiento, por ejemplo de analítica o de publicidad, <b>te lo pediremos antes de usarlas</b>, con la opción de rechazarlas igual de fácil que de aceptarlas, y actualizaremos esta página.</p>
+</article>
+</main>
+
+<footer class="pie">
+  <div class="contenedor pie-in">
+    <p><b>Mapafiscal</b> ofrece estimaciones con fines informativos. No es una liquidación oficial ni asesoramiento fiscal.</p>
+    <p class="pie-sec"><a href="aviso-legal.html">Aviso legal</a> · <a href="privacidad.html">Privacidad</a> · <a href="condiciones.html">Condiciones</a> · <a href="cookies.html">Cookies</a> · <a href="aviso-legal.html#contacto">Contacto</a> · <a href="../">Volver a la calculadora</a></p>
+  </div>
+</footer>
+</body>
+</html>
