@@ -37,6 +37,11 @@ jobs:
       # hueco sin rellenar, o el correo es el marcador, no se publica.
       - name: Correo de contacto en los textos legales
         run: node tools/rellenar_titular.mjs
+      # Añade ?v=<commit> a los CSS y JS de cada HTML de la copia que se publica, para que el
+      # navegador no mezcle un index.html nuevo con un app.js viejo de su caché (Pages los
+      # sirve con max-age=600). El código fuente no cambia.
+      - name: Versionar CSS y JS
+        run: node tools/versionar_recursos.mjs web "$GITHUB_SHA"
       - uses: actions/configure-pages@v6
       - uses: actions/upload-pages-artifact@v5
         with:

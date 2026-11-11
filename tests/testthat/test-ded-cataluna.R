@@ -51,3 +51,14 @@ test_that("Cataluña: inversión en cooperativas agrarias/vivienda (20 %, límit
     inversion_cooperativas_cat=5000)))
   expect_equal(liquidar(h)$deducciones_autonomicas$detalle$inversion_cooperativas_agrarias_vivienda, 1000)
 })
+
+test_that("Cataluña: el alquiler (art. 612-3) mira base imponible − mínimo, no la base liquidable", {
+  # 30 años, 41.164 € de trabajo: base imponible 36.550; − 5.550 = 31.000 > 30.000.
+  # Con 1.500 € al plan de pensiones (tope individual) la base liquidable baja a 35.050 (− 5.550 = 29.500),
+  # pero la deducción usa la base imponible -> no aplica.
+  d <- persona("d1","declarante",30, trabajo=list(dinerarias=41164, cotizaciones_ss=2614),
+               prevision_social=list(aportacion_individual=1500), alquiler_vivienda_pagos=8000)
+  l <- liquidar(nuevo_hogar("v","ES-CT", list(d)), modo="individual")
+  expect_lt(l$base_liquidable_general - 5550, 30000)
+  expect_null(l$deducciones_autonomicas$detalle$arrendamiento_vivienda_habitual)
+})

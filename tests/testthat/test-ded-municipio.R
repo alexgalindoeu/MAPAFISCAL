@@ -40,9 +40,15 @@ test_that("Comunitat Valenciana: 330 € + incremento por descendientes, reparti
 test_that("Galicia: nacimiento en los dos años siguientes y +20 % en municipio < 5.000 hab.", {
   m <- list(trab("d1", "declarante", 34, 22000, 1397), persona("h1", "descendiente", 1),
             persona("h2", "descendiente", 5))
-  # el hijo de 1 año es el 2.º por orden: 1.200 €; en municipio de 3.500 hab. +20 % = 1.440
-  expect_equal(det(hog("ES-GA", m, municipio = 3500, uf = "monoparental"))$nacimiento_adopcion_renta_baja, 1440)
-  expect_equal(det(hog("ES-GA", m, uf = "monoparental"))$nacimiento_adopcion_renta_baja, 1200)
+  # el hijo de 1 año (año siguiente al nacimiento) es el 2.º por orden: 1.200 €. El +20 %
+  # municipal solo es del año del nacimiento (art. 5.Dos.1), no de los dos siguientes.
+  expect_equal(det(hog("ES-GA", m, municipio = 3500, uf = "monoparental"))[["nacimiento_adopcion_renta_baja_anios_siguientes"]], 1200)
+  expect_equal(det(hog("ES-GA", m, uf = "monoparental"))[["nacimiento_adopcion_renta_baja_anios_siguientes"]], 1200)
+  # recién nacido (2.º por orden): 1.200 €; en municipio de 3.500 hab. +20 % = 1.440
+  m0 <- list(trab("d1", "declarante", 34, 22000, 1397), persona("h1", "descendiente", 0, nacido_en_ejercicio = TRUE),
+             persona("h2", "descendiente", 5))
+  expect_equal(det(hog("ES-GA", m0, municipio = 3500, uf = "monoparental"))[["nacimiento_adopcion_renta_baja"]], 1440)
+  expect_equal(det(hog("ES-GA", m0, uf = "monoparental"))[["nacimiento_adopcion_renta_baja"]], 1200)
 })
 
 test_that("Cantabria: alquiler rural 20 %/600 € (se aplica la mayor) y 20 % de la cuota a menores de 40", {

@@ -161,14 +161,16 @@ Google solo aparece si el proveedor está activado (lo consulta en `/auth/v1/set
    *Audience* → externo y **publicar la app** (en modo prueba solo entran los usuarios de
    prueba); *Data Access* → `openid`, `…/auth/userinfo.email` y `…/auth/userinfo.profile`.
 2. *Clients* → *Create client* → **Aplicación web**. *Authorized JavaScript origins*:
-   `https://alexgalindoeu.github.io` y `http://localhost:8080`. *Authorized redirect URIs*:
-   `https://pqiqrcvuztxrwrwizppj.supabase.co/auth/v1/callback`. Guarda el Client ID y el
-   Client Secret.
+   `https://mapafiscal.es`, `https://alexgalindoeu.github.io` y `http://localhost:8080`
+   (dominio propio ya conectado el 27-09; el de GitHub Pages se puede quitar cuando deje de
+   usarse). *Authorized redirect URIs*: `https://pqiqrcvuztxrwrwizppj.supabase.co/auth/v1/callback`.
+   Guarda el Client ID y el Client Secret.
 3. Supabase → Authentication → Sign In / Providers → **Google**: activarlo y pegar el Client
    ID y el Client Secret.
-4. Supabase → Authentication → URL Configuration: *Site URL*
-   `https://alexgalindoeu.github.io/MAPAFISCAL/`; *Redirect URLs*
-   `https://alexgalindoeu.github.io/MAPAFISCAL/**` y `http://localhost:8080/**`.
+4. Supabase → Authentication → URL Configuration: *Site URL* `https://mapafiscal.es/`;
+   *Redirect URLs* `https://mapafiscal.es/**`, `https://alexgalindoeu.github.io/MAPAFISCAL/**`
+   y `http://localhost:8080/**`. (Si ya lo cambiaste al conectar el dominio, revisa que estén
+   las tres.)
 
 Si una persona ya tenía cuenta por correo, al entrar con Google con el mismo correo Supabase
 enlaza las dos identidades (Google verifica el correo). En la pantalla de Google aparece el
