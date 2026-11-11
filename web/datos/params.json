@@ -1,6 +1,6 @@
 {
  "ejercicio": 2025,
- "generado": "2026-09-28",
+ "generado": "2026-11-11",
  "ejercicios": {
   "por_defecto": 2025,
   "publicados": [
@@ -369,10 +369,10 @@
   },
   "minoracion_cuota": {
    "norma": "Art. 77 NF 13/2013 y equivalentes",
-   "fuente": "DF Gipuzkoa Modelo 109 (2025); DFB (Bizkaia 2025)",
+   "fuente": "DF Gipuzkoa Modelo 109 (2025); Bizkaia: art. 50 NF 10/2023 (BOB 30-12-2023), que no cambia en 2025 (la NF 3/2024 de Presupuestos para 2025 no toca el IRPF); Araba: NF 19/2024, art. 2.Tercero.Diez (BOTHA n.º 147, 30-12-2024)",
    "estado": "confirmado",
    "importe_gipuzkoa": 1583,
-   "importe_bizkaia": 1615,
+   "importe_bizkaia": 1583,
    "importe_araba": 1583
   },
   "exencion_dividendos": {
@@ -383,7 +383,7 @@
   },
   "deduccion_descendientes": {
    "norma": "Art. 79 NF 3/2014 Gipuzkoa (y equivalentes)",
-   "fuente": "DF Gipuzkoa Modelo 109 (2025); DFB (Bizkaia 2025) — importes por orden idénticos en los 3 TH",
+   "fuente": "DF Gipuzkoa Modelo 109 (2025); Bizkaia: art. 51 NF 10/2023 (BOB 30-12-2023) y Hacienda Foral de Bizkaia, ficha «Deducción por descendientes» (importes 2024-2025). Araba, ver override",
    "estado": "confirmado",
    "importes": {
     "1": 668,
@@ -498,10 +498,12 @@
    "ES-PV-BI": {
     "nombre": "Bizkaia",
     "norma_base": "Norma Foral 13/2013",
-    "fuente": "DFB — Deducciones IRPF Bizkaia 2025 (bizkaia.eus); deia.eus 02-04-2025",
-    "deduccion_descendientes": {
+    "fuente": "NF 10/2023, de Presupuestos de Bizkaia para 2024 (BOB 30-12-2023), arts. 50 a 54, sin cambios en 2025; Hacienda Foral de Bizkaia, fichas de deducciones de Renta 2025 (dfb.microsoftcrmportals.com KA-01038 y KA-01510)",
+    "deduccion_discapacidad": {
+     "norma": "Art. 82.1 NF 13/2013 Bizkaia (redacción del art. 53 NF 10/2023, efectos 1-1-2024; mismos importes en 2025)",
+     "fuente": "BOB 30-12-2023; Hacienda Foral de Bizkaia, ficha KA-01510 (columna «2024 y 2025»: 888 / 1.268 / 1.521 / 1.897)",
      "estado": "confirmado",
-     "incremento_menor_6_anios": 394
+     "grado_75_40_puntos_o_gran_dependencia": 1897
     }
    },
    "ES-PV-SS": {
@@ -511,11 +513,46 @@
    "ES-PV-VI": {
     "nombre": "Araba/Álava",
     "norma_base": "Norma Foral 33/2013",
+    "fuente": "NF 19/2024, de 20 de diciembre, de medidas tributarias para 2025, art. 2.Tercero (efectos 1-1-2025), apartados Diez a Once quater (BOTHA n.º 147, 30-12-2024); la NF 3/2025 (BOTHA n.º 44, 16-04-2025) no cambia esos importes",
     "deduccion_descendientes": {
-     "estado": "provisional"
+     "norma": "Art. 79.1 y 79.2 NF 33/2013 Araba (redacción NF 19/2024, art. 2.Tercero.Once)",
+     "estado": "confirmado",
+     "importes": {
+      "1": 734.8,
+      "2": 909.7,
+      "3": 1532.3,
+      "4": 1811.7,
+      "5+": 2366.1
+     },
+     "incremento_menor_6_anios": 424.6,
+     "incremento_6_a_15_anios": 68.2
+    },
+    "deduccion_anualidades_alimentos_hijos": {
+     "norma": "Art. 80 NF 33/2013 Araba (redacción NF 3/2025): 15 %, con el límite por hijo del 30 % de la deducción del art. 79.1",
+     "estado": "confirmado",
+     "limites": {
+      "1": 220.44,
+      "2": 272.91,
+      "3": 459.69,
+      "4": 543.51,
+      "5+": 709.83
+     }
+    },
+    "deduccion_ascendientes": {
+     "norma": "Art. 81.1 NF 33/2013 Araba (redacción NF 19/2024, art. 2.Tercero.Once bis)",
+     "estado": "confirmado",
+     "importe": 423.72
+    },
+    "deduccion_discapacidad": {
+     "norma": "Art. 82.1 NF 33/2013 Araba (redacción NF 19/2024, art. 2.Tercero.Once quater)",
+     "estado": "confirmado",
+     "grado_33_64": 1025.64,
+     "grado_65_mas_o_dependencia_moderada": 1464.54,
+     "grado_75_15_39_puntos_o_dependencia_severa": 1756.75,
+     "grado_75_40_puntos_o_gran_dependencia": 2191.03
     },
     "minoracion_cuota": {
-     "estado": "provisional"
+     "estado": "confirmado"
     }
    }
   }

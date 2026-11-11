@@ -29,11 +29,33 @@ test_that("Gipuzkoa 2026: tarifa deflactada y +2 % en minoración y descendiente
   expect_equal(l25$cuota_liquida_total, 5298.80)
 })
 
-test_that("Araba 2026: la NF 21/2025 no actualiza descendientes (siguen los de 2025)", {
+test_that("Araba 2026: la NF 21/2025 no actualiza descendientes (siguen los de la NF 19/2024)", {
   l <- liquidar(familia26("ES-PV-VI"))
   expect_equal(l$minoracion_cuota, 1615)
-  expect_equal(l$deducciones_autonomicas$detalle$descendientes, 668 + 827 + 386)
-  expect_equal(l$cuota_liquida_total, 8744.80 - 1615 - 1881)
+  # hijo de 8 años: 734,80 + 68,20 (de 6 a 15 años); hija de 4: 909,70 + 424,60
+  expect_equal(l$deducciones_autonomicas$detalle$descendientes, 734.80 + 68.20 + 909.70 + 424.60)
+  expect_equal(l$cuota_liquida_total, 8744.80 - 1615 - 2137.30)
+})
+
+test_that("País Vasco 2025: erratas corregidas en Bizkaia y Araba (cotejo del 11-11-2026)", {
+  l <- liquidar(familia26("ES-PV-BI", 2025))
+  expect_equal(l$minoracion_cuota, 1583)                                   # no 1.615 (cifra de 2026)
+  expect_equal(l$deducciones_autonomicas$detalle$descendientes, 668 + 827 + 386)   # no 394
+  expect_equal(l$cuota_liquida_total, 5298.80)
+  la <- liquidar(familia26("ES-PV-VI", 2025))
+  expect_equal(la$minoracion_cuota, 1583)
+  expect_equal(la$deducciones_autonomicas$detalle$descendientes, 2137.30)
+  expect_equal(la$cuota_liquida_total, 8762.80 - 1583 - 2137.30)
+  gd <- function(t) liquidar(hogar26(t, list(persona("d1", "declarante", 50,
+          trabajo = list(dinerarias = 40000, cotizaciones_ss = 2540), discapacidad = "65_mas", ayuda_terceros = TRUE)), 2025))
+  expect_equal(gd("ES-PV-BI")$deducciones_autonomicas$detalle$discapacidad, 1897)     # NF 10/2023
+  expect_equal(gd("ES-PV-SS")$deducciones_autonomicas$detalle$discapacidad, 2040)
+  expect_equal(gd("ES-PV-VI")$deducciones_autonomicas$detalle$discapacidad, 2191.03)  # NF 19/2024
+  j <- cargar_parametros("ES-PV-VI", 2025)$jurisdiccion
+  expect_equal(j$deduccion_ascendientes$importe, 423.72)
+  expect_equal(j$deduccion_discapacidad$grado_33_64, 1025.64)
+  e25 <- leer_params(2025, "estatal.yaml")$deduccion_obras_eficiencia_energetica$rehabilitacion_edif
+  expect_equal(c(e25$base_maxima, e25$base_acumulada_maxima), c(5000, 15000))   # DA 50.ª.3
 })
 
 test_that("Bizkaia 2026: gran dependencia 1.935 € (Gipuzkoa, 2.040 €)", {

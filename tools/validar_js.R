@@ -643,6 +643,25 @@ add("ej2026_nc_pension", "ES-NC", "ninguna", "no",
     list(list(id="d1",rol="declarante",edad=70, trabajo=list(dinerarias=14000,cotizacionesSs=0, pensionJubilacion=TRUE))),
     ejercicio = 2026)
 
+# 19. Ejercicio 2026, régimen común: escalas de Extremadura (Ley 2/2026) y la C. Valenciana
+#     (Ley 5/2026); Andalucía y Canarias, heredadas de 2025. Erratas forales de 2025 (Araba).
+for (t in c("ES-EX", "ES-VC", "ES-AN", "ES-CN"))
+  add(sprintf("ej2026_%s_soltero30", tolower(sub("ES-", "", t))), t, "ninguna", "no",
+      list(persona("d1","declarante",35, trabajo=list(dinerarias=30000, cotizaciones_ss=1905), retenciones=3500)),
+      list(list(id="d1",rol="declarante",edad=35, trabajo=list(dinerarias=30000,cotizacionesSs=1905), retenciones=3500)),
+      ejercicio = 2026)
+add("ej2026_vc_120000", "ES-VC", "ninguna", "no",
+    list(persona("d1","declarante",35, trabajo=list(dinerarias=120000, cotizaciones_ss=4900))),
+    list(list(id="d1",rol="declarante",edad=35, trabajo=list(dinerarias=120000,cotizacionesSs=4900))), ejercicio = 2026)
+add("ej2026_ex_familia", "ES-EX", "biparental", "no",
+    list(persona("d1","declarante",40, trabajo=list(dinerarias=45000, cotizaciones_ss=2857)),
+         persona("d2","conyuge",38, trabajo=list(dinerarias=20000, cotizaciones_ss=1270)),
+         persona("h1","descendiente",8), persona("h2","descendiente",4)),
+    list(list(id="d1",rol="declarante",edad=40, trabajo=list(dinerarias=45000,cotizacionesSs=2857)),
+         list(id="d2",rol="conyuge",edad=38, trabajo=list(dinerarias=20000,cotizacionesSs=1270)),
+         list(id="h1",rol="descendiente",edad=8), list(id="h2",rol="descendiente",edad=4)), ejercicio = 2026)
+add("pv_vi_familia_2025", "ES-PV-VI", "ninguna", "no", fam26_r, fam26_js, ejercicio = 2025)
+
 out <- lapply(casos, function(c) list(
   js = c$js,
   ref = list(

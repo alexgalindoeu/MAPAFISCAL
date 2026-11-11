@@ -339,11 +339,14 @@ deduccion_donativos:
   cuotas_afiliacion_partidos: { porcentaje: 0.20, base_maxima: 600 }
 
 deduccion_obras_eficiencia_energetica:
-  norma: "DA 50ª LIRPF; RDL 19/2021 y prórrogas"
-  estado: pendiente     # confirmar vigencia y cuantías 2025
+  norma: "DA 50.ª LIRPF; RDL 19/2021 y prórrogas (redacción del art. 36.1 RDL 7/2026, con efectos desde el 1-1-2025)"
+  fuente: "Texto consolidado de la LIRPF en el BOE (BOE-A-2006-20764), DA 50.ª, apartados 1 a 3"
+  estado: pendiente     # el motor no calcula esta deducción; importes cotejados el 11-11-2026
   reduccion_demanda:   { porcentaje: 0.20, base_maxima: 5000 }
   reduccion_consumo:   { porcentaje: 0.40, base_maxima: 7500 }
-  rehabilitacion_edif: { porcentaje: 0.60, base_maxima: 15000 }
+  # Apartado 3: base máxima ANUAL de 5.000 €; lo no deducido pasa a los cuatro ejercicios
+  # siguientes sin que la base acumulada supere 15.000 € (antes figuraba 15.000 como anual).
+  rehabilitacion_edif: { porcentaje: 0.60, base_maxima: 5000, base_acumulada_maxima: 15000 }
 
 deduccion_vehiculos_electricos:
   norma: "DA 58ª LIRPF; RDL 5/2023"

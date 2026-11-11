@@ -4,7 +4,53 @@
 # EN PREPARACIÓN. Hereda todo de params/2025/autonomico.yaml; aquí solo van los
 # cambios de 2026 por territorio (escala, mínimos, deducciones), con su norma y su
 # fuente. Ojo con la herencia: `deducciones_autonomicas: lista:` es una lista sin
-# nombre, así que si un territorio la redefine para 2026 hay que escribirla entera.
+# nombre, así que si un territorio la redefine para 2026 hay que escribirla entera
+# (igual que `tramos`).
+#
+# ESCALAS Y MÍNIMOS DE 2026 — cotejo del 11-11-2026
+#   Resumen oficial: Ministerio de Hacienda (SGFAL), «Tributación Autonómica. Medidas 2026»,
+#   actualizado a 23-09-2026: cap. I §1.1 («Las únicas CC.AA. que han introducido
+#   modificaciones en la escala de 2026 respecto de la regulada para 2025 son Extremadura y
+#   la Comunitat Valenciana»), cap. I §1.2 (mínimos), cap. II (normas de 2026 por CCAA) y
+#   cap. IV (escala vigente de cada CCAA y redacción que la fija). Las dos escalas nuevas se
+#   cotejan además con su boletín (abajo).
+#   https://www.hacienda.gob.es/es-ES/Areas%20Tematicas/Financiacion%20Autonomica/Paginas/tributacion-autonomica-2026.aspx
+#
+#   Cambian en 2026: ES-EX (Ley 2/2026) y ES-VC (Ley 5/2026). Ver sus bloques.
+#
+#   Comprobado sin cambios para 2026 (escala heredada de 2025; entre paréntesis, la redacción
+#   vigente según el cap. IV y las normas de 2026 según el cap. II, ninguna toca la escala):
+#     ES-AR Aragón — art. 110-1 DL 1/2005 (art. 64.Uno Ley 17/2023, desde 2023). Aragón no
+#           aprobó ninguna norma sobre tributos cedidos para 2026.
+#     ES-AS Asturias — art. 2 DL 2/2014 (art. único.Uno Ley 3/2025, desde 2025). Ley 5/2025 de
+#           Presupuestos para 2026 (BOPA 31-12-2025): solo prorroga la deducción por vehículos
+#           eléctricos.
+#     ES-IB Illes Balears — art. 1 DL 1/2014 (DF 2.ª.1 Ley 12/2023, desde 2024). DL 1/2026, Ley
+#           4/2026 y Órdenes 5/2026 y 13/2026: solo deducciones.
+#     ES-CB Cantabria — art. 1 DL 62/2008 (art. 3.Uno Ley 3/2023, desde 2024). Ley 5/2026 de
+#           Medidas Fiscales (BOC 30-04-2026): solo deducciones.
+#     ES-CM Castilla-La Mancha — art. 13 bis Ley 8/2013 (Ley 9/2014, desde 2015). Ley 1/2026
+#           (DOCM 30-03-2026): solo ITP y AJD.
+#     ES-CL Castilla y León — art. 1 DL 1/2013 (art. 1.1 Ley 2/2022). Sin normas para 2026.
+#     ES-CT Cataluña — art. 611-1 Código tributario (DL 1/2024; art. 3.1 DL 5/2025, desde 2025).
+#           Ley 8/2025, DL 3/2026 y Ley 11/2026: solo deducciones.
+#     ES-MD Madrid — art. 1 DL 1/2010 (art. único.Uno Ley 13/2023, desde 2023). Leyes 6/2025,
+#           3/2026 y 5/2026: deducciones, ISD e ITP.
+#     ES-MC Región de Murcia — art. 2 DL 1/2010 (art. 56.Dos Ley 14/2018, desde 2019). Sin
+#           normas para 2026.
+#     ES-RI La Rioja — art. 31 Ley 10/2017 (art. 1.Uno Ley 13/2023, desde 2024). La Ley 9/2025
+#           (BOR 30-12-2025) añade el art. 31 ter: deflactación SOLO si el IPC de diciembre
+#           supera el 3 %, y mediante proyecto de ley; no cambia la escala de 2026.
+#   Escala vigente sin cambios, pero PROVISIONAL por un proyecto de ley con efectos desde el
+#   1-1-2026 (ver sus bloques): ES-AN, ES-GA y ES-CN.
+#
+#   MÍNIMOS AUTONÓMICOS: comprobado sin cambios para 2026 en las diez CCAA que los regulan
+#   (AN, AS, IB, CN, CL, CT, GA, MD, RI y VC): el cap. I §1.2 repite el reparto de 2025, el
+#   cap. II no recoge ningún cambio de mínimos en las normas de 2026 y el cap. IV da los mismos
+#   importes (p. ej., Madrid 5.956,65 / 2.575,85 / 3.219,81 / 9.659,44 €; Andalucía 5.790 €;
+#   Galicia 5.789 / 2.503 / 4.172 / 9.387 €; Canarias 5.606 / 2.424 / 1.162 €). Los tres
+#   proyectos de ley pendientes tampoco tocan los mínimos (art. 23 bis Ley 5/2021 de
+#   Andalucía, art. 4 bis DL 1/2011 de Galicia, art. 18 quater DL 1/2009 de Canarias).
 # =============================================================================
 
 meta:
@@ -12,3 +58,69 @@ meta:
   regimen: comun
   hereda_de: "2025/autonomico.yaml"
   estado_ejercicio: en_preparacion
+  escalas_estado: provisional   # 12 confirmadas; AN, GA y CN, pendientes de un proyecto de ley
+
+territorios:
+
+  ES-EX:
+    escala_general_autonomica:
+      norma: "Art. 1 TR tributos cedidos de Extremadura (DL 1/2018), en la redacción de la DF 2.ª.Uno de la Ley 2/2026, de 3 de agosto, de Presupuestos Generales de Extremadura para 2026 (efectos desde el 1-1-2026, DF 7.ª)"
+      fuente: "DOE núm. 149, de 4-8-2026; BOE-A-2026-17839 (BOE 17-8-2026), DF 2.ª.Uno y DF 7.ª; SGFAL, Tributación Autonómica. Medidas 2026, cap. II, tabla 3"
+      estado: confirmado
+      # Baja los dos primeros tipos (8 % → 7,75 % y 10 % → 9,75 %); el resto, como en 2025.
+      # Cuotas acumuladas: 964,88 / 1.720,50 / 2.360,50 / 4.285,50 / 9.493,50 / 14.240,50 /
+      # 18.800,50 / 23.945,50.
+      tramos:
+        - { hasta: 12450,  tipo: 0.0775 }
+        - { hasta: 20200,  tipo: 0.0975 }
+        - { hasta: 24200,  tipo: 0.16 }
+        - { hasta: 35200,  tipo: 0.175 }
+        - { hasta: 60000,  tipo: 0.21 }
+        - { hasta: 80200,  tipo: 0.235 }
+        - { hasta: 99200,  tipo: 0.24 }
+        - { hasta: 120200, tipo: 0.245 }
+        - { hasta: .inf,   tipo: 0.25 }
+
+  ES-VC:
+    escala_general_autonomica:
+      norma: "Art. 2 Ley 13/1997, de 23 de diciembre, de la Generalitat, en la redacción del art. 18 de la Ley 5/2026, de 31 de julio, de medidas fiscales, de gestión administrativa y financiera, y de organización de la Generalitat (efectos desde el 1-1-2026)"
+      fuente: "DOGV núm. 10425, de 10-8-2026 (CVE DOGV-C-2026-26204), art. 18; SGFAL, Tributación Autonómica. Medidas 2026, cap. II, tabla 1"
+      estado: confirmado
+      # Baja todos los tipos. Cuotas acumuladas del DOGV: 1.056 / 2.226 / 3.686 / 5.386 /
+      # 7.326 / 9.516 / 11.956 / 19.264 / 32.939 / 47.114.
+      # Para 2027 la DT 3.ª de la misma ley fija otra escala (8,7 % ... 29,25 %): va en
+      # params/2027 cuando se abra ese ejercicio.
+      tramos:
+        - { hasta: 12000,  tipo: 0.088 }
+        - { hasta: 22000,  tipo: 0.117 }
+        - { hasta: 32000,  tipo: 0.146 }
+        - { hasta: 42000,  tipo: 0.17 }
+        - { hasta: 52000,  tipo: 0.194 }
+        - { hasta: 62000,  tipo: 0.219 }
+        - { hasta: 72000,  tipo: 0.244 }
+        - { hasta: 100000, tipo: 0.261 }
+        - { hasta: 150000, tipo: 0.2735 }
+        - { hasta: 200000, tipo: 0.2835 }
+        - { hasta: .inf,   tipo: 0.2935 }
+
+  # --- Escala vigente heredada de 2025, provisional por un proyecto de ley con efectos 2026 ---
+  # Se mantiene la escala en vigor hoy; si el proyecto se aprueba tal cual, hay que sustituir
+  # los tramos por los que se indican en `motivo` y volver a `confirmado`.
+
+  ES-AN:
+    escala_general_autonomica:
+      estado: provisional
+      motivo: "Proyecto de Ley del Presupuesto de Andalucía para 2027 (Consejo de Gobierno de 30-10-2026), art. que modifica el art. 23 Ley 5/2021 y exposición de motivos: −0,25 puntos en los cuatro primeros tramos con efectos desde el 1-1-2026 (9,25 / 11,75 / 14,75 / 18,25 / 22,50 %; cuotas 1.202,50 / 2.154,25 / 4.234 / 8.760). En tramitación; la escala vigente es la de 2025."
+      fuente_proyecto: "https://www.juntadeandalucia.es/sites/default/files/2026-10/Proy_Ley_Presupuesto2027.pdf"
+
+  ES-GA:
+    escala_general_autonomica:
+      estado: provisional
+      motivo: "Proxecto de lei de medidas fiscais e administrativas (Consello da Xunta de 16-10-2026), art. 1 (art. 4 DL 1/2011) y DF 3.ª.2 (efectos desde el 1-1-2026): 8,75 / 11,40 / 14,65 / 18,15 / 22,50 % con los mismos límites (cuotas 1.136,22 / 2.057,71 / 4.127,96 / 8.629,16). En tramitación; la escala vigente es la de 2025."
+      fuente_proyecto: "https://ficheiros-web.xunta.gal/transparencia/normativa-tramitacion/facenda-administracion-publica/FAC-proxecto-lei-medidas-fiscais-2027-gal.pdf"
+
+  ES-CN:
+    escala_general_autonomica:
+      estado: provisional
+      motivo: "Proyecto de Ley 11L/PL-0019 de Presupuestos de Canarias para 2027 (BOPC núm. 388, de 3-11-2026), DF 5.ª.Primero (art. 18 bis DL 1/2009, efectos desde el 1-1-2026): mismos tipos y límites deflactados 14.064 / 19.869 / 36.750 / 58.890 / 95.413 / 126.591. En tramitación (enmienda a la totalidad registrada); la escala vigente es la de 2025."
+      fuente_proyecto: "https://www.parcan.es/files/pub/bop/11l/2026/388/bo388.pdf"
