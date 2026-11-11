@@ -202,7 +202,11 @@ liquidar_navarra_scope <- function(hogar, P, modo, declarante_id = NULL) {
                              r$base_imponible_general + r$base_imponible_ahorro }
   for (c in contribs_nv) {
     m <- mp$importe_general %||% 0
-    if (rentas_sp(c) <= (mp$umbral_rentas_bajas %||% 0)) m <- m + (mp$incremento_rentas_bajas %||% 0)
+    # incremento por rentas: por tramos lineales desde 2026 (art. 62.9.a) c') a e'), LF 17/2025);
+    # hasta 2025, importe fijo si las rentas no superan el umbral
+    rs <- rentas_sp(c)
+    m <- m + if (!is.null(mp[["incremento_rentas"]])) red2(importe_por_tramos(rs, mp[["incremento_rentas"]]))
+             else if (rs <= (mp$umbral_rentas_bajas %||% 0)) mp$incremento_rentas_bajas %||% 0 else 0
     # 264 € desde los 65 años o 585 € desde los 75 (uno u otro)
     edad <- c$edad %||% 0
     m <- m + (if (edad >= 75) mp$incremento_75 %||% 0 else if (edad >= 65) mp$incremento_65 %||% 0 else 0)
@@ -336,4 +340,14 @@ incremento_descendientes_navarra <- function(rentas, cfg) {
   if (is.null(cfg) || rentas > cfg$umbral_final) return(0)
   if (rentas <= cfg$umbral_pleno) return(cfg$porcentaje_maximo)
   red2(cfg$porcentaje_maximo - cfg$coeficiente * (rentas - cfg$umbral_pleno) / cfg$umbral_pleno)
+}
+
+# Importe por tramos lineales {hasta, base, coef, desde}: el del primer tramo cuyo `hasta` no
+# se supera; por encima del último, cero. Incremento del mínimo personal de Navarra desde 2026
+# (art. 62.9.a) c´) a e´) TR IRPF Navarra, LF 17/2025).
+importe_por_tramos <- function(x, tramos) {
+  for (tr in tramos)
+    if (is.infinite(tr$hasta) || x <= tr$hasta)
+      return(max(0, tr$base - (tr$coef %||% 0) * (x - (tr$desde %||% 0))))
+  0
 }
