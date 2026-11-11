@@ -33,7 +33,62 @@
     document.querySelector("main").innerHTML = `<div class="tarjeta" style="margin-top:32px">No se han podido cargar los datos de la normativa (${esc(e.message)}). Recarga la página.</div>`;
     return;
   }
-  const T = P.territorios;
+  let T = P.territorios;
+
+  // ---- ejercicio fiscal (2025, 2026…) ---------------------------------------------------
+  // params.json trae el ejercicio por defecto; los demás se cargan bajo demanda de
+  // datos/params_<año>.json. Solo se ofrecen los publicados (params/ejercicios.yaml →
+  // P.ejercicios.publicados), más el que pida la URL con ?ejercicio=<año>, para probar un
+  // ejercicio antes de publicarlo. Con un solo ejercicio, el selector no se muestra.
+  const PARAMS = new Map([[P.ejercicio, P]]);
+  const ejercicioUrl = (() => {
+    const q = new URLSearchParams(location.search).get("ejercicio")
+      || new URLSearchParams(location.hash.split("?")[1] || "").get("ejercicio");
+    return /^20\d\d$/.test(q || "") ? +q : null;
+  })();
+  const EJERCICIOS = [...new Set([...((P.ejercicios && P.ejercicios.publicados) || [P.ejercicio]).map(Number),
+    ...(ejercicioUrl ? [ejercicioUrl] : [])])].sort((a, b) => a - b);
+  const textoEjercicios = () => EJERCICIOS.length > 1 ? EJERCICIOS.slice(0, -1).join(", ") + " y " + EJERCICIOS[EJERCICIOS.length - 1] : String(P.ejercicio);
+  async function cargarParams(a) {
+    if (PARAMS.has(a)) return PARAMS.get(a);
+    const p = await datos("datos-params-" + a, `datos/params_${a}.json`);
+    if (!p || !p.territorios || +p.ejercicio !== a) throw new Error(`los datos de ${a} no son válidos`);
+    PARAMS.set(a, p);
+    return p;
+  }
+  function pintarSelectoresEjercicio(cargando) {
+    document.querySelectorAll("[data-selector-ejercicio]").forEach(el => {
+      el.hidden = EJERCICIOS.length < 2;
+      if (el.hidden) return;
+      const id = "ej-" + el.dataset.selectorEjercicio;
+      if (!el.querySelector("input")) el.innerHTML = `<span class="etiqueta" id="${id}-lbl">Ejercicio</span>
+        <div class="segmentado" role="radiogroup" aria-labelledby="${id}-lbl">${EJERCICIOS.map(a =>
+          `<label><input type="radio" name="${id}" value="${a}"><span>${a}</span></label>`).join("")}</div>`;
+      el.querySelectorAll("input").forEach(r => { r.checked = +r.value === ejercicioPedido; r.disabled = !!cargando && +r.value !== ejercicioPedido; });
+      el.setAttribute("aria-busy", cargando ? "true" : "false");
+    });
+  }
+  let ejercicioPedido = P.ejercicio;
+  async function cambiarEjercicio(a) {
+    if (a === ejercicioPedido) return;
+    ejercicioPedido = a;
+    pintarSelectoresEjercicio(true);
+    let nuevo;
+    try { nuevo = await cargarParams(a); }
+    catch (e) {
+      if (ejercicioPedido === a) { ejercicioPedido = P.ejercicio; pintarSelectoresEjercicio(false); }
+      alert(`No se han podido cargar los datos del ejercicio ${a}. Inténtalo de nuevo en unos minutos.`);
+      return;
+    }
+    if (ejercicioPedido !== a) return;       // mientras cargaba se pidió otro ejercicio
+    P = nuevo; T = P.territorios;
+    aplicarEjercicio();
+    pintarSelectoresEjercicio(false);
+  }
+  document.addEventListener("change", e => {
+    const r = e.target.closest("[data-selector-ejercicio] input");
+    if (r) cambiarEjercicio(+r.value);
+  });
 
   // ---- Supabase ----------------------------------------------------------------------
   const sb = (!CFG.demo && CFG.supabaseUrl && window.supabase)
@@ -106,8 +161,9 @@
 
   // título de familia numerosa reciente (Madrid, art. 13 bis): la casilla solo se muestra si
   // algún territorio lo exige y el hogar es familia numerosa (cuenta también al comparar)
-  const pideFnReciente = Object.values(T).some(t =>
-    ((t.deducciones_autonomicas && t.deducciones_autonomicas.lista) || []).some(d => d.requiere_familia_numerosa_reciente));
+  const algunaDeduccion = cond => Object.values(T).some(t =>
+    ((t.deducciones_autonomicas && t.deducciones_autonomicas.lista) || []).some(cond));
+  let pideFnReciente = algunaDeduccion(d => d.requiere_familia_numerosa_reciente);
   const pintarFnReciente = () => { $("casilla-fn-reciente").hidden = !pideFnReciente || $("f-familia-numerosa").value === "no"; };
 
   // deducciones del territorio que dependen del municipio de residencia
@@ -146,7 +202,7 @@
       return `<li class="hijo">
         <span class="hijo-n">Hijo ${i + 1}</span>
         <input type="number" min="0" max="30" step="1" value="${h.edad}" data-hijo-edad="${i}" aria-label="Edad del hijo ${i + 1}">
-        <div class="hijo-extra">${h.edad === 0 ? '<span class="ayuda">Nacido en 2025</span>' : '<span class="ayuda">años</span>'}${extras}</div>
+        <div class="hijo-extra">${h.edad === 0 ? `<span class="ayuda">Nacido en ${P.ejercicio}</span>` : '<span class="ayuda">años</span>'}${extras}</div>
         <button class="btn btn-txt btn-sm" type="button" data-quitar="${i}" aria-label="Quitar hijo ${i + 1}">Quitar</button>
       </li>`;
     }).join("");
@@ -154,8 +210,7 @@
   }
   // título autonómico de familia monoparental (C. Valenciana, Decreto 19/2018): se pregunta
   // si hay hijos y algún territorio lo exige (cuenta también al comparar territorios)
-  const pideTituloMonoparental = Object.values(T).some(t =>
-    ((t.deducciones_autonomicas && t.deducciones_autonomicas.lista) || []).some(d => d.requiere_titulo_monoparental != null));
+  let pideTituloMonoparental = algunaDeduccion(d => d.requiere_titulo_monoparental != null);
   function pintarTituloMonoparental() {
     $("campo-titulo-monoparental").hidden = !pideTituloMonoparental || hijos.length === 0;
   }
@@ -208,7 +263,7 @@
       capitalInmobiliario: num("f-alquileres") > 0 ? [{ ingresos: num("f-alquileres"), gastosDeducibles: 0 }] : null,
       actividades: num("f-actividad") > 0 ? { metodo: "directa_simplificada", rendimientoNetoPrevio: num("f-actividad") } : null,
       ganancias: ganancia !== 0 ? [{ valorTransmision: Math.max(0, ganancia), valorAdquisicion: Math.max(0, -ganancia),
-        fechaAdquisicion: "2020-01-15", fechaTransmision: "2025-06-30", tipoElemento: "accion_cotizada", esTransmision: true }] : [],
+        fechaAdquisicion: "2020-01-15", fechaTransmision: P.ejercicio + "-06-30", tipoElemento: "accion_cotizada", esTransmision: true }] : [],
       previsionSocial: num("f-pensiones") > 0 ? { aportacionIndividual: num("f-pensiones") } : null,
       alquilerViviendaPagos: num("f-alquiler"),
       adquisicionViviendaPagos: num("f-compra"),
@@ -359,6 +414,52 @@
     $("res-obligacion").innerHTML = txt;
   }
 
+  // cifra grande: pasa de la anterior a la nueva en un instante (nada con movimiento reducido)
+  const TASA_SS = 0.0635;
+  const movimientoReducido = () => !!(window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches);
+  let cifraPrev = null, cifraRaf = 0;
+  function animarCifra(el, hasta) {
+    cancelAnimationFrame(cifraRaf);
+    const desde = cifraPrev == null ? hasta : cifraPrev;
+    cifraPrev = hasta;
+    if (movimientoReducido() || Math.abs(hasta - desde) < 1 || document.hidden) { el.textContent = eur(hasta); return; }
+    const t0 = performance.now(), dur = 420;
+    const paso = t => {
+      const k = Math.min(1, (t - t0) / dur), e = 1 - Math.pow(1 - k, 3);
+      el.textContent = eur(desde + (hasta - desde) * e);
+      if (k < 1) cifraRaf = requestAnimationFrame(paso);
+    };
+    cifraRaf = requestAnimationFrame(paso);
+  }
+
+  // barras del resultado: reparto de los ingresos y a quién va el IRPF
+  function barra(titulo, derecha, partes) {
+    const tot = partes.reduce((s, p) => s + Math.max(0, p.v), 0) || 1;
+    return `<div><div class="grafico-tit"><span>${titulo}</span><span>${derecha}</span></div>
+      <div class="barra-reparto" role="img" aria-label="${esc(partes.map(p => `${p.n}: ${eur0(p.v)}`).join(", "))}">${partes.filter(p => p.v > 0)
+        .map(p => `<i class="${p.c}" style="flex-grow:${(p.v / tot).toFixed(4)}"></i>`).join("")}</div>
+      <ul class="leyenda-reparto">${partes.map(p => `<li><i class="${p.c}" style="background:var(--g-${p.c})"></i>${esc(p.n)} <b>${eur0(Math.max(0, p.v))}</b>${p.extra || ""}</li>`).join("")}</ul></div>`;
+  }
+  function pintarGraficos(liq, hogar, terr, irpf) {
+    const d1 = hogar.miembros.find(m => m.rol === "declarante"), d2 = hogar.miembros.find(m => m.rol === "conyuge");
+    const trab = m => (m && m.trabajo ? m.trabajo.dinerarias : 0);
+    const ss = m => (m && m.trabajo ? m.trabajo.cotizacionesSs || 0 : 0);
+    const ingresos = trab(d1) + trab(d2) + num("f-intereses") + num("f-dividendos") + Math.max(0, num("f-ganancias")) + num("f-alquileres") + num("f-actividad");
+    const cot = ss(d1) + ss(d2), impuesto = Math.max(0, irpf);
+    const html = [];
+    if (ingresos > 0) {
+      const neto = Math.max(0, ingresos - cot - impuesto);
+      html.push(barra(`De tus ${eur0(ingresos)} brutos`, `te quedan el ${(100 * neto / ingresos).toFixed(0)} %`, [
+        { n: "Para ti", v: neto, c: "neto" }, { n: "IRPF", v: impuesto, c: "irpf" }, { n: "Seguridad Social", v: cot, c: "ss" }]));
+    }
+    const est = liq.cuotaLiquidaEstatal || 0, aut = liq.cuotaLiquidaAutonomica || 0;
+    if (T[terr].regimen === "comun" && est + aut > 1) {
+      html.push(barra("A quién va tu cuota líquida", `${(100 * aut / (est + aut)).toFixed(0)} % a ${esc(corto(terr))}`, [
+        { n: "Estado", v: est, c: "estado" }, { n: corto(terr), v: aut, c: "autonomia" }]));
+    }
+    $("res-graficos").innerHTML = html.join("");
+  }
+
   function recalcular() {
     const terr = selTerr.value;
     const hogar = construirHogar(terr);
@@ -378,20 +479,22 @@
     const cuota = liq.cuotaResultanteAutoliquidacion;
     const nombreCuota = drt ? "Cuota resultante" : "Cuota líquida";
 
-    // cifra principal
-    if (hayResultado) {
-      const devolver = cd < 0;
-      $("res-principal").innerHTML = `<div class="res-etq">Resultado de la declaración</div>
-        <div class="res-cifra ${devolver ? "gana" : ""}">${devolver ? "A devolver" : "A ingresar"} ${eur(Math.abs(cd))}</div>
-        <p class="res-sub">${nombreCuota} <b>${eur(cuota)}</b>${impr ? ` · deducciones sobre la cuota diferencial <b>${eur(impr)}</b>` : ""}${ret ? ` · retenciones <b>${eur(ret)}</b>` : ""}</p>`;
-    } else {
-      $("res-principal").innerHTML = `<div class="res-etq">${nombreCuota} del IRPF · ${esc(corto(terr))}</div>
-        <div class="res-cifra">${eur(cuota)}</div>
-        <p class="res-sub">${drt ? `Incluye la deducción por obtención de rendimientos del trabajo (${eur(drt)}). ` : ""}Añade tus retenciones (paso 5) para saber si te sale a pagar o a devolver.</p>`;
-    }
-    $("bm-etq").textContent = hayResultado ? (cd < 0 ? "A devolver" : "A ingresar") : nombreCuota + " · " + corto(terr);
-    $("bm-cifra").textContent = eur(hayResultado ? Math.abs(cd) : cuota);
-    $("bm-cifra").className = "bm-cifra" + (hayResultado && cd < 0 ? " gana" : "");
+    // cifra principal: a devolver (verde), a ingresar (rojo) o, sin retenciones, la cuota
+    const estado = !hayResultado ? "" : cd < -0.004 ? "gana" : cd > 0.004 ? "pierde" : "";
+    const cifra = hayResultado ? Math.abs(cd) : cuota;
+    const rotuloCifra = !hayResultado ? `Tu ${nombreCuota.toLowerCase()} del IRPF` : estado === "gana" ? "A devolver" : estado === "pierde" ? "A ingresar" : "Ni a pagar ni a devolver";
+    $("tarjeta-resultado").className = "tarjeta tarjeta-resultado" + (estado ? " " + estado : "");
+    $("res-chip").textContent = `${corto(terr)} · ${P.ejercicio}`;
+    $("res-principal").innerHTML = `<div class="res-etq">${rotuloCifra}</div>
+      <div class="res-cifra ${estado}"><span aria-hidden="true" id="res-cifra"></span><span class="sr">${eur(cifra)}</span></div>
+      ${hayResultado
+        ? `<p class="res-sub">${nombreCuota} <b>${eur(cuota)}</b>${impr ? ` · deducciones sobre la cuota diferencial <b>${eur(impr)}</b>` : ""}${ret ? ` · retenciones <b>${eur(ret)}</b>` : ""}</p>`
+        : `<p class="res-sub">${drt ? `Incluye la deducción por obtención de rendimientos del trabajo (${eur(drt)}). ` : ""}Añade tus retenciones (paso 5) para saber si te sale a pagar o a devolver.</p>`}`;
+    animarCifra($("res-cifra"), cifra);
+    $("bm-etq").textContent = hayResultado ? rotuloCifra : nombreCuota + " · " + corto(terr);
+    $("bm-cifra").textContent = eur(cifra);
+    $("bm-cifra").className = "bm-cifra" + (estado ? " " + estado : "");
+    pintarGraficos(liq, hogar, terr, cuota - impr);
     const otra = liq.modoTributacionElegido === "conjunta" ? liq.comparativa.individual : liq.comparativa.conjunta;
     const ahorroModo = otra != null ? otra - cuota : 0;
     $("res-kpis").innerHTML = `
@@ -470,7 +573,7 @@
     const recs = opt.recomendaciones.filter(r => !(r.id === "modo" && r.yaAplicado)).slice(0, 5);
     $("res-palancas").innerHTML = recs.length ? recs.map(r => `<li><div class="pal-cab"><span class="pal-tit">${esc(r.titulo)}</span>
         ${r.ahorro == null ? '<span class="pal-imp rev">a revisar</span>' : `<span class="pal-imp">−${eur0(r.ahorro)}/año</span>`}</div>
-        <div class="pal-det"><span class="etq etq-prov" style="margin:0 6px 0 0;background:var(--marca-suave);color:var(--marca-tinta)">${CAT[r.categoria] || r.categoria}</span>${esc(r.detalle)}</div></li>`).join("")
+        <div class="pal-det"><span class="etq etq-cat">${CAT[r.categoria] || r.categoria}</span>${esc(r.detalle)}</div></li>`).join("")
       : `<li class="vacio">No se detectan palancas de ahorro relevantes para esta situación.</li>`;
     if (ahorroModo >= 1) $("res-palancas").insertAdjacentHTML("afterbegin",
       `<li><div class="pal-cab"><span class="pal-tit">Ya aplicada: declaración ${liq.modoTributacionElegido}</span><span class="pal-imp">−${eur0(ahorroModo)}/año</span></div><div class="pal-det">Frente a la declaración ${liq.modoTributacionElegido === "conjunta" ? "individual" : "conjunta"}.</div></li>`);
@@ -491,6 +594,41 @@
   let cmpCache = {};
   document.querySelectorAll('input[name="metrica"]').forEach(r => r.addEventListener("change", () => { metrica = r.value; pintarComparacion(); }));
 
+  // colores de la rampa: verde si pagas menos que en tu territorio, rojo si pagas más
+  function rampa(difs, umbralIgual) {
+    const maxAbs = Math.max(...difs.map(Math.abs)) || 1;
+    return d => {
+      if (Math.abs(d) < umbralIgual) return "--m-0";
+      const k = Math.min(3, Math.ceil(Math.abs(d) / maxAbs * 3));
+      return d < 0 ? `--m-g${k}` : `--m-r${k}`;
+    };
+  }
+  // mapa coroplético: lo usan la portada y el comparador. Tu territorio va en amarillo
+  // «de rotulador», dibujado el último para que su borde se vea entero.
+  function dibujarMapa(svg, porT, terr, color, aria, titulo) {
+    svg.setAttribute("viewBox", MAPA.viewBox.join(" "));
+    let h = titulo ? `<title>${esc(titulo)}</title>` : "", tuyo = "";
+    for (const t of Object.keys(MAPA.territorios)) {
+      const c = porT[t]; if (!c) continue;
+      const tu = t === terr;
+      const p = `<path class="terr${tu ? " tu" : ""}" data-t="${t}" d="${MAPA.territorios[t]}" fill="${tu ? "var(--m-tu)" : `var(${color(c)})`}" tabindex="0" role="button" aria-label="${esc(aria(t, c))}"/>`;
+      if (tu) tuyo = p; else h += p;
+    }
+    h += `<path class="fronteras" d="${MAPA.fronteras}"/><path class="recuadro" d="${MAPA.recuadroCanarias}"/>` + tuyo;
+    const ct = MAPA.centros[terr];
+    if (ct) h += `<text class="etq-mapa" x="${ct[0]}" y="${ct[1] + 5}" text-anchor="middle">Tú</text>`;
+    svg.innerHTML = h;
+  }
+  const leyendaMapa = () => {
+    const pasos = ["--m-g3", "--m-g2", "--m-g1", "--m-0", "--m-r1", "--m-r2", "--m-r3"];
+    return `<span class="leyenda-grupo">Pagas menos<span class="leyenda-rampa">${pasos.map(p => `<span style="background:var(${p})"></span>`).join("")}</span>Pagas más</span>
+      <span class="leyenda-grupo"><span class="leyenda-tu"></span>Tu territorio</span>`;
+  };
+  // puesto: 1 + territorios estrictamente más baratos (los empates comparten puesto)
+  const puesto = (lista, val, yo, umbral) => 1 + lista.filter(c => val(c) < val(yo) - umbral).length;
+  const ordinal = n => n + ".º";
+  const nombres = l => l.length > 2 ? l.slice(0, 2).join(", ") + " y " + (l.length - 2) + " más" : l.join(" y ");
+
   function pintarComparacion() {
     if (!ultima) return;
     const terr = selTerr.value;
@@ -499,51 +637,42 @@
     const fmt = v => metrica === "cuota" ? eur0(v) : pct(v);
     const yo = cmp.find(c => c.territorio === terr);
     const base = yo ? val(yo) : 0;
-    const difs = cmp.map(c => val(c) - base);
-    const maxAbs = Math.max(...difs.map(Math.abs)) || 1;
     const umbralIgual = metrica === "cuota" ? 0.5 : 0.00005;
-    const clase = d => {
-      if (Math.abs(d) < umbralIgual) return "--m-0";
-      const k = Math.min(3, Math.ceil(Math.abs(d) / maxAbs * 3));
-      return d < 0 ? `--m-g${k}` : `--m-r${k}`;
-    };
+    const clase = rampa(cmp.map(c => val(c) - base), umbralIgual);
     const porT = Object.fromEntries(cmp.map(c => [c.territorio, c]));
     cmpCache = porT;
 
-    // mapa
-    const svg = $("mapa");
-    svg.setAttribute("viewBox", MAPA.viewBox.join(" "));
-    let h = "";
-    for (const t of Object.keys(MAPA.territorios)) {
-      const c = porT[t]; if (!c) continue;
-      const color = t === terr ? "var(--m-tu)" : `var(${clase(val(c) - base)})`;
-      h += `<path class="terr${t === terr ? " tu" : ""}" data-t="${t}" d="${MAPA.territorios[t]}" fill="${color}" tabindex="0" role="button" aria-label="${esc(T[t].nombre)}: ${fmt(val(c))}"/>`;
-    }
-    h += `<path class="fronteras" d="${MAPA.fronteras}"/><path class="recuadro" d="${MAPA.recuadroCanarias}"/>`;
-    const ct = MAPA.centros[terr];
-    if (ct) h += `<text class="etq-mapa" x="${ct[0]}" y="${ct[1] + 5}" text-anchor="middle">Tú</text>`;
-    svg.innerHTML = `<title id="mapa-titulo">Mapa de España por territorio fiscal</title>` + h;
+    dibujarMapa($("mapa"), porT, terr, c => clase(val(c) - base), (t, c) => `${T[t].nombre}: ${fmt(val(c))}`, "Mapa de España por territorio fiscal");
+    $("leyenda").innerHTML = leyendaMapa();
 
-    // leyenda
-    const pasos = ["--m-g3", "--m-g2", "--m-g1", "--m-0", "--m-r1", "--m-r2", "--m-r3"];
-    $("leyenda").innerHTML = `<span class="leyenda-grupo">Pagas menos<span class="leyenda-rampa">${pasos.map(p => `<span style="background:var(${p})"></span>`).join("")}</span>Pagas más</span>
-      <span class="leyenda-grupo"><span style="width:14px;height:12px;border-radius:3px;background:var(--m-tu);display:inline-block"></span>Tu territorio</span>`;
-
-    // ranking
+    // ranking con una barra proporcional a la cifra
     const orden = cmp.slice().sort((a, b) => val(a) - val(b));
+    const min = val(orden[0]), max = val(orden[orden.length - 1]), rango = max - min || 1;
     $("ranking").innerHTML = `<thead><tr><th>#</th><th>Territorio</th><th class="num">${metrica === "cuota" ? "Cuota" : "Tipo medio"}</th><th class="num ocultable">${metrica === "cuota" ? "Tipo medio" : "Cuota"}</th><th class="num">Diferencia</th></tr></thead><tbody>` +
-      orden.map((c, i) => {
+      orden.map(c => {
         const d = val(c) - base, tu = c.territorio === terr;
-        const dtxt = tu ? "—" : (Math.abs(d) < umbralIgual ? "igual" : (d < 0 ? "−" : "+") + (metrica === "cuota" ? eur0(Math.abs(d)) : (100 * Math.abs(d)).toFixed(2).replace(".", ",") + " p.p."));
-        return `<tr class="${tu ? "tu" : ""}" data-t="${c.territorio}"><td class="pos">${i + 1}</td><td>${esc(corto(c.territorio))}${c.regimen !== "comun" ? '<span class="regimen">foral</span>' : ""}</td>
+        const dtxt = tu ? "Tú" : (Math.abs(d) < umbralIgual ? "igual" : (d < 0 ? "−" : "+") + (metrica === "cuota" ? eur0(Math.abs(d)) : (100 * Math.abs(d)).toFixed(2).replace(".", ",") + " p.p."));
+        const cls = tu ? "tu" : d < -umbralIgual ? "barato" : d > umbralIgual ? "caro" : "";
+        const ancho = Math.round(8 + 92 * (val(c) - min) / rango);
+        return `<tr class="${cls}" data-t="${c.territorio}"><td class="pos">${puesto(cmp, val, c, umbralIgual)}</td><td class="rk-terr">${esc(corto(c.territorio))}${c.regimen !== "comun" ? '<span class="regimen">foral</span>' : ""}<span class="rk-barra" aria-hidden="true"><i style="width:${ancho}%"></i></span></td>
           <td class="num">${fmt(val(c))}</td><td class="num ocultable">${metrica === "cuota" ? pct(c.tipoMedioEfectivo) : eur0(c.cuotaResultanteAutoliquidacion)}</td>
           <td class="num dif ${d < -umbralIgual ? "gana" : d > umbralIgual ? "pierde" : ""}">${dtxt}</td></tr>`;
       }).join("") + "</tbody>";
 
-    const barato = orden[0], caro = orden[orden.length - 1];
-    let txt = `Con tu situación, en <b>${esc(corto(terr))}</b> pagas <b>${eur0(yo.cuotaResultanteAutoliquidacion)}</b> de IRPF. `;
-    if (barato.territorio === terr) txt += `Es el territorio más barato de los 19; el más caro es ${esc(corto(caro.territorio))} (+${eur0(caro.cuotaResultanteAutoliquidacion - yo.cuotaResultanteAutoliquidacion)}).`;
-    else txt += `El más barato es <b>${esc(corto(barato.territorio))}</b>, donde pagarías <b>${eur0(yo.cuotaResultanteAutoliquidacion - barato.cuotaResultanteAutoliquidacion)} menos</b>; el más caro, ${esc(corto(caro.territorio))}.`;
+    // resumen: tu puesto, el más barato, el más caro y la distancia entre los extremos
+    const cuotaDe = c => c.cuotaResultanteAutoliquidacion;
+    const porCuota = cmp.slice().sort((a, b) => cuotaDe(a) - cuotaDe(b));
+    const barato = porCuota[0], caro = porCuota[porCuota.length - 1];
+    const empatados = c => porCuota.filter(x => Math.abs(cuotaDe(x) - cuotaDe(c)) < 0.5).map(x => corto(x.territorio));
+    $("comp-resumen").innerHTML = `
+      <div class="tu"><dt>Tu territorio</dt><dd><span class="cifra-xl">${ordinal(puesto(cmp, cuotaDe, yo, 0.5))}</span><small>de 19 · ${esc(corto(terr))}, ${eur0(cuotaDe(yo))}</small></dd></div>
+      <div><dt>Más barato</dt><dd><span class="cifra-xl">${eur0(cuotaDe(barato))}</span><small>${esc(nombres(empatados(barato)))}</small></dd></div>
+      <div><dt>Más caro</dt><dd><span class="cifra-xl">${eur0(cuotaDe(caro))}</span><small>${esc(nombres(empatados(caro)))}</small></dd></div>
+      <div><dt>De un extremo a otro</dt><dd><span class="cifra-xl">${eur0(cuotaDe(caro) - cuotaDe(barato))}</span><small>al año, con tu misma situación</small></dd></div>`;
+
+    let txt = `Con tu situación, en <b>${esc(corto(terr))}</b> pagas <b>${eur0(cuotaDe(yo))}</b> de IRPF. `;
+    if (cuotaDe(yo) - cuotaDe(barato) < 0.5) txt += `Es el territorio más barato de los 19; el más caro es ${esc(corto(caro.territorio))} (+${eur0(cuotaDe(caro) - cuotaDe(yo))}).`;
+    else txt += `El más barato es <b>${esc(corto(barato.territorio))}</b>, donde pagarías <b>${eur0(cuotaDe(yo) - cuotaDe(barato))} menos</b>; el más caro, ${esc(corto(caro.territorio))}.`;
     $("comp-entradilla").innerHTML = txt;
     const hg = ultima.hogar;
     const notaMunicipio = hg.municipioHabitantes != null || hg.zonaDespoblada
@@ -552,24 +681,39 @@
     $("comp-nota").textContent = "Misma situación personal y económica en cada territorio, con su escala, sus mínimos y sus deducciones." + notaMunicipio + " Cambiar de residencia fiscal exige vivir allí más de 183 días al año y tener allí el centro de intereses.";
   }
 
-  // tooltip y clic en el mapa / ranking
-  const tip = $("mapa-tip");
-  $("mapa").addEventListener("mousemove", e => {
-    const p = e.target.closest(".terr");
-    if (!p || !ultima || !cmpCache[p.dataset.t]) { tip.hidden = true; return; }
-    const t = p.dataset.t, c = cmpCache[t];
-    const yo = ultima.liq.cuotaResultanteAutoliquidacion, d = c.cuotaResultanteAutoliquidacion - yo;
-    tip.innerHTML = `<b>${esc(T[t].nombre)}</b>Cuota ${eur0(c.cuotaResultanteAutoliquidacion)} · ${pct(c.tipoMedioEfectivo)}<br>${t === selTerr.value ? "Tu territorio" : (d < 0 ? `${eur0(-d)} menos que en ${esc(corto(selTerr.value))}` : `${eur0(d)} más que en ${esc(corto(selTerr.value))}`)}`;
-    const r = $("mapa").parentElement.getBoundingClientRect();
-    tip.hidden = false;
-    tip.style.left = Math.min(e.clientX - r.left + 14, r.width - 190) + "px";
-    tip.style.top = (e.clientY - r.top + 14) + "px";
-  });
-  $("mapa").addEventListener("mouseleave", () => { tip.hidden = true; });
+  // tooltip de un mapa: cifra del territorio y diferencia con el tuyo
+  function tooltipMapa(svg, tip, datosDe) {
+    svg.addEventListener("mousemove", e => {
+      const p = e.target.closest(".terr");
+      const d = p && datosDe(p.dataset.t);
+      if (!d) { tip.hidden = true; return; }
+      tip.innerHTML = d;
+      const r = svg.parentElement.getBoundingClientRect();
+      tip.hidden = false;
+      tip.style.left = Math.max(0, Math.min(e.clientX - r.left + 14, r.width - 190)) + "px";
+      tip.style.top = (e.clientY - r.top + 14) + "px";
+    });
+    svg.addEventListener("mouseleave", () => { tip.hidden = true; });
+  }
+  const textoTip = (t, c, yo, terrYo) => {
+    const d = c.cuotaResultanteAutoliquidacion - yo;
+    return `<b>${esc(T[t].nombre)}</b>Cuota ${eur0(c.cuotaResultanteAutoliquidacion)} · ${pct(c.tipoMedioEfectivo)}<br>${t === terrYo ? "Tu territorio"
+      : Math.abs(d) < 0.5 ? `Lo mismo que en ${esc(corto(terrYo))}` : d < 0 ? `${eur0(-d)} menos que en ${esc(corto(terrYo))}` : `${eur0(d)} más que en ${esc(corto(terrYo))}`}`;
+  };
+  tooltipMapa($("mapa"), $("mapa-tip"), t => ultima && cmpCache[t] ? textoTip(t, cmpCache[t], cmpCache[selTerr.value].cuotaResultanteAutoliquidacion, selTerr.value) : null);
   const elegirTerritorio = t => { if (!t || !T[t]) return; selTerr.value = t; pintarHijos(); pintarGastosTerritorio(); recalcular(); irA("calculadora"); };
   $("mapa").addEventListener("click", e => { const p = e.target.closest(".terr"); if (p) elegirTerritorio(p.dataset.t); });
   $("mapa").addEventListener("keydown", e => { if ((e.key === "Enter" || e.key === " ") && e.target.dataset.t) { e.preventDefault(); elegirTerritorio(e.target.dataset.t); } });
   $("ranking").addEventListener("click", e => { const tr = e.target.closest("tr[data-t]"); if (tr) elegirTerritorio(tr.dataset.t); });
+  // pasar por una fila resalta su territorio en el mapa, y al revés
+  const enfocar = t => {
+    document.querySelectorAll("#mapa .terr.foco, #ranking tr.foco").forEach(x => x.classList.remove("foco"));
+    if (t) document.querySelectorAll(`#mapa .terr[data-t="${t}"], #ranking tr[data-t="${t}"]`).forEach(x => x.classList.add("foco"));
+  };
+  $("ranking").addEventListener("mouseover", e => { const tr = e.target.closest("tr[data-t]"); enfocar(tr && tr.dataset.t); });
+  $("ranking").addEventListener("mouseleave", () => enfocar(null));
+  $("mapa").addEventListener("mouseover", e => { const p = e.target.closest(".terr"); enfocar(p && p.dataset.t); });
+  $("mapa").addEventListener("mouseleave", () => enfocar(null));
 
   // ---- cuentas y clientes (Supabase) ----------------------------------------------------
   const dlgAcceso = $("dlg-acceso"), dlgGuardar = $("dlg-guardar"), dlgBorrar = $("dlg-borrar");
@@ -848,7 +992,10 @@
     if (b.dataset.informe) setTimeout(() => window.print(), 300);
   });
 
-  function abrirCliente(c) {
+  async function abrirCliente(c) {
+    // un cliente guardado con otro ejercicio se abre con ese ejercicio, si se ofrece
+    const ej = c.hogar && +c.hogar.ejercicio;
+    if (ej && ej !== P.ejercicio && EJERCICIOS.includes(ej)) await cambiarEjercicio(ej);
     clienteAbierto = { id: c.id, alias: c.alias, notas: c.notas || "" };
     $("cliente-alias").textContent = c.alias;
     $("barra-cliente").hidden = false;
@@ -990,7 +1137,7 @@
       <div class="plan">
         <h2>Gratis</h2><p class="plan-para">Para calcular tu propia declaración.</p>
         <div class="plan-precio">0 €</div><p class="plan-precio-nota">Sin cuenta.</p>
-        <ul><li>IRPF 2025 con tu situación real</li><li>Comparación en los 19 territorios</li><li>Desglose con casillas y deducciones aplicadas</li><li>Palancas de ahorro para tu caso</li></ul>
+        <ul><li>IRPF ${textoEjercicios()} con tu situación real</li><li>Comparación en los 19 territorios</li><li>Desglose con casillas y deducciones aplicadas</li><li>Palancas de ahorro para tu caso</li></ul>
         <a class="btn btn-sec" href="#calculadora">Usar la calculadora</a>
       </div>
       <div class="plan destacado">
@@ -1138,25 +1285,143 @@
     $("cobertura").innerHTML = `<thead><tr><th>Territorio</th><th class="num">Modeladas</th><th class="num">Provisionales</th><th>Del catálogo oficial</th></tr></thead><tbody>${filas.join("")}</tbody>`;
   }
 
-  // ---- inicio: portada con acceso a las herramientas ---------------------------------------
-  // Solo herramientas que ya existen (nada de «próximamente»). El hueco destacado cambia según
-  // el mes (CFG.destacados, un objeto mes(0-11) -> clave de HERRAMIENTAS; lo rellena Lanzamiento
-  // en web/config.js); sin esa tabla, se destaca el comparador.
-  const HERRAMIENTAS = {
-    calculadora: { titulo: "Calculadora de la renta", texto: "¿A pagar o a devolver? Tu IRPF 2025 con tu situación real, al detalle.", href: "#calculadora" },
-    comparar: { titulo: "Comparador de territorios", texto: "¿Cuánto ahorrarías si cambiaras de comunidad? Compara los 19 territorios fiscales.", href: "#comparar" },
-    clientes: { titulo: "Mis clientes", texto: "Para asesores y gestorías: guarda tu cartera de clientes, siempre recalculada.", href: "#clientes", plan: true }
+  // ---- inicio: portada con cálculo rápido, mapa y acceso a las herramientas ---------------
+  // Iconos de línea propios (24×24, trazo con currentColor). Las herramientas nuevas pueden
+  // usar cualquiera con `icono: "<clave>"`.
+  const ICONOS = {
+    calculadora: '<rect x="5" y="3" width="14" height="18" rx="2"/><path d="M8 7h8M8.5 11.5h.01M12 11.5h.01M15.5 11.5h.01M8.5 15h.01M12 15h.01M15.5 15v3M8.5 18h.01M12 18h.01"/>',
+    mapa: '<path d="M9 4 3 6.5v13.5l6-2.5 6 2.5 6-2.5V4l-6 2.5z"/><path d="M9 4v13.5M15 6.5V20"/>',
+    cartera: '<rect x="3" y="7" width="18" height="13" rx="2"/><path d="M9 7V5.5A1.5 1.5 0 0 1 10.5 4h3A1.5 1.5 0 0 1 15 5.5V7M3 13h18"/>',
+    nomina: '<rect x="3" y="6" width="18" height="12" rx="2"/><circle cx="12" cy="12" r="2.5"/><path d="M6.5 9.5h1M16.5 14.5h1"/>',
+    hucha: '<path d="M4 12a7 6 0 0 1 13.4-2.4L20 9v4l-2 1a7 6 0 0 1-2 3v2h-2.5v-1.2a8 8 0 0 1-3 0V19H8v-2a6 6 0 0 1-4-5z"/><path d="M10 7.5h3M15 11h.01"/>',
+    calendario: '<rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4M8 14h.01M12 14h.01M16 14h.01M8 17.5h.01M12 17.5h.01"/>',
+    grafico: '<path d="M4 20V11M10 20V5M16 20v-7M21 20H3"/>'
   };
+  const icono = k => `<svg viewBox="0 0 24 24" aria-hidden="true">${ICONOS[k] || ICONOS.grafico}</svg>`;
+  // Solo herramientas que ya existen (nada de «próximamente»). La que destaca cambia según el
+  // mes (CFG.destacados: mes 0-11 -> clave; lo rellena Lanzamiento en web/config.js); sin esa
+  // tabla, se destaca el comparador. Otras secciones añaden las suyas con
+  // window.MAPAFISCAL_HERRAMIENTAS = { clave: { titulo, texto, href, icono } }.
+  function herramientas() {
+    return Object.assign({
+      calculadora: { titulo: "Calculadora de la renta", texto: `¿A pagar o a devolver? Tu IRPF ${P.ejercicio} con tu situación real, al detalle y con las casillas de Renta Web.`, href: "#calculadora", icono: "calculadora" },
+      comparar: { titulo: "Comparador de territorios", texto: "¿Cuánto ahorrarías en otra comunidad? Tu misma situación en los 19 territorios fiscales, en mapa y en ranking.", href: "#comparar", icono: "mapa" },
+      clientes: { titulo: "Mis clientes", texto: "Para asesores y gestorías: tu cartera de clientes guardada y siempre recalculada.", href: "#clientes", icono: "cartera", plan: true }
+    }, window.MAPAFISCAL_HERRAMIENTAS || {});
+  }
+
+  const mc = { salario: $("mc-salario"), terr: $("mc-territorio") };
+  mc.terr.innerHTML = selTerr.innerHTML;
+  mc.terr.value = selTerr.value;
+  let mcCache = {};
+  const hogarRapido = (territorio, salario) => ({
+    territorio, ejercicio: P.ejercicio, tipoUnidadFamiliar: "ninguna", familiaNumerosa: "no",
+    miembros: [{ id: "d1", rol: "declarante", edad: 40, discapacidad: "no",
+      trabajo: salario > 0 ? { dinerarias: salario, cotizacionesSs: Math.round(salario * TASA_SS) } : null }]
+  });
+  function pintarMiniCalc() {
+    const salario = Math.max(0, Math.min(1e7, parseFloat(mc.salario.value) || 0)), terr = mc.terr.value;
+    let cmp;
+    try { cmp = irpfsim.compararTerritorios(hogarRapido(terr, salario), P); } catch (e) { $("mc-res").innerHTML = '<p class="vacio">Revisa el sueldo.</p>'; return; }
+    const val = c => c.cuotaResultanteAutoliquidacion;
+    const porT = Object.fromEntries(cmp.map(c => [c.territorio, c]));
+    mcCache = porT;
+    const yo = porT[terr], orden = cmp.slice().sort((a, b) => val(a) - val(b));
+    const barato = orden[0], caro = orden[orden.length - 1], pos = puesto(cmp, val, yo, 0.5);
+    const empatados = c => orden.filter(x => Math.abs(val(x) - val(c)) < 0.5).map(x => corto(x.territorio));
+    const clase = rampa(cmp.map(c => val(c) - val(yo)), 0.5);
+    const sinIrpf = val(caro) < 0.5;
+
+    // regla con los 19 territorios, de más barato a más caro
+    const alto = c => sinIrpf ? 20 : Math.round(25 + 75 * (val(c) - val(barato)) / ((val(caro) - val(barato)) || 1));
+    const regla = sinIrpf ? "" : `<div class="regla" aria-hidden="true"><div class="regla-pista">${orden.map(c => {
+      const d = val(c) - val(yo), k = c.territorio === terr ? "tu" : d < -0.5 ? "g" : d > 0.5 ? "r" : "";
+      return `<i class="${k}" style="height:${alto(c)}%" title="${esc(corto(c.territorio))}: ${eur0(val(c))}"></i>`;
+    }).join("")}</div><div class="regla-extremos"><span>Más barato: <b>${esc(nombres(empatados(barato)))}</b></span><span>Más caro: <b>${esc(nombres(empatados(caro)))}</b></span></div></div>`;
+    let frase;
+    if (sinIrpf) frase = "Con este sueldo no pagarías IRPF en ningún territorio.";
+    else if (pos === 1) frase = `<b>${esc(corto(terr))}</b> es el territorio más barato para este sueldo: en ${esc(corto(caro.territorio))} pagarías <b>${eur0(val(caro) - val(yo))} más</b>.`;
+    else frase = `${esc(corto(terr))} es el <b>${ordinal(pos)}</b> más barato de 19. En ${esc(corto(barato.territorio))} pagarías <b>${eur0(val(yo) - val(barato))} menos</b>${val(caro) - val(yo) >= 0.5 ? `; en ${esc(corto(caro.territorio))}, ${eur0(val(caro) - val(yo))} más` : ""}.`;
+    $("mc-res").innerHTML = `<div class="minicalc-cifra"><span class="cifra-xl">${eur0(val(yo))}</span><span class="etq-cifra">de IRPF al año · tipo medio ${pct(yo.tipoMedioEfectivo)}</span></div>
+      ${regla}<p class="minicalc-frase">${frase}</p>
+      <div class="minicalc-acciones"><a class="btn btn-pri" href="#calculadora" data-mc-ir>Calcular mi declaración <span class="flecha" aria-hidden="true">→</span></a>
+        <a class="btn btn-txt" href="#comparar" data-mc-ir>Ver los 19 territorios</a></div>
+      <p class="minicalc-supuesto">Estimación del ejercicio ${P.ejercicio} para una persona de 40 años sin hijos, con cotizaciones del ${pct(TASA_SS).replace(",00", "")}. En la calculadora puedes añadir tu familia, tus gastos y tus retenciones.</p>`;
+
+    dibujarMapa($("mapa-portada"), porT, terr, c => clase(val(c) - val(yo)), (t, c) => `${T[t].nombre}: ${eur0(val(c))}`, "Mapa del IRPF por territorio fiscal");
+    $("leyenda-portada").innerHTML = leyendaMapa();
+    $("dato-portada").innerHTML = sinIrpf ? "" : `Con <b>${eur0(salario)}</b> brutos al año, entre ${esc(corto(barato.territorio))} y ${esc(corto(caro.territorio))} hay
+      <span class="cifra-dato">${eur0(val(caro) - val(barato))}</span> de IRPF de diferencia cada año. Misma persona y misma nómina: solo cambia dónde vive.`;
+    $("dato-portada").hidden = sinIrpf;
+  }
+  mc.salario.addEventListener("input", pintarMiniCalc);
+  mc.terr.addEventListener("change", pintarMiniCalc);
+  $("minicalc").addEventListener("submit", e => e.preventDefault());
+  const elegirEnPortada = t => { if (t && T[t]) { mc.terr.value = t; pintarMiniCalc(); } };
+  $("mapa-portada").addEventListener("click", e => { const p = e.target.closest(".terr"); if (p) elegirEnPortada(p.dataset.t); });
+  $("mapa-portada").addEventListener("keydown", e => { if ((e.key === "Enter" || e.key === " ") && e.target.dataset.t) { e.preventDefault(); elegirEnPortada(e.target.dataset.t); const p = $("mapa-portada").querySelector(`[data-t="${e.target.dataset.t}"]`); if (p) p.focus(); } });
+  tooltipMapa($("mapa-portada"), $("mapa-portada-tip"), t => mcCache[t] ? textoTip(t, mcCache[t], mcCache[mc.terr.value].cuotaResultanteAutoliquidacion, mc.terr.value) : null);
+  // «Calcular mi declaración»: la calculadora empieza con el sueldo y el territorio de la portada
+  $("mc-res").addEventListener("click", e => {
+    if (!e.target.closest("[data-mc-ir]")) return;
+    $("f-salario").value = Math.max(0, parseFloat(mc.salario.value) || 0);
+    if (!ssManual) $("f-ss").value = $("f-pension").checked ? 0 : Math.round(num("f-salario") * TASA_SS);
+    selTerr.value = mc.terr.value;
+    pintarHijos(); pintarGastosTerritorio(); recalcular();
+  });
+
   function pintarInicio() {
-    $("herramientas").innerHTML = Object.values(HERRAMIENTAS).map(h => `
-      <a class="herramienta" href="${h.href}"><h3>${esc(h.titulo)}${h.plan ? ' <span class="plan-chip">Gestor</span>' : ""}</h3><p>${esc(h.texto)}</p></a>`).join("");
-    const dest = HERRAMIENTAS[(CFG.destacados && CFG.destacados[new Date().getMonth()]) || "comparar"] || HERRAMIENTAS.comparar;
-    $("portada-destacado").innerHTML = `<span class="destacado-etq">Te puede interesar</span>
-      <h2>${esc(dest.titulo)}</h2><p>${esc(dest.texto)}</p><a class="btn btn-pri" href="${dest.href}">Probarlo</a>`;
+    const H = herramientas();
+    const dest = (CFG.destacados && CFG.destacados[new Date().getMonth()]) || "comparar";
+    const claves = Object.keys(H).sort((a, b) => (b === dest) - (a === dest));
+    $("herramientas").innerHTML = claves.map(k => { const h = H[k]; return `
+      <a class="herramienta" href="${esc(h.href)}"><span class="herramienta-ico">${icono(h.icono)}</span>
+        <h3>${esc(h.titulo)}${h.plan ? '<span class="plan-chip">Gestor</span>' : ""}${k === dest ? '<span class="chip tu">Te puede interesar</span>' : ""}</h3><p>${esc(h.texto)}</p></a>`; }).join("");
+    // franja de rigor: cifras sacadas de los propios parámetros, nada inventado
+    const terrs = Object.values(T), comun = terrs.filter(t => t.regimen === "comun").length;
+    const nDed = terrs.reduce((s, t) => s + (((t.deducciones_autonomicas && t.deducciones_autonomicas.lista) || []).length), 0);
+    $("rigor").innerHTML = `
+      <div><span class="cifra-xl">${terrs.length}</span><span>territorios fiscales: ${comun} comunidades de régimen común, las tres diputaciones vascas y Navarra</span></div>
+      <div><span class="cifra-xl">${nDed}</span><span>deducciones autonómicas y forales modeladas, cada una con la norma de la que sale</span></div>
+      <div><span class="cifra-xl">0,00 €</span><span>de diferencia entre el motor de la web y su versión de referencia en todos los casos de validación</span></div>
+      <div><span class="cifra-xl">0</span><span>datos enviados: el cálculo se hace en tu navegador, sin registro</span></div>`;
+    pintarMiniCalc();
+  }
+
+  // ---- cambio de ejercicio: todo lo que depende de los parámetros -------------------------
+  function aplicarEjercicio() {
+    document.querySelectorAll("[data-ejercicio]").forEach(el => { el.textContent = P.ejercicio; });
+    document.querySelectorAll("[data-ejercicios]").forEach(el => { el.textContent = textoEjercicios(); });
+    pideFnReciente = algunaDeduccion(d => d.requiere_familia_numerosa_reciente);
+    pideTituloMonoparental = algunaDeduccion(d => d.requiere_titulo_monoparental != null);
+    pintarFnReciente(); pintarHijos(); pintarGastosTerritorio(); recalcular();
+    const v = vistaActual();
+    if (v === "inicio") pintarInicio();
+    if (v === "metodologia") pintarCobertura();
+    if (v === "planes") pintarPlanes();
+    document.title = tituloVista(v);
+    document.dispatchEvent(new CustomEvent("mapafiscal:ejercicio", { detail: { ejercicio: P.ejercicio, P } }));
   }
 
   // ---- navegación -------------------------------------------------------------------------
-  const VISTAS = ["inicio", "calculadora", "comparar", "clientes", "planes", "perfil", "metodologia"];
+  // Las vistas son las <section class="vista" id="v-…"> de index.html: una sección nueva
+  // (p. ej. de herramientas.js) navega sola por #<nombre>. Al mostrar una vista se dispara
+  // «mapafiscal:vista» con { vista } para que su código la pinte.
+  const VISTAS = [...document.querySelectorAll("main section.vista[id^='v-']")].map(s => s.id.slice(2));
+  const TITULOS_VISTA = {
+    inicio: () => "Mapafiscal: tu IRPF en los 19 territorios fiscales",
+    calculadora: () => `Calculadora del IRPF ${P.ejercicio} | Mapafiscal`,
+    comparar: () => "Comparar territorios | Mapafiscal",
+    clientes: () => "Mis clientes | Mapafiscal",
+    planes: () => "Planes | Mapafiscal",
+    perfil: () => "Perfil | Mapafiscal",
+    metodologia: () => "Metodología y cobertura | Mapafiscal"
+  };
+  function tituloVista(v) {
+    if (TITULOS_VISTA[v]) return TITULOS_VISTA[v]();
+    const h = $("v-" + v) && $("v-" + v).querySelector("h1");
+    return h ? h.textContent.trim() + " | Mapafiscal" : "Mapafiscal";
+  }
   let vistaSel = null;           // vista elegida en esta sesión (no depende de poder tocar el hash)
   function vistaDeHash() {
     const h = location.hash.slice(1).split("?")[0];
@@ -1167,7 +1432,7 @@
   function irA(v) {
     vistaSel = v;
     try { history.replaceState(null, "", "#" + v); } catch (e) { /* entorno sin historial (vista previa) */ }
-    mostrarVista();
+    mostrarVista({ moverFoco: true });
   }
   // enlaces internos (#vista): cambian de vista sin navegar
   document.addEventListener("click", e => {
@@ -1176,8 +1441,9 @@
     const v = a.getAttribute("href").slice(1).split("?")[0];
     if (VISTAS.includes(v)) { e.preventDefault(); irA(v); }
   });
-  function mostrarVista() {
+  function mostrarVista({ moverFoco = false } = {}) {
     const v = vistaActual();
+    document.title = tituloVista(v);
     for (const x of VISTAS) $("v-" + x).hidden = x !== v;
     $("barra-movil").hidden = v !== "calculadora";
     document.body.classList.toggle("en-calculadora", v === "calculadora");
@@ -1190,11 +1456,21 @@
     if (v === "perfil") pintarPerfil();
     if (v === "metodologia") pintarCobertura();
     window.scrollTo(0, 0);
+    // el foco va al título de la vista, para que el lector de pantalla anuncie el cambio
+    if (moverFoco) {
+      const titulo = $("v-" + v).querySelector("h1");
+      if (titulo) { titulo.setAttribute("tabindex", "-1"); titulo.focus({ preventScroll: true }); }
+    }
+    document.dispatchEvent(new CustomEvent("mapafiscal:vista", { detail: { vista: v } }));
   }
-  window.addEventListener("hashchange", () => { const v = vistaDeHash(); if (v) { vistaSel = v; mostrarVista(); } });
-  $("bm-ver").addEventListener("click", e => { e.preventDefault(); $("t-res").scrollIntoView({ behavior: "smooth", block: "start" }); });
+  window.addEventListener("hashchange", () => { const v = vistaDeHash(); if (v) { vistaSel = v; mostrarVista({ moverFoco: true }); } });
+  $("bm-ver").addEventListener("click", e => { e.preventDefault(); $("t-res").scrollIntoView({ behavior: movimientoReducido() ? "auto" : "smooth", block: "start" }); });
 
   // ---- arranque --------------------------------------------------------------------------
-  pintarHijos(); pintarGastosTerritorio(); recalcular(); marcarPestanaClientes(); mostrarVista();
+  document.querySelectorAll("[data-ejercicio]").forEach(el => { el.textContent = P.ejercicio; });
+  document.querySelectorAll("[data-ejercicios]").forEach(el => { el.textContent = textoEjercicios(); });
+  pintarSelectoresEjercicio(false);
+  pintarHijos(); pintarGastosTerritorio(); recalcular(); marcarPestanaClientes(); mostrarVista({ moverFoco: Boolean(vistaDeHash()) });
+  if (ejercicioUrl && ejercicioUrl !== P.ejercicio) cambiarEjercicio(ejercicioUrl);
   if (avisoPago) esperarPlan(15); else cargarSesion();
 })();
