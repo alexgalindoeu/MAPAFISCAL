@@ -16,7 +16,7 @@
       texto: "Lo que te queda de tu sueldo bruto tras la Seguridad Social y el IRPF, en los 19 territorios." },
     subida: { titulo: "¿Cuánto neto gano con mi subida?", icono: "calculadora", href: "#sueldo-neto?subida",
       texto: "Cuánto de tu subida llega a tu bolsillo y qué parte se llevan Hacienda y la Seguridad Social." },
-    "plan-pensiones": { titulo: "Ahorra en el IRPF antes del 31-12", icono: "hucha", href: "#plan-pensiones",
+    "plan-pensiones": { titulo: "Ahorra en tu IRPF antes del 31 de diciembre", icono: "hucha", href: "#plan-pensiones",
       texto: "Lo que te devuelve aportar a tu plan de pensiones o donar este año, y cuánto conviene aportar." }
   });
   if (NAVEGADOR) document.dispatchEvent(new CustomEvent("mapafiscal:herramientas"));
@@ -63,7 +63,7 @@
   const nombre = (P, t) => CORTO[t] || (P.territorios[t] ? P.territorios[t].nombre : t);
   const territorios = (P, filtro) => ORDEN.filter(t => P.territorios[t] && (!filtro || filtro(P.territorios[t])));
   const opcionesTerritorio = (P, sel, valor, filtro) => {
-    sel.innerHTML = territorios(P, filtro).map(t => `<option value="${t}">${esc(P.territorios[t].nombre)}${P.territorios[t].regimen !== "comun" ? " (foral)" : ""}</option>`).join("");
+    sel.innerHTML = territorios(P, filtro).map(t => `<option value="${t}">${esc(P.territorios[t].nombre)}${P.territorios[t].regimen !== "comun" && !/foral/i.test(P.territorios[t].nombre) ? " (foral)" : ""}</option>`).join("");
     sel.value = P.territorios[valor] && [...sel.options].some(o => o.value === valor) ? valor : sel.options[0].value;
   };
   // ---- cálculos (también los usa test/herramientas.test.mjs) ----------------------------
@@ -327,7 +327,7 @@
     if (reg === "comun") {
       const rend = Math.max(0, o.bruto + o.contribucionEmpresa - ct - P.estatal.trabajo_otros_gastos.generico);
       filas.push(fila(`30 % de tu rendimiento neto del trabajo (${eur0(rend)})`, eur(rs.limite_general_pct_rend * rend)));
-      filas.push(fila(`${eur0(rs.limite_general_abs)} propios${o.contribucionEmpresa > 0 ? ` + aportación de la empresa (hasta ${eur0(rs.incremento_contribucion_empresarial)})` : ""}`,
+      filas.push(fila(`Límite de aportaciones propias: ${eur0(rs.limite_general_abs)}${o.contribucionEmpresa > 0 ? ` + aportación de la empresa (hasta ${eur0(rs.incremento_contribucion_empresarial)})` : ""}`,
         eur(rs.limite_general_abs + Math.min(rs.incremento_contribucion_empresarial, o.contribucionEmpresa))));
       if (o.contribucionEmpresa > 0) filas.push(fila("Menos lo que aporta tu empresa", "−" + eur(o.contribucionEmpresa), "hr-resta"));
     } else {
@@ -342,10 +342,10 @@
 
     const lista = planPorTerritorio(P, o), max = Math.max(...lista.map(x => x.ahorro), 1);
     $("pp-t-ranking").textContent = `Ahorro por aportar ${eur0(o.aportacion)}, por territorio`;
-    $("pp-ranking").innerHTML = `<thead><tr><th>#</th><th>Territorio</th><th class="num">Ahorro</th><th class="num ocultable">Ahorro máximo</th><th class="num">Aportando</th></tr></thead><tbody>` +
+    $("pp-ranking").innerHTML = `<thead><tr><th>#</th><th>Territorio</th><th class="num">Ahorro</th><th class="num ocultable">Ahorro máximo</th><th class="num">Mejor aportación</th></tr></thead><tbody>` +
       lista.map((x, i) => `<tr class="${x.territorio === terr ? "tu" : ""}" data-t="${x.territorio}"><td class="pos">${i + 1}</td><td>${esc(nombre(P, x.territorio))}${P.territorios[x.territorio].regimen !== "comun" ? '<span class="regimen">foral</span>' : ""}${barra(x.ahorro, max)}</td>
         <td class="num">${eur0(x.ahorro)}</td><td class="num ocultable">${eur0(x.ahorroMax)}</td><td class="num">${eur0(x.optima)}</td></tr>`).join("") + "</tbody>";
-    $("pp-nota").textContent = `${notaEjercicio(P)} Cuenta lo aportado hasta el 31-12-${anio}. La reducción aplaza el impuesto: al rescatar el plan, lo cobrado tributa como rendimiento del trabajo. ` +
+    $("pp-nota").textContent = `${notaEjercicio(P)} Cuenta lo aportado hasta el 31 de diciembre de ${anio}. La reducción aplaza el impuesto: al rescatar el plan, lo cobrado tributa como rendimiento del trabajo. ` +
       "Límites del art. 52 LIRPF (1.500 € más hasta 8.500 € de contribuciones empresariales, y el 30 % de los rendimientos netos del trabajo); en el País Vasco, los de su norma foral. Navarra tiene límites propios (art. 55 de su TR del IRPF) y no se incluye.";
   }
 
@@ -377,7 +377,7 @@
       lista.map((x, i) => `<tr class="${x.territorio === terr ? "tu" : ""}" data-t="${x.territorio}"><td class="pos">${i + 1}</td><td>${esc(nombre(P, x.territorio))}${barra(x.ahorro, max)}</td>
         <td class="num">${eur0(x.ahorro)}</td><td class="num">${eur0(x.coste)}</td></tr>`).join("") + "</tbody>";
     $("pp-nota").textContent = `${notaEjercicio(P)} Deducción estatal por donativos a entidades de la Ley 49/2002 (art. 68.3 LIRPF y art. 19 de la Ley 49/2002), en los territorios de régimen común; el País Vasco y Navarra la regulan en su normativa foral. ` +
-      `Cuentan los donativos hechos hasta el 31-12-${P.ejercicio} con certificado de la entidad. Si la cuota no da para toda la deducción, el ahorro es menor.`;
+      `Cuentan los donativos hechos hasta el 31 de diciembre de ${P.ejercicio} con certificado de la entidad. Si la cuota no da para toda la deducción, el ahorro es menor.`;
   }
 
   // ---- arranque ------------------------------------------------------------------------

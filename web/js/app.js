@@ -108,7 +108,7 @@
 
   const selTerr = $("f-territorio");
   selTerr.innerHTML = ORDEN.filter(c => T[c]).map(c =>
-    `<option value="${c}">${esc(T[c].nombre)}${T[c].regimen !== "comun" ? " (foral)" : ""}</option>`).join("");
+    `<option value="${c}">${esc(T[c].nombre)}${T[c].regimen !== "comun" && !/foral/i.test(T[c].nombre) ? " (foral)" : ""}</option>`).join("");
   selTerr.value = "ES-MD";
 
   // ---- gastos que dan derecho a deducción, según territorio ---------------------------
@@ -381,7 +381,23 @@
     const fuente = reg === "foral_navarra" ? P.navarra : reg === "foral_pais_vasco" ? P.foral_pv : P.estatal;
     return (BLOQUE_DED[id] && fuente && fuente[BLOQUE_DED[id]]) || null;
   }
-  const nombreDed = id => NOMBRES_DED[id] || id.replace(/([A-Z])/g, " $1").replace(/_/g, " ").trim().toLowerCase().replace(/^./, c => c.toUpperCase());
+  // Nombre legible de una deducción a partir de su id (tildes, preposiciones y edades).
+  const PALABRAS_DED = { adopcion: "adopción", anos: "años", anios: "años", jovenes: "jóvenes", pequenos: "pequeños",
+    educacion: "educación", conciliacion: "conciliación", despoblacion: "despoblación", rehabilitacion: "rehabilitación",
+    inversion: "inversión", informatica: "informática", domestica: "doméstica", fisico: "físico", guarderia: "guardería",
+    guarderias: "guarderías", emancipacion: "emancipación", angel: "ángel", investigacion: "investigación", multiples: "múltiples", mas: "más", ss: "Seguridad Social" };
+  const humanizarDed = id => id.replace(/([A-Z])/g, " $1").replace(/_/g, " ").trim().toLowerCase()
+    .replace(/\b[a-z]+\b/g, w => PALABRAS_DED[w] || w)
+    .replace(/\bi d i\b/, "I+D+i").replace(/ fn$/, " (familia numerosa)")
+    .replace(/\b(menores|mayores|mayor|ascendientes) (\d+)( años)?/g, "$1 de $2 años").replace(/\bhasta (\d+)$/, "hasta $1 años")
+    .replace(/\b0 3\b/, "de 0 a 3 años").replace(/\bmenos (\d)(\d{3})\b/, "de menos de $1.$2 habitantes")
+    .replace(/\b(\d)(\d{3}) (\d)(\d{3})\b/, "de $1.$2 a $3.$4 habitantes").replace(/\bgrado (\d+)/g, "grado $1 %")
+    .replace(/\b(arrendamiento|rehabilitación) vivienda/, "$1 de vivienda").replace(/\bcuidado (hijos|descendientes|ascendientes|familiares|personas)\b/, "cuidado de $1")
+    .replace(/\bnacimiento adopción\b/, "nacimiento o adopción").replace(/\bempleada hogar\b/, "empleada del hogar").replace(/\blibros texto\b/, "libros de texto")
+    .replace(/^./, c => c.toUpperCase());
+  const nombreDed = id => NOMBRES_DED[id] || humanizarDed(id);
+  const tituloPalanca = r => r.categoria === "deduccion_potencial" && /^ded_/.test(r.id) ? "Deducción autonómica: " + nombreDed(r.id.slice(4)) : r.titulo;
+  const detallePalanca = t => String(t || "").replace("requiere residencia efectiva > 183 días/año y centro de intereses económicos allí", "requiere vivir allí más de 183 días al año y tener allí tu centro de intereses económicos").replace("requisitos de renta/edad", "requisitos de renta y edad");
 
   // ¿hay que presentar la declaración? (art. 96 LIRPF, calculado por el motor)
   function pintarObligacion(liq, reg) {
@@ -571,9 +587,9 @@
     let opt = { recomendaciones: [] };
     try { opt = irpfsim.optimizar(hogar, P); } catch (e) { /* sin palancas */ }
     const recs = opt.recomendaciones.filter(r => !(r.id === "modo" && r.yaAplicado)).slice(0, 5);
-    $("res-palancas").innerHTML = recs.length ? recs.map(r => `<li><div class="pal-cab"><span class="pal-tit">${esc(r.titulo)}</span>
+    $("res-palancas").innerHTML = recs.length ? recs.map(r => `<li><div class="pal-cab"><span class="pal-tit">${esc(tituloPalanca(r))}</span>
         ${r.ahorro == null ? '<span class="pal-imp rev">a revisar</span>' : `<span class="pal-imp">−${eur0(r.ahorro)}/año</span>`}</div>
-        <div class="pal-det"><span class="etq etq-cat">${CAT[r.categoria] || r.categoria}</span>${esc(r.detalle)}</div></li>`).join("")
+        <div class="pal-det"><span class="etq etq-cat">${CAT[r.categoria] || r.categoria}</span>${esc(detallePalanca(r.detalle))}</div></li>`).join("")
       : `<li class="vacio">No se detectan palancas de ahorro relevantes para esta situación.</li>`;
     if (ahorroModo >= 1) $("res-palancas").insertAdjacentHTML("afterbegin",
       `<li><div class="pal-cab"><span class="pal-tit">Ya aplicada: declaración ${liq.modoTributacionElegido}</span><span class="pal-imp">−${eur0(ahorroModo)}/año</span></div><div class="pal-det">Frente a la declaración ${liq.modoTributacionElegido === "conjunta" ? "individual" : "conjunta"}.</div></li>`);
@@ -1275,14 +1291,11 @@
   function pintarCobertura() {
     const filas = ORDEN.filter(t => T[t]).map(t => {
       const da = T[t].deducciones_autonomicas;
-      if (T[t].regimen !== "comun") return `<tr><td>${esc(corto(t))}</td><td colspan="3" class="ayuda">${REGIMEN[T[t].regimen]}: mínimos y deducciones de la normativa foral</td></tr>`;
+      if (T[t].regimen !== "comun") return `<tr><td>${esc(corto(t))}</td><td class="ayuda">${REGIMEN[T[t].regimen]}: mínimos y deducciones de la normativa foral</td></tr>`;
       const n = da && da.lista ? da.lista.length : 0;
-      const prov = da && da.lista ? da.lista.filter(d => d.estado === "provisional").length : 0;
-      const pend = da && da.pendientes ? da.pendientes.filter(p => typeof p === "string" && p[0] !== "(").length : 0;
-      const tot = n + pend || 1;
-      return `<tr><td>${esc(corto(t))}</td><td class="num">${n}</td><td class="num">${prov}</td><td><div class="barra" title="${n} de ~${n + pend} deducciones del catálogo"><i style="width:${Math.round(100 * n / tot)}%"></i></div></td></tr>`;
+      return `<tr><td>${esc(corto(t))}</td><td class="num">${n}</td></tr>`;
     });
-    $("cobertura").innerHTML = `<thead><tr><th>Territorio</th><th class="num">Modeladas</th><th class="num">Provisionales</th><th>Del catálogo oficial</th></tr></thead><tbody>${filas.join("")}</tbody>`;
+    $("cobertura").innerHTML = `<thead><tr><th>Territorio</th><th class="num">Deducciones modeladas</th></tr></thead><tbody>${filas.join("")}</tbody>`;
   }
 
   // ---- inicio: portada con cálculo rápido, mapa y acceso a las herramientas ---------------
@@ -1391,6 +1404,7 @@
   // ---- cambio de ejercicio: todo lo que depende de los parámetros -------------------------
   function aplicarEjercicio() {
     document.querySelectorAll("[data-ejercicio]").forEach(el => { el.textContent = P.ejercicio; });
+    document.querySelectorAll("[data-ejercicio-ant]").forEach(el => { el.textContent = P.ejercicio - Number(el.dataset.ejercicioAnt); });
     document.querySelectorAll("[data-ejercicios]").forEach(el => { el.textContent = textoEjercicios(); });
     pideFnReciente = algunaDeduccion(d => d.requiere_familia_numerosa_reciente);
     pideTituloMonoparental = algunaDeduccion(d => d.requiere_titulo_monoparental != null);
@@ -1487,6 +1501,7 @@
   $("ayuda-ss").textContent = `Estimadas con los tipos del trabajador de ${P.ejercicio} (contrato indefinido). Cámbialas si las conoces: vienen en tu certificado de retenciones.`;
   document.addEventListener("mapafiscal:herramientas", () => { if (vistaActual() === "inicio") pintarInicio(); });
   document.querySelectorAll("[data-ejercicio]").forEach(el => { el.textContent = P.ejercicio; });
+  document.querySelectorAll("[data-ejercicio-ant]").forEach(el => { el.textContent = P.ejercicio - Number(el.dataset.ejercicioAnt); });
   document.querySelectorAll("[data-ejercicios]").forEach(el => { el.textContent = textoEjercicios(); });
   pintarSelectoresEjercicio(false);
   pintarHijos(); pintarGastosTerritorio(); recalcular(); marcarPestanaClientes(); mostrarVista({ moverFoco: Boolean(vistaDeHash()) });
