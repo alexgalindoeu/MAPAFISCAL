@@ -3,8 +3,8 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Mapafiscal</title>
-<meta name="description" content="Calcula tu IRPF 2025 con tu situación real y compáralo en los 19 territorios fiscales de España.">
+<title>Mapafiscal: tu IRPF en los 19 territorios fiscales</title>
+<meta name="description" content="Calcula tu IRPF con tu situación real y compáralo en los 19 territorios fiscales de España.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@100..125,600..800&family=Public+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500&display=swap">
@@ -191,7 +191,7 @@
         <div class="campo" id="campo-hipoteca"><label for="f-hipoteca">Hipoteca de tu vivienda habitual comprada antes de 2013: lo pagado en <span data-ejercicio>2025</span></label><div class="con-sufijo"><input type="number" id="f-hipoteca" min="0" step="100" value="0"><span>€</span></div><p class="ayuda">Capital, intereses y seguros vinculados al préstamo. Solo si la compraste antes de 2013 (régimen transitorio).</p></div>
         <div class="campo"><label for="f-pensiones">Aportaciones a planes de pensiones o EPSV</label><div class="con-sufijo"><input type="number" id="f-pensiones" min="0" step="100" value="0"><span>€</span></div></div>
         <div class="campo" id="campo-donativos"><label for="f-donativos">Donativos a ONG y fundaciones de la Ley 49/2002</label><div class="con-sufijo"><input type="number" id="f-donativos" min="0" step="10" value="0"><span>€</span></div></div>
-        <label class="casilla" id="casilla-donativos-rec"><input type="checkbox" id="f-donativos-rec"> Doné a la misma entidad en 2023 y 2024 sin bajar el importe</label>
+        <label class="casilla" id="casilla-donativos-rec"><input type="checkbox" id="f-donativos-rec"> Doné a la misma entidad en <span data-ejercicio-ant="2">2023</span> y <span data-ejercicio-ant="1">2024</span> sin bajar el importe</label>
         <div id="gastos-territorio"></div>
       </fieldset>
 
@@ -326,7 +326,7 @@
   <div class="faq">
     <h2>Preguntas frecuentes</h2>
     <details><summary>¿La calculadora seguirá siendo gratis?</summary><p>Sí. El cálculo y la comparación entre territorios son gratuitos y no requieren cuenta.</p></details>
-    <details><summary>¿De dónde salen los cálculos?</summary><p>De un motor abierto que reproduce la normativa del ejercicio <span data-ejercicio>2025</span>: la Ley del IRPF, las leyes de tributos cedidos de cada comunidad, las normas forales vascas y el texto refundido navarro, contrastados con el Manual Práctico de Renta de la AEAT. Cada parámetro indica su fuente y si está confirmado o es provisional. Ver <a href="#metodologia">Metodología</a>.</p></details>
+    <details><summary>¿De dónde salen los cálculos?</summary><p>De un motor abierto que reproduce la normativa del ejercicio <span data-ejercicio>2025</span>: la Ley del IRPF, las leyes de tributos cedidos de cada comunidad, las normas forales vascas y el texto refundido navarro, contrastados con el Manual Práctico de Renta de la AEAT. Cada parámetro indica la norma de la que procede. Ver <a href="#metodologia">Metodología</a>.</p></details>
     <details><summary>¿Puedo guardar clientes sin suscribirme?</summary><p>No. «Mis clientes» forma parte del plan Gestor: con la suscripción activa guardas todos los clientes que quieras. La calculadora y el comparador siguen siendo gratuitos y sin cuenta.</p></details>
     <details><summary>¿Qué pasa con mis clientes si cancelo?</summary><p>Mantienes el acceso hasta el final del periodo pagado. Después, tus clientes quedan guardados pero ocultos, y vuelven a aparecer si reactivas el plan. Si prefieres que los borremos, puedes eliminarlos tú mismo desde «Mis clientes».</p></details>
     <details><summary>¿Qué datos de mis clientes guardáis?</summary><p>Solo lo necesario para el cálculo: un alias que eliges tú y las cifras de la declaración. No pedimos NIF ni nombre completo. Cada gestor solo puede ver sus propios clientes; los datos se alojan en la Unión Europea.</p></details>
@@ -361,7 +361,7 @@
       <p>El motor liquida el IRPF siguiendo el orden de la declaración: rendimientos netos, integración y compensación de rentas en las bases general y del ahorro, reducciones (planes de pensiones, tributación conjunta), mínimo personal y familiar, escalas estatal y autonómica —o la tarifa foral en el País Vasco y Navarra—, deducciones y, con las retenciones, la cuota diferencial. Para cada hogar prueba la tributación individual y la conjunta y se queda con la más favorable.</p>
       <p>Hay dos implementaciones del mismo motor: la de referencia en R y la del navegador en JavaScript. Un validador automático comprueba que ambas dan el mismo resultado, al céntimo, en todos los casos de prueba.</p>
       <h2>Fuentes</h2>
-      <p>Ley 35/2006 del IRPF y su reglamento; leyes de tributos cedidos de cada comunidad autónoma; Normas Forales de Bizkaia, Gipuzkoa y Araba; Texto Refundido del IRPF de Navarra; y el <i>Manual Práctico de Renta 2025</i> de la AEAT (partes 1 y 2). Cada cifra del motor lleva la norma de la que procede y un estado: <b>confirmado</b> si está cotejado con la fuente, <b>provisional</b> si falta cotejarlo o si la regla está simplificada.</p>
+      <p>Ley 35/2006 del IRPF y su reglamento; leyes de tributos cedidos de cada comunidad autónoma; Normas Forales de Bizkaia, Gipuzkoa y Araba; Texto Refundido del IRPF de Navarra; y el <i>Manual Práctico de Renta 2025</i> de la AEAT (partes 1 y 2). Cada cifra del motor lleva la norma de la que procede.</p>
     </div>
     <div class="tarjeta">
       <h2 class="rotulo">Deducciones autonómicas modeladas por territorio</h2>
