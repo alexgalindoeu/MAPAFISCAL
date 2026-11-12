@@ -9,6 +9,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@100..125,600..800&family=Public+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500&display=swap">
 <link rel="stylesheet" href="css/mapafiscal.css">
+<link rel="stylesheet" href="css/cuentas.css">
 <meta name="google-adsense-account" content="ca-pub-3028486034839853">
 </head>
 <body>
@@ -208,9 +209,11 @@
         <p class="res-obligacion" id="res-obligacion"></p>
         <p class="res-pista" id="res-pista" hidden></p>
         <div class="acciones-res">
+          <button class="btn btn-pri" type="button" id="btn-guardar-calculo" hidden><svg class="ico-guardar" viewBox="0 0 16 16" aria-hidden="true"><path d="M3.5 2h7l2 2v10h-9z"/><path d="M5.5 2v3.5h4V2M5.5 14v-4.5h5V14"/></svg><span id="btn-guardar-calculo-txt">Guarda este cálculo</span></button>
           <button class="btn btn-pri" type="button" id="btn-guardar-cliente">Guardar como cliente</button>
           <a class="btn btn-sec" href="#comparar">Comparar en los 19 territorios</a>
         </div>
+        <p class="mensaje guardar-calculo-msg" id="guardar-calculo-msg" role="status"></p>
       </div>
 
       <div class="tarjeta">
@@ -273,6 +276,7 @@
   </div>
 
   <p class="nota nota-pie" id="comp-nota"></p>
+  <div class="aviso-cuenta" id="comp-cuenta" hidden></div>
 </section>
 
 <!-- =========================== CLIENTES =========================== -->
@@ -495,37 +499,81 @@
   </div>
 </footer>
 
-<dialog class="dialogo" id="dlg-acceso" aria-labelledby="t-acceso">
-  <form method="dialog" class="dialogo-in" id="form-acceso">
-    <h2 id="t-acceso">Entra o crea tu cuenta gratis</h2>
-    <p id="acceso-motivo"></p>
-    <ul class="ventajas" id="acceso-ventajas">
-      <li>Sin contraseñas: entra en un clic con Google o con un enlace en tu correo</li>
-      <li>Con el plan Gestor, tu cartera de clientes guardada y siempre recalculada</li>
-      <li>Con el plan Gestor, sin anuncios</li>
-    </ul>
-    <div class="acceso-legal" id="acceso-legal" hidden>
-      <label class="casilla"><input type="checkbox" id="acceso-acepto"> <span>Uso Mapafiscal para mi actividad profesional, acepto las <a href="legal/condiciones.html" target="_blank" rel="noopener">Condiciones</a> y he leído la <a href="legal/privacidad.html" target="_blank" rel="noopener">Política de privacidad</a>.</span></label>
-      <p class="info-datos">Responsable: <a href="legal/privacidad.html#responsable" target="_blank" rel="noopener">Mapafiscal</a>. Usamos tu correo para darte acceso y gestionar tu cuenta y tu plan. Puedes ejercer tus derechos de acceso, rectificación, supresión y demás como se explica en la <a href="legal/privacidad.html#derechos" target="_blank" rel="noopener">política de privacidad</a>.</p>
+<dialog class="dialogo dialogo-acceso" id="dlg-acceso" aria-labelledby="t-acceso">
+  <div class="dialogo-in">
+    <button class="dialogo-cerrar" type="button" id="btn-cerrar-acceso" aria-label="Cerrar"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M4 4l8 8M12 4l-8 8"/></svg></button>
+    <div class="acceso-marca" aria-hidden="true"><svg viewBox="0 0 32 32"><rect width="32" height="32" rx="8" class="marca-fondo"/><path class="marca-panel" d="M7 10.5 13 8v15.5L7 26z"/><path class="marca-panel-tu" d="M13 8l6 2.5V26l-6-2.5z"/><path class="marca-panel-2" d="M19 10.5 25 8v15.5L19 26z"/></svg></div>
+
+    <!-- paso 1: elegir cómo entrar -->
+    <form id="form-acceso" novalidate>
+      <div class="acceso-modos" role="tablist" aria-label="Tipo de acceso">
+        <button type="button" role="tab" id="tab-crear" aria-selected="true" data-modo="crear">Crear cuenta</button>
+        <button type="button" role="tab" id="tab-entrar" aria-selected="false" data-modo="entrar" tabindex="-1">Entrar</button>
+      </div>
+      <h2 id="t-acceso">Crea tu cuenta gratis</h2>
+      <p id="acceso-motivo" class="acceso-motivo" hidden></p>
+      <ul class="ventajas" id="acceso-ventajas"></ul>
+
+      <div id="acceso-google" hidden>
+        <button class="btn btn-google" type="button" id="btn-google"><svg viewBox="0 0 48 48" aria-hidden="true"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/><path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/></svg><span>Continuar con Google</span></button>
+        <p class="separador"><span>o con tu correo</span></p>
+      </div>
+
+      <div class="campo">
+        <label for="acceso-email">Correo electrónico</label>
+        <input type="email" id="acceso-email" name="email" required autocomplete="email" inputmode="email" autocapitalize="off" spellcheck="false" placeholder="nombre@ejemplo.es" aria-describedby="acceso-email-ayuda">
+        <p class="ayuda" id="acceso-email-ayuda">Te enviamos un enlace para entrar: sin contraseñas.</p>
+        <p class="ayuda acceso-sugerencia" id="acceso-sugerencia" hidden></p>
+      </div>
+
+      <div class="acceso-legal" id="acceso-legal" hidden>
+        <label class="casilla"><input type="checkbox" id="acceso-acepto"> <span>He leído y acepto las <a href="legal/condiciones.html" target="_blank" rel="noopener">Condiciones</a> y la <a href="legal/privacidad.html" target="_blank" rel="noopener">Política de privacidad</a>.</span></label>
+      </div>
+
+      <p class="mensaje" id="acceso-msg" role="alert"></p>
+      <button class="btn btn-pri btn-bloque" type="submit" id="btn-enviar-enlace"><span class="btn-giro" aria-hidden="true"></span><span id="btn-enviar-txt">Crear cuenta con mi correo</span></button>
+      <p class="acceso-cambio" id="acceso-cambio"></p>
+      <p class="info-datos" id="acceso-info">Responsable: <a href="legal/privacidad.html#responsable" target="_blank" rel="noopener">Mapafiscal</a>. Usamos tu correo para darte acceso y gestionar tu cuenta y tu plan. Tus derechos de acceso, rectificación, supresión y demás, en la <a href="legal/privacidad.html#derechos" target="_blank" rel="noopener">política de privacidad</a>.</p>
+    </form>
+
+    <!-- paso 2: enlace enviado -->
+    <div class="acceso-enviado" id="acceso-enviado" hidden>
+      <div class="acceso-sobre" aria-hidden="true"><svg viewBox="0 0 48 48"><rect x="5" y="11" width="38" height="27" rx="4"/><path d="M6 13l18 14 18-14"/></svg></div>
+      <h2 id="t-enviado" tabindex="-1">Revisa tu correo</h2>
+      <p>Te hemos enviado un enlace a <b id="acceso-enviado-a"></b>. Ábrelo en este dispositivo para <span id="acceso-enviado-para">entrar</span>.</p>
+      <p class="ayuda">¿No te llega? Puede tardar un minuto. Revisa la carpeta de spam o de promociones: el remitente es Mapafiscal (contacto@mapafiscal.es).</p>
+      <p class="mensaje" id="acceso-enviado-msg" role="status"></p>
+      <div class="acceso-enviado-acciones">
+        <a class="btn btn-pri" id="acceso-bandeja" href="#" target="_blank" rel="noopener" hidden>Abrir el correo</a>
+        <button class="btn btn-sec" type="button" id="btn-reenviar" disabled>Reenviar en 60 s</button>
+        <button class="btn btn-txt" type="button" id="btn-otro-correo">Usar otro correo</button>
+      </div>
     </div>
-    <div id="acceso-google" hidden>
-      <button class="btn btn-pri btn-google" type="button" id="btn-google"><svg viewBox="0 0 48 48" aria-hidden="true"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/><path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/></svg>Continuar con Google</button>
-      <p class="separador"><span>o con un enlace en tu correo</span></p>
-    </div>
-    <div class="campo"><label for="acceso-email">Correo electrónico</label><input type="email" id="acceso-email" required autocomplete="email" placeholder="nombre@despacho.es"></div>
-    <p class="mensaje" id="acceso-msg" role="status"></p>
+  </div>
+</dialog>
+
+<dialog class="dialogo" id="dlg-bienvenida" aria-labelledby="t-bienvenida">
+  <form class="dialogo-in" id="form-bienvenida" novalidate>
+    <div class="acceso-marca" aria-hidden="true"><svg viewBox="0 0 32 32"><rect width="32" height="32" rx="8" class="marca-fondo"/><path class="marca-panel" d="M7 10.5 13 8v15.5L7 26z"/><path class="marca-panel-tu" d="M13 8l6 2.5V26l-6-2.5z"/><path class="marca-panel-2" d="M19 10.5 25 8v15.5L19 26z"/></svg></div>
+    <h2 id="t-bienvenida">Ya tienes tu cuenta</h2>
+    <p id="bienvenida-texto">Bienvenido a Mapafiscal.</p>
+    <p class="ayuda">Si quieres, dinos cómo llamarte. Es opcional y puedes cambiarlo cuando quieras en tu perfil.</p>
+    <div class="campo"><label for="bienvenida-nombre">Nombre <span class="ayuda">(opcional)</span></label><input type="text" id="bienvenida-nombre" maxlength="120" autocomplete="name"></div>
+    <div class="campo"><label for="bienvenida-despacho">Despacho o gestoría <span class="ayuda">(opcional)</span></label><input type="text" id="bienvenida-despacho" maxlength="160" autocomplete="organization"></div>
+    <p class="mensaje" id="bienvenida-msg" role="status"></p>
     <div class="dialogo-acciones">
-      <button class="btn btn-sec" value="cancelar" type="submit" formnovalidate>Cancelar</button>
-      <button class="btn btn-sec" type="button" id="btn-enviar-enlace">Enviarme el enlace</button>
+      <button class="btn btn-sec" type="button" id="btn-bienvenida-no">Ahora no</button>
+      <button class="btn btn-pri" type="submit" id="btn-bienvenida-si">Guardar</button>
     </div>
   </form>
 </dialog>
+
 
 <dialog class="dialogo" id="dlg-condiciones" aria-labelledby="t-condiciones">
   <form method="dialog" class="dialogo-in">
     <h2 id="t-condiciones">Antes de seguir</h2>
     <p>Para usar tu cuenta, acepta las condiciones vigentes.</p>
-    <label class="casilla"><input type="checkbox" id="condiciones-acepto"> <span>Uso Mapafiscal para mi actividad profesional, acepto las <a href="legal/condiciones.html" target="_blank" rel="noopener">Condiciones</a> y he leído la <a href="legal/privacidad.html" target="_blank" rel="noopener">Política de privacidad</a>.</span></label>
+    <label class="casilla"><input type="checkbox" id="condiciones-acepto"> <span>He leído y acepto las <a href="legal/condiciones.html" target="_blank" rel="noopener">Condiciones</a> y la <a href="legal/privacidad.html" target="_blank" rel="noopener">Política de privacidad</a>.</span></label>
     <p class="info-datos">Responsable: <a href="legal/privacidad.html#responsable" target="_blank" rel="noopener">Mapafiscal</a>. Usamos tu correo para darte acceso y gestionar tu cuenta y tu plan. Puedes ejercer tus derechos de acceso, rectificación, supresión y demás como se explica en la <a href="legal/privacidad.html#derechos" target="_blank" rel="noopener">política de privacidad</a>.</p>
     <p class="mensaje" id="condiciones-msg" role="status"></p>
     <div class="dialogo-acciones">
@@ -538,7 +586,7 @@
 <dialog class="dialogo" id="dlg-borrar" aria-labelledby="t-borrar">
   <form method="dialog" class="dialogo-in" id="form-borrar">
     <h2 id="t-borrar">Borrar tu cuenta</h2>
-    <p>Se borrarán tu cuenta, tu perfil y todos tus clientes guardados. No se puede deshacer.</p>
+    <p>Se borrarán tu cuenta, tu perfil, tus cálculos y tus clientes guardados. No se puede deshacer.</p>
     <p id="borrar-suscripcion" hidden>Tu suscripción se cancelará ahora mismo, sin reembolso del periodo en curso. Las facturas se conservan en Stripe, porque la ley obliga a guardarlas.</p>
     <div class="campo"><label for="borrar-email">Escribe tu correo para confirmar</label><input type="email" id="borrar-email" autocomplete="off" spellcheck="false"></div>
     <p class="mensaje" id="borrar-msg" role="status"></p>
@@ -565,6 +613,7 @@
 <script src="config.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.49.4/dist/umd/supabase.js" integrity="sha384-rwykjmWNwVxboyFmvK9OXN0wj9hnMHA2aAHtits54DuACyCq0M2PrSNxhRb+hvXT" crossorigin="anonymous"></script>
 <script src="js/irpfsim.js"></script>
+<script src="js/cuentas.js"></script>
 <script src="js/app.js"></script>
 <script src="js/herramientas.js"></script>
 <script src="js/anuncios.js"></script>

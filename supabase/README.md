@@ -179,3 +179,38 @@ dominio propio en Supabase.
 
 Para producción conviene configurar un SMTP propio: el de Supabase solo envía unos pocos
 correos por hora («email rate limit exceeded»).
+
+### Diálogo de acceso (11-11)
+
+Dos modos: **Crear cuenta** (`signInWithOtp` con `shouldCreateUser: true`; pide la casilla «He
+leído y acepto las Condiciones y la Política de privacidad») y **Entrar** (`shouldCreateUser:
+false`: si el correo no tiene cuenta lo dice y ofrece crearla). Google va arriba solo si el
+proveedor está activado; si falla (o vuelve con `?error=`), el botón se oculta y se ofrece el
+correo. Tras enviar el enlace: «Revisa tu correo», botón para abrir el buzón (Gmail, Outlook…),
+reenvío con cuenta atrás de 60 s y «Usar otro correo». La lógica sin DOM está en
+`web/js/cuentas.js` (tests en `test/cuentas.test.mjs`).
+
+### Cálculos guardados (`calculos`)
+
+«Guarda este cálculo» (calculadora y aviso del comparador) guarda el hogar en la tabla
+`calculos`, de cualquier cuenta, también gratuita, con RLS por usuario y un máximo de 50; se
+borran con la cuenta. Sin sesión, el cálculo se recuerda en `localStorage`
+(`mapafiscal.calculoPendiente`, 2 h), se abre «Crear cuenta» y se guarda al volver. **Mientras
+no se aplique `migrations/20261111100000_calculos_guardados.sql`, la web no ofrece el botón ni lo
+anuncia** (lo detecta sola). Para activarlo: SQL Editor → pegar la migración → Run.
+
+### Correos con marca (plantillas)
+
+Las plantillas están en `supabase/templates/`. Para usarlas (lo hace Alex, una vez):
+
+1. Supabase → Authentication → **Emails** → *Templates*.
+2. **Magic Link**: asunto `Tu enlace para entrar en Mapafiscal`; en *Message body* (fuente),
+   pega entero `templates/magic_link.html`. Guarda.
+3. **Confirm signup**: asunto `Confirma tu cuenta de Mapafiscal`; pega
+   `templates/confirmation.html`. Guarda.
+4. Authentication → Emails → *SMTP Settings*: *Sender name* `Mapafiscal` y *Sender email*
+   `contacto@mapafiscal.es` (ya está con Brevo; solo comprobar el nombre).
+5. Prueba: pide un enlace desde la web y revisa que llega con el logotipo y el botón azul.
+
+Usan solo `{{ .ConfirmationURL }}` y `{{ .Email }}`, sin imágenes ni recursos externos (el
+logotipo está hecho con celdas de tabla), así que se ven igual en Gmail, Outlook y Apple Mail.
