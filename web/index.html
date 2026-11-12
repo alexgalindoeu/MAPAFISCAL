@@ -129,7 +129,7 @@
         <div class="campo">
           <label for="f-ss">Cotizaciones a la Seguridad Social</label>
           <div class="con-sufijo"><input type="number" id="f-ss" min="0" step="10" value="2032" inputmode="decimal"><span>€</span></div>
-          <p class="ayuda" id="ayuda-ss">Estimadas en el 6,35 % del salario. Cámbialas si las conoces (vienen en tu certificado de retenciones).</p>
+          <p class="ayuda" id="ayuda-ss">Estimadas con los tipos y la base máxima de cotización del ejercicio. Cámbialas si las conoces (vienen en tu certificado de retenciones).</p>
         </div>
         <details class="mas" id="mas-rentas">
           <summary>Otros ingresos</summary>
@@ -403,7 +403,7 @@
           <div class="campo"><label for="neto-ejercicio">Ejercicio</label><select id="neto-ejercicio"></select></div>
           <div class="campo"><label for="neto-edad">Tu edad</label><input type="number" id="neto-edad" min="16" max="110" step="1" value="35"></div>
         </div>
-        <div class="campo"><label for="neto-hijos">Hijos que conviven contigo</label>
+        <div class="campo"><label for="neto-hijos">Hijos que conviven contigo</label><p class="ayuda">Se calcula como familia monoparental (sin pareja): con pareja, el mínimo por hijos se reparte y el resultado cambia. Para ese caso usa la calculadora.</p>
           <select id="neto-hijos"><option value="0">Ninguno</option><option>1</option><option>2</option><option>3</option><option>4</option><option>5</option></select></div>
         <div class="hr-edades" id="neto-edades"></div>
       </fieldset>
@@ -455,7 +455,7 @@
         <div class="campo"><label for="pp-territorio">Territorio donde resides</label><select id="pp-territorio"></select></div>
         <div class="rejilla2">
           <div class="campo"><label for="pp-edad">Tu edad</label><input type="number" id="pp-edad" min="16" max="110" step="1" value="45"></div>
-          <div class="campo"><label for="pp-hijos">Hijos</label>
+          <div class="campo"><label for="pp-hijos" title="Se calcula como familia monoparental (sin pareja)">Hijos (sin pareja)</label>
             <select id="pp-hijos"><option value="0">Ninguno</option><option>1</option><option>2</option><option>3</option><option>4</option></select></div>
         </div>
         <div class="hr-edades" id="pp-edades"></div>

@@ -7,7 +7,7 @@ window.MAPAFISCAL_CONFIG = {
   supabaseKey: "sb_publishable_H5plGsoIk0bKwlu2Kdf1kQ_1pTPoaFl",
 
   // Cobro con Stripe (Edge Functions crear-checkout / portal-facturacion). Activado el
-  // 2026-09-26 (Alex), con el backend configurado y probado en modo test: ver
+  // 2026-09-26, con el backend configurado y probado en modo test: ver
   // supabase/README.md. Solo cambia si «Gestionar suscripción» debe verse en Mis clientes
   // y Perfil; «Suscribirme» siempre lleva a Stripe Checkout (si no está configurado, la
   // Edge Function responde con un aviso).

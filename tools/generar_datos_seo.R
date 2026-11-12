@@ -21,7 +21,9 @@ source("R/cargar.R"); irpfsim_cargar(".")
 
 EJERCICIO <- 2025
 SALARIOS <- c(20000, 30000, 40000, 60000, 100000)
-SS_TIPO <- 0.0635   # mismo valor por defecto que web/js/app.js para f-ss
+# Cotización del trabajador como en la calculadora (web/js/app.js, f-ss): la de la orden de
+# cotización del ejercicio, con la base máxima y la cotización de solidaridad (R/15).
+ss_trabajador <- function(salario) round(cotizaciones_trabajador(salario, leer_params(EJERCICIO, "estatal.yaml")))
 
 json <- function(x) paste0(as.character(jsonlite::prettify(
   jsonlite::toJSON(x, auto_unbox = TRUE, null = "null", digits = NA), indent = 1)), "")
@@ -55,7 +57,7 @@ nombre_territorio <- function(t) cargar_parametros(t, EJERCICIO)$jurisdiccion$no
 caso_salario <- function(salario) {
   nuevo_hogar("seo", "ES-MD", list(
     persona("d1", "declarante", edad = 40,
-            trabajo = list(dinerarias = salario, cotizaciones_ss = round(salario * SS_TIPO)))
+            trabajo = list(dinerarias = salario, cotizaciones_ss = ss_trabajador(salario)))
   ), ejercicio = EJERCICIO)
 }
 
@@ -75,11 +77,10 @@ seo_comparativas <- list(
   supuesto = paste(
     "Una persona declarante, 40 años, un único rendimiento del trabajo de 12 pagas,",
     "sin cónyuge ni hijos, sin vivienda ni deducciones autonómicas.",
-    "Cotización a la Seguridad Social: 6,35 % del salario (el valor por defecto",
-    "de la calculadora), sin aplicar el tope máximo de cotización.",
+    "Cotización a la Seguridad Social del trabajador según la orden de cotización del",
+    "ejercicio (con su base máxima), como en la calculadora.",
     "No es una liquidación oficial ni tiene en cuenta tu situación real."
   ),
-  ss_tipo = SS_TIPO,
   salarios = as.list(SALARIOS),
   comparativas = setNames(lapply(SALARIOS, comparativa_salario), format(SALARIOS, scientific = FALSE, trim = TRUE))
 )
@@ -316,7 +317,7 @@ caso_pp <- function(salario, aportacion) {
   nuevo_hogar("seo-pp", "ES-MD", list(
     persona("d1", "declarante", edad = 40,
             prevision_social = if (aportacion > 0) list(aportacion_individual = aportacion) else NULL,
-            trabajo = list(dinerarias = salario, cotizaciones_ss = round(salario * SS_TIPO)))
+            trabajo = list(dinerarias = salario, cotizaciones_ss = ss_trabajador(salario)))
   ), ejercicio = EJERCICIO)
 }
 ahorro_pp <- lapply(SALARIOS_PP, function(s) {

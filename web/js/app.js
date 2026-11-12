@@ -415,7 +415,8 @@
   }
 
   // cifra grande: pasa de la anterior a la nueva en un instante (nada con movimiento reducido)
-  const TASA_SS = 0.0635;
+  // cotización del trabajador estimada con la orden de cotización del ejercicio (base máxima y solidaridad)
+  const ssEstimada = salario => Math.round(irpfsim.cotizacionesTrabajador(salario, P));
   const movimientoReducido = () => !!(window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches);
   let cifraPrev = null, cifraRaf = 0;
   function animarCifra(el, hasta) {
@@ -1317,7 +1318,7 @@
   const hogarRapido = (territorio, salario) => ({
     territorio, ejercicio: P.ejercicio, tipoUnidadFamiliar: "ninguna", familiaNumerosa: "no",
     miembros: [{ id: "d1", rol: "declarante", edad: 40, discapacidad: "no",
-      trabajo: salario > 0 ? { dinerarias: salario, cotizacionesSs: Math.round(salario * TASA_SS) } : null }]
+      trabajo: salario > 0 ? { dinerarias: salario, cotizacionesSs: ssEstimada(salario) } : null }]
   });
   function pintarMiniCalc() {
     const salario = Math.max(0, Math.min(1e7, parseFloat(mc.salario.value) || 0)), terr = mc.terr.value;
@@ -1346,7 +1347,7 @@
       ${regla}<p class="minicalc-frase">${frase}</p>
       <div class="minicalc-acciones"><a class="btn btn-pri" href="#calculadora" data-mc-ir>Calcular mi declaración <span class="flecha" aria-hidden="true">→</span></a>
         <a class="btn btn-txt" href="#comparar" data-mc-ir>Ver los 19 territorios</a></div>
-      <p class="minicalc-supuesto">Estimación del ejercicio ${P.ejercicio} para una persona de 40 años sin hijos, con cotizaciones del ${pct(TASA_SS).replace(",00", "")}. En la calculadora puedes añadir tu familia, tus gastos y tus retenciones.</p>`;
+      <p class="minicalc-supuesto">Estimación del ejercicio ${P.ejercicio} para una persona de 40 años sin hijos, con las cotizaciones a la Seguridad Social del ejercicio. En la calculadora puedes añadir tu familia, tus gastos y tus retenciones.</p>`;
 
     dibujarMapa($("mapa-portada"), porT, terr, c => clase(val(c) - val(yo)), (t, c) => `${T[t].nombre}: ${eur0(val(c))}`, "Mapa del IRPF por territorio fiscal");
     $("leyenda-portada").innerHTML = leyendaMapa();
@@ -1365,7 +1366,7 @@
   $("mc-res").addEventListener("click", e => {
     if (!e.target.closest("[data-mc-ir]")) return;
     $("f-salario").value = Math.max(0, parseFloat(mc.salario.value) || 0);
-    if (!ssManual) $("f-ss").value = $("f-pension").checked ? 0 : Math.round(num("f-salario") * TASA_SS);
+    if (!ssManual) $("f-ss").value = $("f-pension").checked ? 0 : ssEstimada(num("f-salario"));
     selTerr.value = mc.terr.value;
     pintarHijos(); pintarGastosTerritorio(); recalcular();
   });
@@ -1394,6 +1395,7 @@
     document.querySelectorAll("[data-ejercicios]").forEach(el => { el.textContent = textoEjercicios(); });
     pideFnReciente = algunaDeduccion(d => d.requiere_familia_numerosa_reciente);
     pideTituloMonoparental = algunaDeduccion(d => d.requiere_titulo_monoparental != null);
+    if (!ssManual) $("f-ss").value = $("f-pension").checked ? 0 : ssEstimada(num("f-salario"));
     pintarFnReciente(); pintarHijos(); pintarGastosTerritorio(); recalcular();
     const v = vistaActual();
     if (v === "inicio") pintarInicio();
