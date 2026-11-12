@@ -17,7 +17,8 @@
 #                   movilidad_geografica, rendimiento_irregular=list(importe,anios),
 #                   trabajador_activo_discapacidad)
 #     capital_inmobiliario: lista de inmuebles list(ingresos, gastos_deducibles,
-#                   gastos_financieros, arrendamiento_vivienda, tipo_arrendamiento,
+#                   gastos_financieros (intereses + reparación y conservación),
+#                   arrendamiento_vivienda, tipo_arrendamiento,
 #                   irregular)
 #     capital_mobiliario: list(dividendos, intereses, seguros, cesion_terceros_general,
 #                   base_general_otros)
@@ -27,7 +28,7 @@
 #                   fecha_adquisicion, fecha_transmision, tipo_elemento,
 #                   es_transmision, exenta)
 #     ganancias_perdidas_no_transmision: num (premios, ayudas -> base general)
-#     imputacion_inmobiliaria: list(valor_catastral, revisado_10_anios)
+#     imputacion_inmobiliaria: list(valor_catastral, revisado_10_anios) o una lista de ellos
 #     prevision_social: list(aportacion_individual, contribucion_empresarial)
 #     reducciones: list(pensiones_compensatorias, anualidades_alimentos_hijos)
 #     retenciones: num

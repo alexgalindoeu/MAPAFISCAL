@@ -1508,3 +1508,27 @@ Cotejo con el boletín de `params/2025/foral_pais_vasco.yaml` y `params/2025/est
 
 Gran dependencia, mismo salario sin hijos: Bizkaia 8.762,80 − 1.583 − 1.897 = 5.282,80; Araba
 8.762,80 − 1.583 − 2.191,03 = 4.988,77.
+
+## Alquileres: tope de intereses y reparación; varias imputaciones (2026-11-12)
+
+Datos que pide la calculadora completa. Tests en `tests/testthat/test-capital-inmobiliario.R`;
+casos `formulario_completo_*` en `tools/validar_js.R`.
+
+**Tope del art. 23.1.a.1.º LIRPF** (régimen común; fuente: BOE-A-2006-20764, art. 23, y Manual
+Práctico de Renta 2025 de la AEAT, capítulo 4). Los intereses y demás gastos de financiación y
+los de reparación y conservación no pueden superar, para cada inmueble, los ingresos íntegros;
+el exceso se deduce en los cuatro años siguientes (no modelado). El resto de gastos (IBI,
+comunidad, seguros, amortización) sí pueden dar rendimiento negativo.
+
+| Caso | Ingresos | Intereses y reparación | Tope | Resto de gastos | Rendimiento neto |
+|---|---:|---:|---:|---:|---:|
+| Local | 6.000 | 9.000 | 6.000 | 1.000 | −1.000 |
+| Vivienda (reducción 50 %) | 10.000 | 3.000 | 3.000 | 2.000 | 5.000 × 50 % = 2.500 |
+| Dos inmuebles | 6.000 + 4.000 | 9.000 + 0 | 6.000 + 0 | 0 + 500 | 0 + 3.500 = 3.500 |
+
+El tope es por inmueble: en el tercer caso el exceso de 3.000 € del primero no reduce el
+rendimiento del segundo.
+
+**Varias imputaciones (art. 85 LIRPF).** 100.000 € de valor catastral revisado (1,1 %) →
+1.100 €; 50.000 € sin revisar (2 %) → 1.000 €. Total 2.100 €. En el caso
+`formulario_completo_*`: 80.000 × 1,1 % + 30.000 × 2 % = 880 + 600 = 1.480 €.

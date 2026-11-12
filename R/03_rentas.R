@@ -113,7 +113,12 @@ rn_capital_inmobiliario <- function(pers, P, regimen) {
   total <- 0
   for (im in inms) {
     ingresos <- im$ingresos %||% 0
-    gastos   <- (im$gastos_deducibles %||% 0) + (im$gastos_financieros %||% 0)
+    # gastos_financieros: intereses y demás gastos de financiación más los de reparación y
+    # conservación. En régimen común no pueden superar los ingresos íntegros de cada inmueble
+    # (art. 23.1.a.1.º LIRPF; el exceso se deduce en los cuatro años siguientes, no modelado)
+    gfin     <- im$gastos_financieros %||% 0
+    if (regimen == "comun") gfin <- min(gfin, max(0, ingresos))
+    gastos   <- (im$gastos_deducibles %||% 0) + gfin
     neto     <- ingresos - gastos
     if (isTRUE(im$arrendamiento_vivienda) && neto > 0) {
       if (regimen == "comun") {
@@ -180,9 +185,13 @@ rn_actividades <- function(pers, P) {
 }
 
 # --- Imputación de rentas inmobiliarias -----------------------------------
+# imputacion_inmobiliaria: un inmueble list(valor_catastral, revisado_10_anios) o una lista
+# de ellos (p. ej. uno con valor catastral revisado y otro sin revisar), que se suman
 imputacion_inmobiliaria <- function(pers, P) {
   ii <- pers$imputacion_inmobiliaria
-  if (is.null(ii)) return(0)
+  if (is.null(ii) || !length(ii)) return(0)
+  if (is.null(names(ii))) return(sum(vapply(ii, function(x)
+    imputacion_inmobiliaria(list(imputacion_inmobiliaria = x), P), numeric(1))))
   tipo <- if (isTRUE(ii$revisado_10_anios)) P$estatal$imputacion_renta_inmobiliaria$tipo_revisado_10_anios
           else P$estatal$imputacion_renta_inmobiliaria$tipo_general
   (ii$valor_catastral %||% 0) * tipo

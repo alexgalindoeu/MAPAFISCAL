@@ -102,14 +102,17 @@
     let total = 0;
     for (const im of inms) {
       const ingresos = num(im.ingresos);
-      let neto = ingresos - (num(im.gastosDeducibles) + num(im.gastosFinancieros));
+      // gastosFinancieros: intereses y reparación/conservación; en común, con el tope de los
+      // ingresos íntegros de cada inmueble (art. 23.1.a.1.º LIRPF)
+      const gfin = regimen === "comun" ? Math.min(num(im.gastosFinancieros), Math.max(0, ingresos)) : num(im.gastosFinancieros);
+      let neto = ingresos - (num(im.gastosDeducibles) + gfin);
       if (im.arrendamientoVivienda && neto > 0) {
         if (regimen === "comun") {
           const r = P.estatal.capital_inmobiliario ? P.estatal.capital_inmobiliario.reduccion_arrendamiento_vivienda : null;
           const pct = { zona_tensionada_bajada: 0.90, joven_o_admon: 0.70, rehabilitacion: 0.60 }[im.tipoArrendamiento] || 0.50;
           neto = neto * (1 - pct);
         } else if (regimen === "foral_pais_vasco") {
-          const pct = { zona_tensionada: 0.70, programas_publicos: 0.70, vivienda_habitual: 0.30 }[im.tipoArrendamiento] || 0.20;
+          const pct = { zona_tensionada: 0.70, programas_publicos: 0.70, vivienda_habitual: 0.30 }[im.tipoArrendamiento || "vivienda_habitual"] || 0.20;
           neto = ingresos * (1 - pct) - num(im.gastosFinancieros);
         }
       }
@@ -143,9 +146,11 @@
     return rnp;
   }
 
+  // un inmueble { valorCatastral, revisado10Anios } o una lista de ellos (se suman)
   function imputacionInmobiliaria(pe, P) {
     const ii = pe.imputacionInmobiliaria;
     if (!ii) return 0;
+    if (Array.isArray(ii)) return ii.reduce((s, x) => s + imputacionInmobiliaria({ imputacionInmobiliaria: x }, P), 0);
     const tipo = ii.revisado10Anios ? P.estatal.imputacion_renta_inmobiliaria.tipo_revisado_10_anios
                                     : P.estatal.imputacion_renta_inmobiliaria.tipo_general;
     return num(ii.valorCatastral) * tipo;
