@@ -41,6 +41,7 @@ export function empaquetar() {
   sustituir('<link rel="icon" href="favicon.svg" type="image/svg+xml">',
     '<link rel="icon" href="data:image/svg+xml,' + encodeURIComponent(leer("favicon.svg").trim()) + '" type="image/svg+xml">');
   sustituir('<link rel="stylesheet" href="css/mapafiscal.css">', "<style>\n" + leer("css/mapafiscal.css") + "</style>");
+  sustituir('<link rel="stylesheet" href="css/cuentas.css">', "<style>\n" + leer("css/cuentas.css") + "</style>");
   // El ID de editor de AdSense no debe quedar ni como texto en la demo, aunque FORZAR_DEMO lo
   // sobrescriba en tiempo de ejecución: se redacta en el propio config.js incrustado.
   const configSinAdsense = leer("config.js").replace(/ca-pub-\d+/, "");
@@ -51,6 +52,7 @@ export function empaquetar() {
     otrosEjercicios().map(f => `\n<script type="application/json" id="datos-${f.replace(".json", "").replace("_", "-")}">` +
       jsonEmbebido("datos/" + f) + "</script>").join(""));
   sustituir('<script src="js/irpfsim.js"></script>', "<script>\n" + leer("js/irpfsim.js") + "</script>");
+  sustituir('<script src="js/cuentas.js"></script>', "<script>\n" + leer("js/cuentas.js") + "</script>");
   sustituir('<script src="js/app.js"></script>', "<script>\n" + leer("js/app.js") + "</script>");
   sustituir('<script src="js/herramientas.js"></script>', "<script>\n" + leer("js/herramientas.js") + "</script>");
   // Las páginas legales, las de territorio y sueldo y las guías no van dentro: apuntan a la web publicada.
