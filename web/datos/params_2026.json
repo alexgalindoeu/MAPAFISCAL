@@ -1,6 +1,6 @@
 {
  "ejercicio": 2026,
- "generado": "2026-11-11",
+ "generado": "2026-11-12",
  "ejercicios": {
   "por_defecto": 2025,
   "publicados": [
@@ -312,6 +312,17 @@
      }
     ]
    }
+  },
+  "prestaciones_prevision_dt12": {
+   "norma": "LIRPF (Ley 35/2006), DT 12.ª.1 y 12.ª.4; art. 17.2.b RDLeg 3/2004 (redacción a 31-12-2006)",
+   "fuente": "BOE-A-2006-20764 (DT 12.ª); BOE-A-2014-12327 (Ley 26/2014); BOE-A-2004-4456; Manual Práctico de Renta, cap. 3, «Régimen transitorio aplicable a las prestaciones de planes de pensiones»",
+   "estado": "confirmado",
+   "porcentaje": 0.4,
+   "anio_regimen_2015": 2015,
+   "anio_regimen_2011": 2011,
+   "plazo_desde_2015_anios": 2,
+   "plazo_2011_2014_anios": 8,
+   "ultimo_anio_anterior_2011": 2018
   }
  },
  "foral_pv": {

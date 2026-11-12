@@ -41,7 +41,7 @@
 
   // Rendimiento neto que fija la cuantía de la reducción del art. 20: íntegro − gastos
   // a) a e) del art. 19.2, sin los «otros gastos» de la letra f)
-  function rnTrabajoPrevioArt20(pe) {
+  function rnTrabajoPrevioArt20(pe, P, regimen) {
     let integro = integroTrabajo(pe);
     if (!pe.trabajo && integro === 0) return 0;
     const tr = pe.trabajo || {};
@@ -49,6 +49,10 @@
     if (irr && num(irr.importe) > 0 && num(irr.anios) > 2) {
       integro -= Math.min(irr.importe, 300000) * 0.30;
     }
+    // plan de pensiones cobrado en capital con el régimen transitorio de la DT 12.ª LIRPF:
+    // reducción del 40 % de lo aportado hasta el 31-12-2006 (solo régimen común; R/03_rentas.R)
+    const dt12 = num(tr.prestacionDt12);
+    if (regimen === "comun" && dt12 > 0) integro -= dt12 * P.estatal.prestaciones_prevision_dt12.porcentaje;
     return integro - num(tr.cotizacionesSs) - num(tr.otrosGastos);
   }
 
@@ -57,7 +61,7 @@
   function rnTrabajoPrevio(pe, P, regimen) {
     if (!pe.trabajo && integroTrabajo(pe) === 0) return 0;
     const tr = pe.trabajo || {};
-    const previoArt20 = rnTrabajoPrevioArt20(pe);
+    const previoArt20 = rnTrabajoPrevioArt20(pe, P, regimen);
     let otros = 0;
     if (regimen === "comun") {
       const og = P.estatal.trabajo_otros_gastos;
@@ -217,7 +221,7 @@
     let redTrabajo = 0;
     for (const pe of personas) {
       // la cuantía se fija sin la letra f); no puede dejar negativo el rendimiento ya minorado en ella
-      const red = reduccionTrabajo(rnTrabajoPrevioArt20(pe), otrasRentas, pe, P, regimen);
+      const red = reduccionTrabajo(rnTrabajoPrevioArt20(pe, P, regimen), otrasRentas, pe, P, regimen);
       redTrabajo += Math.min(red, Math.max(0, rnTrabajoPrevio(pe, P, regimen)));
     }
     const trabajoNeto = Math.max(0, trabajoPrevio - redTrabajo);
@@ -1279,8 +1283,51 @@
     return { bruto: o.bruto, cotizaciones, irpf, neto: red2(o.bruto - cotizaciones - irpf), liquidacion: liq };
   }
 
+  // ---- Rescate de un plan de pensiones, régimen común (R/16_rescate_plan.R) ------------
+  // Rendimiento del trabajo (art. 17.2.a.3.º LIRPF); en capital, reducción del 40 % de lo
+  // aportado hasta el 31-12-2006 (DT 12.ª) en un único ejercicio y en los plazos de la DT 12.ª.4.
+  function dt12EnPlazo(anioContingencia, anioCobro, P) {
+    const d = P.estatal.prestaciones_prevision_dt12;
+    if (anioContingencia == null || !Number.isFinite(+anioContingencia) || anioCobro < anioContingencia) return false;
+    if (anioContingencia >= d.anio_regimen_2015) return anioCobro <= anioContingencia + d.plazo_desde_2015_anios;
+    if (anioContingencia >= d.anio_regimen_2011) return anioCobro <= anioContingencia + d.plazo_2011_2014_anios;
+    return anioCobro <= d.ultimo_anio_anterior_2011;
+  }
+  // o: { territorio, antes2007, despues2007, otrosIngresos, tipoOtros ("pension"|"sueldo"),
+  //      edad, anioContingencia, anios }. Se cobra desde el ejercicio de P.
+  function rescatePlan(o, P) {
+    const terr = P.territorios[o.territorio];
+    if (!terr || terr.regimen !== "comun") throw new Error("el rescate del plan solo está en el motor para el régimen común");
+    const anios = Math.max(1, Math.min(30, Math.trunc(num(o.anios, 5)) || 1));
+    const antes = Math.max(0, num(o.antes2007)), despues = Math.max(0, num(o.despues2007)), otros = num(o.otrosIngresos);
+    const cot = o.tipoOtros === "sueldo" ? cotizacionesTrabajador(otros, P) : 0;
+    const irpf = (rescate, dt12) => {
+      const tot = otros + rescate;
+      const d1 = { id: "d1", rol: "declarante", edad: num(o.edad, 65),
+        trabajo: tot > 0 ? { dinerarias: tot, cotizacionesSs: cot, prestacionDt12: dt12 } : null };
+      return irpfAnual(liquidar({ territorio: o.territorio, ejercicio: P.ejercicio, tipoUnidadFamiliar: "ninguna", familiaNumerosa: "no", miembros: [d1] }, P, "auto"));
+    };
+    const anio = o.anioContingencia == null ? P.ejercicio : o.anioContingencia;
+    const enPlazo = dt12EnPlazo(anio, P.ejercicio, P);
+    const sin = irpf(0, 0);
+    const extra = (cobros, dt12) => {
+      const anual = cobros.map((c, i) => red2(irpf(c, i === 0 ? dt12 : 0) - sin));
+      return { extra: red2(anual.reduce((s, x) => s + x, 0)), anual, cobros };
+    };
+    const dt12 = enPlazo ? antes : 0, tot = antes + despues;
+    const r = {
+      capital: extra([tot], dt12),
+      renta: extra(Array.from({ length: anios }, () => tot / anios), 0),
+      mixto: extra(Array.from({ length: anios }, (_, i) => despues / anios + (i === 0 ? antes : 0)), dt12)
+    };
+    let mejor = "capital";
+    for (const k of ["renta", "mixto"]) if (r[k].extra < r[mejor].extra - 0.005) mejor = k;
+    return Object.assign({ enPlazo, reduccion: red2(dt12 * P.estatal.prestaciones_prevision_dt12.porcentaje),
+      irpfSin: sin, anios, mejor }, r);
+  }
+
   const api = { aplicarEscala, tipoMarginal, liquidar, compararTerritorios, optimizar,
-    cotizacionesTrabajador, cotizacionesTrabajadorDetalle, irpfAnual, sueldoNeto };
+    cotizacionesTrabajador, cotizacionesTrabajadorDetalle, irpfAnual, sueldoNeto, dt12EnPlazo, rescatePlan };
   if (typeof module !== "undefined" && module.exports) module.exports = api;
   global.irpfsim = api;
 })(typeof window !== "undefined" ? window : this);

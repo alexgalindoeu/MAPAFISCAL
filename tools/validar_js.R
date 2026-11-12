@@ -672,6 +672,13 @@ add("ej2026_ex_familia", "ES-EX", "biparental", "no",
          list(id="d2",rol="conyuge",edad=38, trabajo=list(dinerarias=20000,cotizacionesSs=1270)),
          list(id="h1",rol="descendiente",edad=8), list(id="h2",rol="descendiente",edad=4)), ejercicio = 2026)
 add("pv_vi_familia_2025", "ES-PV-VI", "ninguna", "no", fam26_r, fam26_js, ejercicio = 2025)
+# 20. Rescate en capital de un plan de pensiones con la reducción del 40 % de la DT 12.ª
+add("dt12_md_capital", "ES-MD", "ninguna", "no",
+    list(persona("d1","declarante",66, trabajo=list(dinerarias=75000, cotizaciones_ss=0, prestacion_dt12=30000))),
+    list(list(id="d1",rol="declarante",edad=66, trabajo=list(dinerarias=75000,cotizacionesSs=0, prestacionDt12=30000))), ejercicio = 2026)
+add("dt12_cl_capital_2025", "ES-CL", "ninguna", "no",
+    list(persona("d1","declarante",65, trabajo=list(dinerarias=40000, cotizaciones_ss=0, prestacion_dt12=40000))),
+    list(list(id="d1",rol="declarante",edad=65, trabajo=list(dinerarias=40000,cotizacionesSs=0, prestacionDt12=40000))))
 
 out <- lapply(casos, function(c) list(
   js = c$js,
@@ -697,6 +704,27 @@ for (cn in casos_neto) {
               aportacionPlan = cn$aportacion_plan %||% 0, donativos = cn$donativos %||% 0),
     ref = list(cot = s$cotizaciones, irpf = s$irpf, neto = s$neto, cr = s$liquidacion$cuota_resultante_autoliquidacion,
                modo = s$liquidacion$modo_tributacion_elegido))
+}
+
+# 20. Rescate del plan de pensiones (R/16_rescate_plan.R ↔ irpfsim.rescatePlan): reducción
+#     del 40 % de la DT 12.ª en capital, plazos de la DT 12.ª.4, renta y mixto
+casos_rescate <- list(
+  list(id = "rescate26_md_pension", territorio = "ES-MD", antes = 30000, despues = 30000, otros = 15000, anio = 2026, anios = 5),
+  list(id = "rescate26_ct_sueldo", territorio = "ES-CT", antes = 20000, despues = 80000, otros = 35000, tipo = "sueldo", edad = 60, anio = 2025, anios = 4),
+  list(id = "rescate26_an_fuera_plazo", territorio = "ES-AN", antes = 40000, despues = 10000, otros = 12000, anio = 2020, anios = 3),
+  list(id = "rescate26_vc_2012", territorio = "ES-VC", antes = 50000, despues = 0, otros = 0, anio = 2012, anios = 10),
+  list(id = "rescate26_ex_sin_antes", territorio = "ES-EX", antes = 0, despues = 45000, otros = 18000, anio = 2026, anios = 3),
+  list(id = "rescate25_ga_capital", territorio = "ES-GA", antes = 25000, despues = 15000, otros = 20000, anio = 2024, anios = 2, ejercicio = 2025)
+)
+for (cr in casos_rescate) {
+  ej <- cr$ejercicio %||% 2026
+  s <- rescate_plan(cr$territorio, ej, cr$antes, cr$despues, cr$otros, cr$tipo %||% "pension", cr$edad %||% 65, cr$anio, cr$anios)
+  out[[cr$id]] <- list(
+    rescate = TRUE,
+    js = list(territorio = cr$territorio, ejercicio = ej, antes2007 = cr$antes, despues2007 = cr$despues, otrosIngresos = cr$otros,
+              tipoOtros = cr$tipo %||% "pension", edad = cr$edad %||% 65, anioContingencia = cr$anio, anios = cr$anios),
+    ref = list(en_plazo = s$en_plazo, sin = s$irpf_sin, capital = s$capital$extra, renta = s$renta$extra,
+               mixto = s$mixto$extra, mejor = s$mejor))
 }
 
 dir.create("tools", showWarnings = FALSE)
