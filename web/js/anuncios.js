@@ -64,17 +64,15 @@
     (window.adsbygoogle = window.adsbygoogle || []).push({});
   }
 
-  function alVerResultado() {
-    if (tienePlan()) return;
-    cargarScriptAdsense();
-    HUECOS.forEach(mostrarHueco);
-  }
-
   // Carga diferida: solo cuando el navegador está libre y el hueco está a punto de verse.
   // `app.js` dispara este evento cuando ya hay un resultado calculado o se abre "Comparar";
   // el nombre exacto se acuerda con la sesión de Cuentas antes de cablear el disparo real.
+  // Los huecos se abren en el mismo instante que el resultado (justo tras la acción del usuario,
+  // así no cuentan como salto de diseño); solo la descarga de AdSense espera al navegador libre.
   document.addEventListener("mapafiscal:resultado", function () {
-    if ("requestIdleCallback" in window) requestIdleCallback(alVerResultado, { timeout: 2000 });
-    else setTimeout(alVerResultado, 300);
+    if (tienePlan()) return;
+    HUECOS.forEach(mostrarHueco);
+    if ("requestIdleCallback" in window) requestIdleCallback(cargarScriptAdsense, { timeout: 2000 });
+    else setTimeout(cargarScriptAdsense, 300);
   });
 })();

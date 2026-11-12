@@ -46,9 +46,14 @@
   async function datos(idScript, url) {
     const el = document.getElementById(idScript);
     if (el) return JSON.parse(el.textContent);
-    const r = await fetch(url, { cache: "no-cache" });
-    if (!r.ok) throw new Error("No se pudo cargar " + url);
-    return r.json();
+    // Una sola descarga por fichero aunque lo pidan app.js y herramientas.js: se comparte el
+    // texto (no el objeto) para que ninguno vea los cambios que haga el otro en sus datos.
+    const cache = window.__mapafiscalJson = window.__mapafiscalJson || {};
+    if (!cache[url]) cache[url] = fetch(url, { cache: "no-cache" }).then(r => {
+      if (!r.ok) throw new Error("No se pudo cargar " + url);
+      return r.text();
+    }).catch(e => { delete cache[url]; throw e; });
+    return JSON.parse(await cache[url]);
   }
   const PS = {};          // ejercicio -> params
   async function cargarDatos() {

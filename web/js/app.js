@@ -22,9 +22,14 @@
   async function datos(idScript, url) {
     const el = document.getElementById(idScript);
     if (el) return JSON.parse(el.textContent);
-    const r = await fetch(url, { cache: "no-cache" });
-    if (!r.ok) throw new Error("No se pudo cargar " + url);
-    return r.json();
+    // Una sola descarga por fichero aunque lo pidan app.js y herramientas.js: se comparte el
+    // texto (no el objeto) para que ninguno vea los cambios que haga el otro en sus datos.
+    const cache = window.__mapafiscalJson = window.__mapafiscalJson || {};
+    if (!cache[url]) cache[url] = fetch(url, { cache: "no-cache" }).then(r => {
+      if (!r.ok) throw new Error("No se pudo cargar " + url);
+      return r.text();
+    }).catch(e => { delete cache[url]; throw e; });
+    return JSON.parse(await cache[url]);
   }
   let P, MAPA;
   try {
@@ -91,8 +96,64 @@
   });
 
   // ---- Supabase ----------------------------------------------------------------------
-  const sb = (!CFG.demo && CFG.supabaseUrl && window.supabase)
-    ? window.supabase.createClient(CFG.supabaseUrl, CFG.supabaseKey) : null;
+  // supabase-js (~50 KB comprimido, de un CDN) se carga solo cuando hace falta: al abrir el
+  // acceso, si hay una sesión guardada o si se vuelve de un enlace de acceso o de Google.
+  // Hasta entonces `sb` es un sustituto que apunta las llamadas encadenadas
+  // (sb.from(…).select(…).eq(…)) y las ejecuta sobre el cliente real al esperarlas.
+  const SUPABASE_JS = { src: "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.49.4/dist/umd/supabase.js",
+    integrity: "sha384-rwykjmWNwVxboyFmvK9OXN0wj9hnMHA2aAHtits54DuACyCq0M2PrSNxhRb+hvXT" };
+  let sbReal = null, sbCarga = null;
+  const sbAvisos = [];          // onAuthStateChange pedidos antes de cargar supabase-js
+  function hayIndicioSesion() {
+    if (/[#&](access_token|refresh_token|error_description)=/.test(location.hash) || /[?&](code|error_description)=/.test(location.search)) return true;
+    try { for (let i = 0; i < localStorage.length; i++) if (/^sb-.+-auth-token$/.test(localStorage.key(i))) return true; } catch (e) { /* sin almacenamiento */ }
+    return false;
+  }
+  function cargarSupabase() {
+    if (!sbCarga) sbCarga = new Promise((ok, mal) => {
+      if (window.supabase) { ok(); return; }
+      const s = document.createElement("script");
+      s.src = SUPABASE_JS.src; s.integrity = SUPABASE_JS.integrity; s.crossOrigin = "anonymous";
+      s.onload = () => ok(); s.onerror = () => { s.remove(); sbCarga = null; mal(new Error("No se ha podido cargar el acceso. Revisa tu conexión y vuelve a intentarlo.")); };
+      document.head.appendChild(s);
+    }).then(() => {
+      sbReal = window.supabase.createClient(CFG.supabaseUrl, CFG.supabaseKey);
+      sbAvisos.splice(0).forEach(cb => sbReal.auth.onAuthStateChange(cb));
+      return sbReal;
+    });
+    return sbCarga;
+  }
+  function sbDiferido(camino) {
+    const ejecutar = () => cargarSupabase().then(c => {
+      let obj = c, ctx = c;
+      for (const [prop, args] of camino) {
+        if (args) obj = obj.apply(ctx, args);
+        else { ctx = obj; obj = obj[prop]; }
+      }
+      return obj;
+    }, error => ({ data: null, error }));
+    return new Proxy(function () {}, {
+      get(_, prop) {
+        if (prop === "then" || prop === "catch" || prop === "finally") {
+          if (!camino.length) return undefined;     // el propio sb no es una promesa
+          const p = ejecutar(); return p[prop].bind(p);
+        }
+        return sbDiferido([...camino, [prop]]);
+      },
+      apply(_, __, args) {
+        const ruta = camino.map(([p]) => p).join(".");
+        if (!sbReal && ruta === "auth.onAuthStateChange") {
+          sbAvisos.push(args[0]);
+          return { data: { subscription: { unsubscribe() { const i = sbAvisos.indexOf(args[0]); if (i >= 0) sbAvisos.splice(i, 1); } } } };
+        }
+        // Sin indicios de sesión no hace falta descargar nada para saber que no la hay.
+        if (!sbReal && ruta === "auth.getSession" && !hayIndicioSesion()) return Promise.resolve({ data: { session: null }, error: null });
+        return sbDiferido([...camino, [camino[camino.length - 1][0], args]]);
+      }
+    });
+  }
+  const sb = (!CFG.demo && CFG.supabaseUrl) ? sbDiferido([]) : null;
+  if (sb && hayIndicioSesion()) cargarSupabase().catch(() => {});
   const sesion = { usuario: null, perfil: null, clientes: [] };
   let clienteAbierto = null;    // { id, alias, notas }
 
@@ -773,6 +834,7 @@
   let accesoPara = null;         // { destino, pago } del diálogo de acceso abierto
   function abrirAcceso(motivo, para) {
     if (!sb) { irA("clientes"); return; }
+    cargarSupabase().catch(() => {});      // se descarga mientras se rellena el correo
     const v = vistaActual();
     accesoPara = para || { destino: ["planes", "clientes", "perfil"].includes(v) ? v : "cuenta" };
     const texto = $("acceso-motivo");
@@ -812,6 +874,8 @@
     if (error) { $("btn-google").disabled = false; msg.textContent = "No se pudo abrir Google: " + error.message; msg.className = "mensaje error"; }
   });
   $("btn-entrar").addEventListener("click", () => abrirAcceso());
+  if (sb) for (const id of ["btn-entrar", "btn-cuenta"])
+    for (const ev of ["pointerenter", "focus"]) $(id).addEventListener(ev, () => cargarSupabase().catch(() => {}), { once: true });
   $("btn-cuenta").addEventListener("click", () => { if (sesion.usuario) irA("perfil"); else abrirAcceso(); });
 
   // Tras iniciar sesión: seguir al pago que se quería hacer o ir a la vista pedida. Solo lo
