@@ -665,7 +665,7 @@
    "rentas_conyuge_maximas": 8000
   },
   "aportacion_ejemplo": 1500,
-  "supuesto": "Una persona declarante, 40 años, un único rendimiento del trabajo de 12 pagas, sin cónyuge ni hijos, sin vivienda ni deducciones autonómicas. Cotización a la Seguridad Social: 6,35 % del salario (el valor por defecto de la calculadora), sin aplicar el tope máximo de cotización. No es una liquidación oficial ni tiene en cuenta tu situación real.",
+  "supuesto": "Una persona declarante, 40 años, un único rendimiento del trabajo de 12 pagas, sin cónyuge ni hijos, sin vivienda ni deducciones autonómicas. Cotización a la Seguridad Social del trabajador según la orden de cotización del ejercicio (contrato indefinido, con la base máxima y la cotización de solidaridad). No es una liquidación oficial ni tiene en cuenta tu situación real.",
   "ahorro": {
    "30000": [
     {
@@ -833,7 +833,7 @@
     {
      "territorio": "ES-RI",
      "nombre": "La Rioja",
-     "ahorro": 545.21
+     "ahorro": 544.92
     },
     {
      "territorio": "ES-VC",
@@ -875,7 +875,7 @@
     {
      "territorio": "ES-AS",
      "nombre": "Principado de Asturias",
-     "ahorro": 583.51
+     "ahorro": 583.29
     },
     {
      "territorio": "ES-IB",
@@ -900,12 +900,12 @@
     {
      "territorio": "ES-CL",
      "nombre": "Castilla y León",
-     "ahorro": 578.48
+     "ahorro": 578.21
     },
     {
      "territorio": "ES-CT",
      "nombre": "Cataluña",
-     "ahorro": 592.25
+     "ahorro": 592.02
     },
     {
      "territorio": "ES-EX",
@@ -940,17 +940,17 @@
     {
      "territorio": "ES-PV-BI",
      "nombre": "Bizkaia",
-     "ahorro": 526.5
+     "ahorro": 526.04
     },
     {
      "territorio": "ES-PV-SS",
      "nombre": "Gipuzkoa",
-     "ahorro": 526.5
+     "ahorro": 526.04
     },
     {
      "territorio": "ES-PV-VI",
      "nombre": "Araba/Álava",
-     "ahorro": 526.5
+     "ahorro": 526.04
     },
     {
      "territorio": "ES-NC",
