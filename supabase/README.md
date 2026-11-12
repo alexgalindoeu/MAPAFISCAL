@@ -44,7 +44,7 @@ base de datos, así el catálogo no puede desincronizarse del motor JS.
 
 | Función | JWT | Qué hace |
 |---|---|---|
-| `crear-checkout` | sí | crea la sesión de Stripe Checkout del plan Gestor (semanal, mensual o anual); responde `409 ya_suscrito` si ya hay una suscripción activa |
+| `crear-checkout` | sí | crea la sesión de Stripe Checkout del plan Gestor (semanal, mensual o anual); responde `409 ya_suscrito` si ya hay una suscripción activa. Con `{ producto: "informe", ejercicio }`, pago único del informe completo (ver abajo); `409 ya_incluido` si ya tiene plan |
 | `stripe-webhook` | no (firma de Stripe) | sincroniza `suscripciones` y `perfiles.plan` |
 | `portal-facturacion` | sí | abre el portal de cliente de Stripe (tarjeta, periodo, facturas, baja); `vista` elige a qué pestaña se vuelve (`perfil`, `clientes`; por defecto `#gestor`) |
 | `borrar-cuenta` | sí | borra la cuenta (derecho de supresión): cancela al momento sus suscripciones, borra el usuario y, en cascada, perfil, clientes y suscripción. Pide `{ confirmar: correo }` |
@@ -97,6 +97,23 @@ página; si no, a `SITE_URL`. Así se puede probar desde `http://localhost:8080`
 Supabase automáticamente: no hay que definirlas.
 
 ### Puesta en marcha (la hace Alex; nadie más teclea claves secretas)
+
+**Informe completo: pago único (preparado, desactivado).** `crear-checkout` con
+`{ producto: "informe", ejercicio: 2025 }` abre un Checkout `mode: "payment"` (sin suscripción
+y sin guardar la tarjeta, con factura) del precio con `lookup_key` **`informe_unico`** (o el
+secreto `STRIPE_PRICE_INFORME_UNICO` con un `price_…`). Al pagar, el webhook
+(`checkout.session.completed` o `checkout.session.async_payment_succeeded`) apunta una fila
+en `informes_comprados` (migración `20261112100000_informes_comprados.sql`; RLS: cada usuario
+lee las suyas, solo el webhook escribe) y la web desbloquea el informe de ese ejercicio. Para
+activarlo:
+
+1. Aplicar la migración `20261112100000_informes_comprados.sql`.
+2. En Stripe (modo test primero): producto **Mapafiscal · Informe completo**, precio **único**
+   (no recurrente) de **1,99 EUR**, IVA incluido (`tax_behavior: inclusive`), con `lookup_key`
+   `informe_unico`.
+3. Añadir `checkout.session.async_payment_succeeded` a los eventos del webhook (opcional:
+   solo para métodos de pago diferido) y redesplegar `crear-checkout` y `stripe-webhook`.
+4. Probar con la tarjeta de prueba y poner `informePago: true` en `web/config.js`.
 
 **Estado (2026-09-26): configurado, probado en modo test y activado en la web** (`pagosActivos: true`) en la cuenta de Stripe GALINDX
 (modo de prueba, no el *sandbox*): producto **Mapafiscal Gestor** (`prod_VKaFIrhMte2Qh3`)
