@@ -1,7 +1,7 @@
 {
  "ejercicio": 2025,
- "generado": "2026-11-12",
- "supuesto": "Una persona declarante, 40 años, un único rendimiento del trabajo de 12 pagas, sin cónyuge ni hijos, sin vivienda ni deducciones autonómicas. Cotización a la Seguridad Social del trabajador según la orden de cotización del ejercicio (con su base máxima), como en la calculadora. No es una liquidación oficial ni tiene en cuenta tu situación real.",
+ "generado": "2026-11-11",
+ "supuesto": "Una persona declarante, 40 años, un único rendimiento del trabajo de 12 pagas, sin cónyuge ni hijos, sin vivienda ni deducciones autonómicas. Cotización a la Seguridad Social del trabajador según la orden de cotización del ejercicio (contrato indefinido, con la base máxima y la cotización de solidaridad). No es una liquidación oficial ni tiene en cuenta tu situación real.",
  "salarios": [
   20000,
   30000,
@@ -420,133 +420,133 @@
     "puesto": 1,
     "territorio": "ES-PV-BI",
     "nombre": "Bizkaia",
-    "cuota_liquida_total": 13664.6,
+    "cuota_liquida_total": 13664.5,
     "tipo_medio_efectivo": 0.2569
    },
    {
     "puesto": 2,
     "territorio": "ES-PV-SS",
     "nombre": "Gipuzkoa",
-    "cuota_liquida_total": 13664.6,
+    "cuota_liquida_total": 13664.5,
     "tipo_medio_efectivo": 0.2569
    },
    {
     "puesto": 3,
     "territorio": "ES-PV-VI",
     "nombre": "Araba/Álava",
-    "cuota_liquida_total": 13664.6,
+    "cuota_liquida_total": 13664.5,
     "tipo_medio_efectivo": 0.2569
    },
    {
     "puesto": 4,
     "territorio": "ES-MD",
     "nombre": "Comunidad de Madrid",
-    "cuota_liquida_total": 13945.52,
+    "cuota_liquida_total": 13945.42,
     "tipo_medio_efectivo": 0.2574
    },
    {
     "puesto": 5,
     "territorio": "ES-RI",
     "nombre": "La Rioja",
-    "cuota_liquida_total": 14239.28,
+    "cuota_liquida_total": 14239.18,
     "tipo_medio_efectivo": 0.2628
    },
    {
     "puesto": 6,
     "territorio": "ES-MC",
     "nombre": "Región de Murcia",
-    "cuota_liquida_total": 14318.28,
+    "cuota_liquida_total": 14318.19,
     "tipo_medio_efectivo": 0.2643
    },
    {
     "puesto": 7,
     "territorio": "ES-CB",
     "nombre": "Cantabria",
-    "cuota_liquida_total": 14335.82,
+    "cuota_liquida_total": 14335.72,
     "tipo_medio_efectivo": 0.2646
    },
    {
     "puesto": 8,
     "territorio": "ES-CN",
     "nombre": "Canarias",
-    "cuota_liquida_total": 14420.1,
+    "cuota_liquida_total": 14420,
     "tipo_medio_efectivo": 0.2661
    },
    {
     "puesto": 9,
     "territorio": "ES-CL",
     "nombre": "Castilla y León",
-    "cuota_liquida_total": 14532.68,
+    "cuota_liquida_total": 14532.58,
     "tipo_medio_efectivo": 0.2682
    },
    {
     "puesto": 10,
     "territorio": "ES-GA",
     "nombre": "Galicia",
-    "cuota_liquida_total": 14534.44,
+    "cuota_liquida_total": 14534.34,
     "tipo_medio_efectivo": 0.2683
    },
    {
     "puesto": 11,
     "territorio": "ES-AR",
     "nombre": "Aragón",
-    "cuota_liquida_total": 14620.13,
+    "cuota_liquida_total": 14620.03,
     "tipo_medio_efectivo": 0.2698
    },
    {
     "puesto": 12,
     "territorio": "ES-AN",
     "nombre": "Andalucía",
-    "cuota_liquida_total": 14630.42,
+    "cuota_liquida_total": 14630.32,
     "tipo_medio_efectivo": 0.27
    },
    {
     "puesto": 13,
     "territorio": "ES-IB",
     "nombre": "Illes Balears",
-    "cuota_liquida_total": 14681.88,
+    "cuota_liquida_total": 14681.78,
     "tipo_medio_efectivo": 0.271
    },
    {
     "puesto": 14,
     "territorio": "ES-CM",
     "nombre": "Castilla-La Mancha",
-    "cuota_liquida_total": 14693.97,
+    "cuota_liquida_total": 14693.87,
     "tipo_medio_efectivo": 0.2712
    },
    {
     "puesto": 15,
     "territorio": "ES-AS",
     "nombre": "Principado de Asturias",
-    "cuota_liquida_total": 14774.07,
+    "cuota_liquida_total": 14773.96,
     "tipo_medio_efectivo": 0.2727
    },
    {
     "puesto": 16,
     "territorio": "ES-VC",
     "nombre": "Comunitat Valenciana",
-    "cuota_liquida_total": 14818.26,
+    "cuota_liquida_total": 14818.15,
     "tipo_medio_efectivo": 0.2735
    },
    {
     "puesto": 17,
     "territorio": "ES-NC",
     "nombre": "Comunidad Foral de Navarra",
-    "cuota_liquida_total": 14899.09,
+    "cuota_liquida_total": 14898.98,
     "tipo_medio_efectivo": 0.2652
    },
    {
     "puesto": 18,
     "territorio": "ES-CT",
     "nombre": "Cataluña",
-    "cuota_liquida_total": 15008.65,
+    "cuota_liquida_total": 15008.55,
     "tipo_medio_efectivo": 0.277
    },
    {
     "puesto": 19,
     "territorio": "ES-EX",
     "nombre": "Extremadura",
-    "cuota_liquida_total": 15225,
+    "cuota_liquida_total": 15224.89,
     "tipo_medio_efectivo": 0.281
    }
   ],
@@ -555,133 +555,133 @@
     "puesto": 1,
     "territorio": "ES-PV-BI",
     "nombre": "Bizkaia",
-    "cuota_liquida_total": 30496.65,
+    "cuota_liquida_total": 30496.82,
     "tipo_medio_efectivo": 0.3275
    },
    {
     "puesto": 2,
     "territorio": "ES-PV-SS",
     "nombre": "Gipuzkoa",
-    "cuota_liquida_total": 30496.65,
+    "cuota_liquida_total": 30496.82,
     "tipo_medio_efectivo": 0.3275
    },
    {
     "puesto": 3,
     "territorio": "ES-PV-VI",
     "nombre": "Araba/Álava",
-    "cuota_liquida_total": 30496.65,
+    "cuota_liquida_total": 30496.82,
     "tipo_medio_efectivo": 0.3275
    },
    {
     "puesto": 4,
     "territorio": "ES-MD",
     "nombre": "Comunidad de Madrid",
-    "cuota_liquida_total": 30785.34,
+    "cuota_liquida_total": 30785.5,
     "tipo_medio_efectivo": 0.3271
    },
    {
     "puesto": 5,
     "territorio": "ES-IB",
     "nombre": "Illes Balears",
-    "cuota_liquida_total": 31724.23,
+    "cuota_liquida_total": 31724.4,
     "tipo_medio_efectivo": 0.3371
    },
    {
     "puesto": 6,
     "territorio": "ES-MC",
     "nombre": "Región de Murcia",
-    "cuota_liquida_total": 31786.35,
+    "cuota_liquida_total": 31786.52,
     "tipo_medio_efectivo": 0.3378
    },
    {
     "puesto": 7,
     "territorio": "ES-CL",
     "nombre": "Castilla y León",
-    "cuota_liquida_total": 31869.12,
+    "cuota_liquida_total": 31869.29,
     "tipo_medio_efectivo": 0.3386
    },
    {
     "puesto": 8,
     "territorio": "ES-CB",
     "nombre": "Cantabria",
-    "cuota_liquida_total": 31891.92,
+    "cuota_liquida_total": 31892.1,
     "tipo_medio_efectivo": 0.3389
    },
    {
     "puesto": 9,
     "territorio": "ES-GA",
     "nombre": "Galicia",
-    "cuota_liquida_total": 32031.6,
+    "cuota_liquida_total": 32031.77,
     "tipo_medio_efectivo": 0.3404
    },
    {
     "puesto": 10,
     "territorio": "ES-AN",
     "nombre": "Andalucía",
-    "cuota_liquida_total": 32133.4,
+    "cuota_liquida_total": 32133.57,
     "tipo_medio_efectivo": 0.3414
    },
    {
     "puesto": 11,
     "territorio": "ES-CM",
     "nombre": "Castilla-La Mancha",
-    "cuota_liquida_total": 32196.95,
+    "cuota_liquida_total": 32197.12,
     "tipo_medio_efectivo": 0.3421
    },
    {
     "puesto": 12,
     "territorio": "ES-CN",
     "nombre": "Canarias",
-    "cuota_liquida_total": 32398.54,
+    "cuota_liquida_total": 32398.72,
     "tipo_medio_efectivo": 0.3443
    },
    {
     "puesto": 13,
     "territorio": "ES-NC",
     "nombre": "Comunidad Foral de Navarra",
-    "cuota_liquida_total": 32409.65,
+    "cuota_liquida_total": 32409.83,
     "tipo_medio_efectivo": 0.3372
    },
    {
     "puesto": 14,
     "territorio": "ES-CT",
     "nombre": "Cataluña",
-    "cuota_liquida_total": 32427.31,
+    "cuota_liquida_total": 32427.48,
     "tipo_medio_efectivo": 0.3446
    },
    {
     "puesto": 15,
     "territorio": "ES-RI",
     "nombre": "La Rioja",
-    "cuota_liquida_total": 32453.57,
+    "cuota_liquida_total": 32453.75,
     "tipo_medio_efectivo": 0.3448
    },
    {
     "puesto": 16,
     "territorio": "ES-AS",
     "nombre": "Principado de Asturias",
-    "cuota_liquida_total": 32454.39,
+    "cuota_liquida_total": 32454.57,
     "tipo_medio_efectivo": 0.3449
    },
    {
     "puesto": 17,
     "territorio": "ES-AR",
     "nombre": "Aragón",
-    "cuota_liquida_total": 32592.26,
+    "cuota_liquida_total": 32592.44,
     "tipo_medio_efectivo": 0.3463
    },
    {
     "puesto": 18,
     "territorio": "ES-EX",
     "nombre": "Extremadura",
-    "cuota_liquida_total": 33284.12,
+    "cuota_liquida_total": 33284.29,
     "tipo_medio_efectivo": 0.3537
    },
    {
     "puesto": 19,
     "territorio": "ES-VC",
     "nombre": "Comunitat Valenciana",
-    "cuota_liquida_total": 33688.44,
+    "cuota_liquida_total": 33688.63,
     "tipo_medio_efectivo": 0.358
    }
   ]

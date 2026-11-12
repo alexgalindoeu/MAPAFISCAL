@@ -1,6 +1,6 @@
 {
  "ejercicio": 2025,
- "generado": "2026-11-12",
+ "generado": "2026-11-11",
  "escalas": {
   "estatal_2025": {
    "norma": "Art. 63.1.1º LIRPF",
@@ -665,7 +665,7 @@
    "rentas_conyuge_maximas": 8000
   },
   "aportacion_ejemplo": 1500,
-  "supuesto": "Una persona declarante, 40 años, un único rendimiento del trabajo de 12 pagas, sin cónyuge ni hijos, sin vivienda ni deducciones autonómicas. Cotización a la Seguridad Social del trabajador según la orden de cotización del ejercicio (con su base máxima), como en la calculadora. No es una liquidación oficial ni tiene en cuenta tu situación real.",
+  "supuesto": "Una persona declarante, 40 años, un único rendimiento del trabajo de 12 pagas, sin cónyuge ni hijos, sin vivienda ni deducciones autonómicas. Cotización a la Seguridad Social del trabajador según la orden de cotización del ejercicio (contrato indefinido, con la base máxima y la cotización de solidaridad). No es una liquidación oficial ni tiene en cuenta tu situación real.",
   "ahorro": {
    "30000": [
     {
@@ -875,7 +875,7 @@
     {
      "territorio": "ES-AS",
      "nombre": "Principado de Asturias",
-     "ahorro": 583.3
+     "ahorro": 583.29
     },
     {
      "territorio": "ES-IB",
@@ -940,17 +940,17 @@
     {
      "territorio": "ES-PV-BI",
      "nombre": "Bizkaia",
-     "ahorro": 526.05
+     "ahorro": 526.04
     },
     {
      "territorio": "ES-PV-SS",
      "nombre": "Gipuzkoa",
-     "ahorro": 526.05
+     "ahorro": 526.04
     },
     {
      "territorio": "ES-PV-VI",
      "nombre": "Araba/Álava",
-     "ahorro": 526.05
+     "ahorro": 526.04
     },
     {
      "territorio": "ES-NC",
