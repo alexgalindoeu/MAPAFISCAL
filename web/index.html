@@ -104,101 +104,44 @@
         <legend><span class="paso">1</span>Residencia fiscal</legend>
         <div class="campo">
           <label for="f-territorio">Comunidad o territorio foral donde residiste en <span data-ejercicio>2025</span></label>
-          <select id="f-territorio"></select>
+          <select id="f-territorio" data-k="territorio"></select>
+          <p class="ayuda">Donde viviste más de 183 días del año.</p>
         </div>
         <div class="campo">
           <label for="f-municipio">Habitantes de tu municipio <span class="ayuda">(opcional)</span></label>
-          <input type="number" id="f-municipio" min="0" step="100" placeholder="p. ej. 4200" inputmode="numeric" aria-describedby="ayuda-municipio">
+          <input type="number" id="f-municipio" data-k="municipio" min="0" step="100" placeholder="p. ej. 4200" inputmode="numeric" aria-describedby="ayuda-municipio">
           <p class="ayuda" id="ayuda-municipio"></p>
         </div>
-        <label class="casilla"><input type="checkbox" id="f-despoblada"> Mi municipio figura en la lista oficial de zonas rurales o en riesgo de despoblación de mi comunidad</label>
+        <label class="casilla"><input type="checkbox" id="f-despoblada" data-k="despoblada"> Mi municipio figura en la lista oficial de zonas rurales o en riesgo de despoblación de mi comunidad</label>
       </fieldset>
 
       <fieldset class="bloque">
-        <legend><span class="paso">2</span>Ingresos</legend>
+        <legend><span class="paso">2</span>Tú y tu familia</legend>
+        <div data-zona="personal"></div>
         <div class="campo">
-          <label for="f-salario">Salario o pensión bruta anual</label>
-          <div class="con-sufijo"><input type="number" id="f-salario" min="0" step="100" value="32000" inputmode="decimal"><span>€</span></div>
-        </div>
-        <label class="casilla"><input type="checkbox" id="f-pension"> Es una pensión de jubilación de la Seguridad Social</label>
-        <div class="campo">
-          <label for="f-otros-pagadores">De ese importe, lo cobrado de otros pagadores <span class="ayuda">(opcional)</span></label>
-          <div class="con-sufijo"><input type="number" id="f-otros-pagadores" min="0" step="100" value="0" inputmode="decimal"><span>€</span></div>
-          <p class="ayuda">Del segundo pagador y siguientes. Solo cambia si estás obligado a declarar.</p>
-        </div>
-        <div class="campo">
-          <label for="f-ss">Cotizaciones a la Seguridad Social</label>
-          <div class="con-sufijo"><input type="number" id="f-ss" min="0" step="10" value="2032" inputmode="decimal"><span>€</span></div>
-          <p class="ayuda" id="ayuda-ss">Estimadas en el 6,35 % del salario. Cámbialas si las conoces (vienen en tu certificado de retenciones).</p>
-        </div>
-        <details class="mas" id="mas-rentas">
-          <summary>Otros ingresos</summary>
-          <div class="rejilla2">
-            <div class="campo"><label for="f-intereses">Intereses</label><div class="con-sufijo"><input type="number" id="f-intereses" min="0" step="10" value="0"><span>€</span></div></div>
-            <div class="campo"><label for="f-dividendos">Dividendos</label><div class="con-sufijo"><input type="number" id="f-dividendos" min="0" step="10" value="0"><span>€</span></div></div>
-          </div>
-          <div class="campo"><label for="f-ganancias">Ganancia neta por venta de acciones o fondos</label><div class="con-sufijo"><input type="number" id="f-ganancias" step="100" value="0"><span>€</span></div><p class="ayuda">Negativo si hubo pérdidas. Tributa en la base del ahorro.</p></div>
-          <div class="campo"><label for="f-alquileres">Rendimiento neto de inmuebles alquilados</label><div class="con-sufijo"><input type="number" id="f-alquileres" min="0" step="100" value="0"><span>€</span></div></div>
-          <div class="campo"><label for="f-actividad">Rendimiento neto de actividad económica</label><div class="con-sufijo"><input type="number" id="f-actividad" min="0" step="100" value="0"><span>€</span></div><p class="ayuda">Autónomos en estimación directa. La estimación objetiva (módulos) no está modelada.</p></div>
-        </details>
-      </fieldset>
-
-      <fieldset class="bloque">
-        <legend><span class="paso">3</span>Situación personal y familiar</legend>
-        <div class="rejilla2">
-          <div class="campo"><label for="f-edad">Tu edad</label><input type="number" id="f-edad" min="16" max="110" step="1" value="34"></div>
-          <div class="campo"><label for="f-discapacidad">Discapacidad</label>
-            <select id="f-discapacidad"><option value="no">Ninguna</option><option value="33_64">33 % – 64 %</option><option value="65_mas">65 % o más</option></select></div>
-        </div>
-        <label class="casilla"><input type="checkbox" id="f-desempleado"> Estoy en desempleo e inscrito como demandante de empleo</label>
-        <div class="campo" id="campo-meses-desempleo" hidden><label for="f-meses-desempleo">¿Cuántos meses de <span data-ejercicio>2025</span> has estado en desempleo?</label>
-          <input type="number" id="f-meses-desempleo" min="1" max="12" step="1" value="12"></div>
-
-        <div class="campo">
-          <span class="etiqueta" id="lbl-pareja">¿Tienes cónyuge o pareja en la unidad familiar?</span>
+          <span class="etiqueta" id="lbl-pareja">¿Estás casado o casada?</span>
           <div class="segmentado" role="radiogroup" aria-labelledby="lbl-pareja">
-            <label><input type="radio" name="pareja" value="no" checked><span>No</span></label>
-            <label><input type="radio" name="pareja" value="si"><span>Sí</span></label>
+            <label><input type="radio" name="pareja" data-k="pareja" value="no" checked><span>No</span></label>
+            <label><input type="radio" name="pareja" data-k="pareja" value="si"><span>Sí</span></label>
           </div>
+          <p class="ayuda">Con cónyuge calculamos la declaración individual de cada uno y la conjunta, y elegimos la mejor.</p>
         </div>
-        <div class="subbloque" id="bloque-pareja" hidden>
-          <div class="rejilla2">
-            <div class="campo"><label for="f-pareja-edad">Edad de tu pareja</label><input type="number" id="f-pareja-edad" min="16" max="110" value="34"></div>
-            <div class="campo"><label for="f-pareja-salario">Su salario bruto anual</label><div class="con-sufijo"><input type="number" id="f-pareja-salario" min="0" step="100" value="0"><span>€</span></div></div>
-          </div>
-        </div>
-
-        <div class="campo">
-          <span class="etiqueta">Hijos y descendientes a tu cargo</span>
-          <ul class="lista-hijos" id="lista-hijos" aria-live="polite"></ul>
-          <button class="btn btn-sec btn-sm" type="button" id="btn-hijo">+ Añadir hijo</button>
-        </div>
-        <div class="rejilla2">
-          <div class="campo"><label for="f-familia-numerosa">Familia numerosa</label>
-            <select id="f-familia-numerosa"><option value="no">No</option><option value="general">General</option><option value="especial">Especial</option></select></div>
-          <div class="campo"><label for="f-ascendientes">Ascendientes que conviven contigo</label>
-            <select id="f-ascendientes"><option value="0">Ninguno</option><option value="65">Uno de 65 a 74 años</option><option value="75">Uno de 75 años o más</option><option value="75x2">Dos de 75 años o más</option></select></div>
-        </div>
-        <div class="campo" id="campo-titulo-monoparental" hidden><label for="f-titulo-monoparental">Título autonómico de familia monoparental</label>
-          <select id="f-titulo-monoparental"><option value="no">No tengo</option><option value="general">Categoría general</option><option value="especial">Categoría especial</option></select></div>
-        <label class="casilla" id="casilla-fn-reciente" hidden><input type="checkbox" id="f-fn-reciente"> Obtuvimos el título de familia numerosa con efectos de 2023 o posterior (lo exige la deducción de la Comunidad de Madrid)</label>
+        <div class="subbloque" data-zona="pareja" id="bloque-pareja" hidden></div>
+        <div data-zona="familia"></div>
       </fieldset>
 
       <fieldset class="bloque">
-        <legend><span class="paso">4</span>Vivienda y ahorro fiscal</legend>
-        <div class="campo"><label for="f-alquiler">Alquiler de tu vivienda habitual pagado en <span data-ejercicio>2025</span></label><div class="con-sufijo"><input type="number" id="f-alquiler" min="0" step="50" value="0"><span>€</span></div></div>
-        <div class="campo" id="campo-compra" hidden><label for="f-compra">Pagos por la compra de tu vivienda habitual en <span data-ejercicio>2025</span></label><div class="con-sufijo"><input type="number" id="f-compra" min="0" step="100" value="0"><span>€</span></div><p class="ayuda">Deducción foral por adquisición de vivienda (País Vasco).</p></div>
-        <div class="campo" id="campo-hipoteca"><label for="f-hipoteca">Hipoteca de tu vivienda habitual comprada antes de 2013: lo pagado en <span data-ejercicio>2025</span></label><div class="con-sufijo"><input type="number" id="f-hipoteca" min="0" step="100" value="0"><span>€</span></div><p class="ayuda">Capital, intereses y seguros vinculados al préstamo. Solo si la compraste antes de 2013 (régimen transitorio).</p></div>
-        <div class="campo"><label for="f-pensiones">Aportaciones a planes de pensiones o EPSV</label><div class="con-sufijo"><input type="number" id="f-pensiones" min="0" step="100" value="0"><span>€</span></div></div>
-        <div class="campo" id="campo-donativos"><label for="f-donativos">Donativos a ONG y fundaciones de la Ley 49/2002</label><div class="con-sufijo"><input type="number" id="f-donativos" min="0" step="10" value="0"><span>€</span></div></div>
-        <label class="casilla" id="casilla-donativos-rec"><input type="checkbox" id="f-donativos-rec"> Doné a la misma entidad en 2023 y 2024 sin bajar el importe</label>
-        <div id="gastos-territorio"></div>
+        <legend><span class="paso">3</span>Ingresos, ahorro y vivienda</legend>
+        <div class="campo quien-form" data-zona="quien" hidden></div>
+        <div data-zona="ingresos"></div>
       </fieldset>
 
       <fieldset class="bloque">
-        <legend><span class="paso">5</span>Retenciones</legend>
-        <div class="campo"><label for="f-retenciones">Retenciones e ingresos a cuenta del año (tuyas y de tu pareja)</label><div class="con-sufijo"><input type="number" id="f-retenciones" min="0" step="50" value="0"><span>€</span></div><p class="ayuda">Con ellas calculamos si la declaración sale a pagar o a devolver.</p></div>
+        <legend><span class="paso">4</span>Gastos con deducción en tu comunidad</legend>
+        <div data-zona="gastos" id="gastos-territorio"></div>
       </fieldset>
+
+      <div class="avisos-form" data-zona="avisos" role="status" hidden></div>
     </form>
 
     <aside class="resultado" aria-live="polite" aria-labelledby="t-res">
@@ -585,6 +528,7 @@
 <script src="config.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.49.4/dist/umd/supabase.js" integrity="sha384-rwykjmWNwVxboyFmvK9OXN0wj9hnMHA2aAHtits54DuACyCq0M2PrSNxhRb+hvXT" crossorigin="anonymous"></script>
 <script src="js/irpfsim.js"></script>
+<script src="js/formulario.js"></script>
 <script src="js/app.js"></script>
 <script src="js/herramientas.js"></script>
 <script src="js/anuncios.js"></script>
