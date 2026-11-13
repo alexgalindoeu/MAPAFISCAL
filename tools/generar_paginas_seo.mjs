@@ -19,6 +19,7 @@ import { SITIO, SLUG, ORDEN_TERRITORIOS, HERRAMIENTA, esc, euros, pct, tablaEsca
 import { paginaDeducciones } from "./seo_deducciones.mjs";
 import { paginasGuias, GUIAS } from "./seo_guias.mjs";
 import { paginasSueldoNeto } from "./seo_sueldo_neto.mjs";
+import { paginasRescate } from "./seo_rescate.mjs";
 
 const RAIZ = join(dirname(fileURLToPath(import.meta.url)), "..");
 const WEB = join(RAIZ, "web");
@@ -189,6 +190,7 @@ export function generar() {
   for (const g of gs) pagina(g.ruta, g.html);
   const sn = paginasSueldoNeto(sueldoNeto);
   for (const p of sn) pagina(p.ruta, p.html);
+  for (const g of paginasRescate(territorios.generado)) pagina(g.ruta, g.html);
 
   const hoy = territorios.generado;
   ficheros.set("sitemap.xml", `<?xml version="1.0" encoding="UTF-8"?>
@@ -224,6 +226,7 @@ export function huerfanas(ficheros) {
   };
   recorrer("guias");
   recorrer("sueldo-neto");
+  recorrer("rescate-plan-pensiones");
   return fuera;
 }
 

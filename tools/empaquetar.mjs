@@ -66,6 +66,7 @@ export function empaquetar() {
   sustituir('<script src="js/app.js"></script>', "<script>\n" + leer("js/app.js") + "</script>");
   sustituir('<script src="js/herramientas.js"></script>', "<script>\n" + leer("js/herramientas.js") + "</script>");
   sustituir('<script src="js/informe.js"></script>', "<script>\n" + informeDemo() + "</script>");
+  sustituir('<script src="js/rescate.js"></script>', "<script>\n" + leer("js/rescate.js") + "</script>");
   // Las páginas legales, las de territorio y sueldo y las guías no van dentro: apuntan a la web publicada.
   html = html.replace(/href="(legal|irpf|guias|comparar-sueldo)\//g, (m, dir) => `href="${WEB_PUBLICA}${dir}/`);
   return html;
