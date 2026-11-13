@@ -1089,6 +1089,7 @@
       }
     } else { sesion.perfil = null; sesion.clientes = []; guardadoHogar = null; }
     sesionCargada = true;
+    avisarCuenta();
     pintarCuenta();
     marcarPestanaClientes();
     pintarBotonesGuardar();
@@ -1207,6 +1208,13 @@
     }
   }
   document.addEventListener("mapafiscal:vista", e => { if (e.detail && HERRAMIENTAS_AVISO.includes(e.detail.vista)) pintarAvisosCuenta(); });
+  // Estado de la cuenta para anuncios.js: sin plan de pago hay anuncios; con plan, nunca.
+  // «cargada» es false hasta saber si hay sesión, para no pedir nada antes de tiempo.
+  function avisarCuenta() {
+    window.MAPAFISCAL_CUENTA = { cargada: true, conPlan: tienePlan() };
+    document.dispatchEvent(new CustomEvent("mapafiscal:cuenta", { detail: window.MAPAFISCAL_CUENTA }));
+  }
+  window.MAPAFISCAL_CUENTA = { cargada: !sb, conPlan: false };
 
   // «Mis clientes» solo con un plan de pago activo (la base de datos lo exige por RLS).
   function tienePlan() { return !!(sb && sesion.usuario && sesion.perfil && sesion.perfil.plan && sesion.perfil.plan !== "gratis"); }
