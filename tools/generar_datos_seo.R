@@ -11,12 +11,21 @@
 #                                       de referencia (liquidación real del motor).
 #   web/datos/seo_territorios.json   — escala combinada, mínimo y deducciones de cada
 #                                       territorio, con su norma y su fuente.
+#   web/datos/seo_deducciones.json   — deducciones publicables (confirmadas y con fuente
+#                                       primaria) de cada territorio.
+#   web/datos/seo_guias.json         — cifras de las guías (escalas 2025/2026, mínimos,
+#                                       planes de pensiones, donativos, obligación de
+#                                       declarar y calendario de params/calendario_renta.yaml).
+#   web/datos/seo_sueldo_neto.json   — sueldo neto (sueldo_neto() de R/15) por importe y
+#                                       territorio en el ejercicio en curso (web/sueldo-neto/).
 # =============================================================================
 source("R/cargar.R"); irpfsim_cargar(".")
 
 EJERCICIO <- 2025
 SALARIOS <- c(20000, 30000, 40000, 60000, 100000)
-SS_TIPO <- 0.0635   # mismo valor por defecto que web/js/app.js para f-ss
+# Cotización del trabajador a la Seguridad Social: la de la orden de cotización del
+# ejercicio (cotizaciones_trabajador() de R/15, contrato indefinido), igual que la web.
+cotizacion_ss <- function(salario) cotizaciones_trabajador(salario, cargar_parametros("ES-MD", EJERCICIO))
 
 json <- function(x) paste0(as.character(jsonlite::prettify(
   jsonlite::toJSON(x, auto_unbox = TRUE, null = "null", digits = NA), indent = 1)), "")
@@ -50,7 +59,7 @@ nombre_territorio <- function(t) cargar_parametros(t, EJERCICIO)$jurisdiccion$no
 caso_salario <- function(salario) {
   nuevo_hogar("seo", "ES-MD", list(
     persona("d1", "declarante", edad = 40,
-            trabajo = list(dinerarias = salario, cotizaciones_ss = round(salario * SS_TIPO)))
+            trabajo = list(dinerarias = salario, cotizaciones_ss = cotizacion_ss(salario)))
   ), ejercicio = EJERCICIO)
 }
 
@@ -70,11 +79,10 @@ seo_comparativas <- list(
   supuesto = paste(
     "Una persona declarante, 40 años, un único rendimiento del trabajo de 12 pagas,",
     "sin cónyuge ni hijos, sin vivienda ni deducciones autonómicas.",
-    "Cotización a la Seguridad Social: 6,35 % del salario (el valor por defecto",
-    "de la calculadora), sin aplicar el tope máximo de cotización.",
+    "Cotización a la Seguridad Social del trabajador según la orden de cotización del",
+    "ejercicio (contrato indefinido, con la base máxima y la cotización de solidaridad).",
     "No es una liquidación oficial ni tiene en cuenta tu situación real."
   ),
-  ss_tipo = SS_TIPO,
   salarios = as.list(SALARIOS),
   comparativas = setNames(lapply(SALARIOS, comparativa_salario), format(SALARIOS, scientific = FALSE, trim = TRUE))
 )
@@ -182,9 +190,245 @@ seo_territorios <- list(
 )
 
 # -----------------------------------------------------------------------------
+# 3) Deducciones publicables por territorio (web/irpf/<territorio>/deducciones/).
+#    Solo se publica lo que está `confirmado` y cita una fuente primaria (BOE, boletín,
+#    Manual Práctico de la AEAT o la Hacienda foral). Y para no dar una idea equivocada de
+#    quién tiene derecho, una deducción solo sale si TODOS sus supuestos están confirmados:
+#    se descarta si algún supuesto sin confirmar de la misma comunidad comparte con ella el
+#    `grupo`, el artículo de la norma o el prefijo del `id` (p. ej. `familia_monoparental`
+#    frente a `familia_monoparental_ascendientes_75`), también entre los `pendientes`.
+#    Los textos los redacta tools/generar_paginas_seo.mjs a partir de estos datos.
+# -----------------------------------------------------------------------------
+FUENTE_PRIMARIA <- "BOE-A-|Manual Pr[aá]ctico|agenciatributaria|BOG|BOB|BOTHA|BON\\b|DF Gipuzkoa|DFB|Hacienda Foral"
+
+titulo_aeat <- function(fuente) {
+  m <- regmatches(fuente, regexpr("«[^»]+»", fuente))
+  if (length(m)) substr(m, 2, nchar(m) - 1) else NA_character_
+}
+url_aeat <- function(fuente) {
+  m <- regmatches(fuente, regexpr("https://sede\\.agenciatributaria\\.gob\\.es/[^ )]+", fuente))
+  if (length(m)) m else NA_character_
+}
+ids_boe <- function(fuente) unique(regmatches(fuente, gregexpr("BOE-A-[0-9]{4}-[0-9]+", fuente))[[1]])
+articulo <- function(norma) {
+  m <- regmatches(norma, regexpr("Arts?\\. [0-9]+[^ ,]*( (bis|ter|qu[a-z]+))?", norma))
+  if (length(m)) sub("[),]+$", "", sub("^Arts?\\. ", "", m)) else NA_character_
+}
+prefijo_id <- function(id) paste(head(strsplit(id, "_")[[1]], 2), collapse = "_")
+relacionados <- function(a, b) !is.na(a) && !is.na(b) &&
+  (a == b || startsWith(a, paste0(b, ".")) || startsWith(b, paste0(a, ".")))
+
+es_publicable <- function(d) identical(d$estado, "confirmado") && !is.null(d$fuente) &&
+  grepl(FUENTE_PRIMARIA, d$fuente) && !is.na(titulo_aeat(d$fuente))
+
+deducciones_comun <- function(t) {
+  a <- auto$territorios[[t]]; da <- a$deducciones_autonomicas
+  lista <- da$lista %||% list()
+  ok <- Filter(es_publicable, lista)
+  if (!length(ok)) return(NULL)
+  resto <- Filter(function(d) !es_publicable(d), lista)
+  pend <- Filter(function(p) is.character(p) && substr(p, 1, 1) != "(", unlist(da$pendientes %||% list()))
+  titulos <- unique(vapply(ok, function(d) titulo_aeat(d$fuente), ""))
+  fichas <- list()
+  for (tit in titulos) {
+    items <- Filter(function(d) identical(titulo_aeat(d$fuente), tit), ok)
+    choca <- any(vapply(items, function(d) {
+      any(vapply(resto, function(r)
+        (!is.null(d$grupo) && identical(d$grupo, r$grupo)) ||
+          relacionados(articulo(d$norma), articulo(r$norma)) ||
+          identical(prefijo_id(d$id), prefijo_id(r$id)), logical(1))) ||
+        any(vapply(pend, function(p) identical(prefijo_id(d$id), prefijo_id(p)), logical(1)))
+    }, logical(1)))
+    if (choca) next
+    fuentes <- vapply(items, function(d) d$fuente, "")
+    urls <- unique(na.omit(vapply(fuentes, url_aeat, "", USE.NAMES = FALSE)))
+    fichas[[length(fichas) + 1]] <- list(
+      titulo = tit,
+      url_aeat = if (length(urls)) urls[[1]] else NULL,
+      boe = as.list(unique(unlist(lapply(fuentes, ids_boe)))),
+      normas = as.list(unique(vapply(items, function(d) d$norma, ""))),
+      supuestos = lapply(items, function(d) { d$estado <- NULL; d$fuente <- NULL; d })
+    )
+  }
+  if (!length(fichas)) return(NULL)
+  list(territorio = t, nombre = a$nombre, regimen = "comun", fichas = fichas)
+}
+
+# Forales. País Vasco: los bloques `deduccion_*` y la minoración de cuota, con el estado del
+# territorio (override) y solo si la fuente es de la Hacienda de ESE territorio (el bloque
+# común toma los importes de Gipuzkoa). Navarra: sus bloques `deduccion_*` y el mínimo
+# personal (que allí es una deducción de la cuota), con fuente primaria.
+HACIENDA_PV <- list("ES-PV-BI" = "DFB|Bizkaia|BOB", "ES-PV-SS" = "Gipuzkoa|BOG",
+                    "ES-PV-VI" = "Araba|Álava|DFA|BOTHA")
+deducciones_pv <- function(t) {
+  ov <- pv$overrides[[t]] %||% list()
+  nombres <- grep("^(deduccion_|minoracion_cuota$)", names(pv$comun), value = TRUE)
+  bloques <- list()
+  for (k in nombres) {
+    b <- pv$comun[[k]]
+    if (is.list(ov[[k]])) b <- fusionar_params(b, ov[[k]])
+    if (!identical(b$estado, "confirmado") || is.null(b$fuente)) next
+    if (!grepl(HACIENDA_PV[[t]], b$fuente) || !grepl(FUENTE_PRIMARIA, b$fuente)) next
+    bloques[[k]] <- b
+  }
+  if (!length(bloques)) return(NULL)
+  list(territorio = t, nombre = ov$nombre, regimen = "foral_pais_vasco", norma_base = ov$norma_base,
+       bloques = bloques)
+}
+deducciones_navarra <- function() {
+  nombres <- grep("^(deduccion_|minimo_personal_deduccion$)", names(nv), value = TRUE)
+  bloques <- Filter(function(b) identical(b$estado, "confirmado") && !is.null(b$fuente) &&
+                      grepl("BOE-A-|BON\\b|Hacienda Foral", b$fuente), nv[nombres])
+  if (!length(bloques)) return(NULL)
+  list(territorio = "ES-NC", nombre = "Navarra", regimen = "foral_navarra",
+       norma_base = "Decreto Foral Legislativo 4/2008, Texto Refundido de la Ley Foral del IRPF",
+       bloques = bloques)
+}
+
+ded <- c(lapply(setNames(TERRITORIOS_COMUN, TERRITORIOS_COMUN), deducciones_comun),
+         lapply(setNames(names(HACIENDA_PV), names(HACIENDA_PV)), deducciones_pv),
+         list("ES-NC" = deducciones_navarra()))
+ded <- Filter(Negate(is.null), ded)
+seo_deducciones <- list(ejercicio = EJERCICIO, generado = as.character(Sys.Date()), territorios = ded)
+
+# -----------------------------------------------------------------------------
+# 4) Datos de las guías (web/guias/*): escalas, mínimos, previsión social, donativos,
+#    obligación de declarar y calendario, con su norma y su fuente. De 2026 solo se usa
+#    lo que params/2026 ya trae cotejado (estatal y forales; las autonómicas, aún no).
+# -----------------------------------------------------------------------------
+est26 <- leer_params(2026, "estatal.yaml")
+pv26  <- leer_params(2026, "foral_pais_vasco.yaml")
+nv26  <- leer_params(2026, "navarra.yaml")
+cal   <- yaml::read_yaml("params/calendario_renta.yaml")
+
+escala <- function(b) list(norma = b$norma, fuente = b$fuente %||% NULL, tramos = tramos_json(b$tramos))
+
+minimos_autonomicos <- Filter(Negate(is.null), lapply(TERRITORIOS_COMUN, function(t) {
+  m <- auto$territorios[[t]]$minimo_autonomico
+  if (is.null(m) || !identical(m$estado, "confirmado")) return(NULL)
+  list(territorio = t, nombre = auto$territorios[[t]]$nombre, norma = m$norma, fuente = m$fuente,
+       contribuyente = m[["minimo_contribuyente"]], descendientes = m[["minimo_descendientes"]],
+       ascendientes = m[["minimo_ascendientes"]], discapacidad = m[["minimo_discapacidad"]])
+}))
+
+# Ahorro de aportar a un plan de pensiones: liquidación real del motor con y sin la
+# aportación, en el mismo caso de referencia que las comparativas.
+APORTACION <- 1500
+SALARIOS_PP <- c(30000, 45000, 60000)
+caso_pp <- function(salario, aportacion) {
+  nuevo_hogar("seo-pp", "ES-MD", list(
+    persona("d1", "declarante", edad = 40,
+            prevision_social = if (aportacion > 0) list(aportacion_individual = aportacion) else NULL,
+            trabajo = list(dinerarias = salario, cotizaciones_ss = cotizacion_ss(salario)))
+  ), ejercicio = EJERCICIO)
+}
+ahorro_pp <- lapply(SALARIOS_PP, function(s) {
+  sin <- comparar_territorios(caso_pp(s, 0), ejercicio = EJERCICIO)
+  con <- comparar_territorios(caso_pp(s, APORTACION), ejercicio = EJERCICIO)
+  lapply(seq_len(nrow(sin)), function(i) list(
+    territorio = sin$territorio[i], nombre = nombre_territorio(sin$territorio[i]),
+    ahorro = round(sin$cuota_liquida_total[i] - con$cuota_liquida_total[con$territorio == sin$territorio[i]], 2)))
+})
+names(ahorro_pp) <- format(SALARIOS_PP, scientific = FALSE, trim = TRUE)
+
+seo_guias <- list(
+  ejercicio = EJERCICIO,
+  generado = as.character(Sys.Date()),
+  escalas = list(
+    estatal_2025 = escala(est$escala_general_estatal),
+    estatal_2026 = escala(est26$escala_general_estatal),
+    ahorro_estatal_2025 = escala(est$escala_ahorro_estatal),
+    ahorro_autonomica_2025 = escala(est$escala_ahorro_autonomica),
+    ahorro_estatal_2026 = escala(est26$escala_ahorro_estatal),
+    ahorro_autonomica_2026 = escala(est26$escala_ahorro_autonomica),
+    pais_vasco_2025 = escala(pv$comun$escala_general_foral),
+    pais_vasco_2026 = escala(pv26$comun$escala_general_foral),
+    navarra_2025 = escala(nv$escala_general_foral),
+    navarra_2026 = escala(nv26$escala_general_foral)
+  ),
+  minimos = list(
+    contribuyente = est$minimo_contribuyente, descendientes = est$minimo_descendientes,
+    ascendientes = est$minimo_ascendientes, discapacidad = est$minimo_discapacidad,
+    contribuyente_2026 = est26$minimo_contribuyente, descendientes_2026 = est26$minimo_descendientes,
+    autonomicos = minimos_autonomicos
+  ),
+  prevision_social = list(
+    reduccion = est$reduccion_prevision_social, reduccion_2026 = est26$reduccion_prevision_social,
+    aportacion_ejemplo = APORTACION, supuesto = seo_comparativas$supuesto, ahorro = ahorro_pp
+  ),
+  donativos = list(estatal = est$deduccion_donativos, estatal_2026 = est26$deduccion_donativos),
+  obligacion_declarar = list(estatal = est$obligacion_declarar, estatal_2026 = est26$obligacion_declarar),
+  calendario = Filter(function(x) identical(x$estado, "confirmado"), cal$campanas)
+)
+
+# -----------------------------------------------------------------------------
+# 5) Sueldo neto por importe y territorio (web/sueldo-neto/): sueldo_neto() de R/15, el
+#    mismo cálculo que la vista #sueldo-neto (paridad en test/sueldo_neto_seo.test.mjs).
+#    Soltero sin hijos, 40 años, contrato indefinido, ejercicio en curso. El tipo marginal
+#    sale de volver a calcular con 100 € brutos más.
+# -----------------------------------------------------------------------------
+EJ_NETO <- 2026
+IMPORTES_ANUALES <- c(seq(15000, 50000, by = 1000), seq(55000, 100000, by = 5000))
+MENSUALES <- c(1200, 1500, 1800, 2000, 2500, 3000)
+IMPORTES_NETO <- sort(unique(c(IMPORTES_ANUALES, MENSUALES * 12, MENSUALES * 14)))
+# Importes con página por territorio (los más buscados; los demás, solo la nacional).
+IMPORTES_TERRITORIO <- c(15000, 16800, 18000, 20000, 21000, 21600, 22000, 24000, 25000, 25200,
+                         26000, 28000, 30000, 32000, 35000, 36000, 40000, 42000, 45000, 50000,
+                         60000, 70000, 80000, 100000)
+stopifnot(all(IMPORTES_TERRITORIO %in% IMPORTES_NETO))
+
+# sueldo_neto() lee los parámetros en cada llamada; aquí se leen una vez por territorio.
+.cargar_parametros_original <- cargar_parametros
+.cache_params <- new.env()
+cargar_parametros <- function(territorio, ejercicio = 2025) {
+  k <- paste(territorio, ejercicio)
+  if (is.null(.cache_params[[k]])) .cache_params[[k]] <- .cargar_parametros_original(territorio, ejercicio)
+  .cache_params[[k]]
+}
+
+TERR_NETO <- c(TERRITORIOS_COMUN, "ES-PV-BI", "ES-PV-SS", "ES-PV-VI", "ES-NC")
+ct26 <- est26$cotizaciones_trabajador
+P_ss <- cargar_parametros("ES-MD", EJ_NETO)
+clave <- function(x) format(x, scientific = FALSE, trim = TRUE)
+
+sueldos_neto <- setNames(lapply(IMPORTES_NETO, function(b) {
+  d <- cotizaciones_trabajador_detalle(b, P_ss)
+  porT <- setNames(lapply(TERR_NETO, function(t) {
+    s <- sueldo_neto(b, t, EJ_NETO)
+    s2 <- sueldo_neto(b + 100, t, EJ_NETO)
+    list(irpf = s$irpf, neto = s$neto,
+         marginal = round((100 - (s2$neto - s$neto)) / 100, 4),
+         marginal_irpf = round((s2$irpf - s$irpf) / 100, 4))
+  }), TERR_NETO)
+  list(ss = list(contingencias_comunes = d$contingencias_comunes, desempleo = d$desempleo,
+                 formacion_profesional = d$formacion_profesional, mei = d$mei,
+                 solidaridad = d$solidaridad, total = d$total, base_mensual = d$base_mensual),
+       territorios = porT)
+}), clave(IMPORTES_NETO))
+cargar_parametros <- .cargar_parametros_original
+
+seo_sueldo_neto <- list(
+  ejercicio = EJ_NETO,
+  generado = as.character(Sys.Date()),
+  supuesto = list(edad = 40, hijos = 0, tipo_contrato = "indefinido"),
+  cotizaciones = list(norma = ct26$norma, fuente = ct26$fuente, tipos = ct26$tipos,
+                      base_maxima_mensual = ct26$base_maxima_mensual),
+  nombres = setNames(lapply(TERR_NETO, function(t) territorios[[t]]$nombre), TERR_NETO),
+  importes_anuales = as.list(IMPORTES_ANUALES),
+  importes_territorio = as.list(IMPORTES_TERRITORIO),
+  mensuales = as.list(MENSUALES),
+  sueldos = sueldos_neto
+)
+
+# -----------------------------------------------------------------------------
 comprobar <- "--comprobar" %in% commandArgs(trailingOnly = TRUE)
 ok1 <- escribir(seo_comparativas, "web/datos/seo_comparativas.json", comprobar,
                 paste(", ejercicio", EJERCICIO, ",", length(SALARIOS), "sueldos de referencia"))
 ok2 <- escribir(seo_territorios, "web/datos/seo_territorios.json", comprobar,
                 paste(", ejercicio", EJERCICIO, ",", length(territorios), "territorios"))
-if (comprobar && !(ok1 && ok2)) quit(status = 1)
+ok3 <- escribir(seo_deducciones, "web/datos/seo_deducciones.json", comprobar,
+                paste(", ejercicio", EJERCICIO, ",", length(ded), "territorios con deducciones publicables"))
+ok4 <- escribir(seo_guias, "web/datos/seo_guias.json", comprobar, ", datos de las guías")
+ok5 <- escribir(seo_sueldo_neto, "web/datos/seo_sueldo_neto.json", comprobar,
+                paste(", ejercicio", EJ_NETO, ",", length(IMPORTES_NETO), "importes x", length(TERR_NETO), "territorios"))
+if (comprobar && !(ok1 && ok2 && ok3 && ok4 && ok5)) quit(status = 1)

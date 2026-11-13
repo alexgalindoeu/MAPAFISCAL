@@ -19,8 +19,9 @@ Rscript tools/montar_validador.R             # params + casos + tools/validar_js
 node tools/validar_js_node.js                # mismo validador sin navegador
 Rscript tools/generar_mapa.R                 # data/geo -> web/datos/mapa_es.json
 Rscript tools/sincronizar_supabase.R         # params.json -> supabase/seed/ (catálogo)
-Rscript tools/generar_datos_seo.R            # motor -> web/datos/seo_territorios.json y seo_comparativas.json
-node tools/generar_paginas_seo.mjs           # esos JSON -> páginas web/irpf/*, web/comparar-sueldo/*, sitemap.xml
+Rscript tools/generar_datos_seo.R            # motor -> web/datos/seo_*.json (territorios, comparativas, deducciones, guías)
+node tools/generar_paginas_seo.mjs           # esos JSON -> web/irpf/* (y */deducciones/), web/comparar-sueldo/*, web/guias/*, sitemap.xml
+node tools/generar_paginas_seo.mjs --comprobar  # lo que hace la CI: falla si alguna página está desfasada
 ```
 
 Si cambias una regla en R: (1) haz el mismo cambio en `web/js/irpfsim.js`, (2) añade el
@@ -28,7 +29,10 @@ caso a `tools/validar_js.R`, (3) `Rscript tools/montar_validador.R` y abre
 `tools/validar_js.html`: tiene que decir "VALIDADOR OK". (4) Si el cambio toca `params/`,
 las escalas, los mínimos o las deducciones autonómicas (afecta a las páginas SEO), regenera
 también `Rscript tools/generar_datos_seo.R` y `node tools/generar_paginas_seo.mjs`: la CI
-falla con `git diff` si las páginas de `web/irpf/` y `web/comparar-sueldo/` no coinciden.
+falla (`--comprobar` de los dos generadores) si los JSON o las páginas de `web/irpf/`,
+`web/comparar-sueldo/` y `web/guias/` no coinciden. Las páginas de deducciones solo publican lo
+`confirmado` con fuente primaria y con todos sus supuestos confirmados; las fechas de campaña de
+la guía del calendario están en `params/calendario_renta.yaml`.
 
 ## Estructura
 

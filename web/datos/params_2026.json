@@ -1,10 +1,11 @@
 {
  "ejercicio": 2026,
- "generado": "2026-09-28",
+ "generado": "2026-11-13",
  "ejercicios": {
   "por_defecto": 2025,
   "publicados": [
-   2025
+   2025,
+   2026
   ]
  },
  "estatal": {
@@ -276,6 +277,52 @@
    "ascendiente_o_descendiente_discapacidad": 1200,
    "conyuge_discapacidad": 1200,
    "rentas_conyuge_maximas": 8000
+  },
+  "cotizaciones_trabajador": {
+   "norma": "Orden PJC/297/2026, de 30 de marzo, de cotización para 2026: arts. 2 y 3 (bases), 4.a) (contingencias comunes), 16 (MEI), 17.1 (cotización adicional de solidaridad) y 33.2 (desempleo y formación profesional); arts. 19, 19 bis, 127 bis y 147 LGSS (RDLeg 8/2015)",
+   "fuente": "BOE-A-2026-7296 (https://www.boe.es/buscar/act.php?id=BOE-A-2026-7296)",
+   "estado": "confirmado",
+   "base_maxima_mensual": 5101.2,
+   "base_minima_mensual": 1424.4,
+   "bases_minimas_grupo_1_3": [
+    1989.3,
+    1649.7,
+    1435.2
+   ],
+   "tipos": {
+    "contingencias_comunes": 0.047,
+    "desempleo_indefinido": 0.0155,
+    "desempleo_temporal": 0.016,
+    "formacion_profesional": 0.001,
+    "mei": 0.0015
+   },
+   "solidaridad": {
+    "tramos": [
+     {
+      "hasta": 5611.32,
+      "tipo": 0.0019
+     },
+     {
+      "hasta": 7651.8,
+      "tipo": 0.0021
+     },
+     {
+      "hasta": null,
+      "tipo": 0.0024
+     }
+    ]
+   }
+  },
+  "prestaciones_prevision_dt12": {
+   "norma": "LIRPF (Ley 35/2006), DT 12.ª.1 y 12.ª.4; art. 17.2.b RDLeg 3/2004 (redacción a 31-12-2006)",
+   "fuente": "BOE-A-2006-20764 (DT 12.ª); BOE-A-2014-12327 (Ley 26/2014); BOE-A-2004-4456; Manual Práctico de Renta, cap. 3, «Régimen transitorio aplicable a las prestaciones de planes de pensiones»",
+   "estado": "confirmado",
+   "porcentaje": 0.4,
+   "anio_regimen_2015": 2015,
+   "anio_regimen_2011": 2011,
+   "plazo_desde_2015_anios": 2,
+   "plazo_2011_2014_anios": 8,
+   "ultimo_anio_anterior_2011": 2018
   }
  },
  "foral_pv": {
@@ -515,12 +562,10 @@
     "nombre": "Bizkaia",
     "norma_base": "Norma Foral 13/2013",
     "fuente": "NF 7/2025, de Presupuestos de Bizkaia para 2026 (BOB 30-12-2025), arts. 48 a 54",
-    "deduccion_descendientes": {
-     "estado": "confirmado",
-     "incremento_menor_6_anios": 394
-    },
     "deduccion_discapacidad": {
      "norma": "Art. 82.1 NF 13/2013 Bizkaia (redacción del art. 53 de la NF 7/2025)",
+     "fuente": "BOB 30-12-2023; Hacienda Foral de Bizkaia, ficha KA-01510 (columna «2024 y 2025»: 888 / 1.268 / 1.521 / 1.897)",
+     "estado": "confirmado",
      "grado_75_40_puntos_o_gran_dependencia": 1935
     }
    },
@@ -531,40 +576,46 @@
    "ES-PV-VI": {
     "nombre": "Araba/Álava",
     "norma_base": "Norma Foral 33/2013",
+    "fuente": "NF 19/2024, de 20 de diciembre, de medidas tributarias para 2025, art. 2.Tercero (efectos 1-1-2025), apartados Diez a Once quater (BOTHA n.º 147, 30-12-2024); la NF 3/2025 (BOTHA n.º 44, 16-04-2025) no cambia esos importes",
     "deduccion_descendientes": {
-     "estado": "provisional",
+     "norma": "Art. 79.1 y 79.2 NF 33/2013 Araba (redacción NF 19/2024, art. 2.Tercero.Once)",
+     "estado": "confirmado",
      "importes": {
-      "1": 668,
-      "2": 827,
-      "3": 1393,
-      "4": 1647,
-      "5+": 2151
+      "1": 734.8,
+      "2": 909.7,
+      "3": 1532.3,
+      "4": 1811.7,
+      "5+": 2366.1
      },
-     "incremento_menor_6_anios": 386
-    },
-    "minoracion_cuota": {
-     "estado": "confirmado"
+     "incremento_menor_6_anios": 424.6,
+     "incremento_6_a_15_anios": 68.2
     },
     "deduccion_anualidades_alimentos_hijos": {
-     "estado": "provisional",
+     "norma": "Art. 80 NF 33/2013 Araba (redacción NF 3/2025): 15 %, con el límite por hijo del 30 % de la deducción del art. 79.1",
+     "estado": "confirmado",
      "limites": {
-      "1": 200.4,
-      "2": 248.1,
-      "3": 417.9,
-      "4": 494.1,
-      "5+": 645.3
+      "1": 220.44,
+      "2": 272.91,
+      "3": 459.69,
+      "4": 543.51,
+      "5+": 709.83
      }
     },
     "deduccion_ascendientes": {
-     "estado": "provisional",
-     "importe": 321
+     "norma": "Art. 81.1 NF 33/2013 Araba (redacción NF 19/2024, art. 2.Tercero.Once bis)",
+     "estado": "confirmado",
+     "importe": 423.72
     },
     "deduccion_discapacidad": {
-     "estado": "provisional",
-     "grado_33_64": 888,
-     "grado_65_mas_o_dependencia_moderada": 1268,
-     "grado_75_15_39_puntos_o_dependencia_severa": 1521,
-     "grado_75_40_puntos_o_gran_dependencia": 2040
+     "norma": "Art. 82.1 NF 33/2013 Araba (redacción NF 19/2024, art. 2.Tercero.Once quater)",
+     "estado": "confirmado",
+     "grado_33_64": 1025.64,
+     "grado_65_mas_o_dependencia_moderada": 1464.54,
+     "grado_75_15_39_puntos_o_dependencia_severa": 1756.75,
+     "grado_75_40_puntos_o_gran_dependencia": 2191.03
+    },
+    "minoracion_cuota": {
+     "estado": "confirmado"
     }
    }
   }
@@ -2308,11 +2359,11 @@
    "escala_general_autonomica": [
     {
      "hasta": 12450,
-     "tipo": 0.08
+     "tipo": 0.0775
     },
     {
      "hasta": 20200,
-     "tipo": 0.1
+     "tipo": 0.0975
     },
     {
      "hasta": 24200,
@@ -3270,47 +3321,47 @@
    "escala_general_autonomica": [
     {
      "hasta": 12000,
-     "tipo": 0.09
+     "tipo": 0.088
     },
     {
      "hasta": 22000,
-     "tipo": 0.12
+     "tipo": 0.117
     },
     {
      "hasta": 32000,
-     "tipo": 0.15
+     "tipo": 0.146
     },
     {
      "hasta": 42000,
-     "tipo": 0.175
+     "tipo": 0.17
     },
     {
      "hasta": 52000,
-     "tipo": 0.2
+     "tipo": 0.194
     },
     {
      "hasta": 62000,
-     "tipo": 0.225
+     "tipo": 0.219
     },
     {
      "hasta": 72000,
-     "tipo": 0.25
+     "tipo": 0.244
     },
     {
      "hasta": 100000,
-     "tipo": 0.265
+     "tipo": 0.261
     },
     {
      "hasta": 150000,
-     "tipo": 0.275
+     "tipo": 0.2735
     },
     {
      "hasta": 200000,
-     "tipo": 0.285
+     "tipo": 0.2835
     },
     {
      "hasta": null,
-     "tipo": 0.295
+     "tipo": 0.2935
     }
    ],
    "bonificacion_residencia": null,

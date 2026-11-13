@@ -17,7 +17,8 @@ irpfsim_cargar <- function(raiz = NULL) {
   ficheros <- c("00_utils.R","01_parametros.R","02_hogar.R","03_rentas.R",
                 "04_minimos.R","05_pipeline_comun.R","06_deducciones.R",
                 "07_forales.R","08_dispatch.R","09_reformas.R","10_muestra.R",
-                "11_metricas.R","12_simular.R","13_optimizar.R","14_obligacion.R")
+                "11_metricas.R","12_simular.R","13_optimizar.R","14_obligacion.R",
+                "15_sueldo_neto.R","16_rescate_plan.R")
   for (f in ficheros) {
     p <- file.path(raiz, "R", f)
     if (file.exists(p)) sys.source(p, envir = globalenv())

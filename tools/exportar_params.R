@@ -14,6 +14,12 @@
 source("R/cargar.R"); irpfsim_cargar(".")
 
 flat_escala <- function(tr) lapply(tr, function(x) list(hasta = if (is.infinite(x$hasta)) NULL else x$hasta, tipo = x$tipo))
+# cotizaciones del trabajador: los tramos de solidaridad, con el último `hasta` a null
+flat_cotizaciones <- function(ct) {
+  if (is.null(ct)) return(NULL)
+  ct$solidaridad$tramos <- flat_escala(ct$solidaridad$tramos)
+  ct
+}
 
 cfg_ejercicios <- ejercicios_config()
 
@@ -46,7 +52,9 @@ params_web <- function(ejercicio) {
     deduccion_donativos = est$deduccion_donativos,
     obligacion_declarar = est$obligacion_declarar,
     deduccion_maternidad = est$deduccion_maternidad,
-    deduccion_familia_numerosa_y_discapacidad_cargo = est$deduccion_familia_numerosa_y_discapacidad_cargo
+    deduccion_familia_numerosa_y_discapacidad_cargo = est$deduccion_familia_numerosa_y_discapacidad_cargo,
+    cotizaciones_trabajador = flat_cotizaciones(est$cotizaciones_trabajador),
+    prestaciones_prevision_dt12 = est$prestaciones_prevision_dt12
   )
 
   territorios <- list()

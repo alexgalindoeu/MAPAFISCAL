@@ -22,8 +22,8 @@ test_that("Caso B — soltero 30.000 € trabajo, Bizkaia (foral PV)", {
   liq <- liquidar(caso_soltero("ES-PV-BI"))
   expect_equal(liq$base_liquidable_general, 25095)     # 30000 - 1905 SS - 3000 bonif. trabajo
   expect_equal(liq$cuota_integra_total, 6140.60)
-  expect_equal(liq$minoracion_cuota, 1615)             # minoración de cuota Bizkaia 2025
-  expect_equal(liq$cuota_liquida_total, 4525.60)       # 6.140,60 - 1.615
+  expect_equal(liq$minoracion_cuota, 1583)             # minoración de cuota Bizkaia 2025 (NF 10/2023)
+  expect_equal(liq$cuota_liquida_total, 4557.60)       # 6.140,60 - 1.583
 })
 
 test_that("Caso C — soltero 30.000 € trabajo, Navarra (foral)", {

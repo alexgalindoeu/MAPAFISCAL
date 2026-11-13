@@ -49,13 +49,14 @@ Detalle escala autonómica Madrid sobre 26.095:
 | (−) Bonificación del trabajo (art. 23 NF) | 28.095 > 23.000 ⇒ 3.000 | −3.000,00 |
 | **Rendimiento neto = Base liquidable general** | | 25.095,00 |
 | Cuota íntegra (tarifa foral art. 75) | 17.720×23% + 7.375×28% = 4.075,60 + 2.065,00 | **6.140,60** |
-| (−) Minoración de cuota (art. 77 NF, Bizkaia 2025) | | −1.615,00 |
+| (−) Minoración de cuota (art. 77 NF, Bizkaia 2025; art. 50 NF 10/2023) | | −1.583,00 |
 | (−) Deducciones familiares | soltero sin hijos ⇒ 0 | 0,00 |
-| **Cuota líquida total** | | **4.525,60** |
-| Tipo medio efectivo | 4.525,60 / 25.095 | 18,03 % |
+| **Cuota líquida total** | | **4.557,60** |
+| Tipo medio efectivo | 4.557,60 / 25.095 | 18,16 % |
 
 Comparación con el Caso A: **mismo perfil, mismo salario** ⇒ Madrid 4.610,53 € /
-Bizkaia 4.525,60 € (−1,8 %). Con hijos y ahorro la diferencia se amplía por el
+Bizkaia 4.557,60 € (−1,1 %). (Hasta el 11-11-2026 figuraba una minoración de 1.615 €, que es
+la de 2026.) Con hijos y ahorro la diferencia se amplía por el
 distinto tratamiento (deducción de cuota foral vs. mínimo en base).
 
 ---
@@ -1335,8 +1336,8 @@ minoración (1.615 €) y las deducciones por descendientes (682 / 844 / 1.421 /
 394 € por menor de 6 años), ascendientes (328 €), discapacidad (906 / 1.294 / 1.552 €) y edad
 (393 / 714 €). Gran dependencia: 2.040 € en Gipuzkoa (sin cambio) y 1.935 € en Bizkaia
 (override). Araba (NF 21/2025, BOTHA 29-12-2025) sube conjunta, tarifa, minoración y edad, pero
-no descendientes, ascendientes ni discapacidad (override con los importes de 2025,
-provisional). Escala del ahorro de 2026 (NF 1/2025 de Gipuzkoa, art. 76.1): 19 % hasta 7.500 €,
+no descendientes, ascendientes ni discapacidad: siguen los de 2025 de la NF 19/2024 (ver
+«Erratas forales de 2025» más abajo). Escala del ahorro de 2026 (NF 1/2025 de Gipuzkoa, art. 76.1): 19 % hasta 7.500 €,
 20 % hasta 15.000 € (antes figuraba 15.500 €), 22 %, 24 %, 25,5 %, 26 %, 26,5 %, 27 % y 28 %
 desde 300.000 €.
 
@@ -1347,7 +1348,7 @@ El motor JS aplica ahora todos los overrides del territorio sobre el bloque com�
 |---|---:|---:|---:|---:|
 | Gipuzkoa, hijos de 8 y 4 años, 2025 | 8.762,80 | 1.583 | 668 + 827 + 386 = 1.881 | 5.298,80 |
 | Gipuzkoa, hijos de 8 y 4 años, 2026 | 8.744,80 | 1.615 | 682 + 844 + 394 = 1.920 | 5.209,80 |
-| Araba, hijos de 8 y 4 años, 2026 | 8.744,80 | 1.615 | 1.881 | 5.248,80 |
+| Araba, hijos de 8 y 4 años, 2026 | 8.744,80 | 1.615 | 803,00 + 1.334,30 = 2.137,30 | 4.992,50 |
 | Bizkaia, gran dependencia, 2026 | 8.744,80 | 1.615 | 1.935 | 5.194,80 |
 
 Base liquidable general: 37.460 − 3.000 (bonificación del trabajo) = 34.460. Tarifa de 2026:
@@ -1371,3 +1372,172 @@ Base liquidable general: 37.460 − 3.000 (bonificación del trabajo) = 34.460. 
 
 Pensionista de 70 años con 14.000 € de jubilación: cuota líquida 0 y deducción del art. 68.B de
 15.400 − 14.000 = 1.400 € (cuota diferencial −1.400; en 2025, 249,88 − 490 = −240,12).
+
+## Cotizaciones del trabajador y sueldo neto (2026-11-11)
+
+Parámetros: bloque `cotizaciones_trabajador` de `params/<año>/estatal.yaml`. Fuentes: Orden
+PJC/178/2025 (BOE-A-2025-3780) y Orden PJC/297/2026 (BOE-A-2026-7296), arts. 2-3 (bases),
+4.a) (contingencias comunes), 16 (MEI), 17.1 (solidaridad) y 33.2 (desempleo y FP). Código:
+`cotizaciones_trabajador()` y `sueldo_neto()` en `R/15_sueldo_neto.R`, `cotizacionesTrabajador`
+y `sueldoNeto` en `irpfsim.js`. Tests: `tests/testthat/test-cotizaciones-trabajador.R`,
+`test/herramientas.test.mjs`; validador: casos `neto*`.
+
+Regla: base mensual = bruto / 12 (pagas extra prorrateadas), hasta la base máxima; cotización
+anual = 12 × base × tipo del trabajador. Por debajo de la base mínima de jornada completa se
+entiende jornada parcial (la base mínima se reduce en proporción) y se cotiza por la
+retribución. La retribución mensual por encima de la base máxima paga la cotización adicional
+de solidaridad (art. 19 bis LGSS) por tramos.
+
+| Tipo del trabajador | 2025 | 2026 |
+|---|---|---|
+| Contingencias comunes | 4,70 % | 4,70 % |
+| Desempleo indefinido / temporal | 1,55 % / 1,60 % | 1,55 % / 1,60 % |
+| Formación profesional | 0,10 % | 0,10 % |
+| MEI | 0,13 % | 0,15 % |
+| **Total indefinido / temporal** | **6,48 % / 6,53 %** | **6,50 % / 6,55 %** |
+| Base máxima mensual | 4.909,50 € | 5.101,20 € |
+| Base mínima (grupos 4-7) | 1.381,20 € | 1.424,40 € |
+| Solidaridad (tramo 1 / 2 / 3) | 0,15 / 0,17 / 0,19 % | 0,19 / 0,21 / 0,24 % |
+
+### Comprobación numérica de las cotizaciones
+
+- 2026, 30.000 €, indefinido: 12 × 2.500 × 6,50 % = **1.950,00 €** (2025: × 6,48 % = 1.944,00 €;
+  temporal 2026: × 6,55 % = 1.965,00 €).
+- 2026, 12.000 € (jornada parcial): 12.000 × 6,50 % = **780,00 €**.
+- 2026, 80.000 €, temporal: retribución mensual 6.666,67 €; base 5.101,20 €.
+  Ordinaria: 12 × 5.101,20 × 6,55 % = 4.009,54 €. Solidaridad: (5.611,32 − 5.101,20) × 0,19 %
+  + (6.666,67 − 5.611,32) × 0,21 % = 0,9692 + 2,2162 = 3,1855 €/mes → 38,23 €/año.
+  Total **4.047,77 €**.
+- 2025, 100.000 €, indefinido: mensual 8.333,33 €. Ordinaria: 12 × 4.909,50 × 6,48 % =
+  3.817,63 €. Solidaridad: 490,95 × 0,15 % + 1.963,80 × 0,17 % + 969,08 × 0,19 % = 0,7364 +
+  3,3385 + 1,8413 = 5,9161 €/mes → 70,99 €. Total **3.888,62 €**.
+
+### Sueldo neto anual (tras la declaración, no la retención de la nómina)
+
+neto = bruto − cotizaciones − IRPF del año, con IRPF = cuota resultante de la autoliquidación −
+deducciones de la cuota diferencial (maternidad, familia numerosa…), es decir, la cuota
+diferencial con retenciones nulas. Un declarante; con hijos, unidad monoparental (el motor
+elige individual o conjunta).
+
+Madrid, 2026, 30.000 €, 35 años, sin hijos:
+- rendimiento neto = 30.000 − 1.950 − 2.000 = 26.050 (sin reducción del art. 20: 28.050 > 19.747,50);
+- estatal: escala(26.050) − escala(5.550) = 2.990,25 − 527,25 = 2.463,00;
+- Madrid: 13.362,22 × 8,5 % + 5.642,41 × 10,7 % + 7.045,37 × 12,8 % − 5.956,65 × 8,5 % = 2.135,02;
+- IRPF 4.598,02; **neto 23.451,98 €** (1.954,33 €/mes en 12 pagas; 1.675,14 € en 14).
+- Castilla-La Mancha (escala autonómica = estatal): IRPF 2 × 2.463,00 = 4.926,00; neto 23.124,00 €.
+
+### ¿Cuánto neto gano con mi subida? (Madrid, 2026, de 30.000 a 33.000 €)
+
+- cotizaciones: +3.000 × 6,50 % = +195,00 €;
+- base liquidable: 26.050 → 28.855 (+2.805), todo en el tramo del 15 % estatal y del 12,8 % de
+  Madrid: IRPF +2.805 × 27,8 % = +779,79 €;
+- neto ganado: 3.000 − 195 − 779,79 = **2.025,21 €**; tipo marginal efectivo de la subida =
+  (195 + 779,79) / 3.000 = **32,49 %** (de cada 100 € te quedan 68 €).
+
+### Plan de pensiones antes del 31-12 (Madrid, 2026, 40.000 €, 45 años)
+
+- cotizaciones 2.600; rendimiento neto 40.000 − 2.600 − 2.000 = 35.400; límite = mín(30 % ×
+  35.400 = 10.620; 1.500) = **1.500 €**;
+- aportando 1.500: la base liquidable baja de 35.400 a 33.900. Estatal: 1.300 × 15 % + 200 ×
+  18,5 % = 232; Madrid: 1.500 × 12,8 % = 192. **Ahorro 424 €** (28 céntimos por euro). Aportar
+  más no ahorra más: la aportación óptima es el límite, 1.500 €.
+- 12.000 € de sueldo y 3.000 € de la empresa: rendimiento 15.000 − 780 − 2.000 = 12.220; límite
+  conjunto mín(3.666; 1.500 + 3.000) = 3.666, menos 3.000 de la empresa: **666 €** propios.
+- País Vasco: aportaciones propias hasta 5.000 € (`limite_individual_no_empleo`). Navarra (art.
+  55 de su TR del IRPF) no está en el motor: la herramienta no la incluye.
+
+### Donativos (deducción estatal, Ley 49/2002, régimen común; Madrid, 2026, 40.000 €)
+
+- 400 €: 250 × 80 % + 150 × 40 % = **260 €** de ahorro (te cuestan 140 €); si son recurrentes
+  (misma entidad, 3 años), 250 × 80 % + 150 × 45 % = 267,50 €. La base no puede pasar del 10 %
+  de la base liquidable (35.400 → 3.540 €).
+## Ejercicio 2026: escalas y mínimos autonómicos (2026-11-11)
+
+Test `tests/testthat/test-2026-autonomico.R`; casos `ej2026_ex_*`, `ej2026_vc_*`,
+`ej2026_an_soltero30` y `ej2026_cn_soltero30` del validador. Fuentes: SGFAL, «Tributación
+Autonómica. Medidas 2026» (act. 23-09-2026), caps. I, II y IV; DOE núm. 149 (4-8-2026) y
+BOE-A-2026-17839 para Extremadura; DOGV núm. 10425 (10-8-2026) para la C. Valenciana.
+
+- Solo cambian dos escalas. **Extremadura** (Ley 2/2026, DF 2.ª.Uno, efectos 1-1-2026): 7,75 %
+  hasta 12.450 € y 9,75 % hasta 20.200 € (antes 8 % y 10 %). **C. Valenciana** (Ley 5/2026,
+  art. 18, efectos 1-1-2026): once tramos de 8,8 % a 29,35 % con los límites de 2025.
+- Las otras 13 escalas y los mínimos de las 10 CCAA que los regulan, comprobados sin cambios
+  (detalle por CCAA en la cabecera de `params/2026/autonomico.yaml`).
+- **Provisionales**: Andalucía, Galicia y Canarias tienen en tramitación un proyecto de ley
+  que cambiaría su escala con efectos desde el 1-1-2026 (−0,25 puntos en los cuatro primeros
+  tramos en AN y GA; deflactación de límites en CN). Se mantiene la escala vigente.
+
+### Comprobación numérica (soltero de 35 años, 30.000 € y 1.905 € de cotizaciones)
+
+Base liquidable general 26.095 € (28.095 − 2.000; sin reducción del art. 20). Cuota estatal
+2.997,00 − 5.550 × 9,5 % = 2.469,75 en todas.
+
+| CCAA | Escala sobre 26.095 | Mínimo × primer tipo | Cuota autonómica 2026 | 2025 |
+|---|---|---|---:|---:|
+| Extremadura | 964,875 + 755,625 + 640 + 1.895 × 17,5 % = 2.692,125 | 5.550 × 7,75 % = 430,125 | 2.262,00 | 2.298,63 |
+| C. Valenciana | 1.056 + 1.170 + 4.095 × 14,6 % = 2.823,87 | 6.105 × 8,8 % = 537,24 | 2.286,63 | 2.344,80 |
+| Andalucía, Canarias, Madrid | (sin cambios) | | 2.406,20 / 2.319,51 / 2.140,78 | igual |
+
+C. Valenciana, 120.000 € (4.900 € de cotizaciones): base 113.100; 19.264 + 13.100 × 27,35 % =
+22.846,85 − 537,24 = **22.309,61** (2025: 23.302,50 − 549,45 = 22.753,05).
+
+## Erratas forales de 2025 (2026-11-11)
+
+Cotejo con el boletín de `params/2025/foral_pais_vasco.yaml` y `params/2025/estatal.yaml`:
+
+- **Bizkaia, minoración**: 1.583 € (art. 77 NF 13/2013 en la redacción del art. 50 NF 10/2023,
+  BOB 30-12-2023; la NF 3/2024 de Presupuestos para 2025 no toca el IRPF). Figuraba 1.615 €,
+  que es la de 2026.
+- **Bizkaia, menor de 6 años**: 386 € (art. 51 NF 10/2023 y ficha KA-01038 de la Hacienda Foral,
+  «2025–2024»). El override de 394 € era la cifra de 2026: se quita.
+- **Gran dependencia**: 2.040 € solo en Gipuzkoa (Modelo 109 de 2025). Bizkaia, 1.897 € (art. 53
+  NF 10/2023; ficha KA-01510). Araba, 2.191,03 € (NF 19/2024).
+- **Araba** (NF 19/2024, art. 2.Tercero, BOTHA 30-12-2024; la NF 3/2025 no los cambia):
+  descendientes 734,80 / 909,70 / 1.532,30 / 1.811,70 / 2.366,10 €, +424,60 € por menor de 6 años
+  y, regla nueva en R y JS (`incremento_6_a_15_anios`), +68,20 € de 6 a 15 años; ascendientes
+  423,72 €; discapacidad 1.025,64 / 1.464,54 / 1.756,75 / 2.191,03 €; minoración 1.583 €
+  (confirmada; los 200 € por núcleos de hasta 500 habitantes no se modelan). La NF 21/2025 no
+  los actualiza en 2026.
+- **DA 50.ª.3 LIRPF**: base máxima anual de 5.000 € y base acumulada de 15.000 € (figuraba
+  15.000 como anual). El motor no calcula esta deducción.
+
+| Caso (40.000 € de salario, 2.540 € de cotizaciones; hijos de 8 y 4 años), 2025 | Cuota íntegra | Minoración | Descendientes | Cuota líquida |
+|---|---:|---:|---:|---:|
+| Bizkaia | 8.762,80 | 1.583 | 668 + 827 + 386 = 1.881 | 5.298,80 |
+| Araba | 8.762,80 | 1.583 | (734,80 + 68,20) + (909,70 + 424,60) = 2.137,30 | 5.042,50 |
+
+Gran dependencia, mismo salario sin hijos: Bizkaia 8.762,80 − 1.583 − 1.897 = 5.282,80; Araba
+8.762,80 − 1.583 − 2.191,03 = 4.988,77.
+
+## Rescate del plan de pensiones (2026-11-12)
+
+Motor: `R/16_rescate_plan.R` (`dt12_en_plazo`, `rescate_plan`) ↔ `irpfsim.dt12EnPlazo`, `irpfsim.rescatePlan`;
+la reducción va en `rn_trabajo_previo()` (campo `trabajo$prestacion_dt12`, solo régimen común).
+Norma: LIRPF art. 17.2.a.3.º y DT 12.ª (BOE-A-2006-20764), plazos de la DT 12.ª.4 (Ley 26/2014).
+Tests: `tests/testthat/test-rescate-plan.R`, `test/rescate.test.mjs`; validador: `dt12_*`, `rescate26_*`, `rescate25_*`.
+
+**Caso 1. Madrid 2026, 66 años, cobra 75.000 € en capital, 30.000 de lo aportado hasta 2006.**
+
+| Paso | Cuenta | Importe |
+|---|---|---|
+| Rendimiento íntegro computable | 75.000 − 40 % × 30.000 | 63.000,00 |
+| Otros gastos (art. 19.2.f) | | −2.000,00 |
+| Reducción del art. 20 | rendimiento > umbral | 0,00 |
+| Base liquidable general | | 61.000,00 |
+| Escala estatal sobre 61.000 | 1.182,75 + 930 + 2.250 + 4.588 + 225 | 9.175,75 |
+| Menos mínimo (5.550 + 1.150 por más de 65) al 9,5 % | 6.700 × 9,5 % | −636,50 |
+| Cuota íntegra estatal | | **8.539,25** |
+
+**Caso 2. Plazos (DT 12.ª.4), cobro en 2026.** Jubilación en 2024: en plazo (2024 + 2 ≥ 2026). En 2023: fuera.
+Jubilación entre 2011 y 2014: hasta el octavo año siguiente (2014 → 2022). Antes de 2011: hasta 2018.
+
+**Caso 3. Formas de rescate (Madrid 2026, 30.000 € hasta 2006 + 30.000 desde 2007, pensión de 15.000 €, jubilación en 2026, 5 años).**
+IRPF sin rescate: 0 (la reducción del art. 20 y el mínimo cubren la pensión).
+- De una vez: 60.000 € con reducción de 12.000 → IRPF extra **16.547,61 €**.
+- Mixto: 36.000 € el primer año (con la reducción) y 6.000 € los cuatro siguientes → **18.474,42 €**.
+- Renta: 12.000 € al año durante 5 años, sin reducción → 5 × 4.306,12 = **21.530,60 €**. Cada año la pensión
+  más la renta (27.000 €) supera el umbral de la reducción del art. 20 y la pierde: por eso repartir sale peor aquí.
+
+País Vasco y Navarra: el rescate tiene reglas forales propias (integración del 60 % del primer cobro en capital,
+con sus límites y su régimen transitorio). Quedan pendientes hasta comprobarlas en el BOB, el BOG, el BOTHA y el BON;
+el motor no aplica la reducción en esos regímenes y la herramienta no los ofrece.

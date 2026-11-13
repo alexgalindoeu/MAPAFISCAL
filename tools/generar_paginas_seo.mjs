@@ -12,107 +12,24 @@
 // la calculadora interactiva. Así Google puede indexar cada territorio y cada
 // sueldo como una página propia, con su propio título y su propia URL.
 // =============================================================================
-import { readFileSync, writeFileSync, mkdirSync } from "node:fs";
-import { join, dirname } from "node:path";
+import { readFileSync, writeFileSync, mkdirSync, existsSync, readdirSync, rmSync } from "node:fs";
+import { join, dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
+import { SITIO, SLUG, ORDEN_TERRITORIOS, HERRAMIENTA, esc, euros, pct, tablaEscala, citaFuente, layout, jsonLdMigas, migasHtml } from "./seo_comun.mjs";
+import { paginaDeducciones } from "./seo_deducciones.mjs";
+import { paginasGuias, GUIAS } from "./seo_guias.mjs";
+import { paginasSueldoNeto } from "./seo_sueldo_neto.mjs";
+import { paginasRescate } from "./seo_rescate.mjs";
 
 const RAIZ = join(dirname(fileURLToPath(import.meta.url)), "..");
 const WEB = join(RAIZ, "web");
-const SITIO = "https://mapafiscal.es";
+const leerJson = f => JSON.parse(readFileSync(join(WEB, "datos", f), "utf8"));
 
-const territorios = JSON.parse(readFileSync(join(WEB, "datos", "seo_territorios.json"), "utf8"));
-const comparativas = JSON.parse(readFileSync(join(WEB, "datos", "seo_comparativas.json"), "utf8"));
-
-// ---- slugs (solo para la URL; el nombre mostrado sale siempre de los datos) ----
-const SLUG = {
-  "ES-AN": "andalucia", "ES-AR": "aragon", "ES-AS": "asturias", "ES-IB": "islas-baleares",
-  "ES-CN": "canarias", "ES-CB": "cantabria", "ES-CM": "castilla-la-mancha", "ES-CL": "castilla-y-leon",
-  "ES-CT": "cataluna", "ES-EX": "extremadura", "ES-GA": "galicia", "ES-MD": "madrid",
-  "ES-MC": "murcia", "ES-RI": "la-rioja", "ES-VC": "comunidad-valenciana",
-  "ES-PV-BI": "bizkaia", "ES-PV-SS": "gipuzkoa", "ES-PV-VI": "araba-alava", "ES-NC": "navarra"
-};
-const ORDEN_TERRITORIOS = Object.keys(SLUG); // orden estable, el de params.json
-
-// ---- utilidades ----------------------------------------------------------------
-// Mismo formato que web/js/app.js (miles/eur/pct): así las cifras se ven igual en toda
-// la web, en vez de depender del redondeo de agrupación de Intl.NumberFormat con es-ES
-// (que en Node no agrupa los millares de 4 cifras, p. ej. "5550" en vez de "5.550").
-const esc = s => String(s).replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
-const miles = s => s.replace(/\B(?=(\d{3})+(?!\d))/g, ".");
-const euros = n => miles(String(Math.round(n))) + " €";
+let territorios, comparativas, deducciones, guias, sueldoNeto;
 const eurosSalario = euros;
-const pct = n => (100 * n).toFixed(1).replace(".", ",") + " %";
 const REGIMEN_ETIQUETA = { comun: "régimen común", foral_pais_vasco: "concierto económico del País Vasco", foral_navarra: "convenio económico de Navarra" };
-
-function tablaEscala(tramos) {
-  const filas = tramos.map((t, i) => {
-    let tramo;
-    if (i === 0) tramo = "Hasta " + euros(t.hasta);
-    else if (t.hasta == null) tramo = "Desde " + euros(tramos[i - 1].hasta);
-    else tramo = "De " + euros(tramos[i - 1].hasta) + " a " + euros(t.hasta);
-    return `<tr><td>${esc(tramo)}</td><td class="num">${esc(pct(t.tipo))}</td></tr>`;
-  });
-  return `<table class="cobertura"><thead><tr><th>Tramo de la base liquidable general</th><th class="num">Tipo marginal</th></tr></thead><tbody>${filas.join("")}</tbody></table>`;
-}
-
-function citaFuente(f) {
-  if (!f) return "";
-  return `<p class="ayuda">Norma: ${esc(f.norma)}. Fuente: ${esc(f.fuente)}.</p>`;
-}
-
-// ---- maqueta compartida ---------------------------------------------------------
-function layout({ title, description, canonical, breadcrumb, main, generado }) {
-  return `<!doctype html>
-<html lang="es">
-<head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>${esc(title)}</title>
-<meta name="description" content="${esc(description)}">
-<link rel="canonical" href="${SITIO}${canonical}">
-<meta property="og:type" content="website">
-<meta property="og:site_name" content="Mapafiscal">
-<meta property="og:title" content="${esc(title)}">
-<meta property="og:description" content="${esc(description)}">
-<meta property="og:url" content="${SITIO}${canonical}">
-<meta name="twitter:card" content="summary">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500&display=swap">
-<link rel="stylesheet" href="/css/mapafiscal.css">
-<link rel="stylesheet" href="/css/seo.css">
-</head>
-<body class="pagina-seo">
-<header class="appbar">
-  <div class="appbar-in">
-    <a class="marca" href="/index.html" aria-label="Mapafiscal, inicio">
-      <svg class="marca-ico" viewBox="0 0 32 32" aria-hidden="true"><rect width="32" height="32" rx="7" class="marca-fondo"/><path d="M8 22V10l5 6 5-6v12" class="marca-trazo"/><path d="M21 13h4M21 17h4M21 21h4" class="marca-trazo"/></svg>
-      <span class="marca-txt">Mapafiscal</span>
-    </a>
-    <nav class="nav" aria-label="Secciones">
-      <a href="/index.html#calculadora">Calculadora</a>
-      <a href="/index.html#comparar">Comparar territorios</a>
-      <a href="/index.html#planes">Planes</a>
-    </nav>
-    <div class="appbar-der">
-      <a class="btn btn-pri btn-sm" href="/index.html#calculadora">Calcula tu caso</a>
-    </div>
-  </div>
-</header>
-<main class="contenedor pagina-seo-main">
-  <p class="migas">${breadcrumb}</p>
-  ${main}
-</main>
-<footer class="pie">
-  <div class="contenedor pie-in">
-    <p><b>Mapafiscal</b> ofrece estimaciones con fines informativos. No es una liquidación oficial ni asesoramiento fiscal.</p>
-    <p class="pie-sec"><a href="/index.html#metodologia">Cómo calculamos</a> · Normativa del ejercicio 2025 · Motor validado R ↔ JavaScript · Datos generados el ${esc(generado)}</p>
-    <p class="pie-sec"><a href="/legal/aviso-legal.html">Aviso legal</a> · <a href="/legal/privacidad.html">Privacidad</a> · <a href="/legal/condiciones.html">Condiciones</a> · <a href="/legal/cookies.html">Cookies</a> · <a href="/legal/aviso-legal.html#contacto">Contacto</a></p>
-  </div>
-</footer>
-</body>
-</html>`;
-}
+// Territorios con página de deducciones (se rellena al generar).
+const conDeducciones = new Set();
 
 // ---- página por territorio -------------------------------------------------------
 function paginaTerritorio(codigo) {
@@ -140,10 +57,11 @@ function paginaTerritorio(codigo) {
     ${t.minimo_contribuyente.tiene_minimo_propio ? citaFuente(t.minimo_contribuyente.fuente_autonomica) : citaFuente(t.minimo_contribuyente.fuente_estatal)}
   </div>` : "";
 
-  const cartaDeducciones = esComun && t.deducciones ? `<div class="tarjeta">
+  const enlaceDed = conDeducciones.has(codigo) ? ` <a href="/irpf/${slug}/deducciones/">Ver las deducciones de ${esc(nombre)}</a>.` : "";
+  const cartaDeducciones = esComun ? `<div class="tarjeta">
     <h2 class="rotulo">Deducciones autonómicas</h2>
-    <p>El motor de Mapafiscal ya calcula <b>${t.deducciones.modeladas} deducciones</b> propias de ${esc(nombre)}${t.deducciones.provisionales ? ` (${t.deducciones.provisionales} con cifras provisionales, pendientes de cotejar)` : ""}. Quedan ${t.deducciones.pendientes} por incorporar. <a href="/index.html#metodologia">Ver el detalle en metodología</a>.</p>
-  </div>` : (!esComun ? `<div class="tarjeta"><h2 class="rotulo">Deducciones</h2><p>${esc(nombre)} tiene su propio catálogo de deducciones y minoraciones, distinto del de régimen común: no se cuentan aquí.</p></div>` : "");
+    <p>Además de su escala, ${esc(nombre)} aprueba deducciones propias que se restan de la parte autonómica de la cuota. La calculadora las aplica cuando indicas tu situación familiar y tus gastos.${enlaceDed}</p>
+  </div>` : `<div class="tarjeta"><h2 class="rotulo">Deducciones</h2><p>${esc(nombre)} tiene su propio catálogo de deducciones y minoraciones de la cuota, distinto del de régimen común.${enlaceDed}</p></div>`;
 
   const filasComparativa = comparativas.salarios.map(s => {
     const fila = comparativas.comparativas[String(s)].find(f => f.territorio === codigo);
@@ -165,9 +83,11 @@ function paginaTerritorio(codigo) {
   ${cartaDeducciones}
   ${cartaComparativa}
   <p><a class="btn btn-pri" href="/index.html#calculadora">Calcula tu caso real en ${esc(nombre)}</a> <a class="btn btn-sec" href="/index.html#comparar">Compáralo con los otros 18 territorios</a></p>
+  <p class="ayuda">Guías: <a href="/guias/tramos-irpf-2025-2026/">tramos del IRPF 2025 y 2026</a> · <a href="/guias/minimo-personal-familiar/">mínimo personal y familiar</a> · <a href="/guias/obligacion-declarar-renta/">¿estoy obligado a declarar?</a> · <a href="/guias/plan-pensiones-desgravar/">plan de pensiones</a></p>
   </div>`;
 
   return layout({
+    jsonld: [jsonLdMigas([["Inicio", "/"], ["IRPF por territorio", "/irpf/"], [nombre, `/irpf/${slug}/`]])],
     title: `IRPF en ${nombre} (2025): tramos, mínimo y comparativa | Mapafiscal`,
     description: `Tramos del IRPF en ${nombre} para 2025, mínimo personal y en qué puesto queda frente a los otros 18 territorios fiscales de España, con sueldos de ejemplo. Calculadora gratuita.`,
     canonical: `/irpf/${slug}/`,
@@ -193,7 +113,7 @@ function paginaSalario(salario) {
     <h2 class="rotulo">Los 19 territorios, de menos a más IRPF</h2>
     <div class="envoltorio"><table class="cobertura"><thead><tr><th class="num">Puesto</th><th>Territorio</th><th class="num">Cuota líquida</th><th class="num">Tipo medio efectivo</th></tr></thead><tbody>${filasHtml}</tbody></table></div>
   </div>
-  <p><a class="btn btn-pri" href="/index.html#calculadora">Calcula tu caso real, con tu sueldo y tu situación</a></p>
+  <p><a class="btn btn-pri" href="/index.html#calculadora">Calcula tu caso real, con tu sueldo y tu situación</a> <a class="btn btn-sec" href="/sueldo-neto/${salario}/">Sueldo neto de ${esc(eurosSalario(salario))} en 12 y 14 pagas</a></p>
   </div>`;
 
   return layout({
@@ -211,8 +131,12 @@ function paginaIndiceTerritorios() {
   const main = `
   <h1>IRPF por territorio (2025)</h1>
   <p class="entradilla">Tramos, mínimo personal y comparativa de cada uno de los 19 territorios fiscales de España: las 15 comunidades autónomas de régimen común, las tres diputaciones forales del País Vasco y Navarra.</p>
-  <div class="prosa"><ul class="lista-enlaces">${filas}</ul></div>`;
+  <div class="prosa"><ul class="lista-enlaces">${filas}</ul>
+  <div class="tarjeta"><h2 class="rotulo">Deducciones por territorio</h2><ul class="lista-enlaces">${ORDEN_TERRITORIOS.filter(c => conDeducciones.has(c)).map(c => `<li><a href="/irpf/${SLUG[c]}/deducciones/">Deducciones en ${esc(territorios.territorios[c].nombre)}</a></li>`).join("")}</ul></div>
+  <div class="tarjeta"><h2 class="rotulo">Guías del IRPF</h2><ul class="lista-enlaces">${GUIAS.map(g => `<li><a href="/guias/${g.slug}/">${esc(g.enlace)}</a></li>`).join("")}</ul><p><a href="/guias/">Todas las guías</a></p></div>
+  </div>`;
   return layout({
+    jsonld: [jsonLdMigas([["Inicio", "/"], ["IRPF por territorio", "/irpf/"]])],
     title: "IRPF por territorio en España (2025) | Mapafiscal",
     description: "Tramos, mínimo personal y comparativa del IRPF 2025 en los 19 territorios fiscales de España: 15 comunidades autónomas, las 3 diputaciones forales vascas y Navarra.",
     canonical: "/irpf/", breadcrumb: `<a href="/index.html">Inicio</a> › IRPF por territorio`, main, generado: territorios.generado
@@ -224,7 +148,8 @@ function paginaIndiceSalarios() {
   const main = `
   <h1>¿Dónde se paga menos IRPF en España? (2025)</h1>
   <p class="entradilla">Comparativas del IRPF en los 19 territorios fiscales de España para varios sueldos de referencia. ${esc(comparativas.supuesto)}</p>
-  <div class="prosa"><ul class="lista-enlaces">${filas}</ul></div>`;
+  <div class="prosa"><ul class="lista-enlaces">${filas}</ul>
+  <p><a href="/sueldo-neto/">Sueldo neto por importe y territorio, en 12 y 14 pagas</a></p></div>`;
   return layout({
     title: "¿Dónde se paga menos IRPF en España? (2025) | Mapafiscal",
     description: "Comparativas del IRPF 2025 en los 19 territorios fiscales de España para varios sueldos: de menos a más impuesto, con tipo medio efectivo. Calculadora gratuita.",
@@ -232,38 +157,107 @@ function paginaIndiceSalarios() {
   });
 }
 
-// ---- escribir ------------------------------------------------------------------------
-function escribirPagina(rutaRelativa, html) {
-  const destino = join(WEB, rutaRelativa, "index.html");
-  mkdirSync(dirname(destino), { recursive: true });
-  writeFileSync(destino, html, "utf8");
-}
+// ---- generar --------------------------------------------------------------------------
+// Devuelve { ficheros: Map<ruta relativa a web/, contenido>, avisos, recuento } sin escribir
+// nada: lo usan la escritura, `--comprobar` y test/contenidos.test.mjs.
+export function generar() {
+  territorios = leerJson("seo_territorios.json");
+  comparativas = leerJson("seo_comparativas.json");
+  deducciones = leerJson("seo_deducciones.json");
+  guias = leerJson("seo_guias.json");
+  sueldoNeto = leerJson("seo_sueldo_neto.json");
+  conDeducciones.clear();
+  const ficheros = new Map(), urls = [], avisos = [];
+  const pagina = (ruta, html) => { ficheros.set(ruta.replace(/^\//, "") + "index.html", html); urls.push(ruta); };
 
-const urls = [];
-for (const codigo of ORDEN_TERRITORIOS) {
-  escribirPagina(`irpf/${SLUG[codigo]}`, paginaTerritorio(codigo));
-  urls.push(`/irpf/${SLUG[codigo]}/`);
-}
-escribirPagina("irpf", paginaIndiceTerritorios()); urls.push("/irpf/");
+  // Deducciones primero: las páginas de territorio y el índice enlazan las que existan.
+  const ded = [];
+  for (const codigo of ORDEN_TERRITORIOS) {
+    const t = deducciones.territorios[codigo];
+    if (!t) continue;
+    const p = paginaDeducciones(codigo, t, deducciones.generado, avisos);
+    if (p) { conDeducciones.add(codigo); ded.push(p); }
+  }
+  for (const codigo of ORDEN_TERRITORIOS) {
+    pagina(`/irpf/${SLUG[codigo]}/`, paginaTerritorio(codigo));
+    const p = ded.find(x => x.ruta === `/irpf/${SLUG[codigo]}/deducciones/`);
+    if (p) pagina(p.ruta, p.html);
+  }
+  pagina("/irpf/", paginaIndiceTerritorios());
+  for (const s of comparativas.salarios) pagina(`/comparar-sueldo/${s}/`, paginaSalario(s));
+  pagina("/comparar-sueldo/", paginaIndiceSalarios());
+  const gs = paginasGuias(guias, territorios);
+  for (const g of gs) pagina(g.ruta, g.html);
+  const sn = paginasSueldoNeto(sueldoNeto);
+  for (const p of sn) pagina(p.ruta, p.html);
+  for (const g of paginasRescate(territorios.generado)) pagina(g.ruta, g.html);
 
-for (const s of comparativas.salarios) {
-  escribirPagina(`comparar-sueldo/${s}`, paginaSalario(s));
-  urls.push(`/comparar-sueldo/${s}/`);
-}
-escribirPagina("comparar-sueldo", paginaIndiceSalarios()); urls.push("/comparar-sueldo/");
-
-// ---- sitemap y robots ------------------------------------------------------------------
-const hoy = territorios.generado;
-const sitemap = `<?xml version="1.0" encoding="UTF-8"?>
+  const hoy = territorios.generado;
+  ficheros.set("sitemap.xml", `<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
 <url><loc>${SITIO}/</loc><lastmod>${hoy}</lastmod><changefreq>weekly</changefreq><priority>1.0</priority></url>
-${urls.map(u => `<url><loc>${SITIO}${u}</loc><lastmod>${hoy}</lastmod><changefreq>monthly</changefreq><priority>0.7</priority></url>`).join("\n")}
+${urls.map(u => `<url><loc>${SITIO}${u}</loc><lastmod>${hoy}</lastmod><changefreq>monthly</changefreq><priority>${u.startsWith("/guias/") || u === "/irpf/" ? "0.8" : "0.7"}</priority></url>`).join("\n")}
 </urlset>
-`;
-writeFileSync(join(WEB, "sitemap.xml"), sitemap, "utf8");
+`);
+  ficheros.set("robots.txt", `Sitemap: ${SITIO}/sitemap.xml\n\nUser-agent: *\nAllow: /\n`);
+  return {
+    ficheros, avisos, urls,
+    recuento: { territorios: ORDEN_TERRITORIOS.length, sueldos: comparativas.salarios.length, deducciones: ded.length, guias: gs.length - 1, sueldoNeto: sn.length - 1, indices: 4 }
+  };
+}
 
-const robots = `Sitemap: ${SITIO}/sitemap.xml\n\nUser-agent: *\nAllow: /\n`;
-writeFileSync(join(WEB, "robots.txt"), robots, "utf8");
+// Páginas generadas que ya no salen (p. ej. un territorio que se queda sin deducciones
+// publicables): solo dentro de las carpetas que gestiona este generador.
+export function huerfanas(ficheros) {
+  const fuera = [];
+  const irpf = join(WEB, "irpf");
+  if (existsSync(irpf)) for (const d of readdirSync(irpf)) {
+    const r = `irpf/${d}/deducciones/index.html`;
+    if (existsSync(join(WEB, r)) && !ficheros.has(r)) fuera.push(r);
+  }
+  const recorrer = (rel) => {
+    const abs = join(WEB, rel);
+    if (!existsSync(abs)) return;
+    for (const f of readdirSync(abs, { withFileTypes: true })) {
+      const r = `${rel}/${f.name}`;
+      if (f.isDirectory()) recorrer(r);
+      else if (f.name.endsWith(".html") && !ficheros.has(r)) fuera.push(r);
+    }
+  };
+  recorrer("guias");
+  recorrer("sueldo-neto");
+  recorrer("rescate-plan-pensiones");
+  return fuera;
+}
 
-console.log(`Páginas SEO: ${ORDEN_TERRITORIOS.length} territorios + ${comparativas.salarios.length} sueldos + 2 índices.`);
-console.log(`sitemap.xml: ${urls.length + 1} URLs.`);
+const sinCR = s => s.replace(/\r/g, "");
+
+if (process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {
+  const comprobar = process.argv.includes("--comprobar");
+  const { ficheros, avisos, recuento, urls } = generar();
+  for (const a of avisos) console.warn("Aviso: " + a);
+  const sobran = huerfanas(ficheros);
+  if (comprobar) {
+    const mal = [];
+    for (const [r, html] of ficheros) {
+      const p = join(WEB, r);
+      if (!existsSync(p)) mal.push(`${r} (falta)`);
+      else if (sinCR(readFileSync(p, "utf8")) !== html) mal.push(`${r} (desfasada)`);
+    }
+    for (const r of sobran) mal.push(`${r} (sobra)`);
+    if (mal.length) {
+      console.error(`Páginas SEO que no coinciden con web/datos/seo_*.json:\n  ${mal.join("\n  ")}\nRegenéralas con \`node tools/generar_paginas_seo.mjs\` y no las edites a mano.`);
+      process.exit(1);
+    }
+    console.log(`Páginas SEO al día: ${ficheros.size} ficheros.`);
+  } else {
+    for (const [r, html] of ficheros) {
+      const p = join(WEB, r);
+      mkdirSync(dirname(p), { recursive: true });
+      writeFileSync(p, html, "utf8");
+    }
+    for (const r of sobran) { rmSync(join(WEB, r)); console.log(`Borrada (ya no se genera): ${r}`); }
+    console.log(`Páginas SEO: ${recuento.territorios} territorios + ${recuento.deducciones} de deducciones + ${recuento.sueldos} sueldos + ${recuento.guias} guías + ${recuento.sueldoNeto} de sueldo neto + ${recuento.indices} índices.`);
+    console.log(`sitemap.xml: ${urls.length + 1} URLs.`);
+  }
+}

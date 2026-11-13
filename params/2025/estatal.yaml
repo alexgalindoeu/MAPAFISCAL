@@ -148,6 +148,23 @@ trabajo_reduccion_irregular:
   porcentaje: 0.30
   base_maxima: 300000
 
+# Rescate de planes de pensiones en forma de capital: régimen transitorio de la DT 12.ª
+# LIRPF. Reducción del 40 % (art. 17.2.b del TR de la LIRPF, RDLeg 3/2004, en su redacción
+# vigente a 31-12-2006) de la parte de la prestación que corresponde a lo aportado hasta el
+# 31-12-2006, en un único ejercicio. Plazos de la DT 12.ª.4 (Ley 26/2014): contingencias
+# desde 2015, el año de la contingencia y los dos siguientes; de 2011 a 2014, hasta el final
+# del octavo ejercicio siguiente; antes de 2011, hasta el 31-12-2018.
+prestaciones_prevision_dt12:
+  norma: "LIRPF (Ley 35/2006), DT 12.ª.1 y 12.ª.4; art. 17.2.b RDLeg 3/2004 (redacción a 31-12-2006)"
+  fuente: "BOE-A-2006-20764 (DT 12.ª); BOE-A-2014-12327 (Ley 26/2014); BOE-A-2004-4456; Manual Práctico de Renta, cap. 3, «Régimen transitorio aplicable a las prestaciones de planes de pensiones»"
+  estado: confirmado
+  porcentaje: 0.40
+  anio_regimen_2015: 2015          # contingencias desde el 1-1-2015 (DT 12.ª.4.a)
+  anio_regimen_2011: 2011          # contingencias de 2011 a 2014 (DT 12.ª.4.b)
+  plazo_desde_2015_anios: 2        # el año de la contingencia y los dos siguientes
+  plazo_2011_2014_anios: 8         # hasta el final del octavo ejercicio siguiente
+  ultimo_anio_anterior_2011: 2018  # contingencias anteriores a 2011
+
 # -----------------------------------------------------------------------------
 # 4. CAPITAL INMOBILIARIO (arts. 21–24 LIRPF)
 # -----------------------------------------------------------------------------
@@ -339,11 +356,14 @@ deduccion_donativos:
   cuotas_afiliacion_partidos: { porcentaje: 0.20, base_maxima: 600 }
 
 deduccion_obras_eficiencia_energetica:
-  norma: "DA 50ª LIRPF; RDL 19/2021 y prórrogas"
-  estado: pendiente     # confirmar vigencia y cuantías 2025
+  norma: "DA 50.ª LIRPF; RDL 19/2021 y prórrogas (redacción del art. 36.1 RDL 7/2026, con efectos desde el 1-1-2025)"
+  fuente: "Texto consolidado de la LIRPF en el BOE (BOE-A-2006-20764), DA 50.ª, apartados 1 a 3"
+  estado: pendiente     # el motor no calcula esta deducción; importes cotejados el 11-11-2026
   reduccion_demanda:   { porcentaje: 0.20, base_maxima: 5000 }
   reduccion_consumo:   { porcentaje: 0.40, base_maxima: 7500 }
-  rehabilitacion_edif: { porcentaje: 0.60, base_maxima: 15000 }
+  # Apartado 3: base máxima ANUAL de 5.000 €; lo no deducido pasa a los cuatro ejercicios
+  # siguientes sin que la base acumulada supere 15.000 € (antes figuraba 15.000 como anual).
+  rehabilitacion_edif: { porcentaje: 0.60, base_maxima: 5000, base_acumulada_maxima: 15000 }
 
 deduccion_vehiculos_electricos:
   norma: "DA 58ª LIRPF; RDL 5/2023"
@@ -436,3 +456,35 @@ gravamen_premios_loteria:
   estado: confirmado
   exento: 40000
   tipo: 0.20
+
+# -----------------------------------------------------------------------------
+# COTIZACIONES DEL TRABAJADOR A LA SEGURIDAD SOCIAL (Régimen General) — 2025
+# -----------------------------------------------------------------------------
+# No es IRPF: sirve para estimar el gasto deducible del art. 19.2.a) LIRPF y el sueldo neto
+# (cotizaciones_trabajador() en R/15_sueldo_neto.R y en irpfsim.js). Solo la parte a cargo
+# de la persona trabajadora, en tanto por uno. Base mensual = retribución anual / 12 (pagas
+# extra prorrateadas), hasta la base máxima; la parte de la retribución que excede la base
+# máxima paga la cotización adicional de solidaridad por tramos de retribución mensual.
+# Las bases mínimas son de jornada completa: con jornada parcial se reducen en proporción a
+# la jornada, así que por debajo de ellas se toma la retribución como base. No modelados:
+# los grupos 1 a 3 con base mínima superior (titulados), las horas extraordinarias
+# (4,70 % / 2 %), los conceptos excluidos de la base (dietas, art. 147.2 LGSS) y los
+# regímenes especiales.
+cotizaciones_trabajador:
+  norma: "Orden PJC/178/2025, de 25 de febrero, de cotización para 2025: arts. 2 y 3 (bases), 4.a) (contingencias comunes), 16 (MEI), 17.1 (cotización adicional de solidaridad) y 33.2 (desempleo y formación profesional); arts. 19, 19 bis, 127 bis y 147 LGSS (RDLeg 8/2015)"
+  fuente: "BOE-A-2025-3780 (https://www.boe.es/eli/es/o/2025/02/25/pjc178)"
+  estado: confirmado
+  base_maxima_mensual: 4909.50
+  base_minima_mensual: 1381.20         # grupos 4 a 7 (8 a 11: 46,04 €/día), jornada completa
+  bases_minimas_grupo_1_3: [1929.00, 1599.60, 1391.70]   # informativas, no se aplican
+  tipos:
+    contingencias_comunes: 0.0470      # 28,30 % (23,60 % empresa)
+    desempleo_indefinido: 0.0155       # 7,05 % (5,50 % empresa); también fijos discontinuos y tiempo parcial
+    desempleo_temporal: 0.0160         # 8,30 % (6,70 % empresa); contratos de duración determinada
+    formacion_profesional: 0.0010      # 0,70 % (0,60 % empresa)
+    mei: 0.0013                        # 0,80 % (0,67 % empresa)
+  solidaridad:                          # sobre la retribución mensual que excede la base máxima
+    tramos:
+      - { hasta: 5400.45, tipo: 0.0015 }   # hasta el 10 % por encima: 0,92 % (0,77 % empresa)
+      - { hasta: 7364.25, tipo: 0.0017 }   # del 10 % al 50 %: 1,00 % (0,83 % empresa)
+      - { hasta: .inf,    tipo: 0.0019 }   # más del 50 %: 1,17 % (0,98 % empresa)

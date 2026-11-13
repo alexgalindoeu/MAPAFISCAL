@@ -126,24 +126,8 @@ overrides:
       grado_75_40_puntos_o_gran_dependencia: 1935   # Gipuzkoa: 2.040
 
   ES-PV-VI:
-    # La NF 21/2025 no modifica los arts. 79 (descendientes), 81 (ascendientes) ni 82
-    # (discapacidad) de la NF 33/2013: siguen los importes de 2025, que para Araba ya
-    # estaban sin cotejar con su norma (se tomaron los de Gipuzkoa). Falta cotejarlos con
-    # la NF 33/2013 consolidada.
-    deduccion_descendientes:
-      estado: provisional
-      importes: { "1": 668, "2": 827, "3": 1393, "4": 1647, "5+": 2151 }
-      incremento_menor_6_anios: 386
-    deduccion_anualidades_alimentos_hijos:
-      estado: provisional
-      limites: { "1": 200.40, "2": 248.10, "3": 417.90, "4": 494.10, "5+": 645.30 }
-    deduccion_ascendientes:
-      estado: provisional
-      importe: 321
-    deduccion_discapacidad:
-      estado: provisional
-      grado_33_64: 888
-      grado_65_mas_o_dependencia_moderada: 1268
-      grado_75_15_39_puntos_o_dependencia_severa: 1521
-      grado_75_40_puntos_o_gran_dependencia: 2040
+    # La NF 21/2025 no modifica los arts. 79 (descendientes), 80, 81 (ascendientes) ni 82
+    # (discapacidad) de la NF 33/2013: siguen los importes de 2025 de la NF 19/2024, que se
+    # heredan del override de Araba de params/2025 (cotejado el 11-11-2026; antes figuraban
+    # aquí, como provisionales, los de Gipuzkoa 2025).
     minoracion_cuota: { estado: confirmado }
