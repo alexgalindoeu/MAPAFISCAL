@@ -16,12 +16,19 @@ const jsonEmbebido =ruta => JSON.stringify(JSON.parse(leer(ruta))).replace(/<\//
 
 // La versión autónoma es siempre la demo: sin Supabase (ni supabase-js), sin pagos y sin
 // anuncios, aunque web/config.js esté configurado para producción.
-const FORZAR_DEMO = "window.MAPAFISCAL_CONFIG = Object.assign(window.MAPAFISCAL_CONFIG || {}, { demo: true, pagosActivos: false, anuncios: false, adsenseCliente: \"\", adsenseHuecoCalc: \"\", adsenseHuecoComparar: \"\", adsenseHuecoRailIzq: \"\", adsenseHuecoRailDer: \"\", adsenseHuecoMovil: \"\" });\n";
+const FORZAR_DEMO = "window.MAPAFISCAL_CONFIG = Object.assign(window.MAPAFISCAL_CONFIG || {}, { demo: true, pagosActivos: false, anuncios: false, informePago: false, informeAnuncio: false, informeAnuncioUnidad: \"\", informeAfiliado: null, adsenseCliente: \"\", adsenseHuecoCalc: \"\", adsenseHuecoComparar: \"\", adsenseHuecoRailIzq: \"\", adsenseHuecoRailDer: \"\", adsenseHuecoMovil: \"\" });\n";
 const SUPABASE_JS = /<script src="https:\/\/cdn\.jsdelivr\.net\/npm\/@supabase\/supabase-js@[^"]+"[^>]*><\/script>\n?/;
 // La demo nunca lleva anuncios.js: se quita entero (no se incrusta como irpfsim.js/app.js)
 // para que el HTML autónomo no contenga ni un rastro de "adsbygoogle" o "googlesyndication".
 const ANUNCIOS_JS = /<script src="js\/anuncios\.js"><\/script>\n?/;
 const ADSENSE_META = /<meta name="google-adsense-account"[^>]*>\n?/;
+// El anuncio bonificado del informe (GPT) tampoco va en la demo: se quita el bloque marcado.
+const ANUNCIO_BONIFICADO = /\/\*ANUNCIO-BONIFICADO\*\/[\s\S]*?\/\*\/ANUNCIO-BONIFICADO\*\/\n?/;
+export function informeDemo() {
+  const js = leer("js/informe.js");
+  if (!ANUNCIO_BONIFICADO.test(js)) throw new Error("No se encuentra en informe.js el bloque ANUNCIO-BONIFICADO");
+  return js.replace(ANUNCIO_BONIFICADO, () => "function anuncioGpt() { return Promise.resolve(false); }\n");
+}
 // El HTML autónomo no lleva las páginas legales: sus enlaces apuntan a las de la web publicada.
 export const WEB_PUBLICA = "https://mapafiscal.es/";
 
@@ -55,6 +62,7 @@ export function empaquetar() {
   sustituir('<script src="js/cuentas.js"></script>', "<script>\n" + leer("js/cuentas.js") + "</script>");
   sustituir('<script src="js/app.js"></script>', "<script>\n" + leer("js/app.js") + "</script>");
   sustituir('<script src="js/herramientas.js"></script>', "<script>\n" + leer("js/herramientas.js") + "</script>");
+  sustituir('<script src="js/informe.js"></script>', "<script>\n" + informeDemo() + "</script>");
   // Las páginas legales, las de territorio y sueldo y las guías no van dentro: apuntan a la web publicada.
   html = html.replace(/href="(legal|irpf|guias|comparar-sueldo)\//g, (m, dir) => `href="${WEB_PUBLICA}${dir}/`);
   return html;

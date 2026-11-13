@@ -45,5 +45,16 @@ window.MAPAFISCAL_CONFIG = {
   adsenseHuecoRailDer: "",   // «mf-carril-der»: carril derecho, escritorio ≥1280 px
   adsenseHuecoMovil: "",     // «mf-resultado-medio»: entre tarjetas del resultado, por debajo de 1280 px
   adsenseHuecoCalc: "",      // «mf-resultado-final»: al final de la columna de resultados
-  adsenseHuecoComparar: ""   // «mf-comparar»: bajo el mapa y la tabla de Comparar
+  adsenseHuecoComparar: "",  // «mf-comparar»: bajo el mapa y la tabla de Comparar
+
+  // Informe completo en PDF (js/informe.js). Vías de desbloqueo (negocio/otros-ingresos.md §1):
+  // plan de pago (siempre), pago único y anuncio bonificado. Aceptar cookies NO desbloquea.
+  // Con los dos interruptores en false, el informe es gratis para quien tenga sesión iniciada
+  // (decisión provisional, pendiente de que Alex la confirme).
+  informePago: false,      // true cuando exista en Stripe el precio con lookup_key informe_unico (supabase/README.md)
+  informePrecio: 1.99,     // IVA incluido; tiene que coincidir con el precio de Stripe
+  informeAnuncio: false,   // true cuando la red apruebe el formato bonificado (ver negocio/otros-ingresos.md)
+  informeAnuncios: 1,      // anuncios seguidos que hay que ver (1 a 3)
+  informeAnuncioUnidad: "", // bloque «rewarded» de Google Ad Manager (GPT), p. ej. "/1234567/informe_bonificado"
+  informeAfiliado: null    // banner estático de afiliado en el PDF: { texto, enlace, imagen }; null = banner propio
 };

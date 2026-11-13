@@ -1101,6 +1101,7 @@
     let pagando = false;
     if (pendienteTrasAcceso && sesion.usuario) { pendienteTrasAcceso = false; pagando = continuarTrasAcceso(); }
     if (!pagando) mostrarBienvenida();
+    document.dispatchEvent(new CustomEvent("mapafiscal:sesion"));   // informe.js
   }
   if (sb) sb.auth.onAuthStateChange(evento => {
     if (evento === "SIGNED_IN") {
@@ -1845,6 +1846,14 @@
     if (e.key === "Escape" && $("appbar").classList.contains("abierta")) { menu(false); $("btn-menu").focus(); }
   });
   $("bm-ver").addEventListener("click", e => { e.preventDefault(); $("t-res").scrollIntoView({ behavior: movimientoReducido() ? "auto" : "smooth", block: "start" }); });
+
+  // Lo justo para js/informe.js (informe completo en PDF): último cálculo, sesión y acceso.
+  window.MapafiscalApp = {
+    ultimo: () => ultima, P: () => P, sb, irA, abrirAcceso, sesionCargada: () => sesionCargada, recargarSesion: cargarSesion,
+    sesion: () => ({ usuario: !!sesion.usuario, plan: tienePlan() ? sesion.perfil.plan : "gratis" }),
+    restaurar: async (hogar, ej) => { if (ej && ej !== P.ejercicio && EJERCICIOS.includes(ej)) await cambiarEjercicio(ej); rellenarFormulario(hogar); }
+  };
+  document.dispatchEvent(new CustomEvent("mapafiscal:app"));
 
   // ---- arranque --------------------------------------------------------------------------
   // cotizaciones estimadas con la orden de cotización del ejercicio (no con un tipo fijo)
