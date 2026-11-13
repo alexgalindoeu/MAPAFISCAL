@@ -921,3 +921,14 @@ body.con-informe { overflow: hidden; }
 .rp-barra.mejor .hr-barra i { background: var(--gana); }
 .rp-barra.tuya span:first-child { font-weight: 700; }
 .rp-anios td:not(:first-child), .rp-anios th:not(:first-child) { text-align: right; }
+
+/* ---- ¿conjunta o individual? y dos pagadores (web/js/conjunta.js) ---- */
+.cj-porque { margin: 0; padding-left: 18px; display: grid; gap: 8px; color: var(--tinta-2); font-size: 14px; line-height: 1.5; }
+.cj-porque b { color: var(--tinta); }
+.cj-tabla th, .cj-tabla td.imp { text-align: right; }
+.cj-tabla th:first-child { text-align: left; }
+.cj-tabla th { font-size: 12px; color: var(--tinta-3); font-weight: 600; padding-bottom: 6px; }
+.nota-inline { font-size: 12px; color: var(--tinta-3); }
+#dp-obligacion p { margin: 0 0 8px; font-size: 14px; color: var(--tinta-2); line-height: 1.5; }
+#dp-obligacion p:last-child { margin-bottom: 0; }
+@media (max-width: 560px) { .nota-inline { display: block; } }

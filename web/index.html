@@ -539,6 +539,113 @@
   </div>
 </section>
 
+<!-- =========================== CONJUNTA O INDIVIDUAL (web/js/conjunta.js) =========================== -->
+<section class="vista" id="v-conjunta" aria-labelledby="t-cj" hidden>
+  <div class="cabecera-vista">
+    <div>
+      <p class="antetitulo">Renta en pareja · modalidad de tributación</p>
+      <h1 id="t-cj">¿Declaración conjunta o individual?</h1>
+      <p class="entradilla">Qué modalidad os sale mejor con vuestros sueldos y vuestros hijos, cuánto ahorráis y por qué, en vuestro territorio y en los 19.</p>
+    </div>
+  </div>
+  <div class="calc">
+    <form class="formulario" id="cj-form" autocomplete="off" novalidate>
+      <fieldset class="bloque">
+        <legend><span class="paso">1</span>Vuestra situación</legend>
+        <div class="campo"><label for="cj-tipo">Tipo de familia</label>
+          <select id="cj-tipo"><option value="matrimonio">Matrimonio</option><option value="pareja-hecho">Pareja de hecho o sin casar</option><option value="monoparental">Madre o padre solo con los hijos (separación, viudedad…)</option></select></div>
+        <div class="campo"><label for="cj-territorio">Territorio donde residís</label><select id="cj-territorio"></select></div>
+        <div class="campo"><label for="cj-ejercicio">Ejercicio</label><select id="cj-ejercicio"></select></div>
+        <div class="campo"><label for="cj-hijos">Hijos que conviven con vosotros</label>
+          <select id="cj-hijos"><option value="0">Ninguno</option><option>1</option><option>2</option><option>3</option><option>4</option></select></div>
+        <div class="hr-edades" id="cj-edades"></div>
+      </fieldset>
+      <fieldset class="bloque">
+        <legend><span class="paso">2</span>Ingresos</legend>
+        <div class="rejilla2">
+          <div class="campo"><label for="cj-a-bruto">Sueldo bruto anual (tú)</label><div class="con-sufijo"><input type="number" id="cj-a-bruto" min="0" step="500" value="30000" inputmode="decimal"><span>€</span></div></div>
+          <div class="campo"><label for="cj-a-edad">Tu edad</label><input type="number" id="cj-a-edad" min="16" max="110" value="40"></div>
+        </div>
+        <div class="rejilla2" id="cj-b-bloque">
+          <div class="campo"><label for="cj-b-bruto">Sueldo bruto anual (tu pareja)</label><div class="con-sufijo"><input type="number" id="cj-b-bruto" min="0" step="500" value="6000" inputmode="decimal"><span>€</span></div></div>
+          <div class="campo"><label for="cj-b-edad">Su edad</label><input type="number" id="cj-b-edad" min="16" max="110" value="40"></div>
+        </div>
+        <p class="ayuda">Sueldo o pensión. Pon 0 si no tiene ingresos.</p>
+      </fieldset>
+    </form>
+    <div class="resultado" aria-live="polite">
+      <div class="tarjeta tarjeta-resultado" id="cj-tarjeta">
+        <div class="res-cab"><h2 class="rotulo">Resultado</h2><span class="chip" id="cj-chip"></span></div>
+        <div id="cj-principal"></div>
+        <div class="acciones-res"><a class="btn btn-pri" href="#calculadora">Calcular la declaración completa</a> <a class="btn btn-sec" href="declaracion-conjunta/">Guía de la conjunta</a></div>
+      </div>
+      <div class="tarjeta"><h2 class="rotulo">Por qué</h2><ul class="cj-porque" id="cj-porque"></ul></div>
+      <div class="tarjeta"><h2 class="rotulo">Las dos modalidades</h2><table class="desglose cj-tabla" id="cj-desglose"></table></div>
+      <div class="tarjeta tarjeta-ranking"><h2 class="rotulo">En los 19 territorios, de menos a más IRPF</h2><table class="ranking hr-ranking" id="cj-ranking"></table></div>
+      <p class="nota" id="cj-nota"></p>
+    </div>
+  </div>
+</section>
+
+<!-- =========================== DOS PAGADORES (web/js/conjunta.js) =========================== -->
+<section class="vista" id="v-dos-pagadores" aria-labelledby="t-dp" hidden>
+  <div class="cabecera-vista">
+    <div>
+      <p class="antetitulo">Renta · varios pagadores</p>
+      <h1 id="t-dp">Dos pagadores: ¿tengo que declarar y me sale a pagar?</h1>
+      <p class="entradilla">Si este año has cobrado de dos empresas (o de una empresa y del paro), mira si estás obligado a hacer la declaración y cuánto te tocará pagar o te devolverán.</p>
+    </div>
+  </div>
+  <div class="calc">
+    <form class="formulario" id="dp-form" autocomplete="off" novalidate>
+      <fieldset class="bloque">
+        <legend><span class="paso">1</span>Tus pagadores</legend>
+        <div class="rejilla2">
+          <div class="campo"><label for="dp-b1">Primer pagador: bruto del año</label><div class="con-sufijo"><input type="number" id="dp-b1" min="0" step="500" value="14000" inputmode="decimal"><span>€</span></div></div>
+          <div class="campo"><label for="dp-c1">Contrato</label><select id="dp-c1"><option value="indefinido">Indefinido</option><option value="temporal">Temporal</option></select></div>
+        </div>
+        <div class="campo"><label for="dp-r1">Retención del primero (opcional)</label><div class="con-sufijo"><input type="number" id="dp-r1" min="0" step="10" placeholder="en blanco: estimada" inputmode="decimal"><span>€</span></div></div>
+        <div class="rejilla2">
+          <div class="campo"><label for="dp-b2">Segundo pagador: bruto del año</label><div class="con-sufijo"><input type="number" id="dp-b2" min="0" step="500" value="5000" inputmode="decimal"><span>€</span></div></div>
+          <div class="campo"><label for="dp-c2">Contrato</label><select id="dp-c2"><option value="indefinido">Indefinido</option><option value="temporal" selected>Temporal</option></select></div>
+        </div>
+        <div class="campo"><label for="dp-r2">Retención del segundo (opcional)</label><div class="con-sufijo"><input type="number" id="dp-r2" min="0" step="10" placeholder="en blanco: estimada" inputmode="decimal"><span>€</span></div></div>
+        <p class="ayuda">Las retenciones están en tu certificado de retenciones o en tus datos fiscales.</p>
+      </fieldset>
+      <fieldset class="bloque">
+        <legend><span class="paso">2</span>Residencia y familia</legend>
+        <div class="campo"><label for="dp-territorio">Territorio donde resides</label><select id="dp-territorio"></select></div>
+        <div class="rejilla2">
+          <div class="campo"><label for="dp-ejercicio">Ejercicio</label><select id="dp-ejercicio"></select></div>
+          <div class="campo"><label for="dp-edad">Tu edad</label><input type="number" id="dp-edad" min="16" max="110" value="35"></div>
+        </div>
+        <div class="campo"><label for="dp-hijos">Hijos que conviven contigo</label>
+          <select id="dp-hijos"><option value="0">Ninguno</option><option>1</option><option>2</option><option>3</option></select></div>
+        <div class="hr-edades" id="dp-edades"></div>
+      </fieldset>
+    </form>
+    <div class="resultado" aria-live="polite">
+      <div class="tarjeta tarjeta-resultado" id="dp-tarjeta">
+        <div class="res-cab"><h2 class="rotulo">Resultado</h2><span class="chip" id="dp-chip"></span></div>
+        <div id="dp-principal"></div>
+        <div class="acciones-res"><a class="btn btn-pri" href="#calculadora">Calcular la declaración completa</a> <a class="btn btn-sec" href="dos-pagadores/">Guía de los dos pagadores</a></div>
+      </div>
+      <div class="tarjeta"><h2 class="rotulo">¿Estoy obligado a declarar?</h2><div id="dp-obligacion"></div></div>
+      <div class="tarjeta"><h2 class="rotulo">Por qué te puede salir a pagar</h2>
+        <p>Cada empresa calcula tu retención como si fuera tu único pagador. Al sumar los dos sueldos en la declaración pasan tres cosas:</p>
+        <ul class="cj-porque">
+          <li><b>La escala es progresiva:</b> los euros del segundo sueldo se suman encima del primero y tributan a un tipo más alto que el que te aplicó cada empresa por separado.</li>
+          <li><b>El mínimo personal cuenta una vez:</b> cada empresa lo descontó entero, pero en la declaración solo tienes uno.</li>
+          <li><b>La reducción por rendimientos del trabajo baja</b> cuando los dos sueldos se suman, y por debajo de cierto sueldo una empresa ni siquiera tiene que retenerte.</li>
+        </ul></div>
+      <div class="tarjeta"><h2 class="rotulo">Desglose</h2><table class="desglose" id="dp-desglose"></table></div>
+      <div class="tarjeta"><h2 class="rotulo" id="dp-t-escenarios">Según lo que te pague el segundo</h2><table class="ranking" id="dp-escenarios"></table></div>
+      <div class="tarjeta tarjeta-ranking"><h2 class="rotulo">Resultado en los 19 territorios</h2><table class="ranking hr-ranking" id="dp-ranking"></table></div>
+      <p class="nota" id="dp-nota"></p>
+    </div>
+  </div>
+</section>
+
 </main>
 
 <div class="barra-movil" id="barra-movil" aria-live="polite">
@@ -674,6 +781,7 @@
 <script src="js/herramientas.js"></script>
 <script src="js/informe.js"></script>
 <script src="js/rescate.js"></script>
+<script src="js/conjunta.js"></script>
 <script src="js/anuncios.js"></script>
 </body>
 </html>
