@@ -22,9 +22,14 @@
   async function datos(idScript, url) {
     const el = document.getElementById(idScript);
     if (el) return JSON.parse(el.textContent);
-    const r = await fetch(url, { cache: "no-cache" });
-    if (!r.ok) throw new Error("No se pudo cargar " + url);
-    return r.json();
+    // Una sola descarga por fichero aunque lo pidan app.js y herramientas.js: se comparte el
+    // texto (no el objeto) para que ninguno vea los cambios que haga el otro en sus datos.
+    const cache = window.__mapafiscalJson = window.__mapafiscalJson || {};
+    if (!cache[url]) cache[url] = fetch(url, { cache: "no-cache" }).then(r => {
+      if (!r.ok) throw new Error("No se pudo cargar " + url);
+      return r.text();
+    }).catch(e => { delete cache[url]; throw e; });
+    return JSON.parse(await cache[url]);
   }
   let P, MAPA;
   try {
@@ -91,8 +96,65 @@
   });
 
   // ---- Supabase ----------------------------------------------------------------------
-  const sb = (!CFG.demo && CFG.supabaseUrl && window.supabase)
-    ? window.supabase.createClient(CFG.supabaseUrl, CFG.supabaseKey) : null;
+  const MC = window.MapafiscalCuentas;
+  // supabase-js (~50 KB comprimido, de un CDN) se carga solo cuando hace falta: al abrir el
+  // acceso, si hay una sesión guardada o si se vuelve de un enlace de acceso o de Google.
+  // Hasta entonces `sb` es un sustituto que apunta las llamadas encadenadas
+  // (sb.from(…).select(…).eq(…)) y las ejecuta sobre el cliente real al esperarlas.
+  const SUPABASE_JS = { src: "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.49.4/dist/umd/supabase.js",
+    integrity: "sha384-rwykjmWNwVxboyFmvK9OXN0wj9hnMHA2aAHtits54DuACyCq0M2PrSNxhRb+hvXT" };
+  let sbReal = null, sbCarga = null;
+  const sbAvisos = [];          // onAuthStateChange pedidos antes de cargar supabase-js
+  function hayIndicioSesion() {
+    if (/[#&](access_token|refresh_token|error_description)=/.test(location.hash) || /[?&](code|error_description)=/.test(location.search)) return true;
+    try { for (let i = 0; i < localStorage.length; i++) if (/^sb-.+-auth-token$/.test(localStorage.key(i))) return true; } catch (e) { /* sin almacenamiento */ }
+    return false;
+  }
+  function cargarSupabase() {
+    if (!sbCarga) sbCarga = new Promise((ok, mal) => {
+      if (window.supabase) { ok(); return; }
+      const s = document.createElement("script");
+      s.src = SUPABASE_JS.src; s.integrity = SUPABASE_JS.integrity; s.crossOrigin = "anonymous";
+      s.onload = () => ok(); s.onerror = () => { s.remove(); sbCarga = null; mal(new Error("No se ha podido cargar el acceso. Revisa tu conexión y vuelve a intentarlo.")); };
+      document.head.appendChild(s);
+    }).then(() => {
+      sbReal = window.supabase.createClient(CFG.supabaseUrl, CFG.supabaseKey);
+      sbAvisos.splice(0).forEach(cb => sbReal.auth.onAuthStateChange(cb));
+      return sbReal;
+    });
+    return sbCarga;
+  }
+  function sbDiferido(camino) {
+    const ejecutar = () => cargarSupabase().then(c => {
+      let obj = c, ctx = c;
+      for (const [prop, args] of camino) {
+        if (args) obj = obj.apply(ctx, args);
+        else { ctx = obj; obj = obj[prop]; }
+      }
+      return obj;
+    }, error => ({ data: null, error }));
+    return new Proxy(function () {}, {
+      get(_, prop) {
+        if (prop === "then" || prop === "catch" || prop === "finally") {
+          if (!camino.length) return undefined;     // el propio sb no es una promesa
+          const p = ejecutar(); return p[prop].bind(p);
+        }
+        return sbDiferido([...camino, [prop]]);
+      },
+      apply(_, __, args) {
+        const ruta = camino.map(([p]) => p).join(".");
+        if (!sbReal && ruta === "auth.onAuthStateChange") {
+          sbAvisos.push(args[0]);
+          return { data: { subscription: { unsubscribe() { const i = sbAvisos.indexOf(args[0]); if (i >= 0) sbAvisos.splice(i, 1); } } } };
+        }
+        // Sin indicios de sesión no hace falta descargar nada para saber que no la hay.
+        if (!sbReal && ruta === "auth.getSession" && !hayIndicioSesion()) return Promise.resolve({ data: { session: null }, error: null });
+        return sbDiferido([...camino, [camino[camino.length - 1][0], args]]);
+      }
+    });
+  }
+  const sb = (!CFG.demo && CFG.supabaseUrl) ? sbDiferido([]) : null;
+  if (sb && hayIndicioSesion()) cargarSupabase().catch(() => {});
   const sesion = { usuario: null, perfil: null, clientes: [] };
   let clienteAbierto = null;    // { id, alias, notas }
 
@@ -108,7 +170,7 @@
 
   const selTerr = $("f-territorio");
   selTerr.innerHTML = ORDEN.filter(c => T[c]).map(c =>
-    `<option value="${c}">${esc(T[c].nombre)}${T[c].regimen !== "comun" ? " (foral)" : ""}</option>`).join("");
+    `<option value="${c}">${esc(T[c].nombre)}${T[c].regimen !== "comun" && !/foral/i.test(T[c].nombre) ? " (foral)" : ""}</option>`).join("");
   selTerr.value = "ES-MD";
 
   // ---- formulario (web/js/formulario.js): estado, plantillas y validaciones ------------------
@@ -204,7 +266,23 @@
     const fuente = reg === "foral_navarra" ? P.navarra : reg === "foral_pais_vasco" ? P.foral_pv : P.estatal;
     return (BLOQUE_DED[id] && fuente && fuente[BLOQUE_DED[id]]) || null;
   }
-  const nombreDed = id => NOMBRES_DED[id] || id.replace(/([A-Z])/g, " $1").replace(/_/g, " ").trim().toLowerCase().replace(/^./, c => c.toUpperCase());
+  // Nombre legible de una deducción a partir de su id (tildes, preposiciones y edades).
+  const PALABRAS_DED = { adopcion: "adopción", anos: "años", anios: "años", jovenes: "jóvenes", pequenos: "pequeños",
+    educacion: "educación", conciliacion: "conciliación", despoblacion: "despoblación", rehabilitacion: "rehabilitación",
+    inversion: "inversión", informatica: "informática", domestica: "doméstica", fisico: "físico", guarderia: "guardería",
+    guarderias: "guarderías", emancipacion: "emancipación", angel: "ángel", investigacion: "investigación", multiples: "múltiples", mas: "más", ss: "Seguridad Social" };
+  const humanizarDed = id => id.replace(/([A-Z])/g, " $1").replace(/_/g, " ").trim().toLowerCase()
+    .replace(/\b[a-z]+\b/g, w => PALABRAS_DED[w] || w)
+    .replace(/\bi d i\b/, "I+D+i").replace(/ fn$/, " (familia numerosa)")
+    .replace(/\b(menores|mayores|mayor|ascendientes) (\d+)( años)?/g, "$1 de $2 años").replace(/\bhasta (\d+)$/, "hasta $1 años")
+    .replace(/\b0 3\b/, "de 0 a 3 años").replace(/\bmenos (\d)(\d{3})\b/, "de menos de $1.$2 habitantes")
+    .replace(/\b(\d)(\d{3}) (\d)(\d{3})\b/, "de $1.$2 a $3.$4 habitantes").replace(/\bgrado (\d+)/g, "grado $1 %")
+    .replace(/\b(arrendamiento|rehabilitación) vivienda/, "$1 de vivienda").replace(/\bcuidado (hijos|descendientes|ascendientes|familiares|personas)\b/, "cuidado de $1")
+    .replace(/\bnacimiento adopción\b/, "nacimiento o adopción").replace(/\bempleada hogar\b/, "empleada del hogar").replace(/\blibros texto\b/, "libros de texto")
+    .replace(/^./, c => c.toUpperCase());
+  const nombreDed = id => NOMBRES_DED[id] || humanizarDed(id);
+  const tituloPalanca = r => r.categoria === "deduccion_potencial" && /^ded_/.test(r.id) ? "Deducción autonómica: " + nombreDed(r.id.slice(4)) : r.titulo;
+  const detallePalanca = t => String(t || "").replace("requiere residencia efectiva > 183 días/año y centro de intereses económicos allí", "requiere vivir allí más de 183 días al año y tener allí tu centro de intereses económicos").replace("requisitos de renta/edad", "requisitos de renta y edad");
 
   // ¿hay que presentar la declaración? (art. 96 LIRPF, calculado por el motor)
   function pintarObligacion(liq, reg) {
@@ -238,7 +316,8 @@
   }
 
   // cifra grande: pasa de la anterior a la nueva en un instante (nada con movimiento reducido)
-  const TASA_SS = 0.0635;
+  // cotización del trabajador estimada con la orden de cotización del ejercicio (base máxima y solidaridad)
+  const ssEstimada = salario => Math.round(irpfsim.cotizacionesTrabajador(salario, P));
   const movimientoReducido = () => !!(window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches);
   let cifraPrev = null, cifraRaf = 0;
   function animarCifra(el, hasta) {
@@ -393,9 +472,9 @@
     let opt = { recomendaciones: [] };
     try { opt = irpfsim.optimizar(hogar, P); } catch (e) { /* sin palancas */ }
     const recs = opt.recomendaciones.filter(r => !(r.id === "modo" && r.yaAplicado)).slice(0, 5);
-    $("res-palancas").innerHTML = recs.length ? recs.map(r => `<li><div class="pal-cab"><span class="pal-tit">${esc(r.titulo)}</span>
+    $("res-palancas").innerHTML = recs.length ? recs.map(r => `<li><div class="pal-cab"><span class="pal-tit">${esc(tituloPalanca(r))}</span>
         ${r.ahorro == null ? '<span class="pal-imp rev">a revisar</span>' : `<span class="pal-imp">−${eur0(r.ahorro)}/año</span>`}</div>
-        <div class="pal-det"><span class="etq etq-cat">${CAT[r.categoria] || r.categoria}</span>${esc(r.detalle)}</div></li>`).join("")
+        <div class="pal-det"><span class="etq etq-cat">${CAT[r.categoria] || r.categoria}</span>${esc(detallePalanca(r.detalle))}</div></li>`).join("")
       : `<li class="vacio">No se detectan palancas de ahorro relevantes para esta situación.</li>`;
     if (ahorroModo >= 1) $("res-palancas").insertAdjacentHTML("afterbegin",
       `<li><div class="pal-cab"><span class="pal-tit">Ya aplicada: declaración ${liq.modoTributacionElegido}</span><span class="pal-imp">−${eur0(ahorroModo)}/año</span></div><div class="pal-det">Frente a la declaración ${liq.modoTributacionElegido === "conjunta" ? "individual" : "conjunta"}.</div></li>`);
@@ -408,6 +487,7 @@
     $("res-pista").textContent = pista;
     $("res-pista").hidden = !pista;
 
+    pintarBotonesGuardar();
     if (vistaActual() === "comparar") pintarComparacion();
   }
 
@@ -556,16 +636,17 @@
     return google;
   }
 
-  // ---- casilla de aceptación de las condiciones (Legales, rama local/textos-legales) --------
-  // CFG.condicionesVersion no existe hasta que se fusione esa rama: hasta entonces no se exige
-  // la casilla, para no bloquear el acceso con una condición que no se puede cumplir.
+  // ---- casilla de aceptación de las condiciones ---------------------------------------------
+  // Sin CFG.condicionesVersion no se exige la casilla, para no bloquear el acceso con una
+  // condición que no se puede cumplir.
   const dlgCondiciones = $("dlg-condiciones");
   const ACEPTO_PENDIENTE = "mapafiscal.aceptoPendiente";
   const legalListo = () => !!CFG.condicionesVersion;
+  // Solo al crear la cuenta: quien entra en una que ya existe la aceptó (si es de antes de la
+  // versión vigente, se lo pide el diálogo «Antes de seguir»).
   function condicionesOk() {
-    if (!legalListo() || $("acceso-acepto").checked) return true;
-    const msg = $("acceso-msg");
-    msg.textContent = "Marca la casilla para continuar."; msg.className = "mensaje error";
+    if (!legalListo() || modoAcceso !== "crear" || $("acceso-acepto").checked) return true;
+    avisarAcceso("Para crear la cuenta, marca la casilla de las Condiciones y la Política de privacidad.");
     $("acceso-acepto").focus();
     return false;
   }
@@ -576,82 +657,237 @@
     if (!legalListo() || !sesion.usuario) { if (dlgCondiciones.open) dlgCondiciones.close(); return; }
     if (sesion.perfil && sesion.perfil.condiciones_version === CFG.condicionesVersion) { if (dlgCondiciones.open) dlgCondiciones.close(); return; }
     if (dlgCondiciones.open) return;
+    if (dlgAcceso.open) dlgAcceso.close();
     $("condiciones-acepto").checked = false;
     $("condiciones-msg").textContent = ""; $("condiciones-msg").className = "mensaje";
     dlgCondiciones.showModal();
   }
+  // sin Escape: hasta aceptar o cerrar sesión
+  dlgCondiciones.addEventListener("cancel", e => e.preventDefault());
   $("btn-condiciones-aceptar").addEventListener("click", async () => {
     const msg = $("condiciones-msg"), b = $("btn-condiciones-aceptar");
     if (!$("condiciones-acepto").checked) { msg.textContent = "Tienes que marcar la casilla para continuar."; msg.className = "mensaje error"; return; }
     b.disabled = true;
     const { error } = await sb.rpc("aceptar_condiciones", { p_version: CFG.condicionesVersion });
     b.disabled = false;
-    if (error) { msg.textContent = "No se pudo guardar: " + error.message; msg.className = "mensaje error"; return; }
+    if (error) { msg.textContent = "No se pudo guardar. " + MC.textoError(error).texto; msg.className = "mensaje error"; return; }
     sesion.perfil.condiciones_version = CFG.condicionesVersion;
     dlgCondiciones.close();
+    mostrarBienvenida();
   });
   $("btn-condiciones-salir").addEventListener("click", async () => { await sb.auth.signOut(); dlgCondiciones.close(); cerrarCliente(); irA("inicio"); });
 
+  // ---- cálculos guardados: ¿está la tabla desplegada? -----------------------------------------
+  // Mientras no se aplique la migración de `calculos`, la web no ofrece guardar cálculos (ni lo
+  // anuncia como ventaja). Sin sesión, la RLS responde «sin permiso»: la tabla existe.
+  const CALCULO_PENDIENTE = "mapafiscal.calculoPendiente", BIENVENIDA = "mapafiscal.bienvenida.";
+  let calculosOk = null;
+  function comprobarCalculos() {
+    if (!sb) return Promise.resolve(false);
+    if (!calculosOk) calculosOk = sb.from("calculos").select("id").limit(1)
+      .then(({ error, status }) => !error || !(status === 404 || error.code === "PGRST205" || error.code === "42P01"))
+      .catch(() => false);
+    return calculosOk;
+  }
+
+  // ---- diálogo de acceso: «Crear cuenta» y «Entrar» ------------------------------------------
   let accesoPara = null;         // { destino, pago } del diálogo de acceso abierto
-  function abrirAcceso(motivo, para) {
+  let modoAcceso = "crear", enviadoA = null, enviadoEn = 0, reloj = null, enlaceEnviado = false;
+  const MODOS = {
+    crear: { titulo: "Crea tu cuenta gratis", boton: "Crear cuenta con mi correo",
+      cambio: '¿Ya tienes cuenta? <button class="btn-enlace" type="button" data-modo-ir="entrar">Entra</button>' },
+    entrar: { titulo: "Entra en Mapafiscal", boton: "Enviarme el enlace para entrar",
+      cambio: '¿Aún no tienes cuenta? <button class="btn-enlace" type="button" data-modo-ir="crear">Crea una gratis</button>' }
+  };
+  function avisarAcceso(texto, html) {
+    const msg = $("acceso-msg");
+    if (html) msg.innerHTML = html; else msg.textContent = texto || "";
+    msg.className = texto || html ? "mensaje error" : "mensaje";
+  }
+  function ponerModo(m) {
+    modoAcceso = m;
+    for (const t of document.querySelectorAll(".acceso-modos [role=tab]")) {
+      const sel = t.dataset.modo === m;
+      t.setAttribute("aria-selected", String(sel)); t.tabIndex = sel ? 0 : -1;
+    }
+    $("t-acceso").textContent = MODOS[m].titulo;
+    $("btn-enviar-txt").textContent = MODOS[m].boton;
+    $("acceso-cambio").innerHTML = MODOS[m].cambio;
+    $("acceso-ventajas").hidden = m !== "crear";
+    $("acceso-legal").hidden = m !== "crear" || !legalListo();
+    $("acceso-info").hidden = m !== "crear";
+    avisarAcceso("");
+  }
+  function pintarVentajas(conCalculos) {
+    $("acceso-ventajas").innerHTML = MC.ventajas({ calculos: conCalculos, ejercicios: EJERCICIOS.length, pagos: !!CFG.pagosActivos })
+      .map(v => `<li><b>${esc(v.t)}</b><span>${esc(v.d)}</span></li>`).join("");
+  }
+  function mostrarPaso(enviado) {
+    $("form-acceso").hidden = enviado; $("acceso-enviado").hidden = !enviado;
+    if (!enviado) { clearInterval(reloj); reloj = null; }
+  }
+  function abrirAcceso(motivo, para, modo, error) {
     if (!sb) { irA("clientes"); return; }
+    cargarSupabase().catch(() => {});      // se descarga mientras se rellena el correo
     const v = vistaActual();
     accesoPara = para || { destino: ["planes", "clientes", "perfil"].includes(v) ? v : "cuenta" };
+    enlaceEnviado = false;
+    mostrarPaso(false);
+    ponerModo(modo || "crear");
     const texto = $("acceso-motivo");
     texto.textContent = motivo || ""; texto.hidden = !motivo;
+    pintarVentajas(false);
+    comprobarCalculos().then(pintarVentajas);
     comprobarGoogle().then(g => { $("acceso-google").hidden = !g; });
-    $("acceso-legal").hidden = !legalListo();
     if (legalListo()) $("acceso-acepto").checked = false;
-    $("acceso-msg").textContent = ""; $("acceso-msg").className = "mensaje";
-    $("btn-google").disabled = false; $("btn-enviar-enlace").disabled = false;
-    dlgAcceso.showModal(); $("acceso-email").focus();
+    $("acceso-email").removeAttribute("aria-invalid");
+    $("acceso-sugerencia").hidden = true;
+    ocupado($("btn-enviar-enlace"), false); ocupado($("btn-google"), false);
+    if (error) avisarAcceso(error);
+    if (!dlgAcceso.open) dlgAcceso.showModal();
+    $("acceso-email").focus();
   }
+  // Botón con estado de carga: deshabilitado y con un indicador, sin cambiar su tamaño.
+  function ocupado(b, si) { b.disabled = si; b.classList.toggle("cargando", si); b.setAttribute("aria-busy", String(si)); }
+
   // Antes de enviar el enlace o de ir a Google: qué hacer al volver con la sesión iniciada, y si
   // se aceptaron las condiciones en esta pestaña (la pestaña que recibe la sesión puede ser otra).
   function prepararVuelta() {
     const p = accesoPara || { destino: "cuenta" };
     recordar(TRAS_ACCESO, p.destino);
     recordar(PAGO_PENDIENTE, p.pago ? JSON.stringify({ ...p.pago, t: Date.now() }) : null);
-    recordar(ACEPTO_PENDIENTE, (legalListo() && $("acceso-acepto").checked) ? CFG.condicionesVersion : null);
+    recordar(ACEPTO_PENDIENTE, (legalListo() && modoAcceso === "crear" && $("acceso-acepto").checked) ? CFG.condicionesVersion : null);
+    enlaceEnviado = true;
   }
-  $("btn-enviar-enlace").addEventListener("click", async () => {
-    const email = $("acceso-email").value.trim(), msg = $("acceso-msg");
-    if (!condicionesOk()) return;
-    if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) { msg.textContent = "Escribe un correo válido."; msg.className = "mensaje error"; return; }
-    $("btn-enviar-enlace").disabled = true;
+  function pintarReloj() {
+    const s = MC.segundosRestantes(enviadoEn, Date.now()), b = $("btn-reenviar");
+    b.textContent = MC.textoReenvio(s); b.disabled = s > 0 || b.classList.contains("cargando");
+    if (!s) { clearInterval(reloj); reloj = null; }
+  }
+  function mostrarEnviado() {
+    mostrarPaso(true);
+    $("acceso-enviado-a").textContent = enviadoA;
+    $("acceso-enviado-para").textContent = modoAcceso === "crear" ? "activar tu cuenta" : "entrar";
+    $("acceso-enviado-msg").textContent = ""; $("acceso-enviado-msg").className = "mensaje";
+    const bandeja = MC.bandejaDe(enviadoA), a = $("acceso-bandeja");
+    a.hidden = !bandeja;
+    if (bandeja) { a.href = bandeja.url; a.textContent = "Abrir " + bandeja.nombre; }
+    clearInterval(reloj); reloj = setInterval(pintarReloj, 1000); pintarReloj();
+    $("t-enviado").focus();
+  }
+  async function enviarEnlace(reenvio) {
+    const email = reenvio ? enviadoA : MC.normalizarCorreo($("acceso-email").value);
+    const msg = reenvio ? $("acceso-enviado-msg") : $("acceso-msg"), b = reenvio ? $("btn-reenviar") : $("btn-enviar-enlace");
+    if (!reenvio) {
+      if (!MC.correoValido(email)) {
+        $("acceso-email").setAttribute("aria-invalid", "true");
+        avisarAcceso(email ? "Ese correo no parece válido. Revísalo: tiene que ser como nombre@ejemplo.es." : "Escribe tu correo electrónico.");
+        $("acceso-email").focus();
+        return;
+      }
+      $("acceso-email").removeAttribute("aria-invalid");
+      if (!condicionesOk()) return;
+    }
+    ocupado(b, true); msg.textContent = ""; msg.className = "mensaje";
     prepararVuelta();
-    const { error } = await sb.auth.signInWithOtp({ email, options: { emailRedirectTo: paginaActual() } });
-    $("btn-enviar-enlace").disabled = false;
-    if (error) { msg.textContent = "No se pudo enviar el enlace: " + error.message; msg.className = "mensaje error"; }
-    else { msg.textContent = `Te hemos enviado un enlace a ${email}. Ábrelo desde este navegador para entrar.`; msg.className = "mensaje ok"; }
+    const { error } = await sb.auth.signInWithOtp({ email, options: { emailRedirectTo: paginaActual(), shouldCreateUser: modoAcceso === "crear" } });
+    ocupado(b, false);
+    if (error) {
+      const e = MC.textoError(error, modoAcceso);
+      if (e.sinCuenta) msg.innerHTML = `${esc(e.texto)} <button class="btn-enlace" type="button" data-modo-ir="crear">Crear una cuenta con este correo</button>`;
+      else msg.textContent = e.texto;
+      msg.className = "mensaje error";
+      if (reenvio && e.espera) { enviadoEn = Date.now() - (MC.ESPERA_REENVIO - e.espera) * 1000; clearInterval(reloj); reloj = setInterval(pintarReloj, 1000); }
+      if (reenvio) pintarReloj();
+      return;
+    }
+    enviadoA = email; enviadoEn = Date.now();
+    if (reenvio) { msg.textContent = "Te hemos enviado otro enlace. Usa el más reciente."; msg.className = "mensaje ok"; clearInterval(reloj); reloj = setInterval(pintarReloj, 1000); pintarReloj(); }
+    else mostrarEnviado();
+  }
+  $("form-acceso").addEventListener("submit", e => { e.preventDefault(); enviarEnlace(false); });
+  $("btn-reenviar").addEventListener("click", () => enviarEnlace(true));
+  $("btn-otro-correo").addEventListener("click", () => { mostrarPaso(false); $("acceso-email").select(); $("acceso-email").focus(); });
+  // sugerencia de errata en el dominio («¿Querías decir …@gmail.com?»), sin corregir sola
+  $("acceso-email").addEventListener("blur", () => {
+    const s = MC.sugerirCorreo($("acceso-email").value), p = $("acceso-sugerencia");
+    p.hidden = !s;
+    if (s) p.innerHTML = `¿Querías decir <button class="btn-enlace" type="button" id="acceso-usar-sugerencia">${esc(s)}</button>?`;
+  });
+  $("acceso-email").addEventListener("input", () => { $("acceso-email").removeAttribute("aria-invalid"); if ($("acceso-msg").className.includes("error")) avisarAcceso(""); });
+  dlgAcceso.addEventListener("click", e => {
+    if (e.target.id === "acceso-usar-sugerencia") { $("acceso-email").value = e.target.textContent; $("acceso-sugerencia").hidden = true; $("acceso-email").focus(); return; }
+    const ir = e.target.closest("[data-modo-ir]");
+    if (ir) { mostrarPaso(false); ponerModo(ir.dataset.modoIr); $("acceso-email").focus(); return; }
+    const tab = e.target.closest(".acceso-modos [role=tab]");
+    if (tab) { ponerModo(tab.dataset.modo); return; }
+    if (e.target === dlgAcceso) dlgAcceso.close();         // clic en el fondo
+  });
+  // pestañas con flechas (patrón WAI-ARIA)
+  document.querySelector(".acceso-modos").addEventListener("keydown", e => {
+    if (!["ArrowLeft", "ArrowRight", "Home", "End"].includes(e.key)) return;
+    e.preventDefault();
+    const m = modoAcceso === "crear" ? "entrar" : "crear";
+    ponerModo(e.key === "Home" ? "crear" : e.key === "End" ? "entrar" : m);
+    $("tab-" + modoAcceso).focus();
+  });
+  $("btn-cerrar-acceso").addEventListener("click", () => dlgAcceso.close());
+  dlgAcceso.addEventListener("close", () => {
+    clearInterval(reloj); reloj = null;
+    // se cerró sin pedir el enlace: no queda nada pendiente de guardar
+    if (!enlaceEnviado) recordar(CALCULO_PENDIENTE, null);
   });
   $("btn-google").addEventListener("click", async () => {
-    const msg = $("acceso-msg");
     if (!condicionesOk()) return;
-    $("btn-google").disabled = true;
+    const b = $("btn-google");
+    ocupado(b, true);
     prepararVuelta();
     const { error } = await sb.auth.signInWithOAuth({ provider: "google", options: { redirectTo: paginaActual() } });
-    if (error) { $("btn-google").disabled = false; msg.textContent = "No se pudo abrir Google: " + error.message; msg.className = "mensaje error"; }
+    if (error) {
+      ocupado(b, false);
+      const e = MC.textoError(error);
+      avisarAcceso(e.sinGoogle ? e.texto : "No se ha podido abrir Google. Entra con tu correo: te mandamos un enlace.");
+      $("acceso-google").hidden = true; google = Promise.resolve(false);
+      $("acceso-email").focus();
+      return;
+    }
+    // si el navegador no llega a salir hacia Google (bloqueado, sin red), se recupera el botón
+    setTimeout(() => { if (document.visibilityState === "visible") ocupado(b, false); }, 8000);
   });
-  $("btn-entrar").addEventListener("click", () => abrirAcceso());
-  $("btn-cuenta").addEventListener("click", () => { if (sesion.usuario) irA("perfil"); else abrirAcceso(); });
+  $("btn-entrar").addEventListener("click", () => abrirAcceso(null, null, "entrar"));
+  if (sb) for (const id of ["btn-entrar", "btn-cuenta"])
+    for (const ev of ["pointerenter", "focus"]) $(id).addEventListener(ev, () => cargarSupabase().catch(() => {}), { once: true });
+  $("btn-cuenta").addEventListener("click", () => { if (sesion.usuario) irA("perfil"); else abrirAcceso(null, null, "crear"); });
 
-  // Tras iniciar sesión: seguir al pago que se quería hacer o ir a la vista pedida. Solo lo
-  // hace la pestaña visible: si el enlace del correo abre otra pestaña, la anterior no se mueve.
+  // Vuelta del enlace o de Google con error (caducado, Google sin configurar…): se limpia la
+  // dirección y se explica en el diálogo, con el correo listo para pedir otro enlace.
+  const errorVuelta = sb ? MC.errorDeVuelta(location.hash, location.search) : null;
+  if (errorVuelta) {
+    try { history.replaceState(null, "", location.pathname); } catch (e) { /* vista previa */ }
+    if (errorVuelta.sinGoogle) google = Promise.resolve(false);
+  }
+
+  // Tras iniciar sesión: seguir al pago que se quería hacer, guardar el cálculo pendiente o ir a
+  // la vista pedida. Solo lo hace la pestaña visible: si el enlace del correo abre otra
+  // pestaña, la anterior no se mueve. Devuelve true si sale hacia el pago.
   function continuarTrasAcceso() {
-    if (document.visibilityState === "hidden") return;
+    if (document.visibilityState === "hidden") return false;
+    if (dlgAcceso.open) dlgAcceso.close();
     const destino = recordado(TRAS_ACCESO);
     let pago = null;
     try { pago = JSON.parse(recordado(PAGO_PENDIENTE) || "null"); } catch (e) { /* valor dañado */ }
-    recordar(TRAS_ACCESO, null); recordar(PAGO_PENDIENTE, null);
+    const calculo = MC.leerPendiente(recordado(CALCULO_PENDIENTE), Date.now());
+    recordar(TRAS_ACCESO, null); recordar(PAGO_PENDIENTE, null); recordar(CALCULO_PENDIENTE, null);
     const vigente = pago && Date.now() - pago.t < 2 * 3600e3;
-    if (vigente && !tienePlan()) { elegirPeriodo(pago.periodo); irA("planes"); iniciarPago(); return; }
-    if (vigente) { irA("perfil"); return; }       // ya tenía plan: su suscripción está en Perfil
+    if (vigente && !tienePlan()) { elegirPeriodo(pago.periodo); irA("planes"); iniciarPago(); return true; }
+    if (vigente) { irA("perfil"); return false; }       // ya tenía plan: su suscripción está en Perfil
+    if (calculo) { guardarPendiente(calculo, destino); return false; }
     if (destino) irA(destino === "cuenta" ? (tienePlan() ? "clientes" : "perfil") : destino);
+    return false;
   }
 
-  // Botones de la barra: «Entrar» y «Crear cuenta» sin sesión; con sesión, solo un avatar con la
-  // inicial del usuario (sustituye a los dos), que lleva a Perfil.
+  // Botones de la barra: «Entrar» y «Crear cuenta» sin sesión; con sesión, solo un avatar con las
+  // iniciales del usuario (sustituye a los dos), que lleva a Perfil.
   const nombreDe = u => { const m = u.user_metadata || {}; return (sesion.perfil && sesion.perfil.nombre) || m.full_name || m.name || ""; };
   function pintarCuenta() {
     const b = $("btn-cuenta"), e = $("btn-entrar"), u = sesion.usuario;
@@ -663,23 +899,61 @@
     }
     e.hidden = true;
     b.className = "btn btn-avatar";
-    b.textContent = (nombreDe(u) || u.email || "?").trim().charAt(0);
-    b.title = u.email; b.setAttribute("aria-label", "Perfil de " + u.email);
+    b.textContent = MC.iniciales(nombreDe(u), u.email);
+    b.title = u.email; b.setAttribute("aria-label", "Tu perfil (" + u.email + ")");
   }
+
+  // ---- bienvenida del primer acceso -----------------------------------------------------------
+  const dlgBienvenida = $("dlg-bienvenida");
+  let calculoRecienGuardado = false;
+  function mostrarBienvenida() {
+    const u = sesion.usuario;
+    if (!u || dlgCondiciones.open || dlgBienvenida.open) return;
+    const clave = BIENVENIDA + u.id;
+    if (!MC.tocaBienvenida(u, sesion.perfil, recordado(clave), Date.now())) return;
+    recordar(clave, "1");
+    const nombre = nombreDe(u);
+    $("t-bienvenida").textContent = nombre ? `Hola, ${nombre.split(/\s+/)[0]}: ya tienes tu cuenta` : "Ya tienes tu cuenta";
+    $("bienvenida-texto").textContent = calculoRecienGuardado
+      ? "Tu cálculo ya está guardado. Lo tienes en tu perfil, desde cualquier dispositivo en el que entres con este correo."
+      : (sesion.calculosOk ? "Cuando calcules tu renta, pulsa «Guarda este cálculo» y lo tendrás en tu perfil, desde cualquier dispositivo."
+        : "Tu cuenta, tu plan y tus datos están en tu perfil, al que llegas desde el botón con tus iniciales.");
+    $("bienvenida-nombre").value = nombre;
+    $("bienvenida-despacho").value = (sesion.perfil && sesion.perfil.despacho) || "";
+    $("bienvenida-msg").textContent = ""; $("bienvenida-msg").className = "mensaje";
+    dlgBienvenida.showModal();
+    $("bienvenida-nombre").focus();
+  }
+  $("btn-bienvenida-no").addEventListener("click", () => dlgBienvenida.close());
+  $("form-bienvenida").addEventListener("submit", async e => {
+    e.preventDefault();
+    const b = $("btn-bienvenida-si"), msg = $("bienvenida-msg");
+    const fila = { nombre: $("bienvenida-nombre").value.trim() || null, despacho: $("bienvenida-despacho").value.trim() || null };
+    ocupado(b, true);
+    const { error } = await sb.from("perfiles").update(fila).eq("id", sesion.usuario.id);
+    ocupado(b, false);
+    if (error) { msg.textContent = "No se pudo guardar. " + MC.textoError(error).texto; msg.className = "mensaje error"; return; }
+    Object.assign(sesion.perfil, fila); pintarCuenta();
+    if (vistaActual() === "perfil") pintarPerfil();
+    dlgBienvenida.close();
+  });
 
   let pendienteTrasAcceso = false, sesionCargada = false;
   async function cargarSesion() {
     if (!sb) return;
     const { data } = await sb.auth.getSession();
     sesion.usuario = data.session ? data.session.user : null;
-    sesion.ocultos = 0; sesion.suscripcion = null;
+    sesion.ocultos = 0; sesion.suscripcion = null; sesion.calculos = [];
+    sesion.calculosOk = await comprobarCalculos();
     if (sesion.usuario) {
-      const [p, s] = await Promise.all([
-        sb.from("perfiles").select("nombre, despacho, plan, condiciones_version").eq("id", sesion.usuario.id).maybeSingle(),
-        sb.from("suscripciones").select("plan, estado, periodo, periodo_fin, termina_en").eq("gestor_id", sesion.usuario.id).maybeSingle()
+      const [p, s, k] = await Promise.all([
+        sb.from("perfiles").select("nombre, despacho, plan, condiciones_version, creado_en").eq("id", sesion.usuario.id).maybeSingle(),
+        sb.from("suscripciones").select("plan, estado, periodo, periodo_fin, termina_en").eq("gestor_id", sesion.usuario.id).maybeSingle(),
+        sesion.calculosOk ? sb.from("calculos").select("id, titulo, ejercicio, territorio, hogar, cuota_liquida, resultado, creado_en").order("creado_en", { ascending: false }).limit(50) : null
       ]);
       sesion.perfil = p.data || { plan: "gratis" };
       sesion.suscripcion = s.data || null;
+      sesion.calculos = (k && k.data) || [];
       // Aceptación pendiente de esta pestaña (o de la que recibió el enlace/Google): se guarda
       // en cuanto se conoce el perfil, sin esperar a que el usuario vuelva a marcar la casilla.
       const pendiente = recordado(ACEPTO_PENDIENTE);
@@ -699,15 +973,21 @@
         const n = await sb.rpc("contar_mis_clientes");
         sesion.ocultos = n.data || 0;
       }
-    } else { sesion.perfil = null; sesion.clientes = []; }
+    } else { sesion.perfil = null; sesion.clientes = []; guardadoHogar = null; }
     sesionCargada = true;
+    avisarCuenta();
     pintarCuenta();
     marcarPestanaClientes();
+    pintarBotonesGuardar();
+    pintarAvisosCuenta();
     comprobarCondiciones();
     if (vistaActual() === "clientes") pintarClientes();
     if (vistaActual() === "planes") pintarPlanes();
     if (vistaActual() === "perfil") pintarPerfil();
-    if (pendienteTrasAcceso && sesion.usuario) { pendienteTrasAcceso = false; continuarTrasAcceso(); }
+    let pagando = false;
+    if (pendienteTrasAcceso && sesion.usuario) { pendienteTrasAcceso = false; pagando = continuarTrasAcceso(); }
+    if (!pagando) mostrarBienvenida();
+    document.dispatchEvent(new CustomEvent("mapafiscal:sesion"));   // informe.js
   }
   if (sb) sb.auth.onAuthStateChange(evento => {
     if (evento === "SIGNED_IN") {
@@ -717,8 +997,111 @@
     }
     setTimeout(cargarSesion, 0);    // fuera del callback: supabase-js no admite llamadas de auth dentro
   });
-  if (sb) comprobarGoogle();
+  if (sb) { comprobarGoogle(); comprobarCalculos(); }
   if (!sb) $("btn-cuenta").hidden = true;
+
+  // ---- «Guarda este cálculo» -------------------------------------------------------------------
+  // Con sesión, se guarda en el acto. Sin sesión, se recuerda el cálculo, se abre «Crear cuenta»
+  // y se guarda al volver (continuarTrasAcceso). Con plan Gestor, el botón es «Guardar como
+  // cliente» (su cartera); sin la tabla `calculos` desplegada, todo queda como antes.
+  let guardadoHogar = null;      // hogar (JSON) del último cálculo guardado, para no duplicarlo
+  function filaActual() {
+    const { hogar, liq } = ultima;
+    return MC.filaCalculo({ hogar, liq, ejercicio: P.ejercicio, territorio: hogar.territorio, nombreTerritorio: corto(hogar.territorio),
+      retenciones: FORM.retencionesHogar(hogar), motor: P.generado });
+  }
+  function pintarBotonesGuardar() {
+    const b = $("btn-guardar-calculo"), cli = $("btn-guardar-cliente");
+    const ofrecer = !!(sb && sesion.calculosOk) && !tienePlan();
+    b.hidden = !ofrecer;
+    cli.hidden = ofrecer;                     // sin plan, «Guardar como cliente» solo llevaba al candado
+    if (!ofrecer) return;
+    const yaGuardado = ultima && guardadoHogar === JSON.stringify(ultima.hogar);
+    b.classList.toggle("guardado", !!yaGuardado);
+    if (!yaGuardado) { $("guardar-calculo-msg").textContent = ""; $("guardar-calculo-msg").className = "mensaje guardar-calculo-msg"; }
+    $("btn-guardar-calculo-txt").textContent = yaGuardado ? "Cálculo guardado" : "Guarda este cálculo";
+  }
+  function avisoGuardado(texto, error) {
+    const m = $("guardar-calculo-msg");
+    m.innerHTML = texto; m.className = "mensaje guardar-calculo-msg" + (error ? " error" : " ok");
+  }
+  async function insertarCalculo(fila) {
+    const { data, error } = await sb.from("calculos").insert(fila).select("id, titulo, ejercicio, territorio, hogar, cuota_liquida, resultado, creado_en").single();
+    if (error) {
+      avisoGuardado(error.code === "54000" ? "Tienes 50 cálculos guardados, el máximo. Borra alguno en tu <a href=\"#perfil\">perfil</a>." : "No se pudo guardar. " + esc(MC.textoError(error).texto), true);
+      return false;
+    }
+    sesion.calculos.unshift(data);
+    guardadoHogar = JSON.stringify(fila.hogar);
+    avisoGuardado(`Guardado en tu <a href="#perfil">perfil</a>.`);
+    pintarBotonesGuardar();
+    return true;
+  }
+  function guardarCalculo(desde) {
+    if (!ultima) return;
+    const fila = filaActual();
+    if (!sesion.usuario) {
+      recordar(CALCULO_PENDIENTE, MC.pendienteGuardar(fila, Date.now()));
+      abrirAcceso("Crea tu cuenta gratis y guardamos este cálculo en ella. Si ya tienes cuenta, entra y lo guardamos igual.",
+        { destino: desde || "calculadora" }, "crear");
+      return;
+    }
+    if (guardadoHogar === JSON.stringify(fila.hogar)) { irA("perfil"); return; }
+    const b = $("btn-guardar-calculo");
+    ocupado(b, true);
+    insertarCalculo(fila).finally(() => ocupado(b, false));
+  }
+  // al volver de crear la cuenta: el formulario de la otra pestaña no está aquí, se rellena
+  async function guardarPendiente(fila, destino) {
+    const ej = +fila.ejercicio;
+    if (ej && ej !== P.ejercicio && EJERCICIOS.includes(ej)) await cambiarEjercicio(ej);
+    cerrarCliente();
+    rellenarFormulario(fila.hogar);
+    irA(destino && destino !== "cuenta" ? destino : "calculadora");
+    if (await insertarCalculo(fila)) calculoRecienGuardado = true;
+    if (vistaActual() === "comparar") pintarAvisosCuenta();
+    mostrarBienvenida();
+  }
+  $("btn-guardar-calculo").addEventListener("click", () => guardarCalculo("calculadora"));
+
+  // ---- avisos discretos en el comparador y en las herramientas ------------------------------
+  // Solo sin sesión, solo si hay algo que guardar de verdad, y con un «No mostrar más» que se
+  // recuerda en este navegador.
+  const AVISO_CERRADO = "mapafiscal.avisoCuentaCerrado";
+  const ICONO_GUARDAR = '<svg class="aviso-cuenta-ico" viewBox="0 0 16 16" aria-hidden="true"><path d="M3.5 2h7l2 2v10h-9z"/><path d="M5.5 2v3.5h4V2M5.5 14v-4.5h5V14"/></svg>';
+  function pintarAviso(cont, texto, boton, accion) {
+    if (!cont) return;
+    const ver = !!(sb && sesionCargada && !sesion.usuario && sesion.calculosOk && !recordado(AVISO_CERRADO));
+    cont.hidden = !ver;
+    if (!ver) return;
+    cont.innerHTML = `${ICONO_GUARDAR}<p>${texto}</p><div class="aviso-cuenta-acc"><button class="btn btn-sec btn-sm" type="button" data-aviso-crear>${boton}</button>
+      <button class="aviso-cuenta-cerrar" type="button" data-aviso-cerrar aria-label="No mostrar más este aviso"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M4 4l8 8M12 4l-8 8"/></svg></button></div>`;
+    cont.onclick = e => {
+      if (e.target.closest("[data-aviso-cerrar]")) { recordar(AVISO_CERRADO, "1"); pintarAvisosCuenta(); }
+      else if (e.target.closest("[data-aviso-crear]")) accion();
+    };
+  }
+  const HERRAMIENTAS_AVISO = ["sueldo-neto", "plan-pensiones"];
+  function pintarAvisosCuenta() {
+    pintarAviso($("comp-cuenta"), "¿Vas a volver a mirarlo? Con una cuenta gratis guardas esta situación y la retomas en cualquier dispositivo.",
+      "Guardar esta situación", () => guardarCalculo("comparar"));
+    for (const v of HERRAMIENTAS_AVISO) {
+      const sec = $("v-" + v);
+      if (!sec) continue;
+      let cont = sec.querySelector(":scope > .aviso-cuenta");
+      if (!cont && sb && !sesion.usuario) { cont = document.createElement("div"); cont.className = "aviso-cuenta aviso-cuenta-herr"; cont.hidden = true; sec.appendChild(cont); }
+      pintarAviso(cont, "Con una cuenta gratis guardas tus cálculos de la renta y los retomas en cualquier dispositivo.",
+        "Crear cuenta gratis", () => abrirAcceso(null, { destino: v }, "crear"));
+    }
+  }
+  document.addEventListener("mapafiscal:vista", e => { if (e.detail && HERRAMIENTAS_AVISO.includes(e.detail.vista)) pintarAvisosCuenta(); });
+  // Estado de la cuenta para anuncios.js: sin plan de pago hay anuncios; con plan, nunca.
+  // «cargada» es false hasta saber si hay sesión, para no pedir nada antes de tiempo.
+  function avisarCuenta() {
+    window.MAPAFISCAL_CUENTA = { cargada: true, conPlan: tienePlan() };
+    document.dispatchEvent(new CustomEvent("mapafiscal:cuenta", { detail: window.MAPAFISCAL_CUENTA }));
+  }
+  window.MAPAFISCAL_CUENTA = { cargada: !sb, conPlan: false };
 
   // «Mis clientes» solo con un plan de pago activo (la base de datos lo exige por RLS).
   function tienePlan() { return !!(sb && sesion.usuario && sesion.perfil && sesion.perfil.plan && sesion.perfil.plan !== "gratis"); }
@@ -752,7 +1135,7 @@
       <p>Guarda la situación fiscal de cada cliente, recalcúlala cuando cambie la normativa, compárala entre territorios e imprime su informe.</p>
       <a class="btn btn-pri" href="#planes">Ver planes</a>${pie}</div></div>`;
     const acceder = $("cli-acceder"), salir = $("cli-salir"), borrar = $("cli-borrar-todo");
-    if (acceder) acceder.addEventListener("click", () => abrirAcceso());
+    if (acceder) acceder.addEventListener("click", () => abrirAcceso(null, null, "entrar"));
     if (salir) salir.addEventListener("click", async () => { await sb.auth.signOut(); cerrarCliente(); });
     if (borrar) borrar.addEventListener("click", async () => {
       if (!confirm(`¿Eliminar definitivamente ${sesion.ocultos === 1 ? "tu cliente guardado" : `tus ${sesion.ocultos} clientes guardados`}? Esta acción no se puede deshacer.`)) return;
@@ -915,7 +1298,7 @@
     try { codigo = (await error.context.json()).error; } catch (e) { /* sin cuerpo JSON */ }
     if (codigo === "sin_sesion") {
       abrirAcceso("Tu sesión ha caducado. Vuelve a iniciar sesión para continuar.",
-        nombre === "crear-checkout" ? { destino: "planes", pago: { plan: cuerpo.plan, periodo: cuerpo.periodo } } : undefined);
+        nombre === "crear-checkout" ? { destino: "planes", pago: { plan: cuerpo.plan, periodo: cuerpo.periodo } } : undefined, "entrar");
       return false;
     }
     alert(ERRORES_PAGO[codigo] || "No se ha podido abrir el pago. Inténtalo de nuevo en unos minutos.");
@@ -990,11 +1373,13 @@
     const cont = $("perfil-contenido"), u = sesion.usuario;
     if (sb && !sesionCargada) { cont.innerHTML = `<p class="vacio">Cargando tu perfil…</p>`; return; }
     if (!sb || !u) {
-      cont.innerHTML = `<div class="tarjeta estado-vacio"><h2>Inicia sesión para ver tu perfil</h2>
-        <p>Aquí verás tu cuenta, tu plan y tu suscripción.</p>
-        ${sb ? '<button class="btn btn-pri" type="button" id="perfil-acceder">Iniciar sesión</button>' : ""}</div>`;
-      const b = $("perfil-acceder");
-      if (b) b.addEventListener("click", () => abrirAcceso(null, { destino: "perfil" }));
+      cont.innerHTML = `<div class="tarjeta estado-vacio"><h2>Entra para ver tu perfil</h2>
+        <p>Aquí están tu cuenta, tu plan${sesion.calculosOk ? " y tus cálculos guardados" : ""}.</p>
+        ${sb ? `<div class="perfil-acciones perfil-acciones-centro"><button class="btn btn-pri" type="button" id="perfil-acceder">Entrar</button>
+          <button class="btn btn-sec" type="button" id="perfil-crear">Crear cuenta gratis</button></div>` : ""}</div>`;
+      const b = $("perfil-acceder"), c = $("perfil-crear");
+      if (b) b.addEventListener("click", () => abrirAcceso(null, { destino: "perfil" }, "entrar"));
+      if (c) c.addEventListener("click", () => abrirAcceso(null, { destino: "perfil" }, "crear"));
       return;
     }
     const p = sesion.perfil || { plan: "gratis" }, s = sesion.suscripcion, conPlan = tienePlan();
@@ -1019,40 +1404,86 @@
       <div class="perfil-acciones">${conPlan ? "" : '<a class="btn btn-pri" href="#planes">Ver planes</a>'}
         ${s && CFG.pagosActivos ? `<button class="btn btn-sec" type="button" id="perfil-portal">${conPlan ? "Gestionar suscripción" : "Ver facturas"}</button>` : ""}</div></div>`;
 
-    // clientes
+    // clientes: solo si tiene plan o clientes guardados (si no, ya lo explica la tarjeta del plan)
     const n = conPlan ? sesion.clientes.length : sesion.ocultos, nTxt = `${n} ${n === 1 ? "cliente guardado" : "clientes guardados"}`;
-    const tCli = `<div class="tarjeta"><h2>Mis clientes</h2><p>${conPlan ? (n ? `Tienes ${nTxt}.` : "Todavía no has guardado ningún cliente.")
-        : (n ? `Tienes ${nTxt}, ocultos hasta que reactives el plan Gestor.` : "«Mis clientes» se desbloquea con el plan Gestor.")}</p>
+    const tCli = !conPlan && !n ? "" : `<div class="tarjeta"><h2>Mis clientes</h2><p>${conPlan ? (n ? `Tienes ${nTxt}.` : "Todavía no has guardado ningún cliente.")
+        : `Tienes ${nTxt}, ocultos hasta que reactives el plan Gestor.`}</p>
       <div class="perfil-acciones"><a class="btn btn-sec" href="#clientes">Ir a Mis clientes</a></div></div>`;
+
+    // cálculos guardados
+    const k = sesion.calculos || [];
+    const resCalc = c => {
+      const r = c.resultado || {};
+      if (r.retenciones) return r.cuotaDiferencial < 0 ? `<span class="gana">A devolver ${eur0(-r.cuotaDiferencial)}</span>` : `A ingresar ${eur0(r.cuotaDiferencial)}`;
+      return c.cuota_liquida != null ? `Cuota ${eur0(+c.cuota_liquida)}` : "";
+    };
+    const tCalc = !sesion.calculosOk ? "" : `<div class="tarjeta" id="perfil-calculos"><h2>Mis cálculos <span class="chip-estado">${k.length}</span></h2>
+      ${k.length ? `<ul class="lista-calculos">${k.map(c => `<li>
+          <div class="lc-txt"><b>${esc(c.titulo)}</b><span>${esc(corto(c.territorio))} · ${c.ejercicio} · ${new Date(c.creado_en).toLocaleDateString("es-ES")}</span></div>
+          <div class="lc-res">${resCalc(c)}</div>
+          <div class="lc-acc"><button class="btn btn-txt btn-sm" type="button" data-calc-abrir="${c.id}">Abrir</button>
+            <button class="btn btn-peligro btn-sm" type="button" data-calc-borrar="${c.id}" aria-label="Borrar «${esc(c.titulo)}»">Borrar</button></div></li>`).join("")}</ul>`
+        : `<p>Aún no has guardado ningún cálculo. En la calculadora, pulsa «Guarda este cálculo» y lo tendrás aquí, en cualquier dispositivo.</p>
+          <div class="perfil-acciones"><a class="btn btn-sec" href="#calculadora">Ir a la calculadora</a></div>`}</div>`;
 
     // cuenta
     const tCuenta = `<div class="tarjeta"><h2>Cuenta</h2>
       <dl class="datos"><dt>Correo</dt><dd>${esc(u.email)}</dd><dt>Acceso</dt><dd>Con ${esc(acceso)}</dd>
         ${u.created_at ? `<dt>Alta</dt><dd>${fechaLarga(u.created_at)}</dd>` : ""}</dl>
-      <div class="campo"><label for="perfil-nombre">Nombre</label><input type="text" id="perfil-nombre" maxlength="120" autocomplete="name" value="${esc(nombreDe(u))}"></div>
+      <form id="perfil-form" novalidate>
+      <div class="campo"><label for="perfil-nombre">Nombre <span class="ayuda">(opcional)</span></label><input type="text" id="perfil-nombre" maxlength="120" autocomplete="name" value="${esc(nombreDe(u))}"></div>
       <div class="campo"><label for="perfil-despacho">Despacho o gestoría <span class="ayuda">(opcional)</span></label><input type="text" id="perfil-despacho" maxlength="160" autocomplete="organization" value="${esc(p.despacho || "")}"></div>
-      <div class="perfil-acciones"><button class="btn btn-sec" type="button" id="perfil-guardar">Guardar</button><span class="mensaje" id="perfil-msg" role="status"></span></div></div>`;
+      <div class="perfil-acciones"><button class="btn btn-sec" type="submit" id="perfil-guardar">Guardar</button><span class="mensaje" id="perfil-msg" role="status"></span></div></form></div>`;
     const tBorrar = `<div class="tarjeta zona-peligro"><h2>Borrar la cuenta</h2>
-      <p>Borra tu cuenta y tus datos: el perfil y los clientes guardados${s && COBRABLES.has(s.estado) ? ". Tu suscripción se cancela en el acto" : ""}. No se puede deshacer.</p>
+      <p>Borra tu cuenta y tus datos: el perfil${sesion.calculosOk ? ", los cálculos" : ""} y los clientes guardados${s && COBRABLES.has(s.estado) ? ". Tu suscripción se cancela en el acto" : ""}. No se puede deshacer.</p>
       <div class="perfil-acciones"><button class="btn btn-peligro" type="button" id="perfil-borrar">Borrar mi cuenta</button></div></div>`;
 
-    cont.innerHTML = `<div class="perfil"><div class="perfil-col">${tSus}${tCli}</div><div class="perfil-col">${tCuenta}${tBorrar}</div></div>
-      <div class="perfil-acciones" style="margin-top:20px"><button class="btn btn-sec" type="button" id="perfil-salir">Cerrar sesión</button></div>`;
+    const nombre = nombreDe(u);
+    const cab = `<div class="perfil-cab tarjeta"><span class="perfil-avatar" aria-hidden="true">${esc(MC.iniciales(nombre, u.email))}</span>
+      <div class="perfil-quien"><b>${esc(nombre || u.email)}</b>${nombre ? `<span>${esc(u.email)}</span>` : ""}${p.despacho ? `<span>${esc(p.despacho)}</span>` : ""}</div>
+      <span class="plan-chip">Plan ${esc(PLAN_TXT[p.plan] || p.plan)}</span>
+      <button class="btn btn-sec btn-sm" type="button" id="perfil-salir">Cerrar sesión</button></div>`;
+    cont.innerHTML = `${cab}<div class="perfil"><div class="perfil-col">${tCalc}${tSus}${tCli}</div><div class="perfil-col">${tCuenta}${tBorrar}</div></div>`;
+
+    const lista = $("perfil-calculos");
+    if (lista) lista.addEventListener("click", async e => {
+      const b = e.target.closest("[data-calc-abrir], [data-calc-borrar]");
+      if (!b) return;
+      const c = k.find(x => x.id === (b.dataset.calcAbrir || b.dataset.calcBorrar));
+      if (!c) return;
+      if (b.dataset.calcAbrir) {
+        const ej = +c.ejercicio;
+        if (ej && ej !== P.ejercicio && EJERCICIOS.includes(ej)) await cambiarEjercicio(ej);
+        cerrarCliente(); rellenarFormulario(c.hogar);
+        guardadoHogar = JSON.stringify(c.hogar); pintarBotonesGuardar();
+        irA("calculadora");
+        return;
+      }
+      if (!confirm(`¿Borrar el cálculo «${c.titulo}»? No se puede deshacer.`)) return;
+      b.disabled = true;
+      const { error } = await sb.from("calculos").delete().eq("id", c.id);
+      if (error) { b.disabled = false; alert("No se pudo borrar. " + MC.textoError(error).texto); return; }
+      sesion.calculos = sesion.calculos.filter(x => x.id !== c.id);
+      if (guardadoHogar === JSON.stringify(c.hogar)) guardadoHogar = null;
+      pintarPerfil();
+    });
 
     const portal = $("perfil-portal");
     if (portal) portal.addEventListener("click", async () => {
       portal.disabled = true;
       if (!await irAFuncion("portal-facturacion", { vista: "perfil" })) portal.disabled = false;
     });
-    $("perfil-guardar").addEventListener("click", async () => {
+    $("perfil-form").addEventListener("submit", async e => {
+      e.preventDefault();
       const msg = $("perfil-msg"), b = $("perfil-guardar");
       const fila = { nombre: $("perfil-nombre").value.trim() || null, despacho: $("perfil-despacho").value.trim() || null };
-      b.disabled = true;
+      ocupado(b, true);
       const { error } = await sb.from("perfiles").update(fila).eq("id", u.id);
-      b.disabled = false;
-      if (error) { msg.textContent = "No se pudo guardar: " + error.message; msg.className = "mensaje error"; return; }
+      ocupado(b, false);
+      if (error) { msg.textContent = "No se pudo guardar. " + MC.textoError(error).texto; msg.className = "mensaje error"; return; }
       Object.assign(sesion.perfil, fila); pintarCuenta();
-      msg.textContent = "Guardado."; msg.className = "mensaje ok";
+      pintarPerfil();
+      $("perfil-msg").textContent = "Guardado."; $("perfil-msg").className = "mensaje ok";
     });
     $("perfil-salir").addEventListener("click", async () => { await sb.auth.signOut(); cerrarCliente(); irA("inicio"); });
     $("perfil-borrar").addEventListener("click", () => {
@@ -1097,14 +1528,11 @@
   function pintarCobertura() {
     const filas = ORDEN.filter(t => T[t]).map(t => {
       const da = T[t].deducciones_autonomicas;
-      if (T[t].regimen !== "comun") return `<tr><td>${esc(corto(t))}</td><td colspan="3" class="ayuda">${REGIMEN[T[t].regimen]}: mínimos y deducciones de la normativa foral</td></tr>`;
+      if (T[t].regimen !== "comun") return `<tr><td>${esc(corto(t))}</td><td class="ayuda">${REGIMEN[T[t].regimen]}: mínimos y deducciones de la normativa foral</td></tr>`;
       const n = da && da.lista ? da.lista.length : 0;
-      const prov = da && da.lista ? da.lista.filter(d => d.estado === "provisional").length : 0;
-      const pend = da && da.pendientes ? da.pendientes.filter(p => typeof p === "string" && p[0] !== "(").length : 0;
-      const tot = n + pend || 1;
-      return `<tr><td>${esc(corto(t))}</td><td class="num">${n}</td><td class="num">${prov}</td><td><div class="barra" title="${n} de ~${n + pend} deducciones del catálogo"><i style="width:${Math.round(100 * n / tot)}%"></i></div></td></tr>`;
+      return `<tr><td>${esc(corto(t))}</td><td class="num">${n}</td></tr>`;
     });
-    $("cobertura").innerHTML = `<thead><tr><th>Territorio</th><th class="num">Modeladas</th><th class="num">Provisionales</th><th>Del catálogo oficial</th></tr></thead><tbody>${filas.join("")}</tbody>`;
+    $("cobertura").innerHTML = `<thead><tr><th>Territorio</th><th class="num">Deducciones modeladas</th></tr></thead><tbody>${filas.join("")}</tbody>`;
   }
 
   // ---- inicio: portada con cálculo rápido, mapa y acceso a las herramientas ---------------
@@ -1139,7 +1567,7 @@
   const hogarRapido = (territorio, salario) => ({
     territorio, ejercicio: P.ejercicio, tipoUnidadFamiliar: "ninguna", familiaNumerosa: "no",
     miembros: [{ id: "d1", rol: "declarante", edad: 40, discapacidad: "no",
-      trabajo: salario > 0 ? { dinerarias: salario, cotizacionesSs: Math.round(salario * TASA_SS) } : null }]
+      trabajo: salario > 0 ? { dinerarias: salario, cotizacionesSs: ssEstimada(salario) } : null }]
   });
   function pintarMiniCalc() {
     const salario = Math.max(0, Math.min(1e7, parseFloat(mc.salario.value) || 0)), terr = mc.terr.value;
@@ -1168,7 +1596,7 @@
       ${regla}<p class="minicalc-frase">${frase}</p>
       <div class="minicalc-acciones"><a class="btn btn-pri" href="#calculadora" data-mc-ir>Calcular mi declaración <span class="flecha" aria-hidden="true">→</span></a>
         <a class="btn btn-txt" href="#comparar" data-mc-ir>Ver los 19 territorios</a></div>
-      <p class="minicalc-supuesto">Estimación del ejercicio ${P.ejercicio} para una persona de 40 años sin hijos, con cotizaciones del ${pct(TASA_SS).replace(",00", "")}. En la calculadora puedes añadir tu familia, tus gastos y tus retenciones.</p>`;
+      <p class="minicalc-supuesto">Estimación del ejercicio ${P.ejercicio} para una persona de 40 años sin hijos, con las cotizaciones a la Seguridad Social del ejercicio. En la calculadora puedes añadir tu familia, tus gastos y tus retenciones.</p>`;
 
     dibujarMapa($("mapa-portada"), porT, terr, c => clase(val(c) - val(yo)), (t, c) => `${T[t].nombre}: ${eur0(val(c))}`, "Mapa del IRPF por territorio fiscal");
     $("leyenda-portada").innerHTML = leyendaMapa();
@@ -1212,6 +1640,7 @@
   // ---- cambio de ejercicio: todo lo que depende de los parámetros -------------------------
   function aplicarEjercicio() {
     document.querySelectorAll("[data-ejercicio]").forEach(el => { el.textContent = P.ejercicio; });
+    document.querySelectorAll("[data-ejercicio-ant]").forEach(el => { el.textContent = P.ejercicio - Number(el.dataset.ejercicioAnt); });
     document.querySelectorAll("[data-ejercicios]").forEach(el => { el.textContent = textoEjercicios(); });
     pideFnReciente = algunaDeduccion(d => d.requiere_familia_numerosa_reciente);
     pideTituloMonoparental = algunaDeduccion(d => d.requiere_titulo_monoparental != null);
@@ -1302,13 +1731,23 @@
   });
   $("bm-ver").addEventListener("click", e => { e.preventDefault(); $("t-res").scrollIntoView({ behavior: movimientoReducido() ? "auto" : "smooth", block: "start" }); });
 
+  // Lo justo para js/informe.js (informe completo en PDF): último cálculo, sesión y acceso.
+  window.MapafiscalApp = {
+    ultimo: () => ultima, P: () => P, sb, irA, abrirAcceso, sesionCargada: () => sesionCargada, recargarSesion: cargarSesion,
+    sesion: () => ({ usuario: !!sesion.usuario, plan: tienePlan() ? sesion.perfil.plan : "gratis" }),
+    restaurar: async (hogar, ej) => { if (ej && ej !== P.ejercicio && EJERCICIOS.includes(ej)) await cambiarEjercicio(ej); rellenarFormulario(hogar); }
+  };
+  document.dispatchEvent(new CustomEvent("mapafiscal:app"));
+
   // ---- arranque --------------------------------------------------------------------------
   // cotizaciones estimadas con la orden de cotización del ejercicio (no con un tipo fijo)
   document.addEventListener("mapafiscal:herramientas", () => { if (vistaActual() === "inicio") pintarInicio(); });
   document.querySelectorAll("[data-ejercicio]").forEach(el => { el.textContent = P.ejercicio; });
+  document.querySelectorAll("[data-ejercicio-ant]").forEach(el => { el.textContent = P.ejercicio - Number(el.dataset.ejercicioAnt); });
   document.querySelectorAll("[data-ejercicios]").forEach(el => { el.textContent = textoEjercicios(); });
   pintarSelectoresEjercicio(false);
   pintarHijos(); pintarGastosTerritorio(); recalcular(); marcarPestanaClientes(); mostrarVista({ moverFoco: Boolean(vistaDeHash()) });
   if (ejercicioUrl && ejercicioUrl !== P.ejercicio) cambiarEjercicio(ejercicioUrl);
   if (avisoPago) esperarPlan(15); else cargarSesion();
+  if (errorVuelta) abrirAcceso(null, null, "entrar", errorVuelta.texto);
 })();

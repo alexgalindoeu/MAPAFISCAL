@@ -1,5 +1,6 @@
 // POST /functions/v1/stripe-webhook  (lo llama Stripe; sin JWT, verificado por firma)
-// Mantiene `suscripciones` y `perfiles.plan` sincronizados con Stripe.
+// Mantiene `suscripciones` y `perfiles.plan` sincronizados con Stripe, y apunta en
+// `informes_comprados` los pagos únicos del informe completo (crear-checkout, producto "informe").
 import Stripe from "npm:stripe@17.7.0";
 import { ACTIVOS, admin, stripe } from "../_shared/comun.ts";
 
@@ -67,6 +68,20 @@ async function sincronizar(s: Stripe, id: string) {
   if (e2) throw e2;
 }
 
+// Pago único del informe completo: una fila por sesión de Checkout pagada (repetir el evento no duplica).
+async function registrarInforme(ses: Stripe.Checkout.Session) {
+  if (ses.mode !== "payment" || ses.metadata?.producto !== "informe" || ses.payment_status !== "paid") return;
+  const usuarioId = ses.metadata?.gestor_id ?? ses.client_reference_id;
+  const ejercicio = Number(ses.metadata?.ejercicio);
+  if (!usuarioId || !Number.isInteger(ejercicio)) return;
+  const { error } = await admin().from("informes_comprados").upsert({
+    usuario_id: usuarioId, ejercicio, sesion_proveedor_id: ses.id,
+    importe_centimos: ses.amount_total ?? null, moneda: ses.currency ?? null,
+  }, { onConflict: "sesion_proveedor_id", ignoreDuplicates: true });
+  if (error?.code === "23503") { console.warn("webhook: cuenta inexistente", usuarioId); return; }
+  if (error) throw error;
+}
+
 Deno.serve(async (req) => {
   const s = stripe();
   const secreto = Deno.env.get("STRIPE_WEBHOOK_SECRET");
@@ -90,8 +105,12 @@ Deno.serve(async (req) => {
         if (ses.subscription) {
           await sincronizar(s, typeof ses.subscription === "string" ? ses.subscription : ses.subscription.id);
         }
+        await registrarInforme(ses);
         break;
       }
+      case "checkout.session.async_payment_succeeded":   // métodos de pago diferido
+        await registrarInforme(evento.data.object as Stripe.Checkout.Session);
+        break;
       case "customer.subscription.created":
       case "customer.subscription.updated":
       case "customer.subscription.deleted":
