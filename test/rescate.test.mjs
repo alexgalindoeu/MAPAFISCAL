@@ -78,3 +78,17 @@ test("la vista #rescate-plan se pinta con los datos de 2026", async () => {
   assert.doesNotMatch(els["rp-ranking"].innerHTML, /Navarra|Bizkaia/);
   assert.doesNotMatch(els["rp-nota"].textContent + els["rp-principal"].innerHTML, /provisional|incomplet/i);
 });
+
+test("páginas SEO del rescate: índice y 15 territorios de régimen común, en el sitemap", async () => {
+  const { generar } = await import("../tools/generar_paginas_seo.mjs");
+  const { ficheros } = generar();
+  const rutas = [...ficheros.keys()].filter(r => r.startsWith("rescate-plan-pensiones/"));
+  assert.equal(rutas.length, 16);
+  assert.ok(!rutas.some(r => /navarra|bizkaia|gipuzkoa|araba/.test(r)), "sin forales");
+  const madrid = ficheros.get("rescate-plan-pensiones/madrid/index.html");
+  assert.match(madrid, /"@type":"FAQPage"/);
+  assert.match(madrid, /#rescate-plan\?t=ES-MD/);
+  assert.match(madrid, /16\.548 €/, "de una vez: el mismo cálculo que la herramienta");
+  assert.match(ficheros.get("sitemap.xml"), /\/rescate-plan-pensiones\/madrid\//);
+  for (const r of rutas) assert.doesNotMatch(ficheros.get(r), /provisional|incomplet|@(?!type|context)[a-z]+\.[a-z]/i, r);
+});

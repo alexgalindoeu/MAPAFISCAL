@@ -18,6 +18,7 @@ import { fileURLToPath } from "node:url";
 import { SITIO, SLUG, ORDEN_TERRITORIOS, HERRAMIENTA, esc, euros, pct, tablaEscala, citaFuente, layout, jsonLdMigas, migasHtml } from "./seo_comun.mjs";
 import { paginaDeducciones } from "./seo_deducciones.mjs";
 import { paginasGuias, GUIAS } from "./seo_guias.mjs";
+import { paginasRescate } from "./seo_rescate.mjs";
 
 const RAIZ = join(dirname(fileURLToPath(import.meta.url)), "..");
 const WEB = join(RAIZ, "web");
@@ -184,6 +185,7 @@ export function generar() {
   pagina("/comparar-sueldo/", paginaIndiceSalarios());
   const gs = paginasGuias(guias, territorios);
   for (const g of gs) pagina(g.ruta, g.html);
+  for (const g of paginasRescate(territorios.generado)) pagina(g.ruta, g.html);
 
   const hoy = territorios.generado;
   ficheros.set("sitemap.xml", `<?xml version="1.0" encoding="UTF-8"?>
@@ -218,6 +220,7 @@ export function huerfanas(ficheros) {
     }
   };
   recorrer("guias");
+  recorrer("rescate-plan-pensiones");
   return fuera;
 }
 
