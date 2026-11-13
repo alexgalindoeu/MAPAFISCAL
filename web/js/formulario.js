@@ -276,14 +276,14 @@
     const ej = ctx.ejercicio || 2025, out = [];
     const quien = id => e.pareja === "si" ? (id === "d1" ? "Tú: " : "Tu pareja: ") : "";
     const ids = e.pareja === "si" ? ["d1", "d2"] : ["d1"];
-    const negativo = (obj, ruta) => {
+    const negativo = (obj, ruta, q) => {
       for (const [k, v] of Object.entries(obj)) {
-        if (typeof v === "number" && v < 0 && !["actModulos"].includes(k)) out.push({ k: ruta + k, texto: "No se admiten importes negativos: se toma 0." });
+        if (typeof v === "number" && v < 0 && !["actModulos"].includes(k)) out.push({ k: ruta + k, texto: (q || "") + "no se admiten importes negativos: se toma 0." });
       }
     };
     for (const id of ids) {
       const p = e.personas[id], r = `personas.${id}.`, q = quien(id);
-      negativo(p, r);
+      negativo(p, r, q);
       const sal = pos(p.salario), ss = cotizaciones(p, ctx);
       if (pos(p.edad) && (p.edad < 16 || p.edad > 110)) out.push({ k: r + "edad", texto: q + "revisa la edad." });
       if (sal > 0 && ss > sal * 0.1 + 100) out.push({ k: r + "ss", texto: q + "las cotizaciones superan el 10 % del bruto; lo normal es en torno al 6,5 %." });
@@ -295,11 +295,11 @@
       if (pos(p.planIndividual) > 1500 && !pos(p.planEmpresa)) out.push({ k: r + "planIndividual", texto: q + "solo reducen la base 1.500 € de aportación propia (más si tu empresa aporta)." });
       if (pos(p.otrosGastos) > 2000) out.push({ k: r + "otrosGastos", texto: q + "estos gastos (cuotas sindicales, colegio profesional, defensa jurídica) suelen ser pequeños; los 2.000 € generales ya se aplican solos." });
       (p.inmuebles || []).forEach((i, j) => {
-        negativo(i, `${r}inmuebles.${j}.`);
+        negativo(i, `${r}inmuebles.${j}.`, q);
         if (pos(i.financieros) > pos(i.ingresos)) out.push({ k: `${r}inmuebles.${j}.financieros`, texto: `${q}inmueble ${j + 1}: los intereses y la reparación solo se deducen hasta los ingresos; el exceso, en los cuatro años siguientes.` });
       });
       (p.ventas || []).forEach((v, j) => {
-        negativo(v, `${r}ventas.${j}.`);
+        negativo(v, `${r}ventas.${j}.`, q);
         if (v.fechaTrans && !String(v.fechaTrans).startsWith(String(ej))) out.push({ k: `${r}ventas.${j}.fechaTrans`, texto: `${q}venta ${j + 1}: la fecha de venta debería ser de ${ej}.` });
         if (v.fechaAdq && v.fechaTrans && v.fechaAdq > v.fechaTrans) out.push({ k: `${r}ventas.${j}.fechaAdq`, texto: `${q}venta ${j + 1}: la compra es posterior a la venta.` });
         if ((pos(v.transmision) || pos(v.adquisicion)) && !v.fechaAdq) out.push({ k: `${r}ventas.${j}.fechaAdq`, texto: `${q}venta ${j + 1}: indica la fecha de compra (cuenta si es anterior a 1995).` });
@@ -316,7 +316,7 @@
       if (pos(a.rentas) > 8000) out.push({ k: `ascendientes.${j}.rentas`, texto: `Ascendiente ${j + 1}: con más de 8.000 € de rentas propias no da derecho al mínimo.` });
     });
     if (e.familiaNumerosa !== "no" && (e.hijos || []).length < 2) out.push({ k: "familiaNumerosa", texto: "La familia numerosa suele tener al menos dos o tres hijos: añádelos en la lista." });
-    return out;
+    return out.map(a => ({ k: a.k, texto: a.texto.charAt(0).toUpperCase() + a.texto.slice(1) }));
   }
 
   // ---- gastos con deducción autonómica que pide cada territorio ------------------------------
