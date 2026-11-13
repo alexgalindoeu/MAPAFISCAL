@@ -111,60 +111,17 @@
     `<option value="${c}">${esc(T[c].nombre)}${T[c].regimen !== "comun" ? " (foral)" : ""}</option>`).join("");
   selTerr.value = "ES-MD";
 
-  // ---- gastos que dan derecho a deducción, según territorio ---------------------------
-  const ETIQUETAS = {
-    gastos_guarderia: "Guardería o escuela infantil",
-    gastos_idiomas_informatica: "Clases de idiomas o informática",
-    gastos_idiomas_extranjeros: "Clases extraescolares de idiomas",
-    gastos_libros_texto: "Libros de texto y material escolar",
-    cuotas_ss_empleada_hogar: "Cotizaciones a la Seguridad Social de empleada del hogar",
-    gastos_empleada_hogar: "Salario de la persona que cuida de tus hijos en casa",
-    gastos_escuela_infantil_cyl: "Escuela infantil o guardería (hijos de 0 a 3 años)",
-    gastos_cuidado_hijos: "Cuidado de hijos pequeños (guardería o cuidador)",
-    gastos_conciliacion_menores: "Cuidado de hijos menores de 6 años",
-    gastos_deporte: "Gimnasio, clubes y actividades deportivas",
-    gastos_emancipacion: "Gastos de emancipación (mudanza, mobiliario, fianza)",
-    gastos_estudios_no_superiores: "Gastos de estudios no universitarios de tus hijos",
-    gastos_enfermedad: "Gastos de enfermedad (consultas, dentista, óptica)",
-    gastos_escolaridad: "Escolaridad en educación obligatoria",
-    gastos_idiomas: "Clases de idiomas extranjeros",
-    gastos_vestuario_escolar: "Uniformes y vestuario escolar",
-    gastos_internet: "Conexión a internet (jóvenes emancipados)",
-    gastos_luz_gas: "Luz y gas de la vivienda (jóvenes emancipados)",
-    gastos_abonos_culturales: "Abonos culturales (teatro, música, cine)",
-    rehabilitacion_vivienda_pagos: "Obras de rehabilitación de tu vivienda habitual",
-    donativos_lengua_catalana: "Donativos para el fomento de la lengua catalana",
-    donativos_investigacion: "Donativos a centros de investigación",
-    inversion_angel_inversor: "Inversión en empresas de nueva creación",
-    inversion_cooperativas_cat: "Aportaciones al capital de cooperativas"
-  };
-  const etiqueta = c => ETIQUETAS[c] || c.replace(/_/g, " ").replace(/^./, m => m.toUpperCase());
+  // ---- formulario (web/js/formulario.js): estado, plantillas y validaciones ------------------
+  const FORM = window.formularioIrpf;
+  const etiqueta = FORM.etiqueta;
 
-  function camposDe(terr) {
-    const lista = (T[terr] && T[terr].deducciones_autonomicas && T[terr].deducciones_autonomicas.lista) || [];
-    const hogar = new Map(), hijo = new Map();
-    for (const d of lista) {
-      if (d.tipo === "porcentaje_campos_hijo") {   // varios gastos por hijo (p. ej. Madrid, art. 11)
-        const max = d.edad_hijo_max != null ? d.edad_hijo_max : 25;
-        for (const c of Object.keys(d.campos || {})) { const prev = hijo.get(c); hijo.set(c, prev == null ? max : Math.max(prev, max)); }
-        continue;
-      }
-      if (!d.campo || d.campo === "alquiler_vivienda_pagos") continue;
-      if (d.tipo === "porcentaje_campo_hijo") {
-        const prev = hijo.get(d.campo);
-        const max = d.edad_hijo_max != null ? d.edad_hijo_max : 25;
-        hijo.set(d.campo, prev == null ? max : Math.max(prev, max));
-      } else if (d.tipo === "porcentaje_campo") hogar.set(d.campo, true);
-    }
-    return { hogar: [...hogar.keys()], hijo: [...hijo.entries()] };
-  }
-
-  // título de familia numerosa reciente (Madrid, art. 13 bis): la casilla solo se muestra si
-  // algún territorio lo exige y el hogar es familia numerosa (cuenta también al comparar)
+  // título de familia numerosa reciente (Madrid, art. 13 bis) y título autonómico de familia
+  // monoparental (C. Valenciana, Decreto 19/2018): se preguntan si algún territorio los exige
+  // (cuentan también al comparar territorios)
   const algunaDeduccion = cond => Object.values(T).some(t =>
     ((t.deducciones_autonomicas && t.deducciones_autonomicas.lista) || []).some(cond));
   let pideFnReciente = algunaDeduccion(d => d.requiere_familia_numerosa_reciente);
-  const pintarFnReciente = () => { $("casilla-fn-reciente").hidden = !pideFnReciente || $("f-familia-numerosa").value === "no"; };
+  let pideTituloMonoparental = algunaDeduccion(d => d.requiere_titulo_monoparental != null);
 
   // deducciones del territorio que dependen del municipio de residencia
   function reglasMunicipio(terr) {
@@ -189,163 +146,29 @@
       : `En ${corto(terr)} ninguna deducción depende del municipio; el dato cuenta al comparar con otros territorios.`;
   }
 
-  // ---- estado del formulario ----------------------------------------------------------
-  let hijos = [];                 // [{ edad, gastos: { campo: importe } }]
-  const gastosHogar = {};         // campo -> importe (se conserva al cambiar de territorio)
-  let ssManual = false;
-
-  function pintarHijos() {
-    const terr = selTerr.value, { hijo: camposHijo } = camposDe(terr);
-    $("lista-hijos").innerHTML = hijos.map((h, i) => {
-      const extras = camposHijo.filter(([, max]) => h.edad <= max).map(([c]) =>
-        `<label>${esc(etiqueta(c))} <input type="number" min="0" step="10" data-hijo="${i}" data-campo="${c}" value="${h.gastos[c] || 0}" aria-label="${esc(etiqueta(c))}, hijo ${i + 1}"> €</label>`).join("");
-      return `<li class="hijo">
-        <span class="hijo-n">Hijo ${i + 1}</span>
-        <input type="number" min="0" max="30" step="1" value="${h.edad}" data-hijo-edad="${i}" aria-label="Edad del hijo ${i + 1}">
-        <div class="hijo-extra">${h.edad === 0 ? `<span class="ayuda">Nacido en ${P.ejercicio}</span>` : '<span class="ayuda">años</span>'}${extras}</div>
-        <button class="btn btn-txt btn-sm" type="button" data-quitar="${i}" aria-label="Quitar hijo ${i + 1}">Quitar</button>
-      </li>`;
-    }).join("");
-    pintarTituloMonoparental();
-  }
-  // título autonómico de familia monoparental (C. Valenciana, Decreto 19/2018): se pregunta
-  // si hay hijos y algún territorio lo exige (cuenta también al comparar territorios)
-  let pideTituloMonoparental = algunaDeduccion(d => d.requiere_titulo_monoparental != null);
-  function pintarTituloMonoparental() {
-    $("campo-titulo-monoparental").hidden = !pideTituloMonoparental || hijos.length === 0;
-  }
-  function pintarGastosTerritorio() {
-    const terr = selTerr.value, { hogar: campos } = camposDe(terr);
-    $("campo-compra").hidden = T[terr].regimen !== "foral_pais_vasco";
-    // deducciones estatales (vivienda anterior a 2013 y donativos): solo régimen común
-    for (const id of ["campo-hipoteca", "campo-donativos", "casilla-donativos-rec"]) $(id).hidden = T[terr].regimen !== "comun";
-    pintarAyudaMunicipio();
-    if (!campos.length) { $("gastos-territorio").innerHTML = ""; return; }
-    $("gastos-territorio").innerHTML = `<p class="gastos-titulo">Otros gastos con deducción en ${esc(corto(terr))}</p>` +
-      campos.map(c => `<div class="campo"><label for="g-${c}">${esc(etiqueta(c))}</label>
-        <div class="con-sufijo"><input type="number" id="g-${c}" min="0" step="10" data-gasto="${c}" value="${gastosHogar[c] || 0}"><span>€</span></div></div>`).join("");
-  }
-
-  $("form").addEventListener("input", e => {
-    const t = e.target;
-    if ((t.id === "f-salario" || t.id === "f-pension") && !ssManual)
-      $("f-ss").value = $("f-pension").checked ? 0 : Math.round(irpfsim.cotizacionesTrabajador(num("f-salario"), P));
-    if (t.id === "f-ss") { ssManual = true; $("ayuda-ss").textContent = "Importe introducido por ti."; }
-    if (t.dataset.hijoEdad != null) {
-      hijos[+t.dataset.hijoEdad].edad = Math.max(0, Math.min(30, parseInt(t.value, 10) || 0));
-      clearTimeout(pintarHijos._t); pintarHijos._t = setTimeout(() => { const f = document.activeElement && document.activeElement.dataset.hijoEdad; pintarHijos(); if (f != null) { const el = document.querySelector(`[data-hijo-edad="${f}"]`); if (el) { el.focus(); el.select && el.select(); } } }, 600);
-    }
-    if (t.dataset.hijo != null && t.dataset.campo) hijos[+t.dataset.hijo].gastos[t.dataset.campo] = parseFloat(t.value) || 0;
-    if (t.dataset.gasto) gastosHogar[t.dataset.gasto] = parseFloat(t.value) || 0;
-    if (t.name === "pareja") $("bloque-pareja").hidden = t.value !== "si";
-    if (t.id === "f-desempleado") $("campo-meses-desempleo").hidden = !t.checked;
-    if (t.id === "f-familia-numerosa") pintarFnReciente();
-    recalcular();
+  const formulario = FORM.montar({
+    raiz: $("form"),
+    contexto: () => ({ ejercicio: P.ejercicio, terr: T[selTerr.value], regimen: T[selTerr.value].regimen, nombre: corto(selTerr.value),
+      cotizar: s => irpfsim.cotizacionesTrabajador(s, P), pideFnReciente, pideTituloMonoparental }),
+    alCambiar: () => recalcular()
   });
-  selTerr.addEventListener("change", () => { pintarHijos(); pintarGastosTerritorio(); recalcular(); });
-  $("btn-hijo").addEventListener("click", () => { hijos.push({ edad: 5, gastos: {} }); pintarHijos(); recalcular(); });
-  $("lista-hijos").addEventListener("click", e => {
-    const q = e.target.closest("[data-quitar]");
-    if (q) { hijos.splice(+q.dataset.quitar, 1); pintarHijos(); recalcular(); }
-  });
+  // nombres de antes: los usan la portada, el cambio de ejercicio y el mapa
+  function pintarHijos() { formulario.pintar(); }
+  function pintarGastosTerritorio() { pintarAyudaMunicipio(); formulario.pintar(); }
+  const pintarFnReciente = () => formulario.pintar();
+  selTerr.addEventListener("change", () => { pintarGastosTerritorio(); recalcular(); });
 
   // ---- formulario -> hogar (forma que consume irpfsim.js) --------------------------------
   function construirHogar(territorio) {
-    const pareja = document.querySelector('input[name="pareja"]:checked').value === "si";
-    const salario = num("f-salario"), ganancia = num("f-ganancias");
-    const d1 = {
-      id: "d1", rol: "declarante", edad: num("f-edad") || 40, discapacidad: $("f-discapacidad").value,
-      desempleado: $("f-desempleado").checked,
-      mesesDesempleo: $("f-desempleado").checked ? Math.max(1, Math.min(12, Math.round(num("f-meses-desempleo")) || 12)) : undefined,
-      trabajo: salario > 0 ? { dinerarias: salario, cotizacionesSs: num("f-ss"), pensionJubilacion: $("f-pension").checked,
-        otrosPagadores: num("f-otros-pagadores") } : null,
-      capitalMobiliario: (num("f-intereses") > 0 || num("f-dividendos") > 0) ? { intereses: num("f-intereses"), dividendos: num("f-dividendos") } : null,
-      capitalInmobiliario: num("f-alquileres") > 0 ? [{ ingresos: num("f-alquileres"), gastosDeducibles: 0 }] : null,
-      actividades: num("f-actividad") > 0 ? { metodo: "directa_simplificada", rendimientoNetoPrevio: num("f-actividad") } : null,
-      ganancias: ganancia !== 0 ? [{ valorTransmision: Math.max(0, ganancia), valorAdquisicion: Math.max(0, -ganancia),
-        fechaAdquisicion: "2020-01-15", fechaTransmision: P.ejercicio + "-06-30", tipoElemento: "accion_cotizada", esTransmision: true }] : [],
-      previsionSocial: num("f-pensiones") > 0 ? { aportacionIndividual: num("f-pensiones") } : null,
-      alquilerViviendaPagos: num("f-alquiler"),
-      adquisicionViviendaPagos: num("f-compra"),
-      viviendaTransitoriaPagos: num("f-hipoteca"),
-      donativos: num("f-donativos"), donativosRecurrentes: $("f-donativos-rec").checked,
-      retenciones: num("f-retenciones")
-    };
-    for (const [c, v] of Object.entries(gastosHogar)) if (v > 0) d1[camel(c)] = v;
-    const miembros = [d1];
-    if (pareja) {
-      const ps = num("f-pareja-salario");
-      miembros.push({ id: "d2", rol: "conyuge", edad: num("f-pareja-edad") || 40,
-        trabajo: ps > 0 ? { dinerarias: ps, cotizacionesSs: irpfsim.cotizacionesTrabajador(ps, P) } : null, retenciones: 0 });
-    }
-    hijos.forEach((h, i) => {
-      const m = { id: "h" + (i + 1), rol: "descendiente", edad: h.edad, rentasPropias: 0, nacidoEnEjercicio: h.edad === 0 };
-      for (const [c, v] of Object.entries(h.gastos)) if (v > 0) m[camel(c)] = v;
-      miembros.push(m);
-    });
-    const asc = $("f-ascendientes").value;
-    if (asc === "65") miembros.push({ id: "a1", rol: "ascendiente", edad: 70, rentasPropias: 0 });
-    if (asc === "75" || asc === "75x2") miembros.push({ id: "a1", rol: "ascendiente", edad: 80, rentasPropias: 0 });
-    if (asc === "75x2") miembros.push({ id: "a2", rol: "ascendiente", edad: 80, rentasPropias: 0 });
-    const hab = parseInt($("f-municipio").value, 10);
-    return {
-      territorio, ejercicio: P.ejercicio,
-      tipoUnidadFamiliar: pareja ? "biparental" : (hijos.length ? "monoparental" : "ninguna"),
-      familiaNumerosa: $("f-familia-numerosa").value,
-      familiaNumerosaReciente: $("f-familia-numerosa").value !== "no" && $("f-fn-reciente").checked,
-      municipioHabitantes: Number.isFinite(hab) && hab > 0 ? hab : null,
-      zonaDespoblada: $("f-despoblada").checked,
-      tituloMonoparental: $("campo-titulo-monoparental").hidden ? "no" : $("f-titulo-monoparental").value,
-      miembros
-    };
+    formulario.estado.territorio = territorio;
+    return formulario.hogar();
   }
 
-  // hogar guardado -> formulario (abrir cliente)
+  // hogar guardado -> formulario (abrir cliente); admite los hogares del formulario anterior
   function rellenarFormulario(h) {
-    const d1 = h.miembros.find(m => m.rol === "declarante") || {};
-    const d2 = h.miembros.find(m => m.rol === "conyuge");
-    const set = (id, v) => { $(id).value = v == null ? 0 : v; };
-    selTerr.value = h.territorio;
-    set("f-salario", d1.trabajo ? d1.trabajo.dinerarias : 0);
-    set("f-ss", d1.trabajo ? d1.trabajo.cotizacionesSs : 0); ssManual = true;
-    $("f-pension").checked = !!(d1.trabajo && d1.trabajo.pensionJubilacion);
-    set("f-otros-pagadores", d1.trabajo ? d1.trabajo.otrosPagadores : 0);
-    $("f-municipio").value = h.municipioHabitantes != null ? h.municipioHabitantes : "";
-    $("f-despoblada").checked = !!h.zonaDespoblada;
-    set("f-intereses", d1.capitalMobiliario ? d1.capitalMobiliario.intereses : 0);
-    set("f-dividendos", d1.capitalMobiliario ? d1.capitalMobiliario.dividendos : 0);
-    const g = (d1.ganancias || [])[0];
-    set("f-ganancias", g ? (g.valorTransmision || 0) - (g.valorAdquisicion || 0) : 0);
-    set("f-alquileres", d1.capitalInmobiliario && d1.capitalInmobiliario[0] ? d1.capitalInmobiliario[0].ingresos : 0);
-    set("f-actividad", d1.actividades ? d1.actividades.rendimientoNetoPrevio : 0);
-    set("f-pensiones", d1.previsionSocial ? d1.previsionSocial.aportacionIndividual : 0);
-    set("f-alquiler", d1.alquilerViviendaPagos); set("f-compra", d1.adquisicionViviendaPagos);
-    set("f-hipoteca", d1.viviendaTransitoriaPagos); set("f-donativos", d1.donativos);
-    $("f-donativos-rec").checked = !!d1.donativosRecurrentes;
-    set("f-retenciones", d1.retenciones); set("f-edad", d1.edad);
-    $("f-discapacidad").value = d1.discapacidad || "no";
-    $("f-desempleado").checked = !!d1.desempleado;
-    $("f-meses-desempleo").value = d1.mesesDesempleo || 12; $("campo-meses-desempleo").hidden = !d1.desempleado;
-    $("f-titulo-monoparental").value = h.tituloMonoparental || "no";
-    document.querySelector(`input[name="pareja"][value="${d2 ? "si" : "no"}"]`).checked = true;
-    $("bloque-pareja").hidden = !d2;
-    if (d2) { set("f-pareja-edad", d2.edad); set("f-pareja-salario", d2.trabajo ? d2.trabajo.dinerarias : 0); }
-    $("f-familia-numerosa").value = h.familiaNumerosa || "no";
-    $("f-fn-reciente").checked = !!h.familiaNumerosaReciente; pintarFnReciente();
-    const asc = h.miembros.filter(m => m.rol === "ascendiente");
-    $("f-ascendientes").value = asc.length >= 2 ? "75x2" : asc.length ? (asc[0].edad >= 75 ? "75" : "65") : "0";
-    const conocidos = new Set(["id", "rol", "edad", "discapacidad", "desempleado", "mesesDesempleo", "trabajo", "capitalMobiliario", "capitalInmobiliario",
-      "actividades", "ganancias", "previsionSocial", "alquilerViviendaPagos", "adquisicionViviendaPagos", "retenciones", "rentasPropias", "nacidoEnEjercicio",
-      "viviendaTransitoriaPagos", "donativos", "donativosRecurrentes"]);
-    const snake = s => s.replace(/[A-Z]/g, c => "_" + c.toLowerCase());
-    for (const k of Object.keys(gastosHogar)) delete gastosHogar[k];
-    for (const [k, v] of Object.entries(d1)) if (!conocidos.has(k) && typeof v === "number") gastosHogar[snake(k)] = v;
-    hijos = h.miembros.filter(m => m.rol === "descendiente").map(m => {
-      const gastos = {};
-      for (const [k, v] of Object.entries(m)) if (!conocidos.has(k) && typeof v === "number") gastos[snake(k)] = v;
-      return { edad: m.edad, gastos };
-    });
-    pintarHijos(); pintarGastosTerritorio(); recalcular();
+    selTerr.value = T[h.territorio] ? h.territorio : selTerr.value;
+    formulario.rellenar(h);
+    pintarAyudaMunicipio(); recalcular();
   }
 
   // ---- cálculo y resultado ------------------------------------------------------------
@@ -442,9 +265,8 @@
   }
   function pintarGraficos(liq, hogar, terr, irpf) {
     const d1 = hogar.miembros.find(m => m.rol === "declarante"), d2 = hogar.miembros.find(m => m.rol === "conyuge");
-    const trab = m => (m && m.trabajo ? m.trabajo.dinerarias : 0);
     const ss = m => (m && m.trabajo ? m.trabajo.cotizacionesSs || 0 : 0);
-    const ingresos = trab(d1) + trab(d2) + num("f-intereses") + num("f-dividendos") + Math.max(0, num("f-ganancias")) + num("f-alquileres") + num("f-actividad");
+    const ingresos = FORM.ingresosBrutos(hogar);
     const cot = ss(d1) + ss(d2), impuesto = Math.max(0, irpf);
     const html = [];
     if (ingresos > 0) {
@@ -468,7 +290,7 @@
     catch (e) { $("res-principal").innerHTML = `<p class="vacio">Revisa los datos introducidos.</p>`; return; }
     ultima = { hogar, liq };
     const reg = T[terr].regimen, comun = reg === "comun";
-    const ret = num("f-retenciones");
+    const ret = FORM.retencionesHogar(hogar);
     const cd = liq.cuotaDiferencial;
     // deducciones que se restan de la cuota diferencial (maternidad, familia numerosa, Navarra 68.B…):
     // pueden dar un resultado a devolver aunque no haya retenciones
@@ -489,7 +311,7 @@
       <div class="res-cifra ${estado}"><span aria-hidden="true" id="res-cifra"></span><span class="sr">${eur(cifra)}</span></div>
       ${hayResultado
         ? `<p class="res-sub">${nombreCuota} <b>${eur(cuota)}</b>${impr ? ` · deducciones sobre la cuota diferencial <b>${eur(impr)}</b>` : ""}${ret ? ` · retenciones <b>${eur(ret)}</b>` : ""}</p>`
-        : `<p class="res-sub">${drt ? `Incluye la deducción por obtención de rendimientos del trabajo (${eur(drt)}). ` : ""}Añade tus retenciones (paso 5) para saber si te sale a pagar o a devolver.</p>`}`;
+        : `<p class="res-sub">${drt ? `Incluye la deducción por obtención de rendimientos del trabajo (${eur(drt)}). ` : ""}Añade tus retenciones (paso 3) para saber si te sale a pagar o a devolver.</p>`}`;
     animarCifra($("res-cifra"), cifra);
     $("bm-etq").textContent = hayResultado ? rotuloCifra : nombreCuota + " · " + corto(terr);
     $("bm-cifra").textContent = eur(cifra);
@@ -1024,7 +846,7 @@
     const fila = {
       alias, notas: $("guardar-notas").value.trim() || null, territorio: hogar.territorio, ejercicio: P.ejercicio, hogar,
       resultado: { cuotaLiquidaTotal: liq.cuotaLiquidaTotal, cuotaResultanteAutoliquidacion: liq.cuotaResultanteAutoliquidacion,
-        cuotaDiferencial: liq.cuotaDiferencial, retenciones: num("f-retenciones"),
+        cuotaDiferencial: liq.cuotaDiferencial, retenciones: FORM.retencionesHogar(hogar),
         tipoMedioEfectivo: liq.tipoMedioEfectivo, modo: liq.modoTributacionElegido, motor: P.generado },
       cuota_liquida: liq.cuotaLiquidaTotal
     };
@@ -1364,10 +1186,9 @@
   // «Calcular mi declaración»: la calculadora empieza con el sueldo y el territorio de la portada
   $("mc-res").addEventListener("click", e => {
     if (!e.target.closest("[data-mc-ir]")) return;
-    $("f-salario").value = Math.max(0, parseFloat(mc.salario.value) || 0);
-    if (!ssManual) $("f-ss").value = $("f-pension").checked ? 0 : Math.round(num("f-salario") * TASA_SS);
     selTerr.value = mc.terr.value;
-    pintarHijos(); pintarGastosTerritorio(); recalcular();
+    formulario.estado.personas.d1.salario = Math.max(0, parseFloat(mc.salario.value) || 0);
+    pintarGastosTerritorio(); recalcular();
   });
 
   function pintarInicio() {
@@ -1483,8 +1304,6 @@
 
   // ---- arranque --------------------------------------------------------------------------
   // cotizaciones estimadas con la orden de cotización del ejercicio (no con un tipo fijo)
-  $("f-ss").value = Math.round(irpfsim.cotizacionesTrabajador(num("f-salario"), P));
-  $("ayuda-ss").textContent = `Estimadas con los tipos del trabajador de ${P.ejercicio} (contrato indefinido). Cámbialas si las conoces: vienen en tu certificado de retenciones.`;
   document.addEventListener("mapafiscal:herramientas", () => { if (vistaActual() === "inicio") pintarInicio(); });
   document.querySelectorAll("[data-ejercicio]").forEach(el => { el.textContent = P.ejercicio; });
   document.querySelectorAll("[data-ejercicios]").forEach(el => { el.textContent = textoEjercicios(); });
