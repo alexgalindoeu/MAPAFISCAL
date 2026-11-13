@@ -822,6 +822,24 @@ details.mas:not([open]) summary { margin-bottom: 0; }
 .desglose tr.hr-resta td { color: var(--tinta-2); }
 .desglose tr.hr-resta td:first-child { padding-left: 14px; }
 
+/* ---- formulario completo de la calculadora (web/js/formulario.js) ---- */
+.lista-items { list-style: none; margin: 0 0 10px; padding: 0; display: flex; flex-direction: column; gap: 10px; }
+.lista-items:empty { display: none; }
+.tarjeta-item { background: var(--superficie-2); border: 1px solid var(--linea); border-radius: var(--radio-sm); padding: 10px 12px 2px; }
+.item-cab { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-bottom: 8px; }
+.item-n { font-size: 13px; font-weight: 700; color: var(--tinta-2); }
+.item-gastos { border-top: 1px solid var(--linea); padding-top: 10px; }
+.subtitulo-form { font-size: 13px; font-weight: 700; color: var(--tinta-2); margin: 0 0 10px; }
+.seccion-form .seccion-ayuda { margin: -4px 0 12px; }
+.chip-datos { font-size: 11px; padding: 1px 7px; margin-left: 6px; vertical-align: middle; }
+.quien-form { position: sticky; top: 64px; z-index: 2; background: var(--superficie); padding: 6px 0; }
+.avisos-form { margin-top: 4px; background: var(--aviso-suave); color: var(--tinta); border: 1px solid color-mix(in srgb, var(--aviso) 35%, transparent);
+  border-radius: var(--radio); padding: 12px 14px; font-size: 13px; }
+.avisos-form-tit { margin: 0 0 6px; font-weight: 700; color: var(--aviso); }
+.avisos-form ul { margin: 0; padding-left: 18px; }
+.formulario input[aria-invalid="true"] { border-color: var(--aviso); box-shadow: 0 0 0 1px var(--aviso); }
+@media (max-width: 480px) { .tarjeta-item { padding: 10px 10px 2px; } .quien-form { top: 56px; } }
+
 /* ---- informe completo (js/informe.js) ----------------------------------------------
    En pantalla, una capa a pantalla completa con su barra («Descargar PDF», «Cerrar»). Al
    imprimir (body.imprimiendo-informe) solo sale el documento, en A4 y en blanco y negro

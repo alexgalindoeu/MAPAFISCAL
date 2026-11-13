@@ -13,6 +13,8 @@ test("el HTML empaquetado es autónomo", () => {
   }
   assert.match(html, /global\.irpfsim = api/);
   assert.match(html, /window\.MAPAFISCAL_HERRAMIENTAS = Object\.assign/, "falta herramientas.js");
+  assert.match(html, /window\.formularioIrpf = api/, "falta formulario.js");
+  assert.doesNotMatch(html, /src="js\/formulario\.js"/);
   assert.match(html, /window\.MapafiscalRescate = CALCULOS/, "falta rescate.js");
   assert.match(html, /<!--CUERPO-->[\s\S]*<!--\/CUERPO-->/);
   assert.match(html, /<link rel="icon" href="data:image\/svg\+xml,/, "el favicon debe ir incrustado");

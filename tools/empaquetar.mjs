@@ -62,6 +62,7 @@ export function empaquetar() {
     otrosEjercicios().map(f => `\n<script type="application/json" id="datos-${f.replace(".json", "").replace("_", "-")}">` +
       jsonEmbebido("datos/" + f) + "</script>").join(""));
   sustituir('<script src="js/irpfsim.js"></script>', "<script>\n" + leer("js/irpfsim.js") + "</script>");
+  sustituir('<script src="js/formulario.js"></script>', "<script>\n" + leer("js/formulario.js") + "</script>");
   sustituir('<script src="js/cuentas.js"></script>', "<script>\n" + leer("js/cuentas.js") + "</script>");
   sustituir('<script src="js/app.js"></script>', "<script>\n" + leer("js/app.js") + "</script>");
   sustituir('<script src="js/herramientas.js"></script>', "<script>\n" + leer("js/herramientas.js") + "</script>");
