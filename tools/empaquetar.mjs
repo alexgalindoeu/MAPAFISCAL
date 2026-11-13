@@ -38,8 +38,10 @@ export function empaquetar() {
     if (!html.includes(buscado)) throw new Error("No se encuentra en index.html: " + buscado);
     html = html.replace(buscado, () => nuevo);
   };
-  if (!SUPABASE_JS.test(html)) throw new Error("No se encuentra en index.html el <script> de supabase-js");
-  html = html.replace(SUPABASE_JS, "");
+  // supabase-js ya no va en index.html (app.js lo carga solo si hace falta; en la demo, nunca);
+  // si vuelve a aparecer como <script>, se quita igual. Las precargas de fuentes, el manifest y
+  // el icono de iOS son rutas relativas que el HTML autónomo no tiene al lado.
+  html = html.replace(SUPABASE_JS, "").replace(/<link rel="(?:preload|manifest|apple-touch-icon)"[^>]*>\r?\n?/g, "");
   if (!ANUNCIOS_JS.test(html)) throw new Error("No se encuentra en index.html el <script> de anuncios.js");
   html = html.replace(ANUNCIOS_JS, "");
   if (!ADSENSE_META.test(html)) throw new Error("No se encuentra en index.html la <meta> de AdSense");
@@ -47,7 +49,8 @@ export function empaquetar() {
   // el favicon va incrustado como data: URI (el HTML autónomo no tiene favicon.svg al lado)
   sustituir('<link rel="icon" href="favicon.svg" type="image/svg+xml">',
     '<link rel="icon" href="data:image/svg+xml,' + encodeURIComponent(leer("favicon.svg").trim()) + '" type="image/svg+xml">');
-  sustituir('<link rel="stylesheet" href="css/mapafiscal.css">', "<style>\n" + leer("css/mapafiscal.css") + "</style>");
+  sustituir('<link rel="stylesheet" href="css/mapafiscal.css">', "<style>\n" +
+    leer("css/mapafiscal.css").replace(/url\("\.\.\/fonts\//g, `url("${WEB_PUBLICA}fonts/`) + "</style>");
   sustituir('<link rel="stylesheet" href="css/cuentas.css">', "<style>\n" + leer("css/cuentas.css") + "</style>");
   // El ID de editor de AdSense no debe quedar ni como texto en la demo, aunque FORZAR_DEMO lo
   // sobrescriba en tiempo de ejecución: se redacta en el propio config.js incrustado.

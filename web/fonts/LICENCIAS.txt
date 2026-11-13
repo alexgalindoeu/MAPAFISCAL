@@ -1,0 +1,6 @@
+Fuentes servidas por Mapafiscal (subconjunto latino, WOFF2, tal como las distribuye Google Fonts).
+Todas con licencia SIL Open Font License 1.1: https://openfontlicense.org
+
+- Archivo (archivo-latin-var.woff2) — Copyright 2020 The Archivo Project Authors (https://github.com/Omnibus-Type/Archivo)
+- Public Sans (public-sans-latin-var.woff2) — Copyright 2015 The Public Sans Project Authors (https://github.com/uswds/public-sans)
+- IBM Plex Mono (ibm-plex-mono-latin-500.woff2) — Copyright © 2017 IBM Corp., con el nombre reservado «Plex» (https://github.com/IBM/plex)
