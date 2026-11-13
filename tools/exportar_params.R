@@ -53,7 +53,8 @@ params_web <- function(ejercicio) {
     obligacion_declarar = est$obligacion_declarar,
     deduccion_maternidad = est$deduccion_maternidad,
     deduccion_familia_numerosa_y_discapacidad_cargo = est$deduccion_familia_numerosa_y_discapacidad_cargo,
-    cotizaciones_trabajador = flat_cotizaciones(est$cotizaciones_trabajador)
+    cotizaciones_trabajador = flat_cotizaciones(est$cotizaciones_trabajador),
+    prestaciones_prevision_dt12 = est$prestaciones_prevision_dt12
   )
 
   territorios <- list()

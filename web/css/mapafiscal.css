@@ -33,17 +33,6 @@
   font-display: swap; src: url("../fonts/public-sans-latin-var.woff2") format("woff2"); unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD; }
 @font-face { font-family: "IBM Plex Mono"; font-style: normal; font-weight: 500;
   font-display: swap; src: url("../fonts/ibm-plex-mono-latin-500.woff2") format("woff2"); unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD; }
-
-/* ---- fuentes locales (subconjunto latino de Google Fonts, licencia SIL OFL 1.1) ----
-   Servidas desde /fonts/ en lugar de fonts.googleapis.com: sin peticiones a terceros (ni
-   aviso de cookies) y sin una hoja de estilos externa que bloquee el pintado. */
-@font-face { font-family: "Archivo"; font-style: normal; font-weight: 600 800; font-stretch: 100% 125%;
-  font-display: swap; src: url("../fonts/archivo-latin-var.woff2") format("woff2"); unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD; }
-@font-face { font-family: "Public Sans"; font-style: normal; font-weight: 400 700;
-  font-display: swap; src: url("../fonts/public-sans-latin-var.woff2") format("woff2"); unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD; }
-@font-face { font-family: "IBM Plex Mono"; font-style: normal; font-weight: 500;
-  font-display: swap; src: url("../fonts/ibm-plex-mono-latin-500.woff2") format("woff2"); unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD; }
-
 :root {
   --fondo: #edf1f0;
   --superficie: #ffffff;
@@ -924,3 +913,11 @@ body.con-informe { overflow: hidden; }
   body.imprimiendo-informe .inf-tabla tr { break-inside: avoid; }
   body.imprimiendo-informe a { text-decoration: none; }
 }
+/* ---- rescate del plan de pensiones (web/js/rescate.js, vista #rescate-plan) ---------- */
+.rp-barras { display: grid; gap: 8px; }
+.rp-barra { display: grid; grid-template-columns: 7.5em 1fr auto; align-items: center; gap: 10px; font-size: 14px; }
+.rp-barra .hr-barra { width: 100%; max-width: none; margin-top: 0; height: 8px; }
+.rp-barra b { font-variant-numeric: tabular-nums; }
+.rp-barra.mejor .hr-barra i { background: var(--gana); }
+.rp-barra.tuya span:first-child { font-weight: 700; }
+.rp-anios td:not(:first-child), .rp-anios th:not(:first-child) { text-align: right; }

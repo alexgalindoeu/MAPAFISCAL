@@ -470,6 +470,75 @@
   </div>
 </section>
 
+<section class="vista" id="v-rescate-plan" aria-labelledby="t-rp" hidden>
+  <div class="cabecera-vista">
+    <div>
+      <p class="antetitulo">Plan de pensiones · rescate</p>
+      <h1 id="t-rp">¿Cuánto tributa rescatar mi plan de pensiones?</h1>
+      <p class="entradilla">El IRPF extra de cobrar tu plan de una vez, como renta o de forma mixta, con la reducción del 40 % de lo aportado antes de 2007, y en qué territorio tributa menos.</p>
+    </div>
+    <div class="cabecera-acciones">
+      <div class="segmentado" role="radiogroup" aria-label="Forma de rescate">
+        <label><input type="radio" name="rp-forma" value="capital" checked><span>De una vez</span></label>
+        <label><input type="radio" name="rp-forma" value="mixto"><span>Mixto</span></label>
+        <label><input type="radio" name="rp-forma" value="renta"><span>Renta</span></label>
+      </div>
+    </div>
+  </div>
+  <div class="calc">
+    <form class="formulario" id="rp-form" autocomplete="off" novalidate>
+      <fieldset class="bloque">
+        <legend><span class="paso">1</span>Tu plan</legend>
+        <div class="campo"><label for="rp-antes">Lo que corresponde a aportaciones hasta el 31-12-2006</label>
+          <div class="con-sufijo"><input type="number" id="rp-antes" min="0" step="1000" value="30000" inputmode="decimal"><span>€</span></div>
+          <p class="ayuda">Con su rentabilidad. Tu gestora te lo indica en el certificado de derechos consolidados.</p></div>
+        <div class="campo"><label for="rp-despues">Lo que corresponde a aportaciones desde 2007</label>
+          <div class="con-sufijo"><input type="number" id="rp-despues" min="0" step="1000" value="30000" inputmode="decimal"><span>€</span></div></div>
+        <div class="rejilla2">
+          <div class="campo"><label for="rp-contingencia">Año de tu jubilación</label><input type="number" id="rp-contingencia" min="1980" max="2100" step="1" value="2026"></div>
+          <div class="campo" id="rp-forma-anios"><label for="rp-anios">Repartido en</label>
+            <select id="rp-anios"><option value="2">2 años</option><option value="3">3 años</option><option value="4">4 años</option><option value="5" selected>5 años</option><option value="10">10 años</option><option value="15">15 años</option><option value="20">20 años</option></select></div>
+        </div>
+      </fieldset>
+      <fieldset class="bloque">
+        <legend><span class="paso">2</span>Tus otros ingresos del año</legend>
+        <div class="campo"><label for="rp-otros">Otros ingresos brutos al año</label>
+          <div class="con-sufijo"><input type="number" id="rp-otros" min="0" step="500" value="15000" inputmode="decimal"><span>€</span></div></div>
+        <div class="rejilla2">
+          <div class="campo"><label for="rp-tipo-otros">Son</label>
+            <select id="rp-tipo-otros"><option value="pension">Una pensión pública</option><option value="sueldo">Un sueldo</option></select></div>
+          <div class="campo"><label for="rp-edad">Tu edad</label><input type="number" id="rp-edad" min="18" max="110" step="1" value="65"></div>
+        </div>
+        <div class="campo"><label for="rp-territorio">Territorio donde resides</label><select id="rp-territorio"></select></div>
+      </fieldset>
+    </form>
+    <div class="resultado" aria-live="polite">
+      <div class="tarjeta tarjeta-resultado" id="rp-tarjeta">
+        <div class="res-cab"><h2 class="rotulo">Resultado</h2><span class="chip" id="rp-chip"></span></div>
+        <div id="rp-principal"></div>
+        <div class="res-graficos" id="rp-graficos"></div>
+        <div class="acciones-res">
+          <a class="btn btn-pri" href="#calculadora">Calcular mi declaración</a>
+          <a class="btn btn-sec" href="#plan-pensiones">Ahorro por aportar</a>
+        </div>
+      </div>
+      <div class="tarjeta">
+        <h2 class="rotulo">Detalle año a año</h2>
+        <table class="desglose" id="rp-desglose"></table>
+      </div>
+      <div class="tarjeta">
+        <h2 class="rotulo">Según en cuántos años lo repartes</h2>
+        <table class="ranking rp-anios" id="rp-anios-tabla"></table>
+      </div>
+      <div class="tarjeta tarjeta-ranking">
+        <h2 class="rotulo" id="rp-t-ranking">IRPF extra por territorio</h2>
+        <table class="ranking hr-ranking" id="rp-ranking"></table>
+      </div>
+      <p class="nota" id="rp-nota"></p>
+    </div>
+  </div>
+</section>
+
 </main>
 
 <div class="barra-movil" id="barra-movil" aria-live="polite">
@@ -604,6 +673,7 @@
 <script src="js/app.js"></script>
 <script src="js/herramientas.js"></script>
 <script src="js/informe.js"></script>
+<script src="js/rescate.js"></script>
 <script src="js/anuncios.js"></script>
 </body>
 </html>

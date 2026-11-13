@@ -29,6 +29,14 @@ rn_trabajo_previo <- function(pers, P, regimen = "comun") {
       P$estatal$trabajo_reduccion_irregular$porcentaje
     integro <- integro - red_irr
   }
+  # prestación de un plan de pensiones cobrada en forma de capital con derecho al régimen
+  # transitorio (LIRPF DT 12.ª): reducción del 40 % de la parte que corresponde a lo aportado
+  # hasta el 31-12-2006 (art. 17.2.b del TR de la LIRPF en su redacción a esa fecha). El
+  # plazo de la DT 12.ª.4 lo comprueba dt12_en_plazo(). Solo en el régimen común: los
+  # regímenes forales tienen sus propias reglas, que el motor aún no recoge.
+  dt12 <- tr$prestacion_dt12 %||% 0
+  if (regimen == "comun" && dt12 > 0)
+    integro <- integro - dt12 * P$estatal$prestaciones_prevision_dt12$porcentaje
   # "Otros gastos" del art. 19.2.f (2.000 € genéricos + incrementos): SOLO régimen común.
   # En el País Vasco y Navarra el ajuste equivalente va por la bonificación / reducción
   # propia del trabajo (ver reduccion_trabajo()).

@@ -1532,3 +1532,35 @@ rendimiento del segundo.
 **Varias imputaciones (art. 85 LIRPF).** 100.000 € de valor catastral revisado (1,1 %) →
 1.100 €; 50.000 € sin revisar (2 %) → 1.000 €. Total 2.100 €. En el caso
 `formulario_completo_*`: 80.000 × 1,1 % + 30.000 × 2 % = 880 + 600 = 1.480 €.
+## Rescate del plan de pensiones (2026-11-12)
+
+Motor: `R/16_rescate_plan.R` (`dt12_en_plazo`, `rescate_plan`) ↔ `irpfsim.dt12EnPlazo`, `irpfsim.rescatePlan`;
+la reducción va en `rn_trabajo_previo()` (campo `trabajo$prestacion_dt12`, solo régimen común).
+Norma: LIRPF art. 17.2.a.3.º y DT 12.ª (BOE-A-2006-20764), plazos de la DT 12.ª.4 (Ley 26/2014).
+Tests: `tests/testthat/test-rescate-plan.R`, `test/rescate.test.mjs`; validador: `dt12_*`, `rescate26_*`, `rescate25_*`.
+
+**Caso 1. Madrid 2026, 66 años, cobra 75.000 € en capital, 30.000 de lo aportado hasta 2006.**
+
+| Paso | Cuenta | Importe |
+|---|---|---|
+| Rendimiento íntegro computable | 75.000 − 40 % × 30.000 | 63.000,00 |
+| Otros gastos (art. 19.2.f) | | −2.000,00 |
+| Reducción del art. 20 | rendimiento > umbral | 0,00 |
+| Base liquidable general | | 61.000,00 |
+| Escala estatal sobre 61.000 | 1.182,75 + 930 + 2.250 + 4.588 + 225 | 9.175,75 |
+| Menos mínimo (5.550 + 1.150 por más de 65) al 9,5 % | 6.700 × 9,5 % | −636,50 |
+| Cuota íntegra estatal | | **8.539,25** |
+
+**Caso 2. Plazos (DT 12.ª.4), cobro en 2026.** Jubilación en 2024: en plazo (2024 + 2 ≥ 2026). En 2023: fuera.
+Jubilación entre 2011 y 2014: hasta el octavo año siguiente (2014 → 2022). Antes de 2011: hasta 2018.
+
+**Caso 3. Formas de rescate (Madrid 2026, 30.000 € hasta 2006 + 30.000 desde 2007, pensión de 15.000 €, jubilación en 2026, 5 años).**
+IRPF sin rescate: 0 (la reducción del art. 20 y el mínimo cubren la pensión).
+- De una vez: 60.000 € con reducción de 12.000 → IRPF extra **16.547,61 €**.
+- Mixto: 36.000 € el primer año (con la reducción) y 6.000 € los cuatro siguientes → **18.474,42 €**.
+- Renta: 12.000 € al año durante 5 años, sin reducción → 5 × 4.306,12 = **21.530,60 €**. Cada año la pensión
+  más la renta (27.000 €) supera el umbral de la reducción del art. 20 y la pierde: por eso repartir sale peor aquí.
+
+País Vasco y Navarra: el rescate tiene reglas forales propias (integración del 60 % del primer cobro en capital,
+con sus límites y su régimen transitorio). Quedan pendientes hasta comprobarlas en el BOB, el BOG, el BOTHA y el BON;
+el motor no aplica la reducción en esos regímenes y la herramienta no los ofrece.
