@@ -30,7 +30,7 @@ window.MAPAFISCAL_CONFIG = {
   // falta. Nunca para quien tiene plan de pago. La versión autónoma (empaquetar.mjs) lo fuerza
   // a false. PARA ENCENDER: poner los data-ad-slot de abajo y `anuncios: true` en la misma PR
   // (la política de cookies se adapta sola: legal/cookies.html lee este fichero).
-  anuncios: false,
+  anuncios: true,
   adsenseCliente: "ca-pub-3028486034839853",
 
   // Consentimiento en el EEE: "google" = CMP certificada de Google («Privacidad y mensajes»
@@ -41,11 +41,11 @@ window.MAPAFISCAL_CONFIG = {
 
   // data-ad-slot de cada bloque (AdSense → Anuncios → Por bloque de anuncios → Anuncios de
   // display, «Adaptable»). Vacío, ese hueco no se muestra ni pide nada.
-  adsenseHuecoRailIzq: "",   // «mf-carril-izq»: carril izquierdo, escritorio ≥1280 px
-  adsenseHuecoRailDer: "",   // «mf-carril-der»: carril derecho, escritorio ≥1280 px
-  adsenseHuecoMovil: "",     // «mf-resultado-medio»: entre tarjetas del resultado, por debajo de 1280 px
-  adsenseHuecoCalc: "",      // «mf-resultado-final»: al final de la columna de resultados
-  adsenseHuecoComparar: "",  // «mf-comparar»: bajo el mapa y la tabla de Comparar
+  adsenseHuecoRailIzq: "7552034337", // «mf-carril-izq»: carril izquierdo, escritorio ≥1280 px
+  adsenseHuecoRailDer: "6238952662", // «mf-carril-der»: carril derecho, escritorio ≥1280 px
+  adsenseHuecoMovil: "3458865755", // «mf-resultado-medio»: entre tarjetas del resultado, por debajo de 1280 px
+  adsenseHuecoCalc: "2215947173", // «mf-resultado-final»: al final de la columna de resultados
+  adsenseHuecoComparar: "9832702418", // «mf-comparar»: bajo el mapa y la tabla de Comparar
 
   // Informe completo en PDF (js/informe.js). Vías de desbloqueo (negocio/otros-ingresos.md §1):
   // plan de pago (siempre), pago único y anuncio bonificado. Aceptar cookies NO desbloquea.
