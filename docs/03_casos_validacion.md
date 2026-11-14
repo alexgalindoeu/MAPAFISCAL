@@ -110,12 +110,14 @@ y que el caso sin DT 9ª computa los 40.000 € íntegros.
 ## Deducciones autonómicas — Cataluña (DL 1/2024)
 
 Codificadas en `tests/testthat/test-ded-cataluna.R`. 7 de las 13 deducciones del
-libro sexto del Código Tributario de Catalunya.
+libro sexto del Código Tributario de Catalunya. Cotejadas (11-2026) con el Manual Práctico
+de Renta 2025 de la AEAT: confirmadas todas salvo el ángel inversor (provisional: no distingue el 50 %
+de las sociedades participadas por universidades).
 
 | Deducción (art.) | Regla | Comprobación |
 |---|---|---|
-| Nacimiento o adopción (612-1) | 150 €/progenitor (individual), 300 € (conjunta), solo año del nacimiento | — |
-| Alquiler vivienda habitual (612-3) | 10 %, máx. 500 €, ≤ 35 años, *(base − mínimo) ≤ 30.000 / 45.000* | joven bajo umbral → 500 €; renta alta → 0 |
+| Nacimiento o adopción (612-1) | 150 €/progenitor (individual), 300 € (conjunta o familia monoparental), solo año del nacimiento, sin incremento por parto múltiple | monoparental → 300 €; gemelos en individual → 2 × 150 = 300 € por progenitor |
+| Alquiler vivienda habitual (612-3) | 10 %, máx. 500 € (1.000 € en conjunta), ≤ 35 años o discapacidad ≥ 65 %; 1.000 € a familias numerosas o monoparentales sin otro requisito; *(base − mínimo) ≤ 30.000 / 45.000* | joven bajo umbral → 500 €; renta alta → 0; FN de 45 años con 12.000 € → 1.200 → 1.000 €; conjunta con 12.000 € → 1.000 € |
 | Rehabilitación vivienda habitual (612-4) | 1,5 %, base máx. 9.040 € | 6.000 € → 90 €; 20.000 € → 135,60 € (tope) |
 | Donativos fomento lengua catalana/occitana (612-6) | 15 %, tope 10 % de la cuota íntegra autonómica | — |
 | Donativos a I+D+i (612-7) | 30 %, tope 10 % de la cuota íntegra autonómica | 400 € → 120 €; 50.000 € → 10 % de la cuota autonómica |

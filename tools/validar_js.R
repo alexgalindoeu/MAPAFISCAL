@@ -403,6 +403,23 @@ add("ct_alquiler_bi", "ES-CT", "ninguna", "no",
                  prevision_social=list(aportacion_individual=1500), alquiler_vivienda_pagos=8000)),
     list(list(id="d1",rol="declarante",edad=30, trabajo=list(dinerarias=41164,cotizacionesSs=2614),
               previsionSocial=list(aportacionIndividual=1500), alquilerViviendaPagos=8000)))
+# Cataluña (cotejo 11-2026): monoparental con FN, 45 años, alquiler 12.000 € (art. 612-3:
+# 1.000 €) y un nacimiento (art. 612-1: 300 € monoparental); gemelos sin incremento
+add("ct_mono_fn_alquiler", "ES-CT", "monoparental", "general",
+    list(persona("d1","declarante",45, trabajo=list(dinerarias=30000, cotizaciones_ss=1905), alquiler_vivienda_pagos=12000),
+         persona("h1","descendiente",10), persona("h2","descendiente",8),
+         persona("h3","descendiente",0, nacido_en_ejercicio=TRUE)),
+    list(list(id="d1",rol="declarante",edad=45, trabajo=list(dinerarias=30000,cotizacionesSs=1905), alquilerViviendaPagos=12000),
+         list(id="h1",rol="descendiente",edad=10), list(id="h2",rol="descendiente",edad=8),
+         list(id="h3",rol="descendiente",edad=0, nacidoEnEjercicio=TRUE)))
+add("ct_gemelos_conj_alquiler", "ES-CT", "biparental", "no",
+    list(persona("d1","declarante",30, trabajo=list(dinerarias=25000, cotizaciones_ss=1588), alquiler_vivienda_pagos=12000),
+         persona("d2","conyuge",40),
+         persona("h1","descendiente",0, nacido_en_ejercicio=TRUE), persona("h2","descendiente",0, nacido_en_ejercicio=TRUE)),
+    list(list(id="d1",rol="declarante",edad=30, trabajo=list(dinerarias=25000,cotizacionesSs=1588), alquilerViviendaPagos=12000),
+         list(id="d2",rol="conyuge",edad=40),
+         list(id="h1",rol="descendiente",edad=0, nacidoEnEjercicio=TRUE), list(id="h2",rol="descendiente",edad=0, nacidoEnEjercicio=TRUE)),
+    parto_multiple = TRUE)
 
 add("vc_taper", "ES-VC", "monoparental", "no",
     list(persona("d1","declarante",30, trabajo=list(dinerarias=32000, cotizaciones_ss=1500),

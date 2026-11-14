@@ -1,6 +1,6 @@
 {
  "ejercicio": 2025,
- "generado": "2026-11-13",
+ "generado": "2026-11-14",
  "territorios": {
   "ES-AN": {
    "territorio": "ES-AN",
@@ -151,6 +151,195 @@
        "importe": 600,
        "requiere_familia_numerosa": true,
        "requiere_discapacidad_65_de": "declarantes_o_descendientes"
+      }
+     ]
+    }
+   ]
+  },
+  "ES-CT": {
+   "territorio": "ES-CT",
+   "nombre": "Cataluña",
+   "regimen": "comun",
+   "fichas": [
+    {
+     "titulo": "Por nacimiento o adopción de un hijo o de una hija o por acogimiento familiar",
+     "url_aeat": "https://sede.agenciatributaria.gob.es/Sede/ayuda/manuales-videos-folletos/manuales-practicos/irpf-2025-deducciones-autonomicas/comunidad-autonoma-cataluna/nacimiento-adopcion-hijo-hija-acogimiento-familiar.html",
+     "boe": [
+
+     ],
+     "normas": [
+      "Art. 612-1 DL 1/2024"
+     ],
+     "supuestos": [
+      {
+       "id": "nacimiento_adopcion",
+       "norma": "Art. 612-1 DL 1/2024",
+       "tipo": "fija_por_hijo_nacido",
+       "importe": 150,
+       "importe_conjunta": 300,
+       "importe_multiple": 0,
+       "anios_ventana": 1,
+       "prorratea_progenitores": false,
+       "grupo": "nacimiento_ct"
+      },
+      {
+       "id": "nacimiento_adopcion_monoparental",
+       "norma": "Art. 612-1 DL 1/2024",
+       "tipo": "fija_por_hijo_nacido",
+       "importe": 300,
+       "importe_multiple": 0,
+       "anios_ventana": 1,
+       "requiere_monoparental": true,
+       "prorratea_progenitores": false,
+       "grupo": "nacimiento_ct"
+      }
+     ]
+    },
+    {
+     "titulo": "Por alquiler de la vivienda habitual",
+     "url_aeat": "https://sede.agenciatributaria.gob.es/Sede/ayuda/manuales-videos-folletos/manuales-practicos/irpf-2025-deducciones-autonomicas/comunidad-autonoma-cataluna/alquiler-vivienda-habitual.html",
+     "boe": [
+
+     ],
+     "normas": [
+      "Art. 612-3 DL 1/2024"
+     ],
+     "supuestos": [
+      {
+       "id": "arrendamiento_vivienda_habitual",
+       "norma": "Art. 612-3 DL 1/2024",
+       "tipo": "porcentaje_campo",
+       "campo": "alquiler_vivienda_pagos",
+       "porcentaje": 0.1,
+       "limite": 500,
+       "limite_conjunta": 1000,
+       "edad_max": 36,
+       "base_gate": "menos_minimo",
+       "base_max_individual": 30000,
+       "base_max_conjunta": 45000,
+       "grupo": "alquiler_ct"
+      },
+      {
+       "id": "arrendamiento_vivienda_habitual_discapacidad",
+       "norma": "Art. 612-3 DL 1/2024",
+       "tipo": "porcentaje_campo",
+       "campo": "alquiler_vivienda_pagos",
+       "porcentaje": 0.1,
+       "limite": 500,
+       "limite_conjunta": 1000,
+       "requiere_discapacidad_grado": "65_mas",
+       "base_gate": "menos_minimo",
+       "base_max_individual": 30000,
+       "base_max_conjunta": 45000,
+       "grupo": "alquiler_ct"
+      },
+      {
+       "id": "arrendamiento_vivienda_habitual_familia_numerosa",
+       "norma": "Art. 612-3 DL 1/2024",
+       "tipo": "porcentaje_campo",
+       "campo": "alquiler_vivienda_pagos",
+       "porcentaje": 0.1,
+       "limite": 1000,
+       "requiere_familia_numerosa": true,
+       "prorratea_progenitores": false,
+       "base_gate": "menos_minimo",
+       "base_max_individual": 30000,
+       "base_max_conjunta": 45000,
+       "grupo": "alquiler_ct"
+      },
+      {
+       "id": "arrendamiento_vivienda_habitual_monoparental",
+       "norma": "Art. 612-3 DL 1/2024",
+       "tipo": "porcentaje_campo",
+       "campo": "alquiler_vivienda_pagos",
+       "porcentaje": 0.1,
+       "limite": 1000,
+       "requiere_monoparental": true,
+       "prorratea_progenitores": false,
+       "base_gate": "menos_minimo",
+       "base_max_individual": 30000,
+       "base_max_conjunta": 45000,
+       "grupo": "alquiler_ct"
+      }
+     ]
+    },
+    {
+     "titulo": "Por rehabilitación de la vivienda habitual",
+     "url_aeat": "https://sede.agenciatributaria.gob.es/Sede/ayuda/manuales-videos-folletos/manuales-practicos/irpf-2025-deducciones-autonomicas/comunidad-autonoma-cataluna/rehabilitacion-vivienda-habitual.html",
+     "boe": [
+
+     ],
+     "normas": [
+      "Art. 612-4 DL 1/2024"
+     ],
+     "supuestos": [
+      {
+       "id": "rehabilitacion_vivienda_habitual",
+       "norma": "Art. 612-4 DL 1/2024",
+       "tipo": "porcentaje_campo",
+       "campo": "rehabilitacion_vivienda_pagos",
+       "porcentaje": 0.015,
+       "base_maxima": 9040
+      }
+     ]
+    },
+    {
+     "titulo": "Por donativos a entidades que fomentan el uso de la lengua catalana o de la occitana",
+     "url_aeat": "https://sede.agenciatributaria.gob.es/Sede/ayuda/manuales-videos-folletos/manuales-practicos/irpf-2025-deducciones-autonomicas/comunidad-autonoma-cataluna/donativos-entidades-que-fomentan-lengua-occitana.html",
+     "boe": [
+
+     ],
+     "normas": [
+      "Art. 612-6 DL 1/2024"
+     ],
+     "supuestos": [
+      {
+       "id": "donativos_fomento_lengua_catalana",
+       "norma": "Art. 612-6 DL 1/2024",
+       "tipo": "porcentaje_campo",
+       "campo": "donativos_lengua_catalana",
+       "porcentaje": 0.15,
+       "limite_pct_cuota_autonomica": 0.1
+      }
+     ]
+    },
+    {
+     "titulo": "Por donativos a entidades que fomentan la investigación científica y el desarrollo y la innovación tecnológicos",
+     "url_aeat": "https://sede.agenciatributaria.gob.es/Sede/ayuda/manuales-videos-folletos/manuales-practicos/irpf-2025-deducciones-autonomicas/comunidad-autonoma-cataluna/donativos-entidades-que-fomentan-investigacion.html",
+     "boe": [
+
+     ],
+     "normas": [
+      "Art. 612-7 DL 1/2024"
+     ],
+     "supuestos": [
+      {
+       "id": "donativos_investigacion_i_d_i",
+       "norma": "Art. 612-7 DL 1/2024",
+       "tipo": "porcentaje_campo",
+       "campo": "donativos_investigacion",
+       "porcentaje": 0.3,
+       "limite_pct_cuota_autonomica": 0.1
+      }
+     ]
+    },
+    {
+     "titulo": "Por inversión en sociedades cooperativas agrarias y de vivienda",
+     "url_aeat": "https://sede.agenciatributaria.gob.es/Sede/ayuda/manuales-videos-folletos/manuales-practicos/irpf-2025-deducciones-autonomicas/comunidad-autonoma-cataluna/inversion-sociedades-cooperativas.html",
+     "boe": [
+
+     ],
+     "normas": [
+      "Art. 612-12 DL 1/2024"
+     ],
+     "supuestos": [
+      {
+       "id": "inversion_cooperativas_agrarias_vivienda",
+       "norma": "Art. 612-12 DL 1/2024",
+       "tipo": "porcentaje_campo",
+       "campo": "inversion_cooperativas_cat",
+       "porcentaje": 0.2,
+       "limite": 3000
       }
      ]
     }

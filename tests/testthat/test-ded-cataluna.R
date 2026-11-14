@@ -67,9 +67,9 @@ test_that("Cataluña: nacimiento (art. 612-1), 300 € a la familia monoparental
   mono <- nuevo_hogar("v","ES-CT", list(persona("d1","declarante",34, trabajo=list(dinerarias=30000, cotizaciones_ss=1905)),
                                        persona("h1","descendiente",0, nacido_en_ejercicio=TRUE)),
                       tipo_unidad_familiar = "monoparental")
-  d <- liquidar(mono)$deducciones_autonomicas$detalle
+  d <- liquidar(mono, modo = "individual")$deducciones_autonomicas$detalle   # en conjunta, 300 € por la vía general
   expect_equal(d$nacimiento_adopcion_monoparental, 300)
-  expect_null(d$nacimiento_adopcion)              # variante excluyente (grupo): se aplica la mayor
+  expect_null(d[["nacimiento_adopcion"]])            # variante excluyente (grupo): se aplica la mayor
 
   # gemelos en individual (pareja): 150 € por hijo y progenitor, sin incremento por parto múltiple
   gem <- nuevo_hogar("v","ES-CT", list(persona("d1","declarante",34, trabajo=list(dinerarias=30000, cotizaciones_ss=1905)),

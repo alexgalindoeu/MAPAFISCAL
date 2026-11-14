@@ -24,21 +24,27 @@ const CAMPO = {
   gastos_idiomas_informatica: "las clases extraescolares de idiomas e informática",
   gastos_escolaridad: "los gastos de escolaridad",
   gastos_idiomas: "la enseñanza de idiomas",
-  gastos_vestuario_escolar: "el vestuario de uso exclusivo escolar"
+  gastos_vestuario_escolar: "el vestuario de uso exclusivo escolar",
+  rehabilitacion_vivienda_pagos: "las cantidades pagadas por la rehabilitación de la vivienda habitual",
+  donativos_lengua_catalana: "los donativos a entidades que fomentan el uso de la lengua catalana o de la occitana",
+  donativos_investigacion: "los donativos a entidades que fomentan la investigación científica y la innovación tecnológica",
+  inversion_cooperativas_cat: "las aportaciones de capital a cooperativas agrarias o de vivienda",
+  gastos_guarderia: "los gastos de custodia en guarderías o centros de educación infantil autorizados",
+  gastos_estudios_no_superiores: "los gastos de estudios no superiores (libros de texto, material didáctico, transporte, uniforme y comedor escolar)"
 };
 const DEDUCCION_POR_ID = { nacimiento_adopcion: "la deducción por nacimiento o adopción" };
 
 // Claves que no hace falta explicar (internas) o que se explican junto con otra.
 const INTERNAS = new Set(["id", "norma", "tipo", "grupo", "suma_bases", "base_gate", "prorratea_progenitores",
   "multiple_por_hijo", "campo", "campos", "anios_ventana", "anios_ventana_desde", "importe", "importe_multiple",
-  "importes_por_orden", "porcentaje", "limite", "limite_conjunta", "limite_si_campo", "primer_ciclo",
+  "importes_por_orden", "importe_conjunta", "base_maxima", "limite_pct_cuota_autonomica", "porcentaje", "limite", "limite_conjunta", "limite_si_campo", "primer_ciclo",
   "sobre_cuota_integra", "hijos_desde_orden", "edad_hijo_min", "edad_hijo_max", "edad_ascendiente_min",
   "ascendiente_discapacidad", "edad_ascendiente_min_discapacidad", "requiere_minimo_ascendiente",
   "base_max_individual", "base_max_conjunta", "base_min_individual", "base_min_conjunta",
   "miembros_uf_hijos_edad_max", "descendientes_min", "descendientes_max", "descendientes_edad_max_cuenta",
   "prorratea_desempleo"]);
 const EXPLICADAS = new Set(["requiere_familia_numerosa", "familia_numerosa_categoria", "requiere_familia_numerosa_reciente",
-  "requiere_monoparental", "requiere_titulo_monoparental", "requiere_discapacidad_contribuyente", "requiere_discapacidad_65_de",
+  "requiere_monoparental", "requiere_titulo_monoparental", "requiere_discapacidad_grado", "requiere_discapacidad_contribuyente", "requiere_discapacidad_65_de",
   "edad_max", "edad_min", "descendiente_edad_max", "requiere_zona_despoblada", "requiere_progenitores_trabajan",
   "requiere_desempleo", "base_max_por_miembro_uf", "taper_individual", "taper_conjunta", "incremento_municipio",
   "factor_discapacidad", "duplica_hijo_discapacidad", "descendientes_sin_deduccion"]);
@@ -75,12 +81,12 @@ function cuanto(d) {
     case "fija_por_hijo_nacido": {
       const o = d.importes_por_orden;
       let s = o ? `${eur(o["1"])} por el primer hijo, ${eur(o["2"])} por el segundo y ${eur(o["3+"])} por el tercero y siguientes`
-                : `${eur(d.importe)} por cada hijo`;
+                : `${eur(d.importe)} por cada hijo${d.importe_conjunta != null ? ` (${eur(d.importe_conjunta)} en tributación conjunta)` : ""}`;
       const desde = d.anios_ventana_desde || 1, hasta = d.anios_ventana || 1;
       if (desde > 1) s += `, en cada uno de los ${hasta - desde + 1} años siguientes al del nacimiento o la adopción`;
       else if (hasta === 1) s += " nacido o adoptado en el año";
       else return null;
-      if (d.importe_multiple != null) s += d.multiple_por_hijo
+      if (d.importe_multiple) s += d.multiple_por_hijo
         ? `; en partos o adopciones múltiples, ${eur(d.importe_multiple)} más por cada hijo`
         : `; en partos o adopciones múltiples, ${eur(d.importe_multiple)} más`;
       return s;
@@ -94,7 +100,7 @@ function cuanto(d) {
     }
     case "porcentaje_campo":
       if (!CAMPO[d.campo]) return null;
-      return `${pctCorto(d.porcentaje)} de ${CAMPO[d.campo]}${lim}`;
+      return `${pctCorto(d.porcentaje)} de ${CAMPO[d.campo]}${d.base_maxima != null ? ` (con una base máxima de ${eur(d.base_maxima)})` : ""}${lim}${d.limite_pct_cuota_autonomica != null ? `, sin superar el ${pctCorto(d.limite_pct_cuota_autonomica)} de la cuota íntegra autonómica` : ""}`;
     case "porcentaje_campo_hijo":
       if (!CAMPO[d.campo]) return null;
       return `${pctCorto(d.porcentaje)} de ${CAMPO[d.campo]} de cada hijo${d.edad_hijo_max != null ? ` de ${d.edad_hijo_max} años o menos` : ""}${d.limite != null ? `, con un máximo de ${eur(d.limite)} por hijo` : ""}`;
@@ -131,6 +137,10 @@ function requisitos(d) {
   if (d.requiere_familia_numerosa_reciente) r.push("Haber obtenido el título de familia numerosa con efectos desde el 1 de enero de 2023: se aplica el año en que se obtiene y los dos siguientes");
   if (d.requiere_monoparental) r.push("Ser familia monoparental");
   if (d.requiere_titulo_monoparental) r.push(`Tener el título de familia monoparental de categoría ${d.requiere_titulo_monoparental}`);
+  if (d.requiere_discapacidad_grado != null) {
+    if (d.requiere_discapacidad_grado !== "65_mas") return null;
+    r.push("Que el contribuyente tenga un grado de discapacidad igual o superior al 65 %");
+  }
   if (d.requiere_discapacidad_contribuyente) r.push("Que el contribuyente tenga un grado de discapacidad igual o superior al 33 %");
   if (d.requiere_discapacidad_65_de) {
     const q = conQuien(d.requiere_discapacidad_65_de); if (!q) return null;
