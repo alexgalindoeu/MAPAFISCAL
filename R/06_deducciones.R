@@ -73,6 +73,8 @@ deducciones_estatales <- function(hogar, P, rentas, base_liquidable_total, perso
 #     suma_bases: "imponibles" -> las puertas y el taper usan la suma de bases imponibles
 #       general y del ahorro (0435 + 0460) en vez de la de bases liquidables (por defecto);
 #     base_gate: "menos_minimo" -> base imponible − mínimo del gravamen autonómico (0520)
+#     base_gate: "general_menos_minimo" -> base imponible general − mínimo (0435 − 0519);
+#     base_ahorro_max: tope de la base imponible del ahorro; limite_por_hijo_adicional
 #     base_max_por_miembro_uf: base de la UF <= importe x nº de miembros (declarantes +
 #       descendientes < 18); requiere_familia_numerosa_reciente (hogar$familia_numerosa_reciente)
 #     requiere_discapacidad_65_de: "declarantes_o_descendientes" | "contribuyente_o_descendientes"
@@ -120,8 +122,11 @@ deducciones_autonomicas <- function(hogar, P, rentas, modo = "individual", base_
   # (base imponible − mínimo personal y familiar del gravamen autonómico, casilla 0520).
   base_imp <- if (is.null(rentas$base_imponible_general)) base_total else
     rentas$base_imponible_general + (rentas$base_imponible_ahorro %||% 0)
+  base_ahorro <- rentas$base_imponible_ahorro %||% 0
   base_puerta <- function(d) {
     if (identical(g(d, "base_gate"), "menos_minimo")) return(max(0, base_imp - minimo_autonomico))
+    # base imponible GENERAL − mínimo personal y familiar (0435 − 0519; Murcia, art. 1.Trece)
+    if (identical(g(d, "base_gate"), "general_menos_minimo")) return(max(0, base_imp - base_ahorro - minimo))
     if (identical(g(d, "suma_bases"), "imponibles")) return(base_imp)
     base_ind
   }
@@ -173,6 +178,8 @@ deducciones_autonomicas <- function(hogar, P, rentas, modo = "individual", base_
 
   pasa_puertas <- function(d) {
     b <- base_puerta(d)
+    # `base_ahorro_max`: la base imponible del ahorro no puede superar ese importe
+    if (!is.null(g(d,"base_ahorro_max")) && base_ahorro > g(d,"base_ahorro_max")) return(FALSE)
     if (!is.null(g(d,"base_max_individual")) && !es_conj && b > g(d,"base_max_individual")) return(FALSE)
     if (!is.null(g(d,"base_max_conjunta"))   &&  es_conj && b > g(d,"base_max_conjunta"))   return(FALSE)
     if (!is.null(g(d,"base_min_individual")) && !es_conj && b < g(d,"base_min_individual")) return(FALSE)

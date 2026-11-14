@@ -944,8 +944,8 @@
     "fuente_autonomica": null
    },
    "deducciones": {
-    "modeladas": 7,
-    "provisionales": 3,
+    "modeladas": 10,
+    "provisionales": 1,
     "pendientes": 17
    }
   },

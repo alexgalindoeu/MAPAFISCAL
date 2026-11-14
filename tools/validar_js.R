@@ -429,6 +429,19 @@ add("cn_cuarto_hijo_fn_disc", "ES-CN", "monoparental", "general",
     list(list(id="d1",rol="declarante",edad=40, trabajo=list(dinerarias=30000,cotizacionesSs=1905), gastosEstudiosNoSuperiores=1000),
          list(id="h1",rol="descendiente",edad=10, discapacidad="65_mas"), list(id="h2",rol="descendiente",edad=8),
          list(id="h3",rol="descendiente",edad=5), list(id="h4",rol="descendiente",edad=0, nacidoEnEjercicio=TRUE)))
+# Murcia (cotejo 11-2026): familia numerosa de 50 años, alquiler 6.000 € (art. 1.Trece: 300 €)
+# y material escolar con el límite de 33.000 € (3 × 120); el segundo, con 2.000 € de
+# intereses (base del ahorro > 1.800 €), pierde el alquiler
+add("mc_fn_alquiler_material", "ES-MC", "monoparental", "general",
+    list(persona("d1","declarante",50, trabajo=list(dinerarias=32000, cotizaciones_ss=2032), alquiler_vivienda_pagos=6000),
+         persona("h1","descendiente",10), persona("h2","descendiente",8), persona("h3","descendiente",5)),
+    list(list(id="d1",rol="declarante",edad=50, trabajo=list(dinerarias=32000,cotizacionesSs=2032), alquilerViviendaPagos=6000),
+         list(id="h1",rol="descendiente",edad=10), list(id="h2",rol="descendiente",edad=8), list(id="h3",rol="descendiente",edad=5)))
+add("mc_alquiler_ahorro", "ES-MC", "ninguna", "no",
+    list(persona("d1","declarante",30, trabajo=list(dinerarias=30000, cotizaciones_ss=1905),
+                 capital_mobiliario=list(intereses=2000), alquiler_vivienda_pagos=6000)),
+    list(list(id="d1",rol="declarante",edad=30, trabajo=list(dinerarias=30000,cotizacionesSs=1905),
+              capitalMobiliario=list(intereses=2000), alquilerViviendaPagos=6000)))
 # Canarias: pareja en individual, 2 hijos, estudios del declarante: límite (133 + 66) / 2
 add("cn_estudios_pareja", "ES-CN", "biparental", "no",
     list(persona("d1","declarante",40, trabajo=list(dinerarias=30000, cotizaciones_ss=1905), gastos_estudios_no_superiores=500),

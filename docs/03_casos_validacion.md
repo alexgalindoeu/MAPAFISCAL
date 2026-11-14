@@ -268,19 +268,24 @@ isla, donativos, inversión en acciones.
 
 ## Deducciones autonómicas — Región de Murcia (DL 1/2010)
 
-Codificadas en `tests/testthat/test-ded-murcia.R`. 7 deducciones (de ~27).
-Fuente: TR de tributos cedidos de la Región de Murcia (DL 1/2010), art. 1, y
-AEAT *Manual Práctico Renta 2025, Parte 2 — Deducciones autonómicas / Región de Murcia*.
+Codificadas en `tests/testthat/test-ded-murcia.R`. 7 deducciones (de ~27), cotejadas (11-2026)
+con el Manual Práctico de Renta 2025 de la AEAT, parte 2, Región de Murcia: 6 confirmadas y la de
+conciliación, provisional. Los límites de renta son sobre las bases imponibles (0435 + 0460).
 
 | Deducción (art. 1.·) | Regla |
 |---|---|
 | Nacimiento o adopción (Nueve) | 100 / 200 / 300 € por orden del hijo nacido; *base ≤ 30.000 (ind.) / 50.000 (conj.)*; por mitad si ambos progenitores declaran y conviven |
 | Gastos de guardería (Tres) | 20 % de los gastos de Primer Ciclo de Ed. Infantil (0–3 años), límite **1.000 €/hijo**; *base ≤ 30.000 / 50.000* |
-| Material escolar y libros de texto (Ocho) | **120 € por descendiente** (2.º ciclo infantil, primaria y ESO); *base ≤ 20.000 / 40.000* (🟡 edad 3–16 aproxima la etapa; límites de familia numerosa 33.000/53.000 no modelados); prorrateo |
+| Material escolar y libros de texto (Ocho) | **120 € por descendiente** (2.º ciclo infantil, primaria y ESO; la edad 3–16 aproxima la etapa); *base ≤ 20.000 / 40.000*, o *≤ 33.000 / 53.000* en familia numerosa; prorrateo |
 | Contribuyentes con discapacidad (Diez) | **150 €** por contribuyente con grado ≥ 33 %; *base ≤ 40.000* (ind. o conj.) |
-| Conciliación — cuidado de descendientes (Once.A) | 20 % de las cuotas del Sistema Especial de Empleados de Hogar, límite **400 €**; al menos un hijo < 12 años (🟡 requiere alta como empleador; se usa el campo `cuotas_ss_empleada_hogar`) |
-| Familia monoparental (Dieciséis) | **303 €** con descendientes a cargo; *base + anualidades exentas ≤ 35.240 €* |
-| Arrendamiento de vivienda habitual (Trece) | 10 % de lo pagado, máx. **300 €/contrato**; ≤ 40 años (🟡 alternativas familia numerosa / discapacidad ≥ 65 % no modeladas) |
+| Conciliación — cuidado de descendientes (Once.A) | 20 % de las cuotas del Sistema Especial de Empleados de Hogar, límite **400 €**; al menos un hijo < 12 años, progenitores con trabajo o actividad, *base ≤ 34.000* (🟡 provisional: falta la modalidad B, ascendientes, y el límite es por cónyuge) |
+| Familia monoparental (Dieciséis) | **303 €** con hijos menores de edad; *base + anualidades exentas ≤ 35.240 €* |
+| Arrendamiento de vivienda habitual (Trece) | 10 % de lo pagado, máx. **300 €/contrato**; ≤ 40 años, familia numerosa o discapacidad ≥ 65 % (variantes excluyentes); *base imponible general − mínimo < 40.000* (`base_gate: general_menos_minimo`) y *base del ahorro ≤ 1.800* (`base_ahorro_max`) |
+
+Comprobaciones del cotejo: familia numerosa de 50 años con 6.000 € de alquiler → 10 % = 600 →
+**300 €**; la misma sin título → 0; con 40 años → 300; con 2.000 € de intereses (ahorro > 1.800) →
+0; con 90.000 € de sueldo → 0. Material escolar con base ≈ 27.968 €: familia numerosa con tres
+hijos de 5, 8 y 10 años → 3 × 120 = **360 €**; sin título (límite 20.000) → 0.
 
 ### Comprobación numérica (test `mc_familia`, validado R↔JS)
 

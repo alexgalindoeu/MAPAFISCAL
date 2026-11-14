@@ -318,13 +318,17 @@
     return mejor < 0 ? 0 : ipo[mejor + "+"];
   }
 
-  function deduccionesAutonomicas(hogar, terr, P, modo, baseTotal, cuotaIntegraAut, minimo, declaranteId, baseImponible, minimoAut) {
+  function deduccionesAutonomicas(hogar, terr, P, modo, baseTotal, cuotaIntegraAut, minimo, declaranteId, baseImponible, minimoAut, baseImponibleAhorro) {
     minimo = minimo || 0;
     // suma de bases imponibles (0435 + 0460) y mínimo del gravamen autonómico (0520): los usan
     // `suma_bases: imponibles` y `base_gate: menos_minimo` (base imponible − mínimo autonómico)
     const baseImp = baseImponible != null ? baseImponible : baseTotal;
     const minAut = minimoAut != null ? minimoAut : minimo;
+    // base_gate: general_menos_minimo -> base imponible general − mínimo personal y familiar
+    // (casillas 0435 − 0519; Murcia, art. 1.Trece); base_ahorro_max: tope de la base del ahorro
+    const baseAhorro = num(baseImponibleAhorro);
     const basePuerta = d => d.base_gate === "menos_minimo" ? Math.max(0, baseImp - minAut)
+      : d.base_gate === "general_menos_minimo" ? Math.max(0, baseImp - baseAhorro - num(minimo))
       : (d.suma_bases === "imponibles" ? baseImp : baseTotal);
     const da = terr.deducciones_autonomicas;
     if (!da || da.estado === "pendiente" || !da.lista || !da.lista.length) return { detalle: {}, total: 0, estado: da ? da.estado : "pendiente" };
@@ -360,6 +364,7 @@
 
     const pasaPuertas = d => {
       const b = basePuerta(d);
+      if (d.base_ahorro_max != null && baseAhorro > d.base_ahorro_max) return false;
       if (d.base_max_individual != null && !esConj && b > d.base_max_individual) return false;
       if (d.base_max_conjunta != null && esConj && b > d.base_max_conjunta) return false;
       if (d.base_min_individual != null && !esConj && b < d.base_min_individual) return false;
@@ -728,7 +733,7 @@
     const cuotaIntegraAutonomica = cigAut + ciaAut;
 
     const dedAut = deduccionesAutonomicas(hogar, terr, P, modo, blg + bla, cuotaIntegraAutonomica, mpf.total, declaranteId,
-      r.baseImponibleGeneral + r.baseImponibleAhorro, minimoAut);
+      r.baseImponibleGeneral + r.baseImponibleAhorro, minimoAut, r.baseImponibleAhorro);
     const dedEst = deduccionesEstatales(personas, P, blg + bla);
     let clEst = Math.max(0, cuotaIntegraEstatal - dedEst.totalEstatal);
     let clAut = Math.max(0, cuotaIntegraAutonomica - dedAut.total - dedEst.totalAutonomico);

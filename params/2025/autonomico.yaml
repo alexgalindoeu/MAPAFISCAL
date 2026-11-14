@@ -1802,66 +1802,148 @@ territorios:
       estado: cargado
       fuente: "TR tributos cedidos de la Región de Murcia (DL 1/2010), art. 1 (apartados Tres, Ocho, Nueve, Diez, Once, Trece, Dieciséis); AEAT Manual Práctico Renta 2025, Parte 2 — Deducciones autonómicas / Región de Murcia"
       lista:
+        # Cotejado (11-2026) con el Manual Práctico de Renta 2025 de la AEAT, parte 2, Región de
+        # Murcia. Los límites de renta son sobre la suma de bases imponibles (0435 + 0460).
         - id: nacimiento_adopcion
           norma: "Art. 1.Nueve DL 1/2010 Murcia"
+          estado: confirmado
+          fuente: "Art. 1.Nueve TR de tributos cedidos de la Región de Murcia (DL 1/2010, de 5 de noviembre), vigente en 2025; AEAT Manual Práctico Renta 2025, Parte 2, Región de Murcia, «Por nacimiento o adopción» (https://sede.agenciatributaria.gob.es/Sede/ayuda/manuales-videos-folletos/manuales-practicos/irpf-2025-deducciones-autonomicas/comunidad-autonoma-region-murcia/nacimiento-adopcion.html)"
           tipo: fija_por_hijo_nacido
           anios_ventana: 1
           importes_por_orden: { "1": 100, "2": 200, "3+": 300 }   # 1º/2º/3º y sucesivos
+          suma_bases: imponibles
           base_max_individual: 30000
           base_max_conjunta: 50000
           prorratea_progenitores: true   # por mitad si ambos progenitores declaran y conviven con el hijo
         - id: gastos_guarderia
           norma: "Art. 1.Tres DL 1/2010 Murcia"
+          estado: confirmado
+          fuente: "Art. 1.Tres TR de tributos cedidos de la Región de Murcia (DL 1/2010, de 5 de noviembre), vigente en 2025; AEAT Manual Práctico Renta 2025, Parte 2, Región de Murcia, «Por gastos de guardería» (https://sede.agenciatributaria.gob.es/Sede/ayuda/manuales-videos-folletos/manuales-practicos/irpf-2025-deducciones-autonomicas/comunidad-autonoma-region-murcia/gastos-guarderia.html)"
           tipo: porcentaje_campo_hijo
           campo: gastos_guarderia
           porcentaje: 0.20
-          limite: 1000            # por hijo/descendiente
+          limite: 1000            # por hijo/descendiente (500 € a cada progenitor en individual)
           edad_hijo_max: 2        # Primer Ciclo de Educación Infantil (0-3 años)
+          suma_bases: imponibles
           base_max_individual: 30000
           base_max_conjunta: 50000
+        # Material escolar (art. 1.Ocho): 120 € por descendiente en 2.º ciclo de infantil, primaria
+        # o ESO (se aproxima con la edad, 3-16). Límite de renta: 20.000 / 40.000 €, o
+        # 33.000 / 53.000 € si se forma parte de una familia numerosa.
         - id: material_escolar_libros
           norma: "Art. 1.Ocho DL 1/2010 Murcia"
-          estado: provisional   # edad 3-16 aproxima "2º ciclo infantil + primaria + ESO"; límites de familia numerosa (33.000/53.000) no modelados
+          estado: confirmado
+          fuente: "Art. 1.Ocho TR de tributos cedidos de la Región de Murcia (DL 1/2010, de 5 de noviembre), vigente en 2025; AEAT Manual Práctico Renta 2025, Parte 2, Región de Murcia, «Por gastos en la adquisición de material escolar y libros de texto» (https://sede.agenciatributaria.gob.es/Sede/ayuda/manuales-videos-folletos/manuales-practicos/irpf-2025-deducciones-autonomicas/comunidad-autonoma-region-murcia/gastos-adquisicion-material-escolar-libros-texto.html)"
           tipo: fija_por_hijo
           importe: 120
           edad_hijo_min: 3
           edad_hijo_max: 16
+          familia_numerosa_categoria: "no"
+          suma_bases: imponibles
           base_max_individual: 20000
           base_max_conjunta: 40000
           prorratea_progenitores: true
+        - id: material_escolar_libros_familia_numerosa
+          norma: "Art. 1.Ocho DL 1/2010 Murcia"
+          estado: confirmado
+          fuente: "Art. 1.Ocho TR de tributos cedidos de la Región de Murcia (DL 1/2010, de 5 de noviembre), vigente en 2025; AEAT Manual Práctico Renta 2025, Parte 2, Región de Murcia, «Por gastos en la adquisición de material escolar y libros de texto» (https://sede.agenciatributaria.gob.es/Sede/ayuda/manuales-videos-folletos/manuales-practicos/irpf-2025-deducciones-autonomicas/comunidad-autonoma-region-murcia/gastos-adquisicion-material-escolar-libros-texto.html)"
+          tipo: fija_por_hijo
+          importe: 120
+          edad_hijo_min: 3
+          edad_hijo_max: 16
+          requiere_familia_numerosa: true
+          suma_bases: imponibles
+          base_max_individual: 33000
+          base_max_conjunta: 53000
+          prorratea_progenitores: true
         - id: contribuyente_discapacidad
           norma: "Art. 1.Diez DL 1/2010 Murcia"
+          estado: confirmado
+          fuente: "Art. 1.Diez TR de tributos cedidos de la Región de Murcia (DL 1/2010, de 5 de noviembre), vigente en 2025; AEAT Manual Práctico Renta 2025, Parte 2, Región de Murcia, «Para contribuyentes con discapacidad» (https://sede.agenciatributaria.gob.es/Sede/ayuda/manuales-videos-folletos/manuales-practicos/irpf-2025-deducciones-autonomicas/comunidad-autonoma-region-murcia/contribuyentes-discapacidad.html)"
           tipo: fija
           importe: 150
           requiere_discapacidad_contribuyente: true   # grado >= 33 %
+          suma_bases: imponibles
           base_max_individual: 40000
           base_max_conjunta: 40000
+        # Provisional: la modalidad B (cuidado de ascendientes mayores de 65, otros 400 €; 800 €
+        # entre las dos) no está modelada, y el límite de 34.000 € se exige a CADA cónyuge
+        # (aquí, a la base del ámbito liquidado). Cotejados el 20 %, los 400 €, el hijo menor de
+        # 12 años, el trabajo de los progenitores y los 34.000 €.
         - id: conciliacion_cuidado_descendientes
           norma: "Art. 1.Once.A DL 1/2010 Murcia"
-          estado: provisional   # requiere alta como empleador del Sistema Especial de Empleados de Hogar; se usa el campo cuotas_ss_empleada_hogar
+          estado: provisional
+          fuente: "Art. 1.Once TR de tributos cedidos de la Región de Murcia (DL 1/2010); AEAT Manual Práctico Renta 2025, Parte 2, Región de Murcia, «Por conciliación» (https://sede.agenciatributaria.gob.es/Sede/ayuda/manuales-videos-folletos/manuales-practicos/irpf-2025-deducciones-autonomicas/comunidad-autonoma-region-murcia/conciliacion.html)"
           tipo: porcentaje_campo
           campo: cuotas_ss_empleada_hogar
           porcentaje: 0.20
           limite: 400
           descendiente_edad_max: 11   # al menos un hijo menor de 12 años
+          requiere_progenitores_trabajan: true
+          suma_bases: imponibles
+          base_max_individual: 34000
+          base_max_conjunta: 34000
+        # Monoparental (art. 1.Dieciséis): 303 € con hijos menores de edad (o mayores con
+        # discapacidad, no modelado) sin rentas superiores a 8.000 € (no modelado). El límite
+        # de 35.240 € incluye las anualidades por alimentos exentas (no modeladas).
         - id: familia_monoparental
           norma: "Art. 1.Dieciséis DL 1/2010 Murcia"
+          estado: confirmado
+          fuente: "Art. 1.Dieciséis TR de tributos cedidos de la Región de Murcia (DL 1/2010, de 5 de noviembre), vigente en 2025; AEAT Manual Práctico Renta 2025, Parte 2, Región de Murcia, «Por familia monoparental» (https://sede.agenciatributaria.gob.es/Sede/ayuda/manuales-videos-folletos/manuales-practicos/irpf-2025-deducciones-autonomicas/comunidad-autonoma-region-murcia/familia-monoparental.html)"
           tipo: fija
           importe: 303
           requiere_monoparental: true
-          descendientes_min: 1
+          descendiente_edad_max: 17
+          suma_bases: imponibles
           base_max_individual: 35240
           base_max_conjunta: 35240
+        # Alquiler (art. 1.Trece): 10 %, 300 € por contrato, para quien tenga 40 años o menos,
+        # forme parte de una familia numerosa o tenga discapacidad >= 65 %. Límite de renta: base
+        # imponible general − mínimo personal y familiar (0435 − 0519) INFERIOR a 40.000 € y base
+        # imponible del ahorro <= 1.800 €.
         - id: arrendamiento_vivienda_habitual
           norma: "Art. 1.Trece DL 1/2010 Murcia"
-          estado: provisional   # alternativas al requisito de edad (familia numerosa / discapacidad >= 65 %) no modeladas; límite de renta sin cotejar
+          estado: confirmado
+          fuente: "Art. 1.Trece TR de tributos cedidos de la Región de Murcia (DL 1/2010, de 5 de noviembre), vigente en 2025; AEAT Manual Práctico Renta 2025, Parte 2, Región de Murcia, «Por arrendamiento de vivienda habitual» (https://sede.agenciatributaria.gob.es/Sede/ayuda/manuales-videos-folletos/manuales-practicos/irpf-2025-deducciones-autonomicas/comunidad-autonoma-region-murcia/arrendamiento-vivienda-habitual.html)"
           tipo: porcentaje_campo
           campo: alquiler_vivienda_pagos
           porcentaje: 0.10
           limite: 300            # por contrato
           edad_max: 41           # 40 años o menos a fecha de devengo
-          base_max_individual: 30000
-          base_max_conjunta: 50000
+          base_gate: general_menos_minimo
+          base_max_individual: 39999.99
+          base_max_conjunta: 39999.99
+          base_ahorro_max: 1800
+          grupo: alquiler_mc
+        - id: arrendamiento_vivienda_habitual_familia_numerosa
+          norma: "Art. 1.Trece DL 1/2010 Murcia"
+          estado: confirmado
+          fuente: "Art. 1.Trece TR de tributos cedidos de la Región de Murcia (DL 1/2010, de 5 de noviembre), vigente en 2025; AEAT Manual Práctico Renta 2025, Parte 2, Región de Murcia, «Por arrendamiento de vivienda habitual» (https://sede.agenciatributaria.gob.es/Sede/ayuda/manuales-videos-folletos/manuales-practicos/irpf-2025-deducciones-autonomicas/comunidad-autonoma-region-murcia/arrendamiento-vivienda-habitual.html)"
+          tipo: porcentaje_campo
+          campo: alquiler_vivienda_pagos
+          porcentaje: 0.10
+          limite: 300
+          requiere_familia_numerosa: true
+          prorratea_progenitores: false   # gasto propio de quien paga el alquiler
+          base_gate: general_menos_minimo
+          base_max_individual: 39999.99
+          base_max_conjunta: 39999.99
+          base_ahorro_max: 1800
+          grupo: alquiler_mc
+        - id: arrendamiento_vivienda_habitual_discapacidad
+          norma: "Art. 1.Trece DL 1/2010 Murcia"
+          estado: confirmado
+          fuente: "Art. 1.Trece TR de tributos cedidos de la Región de Murcia (DL 1/2010, de 5 de noviembre), vigente en 2025; AEAT Manual Práctico Renta 2025, Parte 2, Región de Murcia, «Por arrendamiento de vivienda habitual» (https://sede.agenciatributaria.gob.es/Sede/ayuda/manuales-videos-folletos/manuales-practicos/irpf-2025-deducciones-autonomicas/comunidad-autonoma-region-murcia/arrendamiento-vivienda-habitual.html)"
+          tipo: porcentaje_campo
+          campo: alquiler_vivienda_pagos
+          porcentaje: 0.10
+          limite: 300
+          requiere_discapacidad_grado: "65_mas"
+          base_gate: general_menos_minimo
+          base_max_individual: 39999.99
+          base_max_conjunta: 39999.99
+          base_ahorro_max: 1800
+          grupo: alquiler_mc
       pendientes:
         - inversion_vivienda_habitual_jovenes    # inversión, % sobre base — pendiente de catálogo de importes
         - mujeres_trabajadoras
