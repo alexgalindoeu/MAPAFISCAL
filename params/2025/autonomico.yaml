@@ -590,46 +590,102 @@ territorios:
       estado: cargado
       fuente: "TR tributos cedidos de Canarias (DL 1/2009), arts. 7 bis, 10, 11 ter, 12, 13; AEAT Manual Práctico Renta 2025, Parte 2 — Deducciones autonómicas / Canarias"
       lista:
+        # Cotejado (11-2026) con el Manual Práctico de Renta 2025 de la AEAT, parte 2, Canarias.
+        # Límite de renta común de estas deducciones: suma de bases imponibles general y del
+        # ahorro (0435 + 0460) <= 46.455 € en individual y 61.770 € en conjunta.
+        # Nacimiento (art. 10): 265 € el 1.º y el 2.º, 530 € el 3.º, 796 € el 4.º y 928 € el 5.º
+        # y siguientes. El incremento por hijo con discapacidad >= 65 % (600 € / 1.100 €), que se
+        # suma, no se modela (ver pendientes).
         - id: nacimiento_adopcion
           norma: "Art. 10 DL 1/2009 Canarias"
-          estado: provisional   # 4.º hijo 796 €, 5.º+ 928 € (el DSL usa 530 € desde el 3.º)
+          estado: confirmado
+          fuente: "Art. 10 TR de tributos cedidos de Canarias (DL 1/2009, de 21 de abril), vigente en 2025; AEAT Manual Práctico Renta 2025, Parte 2, Canarias, «Por nacimiento o adopción de hijos» (https://sede.agenciatributaria.gob.es/Sede/ayuda/manuales-videos-folletos/manuales-practicos/irpf-2025-deducciones-autonomicas/comunidad-autonoma-canarias/nacimiento-adopcion-hijos.html)"
           tipo: fija_por_hijo_nacido
           anios_ventana: 1
-          importes_por_orden: { "1": 265, "2": 265, "3+": 530 }
+          importes_por_orden: { "1": 265, "2": 265, "3": 530, "4": 796, "5+": 928 }
           prorratea_progenitores: true
+          suma_bases: imponibles
           base_max_individual: 46455
           base_max_conjunta: 61770
+        # Familia numerosa (art. 13): 597 € general, 796 € especial; 1.326 € / 1.459 € si el
+        # cónyuge o un descendiente tiene discapacidad >= 65 % (se aproxima con cualquiera de los
+        # declarantes o descendientes). Sin límite de renta. Se prorratea entre quienes conviven.
         - id: familia_numerosa_general
           norma: "Art. 13 DL 1/2009 Canarias"
+          estado: confirmado
+          fuente: "Art. 13 TR de tributos cedidos de Canarias (DL 1/2009, de 21 de abril), vigente en 2025; AEAT Manual Práctico Renta 2025, Parte 2, Canarias, «Por familia numerosa» (https://sede.agenciatributaria.gob.es/Sede/ayuda/manuales-videos-folletos/manuales-practicos/irpf-2025-deducciones-autonomicas/comunidad-autonoma-canarias/familia-numerosa.html)"
           tipo: fija
           importe: 597
-          requiere_familia_numerosa: true
+          familia_numerosa_categoria: general
+          grupo: fn_cn
         - id: familia_numerosa_especial
           norma: "Art. 13 DL 1/2009 Canarias"
+          estado: confirmado
+          fuente: "Art. 13 TR de tributos cedidos de Canarias (DL 1/2009, de 21 de abril), vigente en 2025; AEAT Manual Práctico Renta 2025, Parte 2, Canarias, «Por familia numerosa» (https://sede.agenciatributaria.gob.es/Sede/ayuda/manuales-videos-folletos/manuales-practicos/irpf-2025-deducciones-autonomicas/comunidad-autonoma-canarias/familia-numerosa.html)"
           tipo: fija
-          importe: 199        # 796 total en especial; 199 adicional sobre la general
-          requiere_familia_numerosa: especial
+          importe: 796
+          familia_numerosa_categoria: especial
+          grupo: fn_cn
+        - id: familia_numerosa_general_discapacidad
+          norma: "Art. 13 DL 1/2009 Canarias"
+          estado: confirmado
+          fuente: "Art. 13 TR de tributos cedidos de Canarias (DL 1/2009, de 21 de abril), vigente en 2025; AEAT Manual Práctico Renta 2025, Parte 2, Canarias, «Por familia numerosa» (https://sede.agenciatributaria.gob.es/Sede/ayuda/manuales-videos-folletos/manuales-practicos/irpf-2025-deducciones-autonomicas/comunidad-autonoma-canarias/familia-numerosa.html)"
+          tipo: fija
+          importe: 1326
+          familia_numerosa_categoria: general
+          requiere_discapacidad_65_de: declarantes_o_descendientes
+          grupo: fn_cn
+        - id: familia_numerosa_especial_discapacidad
+          norma: "Art. 13 DL 1/2009 Canarias"
+          estado: confirmado
+          fuente: "Art. 13 TR de tributos cedidos de Canarias (DL 1/2009, de 21 de abril), vigente en 2025; AEAT Manual Práctico Renta 2025, Parte 2, Canarias, «Por familia numerosa» (https://sede.agenciatributaria.gob.es/Sede/ayuda/manuales-videos-folletos/manuales-practicos/irpf-2025-deducciones-autonomicas/comunidad-autonoma-canarias/familia-numerosa.html)"
+          tipo: fija
+          importe: 1459
+          familia_numerosa_categoria: especial
+          requiere_discapacidad_65_de: declarantes_o_descendientes
+          grupo: fn_cn
+        # Monoparental (art. 11 ter): 133 € con hijos menores de edad (o mayores con
+        # discapacidad, no modelado) sin rentas superiores a 8.000 € (no modelado).
         - id: familia_monoparental
           norma: "Art. 11 ter DL 1/2009 Canarias"
+          estado: confirmado
+          fuente: "Art. 11 ter TR de tributos cedidos de Canarias (DL 1/2009, de 21 de abril), vigente en 2025; AEAT Manual Práctico Renta 2025, Parte 2, Canarias, «Por familias monoparentales» (https://sede.agenciatributaria.gob.es/Sede/ayuda/manuales-videos-folletos/manuales-practicos/irpf-2025-deducciones-autonomicas/comunidad-autonoma-canarias/familias-monoparentales.html)"
           tipo: fija
           importe: 133
           requiere_monoparental: true
-          descendientes_min: 1
+          descendiente_edad_max: 17
+          suma_bases: imponibles
+          base_max_individual: 46455
+          base_max_conjunta: 61770
         - id: gastos_custodia_guarderias
           norma: "Art. 12 DL 1/2009 Canarias"
+          estado: confirmado
+          fuente: "Art. 12 TR de tributos cedidos de Canarias (DL 1/2009, de 21 de abril), vigente en 2025; AEAT Manual Práctico Renta 2025, Parte 2, Canarias, «Por gastos de custodia en guarderías» (https://sede.agenciatributaria.gob.es/Sede/ayuda/manuales-videos-folletos/manuales-practicos/irpf-2025-deducciones-autonomicas/comunidad-autonoma-canarias/gastos-custodia-guarderias.html)"
           tipo: porcentaje_campo_hijo
           campo: gastos_guarderia
           porcentaje: 0.18
           limite: 530
-          edad_hijo_max: 2
+          edad_hijo_max: 2          # menores de 3 años (el prorrateo por meses del año en que cumple 3 no se modela)
+          suma_bases: imponibles
+          base_max_individual: 46455
+          base_max_conjunta: 61770
+        # Estudios no superiores (art. 7 bis): 100 %, límite 133 € por el primer descendiente y
+        # 66 € por cada uno adicional; en individual con dos progenitores el límite se reparte.
         - id: gastos_estudios_no_superiores
           norma: "Art. 7 bis DL 1/2009 Canarias"
-          estado: provisional   # límite real: 133 € por el 1.º + 66 € por cada descendiente adicional; aquí sólo 133 €
+          estado: confirmado
+          fuente: "Art. 7 bis TR de tributos cedidos de Canarias (DL 1/2009, de 21 de abril), vigente en 2025; AEAT Manual Práctico Renta 2025, Parte 2, Canarias, «Por gastos de estudios no superiores» (https://sede.agenciatributaria.gob.es/Sede/ayuda/manuales-videos-folletos/manuales-practicos/irpf-2025-deducciones-autonomicas/comunidad-autonoma-canarias/gastos-estudios-no-superiores.html)"
           tipo: porcentaje_campo
           campo: gastos_estudios_no_superiores
           porcentaje: 1.00
           limite: 133
+          limite_por_hijo_adicional: 66
+          descendientes_min: 1
+          suma_bases: imponibles
+          base_max_individual: 46455
+          base_max_conjunta: 61770
       pendientes:
+        - incremento_discapacidad_nacimiento   # art. 10: +600 € (1.º o 2.º hijo) / +1.100 € (3.º y siguientes) por hijo con discapacidad >= 65 %
         - contribuyentes_discapacidad_mayores_65
         - gastos_estudios_educacion_superior_fuera_isla   # necesita flag "estudia fuera de la isla" -> 1.800/1.920 €
         - traslado_residencia_otra_isla
@@ -1062,50 +1118,130 @@ territorios:
       estado: cargado
       fuente: "DL 1/2024 (libro sexto del Código Tributario de Catalunya); AEAT Manual Práctico Renta 2025, Parte 2 — Deducciones autonómicas / Cataluña"
       lista:
+        # Cotejado (11-11-2026) con el Manual Práctico de Renta 2025 de la AEAT, parte 2, Cataluña.
         - id: nacimiento_adopcion
           norma: "Art. 612-1 DL 1/2024"
+          estado: confirmado
+          fuente: "Art. 612-1 DL 1/2024, de 12 de marzo (libro sexto del Código tributario de Catalunya), vigente en 2025; AEAT Manual Práctico Renta 2025, Parte 2, Cataluña, «Por nacimiento o adopción de un hijo o de una hija o por acogimiento familiar» (https://sede.agenciatributaria.gob.es/Sede/ayuda/manuales-videos-folletos/manuales-practicos/irpf-2025-deducciones-autonomicas/comunidad-autonoma-cataluna/nacimiento-adopcion-hijo-hija-acogimiento-familiar.html)"
           tipo: fija_por_hijo_nacido
           importe: 150            # por progenitor en declaración individual
           importe_conjunta: 300
-          importe_multiple: 150
+          importe_multiple: 0     # el art. 612-1 no prevé incremento por parto múltiple (150 € por hijo)
           anios_ventana: 1
           prorratea_progenitores: false   # cada progenitor aplica sus 150 € en individual (no se reparten)
+          grupo: nacimiento_ct
+        # 300 € para el progenitor de una familia monoparental (Decreto 151/2009, con título):
+        # se aproxima con la unidad familiar monoparental.
+        - id: nacimiento_adopcion_monoparental
+          norma: "Art. 612-1 DL 1/2024"
+          estado: confirmado
+          fuente: "Art. 612-1 DL 1/2024, de 12 de marzo (libro sexto del Código tributario de Catalunya), vigente en 2025; AEAT Manual Práctico Renta 2025, Parte 2, Cataluña, «Por nacimiento o adopción de un hijo o de una hija o por acogimiento familiar» (https://sede.agenciatributaria.gob.es/Sede/ayuda/manuales-videos-folletos/manuales-practicos/irpf-2025-deducciones-autonomicas/comunidad-autonoma-cataluna/nacimiento-adopcion-hijo-hija-acogimiento-familiar.html)"
+          tipo: fija_por_hijo_nacido
+          importe: 300
+          importe_multiple: 0
+          anios_ventana: 1
+          requiere_monoparental: true
+          prorratea_progenitores: false
+          grupo: nacimiento_ct
+        # Alquiler (art. 612-3): 10 %, 500 € (1.000 € en conjunta si alguno de los declarantes
+        # cumple un requisito, y 1.000 € para familias numerosas o monoparentales sin más
+        # requisitos). Límite de renta: base imponible − mínimo (0435 + 0460 − 0520) <= 30.000 €
+        # (45.000 € en conjunta). De los requisitos alternativos se modelan la edad (<= 35) y la
+        # discapacidad >= 65 %; el paro >= 183 días y la viudedad con 65 años o más, no.
         - id: arrendamiento_vivienda_habitual
           norma: "Art. 612-3 DL 1/2024"
+          estado: confirmado
+          fuente: "Art. 612-3 DL 1/2024, de 12 de marzo (libro sexto del Código tributario de Catalunya), vigente en 2025; AEAT Manual Práctico Renta 2025, Parte 2, Cataluña, «Por alquiler de la vivienda habitual» (https://sede.agenciatributaria.gob.es/Sede/ayuda/manuales-videos-folletos/manuales-practicos/irpf-2025-deducciones-autonomicas/comunidad-autonoma-cataluna/alquiler-vivienda-habitual.html)"
           tipo: porcentaje_campo
           campo: alquiler_vivienda_pagos
           porcentaje: 0.10
           limite: 500
-          edad_max: 36           # <=35 años (o paro >=183 días, o discapacidad >=65 %, o viudo >=65 — no modelados)
+          limite_conjunta: 1000
+          edad_max: 36           # <= 35 años a 31 de diciembre
           base_gate: menos_minimo
           base_max_individual: 30000
           base_max_conjunta: 45000
+          grupo: alquiler_ct
+        - id: arrendamiento_vivienda_habitual_discapacidad
+          norma: "Art. 612-3 DL 1/2024"
+          estado: confirmado
+          fuente: "Art. 612-3 DL 1/2024, de 12 de marzo (libro sexto del Código tributario de Catalunya), vigente en 2025; AEAT Manual Práctico Renta 2025, Parte 2, Cataluña, «Por alquiler de la vivienda habitual» (https://sede.agenciatributaria.gob.es/Sede/ayuda/manuales-videos-folletos/manuales-practicos/irpf-2025-deducciones-autonomicas/comunidad-autonoma-cataluna/alquiler-vivienda-habitual.html)"
+          tipo: porcentaje_campo
+          campo: alquiler_vivienda_pagos
+          porcentaje: 0.10
+          limite: 500
+          limite_conjunta: 1000
+          requiere_discapacidad_grado: "65_mas"
+          base_gate: menos_minimo
+          base_max_individual: 30000
+          base_max_conjunta: 45000
+          grupo: alquiler_ct
+        - id: arrendamiento_vivienda_habitual_familia_numerosa
+          norma: "Art. 612-3 DL 1/2024"
+          estado: confirmado
+          fuente: "Art. 612-3 DL 1/2024, de 12 de marzo (libro sexto del Código tributario de Catalunya), vigente en 2025; AEAT Manual Práctico Renta 2025, Parte 2, Cataluña, «Por alquiler de la vivienda habitual» (https://sede.agenciatributaria.gob.es/Sede/ayuda/manuales-videos-folletos/manuales-practicos/irpf-2025-deducciones-autonomicas/comunidad-autonoma-cataluna/alquiler-vivienda-habitual.html)"
+          tipo: porcentaje_campo
+          campo: alquiler_vivienda_pagos
+          porcentaje: 0.10
+          limite: 1000
+          requiere_familia_numerosa: true
+          prorratea_progenitores: false   # gasto propio de quien paga el alquiler
+          base_gate: menos_minimo
+          base_max_individual: 30000
+          base_max_conjunta: 45000
+          grupo: alquiler_ct
+        - id: arrendamiento_vivienda_habitual_monoparental
+          norma: "Art. 612-3 DL 1/2024"
+          estado: confirmado
+          fuente: "Art. 612-3 DL 1/2024, de 12 de marzo (libro sexto del Código tributario de Catalunya), vigente en 2025; AEAT Manual Práctico Renta 2025, Parte 2, Cataluña, «Por alquiler de la vivienda habitual» (https://sede.agenciatributaria.gob.es/Sede/ayuda/manuales-videos-folletos/manuales-practicos/irpf-2025-deducciones-autonomicas/comunidad-autonoma-cataluna/alquiler-vivienda-habitual.html)"
+          tipo: porcentaje_campo
+          campo: alquiler_vivienda_pagos
+          porcentaje: 0.10
+          limite: 1000
+          requiere_monoparental: true
+          prorratea_progenitores: false
+          base_gate: menos_minimo
+          base_max_individual: 30000
+          base_max_conjunta: 45000
+          grupo: alquiler_ct
         - id: rehabilitacion_vivienda_habitual
           norma: "Art. 612-4 DL 1/2024"
+          estado: confirmado
+          fuente: "Art. 612-4 DL 1/2024, de 12 de marzo (libro sexto del Código tributario de Catalunya), vigente en 2025; AEAT Manual Práctico Renta 2025, Parte 2, Cataluña, «Por rehabilitación de la vivienda habitual» (https://sede.agenciatributaria.gob.es/Sede/ayuda/manuales-videos-folletos/manuales-practicos/irpf-2025-deducciones-autonomicas/comunidad-autonoma-cataluna/rehabilitacion-vivienda-habitual.html)"
           tipo: porcentaje_campo
           campo: rehabilitacion_vivienda_pagos
           porcentaje: 0.015
           base_maxima: 9040
         - id: donativos_fomento_lengua_catalana
           norma: "Art. 612-6 DL 1/2024"
+          estado: confirmado
+          fuente: "Art. 612-6 DL 1/2024, de 12 de marzo (libro sexto del Código tributario de Catalunya), vigente en 2025; AEAT Manual Práctico Renta 2025, Parte 2, Cataluña, «Por donativos a entidades que fomentan el uso de la lengua catalana o de la occitana» (https://sede.agenciatributaria.gob.es/Sede/ayuda/manuales-videos-folletos/manuales-practicos/irpf-2025-deducciones-autonomicas/comunidad-autonoma-cataluna/donativos-entidades-que-fomentan-lengua-occitana.html)"
           tipo: porcentaje_campo
           campo: donativos_lengua_catalana
           porcentaje: 0.15
           limite_pct_cuota_autonomica: 0.10
         - id: donativos_investigacion_i_d_i
           norma: "Art. 612-7 DL 1/2024"
+          estado: confirmado
+          fuente: "Art. 612-7 DL 1/2024, de 12 de marzo (libro sexto del Código tributario de Catalunya), vigente en 2025; AEAT Manual Práctico Renta 2025, Parte 2, Cataluña, «Por donativos a entidades que fomentan la investigación científica y el desarrollo y la innovación tecnológicos» (https://sede.agenciatributaria.gob.es/Sede/ayuda/manuales-videos-folletos/manuales-practicos/irpf-2025-deducciones-autonomicas/comunidad-autonoma-cataluna/donativos-entidades-que-fomentan-investigacion.html)"
           tipo: porcentaje_campo
           campo: donativos_investigacion
           porcentaje: 0.30
           limite_pct_cuota_autonomica: 0.10
+        # Provisional: el 50 % para sociedades creadas o participadas por universidades o centros
+        # de investigación (mismo límite de 12.000 €) no se distingue; solo se aplica el 40 %.
         - id: inversion_angel_inversor
           norma: "Art. 612-9 DL 1/2024"
+          estado: provisional
+          fuente: "Art. 612-9 DL 1/2024; AEAT Manual Práctico Renta 2025, Parte 2, Cataluña, «Por inversión por un ángel inversor para la adquisición de acciones o participaciones sociales» (https://sede.agenciatributaria.gob.es/Sede/ayuda/manuales-videos-folletos/manuales-practicos/irpf-2025-deducciones-autonomicas/comunidad-autonoma-cataluna/inversion-angel-inversor.html)"
           tipo: porcentaje_campo
           campo: inversion_angel_inversor
-          porcentaje: 0.40      # 50 % si la sociedad está participada por universidades/centros de investigación (no distinguido)
+          porcentaje: 0.40
           limite: 12000
         - id: inversion_cooperativas_agrarias_vivienda
           norma: "Art. 612-12 DL 1/2024"
+          estado: confirmado
+          fuente: "Art. 612-12 DL 1/2024, de 12 de marzo (libro sexto del Código tributario de Catalunya), vigente en 2025; AEAT Manual Práctico Renta 2025, Parte 2, Cataluña, «Por inversión en sociedades cooperativas agrarias y de vivienda» (https://sede.agenciatributaria.gob.es/Sede/ayuda/manuales-videos-folletos/manuales-practicos/irpf-2025-deducciones-autonomicas/comunidad-autonoma-cataluna/inversion-sociedades-cooperativas.html)"
           tipo: porcentaje_campo
           campo: inversion_cooperativas_cat
           porcentaje: 0.20
@@ -1666,66 +1802,148 @@ territorios:
       estado: cargado
       fuente: "TR tributos cedidos de la Región de Murcia (DL 1/2010), art. 1 (apartados Tres, Ocho, Nueve, Diez, Once, Trece, Dieciséis); AEAT Manual Práctico Renta 2025, Parte 2 — Deducciones autonómicas / Región de Murcia"
       lista:
+        # Cotejado (11-2026) con el Manual Práctico de Renta 2025 de la AEAT, parte 2, Región de
+        # Murcia. Los límites de renta son sobre la suma de bases imponibles (0435 + 0460).
         - id: nacimiento_adopcion
           norma: "Art. 1.Nueve DL 1/2010 Murcia"
+          estado: confirmado
+          fuente: "Art. 1.Nueve TR de tributos cedidos de la Región de Murcia (DL 1/2010, de 5 de noviembre), vigente en 2025; AEAT Manual Práctico Renta 2025, Parte 2, Región de Murcia, «Por nacimiento o adopción» (https://sede.agenciatributaria.gob.es/Sede/ayuda/manuales-videos-folletos/manuales-practicos/irpf-2025-deducciones-autonomicas/comunidad-autonoma-region-murcia/nacimiento-adopcion.html)"
           tipo: fija_por_hijo_nacido
           anios_ventana: 1
           importes_por_orden: { "1": 100, "2": 200, "3+": 300 }   # 1º/2º/3º y sucesivos
+          suma_bases: imponibles
           base_max_individual: 30000
           base_max_conjunta: 50000
           prorratea_progenitores: true   # por mitad si ambos progenitores declaran y conviven con el hijo
         - id: gastos_guarderia
           norma: "Art. 1.Tres DL 1/2010 Murcia"
+          estado: confirmado
+          fuente: "Art. 1.Tres TR de tributos cedidos de la Región de Murcia (DL 1/2010, de 5 de noviembre), vigente en 2025; AEAT Manual Práctico Renta 2025, Parte 2, Región de Murcia, «Por gastos de guardería» (https://sede.agenciatributaria.gob.es/Sede/ayuda/manuales-videos-folletos/manuales-practicos/irpf-2025-deducciones-autonomicas/comunidad-autonoma-region-murcia/gastos-guarderia.html)"
           tipo: porcentaje_campo_hijo
           campo: gastos_guarderia
           porcentaje: 0.20
-          limite: 1000            # por hijo/descendiente
+          limite: 1000            # por hijo/descendiente (500 € a cada progenitor en individual)
           edad_hijo_max: 2        # Primer Ciclo de Educación Infantil (0-3 años)
+          suma_bases: imponibles
           base_max_individual: 30000
           base_max_conjunta: 50000
+        # Material escolar (art. 1.Ocho): 120 € por descendiente en 2.º ciclo de infantil, primaria
+        # o ESO (se aproxima con la edad, 3-16). Límite de renta: 20.000 / 40.000 €, o
+        # 33.000 / 53.000 € si se forma parte de una familia numerosa.
         - id: material_escolar_libros
           norma: "Art. 1.Ocho DL 1/2010 Murcia"
-          estado: provisional   # edad 3-16 aproxima "2º ciclo infantil + primaria + ESO"; límites de familia numerosa (33.000/53.000) no modelados
+          estado: confirmado
+          fuente: "Art. 1.Ocho TR de tributos cedidos de la Región de Murcia (DL 1/2010, de 5 de noviembre), vigente en 2025; AEAT Manual Práctico Renta 2025, Parte 2, Región de Murcia, «Por gastos en la adquisición de material escolar y libros de texto» (https://sede.agenciatributaria.gob.es/Sede/ayuda/manuales-videos-folletos/manuales-practicos/irpf-2025-deducciones-autonomicas/comunidad-autonoma-region-murcia/gastos-adquisicion-material-escolar-libros-texto.html)"
           tipo: fija_por_hijo
           importe: 120
           edad_hijo_min: 3
           edad_hijo_max: 16
+          familia_numerosa_categoria: "no"
+          suma_bases: imponibles
           base_max_individual: 20000
           base_max_conjunta: 40000
           prorratea_progenitores: true
+        - id: material_escolar_libros_familia_numerosa
+          norma: "Art. 1.Ocho DL 1/2010 Murcia"
+          estado: confirmado
+          fuente: "Art. 1.Ocho TR de tributos cedidos de la Región de Murcia (DL 1/2010, de 5 de noviembre), vigente en 2025; AEAT Manual Práctico Renta 2025, Parte 2, Región de Murcia, «Por gastos en la adquisición de material escolar y libros de texto» (https://sede.agenciatributaria.gob.es/Sede/ayuda/manuales-videos-folletos/manuales-practicos/irpf-2025-deducciones-autonomicas/comunidad-autonoma-region-murcia/gastos-adquisicion-material-escolar-libros-texto.html)"
+          tipo: fija_por_hijo
+          importe: 120
+          edad_hijo_min: 3
+          edad_hijo_max: 16
+          requiere_familia_numerosa: true
+          suma_bases: imponibles
+          base_max_individual: 33000
+          base_max_conjunta: 53000
+          prorratea_progenitores: true
         - id: contribuyente_discapacidad
           norma: "Art. 1.Diez DL 1/2010 Murcia"
+          estado: confirmado
+          fuente: "Art. 1.Diez TR de tributos cedidos de la Región de Murcia (DL 1/2010, de 5 de noviembre), vigente en 2025; AEAT Manual Práctico Renta 2025, Parte 2, Región de Murcia, «Para contribuyentes con discapacidad» (https://sede.agenciatributaria.gob.es/Sede/ayuda/manuales-videos-folletos/manuales-practicos/irpf-2025-deducciones-autonomicas/comunidad-autonoma-region-murcia/contribuyentes-discapacidad.html)"
           tipo: fija
           importe: 150
           requiere_discapacidad_contribuyente: true   # grado >= 33 %
+          suma_bases: imponibles
           base_max_individual: 40000
           base_max_conjunta: 40000
+        # Provisional: la modalidad B (cuidado de ascendientes mayores de 65, otros 400 €; 800 €
+        # entre las dos) no está modelada, y el límite de 34.000 € se exige a CADA cónyuge
+        # (aquí, a la base del ámbito liquidado). Cotejados el 20 %, los 400 €, el hijo menor de
+        # 12 años, el trabajo de los progenitores y los 34.000 €.
         - id: conciliacion_cuidado_descendientes
           norma: "Art. 1.Once.A DL 1/2010 Murcia"
-          estado: provisional   # requiere alta como empleador del Sistema Especial de Empleados de Hogar; se usa el campo cuotas_ss_empleada_hogar
+          estado: provisional
+          fuente: "Art. 1.Once TR de tributos cedidos de la Región de Murcia (DL 1/2010); AEAT Manual Práctico Renta 2025, Parte 2, Región de Murcia, «Por conciliación» (https://sede.agenciatributaria.gob.es/Sede/ayuda/manuales-videos-folletos/manuales-practicos/irpf-2025-deducciones-autonomicas/comunidad-autonoma-region-murcia/conciliacion.html)"
           tipo: porcentaje_campo
           campo: cuotas_ss_empleada_hogar
           porcentaje: 0.20
           limite: 400
           descendiente_edad_max: 11   # al menos un hijo menor de 12 años
+          requiere_progenitores_trabajan: true
+          suma_bases: imponibles
+          base_max_individual: 34000
+          base_max_conjunta: 34000
+        # Monoparental (art. 1.Dieciséis): 303 € con hijos menores de edad (o mayores con
+        # discapacidad, no modelado) sin rentas superiores a 8.000 € (no modelado). El límite
+        # de 35.240 € incluye las anualidades por alimentos exentas (no modeladas).
         - id: familia_monoparental
           norma: "Art. 1.Dieciséis DL 1/2010 Murcia"
+          estado: confirmado
+          fuente: "Art. 1.Dieciséis TR de tributos cedidos de la Región de Murcia (DL 1/2010, de 5 de noviembre), vigente en 2025; AEAT Manual Práctico Renta 2025, Parte 2, Región de Murcia, «Por familia monoparental» (https://sede.agenciatributaria.gob.es/Sede/ayuda/manuales-videos-folletos/manuales-practicos/irpf-2025-deducciones-autonomicas/comunidad-autonoma-region-murcia/familia-monoparental.html)"
           tipo: fija
           importe: 303
           requiere_monoparental: true
-          descendientes_min: 1
+          descendiente_edad_max: 17
+          suma_bases: imponibles
           base_max_individual: 35240
           base_max_conjunta: 35240
+        # Alquiler (art. 1.Trece): 10 %, 300 € por contrato, para quien tenga 40 años o menos,
+        # forme parte de una familia numerosa o tenga discapacidad >= 65 %. Límite de renta: base
+        # imponible general − mínimo personal y familiar (0435 − 0519) INFERIOR a 40.000 € y base
+        # imponible del ahorro <= 1.800 €.
         - id: arrendamiento_vivienda_habitual
           norma: "Art. 1.Trece DL 1/2010 Murcia"
-          estado: provisional   # alternativas al requisito de edad (familia numerosa / discapacidad >= 65 %) no modeladas; límite de renta sin cotejar
+          estado: confirmado
+          fuente: "Art. 1.Trece TR de tributos cedidos de la Región de Murcia (DL 1/2010, de 5 de noviembre), vigente en 2025; AEAT Manual Práctico Renta 2025, Parte 2, Región de Murcia, «Por arrendamiento de vivienda habitual» (https://sede.agenciatributaria.gob.es/Sede/ayuda/manuales-videos-folletos/manuales-practicos/irpf-2025-deducciones-autonomicas/comunidad-autonoma-region-murcia/arrendamiento-vivienda-habitual.html)"
           tipo: porcentaje_campo
           campo: alquiler_vivienda_pagos
           porcentaje: 0.10
           limite: 300            # por contrato
           edad_max: 41           # 40 años o menos a fecha de devengo
-          base_max_individual: 30000
-          base_max_conjunta: 50000
+          base_gate: general_menos_minimo
+          base_max_individual: 39999.99
+          base_max_conjunta: 39999.99
+          base_ahorro_max: 1800
+          grupo: alquiler_mc
+        - id: arrendamiento_vivienda_habitual_familia_numerosa
+          norma: "Art. 1.Trece DL 1/2010 Murcia"
+          estado: confirmado
+          fuente: "Art. 1.Trece TR de tributos cedidos de la Región de Murcia (DL 1/2010, de 5 de noviembre), vigente en 2025; AEAT Manual Práctico Renta 2025, Parte 2, Región de Murcia, «Por arrendamiento de vivienda habitual» (https://sede.agenciatributaria.gob.es/Sede/ayuda/manuales-videos-folletos/manuales-practicos/irpf-2025-deducciones-autonomicas/comunidad-autonoma-region-murcia/arrendamiento-vivienda-habitual.html)"
+          tipo: porcentaje_campo
+          campo: alquiler_vivienda_pagos
+          porcentaje: 0.10
+          limite: 300
+          requiere_familia_numerosa: true
+          prorratea_progenitores: false   # gasto propio de quien paga el alquiler
+          base_gate: general_menos_minimo
+          base_max_individual: 39999.99
+          base_max_conjunta: 39999.99
+          base_ahorro_max: 1800
+          grupo: alquiler_mc
+        - id: arrendamiento_vivienda_habitual_discapacidad
+          norma: "Art. 1.Trece DL 1/2010 Murcia"
+          estado: confirmado
+          fuente: "Art. 1.Trece TR de tributos cedidos de la Región de Murcia (DL 1/2010, de 5 de noviembre), vigente en 2025; AEAT Manual Práctico Renta 2025, Parte 2, Región de Murcia, «Por arrendamiento de vivienda habitual» (https://sede.agenciatributaria.gob.es/Sede/ayuda/manuales-videos-folletos/manuales-practicos/irpf-2025-deducciones-autonomicas/comunidad-autonoma-region-murcia/arrendamiento-vivienda-habitual.html)"
+          tipo: porcentaje_campo
+          campo: alquiler_vivienda_pagos
+          porcentaje: 0.10
+          limite: 300
+          requiere_discapacidad_grado: "65_mas"
+          base_gate: general_menos_minimo
+          base_max_individual: 39999.99
+          base_max_conjunta: 39999.99
+          base_ahorro_max: 1800
+          grupo: alquiler_mc
       pendientes:
         - inversion_vivienda_habitual_jovenes    # inversión, % sobre base — pendiente de catálogo de importes
         - mujeres_trabajadoras

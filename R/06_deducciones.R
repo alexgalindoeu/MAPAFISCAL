@@ -73,6 +73,8 @@ deducciones_estatales <- function(hogar, P, rentas, base_liquidable_total, perso
 #     suma_bases: "imponibles" -> las puertas y el taper usan la suma de bases imponibles
 #       general y del ahorro (0435 + 0460) en vez de la de bases liquidables (por defecto);
 #     base_gate: "menos_minimo" -> base imponible − mínimo del gravamen autonómico (0520)
+#     base_gate: "general_menos_minimo" -> base imponible general − mínimo (0435 − 0519);
+#     base_ahorro_max: tope de la base imponible del ahorro; limite_por_hijo_adicional
 #     base_max_por_miembro_uf: base de la UF <= importe x nº de miembros (declarantes +
 #       descendientes < 18); requiere_familia_numerosa_reciente (hogar$familia_numerosa_reciente)
 #     requiere_discapacidad_65_de: "declarantes_o_descendientes" | "contribuyente_o_descendientes"
@@ -88,6 +90,17 @@ deducciones_estatales <- function(hogar, P, rentas, base_liquidable_total, perso
 #     edad_ascendiente_min_discapacidad, requiere_minimo_ascendiente (ver el bloque del tipo)
 #   tipo: "porcentaje_campos_hijo" -> varios campos por hijo con límite único por hijo
 #     (campos, limite, limite_si_campo, primer_ciclo; ver el bloque del tipo)
+# Importe del k-ésimo hijo en `importes_por_orden`: la clave "k" o, si no está, la clave "N+"
+# con el mayor N <= k (p. ej. { "1": 265, "2": 265, "3": 530, "4": 796, "5+": 928 }).
+importe_por_orden <- function(ipo, k) {
+  v <- ipo[[as.character(k)]]
+  if (!is.null(v)) return(v)
+  abiertas <- grep("^[0-9]+\\+$", names(ipo), value = TRUE)
+  n <- as.integer(sub("\\+$", "", abiertas))
+  if (!any(n <= k)) return(0)
+  ipo[[abiertas[which.max(ifelse(n <= k, n, -Inf))]]]
+}
+
 deducciones_autonomicas <- function(hogar, P, rentas, modo = "individual", base_total = 0,
                                     cuota_integra_autonomica = NA_real_, minimo = 0,
                                     declarante_id = NULL, minimo_autonomico = minimo) {
@@ -109,8 +122,11 @@ deducciones_autonomicas <- function(hogar, P, rentas, modo = "individual", base_
   # (base imponible − mínimo personal y familiar del gravamen autonómico, casilla 0520).
   base_imp <- if (is.null(rentas$base_imponible_general)) base_total else
     rentas$base_imponible_general + (rentas$base_imponible_ahorro %||% 0)
+  base_ahorro <- rentas$base_imponible_ahorro %||% 0
   base_puerta <- function(d) {
     if (identical(g(d, "base_gate"), "menos_minimo")) return(max(0, base_imp - minimo_autonomico))
+    # base imponible GENERAL − mínimo personal y familiar (0435 − 0519; Murcia, art. 1.Trece)
+    if (identical(g(d, "base_gate"), "general_menos_minimo")) return(max(0, base_imp - base_ahorro - minimo))
     if (identical(g(d, "suma_bases"), "imponibles")) return(base_imp)
     base_ind
   }
@@ -162,6 +178,8 @@ deducciones_autonomicas <- function(hogar, P, rentas, modo = "individual", base_
 
   pasa_puertas <- function(d) {
     b <- base_puerta(d)
+    # `base_ahorro_max`: la base imponible del ahorro no puede superar ese importe
+    if (!is.null(g(d,"base_ahorro_max")) && base_ahorro > g(d,"base_ahorro_max")) return(FALSE)
     if (!is.null(g(d,"base_max_individual")) && !es_conj && b > g(d,"base_max_individual")) return(FALSE)
     if (!is.null(g(d,"base_max_conjunta"))   &&  es_conj && b > g(d,"base_max_conjunta"))   return(FALSE)
     if (!is.null(g(d,"base_min_individual")) && !es_conj && b < g(d,"base_min_individual")) return(FALSE)
@@ -293,6 +311,13 @@ deducciones_autonomicas <- function(hogar, P, rentas, modo = "individual", base_
       }, numeric(1)))
       if (!is.null(g(d,"base_maxima"))) base <- min(base, g(d,"base_maxima"))
       val <- base * porc
+      # `limite_por_hijo_adicional`: el límite sube ese importe por cada descendiente a partir
+      # del segundo; en individual con dos progenitores el límite se reparte (Canarias, art. 7 bis)
+      lpa <- g(d, "limite_por_hijo_adicional")
+      if (!is.null(lpa) && !is.null(lim)) {
+        lim <- lim + max(0, length(desc) - 1) * lpa
+        if (ind_compartido) lim <- lim / n_prog
+      }
       if (!is.null(lim)) val <- min(val, lim)
       tpc <- g(d, "limite_pct_cuota_autonomica")
       if (!is.null(tpc) && !is.na(cuota_integra_autonomica))
@@ -342,8 +367,7 @@ deducciones_autonomicas <- function(hogar, P, rentas, modo = "individual", base_
       if (!is.null(ipo)) {
         ord <- order(vapply(desc, function(h) -(h$edad %||% 0), numeric(1)))
         for (k in seq_along(desc)) if (es_nacido(desc[[ord[k]]])) {
-          key <- if (k <= 2) as.character(k) else "3+"
-          val <- val + (ipo[[key]] %||% ipo[["3+"]] %||% 0) * f_hijo(desc[[ord[k]]])
+          val <- val + importe_por_orden(ipo, k) * f_hijo(desc[[ord[k]]])
         }
       } else {
         imp_h <- if (es_conj && !is.null(g(d,"importe_conjunta"))) g(d,"importe_conjunta") else (g(d,"importe") %||% 0)

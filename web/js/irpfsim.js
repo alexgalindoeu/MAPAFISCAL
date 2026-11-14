@@ -306,13 +306,29 @@
   }
 
   // ---- Deducciones autonómicas (DSL, común) ------------------------------
-  function deduccionesAutonomicas(hogar, terr, P, modo, baseTotal, cuotaIntegraAut, minimo, declaranteId, baseImponible, minimoAut) {
+  // Importe del k-ésimo hijo en importes_por_orden: la clave "k" o, si no está, la clave "N+"
+  // con el mayor N <= k (mismo criterio que importe_por_orden() en R/06_deducciones.R).
+  function importePorOrden(ipo, k) {
+    if (ipo[String(k)] != null) return ipo[String(k)];
+    let mejor = -1;
+    for (const c of Object.keys(ipo)) {
+      const m = /^([0-9]+)[+]$/.exec(c);
+      if (m && +m[1] <= k && +m[1] > mejor) mejor = +m[1];
+    }
+    return mejor < 0 ? 0 : ipo[mejor + "+"];
+  }
+
+  function deduccionesAutonomicas(hogar, terr, P, modo, baseTotal, cuotaIntegraAut, minimo, declaranteId, baseImponible, minimoAut, baseImponibleAhorro) {
     minimo = minimo || 0;
     // suma de bases imponibles (0435 + 0460) y mínimo del gravamen autonómico (0520): los usan
     // `suma_bases: imponibles` y `base_gate: menos_minimo` (base imponible − mínimo autonómico)
     const baseImp = baseImponible != null ? baseImponible : baseTotal;
     const minAut = minimoAut != null ? minimoAut : minimo;
+    // base_gate: general_menos_minimo -> base imponible general − mínimo personal y familiar
+    // (casillas 0435 − 0519; Murcia, art. 1.Trece); base_ahorro_max: tope de la base del ahorro
+    const baseAhorro = num(baseImponibleAhorro);
     const basePuerta = d => d.base_gate === "menos_minimo" ? Math.max(0, baseImp - minAut)
+      : d.base_gate === "general_menos_minimo" ? Math.max(0, baseImp - baseAhorro - num(minimo))
       : (d.suma_bases === "imponibles" ? baseImp : baseTotal);
     const da = terr.deducciones_autonomicas;
     if (!da || da.estado === "pendiente" || !da.lista || !da.lista.length) return { detalle: {}, total: 0, estado: da ? da.estado : "pendiente" };
@@ -348,6 +364,7 @@
 
     const pasaPuertas = d => {
       const b = basePuerta(d);
+      if (d.base_ahorro_max != null && baseAhorro > d.base_ahorro_max) return false;
       if (d.base_max_individual != null && !esConj && b > d.base_max_individual) return false;
       if (d.base_max_conjunta != null && esConj && b > d.base_max_conjunta) return false;
       if (d.base_min_individual != null && !esConj && b < d.base_min_individual) return false;
@@ -433,7 +450,14 @@
         }
         if (d.base_maxima != null) base = Math.min(base, d.base_maxima);
         val = base * num(d.porcentaje);
-        if (lim != null) val = Math.min(val, lim);
+        // limite_por_hijo_adicional: el límite sube por cada descendiente a partir del segundo;
+        // en individual con dos progenitores se reparte (Canarias, art. 7 bis)
+        let limC = lim;
+        if (d.limite_por_hijo_adicional != null && limC != null) {
+          limC += Math.max(0, desc.length - 1) * d.limite_por_hijo_adicional;
+          if (indCompartido) limC /= nProg;
+        }
+        if (limC != null) val = Math.min(val, limC);
         if (d.limite_pct_cuota_autonomica != null && cuotaIntegraAut != null && !Number.isNaN(cuotaIntegraAut))
           val = Math.min(val, cuotaIntegraAut * d.limite_pct_cuota_autonomica);
       } else if (d.tipo === "porcentaje_campo_hijo") {
@@ -467,7 +491,7 @@
         if (d.importes_por_orden) {
           const ord = desc.slice().sort((a, b) => num(b.edad, 0) - num(a.edad, 0));
           val = 0;
-          ord.forEach((h, k) => { if (esNacido(h)) { const key = k < 2 ? String(k + 1) : "3+"; val += num(d.importes_por_orden[key] != null ? d.importes_por_orden[key] : d.importes_por_orden["3+"]) * fHijo(h); } });
+          ord.forEach((h, k) => { if (esNacido(h)) val += num(importePorOrden(d.importes_por_orden, k + 1)) * fHijo(h); });
         } else {
           const impH = (esConj && d.importe_conjunta != null) ? d.importe_conjunta : num(d.importe);
           val = desc.filter(esNacido).reduce((s, h) => s + impH * fHijo(h), 0);
@@ -709,7 +733,7 @@
     const cuotaIntegraAutonomica = cigAut + ciaAut;
 
     const dedAut = deduccionesAutonomicas(hogar, terr, P, modo, blg + bla, cuotaIntegraAutonomica, mpf.total, declaranteId,
-      r.baseImponibleGeneral + r.baseImponibleAhorro, minimoAut);
+      r.baseImponibleGeneral + r.baseImponibleAhorro, minimoAut, r.baseImponibleAhorro);
     const dedEst = deduccionesEstatales(personas, P, blg + bla);
     let clEst = Math.max(0, cuotaIntegraEstatal - dedEst.totalEstatal);
     let clAut = Math.max(0, cuotaIntegraAutonomica - dedAut.total - dedEst.totalAutonomico);

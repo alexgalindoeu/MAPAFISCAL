@@ -1,6 +1,6 @@
 {
  "ejercicio": 2025,
- "generado": "2026-11-13",
+ "generado": "2026-11-14",
  "territorios": {
   "ES-AN": {
    "territorio": "ES-AN",
@@ -96,6 +96,135 @@
     }
    ]
   },
+  "ES-CN": {
+   "territorio": "ES-CN",
+   "nombre": "Canarias",
+   "regimen": "comun",
+   "fichas": [
+    {
+     "titulo": "Por nacimiento o adopción de hijos",
+     "url_aeat": "https://sede.agenciatributaria.gob.es/Sede/ayuda/manuales-videos-folletos/manuales-practicos/irpf-2025-deducciones-autonomicas/comunidad-autonoma-canarias/nacimiento-adopcion-hijos.html",
+     "boe": [
+
+     ],
+     "normas": [
+      "Art. 10 DL 1/2009 Canarias"
+     ],
+     "supuestos": [
+      {
+       "id": "nacimiento_adopcion",
+       "norma": "Art. 10 DL 1/2009 Canarias",
+       "tipo": "fija_por_hijo_nacido",
+       "anios_ventana": 1,
+       "importes_por_orden": {
+        "1": 265,
+        "2": 265,
+        "3": 530,
+        "4": 796,
+        "5+": 928
+       },
+       "prorratea_progenitores": true,
+       "suma_bases": "imponibles",
+       "base_max_individual": 46455,
+       "base_max_conjunta": 61770
+      }
+     ]
+    },
+    {
+     "titulo": "Por familia numerosa",
+     "url_aeat": "https://sede.agenciatributaria.gob.es/Sede/ayuda/manuales-videos-folletos/manuales-practicos/irpf-2025-deducciones-autonomicas/comunidad-autonoma-canarias/familia-numerosa.html",
+     "boe": [
+
+     ],
+     "normas": [
+      "Art. 13 DL 1/2009 Canarias"
+     ],
+     "supuestos": [
+      {
+       "id": "familia_numerosa_general",
+       "norma": "Art. 13 DL 1/2009 Canarias",
+       "tipo": "fija",
+       "importe": 597,
+       "familia_numerosa_categoria": "general",
+       "grupo": "fn_cn"
+      },
+      {
+       "id": "familia_numerosa_especial",
+       "norma": "Art. 13 DL 1/2009 Canarias",
+       "tipo": "fija",
+       "importe": 796,
+       "familia_numerosa_categoria": "especial",
+       "grupo": "fn_cn"
+      },
+      {
+       "id": "familia_numerosa_general_discapacidad",
+       "norma": "Art. 13 DL 1/2009 Canarias",
+       "tipo": "fija",
+       "importe": 1326,
+       "familia_numerosa_categoria": "general",
+       "requiere_discapacidad_65_de": "declarantes_o_descendientes",
+       "grupo": "fn_cn"
+      },
+      {
+       "id": "familia_numerosa_especial_discapacidad",
+       "norma": "Art. 13 DL 1/2009 Canarias",
+       "tipo": "fija",
+       "importe": 1459,
+       "familia_numerosa_categoria": "especial",
+       "requiere_discapacidad_65_de": "declarantes_o_descendientes",
+       "grupo": "fn_cn"
+      }
+     ]
+    },
+    {
+     "titulo": "Por familias monoparentales",
+     "url_aeat": "https://sede.agenciatributaria.gob.es/Sede/ayuda/manuales-videos-folletos/manuales-practicos/irpf-2025-deducciones-autonomicas/comunidad-autonoma-canarias/familias-monoparentales.html",
+     "boe": [
+
+     ],
+     "normas": [
+      "Art. 11 ter DL 1/2009 Canarias"
+     ],
+     "supuestos": [
+      {
+       "id": "familia_monoparental",
+       "norma": "Art. 11 ter DL 1/2009 Canarias",
+       "tipo": "fija",
+       "importe": 133,
+       "requiere_monoparental": true,
+       "descendiente_edad_max": 17,
+       "suma_bases": "imponibles",
+       "base_max_individual": 46455,
+       "base_max_conjunta": 61770
+      }
+     ]
+    },
+    {
+     "titulo": "Por gastos de custodia en guarderías",
+     "url_aeat": "https://sede.agenciatributaria.gob.es/Sede/ayuda/manuales-videos-folletos/manuales-practicos/irpf-2025-deducciones-autonomicas/comunidad-autonoma-canarias/gastos-custodia-guarderias.html",
+     "boe": [
+
+     ],
+     "normas": [
+      "Art. 12 DL 1/2009 Canarias"
+     ],
+     "supuestos": [
+      {
+       "id": "gastos_custodia_guarderias",
+       "norma": "Art. 12 DL 1/2009 Canarias",
+       "tipo": "porcentaje_campo_hijo",
+       "campo": "gastos_guarderia",
+       "porcentaje": 0.18,
+       "limite": 530,
+       "edad_hijo_max": 2,
+       "suma_bases": "imponibles",
+       "base_max_individual": 46455,
+       "base_max_conjunta": 61770
+      }
+     ]
+    }
+   ]
+  },
   "ES-CL": {
    "territorio": "ES-CL",
    "nombre": "Castilla y León",
@@ -151,6 +280,195 @@
        "importe": 600,
        "requiere_familia_numerosa": true,
        "requiere_discapacidad_65_de": "declarantes_o_descendientes"
+      }
+     ]
+    }
+   ]
+  },
+  "ES-CT": {
+   "territorio": "ES-CT",
+   "nombre": "Cataluña",
+   "regimen": "comun",
+   "fichas": [
+    {
+     "titulo": "Por nacimiento o adopción de un hijo o de una hija o por acogimiento familiar",
+     "url_aeat": "https://sede.agenciatributaria.gob.es/Sede/ayuda/manuales-videos-folletos/manuales-practicos/irpf-2025-deducciones-autonomicas/comunidad-autonoma-cataluna/nacimiento-adopcion-hijo-hija-acogimiento-familiar.html",
+     "boe": [
+
+     ],
+     "normas": [
+      "Art. 612-1 DL 1/2024"
+     ],
+     "supuestos": [
+      {
+       "id": "nacimiento_adopcion",
+       "norma": "Art. 612-1 DL 1/2024",
+       "tipo": "fija_por_hijo_nacido",
+       "importe": 150,
+       "importe_conjunta": 300,
+       "importe_multiple": 0,
+       "anios_ventana": 1,
+       "prorratea_progenitores": false,
+       "grupo": "nacimiento_ct"
+      },
+      {
+       "id": "nacimiento_adopcion_monoparental",
+       "norma": "Art. 612-1 DL 1/2024",
+       "tipo": "fija_por_hijo_nacido",
+       "importe": 300,
+       "importe_multiple": 0,
+       "anios_ventana": 1,
+       "requiere_monoparental": true,
+       "prorratea_progenitores": false,
+       "grupo": "nacimiento_ct"
+      }
+     ]
+    },
+    {
+     "titulo": "Por alquiler de la vivienda habitual",
+     "url_aeat": "https://sede.agenciatributaria.gob.es/Sede/ayuda/manuales-videos-folletos/manuales-practicos/irpf-2025-deducciones-autonomicas/comunidad-autonoma-cataluna/alquiler-vivienda-habitual.html",
+     "boe": [
+
+     ],
+     "normas": [
+      "Art. 612-3 DL 1/2024"
+     ],
+     "supuestos": [
+      {
+       "id": "arrendamiento_vivienda_habitual",
+       "norma": "Art. 612-3 DL 1/2024",
+       "tipo": "porcentaje_campo",
+       "campo": "alquiler_vivienda_pagos",
+       "porcentaje": 0.1,
+       "limite": 500,
+       "limite_conjunta": 1000,
+       "edad_max": 36,
+       "base_gate": "menos_minimo",
+       "base_max_individual": 30000,
+       "base_max_conjunta": 45000,
+       "grupo": "alquiler_ct"
+      },
+      {
+       "id": "arrendamiento_vivienda_habitual_discapacidad",
+       "norma": "Art. 612-3 DL 1/2024",
+       "tipo": "porcentaje_campo",
+       "campo": "alquiler_vivienda_pagos",
+       "porcentaje": 0.1,
+       "limite": 500,
+       "limite_conjunta": 1000,
+       "requiere_discapacidad_grado": "65_mas",
+       "base_gate": "menos_minimo",
+       "base_max_individual": 30000,
+       "base_max_conjunta": 45000,
+       "grupo": "alquiler_ct"
+      },
+      {
+       "id": "arrendamiento_vivienda_habitual_familia_numerosa",
+       "norma": "Art. 612-3 DL 1/2024",
+       "tipo": "porcentaje_campo",
+       "campo": "alquiler_vivienda_pagos",
+       "porcentaje": 0.1,
+       "limite": 1000,
+       "requiere_familia_numerosa": true,
+       "prorratea_progenitores": false,
+       "base_gate": "menos_minimo",
+       "base_max_individual": 30000,
+       "base_max_conjunta": 45000,
+       "grupo": "alquiler_ct"
+      },
+      {
+       "id": "arrendamiento_vivienda_habitual_monoparental",
+       "norma": "Art. 612-3 DL 1/2024",
+       "tipo": "porcentaje_campo",
+       "campo": "alquiler_vivienda_pagos",
+       "porcentaje": 0.1,
+       "limite": 1000,
+       "requiere_monoparental": true,
+       "prorratea_progenitores": false,
+       "base_gate": "menos_minimo",
+       "base_max_individual": 30000,
+       "base_max_conjunta": 45000,
+       "grupo": "alquiler_ct"
+      }
+     ]
+    },
+    {
+     "titulo": "Por rehabilitación de la vivienda habitual",
+     "url_aeat": "https://sede.agenciatributaria.gob.es/Sede/ayuda/manuales-videos-folletos/manuales-practicos/irpf-2025-deducciones-autonomicas/comunidad-autonoma-cataluna/rehabilitacion-vivienda-habitual.html",
+     "boe": [
+
+     ],
+     "normas": [
+      "Art. 612-4 DL 1/2024"
+     ],
+     "supuestos": [
+      {
+       "id": "rehabilitacion_vivienda_habitual",
+       "norma": "Art. 612-4 DL 1/2024",
+       "tipo": "porcentaje_campo",
+       "campo": "rehabilitacion_vivienda_pagos",
+       "porcentaje": 0.015,
+       "base_maxima": 9040
+      }
+     ]
+    },
+    {
+     "titulo": "Por donativos a entidades que fomentan el uso de la lengua catalana o de la occitana",
+     "url_aeat": "https://sede.agenciatributaria.gob.es/Sede/ayuda/manuales-videos-folletos/manuales-practicos/irpf-2025-deducciones-autonomicas/comunidad-autonoma-cataluna/donativos-entidades-que-fomentan-lengua-occitana.html",
+     "boe": [
+
+     ],
+     "normas": [
+      "Art. 612-6 DL 1/2024"
+     ],
+     "supuestos": [
+      {
+       "id": "donativos_fomento_lengua_catalana",
+       "norma": "Art. 612-6 DL 1/2024",
+       "tipo": "porcentaje_campo",
+       "campo": "donativos_lengua_catalana",
+       "porcentaje": 0.15,
+       "limite_pct_cuota_autonomica": 0.1
+      }
+     ]
+    },
+    {
+     "titulo": "Por donativos a entidades que fomentan la investigación científica y el desarrollo y la innovación tecnológicos",
+     "url_aeat": "https://sede.agenciatributaria.gob.es/Sede/ayuda/manuales-videos-folletos/manuales-practicos/irpf-2025-deducciones-autonomicas/comunidad-autonoma-cataluna/donativos-entidades-que-fomentan-investigacion.html",
+     "boe": [
+
+     ],
+     "normas": [
+      "Art. 612-7 DL 1/2024"
+     ],
+     "supuestos": [
+      {
+       "id": "donativos_investigacion_i_d_i",
+       "norma": "Art. 612-7 DL 1/2024",
+       "tipo": "porcentaje_campo",
+       "campo": "donativos_investigacion",
+       "porcentaje": 0.3,
+       "limite_pct_cuota_autonomica": 0.1
+      }
+     ]
+    },
+    {
+     "titulo": "Por inversión en sociedades cooperativas agrarias y de vivienda",
+     "url_aeat": "https://sede.agenciatributaria.gob.es/Sede/ayuda/manuales-videos-folletos/manuales-practicos/irpf-2025-deducciones-autonomicas/comunidad-autonoma-cataluna/inversion-sociedades-cooperativas.html",
+     "boe": [
+
+     ],
+     "normas": [
+      "Art. 612-12 DL 1/2024"
+     ],
+     "supuestos": [
+      {
+       "id": "inversion_cooperativas_agrarias_vivienda",
+       "norma": "Art. 612-12 DL 1/2024",
+       "tipo": "porcentaje_campo",
+       "campo": "inversion_cooperativas_cat",
+       "porcentaje": 0.2,
+       "limite": 3000
       }
      ]
     }
@@ -379,6 +697,202 @@
        },
        "base_max_por_miembro_uf": 30930,
        "suma_bases": "imponibles"
+      }
+     ]
+    }
+   ]
+  },
+  "ES-MC": {
+   "territorio": "ES-MC",
+   "nombre": "Región de Murcia",
+   "regimen": "comun",
+   "fichas": [
+    {
+     "titulo": "Por nacimiento o adopción",
+     "url_aeat": "https://sede.agenciatributaria.gob.es/Sede/ayuda/manuales-videos-folletos/manuales-practicos/irpf-2025-deducciones-autonomicas/comunidad-autonoma-region-murcia/nacimiento-adopcion.html",
+     "boe": [
+
+     ],
+     "normas": [
+      "Art. 1.Nueve DL 1/2010 Murcia"
+     ],
+     "supuestos": [
+      {
+       "id": "nacimiento_adopcion",
+       "norma": "Art. 1.Nueve DL 1/2010 Murcia",
+       "tipo": "fija_por_hijo_nacido",
+       "anios_ventana": 1,
+       "importes_por_orden": {
+        "1": 100,
+        "2": 200,
+        "3+": 300
+       },
+       "suma_bases": "imponibles",
+       "base_max_individual": 30000,
+       "base_max_conjunta": 50000,
+       "prorratea_progenitores": true
+      }
+     ]
+    },
+    {
+     "titulo": "Por gastos de guardería",
+     "url_aeat": "https://sede.agenciatributaria.gob.es/Sede/ayuda/manuales-videos-folletos/manuales-practicos/irpf-2025-deducciones-autonomicas/comunidad-autonoma-region-murcia/gastos-guarderia.html",
+     "boe": [
+
+     ],
+     "normas": [
+      "Art. 1.Tres DL 1/2010 Murcia"
+     ],
+     "supuestos": [
+      {
+       "id": "gastos_guarderia",
+       "norma": "Art. 1.Tres DL 1/2010 Murcia",
+       "tipo": "porcentaje_campo_hijo",
+       "campo": "gastos_guarderia",
+       "porcentaje": 0.2,
+       "limite": 1000,
+       "edad_hijo_max": 2,
+       "suma_bases": "imponibles",
+       "base_max_individual": 30000,
+       "base_max_conjunta": 50000
+      }
+     ]
+    },
+    {
+     "titulo": "Por gastos en la adquisición de material escolar y libros de texto",
+     "url_aeat": "https://sede.agenciatributaria.gob.es/Sede/ayuda/manuales-videos-folletos/manuales-practicos/irpf-2025-deducciones-autonomicas/comunidad-autonoma-region-murcia/gastos-adquisicion-material-escolar-libros-texto.html",
+     "boe": [
+
+     ],
+     "normas": [
+      "Art. 1.Ocho DL 1/2010 Murcia"
+     ],
+     "supuestos": [
+      {
+       "id": "material_escolar_libros",
+       "norma": "Art. 1.Ocho DL 1/2010 Murcia",
+       "tipo": "fija_por_hijo",
+       "importe": 120,
+       "edad_hijo_min": 3,
+       "edad_hijo_max": 16,
+       "familia_numerosa_categoria": "no",
+       "suma_bases": "imponibles",
+       "base_max_individual": 20000,
+       "base_max_conjunta": 40000,
+       "prorratea_progenitores": true
+      },
+      {
+       "id": "material_escolar_libros_familia_numerosa",
+       "norma": "Art. 1.Ocho DL 1/2010 Murcia",
+       "tipo": "fija_por_hijo",
+       "importe": 120,
+       "edad_hijo_min": 3,
+       "edad_hijo_max": 16,
+       "requiere_familia_numerosa": true,
+       "suma_bases": "imponibles",
+       "base_max_individual": 33000,
+       "base_max_conjunta": 53000,
+       "prorratea_progenitores": true
+      }
+     ]
+    },
+    {
+     "titulo": "Para contribuyentes con discapacidad",
+     "url_aeat": "https://sede.agenciatributaria.gob.es/Sede/ayuda/manuales-videos-folletos/manuales-practicos/irpf-2025-deducciones-autonomicas/comunidad-autonoma-region-murcia/contribuyentes-discapacidad.html",
+     "boe": [
+
+     ],
+     "normas": [
+      "Art. 1.Diez DL 1/2010 Murcia"
+     ],
+     "supuestos": [
+      {
+       "id": "contribuyente_discapacidad",
+       "norma": "Art. 1.Diez DL 1/2010 Murcia",
+       "tipo": "fija",
+       "importe": 150,
+       "requiere_discapacidad_contribuyente": true,
+       "suma_bases": "imponibles",
+       "base_max_individual": 40000,
+       "base_max_conjunta": 40000
+      }
+     ]
+    },
+    {
+     "titulo": "Por familia monoparental",
+     "url_aeat": "https://sede.agenciatributaria.gob.es/Sede/ayuda/manuales-videos-folletos/manuales-practicos/irpf-2025-deducciones-autonomicas/comunidad-autonoma-region-murcia/familia-monoparental.html",
+     "boe": [
+
+     ],
+     "normas": [
+      "Art. 1.Dieciséis DL 1/2010 Murcia"
+     ],
+     "supuestos": [
+      {
+       "id": "familia_monoparental",
+       "norma": "Art. 1.Dieciséis DL 1/2010 Murcia",
+       "tipo": "fija",
+       "importe": 303,
+       "requiere_monoparental": true,
+       "descendiente_edad_max": 17,
+       "suma_bases": "imponibles",
+       "base_max_individual": 35240,
+       "base_max_conjunta": 35240
+      }
+     ]
+    },
+    {
+     "titulo": "Por arrendamiento de vivienda habitual",
+     "url_aeat": "https://sede.agenciatributaria.gob.es/Sede/ayuda/manuales-videos-folletos/manuales-practicos/irpf-2025-deducciones-autonomicas/comunidad-autonoma-region-murcia/arrendamiento-vivienda-habitual.html",
+     "boe": [
+
+     ],
+     "normas": [
+      "Art. 1.Trece DL 1/2010 Murcia"
+     ],
+     "supuestos": [
+      {
+       "id": "arrendamiento_vivienda_habitual",
+       "norma": "Art. 1.Trece DL 1/2010 Murcia",
+       "tipo": "porcentaje_campo",
+       "campo": "alquiler_vivienda_pagos",
+       "porcentaje": 0.1,
+       "limite": 300,
+       "edad_max": 41,
+       "base_gate": "general_menos_minimo",
+       "base_max_individual": 39999.99,
+       "base_max_conjunta": 39999.99,
+       "base_ahorro_max": 1800,
+       "grupo": "alquiler_mc"
+      },
+      {
+       "id": "arrendamiento_vivienda_habitual_familia_numerosa",
+       "norma": "Art. 1.Trece DL 1/2010 Murcia",
+       "tipo": "porcentaje_campo",
+       "campo": "alquiler_vivienda_pagos",
+       "porcentaje": 0.1,
+       "limite": 300,
+       "requiere_familia_numerosa": true,
+       "prorratea_progenitores": false,
+       "base_gate": "general_menos_minimo",
+       "base_max_individual": 39999.99,
+       "base_max_conjunta": 39999.99,
+       "base_ahorro_max": 1800,
+       "grupo": "alquiler_mc"
+      },
+      {
+       "id": "arrendamiento_vivienda_habitual_discapacidad",
+       "norma": "Art. 1.Trece DL 1/2010 Murcia",
+       "tipo": "porcentaje_campo",
+       "campo": "alquiler_vivienda_pagos",
+       "porcentaje": 0.1,
+       "limite": 300,
+       "requiere_discapacidad_grado": "65_mas",
+       "base_gate": "general_menos_minimo",
+       "base_max_individual": 39999.99,
+       "base_max_conjunta": 39999.99,
+       "base_ahorro_max": 1800,
+       "grupo": "alquiler_mc"
       }
      ]
     }

@@ -403,6 +403,53 @@ add("ct_alquiler_bi", "ES-CT", "ninguna", "no",
                  prevision_social=list(aportacion_individual=1500), alquiler_vivienda_pagos=8000)),
     list(list(id="d1",rol="declarante",edad=30, trabajo=list(dinerarias=41164,cotizacionesSs=2614),
               previsionSocial=list(aportacionIndividual=1500), alquilerViviendaPagos=8000)))
+# Cataluña (cotejo 11-2026): monoparental con FN, 45 años, alquiler 12.000 € (art. 612-3:
+# 1.000 €) y un nacimiento (art. 612-1: 300 € monoparental); gemelos sin incremento
+add("ct_mono_fn_alquiler", "ES-CT", "monoparental", "general",
+    list(persona("d1","declarante",45, trabajo=list(dinerarias=30000, cotizaciones_ss=1905), alquiler_vivienda_pagos=12000),
+         persona("h1","descendiente",10), persona("h2","descendiente",8),
+         persona("h3","descendiente",0, nacido_en_ejercicio=TRUE)),
+    list(list(id="d1",rol="declarante",edad=45, trabajo=list(dinerarias=30000,cotizacionesSs=1905), alquilerViviendaPagos=12000),
+         list(id="h1",rol="descendiente",edad=10), list(id="h2",rol="descendiente",edad=8),
+         list(id="h3",rol="descendiente",edad=0, nacidoEnEjercicio=TRUE)))
+add("ct_gemelos_conj_alquiler", "ES-CT", "biparental", "no",
+    list(persona("d1","declarante",30, trabajo=list(dinerarias=25000, cotizaciones_ss=1588), alquiler_vivienda_pagos=12000),
+         persona("d2","conyuge",40),
+         persona("h1","descendiente",0, nacido_en_ejercicio=TRUE), persona("h2","descendiente",0, nacido_en_ejercicio=TRUE)),
+    list(list(id="d1",rol="declarante",edad=30, trabajo=list(dinerarias=25000,cotizacionesSs=1588), alquilerViviendaPagos=12000),
+         list(id="d2",rol="conyuge",edad=40),
+         list(id="h1",rol="descendiente",edad=0, nacidoEnEjercicio=TRUE), list(id="h2",rol="descendiente",edad=0, nacidoEnEjercicio=TRUE)),
+    parto_multiple = TRUE)
+# Canarias (cotejo 11-2026): 4.º hijo nacido (796 €), FN general con hijo de discapacidad
+# >= 65 % (1.326 €), estudios no superiores con límite 133 + 3 × 66 €
+add("cn_cuarto_hijo_fn_disc", "ES-CN", "monoparental", "general",
+    list(persona("d1","declarante",40, trabajo=list(dinerarias=30000, cotizaciones_ss=1905), gastos_estudios_no_superiores=1000),
+         persona("h1","descendiente",10, discapacidad="65_mas"), persona("h2","descendiente",8),
+         persona("h3","descendiente",5), persona("h4","descendiente",0, nacido_en_ejercicio=TRUE)),
+    list(list(id="d1",rol="declarante",edad=40, trabajo=list(dinerarias=30000,cotizacionesSs=1905), gastosEstudiosNoSuperiores=1000),
+         list(id="h1",rol="descendiente",edad=10, discapacidad="65_mas"), list(id="h2",rol="descendiente",edad=8),
+         list(id="h3",rol="descendiente",edad=5), list(id="h4",rol="descendiente",edad=0, nacidoEnEjercicio=TRUE)))
+# Murcia (cotejo 11-2026): familia numerosa de 50 años, alquiler 6.000 € (art. 1.Trece: 300 €)
+# y material escolar con el límite de 33.000 € (3 × 120); el segundo, con 2.000 € de
+# intereses (base del ahorro > 1.800 €), pierde el alquiler
+add("mc_fn_alquiler_material", "ES-MC", "monoparental", "general",
+    list(persona("d1","declarante",50, trabajo=list(dinerarias=32000, cotizaciones_ss=2032), alquiler_vivienda_pagos=6000),
+         persona("h1","descendiente",10), persona("h2","descendiente",8), persona("h3","descendiente",5)),
+    list(list(id="d1",rol="declarante",edad=50, trabajo=list(dinerarias=32000,cotizacionesSs=2032), alquilerViviendaPagos=6000),
+         list(id="h1",rol="descendiente",edad=10), list(id="h2",rol="descendiente",edad=8), list(id="h3",rol="descendiente",edad=5)))
+add("mc_alquiler_ahorro", "ES-MC", "ninguna", "no",
+    list(persona("d1","declarante",30, trabajo=list(dinerarias=30000, cotizaciones_ss=1905),
+                 capital_mobiliario=list(intereses=2000), alquiler_vivienda_pagos=6000)),
+    list(list(id="d1",rol="declarante",edad=30, trabajo=list(dinerarias=30000,cotizacionesSs=1905),
+              capitalMobiliario=list(intereses=2000), alquilerViviendaPagos=6000)))
+# Canarias: pareja en individual, 2 hijos, estudios del declarante: límite (133 + 66) / 2
+add("cn_estudios_pareja", "ES-CN", "biparental", "no",
+    list(persona("d1","declarante",40, trabajo=list(dinerarias=30000, cotizaciones_ss=1905), gastos_estudios_no_superiores=500),
+         persona("d2","conyuge",38, trabajo=list(dinerarias=20000, cotizaciones_ss=1270)),
+         persona("h1","descendiente",10), persona("h2","descendiente",8)),
+    list(list(id="d1",rol="declarante",edad=40, trabajo=list(dinerarias=30000,cotizacionesSs=1905), gastosEstudiosNoSuperiores=500),
+         list(id="d2",rol="conyuge",edad=38, trabajo=list(dinerarias=20000,cotizacionesSs=1270)),
+         list(id="h1",rol="descendiente",edad=10), list(id="h2",rol="descendiente",edad=8)))
 
 add("vc_taper", "ES-VC", "monoparental", "no",
     list(persona("d1","declarante",30, trabajo=list(dinerarias=32000, cotizaciones_ss=1500),

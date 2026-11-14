@@ -110,12 +110,14 @@ y que el caso sin DT 9ª computa los 40.000 € íntegros.
 ## Deducciones autonómicas — Cataluña (DL 1/2024)
 
 Codificadas en `tests/testthat/test-ded-cataluna.R`. 7 de las 13 deducciones del
-libro sexto del Código Tributario de Catalunya.
+libro sexto del Código Tributario de Catalunya. Cotejadas (11-2026) con el Manual Práctico
+de Renta 2025 de la AEAT: confirmadas todas salvo el ángel inversor (provisional: no distingue el 50 %
+de las sociedades participadas por universidades).
 
 | Deducción (art.) | Regla | Comprobación |
 |---|---|---|
-| Nacimiento o adopción (612-1) | 150 €/progenitor (individual), 300 € (conjunta), solo año del nacimiento | — |
-| Alquiler vivienda habitual (612-3) | 10 %, máx. 500 €, ≤ 35 años, *(base − mínimo) ≤ 30.000 / 45.000* | joven bajo umbral → 500 €; renta alta → 0 |
+| Nacimiento o adopción (612-1) | 150 €/progenitor (individual), 300 € (conjunta o familia monoparental), solo año del nacimiento, sin incremento por parto múltiple | monoparental → 300 €; gemelos en individual → 2 × 150 = 300 € por progenitor |
+| Alquiler vivienda habitual (612-3) | 10 %, máx. 500 € (1.000 € en conjunta), ≤ 35 años o discapacidad ≥ 65 %; 1.000 € a familias numerosas o monoparentales sin otro requisito; *(base − mínimo) ≤ 30.000 / 45.000* | joven bajo umbral → 500 €; renta alta → 0; FN de 45 años con 12.000 € → 1.200 → 1.000 €; conjunta con 12.000 € → 1.000 € |
 | Rehabilitación vivienda habitual (612-4) | 1,5 %, base máx. 9.040 € | 6.000 € → 90 €; 20.000 € → 135,60 € (tope) |
 | Donativos fomento lengua catalana/occitana (612-6) | 15 %, tope 10 % de la cuota íntegra autonómica | — |
 | Donativos a I+D+i (612-7) | 30 %, tope 10 % de la cuota íntegra autonómica | 400 € → 120 €; 50.000 € → 10 % de la cuota autonómica |
@@ -241,38 +243,49 @@ con discapacidad ≥ 65 %; en individual, cada progenitor aplica (2.500 + 2.000 
 
 ## Deducciones autonómicas — Canarias (DL 1/2009)
 
-Codificadas en `tests/testthat/test-ded-canarias.R`. 6 deducciones (de ~16).
+Codificadas en `tests/testthat/test-ded-canarias.R`. 6 deducciones (de ~16), cotejadas
+(11-2026) con el Manual Práctico de Renta 2025 de la AEAT y todas confirmadas. Límite de
+renta común: bases imponibles general + ahorro (0435 + 0460) ≤ 46.455 € (individual) o
+61.770 € (conjunta).
 
-| Deducción (art.) | Regla |
-|---|---|
-| Nacimiento o adopción (10) | 265 / 265 / 530 € por orden (🟡 4.º 796 €, 5.º+ 928 € no modelados), prorrateo entre progenitores, *base ≤ 46.455 / 61.770* |
-| Familia numerosa general (13) | 597 € |
-| Familia numerosa especial (13) | 796 € (597 + 199) |
-| Familia monoparental (11 ter) | 133 € (con al menos un descendiente a cargo) |
-| Gastos de custodia en guardería (12) | 18 % por descendiente < 3 años, límite 530 €/descendiente |
-| Gastos de estudios no superiores (7 bis) | 100 % (libros, transporte, uniforme, comedor), límite 133 € (🟡 no el +66 €/descendiente adicional) |
+| Deducción (art.) | Regla | Comprobación |
+|---|---|---|
+| Nacimiento o adopción (10) | 265 € el 1.º y 2.º, 530 € el 3.º, 796 € el 4.º, 928 € el 5.º y siguientes (clave `"N+"` de `importes_por_orden`); prorrateo entre progenitores, con límite de renta | 4 hijos (10, 8, 5 y 0 años) → 796 €; 5 hijos → 928 €; 3 hijos → 530 € |
+| Familia numerosa (13) | 597 € general, 796 € especial; 1.326 € / 1.459 € si un cónyuge o descendiente tiene discapacidad ≥ 65 % (variantes excluyentes, `grupo`); sin límite de renta | general 597; especial 796; con hijo al 65 %: 1.326 y 1.459 |
+| Familia monoparental (11 ter) | 133 € con algún hijo menor de edad, con límite de renta | 60.000 € de trabajo → no aplica |
+| Gastos de custodia en guardería (12) | 18 % por descendiente < 3 años, límite 530 €/descendiente, con límite de renta | 4.000 + 1.000 € → 530 + 180 = 710 €; 60.000 € de trabajo → no aplica |
+| Gastos de estudios no superiores (7 bis) | 100 %, límite 133 € por el primer descendiente y 66 € por cada uno adicional (`limite_por_hijo_adicional`), repartido en individual con dos progenitores; con límite de renta | 1.000 € con 3 hijos → 133 + 2 × 66 = 265 € |
 
-**Pendientes:** gastos de estudios de educación superior fuera de la isla (7 —
-necesita el dato "estudia fuera de la isla"), discapacidad de contribuyentes ≥ 65
-años, traslado de residencia a otra isla, donativos, inversión en acciones.
+**Correcciones del cotejo:** 4.º y 5.º hijo; FN con discapacidad; +66 €/hijo en estudios;
+límite de renta que faltaba en monoparental, guardería y estudios.
+
+**Pendientes:** incremento del art. 10 por hijo con discapacidad ≥ 65 % (600 € / 1.100 €),
+gastos de estudios de educación superior fuera de la isla (7 — necesita el dato "estudia
+fuera de la isla"), discapacidad de contribuyentes ≥ 65 años, traslado de residencia a otra
+isla, donativos, inversión en acciones.
 
 ---
 
 ## Deducciones autonómicas — Región de Murcia (DL 1/2010)
 
-Codificadas en `tests/testthat/test-ded-murcia.R`. 7 deducciones (de ~27).
-Fuente: TR de tributos cedidos de la Región de Murcia (DL 1/2010), art. 1, y
-AEAT *Manual Práctico Renta 2025, Parte 2 — Deducciones autonómicas / Región de Murcia*.
+Codificadas en `tests/testthat/test-ded-murcia.R`. 7 deducciones (de ~27), cotejadas (11-2026)
+con el Manual Práctico de Renta 2025 de la AEAT, parte 2, Región de Murcia: 6 confirmadas y la de
+conciliación, provisional. Los límites de renta son sobre las bases imponibles (0435 + 0460).
 
 | Deducción (art. 1.·) | Regla |
 |---|---|
 | Nacimiento o adopción (Nueve) | 100 / 200 / 300 € por orden del hijo nacido; *base ≤ 30.000 (ind.) / 50.000 (conj.)*; por mitad si ambos progenitores declaran y conviven |
 | Gastos de guardería (Tres) | 20 % de los gastos de Primer Ciclo de Ed. Infantil (0–3 años), límite **1.000 €/hijo**; *base ≤ 30.000 / 50.000* |
-| Material escolar y libros de texto (Ocho) | **120 € por descendiente** (2.º ciclo infantil, primaria y ESO); *base ≤ 20.000 / 40.000* (🟡 edad 3–16 aproxima la etapa; límites de familia numerosa 33.000/53.000 no modelados); prorrateo |
+| Material escolar y libros de texto (Ocho) | **120 € por descendiente** (2.º ciclo infantil, primaria y ESO; la edad 3–16 aproxima la etapa); *base ≤ 20.000 / 40.000*, o *≤ 33.000 / 53.000* en familia numerosa; prorrateo |
 | Contribuyentes con discapacidad (Diez) | **150 €** por contribuyente con grado ≥ 33 %; *base ≤ 40.000* (ind. o conj.) |
-| Conciliación — cuidado de descendientes (Once.A) | 20 % de las cuotas del Sistema Especial de Empleados de Hogar, límite **400 €**; al menos un hijo < 12 años (🟡 requiere alta como empleador; se usa el campo `cuotas_ss_empleada_hogar`) |
-| Familia monoparental (Dieciséis) | **303 €** con descendientes a cargo; *base + anualidades exentas ≤ 35.240 €* |
-| Arrendamiento de vivienda habitual (Trece) | 10 % de lo pagado, máx. **300 €/contrato**; ≤ 40 años (🟡 alternativas familia numerosa / discapacidad ≥ 65 % no modeladas) |
+| Conciliación — cuidado de descendientes (Once.A) | 20 % de las cuotas del Sistema Especial de Empleados de Hogar, límite **400 €**; al menos un hijo < 12 años, progenitores con trabajo o actividad, *base ≤ 34.000* (🟡 provisional: falta la modalidad B, ascendientes, y el límite es por cónyuge) |
+| Familia monoparental (Dieciséis) | **303 €** con hijos menores de edad; *base + anualidades exentas ≤ 35.240 €* |
+| Arrendamiento de vivienda habitual (Trece) | 10 % de lo pagado, máx. **300 €/contrato**; ≤ 40 años, familia numerosa o discapacidad ≥ 65 % (variantes excluyentes); *base imponible general − mínimo < 40.000* (`base_gate: general_menos_minimo`) y *base del ahorro ≤ 1.800* (`base_ahorro_max`) |
+
+Comprobaciones del cotejo: familia numerosa de 50 años con 6.000 € de alquiler → 10 % = 600 →
+**300 €**; la misma sin título → 0; con 40 años → 300; con 2.000 € de intereses (ahorro > 1.800) →
+0; con 90.000 € de sueldo → 0. Material escolar con base ≈ 27.968 €: familia numerosa con tres
+hijos de 5, 8 y 10 años → 3 × 120 = **360 €**; sin título (límite 20.000) → 0.
 
 ### Comprobación numérica (test `mc_familia`, validado R↔JS)
 

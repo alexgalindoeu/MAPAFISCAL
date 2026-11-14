@@ -1,6 +1,6 @@
 {
  "ejercicio": 2025,
- "generado": "2026-11-13",
+ "generado": "2026-11-14",
  "territorios": {
   "ES-AN": {
    "territorio": "ES-AN",
@@ -402,9 +402,9 @@
     }
    },
    "deducciones": {
-    "modeladas": 6,
-    "provisionales": 2,
-    "pendientes": 6
+    "modeladas": 8,
+    "provisionales": 0,
+    "pendientes": 7
    }
   },
   "ES-CB": {
@@ -670,8 +670,8 @@
     "fuente_autonomica": null
    },
    "deducciones": {
-    "modeladas": 7,
-    "provisionales": 0,
+    "modeladas": 11,
+    "provisionales": 1,
     "pendientes": 6
    }
   },
@@ -944,8 +944,8 @@
     "fuente_autonomica": null
    },
    "deducciones": {
-    "modeladas": 7,
-    "provisionales": 3,
+    "modeladas": 10,
+    "provisionales": 1,
     "pendientes": 17
    }
   },
