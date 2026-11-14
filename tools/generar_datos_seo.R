@@ -16,12 +16,16 @@
 #   web/datos/seo_guias.json         — cifras de las guías (escalas 2025/2026, mínimos,
 #                                       planes de pensiones, donativos, obligación de
 #                                       declarar y calendario de params/calendario_renta.yaml).
+#   web/datos/seo_sueldo_neto.json   — sueldo neto (sueldo_neto() de R/15) por importe y
+#                                       territorio en el ejercicio en curso (web/sueldo-neto/).
 # =============================================================================
 source("R/cargar.R"); irpfsim_cargar(".")
 
 EJERCICIO <- 2025
 SALARIOS <- c(20000, 30000, 40000, 60000, 100000)
-SS_TIPO <- 0.0635   # mismo valor por defecto que web/js/app.js para f-ss
+# Cotización del trabajador a la Seguridad Social: la de la orden de cotización del
+# ejercicio (cotizaciones_trabajador() de R/15, contrato indefinido), igual que la web.
+cotizacion_ss <- function(salario) cotizaciones_trabajador(salario, cargar_parametros("ES-MD", EJERCICIO))
 
 json <- function(x) paste0(as.character(jsonlite::prettify(
   jsonlite::toJSON(x, auto_unbox = TRUE, null = "null", digits = NA), indent = 1)), "")
@@ -55,7 +59,7 @@ nombre_territorio <- function(t) cargar_parametros(t, EJERCICIO)$jurisdiccion$no
 caso_salario <- function(salario) {
   nuevo_hogar("seo", "ES-MD", list(
     persona("d1", "declarante", edad = 40,
-            trabajo = list(dinerarias = salario, cotizaciones_ss = round(salario * SS_TIPO)))
+            trabajo = list(dinerarias = salario, cotizaciones_ss = cotizacion_ss(salario)))
   ), ejercicio = EJERCICIO)
 }
 
@@ -75,11 +79,10 @@ seo_comparativas <- list(
   supuesto = paste(
     "Una persona declarante, 40 años, un único rendimiento del trabajo de 12 pagas,",
     "sin cónyuge ni hijos, sin vivienda ni deducciones autonómicas.",
-    "Cotización a la Seguridad Social: 6,35 % del salario (el valor por defecto",
-    "de la calculadora), sin aplicar el tope máximo de cotización.",
+    "Cotización a la Seguridad Social del trabajador según la orden de cotización del",
+    "ejercicio (contrato indefinido, con la base máxima y la cotización de solidaridad).",
     "No es una liquidación oficial ni tiene en cuenta tu situación real."
   ),
-  ss_tipo = SS_TIPO,
   salarios = as.list(SALARIOS),
   comparativas = setNames(lapply(SALARIOS, comparativa_salario), format(SALARIOS, scientific = FALSE, trim = TRUE))
 )
@@ -316,7 +319,7 @@ caso_pp <- function(salario, aportacion) {
   nuevo_hogar("seo-pp", "ES-MD", list(
     persona("d1", "declarante", edad = 40,
             prevision_social = if (aportacion > 0) list(aportacion_individual = aportacion) else NULL,
-            trabajo = list(dinerarias = salario, cotizaciones_ss = round(salario * SS_TIPO)))
+            trabajo = list(dinerarias = salario, cotizaciones_ss = cotizacion_ss(salario)))
   ), ejercicio = EJERCICIO)
 }
 ahorro_pp <- lapply(SALARIOS_PP, function(s) {
@@ -359,6 +362,65 @@ seo_guias <- list(
 )
 
 # -----------------------------------------------------------------------------
+# 5) Sueldo neto por importe y territorio (web/sueldo-neto/): sueldo_neto() de R/15, el
+#    mismo cálculo que la vista #sueldo-neto (paridad en test/sueldo_neto_seo.test.mjs).
+#    Soltero sin hijos, 40 años, contrato indefinido, ejercicio en curso. El tipo marginal
+#    sale de volver a calcular con 100 € brutos más.
+# -----------------------------------------------------------------------------
+EJ_NETO <- 2026
+IMPORTES_ANUALES <- c(seq(15000, 50000, by = 1000), seq(55000, 100000, by = 5000))
+MENSUALES <- c(1200, 1500, 1800, 2000, 2500, 3000)
+IMPORTES_NETO <- sort(unique(c(IMPORTES_ANUALES, MENSUALES * 12, MENSUALES * 14)))
+# Importes con página por territorio (los más buscados; los demás, solo la nacional).
+IMPORTES_TERRITORIO <- c(15000, 16800, 18000, 20000, 21000, 21600, 22000, 24000, 25000, 25200,
+                         26000, 28000, 30000, 32000, 35000, 36000, 40000, 42000, 45000, 50000,
+                         60000, 70000, 80000, 100000)
+stopifnot(all(IMPORTES_TERRITORIO %in% IMPORTES_NETO))
+
+# sueldo_neto() lee los parámetros en cada llamada; aquí se leen una vez por territorio.
+.cargar_parametros_original <- cargar_parametros
+.cache_params <- new.env()
+cargar_parametros <- function(territorio, ejercicio = 2025) {
+  k <- paste(territorio, ejercicio)
+  if (is.null(.cache_params[[k]])) .cache_params[[k]] <- .cargar_parametros_original(territorio, ejercicio)
+  .cache_params[[k]]
+}
+
+TERR_NETO <- c(TERRITORIOS_COMUN, "ES-PV-BI", "ES-PV-SS", "ES-PV-VI", "ES-NC")
+ct26 <- est26$cotizaciones_trabajador
+P_ss <- cargar_parametros("ES-MD", EJ_NETO)
+clave <- function(x) format(x, scientific = FALSE, trim = TRUE)
+
+sueldos_neto <- setNames(lapply(IMPORTES_NETO, function(b) {
+  d <- cotizaciones_trabajador_detalle(b, P_ss)
+  porT <- setNames(lapply(TERR_NETO, function(t) {
+    s <- sueldo_neto(b, t, EJ_NETO)
+    s2 <- sueldo_neto(b + 100, t, EJ_NETO)
+    list(irpf = s$irpf, neto = s$neto,
+         marginal = round((100 - (s2$neto - s$neto)) / 100, 4),
+         marginal_irpf = round((s2$irpf - s$irpf) / 100, 4))
+  }), TERR_NETO)
+  list(ss = list(contingencias_comunes = d$contingencias_comunes, desempleo = d$desempleo,
+                 formacion_profesional = d$formacion_profesional, mei = d$mei,
+                 solidaridad = d$solidaridad, total = d$total, base_mensual = d$base_mensual),
+       territorios = porT)
+}), clave(IMPORTES_NETO))
+cargar_parametros <- .cargar_parametros_original
+
+seo_sueldo_neto <- list(
+  ejercicio = EJ_NETO,
+  generado = as.character(Sys.Date()),
+  supuesto = list(edad = 40, hijos = 0, tipo_contrato = "indefinido"),
+  cotizaciones = list(norma = ct26$norma, fuente = ct26$fuente, tipos = ct26$tipos,
+                      base_maxima_mensual = ct26$base_maxima_mensual),
+  nombres = setNames(lapply(TERR_NETO, function(t) territorios[[t]]$nombre), TERR_NETO),
+  importes_anuales = as.list(IMPORTES_ANUALES),
+  importes_territorio = as.list(IMPORTES_TERRITORIO),
+  mensuales = as.list(MENSUALES),
+  sueldos = sueldos_neto
+)
+
+# -----------------------------------------------------------------------------
 comprobar <- "--comprobar" %in% commandArgs(trailingOnly = TRUE)
 ok1 <- escribir(seo_comparativas, "web/datos/seo_comparativas.json", comprobar,
                 paste(", ejercicio", EJERCICIO, ",", length(SALARIOS), "sueldos de referencia"))
@@ -367,4 +429,6 @@ ok2 <- escribir(seo_territorios, "web/datos/seo_territorios.json", comprobar,
 ok3 <- escribir(seo_deducciones, "web/datos/seo_deducciones.json", comprobar,
                 paste(", ejercicio", EJERCICIO, ",", length(ded), "territorios con deducciones publicables"))
 ok4 <- escribir(seo_guias, "web/datos/seo_guias.json", comprobar, ", datos de las guías")
-if (comprobar && !(ok1 && ok2 && ok3 && ok4)) quit(status = 1)
+ok5 <- escribir(seo_sueldo_neto, "web/datos/seo_sueldo_neto.json", comprobar,
+                paste(", ejercicio", EJ_NETO, ",", length(IMPORTES_NETO), "importes x", length(TERR_NETO), "territorios"))
+if (comprobar && !(ok1 && ok2 && ok3 && ok4 && ok5)) quit(status = 1)

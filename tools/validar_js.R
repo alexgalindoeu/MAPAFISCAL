@@ -672,6 +672,76 @@ add("ej2026_ex_familia", "ES-EX", "biparental", "no",
          list(id="d2",rol="conyuge",edad=38, trabajo=list(dinerarias=20000,cotizacionesSs=1270)),
          list(id="h1",rol="descendiente",edad=8), list(id="h2",rol="descendiente",edad=4)), ejercicio = 2026)
 add("pv_vi_familia_2025", "ES-PV-VI", "ninguna", "no", fam26_r, fam26_js, ejercicio = 2025)
+# 20. Rescate en capital de un plan de pensiones con la reducción del 40 % de la DT 12.ª
+add("dt12_md_capital", "ES-MD", "ninguna", "no",
+    list(persona("d1","declarante",66, trabajo=list(dinerarias=75000, cotizaciones_ss=0, prestacion_dt12=30000))),
+    list(list(id="d1",rol="declarante",edad=66, trabajo=list(dinerarias=75000,cotizacionesSs=0, prestacionDt12=30000))), ejercicio = 2026)
+add("dt12_cl_capital_2025", "ES-CL", "ninguna", "no",
+    list(persona("d1","declarante",65, trabajo=list(dinerarias=40000, cotizaciones_ss=0, prestacion_dt12=40000))),
+    list(list(id="d1",rol="declarante",edad=65, trabajo=list(dinerarias=40000,cotizacionesSs=0, prestacionDt12=40000))))
+
+# 20. Calculadora completa (2026-11-12): todos los datos que pide el formulario — trabajo con
+#     especie, otros gastos, movilidad e irregular; seguros; dos alquileres (uno con el tope de
+#     intereses y reparación del art. 23.1.a LIRPF); dos imputaciones; autónomo que empieza;
+#     ventas con DT 9.ª y pérdidas; premios; planes; pensión compensatoria y anualidades;
+#     hijo con discapacidad en custodia compartida y ascendiente con discapacidad.
+form_r <- list(
+  persona("d1","declarante",52, discapacidad="33_64",
+    trabajo=list(dinerarias=38000, especie=1200, cotizaciones_ss=2400, otros_gastos=300,
+                 movilidad_geografica=TRUE, trabajador_activo_discapacidad=TRUE,
+                 rendimiento_irregular=list(importe=6000, anios=3)),
+    capital_mobiliario=list(intereses=400, dividendos=900, seguros=250),
+    capital_inmobiliario=list(
+      list(ingresos=9600, gastos_financieros=1500, gastos_deducibles=2100, arrendamiento_vivienda=TRUE, tipo_arrendamiento="general"),
+      list(ingresos=3000, gastos_financieros=4200, gastos_deducibles=600, arrendamiento_vivienda=FALSE)),
+    imputacion_inmobiliaria=list(list(valor_catastral=80000, revisado_10_anios=TRUE),
+                                 list(valor_catastral=30000, revisado_10_anios=FALSE)),
+    actividades=list(metodo="directa_simplificada", rendimiento_neto_previo=12000, inicio_actividad=TRUE),
+    ganancias=list(
+      list(valor_transmision=180000, valor_adquisicion=60000, fecha_adquisicion="1992-04-10",
+           fecha_transmision="2025-09-15", tipo_elemento="inmueble", es_transmision=TRUE),
+      list(valor_transmision=8000, valor_adquisicion=11000, fecha_adquisicion="2021-02-01",
+           fecha_transmision="2025-05-20", tipo_elemento="fondo", es_transmision=TRUE)),
+    ganancias_perdidas_no_transmision=1500,
+    prevision_social=list(aportacion_individual=1500, contribucion_empresarial=1000),
+    reducciones=list(pensiones_compensatorias=2400, anualidades_alimentos_hijos=3600),
+    alquiler_vivienda_pagos=0, donativos=150, retenciones=9000),
+  persona("d2","conyuge",49, trabajo=list(dinerarias=21000, cotizaciones_ss=1330),
+          capital_mobiliario=list(intereses=120), prevision_social=list(aportacion_individual=800),
+          retenciones=2300),
+  persona("h1","descendiente",12, discapacidad="33_64", convivencia_meses=0),
+  persona("h2","descendiente",2),
+  persona("a1","ascendiente",81, discapacidad="65_mas", rentas_propias=6000))
+form_js <- list(
+  list(id="d1",rol="declarante",edad=52,discapacidad="33_64",
+    trabajo=list(dinerarias=38000, especie=1200, cotizacionesSs=2400, otrosGastos=300,
+                 movilidadGeografica=TRUE, trabajadorActivoDiscapacidad=TRUE,
+                 rendimientoIrregular=list(importe=6000, anios=3)),
+    capitalMobiliario=list(intereses=400, dividendos=900, seguros=250),
+    capitalInmobiliario=list(
+      list(ingresos=9600, gastosFinancieros=1500, gastosDeducibles=2100, arrendamientoVivienda=TRUE, tipoArrendamiento="general"),
+      list(ingresos=3000, gastosFinancieros=4200, gastosDeducibles=600, arrendamientoVivienda=FALSE)),
+    imputacionInmobiliaria=list(list(valorCatastral=80000, revisado10Anios=TRUE),
+                                list(valorCatastral=30000, revisado10Anios=FALSE)),
+    actividades=list(metodo="directa_simplificada", rendimientoNetoPrevio=12000, inicioActividad=TRUE),
+    ganancias=list(
+      list(valorTransmision=180000, valorAdquisicion=60000, fechaAdquisicion="1992-04-10",
+           fechaTransmision="2025-09-15", tipoElemento="inmueble", esTransmision=TRUE),
+      list(valorTransmision=8000, valorAdquisicion=11000, fechaAdquisicion="2021-02-01",
+           fechaTransmision="2025-05-20", tipoElemento="fondo", esTransmision=TRUE)),
+    gananciasPerdidasNoTransmision=1500,
+    previsionSocial=list(aportacionIndividual=1500, contribucionEmpresarial=1000),
+    reducciones=list(pensionesCompensatorias=2400, anualidadesAlimentosHijos=3600),
+    alquilerViviendaPagos=0, donativos=150, retenciones=9000),
+  list(id="d2",rol="conyuge",edad=49, trabajo=list(dinerarias=21000, cotizacionesSs=1330),
+       capitalMobiliario=list(intereses=120), previsionSocial=list(aportacionIndividual=800), retenciones=2300),
+  list(id="h1",rol="descendiente",edad=12,discapacidad="33_64",convivenciaMeses=0),
+  list(id="h2",rol="descendiente",edad=2),
+  list(id="a1",rol="ascendiente",edad=81,discapacidad="65_mas",rentasPropias=6000))
+for (t in c("ES-MD", "ES-AN", "ES-CT", "ES-PV-BI", "ES-NC"))
+  add(paste0("formulario_completo_", t), t, "biparental", "general", form_r, form_js)
+# el mismo declarante sin pareja (monoparental): los alquileres y la imputación en su ámbito
+add("formulario_completo_mono_MD", "ES-MD", "monoparental", "no", form_r[c(1, 3, 4)], form_js[c(1, 3, 4)])
 
 out <- lapply(casos, function(c) list(
   js = c$js,
@@ -697,6 +767,27 @@ for (cn in casos_neto) {
               aportacionPlan = cn$aportacion_plan %||% 0, donativos = cn$donativos %||% 0),
     ref = list(cot = s$cotizaciones, irpf = s$irpf, neto = s$neto, cr = s$liquidacion$cuota_resultante_autoliquidacion,
                modo = s$liquidacion$modo_tributacion_elegido))
+}
+
+# 20. Rescate del plan de pensiones (R/16_rescate_plan.R ↔ irpfsim.rescatePlan): reducción
+#     del 40 % de la DT 12.ª en capital, plazos de la DT 12.ª.4, renta y mixto
+casos_rescate <- list(
+  list(id = "rescate26_md_pension", territorio = "ES-MD", antes = 30000, despues = 30000, otros = 15000, anio = 2026, anios = 5),
+  list(id = "rescate26_ct_sueldo", territorio = "ES-CT", antes = 20000, despues = 80000, otros = 35000, tipo = "sueldo", edad = 60, anio = 2025, anios = 4),
+  list(id = "rescate26_an_fuera_plazo", territorio = "ES-AN", antes = 40000, despues = 10000, otros = 12000, anio = 2020, anios = 3),
+  list(id = "rescate26_vc_2012", territorio = "ES-VC", antes = 50000, despues = 0, otros = 0, anio = 2012, anios = 10),
+  list(id = "rescate26_ex_sin_antes", territorio = "ES-EX", antes = 0, despues = 45000, otros = 18000, anio = 2026, anios = 3),
+  list(id = "rescate25_ga_capital", territorio = "ES-GA", antes = 25000, despues = 15000, otros = 20000, anio = 2024, anios = 2, ejercicio = 2025)
+)
+for (cr in casos_rescate) {
+  ej <- cr$ejercicio %||% 2026
+  s <- rescate_plan(cr$territorio, ej, cr$antes, cr$despues, cr$otros, cr$tipo %||% "pension", cr$edad %||% 65, cr$anio, cr$anios)
+  out[[cr$id]] <- list(
+    rescate = TRUE,
+    js = list(territorio = cr$territorio, ejercicio = ej, antes2007 = cr$antes, despues2007 = cr$despues, otrosIngresos = cr$otros,
+              tipoOtros = cr$tipo %||% "pension", edad = cr$edad %||% 65, anioContingencia = cr$anio, anios = cr$anios),
+    ref = list(en_plazo = s$en_plazo, sin = s$irpf_sin, capital = s$capital$extra, renta = s$renta$extra,
+               mixto = s$mixto$extra, mejor = s$mejor))
 }
 
 dir.create("tools", showWarnings = FALSE)

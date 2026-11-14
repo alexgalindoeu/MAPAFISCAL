@@ -148,6 +148,23 @@ trabajo_reduccion_irregular:
   porcentaje: 0.30
   base_maxima: 300000
 
+# Rescate de planes de pensiones en forma de capital: régimen transitorio de la DT 12.ª
+# LIRPF. Reducción del 40 % (art. 17.2.b del TR de la LIRPF, RDLeg 3/2004, en su redacción
+# vigente a 31-12-2006) de la parte de la prestación que corresponde a lo aportado hasta el
+# 31-12-2006, en un único ejercicio. Plazos de la DT 12.ª.4 (Ley 26/2014): contingencias
+# desde 2015, el año de la contingencia y los dos siguientes; de 2011 a 2014, hasta el final
+# del octavo ejercicio siguiente; antes de 2011, hasta el 31-12-2018.
+prestaciones_prevision_dt12:
+  norma: "LIRPF (Ley 35/2006), DT 12.ª.1 y 12.ª.4; art. 17.2.b RDLeg 3/2004 (redacción a 31-12-2006)"
+  fuente: "BOE-A-2006-20764 (DT 12.ª); BOE-A-2014-12327 (Ley 26/2014); BOE-A-2004-4456; Manual Práctico de Renta, cap. 3, «Régimen transitorio aplicable a las prestaciones de planes de pensiones»"
+  estado: confirmado
+  porcentaje: 0.40
+  anio_regimen_2015: 2015          # contingencias desde el 1-1-2015 (DT 12.ª.4.a)
+  anio_regimen_2011: 2011          # contingencias de 2011 a 2014 (DT 12.ª.4.b)
+  plazo_desde_2015_anios: 2        # el año de la contingencia y los dos siguientes
+  plazo_2011_2014_anios: 8         # hasta el final del octavo ejercicio siguiente
+  ultimo_anio_anterior_2011: 2018  # contingencias anteriores a 2011
+
 # -----------------------------------------------------------------------------
 # 4. CAPITAL INMOBILIARIO (arts. 21–24 LIRPF)
 # -----------------------------------------------------------------------------
