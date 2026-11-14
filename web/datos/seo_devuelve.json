@@ -1,0 +1,3051 @@
+{
+ "ejercicio": 2025,
+ "generado": "2026-11-14",
+ "salarios": [
+  20000,
+  35000,
+  60000
+ ],
+ "ss_tipo": 0.0635,
+ "importes": {
+  "alquiler": 9000,
+  "hipoteca": 9000,
+  "donativo": 250,
+  "edad_ascendiente": 80,
+  "rentas_ascendiente": 6000
+ },
+ "normas": {
+  "minimo_contribuyente": "Art. 57 LIRPF",
+  "minimo_descendientes": "Art. 58 LIRPF",
+  "minimo_ascendientes": "Art. 59 LIRPF",
+  "minimo_discapacidad": "Art. 60 LIRPF",
+  "deduccion_vivienda_transitoria": "DT 18.ª LIRPF y art. 68.1.1.º LIRPF en su redacción a 31-12-2012 (vivienda habitual adquirida antes del 1-1-2013)",
+  "deduccion_donativos": "Art. 68.3 y 69.1 LIRPF; art. 19 Ley 49/2002 (mod. RDL 6/2023)"
+ },
+ "situaciones": {
+  "hijo": {
+   "ES-AN": {
+    "territorio": "ES-AN",
+    "nombre": "Andalucía",
+    "regimen": "comun",
+    "publicable": true,
+    "piezas": [
+     "minimo_descendientes"
+    ],
+    "minimo_autonomico_propio": true,
+    "deducciones_autonomicas": [
+     {
+      "id": "nacimiento_adopcion",
+      "titulo": "Por nacimiento, adopción de hijos o acogimiento familiar de menores"
+     }
+    ],
+    "ahorro": {
+     "20000": 1209.84,
+     "35000": 1209.84,
+     "60000": 1209.84
+    }
+   },
+   "ES-AR": {
+    "territorio": "ES-AR",
+    "nombre": "Aragón",
+    "regimen": "comun",
+    "publicable": true,
+    "piezas": [
+     "minimo_descendientes"
+    ],
+    "minimo_autonomico_propio": false,
+    "deducciones_autonomicas": [
+
+    ],
+    "ahorro": {
+     "20000": 988,
+     "35000": 988,
+     "60000": 988
+    }
+   },
+   "ES-AS": {
+    "territorio": "ES-AS",
+    "nombre": "Principado de Asturias",
+    "regimen": "comun",
+    "publicable": true,
+    "piezas": [
+     "minimo_descendientes"
+    ],
+    "minimo_autonomico_propio": true,
+    "deducciones_autonomicas": [
+
+    ],
+    "ahorro": {
+     "20000": 1008.8,
+     "35000": 1008.8,
+     "60000": 1008.8
+    }
+   },
+   "ES-IB": {
+    "territorio": "ES-IB",
+    "nombre": "Illes Balears",
+    "regimen": "comun",
+    "publicable": true,
+    "piezas": [
+     "minimo_descendientes"
+    ],
+    "minimo_autonomico_propio": true,
+    "deducciones_autonomicas": [
+
+    ],
+    "ahorro": {
+     "20000": 962,
+     "35000": 962,
+     "60000": 962
+    }
+   },
+   "ES-CN": {
+    "territorio": "ES-CN",
+    "nombre": "Canarias",
+    "regimen": "comun",
+    "publicable": true,
+    "piezas": [
+     "minimo_descendientes"
+    ],
+    "minimo_autonomico_propio": true,
+    "deducciones_autonomicas": [
+
+    ],
+    "ahorro": {
+     "20000": 966.68,
+     "35000": 966.68,
+     "60000": 966.68
+    }
+   },
+   "ES-CB": {
+    "territorio": "ES-CB",
+    "nombre": "Cantabria",
+    "regimen": "comun",
+    "publicable": true,
+    "piezas": [
+     "minimo_descendientes"
+    ],
+    "minimo_autonomico_propio": false,
+    "deducciones_autonomicas": [
+
+    ],
+    "ahorro": {
+     "20000": 936,
+     "35000": 936,
+     "60000": 936
+    }
+   },
+   "ES-CM": {
+    "territorio": "ES-CM",
+    "nombre": "Castilla-La Mancha",
+    "regimen": "comun",
+    "publicable": true,
+    "piezas": [
+     "minimo_descendientes"
+    ],
+    "minimo_autonomico_propio": false,
+    "deducciones_autonomicas": [
+
+    ],
+    "ahorro": {
+     "20000": 988,
+     "35000": 988,
+     "60000": 988
+    }
+   },
+   "ES-CL": {
+    "territorio": "ES-CL",
+    "nombre": "Castilla y León",
+    "regimen": "comun",
+    "publicable": true,
+    "piezas": [
+     "minimo_descendientes"
+    ],
+    "minimo_autonomico_propio": false,
+    "deducciones_autonomicas": [
+
+    ],
+    "ahorro": {
+     "20000": 962,
+     "35000": 962,
+     "60000": 962
+    }
+   },
+   "ES-CT": {
+    "territorio": "ES-CT",
+    "nombre": "Cataluña",
+    "regimen": "comun",
+    "publicable": true,
+    "piezas": [
+     "minimo_descendientes"
+    ],
+    "minimo_autonomico_propio": false,
+    "deducciones_autonomicas": [
+
+    ],
+    "ahorro": {
+     "20000": 988,
+     "35000": 988,
+     "60000": 988
+    }
+   },
+   "ES-EX": {
+    "territorio": "ES-EX",
+    "nombre": "Extremadura",
+    "regimen": "comun",
+    "publicable": true,
+    "piezas": [
+     "minimo_descendientes"
+    ],
+    "minimo_autonomico_propio": false,
+    "deducciones_autonomicas": [
+
+    ],
+    "ahorro": {
+     "20000": 910,
+     "35000": 910,
+     "60000": 910
+    }
+   },
+   "ES-GA": {
+    "territorio": "ES-GA",
+    "nombre": "Galicia",
+    "regimen": "comun",
+    "publicable": true,
+    "piezas": [
+     "minimo_descendientes"
+    ],
+    "minimo_autonomico_propio": true,
+    "deducciones_autonomicas": [
+
+    ],
+    "ahorro": {
+     "20000": 982.06,
+     "35000": 982.06,
+     "60000": 982.08
+    }
+   },
+   "ES-MD": {
+    "territorio": "ES-MD",
+    "nombre": "Comunidad de Madrid",
+    "regimen": "comun",
+    "publicable": true,
+    "piezas": [
+     "minimo_descendientes"
+    ],
+    "minimo_autonomico_propio": true,
+    "deducciones_autonomicas": [
+
+    ],
+    "ahorro": {
+     "20000": 968.4,
+     "35000": 968.38,
+     "60000": 968.4
+    }
+   },
+   "ES-MC": {
+    "territorio": "ES-MC",
+    "nombre": "Región de Murcia",
+    "regimen": "comun",
+    "publicable": true,
+    "piezas": [
+     "minimo_descendientes"
+    ],
+    "minimo_autonomico_propio": false,
+    "deducciones_autonomicas": [
+
+    ],
+    "ahorro": {
+     "20000": 988,
+     "35000": 988,
+     "60000": 988
+    }
+   },
+   "ES-RI": {
+    "territorio": "ES-RI",
+    "nombre": "La Rioja",
+    "regimen": "comun",
+    "publicable": true,
+    "piezas": [
+     "minimo_descendientes"
+    ],
+    "minimo_autonomico_propio": false,
+    "deducciones_autonomicas": [
+
+    ],
+    "ahorro": {
+     "20000": 910,
+     "35000": 910,
+     "60000": 910
+    }
+   },
+   "ES-VC": {
+    "territorio": "ES-VC",
+    "nombre": "Comunitat Valenciana",
+    "regimen": "comun",
+    "publicable": true,
+    "piezas": [
+     "minimo_descendientes"
+    ],
+    "minimo_autonomico_propio": true,
+    "deducciones_autonomicas": [
+
+    ],
+    "ahorro": {
+     "20000": 1008.8,
+     "35000": 1008.8,
+     "60000": 1008.8
+    }
+   },
+   "ES-PV-BI": {
+    "territorio": "ES-PV-BI",
+    "nombre": "Bizkaia",
+    "regimen": "foral_pais_vasco",
+    "publicable": true,
+    "piezas": [
+     "deduccion_descendientes"
+    ],
+    "minimo_autonomico_propio": false,
+    "deducciones_autonomicas": [
+
+    ],
+    "ahorro": {
+     "20000": 1054,
+     "35000": 1054,
+     "60000": 1054
+    }
+   },
+   "ES-PV-SS": {
+    "territorio": "ES-PV-SS",
+    "nombre": "Gipuzkoa",
+    "regimen": "foral_pais_vasco",
+    "publicable": true,
+    "piezas": [
+     "deduccion_descendientes"
+    ],
+    "minimo_autonomico_propio": false,
+    "deducciones_autonomicas": [
+
+    ],
+    "ahorro": {
+     "20000": 1054,
+     "35000": 1054,
+     "60000": 1054
+    }
+   },
+   "ES-PV-VI": {
+    "territorio": "ES-PV-VI",
+    "nombre": "Araba/Álava",
+    "regimen": "foral_pais_vasco",
+    "publicable": true,
+    "piezas": [
+     "deduccion_descendientes"
+    ],
+    "minimo_autonomico_propio": false,
+    "deducciones_autonomicas": [
+
+    ],
+    "ahorro": {
+     "20000": 1159.4,
+     "35000": 1159.4,
+     "60000": 1159.4
+    }
+   },
+   "ES-NC": {
+    "territorio": "ES-NC",
+    "nombre": "Comunidad Foral de Navarra",
+    "regimen": "foral_navarra",
+    "publicable": false,
+    "piezas": [
+     "minimo_familiar_deduccion"
+    ],
+    "minimo_autonomico_propio": false,
+    "deducciones_autonomicas": [
+
+    ],
+    "ahorro": null
+   }
+  },
+  "familia-numerosa": {
+   "ES-AN": {
+    "territorio": "ES-AN",
+    "nombre": "Andalucía",
+    "regimen": "comun",
+    "publicable": true,
+    "piezas": [
+
+    ],
+    "minimo_autonomico_propio": false,
+    "deducciones_autonomicas": [
+
+    ],
+    "ahorro": {
+     "20000": 0,
+     "35000": 0,
+     "60000": 0
+    }
+   },
+   "ES-AR": {
+    "territorio": "ES-AR",
+    "nombre": "Aragón",
+    "regimen": "comun",
+    "publicable": true,
+    "piezas": [
+
+    ],
+    "minimo_autonomico_propio": false,
+    "deducciones_autonomicas": [
+
+    ],
+    "ahorro": {
+     "20000": 0,
+     "35000": 0,
+     "60000": 0
+    }
+   },
+   "ES-AS": {
+    "territorio": "ES-AS",
+    "nombre": "Principado de Asturias",
+    "regimen": "comun",
+    "publicable": true,
+    "piezas": [
+
+    ],
+    "minimo_autonomico_propio": false,
+    "deducciones_autonomicas": [
+
+    ],
+    "ahorro": {
+     "20000": 0,
+     "35000": 0,
+     "60000": 0
+    }
+   },
+   "ES-IB": {
+    "territorio": "ES-IB",
+    "nombre": "Illes Balears",
+    "regimen": "comun",
+    "publicable": true,
+    "piezas": [
+
+    ],
+    "minimo_autonomico_propio": false,
+    "deducciones_autonomicas": [
+
+    ],
+    "ahorro": {
+     "20000": 0,
+     "35000": 0,
+     "60000": 0
+    }
+   },
+   "ES-CN": {
+    "territorio": "ES-CN",
+    "nombre": "Canarias",
+    "regimen": "comun",
+    "publicable": true,
+    "piezas": [
+
+    ],
+    "minimo_autonomico_propio": false,
+    "deducciones_autonomicas": [
+
+    ],
+    "ahorro": {
+     "20000": 0,
+     "35000": 0,
+     "60000": 0
+    }
+   },
+   "ES-CB": {
+    "territorio": "ES-CB",
+    "nombre": "Cantabria",
+    "regimen": "comun",
+    "publicable": true,
+    "piezas": [
+
+    ],
+    "minimo_autonomico_propio": false,
+    "deducciones_autonomicas": [
+
+    ],
+    "ahorro": {
+     "20000": 0,
+     "35000": 0,
+     "60000": 0
+    }
+   },
+   "ES-CM": {
+    "territorio": "ES-CM",
+    "nombre": "Castilla-La Mancha",
+    "regimen": "comun",
+    "publicable": true,
+    "piezas": [
+
+    ],
+    "minimo_autonomico_propio": false,
+    "deducciones_autonomicas": [
+
+    ],
+    "ahorro": {
+     "20000": 0,
+     "35000": 0,
+     "60000": 0
+    }
+   },
+   "ES-CL": {
+    "territorio": "ES-CL",
+    "nombre": "Castilla y León",
+    "regimen": "comun",
+    "publicable": true,
+    "piezas": [
+
+    ],
+    "minimo_autonomico_propio": false,
+    "deducciones_autonomicas": [
+     {
+      "id": "familia_numerosa",
+      "titulo": "Por familia numerosa"
+     }
+    ],
+    "ahorro": {
+     "20000": 600,
+     "35000": 600,
+     "60000": 600
+    }
+   },
+   "ES-CT": {
+    "territorio": "ES-CT",
+    "nombre": "Cataluña",
+    "regimen": "comun",
+    "publicable": true,
+    "piezas": [
+
+    ],
+    "minimo_autonomico_propio": false,
+    "deducciones_autonomicas": [
+
+    ],
+    "ahorro": {
+     "20000": 0,
+     "35000": 0,
+     "60000": 0
+    }
+   },
+   "ES-EX": {
+    "territorio": "ES-EX",
+    "nombre": "Extremadura",
+    "regimen": "comun",
+    "publicable": true,
+    "piezas": [
+
+    ],
+    "minimo_autonomico_propio": false,
+    "deducciones_autonomicas": [
+
+    ],
+    "ahorro": {
+     "20000": 0,
+     "35000": 0,
+     "60000": 0
+    }
+   },
+   "ES-GA": {
+    "territorio": "ES-GA",
+    "nombre": "Galicia",
+    "regimen": "comun",
+    "publicable": true,
+    "piezas": [
+
+    ],
+    "minimo_autonomico_propio": false,
+    "deducciones_autonomicas": [
+
+    ],
+    "ahorro": {
+     "20000": 0,
+     "35000": 0,
+     "60000": 0
+    }
+   },
+   "ES-MD": {
+    "territorio": "ES-MD",
+    "nombre": "Comunidad de Madrid",
+    "regimen": "comun",
+    "publicable": true,
+    "piezas": [
+
+    ],
+    "minimo_autonomico_propio": false,
+    "deducciones_autonomicas": [
+
+    ],
+    "ahorro": {
+     "20000": 0,
+     "35000": 0,
+     "60000": 0
+    }
+   },
+   "ES-MC": {
+    "territorio": "ES-MC",
+    "nombre": "Región de Murcia",
+    "regimen": "comun",
+    "publicable": true,
+    "piezas": [
+
+    ],
+    "minimo_autonomico_propio": false,
+    "deducciones_autonomicas": [
+
+    ],
+    "ahorro": {
+     "20000": 0,
+     "35000": 0,
+     "60000": 0
+    }
+   },
+   "ES-RI": {
+    "territorio": "ES-RI",
+    "nombre": "La Rioja",
+    "regimen": "comun",
+    "publicable": true,
+    "piezas": [
+
+    ],
+    "minimo_autonomico_propio": false,
+    "deducciones_autonomicas": [
+
+    ],
+    "ahorro": {
+     "20000": 0,
+     "35000": 0,
+     "60000": 0
+    }
+   },
+   "ES-VC": {
+    "territorio": "ES-VC",
+    "nombre": "Comunitat Valenciana",
+    "regimen": "comun",
+    "publicable": true,
+    "piezas": [
+
+    ],
+    "minimo_autonomico_propio": false,
+    "deducciones_autonomicas": [
+
+    ],
+    "ahorro": {
+     "20000": 0,
+     "35000": 0,
+     "60000": 0
+    }
+   },
+   "ES-PV-BI": {
+    "territorio": "ES-PV-BI",
+    "nombre": "Bizkaia",
+    "regimen": "foral_pais_vasco",
+    "publicable": false,
+    "piezas": [
+
+    ],
+    "minimo_autonomico_propio": false,
+    "deducciones_autonomicas": [
+
+    ],
+    "ahorro": null
+   },
+   "ES-PV-SS": {
+    "territorio": "ES-PV-SS",
+    "nombre": "Gipuzkoa",
+    "regimen": "foral_pais_vasco",
+    "publicable": false,
+    "piezas": [
+
+    ],
+    "minimo_autonomico_propio": false,
+    "deducciones_autonomicas": [
+
+    ],
+    "ahorro": null
+   },
+   "ES-PV-VI": {
+    "territorio": "ES-PV-VI",
+    "nombre": "Araba/Álava",
+    "regimen": "foral_pais_vasco",
+    "publicable": false,
+    "piezas": [
+
+    ],
+    "minimo_autonomico_propio": false,
+    "deducciones_autonomicas": [
+
+    ],
+    "ahorro": null
+   },
+   "ES-NC": {
+    "territorio": "ES-NC",
+    "nombre": "Comunidad Foral de Navarra",
+    "regimen": "foral_navarra",
+    "publicable": false,
+    "piezas": [
+     "deduccion_familia_numerosa"
+    ],
+    "minimo_autonomico_propio": false,
+    "deducciones_autonomicas": [
+
+    ],
+    "ahorro": null
+   }
+  },
+  "ascendiente-a-cargo": {
+   "ES-AN": {
+    "territorio": "ES-AN",
+    "nombre": "Andalucía",
+    "regimen": "comun",
+    "publicable": true,
+    "piezas": [
+     "minimo_ascendientes"
+    ],
+    "minimo_autonomico_propio": true,
+    "deducciones_autonomicas": [
+
+    ],
+    "ahorro": {
+     "20000": 494.95,
+     "35000": 494.95,
+     "60000": 494.95
+    }
+   },
+   "ES-AR": {
+    "territorio": "ES-AR",
+    "nombre": "Aragón",
+    "regimen": "comun",
+    "publicable": true,
+    "piezas": [
+     "minimo_ascendientes"
+    ],
+    "minimo_autonomico_propio": false,
+    "deducciones_autonomicas": [
+
+    ],
+    "ahorro": {
+     "20000": 484.5,
+     "35000": 484.5,
+     "60000": 484.5
+    }
+   },
+   "ES-AS": {
+    "territorio": "ES-AS",
+    "nombre": "Principado de Asturias",
+    "regimen": "comun",
+    "publicable": true,
+    "piezas": [
+     "minimo_ascendientes"
+    ],
+    "minimo_autonomico_propio": true,
+    "deducciones_autonomicas": [
+
+    ],
+    "ahorro": {
+     "20000": 494.7,
+     "35000": 494.7,
+     "60000": 494.7
+    }
+   },
+   "ES-IB": {
+    "territorio": "ES-IB",
+    "nombre": "Illes Balears",
+    "regimen": "comun",
+    "publicable": true,
+    "piezas": [
+     "minimo_ascendientes"
+    ],
+    "minimo_autonomico_propio": true,
+    "deducciones_autonomicas": [
+
+    ],
+    "ahorro": {
+     "20000": 494.7,
+     "35000": 494.7,
+     "60000": 494.7
+    }
+   },
+   "ES-CN": {
+    "territorio": "ES-CN",
+    "nombre": "Canarias",
+    "regimen": "comun",
+    "publicable": true,
+    "piezas": [
+     "minimo_ascendientes"
+    ],
+    "minimo_autonomico_propio": true,
+    "deducciones_autonomicas": [
+
+    ],
+    "ahorro": {
+     "20000": 474.09,
+     "35000": 474.09,
+     "60000": 474.09
+    }
+   },
+   "ES-CB": {
+    "territorio": "ES-CB",
+    "nombre": "Cantabria",
+    "regimen": "comun",
+    "publicable": true,
+    "piezas": [
+     "minimo_ascendientes"
+    ],
+    "minimo_autonomico_propio": false,
+    "deducciones_autonomicas": [
+
+    ],
+    "ahorro": {
+     "20000": 459,
+     "35000": 459,
+     "60000": 459
+    }
+   },
+   "ES-CM": {
+    "territorio": "ES-CM",
+    "nombre": "Castilla-La Mancha",
+    "regimen": "comun",
+    "publicable": true,
+    "piezas": [
+     "minimo_ascendientes"
+    ],
+    "minimo_autonomico_propio": false,
+    "deducciones_autonomicas": [
+
+    ],
+    "ahorro": {
+     "20000": 484.5,
+     "35000": 484.5,
+     "60000": 484.5
+    }
+   },
+   "ES-CL": {
+    "territorio": "ES-CL",
+    "nombre": "Castilla y León",
+    "regimen": "comun",
+    "publicable": true,
+    "piezas": [
+     "minimo_ascendientes"
+    ],
+    "minimo_autonomico_propio": false,
+    "deducciones_autonomicas": [
+
+    ],
+    "ahorro": {
+     "20000": 471.75,
+     "35000": 471.75,
+     "60000": 471.75
+    }
+   },
+   "ES-CT": {
+    "territorio": "ES-CT",
+    "nombre": "Cataluña",
+    "regimen": "comun",
+    "publicable": true,
+    "piezas": [
+     "minimo_ascendientes"
+    ],
+    "minimo_autonomico_propio": false,
+    "deducciones_autonomicas": [
+
+    ],
+    "ahorro": {
+     "20000": 484.5,
+     "35000": 484.5,
+     "60000": 484.5
+    }
+   },
+   "ES-EX": {
+    "territorio": "ES-EX",
+    "nombre": "Extremadura",
+    "regimen": "comun",
+    "publicable": true,
+    "piezas": [
+     "minimo_ascendientes"
+    ],
+    "minimo_autonomico_propio": false,
+    "deducciones_autonomicas": [
+
+    ],
+    "ahorro": {
+     "20000": 446.25,
+     "35000": 446.25,
+     "60000": 446.25
+    }
+   },
+   "ES-GA": {
+    "territorio": "ES-GA",
+    "nombre": "Galicia",
+    "regimen": "comun",
+    "publicable": true,
+    "piezas": [
+     "minimo_ascendientes"
+    ],
+    "minimo_autonomico_propio": true,
+    "deducciones_autonomicas": [
+
+    ],
+    "ahorro": {
+     "20000": 481.56,
+     "35000": 481.56,
+     "60000": 481.56
+    }
+   },
+   "ES-MD": {
+    "territorio": "ES-MD",
+    "nombre": "Comunidad de Madrid",
+    "regimen": "comun",
+    "publicable": true,
+    "piezas": [
+     "minimo_ascendientes"
+    ],
+    "minimo_autonomico_propio": true,
+    "deducciones_autonomicas": [
+
+    ],
+    "ahorro": {
+     "20000": 474.88,
+     "35000": 474.88,
+     "60000": 474.88
+    }
+   },
+   "ES-MC": {
+    "territorio": "ES-MC",
+    "nombre": "Región de Murcia",
+    "regimen": "comun",
+    "publicable": true,
+    "piezas": [
+     "minimo_ascendientes"
+    ],
+    "minimo_autonomico_propio": false,
+    "deducciones_autonomicas": [
+
+    ],
+    "ahorro": {
+     "20000": 484.5,
+     "35000": 484.5,
+     "60000": 484.5
+    }
+   },
+   "ES-RI": {
+    "territorio": "ES-RI",
+    "nombre": "La Rioja",
+    "regimen": "comun",
+    "publicable": true,
+    "piezas": [
+     "minimo_ascendientes"
+    ],
+    "minimo_autonomico_propio": false,
+    "deducciones_autonomicas": [
+
+    ],
+    "ahorro": {
+     "20000": 446.25,
+     "35000": 446.25,
+     "60000": 446.25
+    }
+   },
+   "ES-VC": {
+    "territorio": "ES-VC",
+    "nombre": "Comunitat Valenciana",
+    "regimen": "comun",
+    "publicable": true,
+    "piezas": [
+     "minimo_ascendientes"
+    ],
+    "minimo_autonomico_propio": true,
+    "deducciones_autonomicas": [
+     {
+      "id": "ascendientes_75",
+      "titulo": "Por ascendientes mayores de 75 años o mayores de 65 años con discapacidad"
+     }
+    ],
+    "ahorro": {
+     "20000": 691.7,
+     "35000": 494.7,
+     "60000": 494.7
+    }
+   },
+   "ES-PV-BI": {
+    "territorio": "ES-PV-BI",
+    "nombre": "Bizkaia",
+    "regimen": "foral_pais_vasco",
+    "publicable": false,
+    "piezas": [
+     "deduccion_ascendientes"
+    ],
+    "minimo_autonomico_propio": false,
+    "deducciones_autonomicas": [
+
+    ],
+    "ahorro": null
+   },
+   "ES-PV-SS": {
+    "territorio": "ES-PV-SS",
+    "nombre": "Gipuzkoa",
+    "regimen": "foral_pais_vasco",
+    "publicable": true,
+    "piezas": [
+     "deduccion_ascendientes"
+    ],
+    "minimo_autonomico_propio": false,
+    "deducciones_autonomicas": [
+
+    ],
+    "ahorro": {
+     "20000": 321,
+     "35000": 321,
+     "60000": 321
+    }
+   },
+   "ES-PV-VI": {
+    "territorio": "ES-PV-VI",
+    "nombre": "Araba/Álava",
+    "regimen": "foral_pais_vasco",
+    "publicable": false,
+    "piezas": [
+     "deduccion_ascendientes"
+    ],
+    "minimo_autonomico_propio": false,
+    "deducciones_autonomicas": [
+
+    ],
+    "ahorro": null
+   },
+   "ES-NC": {
+    "territorio": "ES-NC",
+    "nombre": "Comunidad Foral de Navarra",
+    "regimen": "foral_navarra",
+    "publicable": false,
+    "piezas": [
+     "minimo_familiar_deduccion"
+    ],
+    "minimo_autonomico_propio": false,
+    "deducciones_autonomicas": [
+
+    ],
+    "ahorro": null
+   }
+  },
+  "mayor-65": {
+   "ES-AN": {
+    "territorio": "ES-AN",
+    "nombre": "Andalucía",
+    "regimen": "comun",
+    "publicable": true,
+    "piezas": [
+     "minimo_contribuyente"
+    ],
+    "minimo_autonomico_propio": true,
+    "deducciones_autonomicas": [
+
+    ],
+    "ahorro": {
+     "20000": 223.25,
+     "35000": 223.25,
+     "60000": 223.25
+    }
+   },
+   "ES-AR": {
+    "territorio": "ES-AR",
+    "nombre": "Aragón",
+    "regimen": "comun",
+    "publicable": true,
+    "piezas": [
+     "minimo_contribuyente"
+    ],
+    "minimo_autonomico_propio": false,
+    "deducciones_autonomicas": [
+
+    ],
+    "ahorro": {
+     "20000": 218.5,
+     "35000": 218.5,
+     "60000": 218.5
+    }
+   },
+   "ES-AS": {
+    "territorio": "ES-AS",
+    "nombre": "Principado de Asturias",
+    "regimen": "comun",
+    "publicable": true,
+    "piezas": [
+     "minimo_contribuyente"
+    ],
+    "minimo_autonomico_propio": true,
+    "deducciones_autonomicas": [
+
+    ],
+    "ahorro": {
+     "20000": 223.1,
+     "35000": 223.1,
+     "60000": 223.1
+    }
+   },
+   "ES-IB": {
+    "territorio": "ES-IB",
+    "nombre": "Illes Balears",
+    "regimen": "comun",
+    "publicable": true,
+    "piezas": [
+     "minimo_contribuyente"
+    ],
+    "minimo_autonomico_propio": true,
+    "deducciones_autonomicas": [
+
+    ],
+    "ahorro": {
+     "20000": 273.05,
+     "35000": 273.05,
+     "60000": 273.05
+    }
+   },
+   "ES-CN": {
+    "territorio": "ES-CN",
+    "nombre": "Canarias",
+    "regimen": "comun",
+    "publicable": true,
+    "piezas": [
+     "minimo_contribuyente"
+    ],
+    "minimo_autonomico_propio": true,
+    "deducciones_autonomicas": [
+
+    ],
+    "ahorro": {
+     "20000": 213.83,
+     "35000": 213.83,
+     "60000": 213.83
+    }
+   },
+   "ES-CB": {
+    "territorio": "ES-CB",
+    "nombre": "Cantabria",
+    "regimen": "comun",
+    "publicable": true,
+    "piezas": [
+     "minimo_contribuyente"
+    ],
+    "minimo_autonomico_propio": false,
+    "deducciones_autonomicas": [
+
+    ],
+    "ahorro": {
+     "20000": 207,
+     "35000": 207,
+     "60000": 207
+    }
+   },
+   "ES-CM": {
+    "territorio": "ES-CM",
+    "nombre": "Castilla-La Mancha",
+    "regimen": "comun",
+    "publicable": true,
+    "piezas": [
+     "minimo_contribuyente"
+    ],
+    "minimo_autonomico_propio": false,
+    "deducciones_autonomicas": [
+
+    ],
+    "ahorro": {
+     "20000": 218.5,
+     "35000": 218.5,
+     "60000": 218.5
+    }
+   },
+   "ES-CL": {
+    "territorio": "ES-CL",
+    "nombre": "Castilla y León",
+    "regimen": "comun",
+    "publicable": true,
+    "piezas": [
+     "minimo_contribuyente"
+    ],
+    "minimo_autonomico_propio": false,
+    "deducciones_autonomicas": [
+
+    ],
+    "ahorro": {
+     "20000": 212.75,
+     "35000": 212.75,
+     "60000": 212.75
+    }
+   },
+   "ES-CT": {
+    "territorio": "ES-CT",
+    "nombre": "Cataluña",
+    "regimen": "comun",
+    "publicable": true,
+    "piezas": [
+     "minimo_contribuyente"
+    ],
+    "minimo_autonomico_propio": false,
+    "deducciones_autonomicas": [
+
+    ],
+    "ahorro": {
+     "20000": 218.5,
+     "35000": 218.5,
+     "60000": 218.5
+    }
+   },
+   "ES-EX": {
+    "territorio": "ES-EX",
+    "nombre": "Extremadura",
+    "regimen": "comun",
+    "publicable": true,
+    "piezas": [
+     "minimo_contribuyente"
+    ],
+    "minimo_autonomico_propio": false,
+    "deducciones_autonomicas": [
+
+    ],
+    "ahorro": {
+     "20000": 201.25,
+     "35000": 201.25,
+     "60000": 201.25
+    }
+   },
+   "ES-GA": {
+    "territorio": "ES-GA",
+    "nombre": "Galicia",
+    "regimen": "comun",
+    "publicable": true,
+    "piezas": [
+     "minimo_contribuyente"
+    ],
+    "minimo_autonomico_propio": true,
+    "deducciones_autonomicas": [
+
+    ],
+    "ahorro": {
+     "20000": 217.16,
+     "35000": 217.16,
+     "60000": 217.16
+    }
+   },
+   "ES-MD": {
+    "territorio": "ES-MD",
+    "nombre": "Comunidad de Madrid",
+    "regimen": "comun",
+    "publicable": true,
+    "piezas": [
+     "minimo_contribuyente"
+    ],
+    "minimo_autonomico_propio": true,
+    "deducciones_autonomicas": [
+
+    ],
+    "ahorro": {
+     "20000": 214.17,
+     "35000": 214.16,
+     "60000": 214.16
+    }
+   },
+   "ES-MC": {
+    "territorio": "ES-MC",
+    "nombre": "Región de Murcia",
+    "regimen": "comun",
+    "publicable": true,
+    "piezas": [
+     "minimo_contribuyente"
+    ],
+    "minimo_autonomico_propio": false,
+    "deducciones_autonomicas": [
+
+    ],
+    "ahorro": {
+     "20000": 218.5,
+     "35000": 218.5,
+     "60000": 218.5
+    }
+   },
+   "ES-RI": {
+    "territorio": "ES-RI",
+    "nombre": "La Rioja",
+    "regimen": "comun",
+    "publicable": true,
+    "piezas": [
+     "minimo_contribuyente"
+    ],
+    "minimo_autonomico_propio": false,
+    "deducciones_autonomicas": [
+
+    ],
+    "ahorro": {
+     "20000": 201.25,
+     "35000": 201.25,
+     "60000": 201.25
+    }
+   },
+   "ES-VC": {
+    "territorio": "ES-VC",
+    "nombre": "Comunitat Valenciana",
+    "regimen": "comun",
+    "publicable": true,
+    "piezas": [
+     "minimo_contribuyente"
+    ],
+    "minimo_autonomico_propio": true,
+    "deducciones_autonomicas": [
+
+    ],
+    "ahorro": {
+     "20000": 223.1,
+     "35000": 223.1,
+     "60000": 223.1
+    }
+   },
+   "ES-PV-BI": {
+    "territorio": "ES-PV-BI",
+    "nombre": "Bizkaia",
+    "regimen": "foral_pais_vasco",
+    "publicable": false,
+    "piezas": [
+     "deduccion_edad"
+    ],
+    "minimo_autonomico_propio": false,
+    "deducciones_autonomicas": [
+
+    ],
+    "ahorro": null
+   },
+   "ES-PV-SS": {
+    "territorio": "ES-PV-SS",
+    "nombre": "Gipuzkoa",
+    "regimen": "foral_pais_vasco",
+    "publicable": true,
+    "piezas": [
+     "deduccion_edad"
+    ],
+    "minimo_autonomico_propio": false,
+    "deducciones_autonomicas": [
+
+    ],
+    "ahorro": {
+     "20000": 385,
+     "35000": 8.55,
+     "60000": 0
+    }
+   },
+   "ES-PV-VI": {
+    "territorio": "ES-PV-VI",
+    "nombre": "Araba/Álava",
+    "regimen": "foral_pais_vasco",
+    "publicable": false,
+    "piezas": [
+     "deduccion_edad"
+    ],
+    "minimo_autonomico_propio": false,
+    "deducciones_autonomicas": [
+
+    ],
+    "ahorro": null
+   },
+   "ES-NC": {
+    "territorio": "ES-NC",
+    "nombre": "Comunidad Foral de Navarra",
+    "regimen": "foral_navarra",
+    "publicable": true,
+    "piezas": [
+     "minimo_personal_deduccion"
+    ],
+    "minimo_autonomico_propio": false,
+    "deducciones_autonomicas": [
+
+    ],
+    "ahorro": {
+     "20000": 264,
+     "35000": 264,
+     "60000": 264
+    }
+   }
+  },
+  "discapacidad-33": {
+   "ES-AN": {
+    "territorio": "ES-AN",
+    "nombre": "Andalucía",
+    "regimen": "comun",
+    "publicable": true,
+    "piezas": [
+     "minimo_discapacidad"
+    ],
+    "minimo_autonomico_propio": true,
+    "deducciones_autonomicas": [
+
+    ],
+    "ahorro": {
+     "20000": 582.35,
+     "35000": 582.35,
+     "60000": 582.35
+    }
+   },
+   "ES-AR": {
+    "territorio": "ES-AR",
+    "nombre": "Aragón",
+    "regimen": "comun",
+    "publicable": true,
+    "piezas": [
+     "minimo_discapacidad"
+    ],
+    "minimo_autonomico_propio": false,
+    "deducciones_autonomicas": [
+
+    ],
+    "ahorro": {
+     "20000": 570,
+     "35000": 570,
+     "60000": 570
+    }
+   },
+   "ES-AS": {
+    "territorio": "ES-AS",
+    "nombre": "Principado de Asturias",
+    "regimen": "comun",
+    "publicable": true,
+    "piezas": [
+     "minimo_discapacidad"
+    ],
+    "minimo_autonomico_propio": true,
+    "deducciones_autonomicas": [
+
+    ],
+    "ahorro": {
+     "20000": 582,
+     "35000": 582,
+     "60000": 582
+    }
+   },
+   "ES-IB": {
+    "territorio": "ES-IB",
+    "nombre": "Illes Balears",
+    "regimen": "comun",
+    "publicable": true,
+    "piezas": [
+     "minimo_discapacidad"
+    ],
+    "minimo_autonomico_propio": true,
+    "deducciones_autonomicas": [
+
+    ],
+    "ahorro": {
+     "20000": 582,
+     "35000": 582,
+     "60000": 582
+    }
+   },
+   "ES-CN": {
+    "territorio": "ES-CN",
+    "nombre": "Canarias",
+    "regimen": "comun",
+    "publicable": true,
+    "piezas": [
+     "minimo_discapacidad"
+    ],
+    "minimo_autonomico_propio": true,
+    "deducciones_autonomicas": [
+
+    ],
+    "ahorro": {
+     "20000": 557.7,
+     "35000": 557.7,
+     "60000": 557.7
+    }
+   },
+   "ES-CB": {
+    "territorio": "ES-CB",
+    "nombre": "Cantabria",
+    "regimen": "comun",
+    "publicable": true,
+    "piezas": [
+     "minimo_discapacidad"
+    ],
+    "minimo_autonomico_propio": false,
+    "deducciones_autonomicas": [
+
+    ],
+    "ahorro": {
+     "20000": 540,
+     "35000": 540,
+     "60000": 540
+    }
+   },
+   "ES-CM": {
+    "territorio": "ES-CM",
+    "nombre": "Castilla-La Mancha",
+    "regimen": "comun",
+    "publicable": true,
+    "piezas": [
+     "minimo_discapacidad"
+    ],
+    "minimo_autonomico_propio": false,
+    "deducciones_autonomicas": [
+
+    ],
+    "ahorro": {
+     "20000": 570,
+     "35000": 570,
+     "60000": 570
+    }
+   },
+   "ES-CL": {
+    "territorio": "ES-CL",
+    "nombre": "Castilla y León",
+    "regimen": "comun",
+    "publicable": true,
+    "piezas": [
+     "minimo_discapacidad"
+    ],
+    "minimo_autonomico_propio": false,
+    "deducciones_autonomicas": [
+
+    ],
+    "ahorro": {
+     "20000": 555,
+     "35000": 555,
+     "60000": 555
+    }
+   },
+   "ES-CT": {
+    "territorio": "ES-CT",
+    "nombre": "Cataluña",
+    "regimen": "comun",
+    "publicable": true,
+    "piezas": [
+     "minimo_discapacidad"
+    ],
+    "minimo_autonomico_propio": false,
+    "deducciones_autonomicas": [
+
+    ],
+    "ahorro": {
+     "20000": 570,
+     "35000": 570,
+     "60000": 570
+    }
+   },
+   "ES-EX": {
+    "territorio": "ES-EX",
+    "nombre": "Extremadura",
+    "regimen": "comun",
+    "publicable": true,
+    "piezas": [
+     "minimo_discapacidad"
+    ],
+    "minimo_autonomico_propio": false,
+    "deducciones_autonomicas": [
+
+    ],
+    "ahorro": {
+     "20000": 525,
+     "35000": 525,
+     "60000": 525
+    }
+   },
+   "ES-GA": {
+    "territorio": "ES-GA",
+    "nombre": "Galicia",
+    "regimen": "comun",
+    "publicable": true,
+    "piezas": [
+     "minimo_discapacidad"
+    ],
+    "minimo_autonomico_propio": true,
+    "deducciones_autonomicas": [
+
+    ],
+    "ahorro": {
+     "20000": 566.61,
+     "35000": 566.61,
+     "60000": 566.61
+    }
+   },
+   "ES-MD": {
+    "territorio": "ES-MD",
+    "nombre": "Comunidad de Madrid",
+    "regimen": "comun",
+    "publicable": true,
+    "piezas": [
+     "minimo_discapacidad"
+    ],
+    "minimo_autonomico_propio": true,
+    "deducciones_autonomicas": [
+
+    ],
+    "ahorro": {
+     "20000": 558.69,
+     "35000": 558.68,
+     "60000": 558.69
+    }
+   },
+   "ES-MC": {
+    "territorio": "ES-MC",
+    "nombre": "Región de Murcia",
+    "regimen": "comun",
+    "publicable": true,
+    "piezas": [
+     "minimo_discapacidad"
+    ],
+    "minimo_autonomico_propio": false,
+    "deducciones_autonomicas": [
+
+    ],
+    "ahorro": {
+     "20000": 570,
+     "35000": 570,
+     "60000": 570
+    }
+   },
+   "ES-RI": {
+    "territorio": "ES-RI",
+    "nombre": "La Rioja",
+    "regimen": "comun",
+    "publicable": true,
+    "piezas": [
+     "minimo_discapacidad"
+    ],
+    "minimo_autonomico_propio": false,
+    "deducciones_autonomicas": [
+
+    ],
+    "ahorro": {
+     "20000": 525,
+     "35000": 525,
+     "60000": 525
+    }
+   },
+   "ES-VC": {
+    "territorio": "ES-VC",
+    "nombre": "Comunitat Valenciana",
+    "regimen": "comun",
+    "publicable": true,
+    "piezas": [
+     "minimo_discapacidad"
+    ],
+    "minimo_autonomico_propio": true,
+    "deducciones_autonomicas": [
+
+    ],
+    "ahorro": {
+     "20000": 582,
+     "35000": 582,
+     "60000": 582
+    }
+   },
+   "ES-PV-BI": {
+    "territorio": "ES-PV-BI",
+    "nombre": "Bizkaia",
+    "regimen": "foral_pais_vasco",
+    "publicable": true,
+    "piezas": [
+     "deduccion_discapacidad"
+    ],
+    "minimo_autonomico_propio": false,
+    "deducciones_autonomicas": [
+
+    ],
+    "ahorro": {
+     "20000": 888,
+     "35000": 888,
+     "60000": 888
+    }
+   },
+   "ES-PV-SS": {
+    "territorio": "ES-PV-SS",
+    "nombre": "Gipuzkoa",
+    "regimen": "foral_pais_vasco",
+    "publicable": true,
+    "piezas": [
+     "deduccion_discapacidad"
+    ],
+    "minimo_autonomico_propio": false,
+    "deducciones_autonomicas": [
+
+    ],
+    "ahorro": {
+     "20000": 888,
+     "35000": 888,
+     "60000": 888
+    }
+   },
+   "ES-PV-VI": {
+    "territorio": "ES-PV-VI",
+    "nombre": "Araba/Álava",
+    "regimen": "foral_pais_vasco",
+    "publicable": false,
+    "piezas": [
+     "deduccion_discapacidad"
+    ],
+    "minimo_autonomico_propio": false,
+    "deducciones_autonomicas": [
+
+    ],
+    "ahorro": null
+   },
+   "ES-NC": {
+    "territorio": "ES-NC",
+    "nombre": "Comunidad Foral de Navarra",
+    "regimen": "foral_navarra",
+    "publicable": true,
+    "piezas": [
+     "minimo_personal_deduccion"
+    ],
+    "minimo_autonomico_propio": false,
+    "deducciones_autonomicas": [
+
+    ],
+    "ahorro": {
+     "20000": 766,
+     "35000": 766,
+     "60000": 766
+    }
+   }
+  },
+  "discapacidad-65": {
+   "ES-AN": {
+    "territorio": "ES-AN",
+    "nombre": "Andalucía",
+    "regimen": "comun",
+    "publicable": true,
+    "piezas": [
+     "minimo_discapacidad"
+    ],
+    "minimo_autonomico_propio": true,
+    "deducciones_autonomicas": [
+
+    ],
+    "ahorro": {
+     "20000": 2023.26,
+     "35000": 2589.65,
+     "60000": 2589.65
+    }
+   },
+   "ES-AR": {
+    "territorio": "ES-AR",
+    "nombre": "Aragón",
+    "regimen": "comun",
+    "publicable": true,
+    "piezas": [
+     "minimo_discapacidad"
+    ],
+    "minimo_autonomico_propio": false,
+    "deducciones_autonomicas": [
+
+    ],
+    "ahorro": {
+     "20000": 2044.25,
+     "35000": 2519.44,
+     "60000": 2519.44
+    }
+   },
+   "ES-AS": {
+    "territorio": "ES-AS",
+    "nombre": "Principado de Asturias",
+    "regimen": "comun",
+    "publicable": true,
+    "piezas": [
+     "minimo_discapacidad"
+    ],
+    "minimo_autonomico_propio": true,
+    "deducciones_autonomicas": [
+
+    ],
+    "ahorro": {
+     "20000": 1975.36,
+     "35000": 2693.11,
+     "60000": 2693.11
+    }
+   },
+   "ES-IB": {
+    "territorio": "ES-IB",
+    "nombre": "Illes Balears",
+    "regimen": "comun",
+    "publicable": true,
+    "piezas": [
+     "minimo_discapacidad"
+    ],
+    "minimo_autonomico_propio": true,
+    "deducciones_autonomicas": [
+
+    ],
+    "ahorro": {
+     "20000": 2057.04,
+     "35000": 2674.87,
+     "60000": 2674.87
+    }
+   },
+   "ES-CN": {
+    "territorio": "ES-CN",
+    "nombre": "Canarias",
+    "regimen": "comun",
+    "publicable": true,
+    "piezas": [
+     "minimo_discapacidad"
+    ],
+    "minimo_autonomico_propio": true,
+    "deducciones_autonomicas": [
+
+    ],
+    "ahorro": {
+     "20000": 1972.22,
+     "35000": 2457.75,
+     "60000": 2457.75
+    }
+   },
+   "ES-CB": {
+    "territorio": "ES-CB",
+    "nombre": "Cantabria",
+    "regimen": "comun",
+    "publicable": true,
+    "piezas": [
+     "minimo_discapacidad"
+    ],
+    "minimo_autonomico_propio": false,
+    "deducciones_autonomicas": [
+
+    ],
+    "ahorro": {
+     "20000": 1945.86,
+     "35000": 2401.25,
+     "60000": 2401.25
+    }
+   },
+   "ES-CM": {
+    "territorio": "ES-CM",
+    "nombre": "Castilla-La Mancha",
+    "regimen": "comun",
+    "publicable": true,
+    "piezas": [
+     "minimo_discapacidad"
+    ],
+    "minimo_autonomico_propio": false,
+    "deducciones_autonomicas": [
+
+    ],
+    "ahorro": {
+     "20000": 2059.81,
+     "35000": 2535,
+     "60000": 2535
+    }
+   },
+   "ES-CL": {
+    "territorio": "ES-CL",
+    "nombre": "Castilla y León",
+    "regimen": "comun",
+    "publicable": true,
+    "piezas": [
+     "minimo_discapacidad"
+    ],
+    "minimo_autonomico_propio": false,
+    "deducciones_autonomicas": [
+
+    ],
+    "ahorro": {
+     "20000": 2025.31,
+     "35000": 2500.5,
+     "60000": 2500.5
+    }
+   },
+   "ES-CT": {
+    "territorio": "ES-CT",
+    "nombre": "Cataluña",
+    "regimen": "comun",
+    "publicable": true,
+    "piezas": [
+     "minimo_discapacidad"
+    ],
+    "minimo_autonomico_propio": false,
+    "deducciones_autonomicas": [
+
+    ],
+    "ahorro": {
+     "20000": 2073.91,
+     "35000": 2559,
+     "60000": 2559
+    }
+   },
+   "ES-EX": {
+    "territorio": "ES-EX",
+    "nombre": "Extremadura",
+    "regimen": "comun",
+    "publicable": true,
+    "piezas": [
+     "minimo_discapacidad"
+    ],
+    "minimo_autonomico_propio": false,
+    "deducciones_autonomicas": [
+
+    ],
+    "ahorro": {
+     "20000": 1893.91,
+     "35000": 2329.5,
+     "60000": 2329.5
+    }
+   },
+   "ES-GA": {
+    "territorio": "ES-GA",
+    "nombre": "Galicia",
+    "regimen": "comun",
+    "publicable": true,
+    "piezas": [
+     "minimo_discapacidad"
+    ],
+    "minimo_autonomico_propio": true,
+    "deducciones_autonomicas": [
+
+    ],
+    "ahorro": {
+     "20000": 1978.69,
+     "35000": 2534.91,
+     "60000": 2534.91
+    }
+   },
+   "ES-MD": {
+    "territorio": "ES-MD",
+    "nombre": "Comunidad de Madrid",
+    "regimen": "comun",
+    "publicable": true,
+    "piezas": [
+     "minimo_discapacidad"
+    ],
+    "minimo_autonomico_propio": true,
+    "deducciones_autonomicas": [
+
+    ],
+    "ahorro": {
+     "20000": 1895.62,
+     "35000": 2482.65,
+     "60000": 2482.66
+    }
+   },
+   "ES-MC": {
+    "territorio": "ES-MC",
+    "nombre": "Región de Murcia",
+    "regimen": "comun",
+    "publicable": true,
+    "piezas": [
+     "minimo_discapacidad"
+    ],
+    "minimo_autonomico_propio": false,
+    "deducciones_autonomicas": [
+
+    ],
+    "ahorro": {
+     "20000": 2034.85,
+     "35000": 2494.2,
+     "60000": 2494.2
+    }
+   },
+   "ES-RI": {
+    "territorio": "ES-RI",
+    "nombre": "La Rioja",
+    "regimen": "comun",
+    "publicable": true,
+    "piezas": [
+     "minimo_discapacidad"
+    ],
+    "minimo_autonomico_propio": false,
+    "deducciones_autonomicas": [
+
+    ],
+    "ahorro": {
+     "20000": 1912.63,
+     "35000": 2360.1,
+     "60000": 2360.1
+    }
+   },
+   "ES-VC": {
+    "territorio": "ES-VC",
+    "nombre": "Comunitat Valenciana",
+    "regimen": "comun",
+    "publicable": true,
+    "piezas": [
+     "minimo_discapacidad"
+    ],
+    "minimo_autonomico_propio": true,
+    "deducciones_autonomicas": [
+
+    ],
+    "ahorro": {
+     "20000": 1988.86,
+     "35000": 2674.65,
+     "60000": 2674.65
+    }
+   },
+   "ES-PV-BI": {
+    "territorio": "ES-PV-BI",
+    "nombre": "Bizkaia",
+    "regimen": "foral_pais_vasco",
+    "publicable": true,
+    "piezas": [
+     "deduccion_discapacidad"
+    ],
+    "minimo_autonomico_propio": false,
+    "deducciones_autonomicas": [
+
+    ],
+    "ahorro": {
+     "20000": 1268,
+     "35000": 1268,
+     "60000": 1268
+    }
+   },
+   "ES-PV-SS": {
+    "territorio": "ES-PV-SS",
+    "nombre": "Gipuzkoa",
+    "regimen": "foral_pais_vasco",
+    "publicable": true,
+    "piezas": [
+     "deduccion_discapacidad"
+    ],
+    "minimo_autonomico_propio": false,
+    "deducciones_autonomicas": [
+
+    ],
+    "ahorro": {
+     "20000": 1268,
+     "35000": 1268,
+     "60000": 1268
+    }
+   },
+   "ES-PV-VI": {
+    "territorio": "ES-PV-VI",
+    "nombre": "Araba/Álava",
+    "regimen": "foral_pais_vasco",
+    "publicable": false,
+    "piezas": [
+     "deduccion_discapacidad"
+    ],
+    "minimo_autonomico_propio": false,
+    "deducciones_autonomicas": [
+
+    ],
+    "ahorro": null
+   },
+   "ES-NC": {
+    "territorio": "ES-NC",
+    "nombre": "Comunidad Foral de Navarra",
+    "regimen": "foral_navarra",
+    "publicable": true,
+    "piezas": [
+     "minimo_personal_deduccion"
+    ],
+    "minimo_autonomico_propio": false,
+    "deducciones_autonomicas": [
+
+    ],
+    "ahorro": {
+     "20000": 2046.38,
+     "35000": 2757,
+     "60000": 2757
+    }
+   }
+  },
+  "alquiler": {
+   "ES-AN": {
+    "territorio": "ES-AN",
+    "nombre": "Andalucía",
+    "regimen": "comun",
+    "publicable": true,
+    "piezas": [
+
+    ],
+    "minimo_autonomico_propio": false,
+    "deducciones_autonomicas": [
+
+    ],
+    "ahorro": {
+     "20000": 0,
+     "35000": 0,
+     "60000": 0
+    }
+   },
+   "ES-AR": {
+    "territorio": "ES-AR",
+    "nombre": "Aragón",
+    "regimen": "comun",
+    "publicable": true,
+    "piezas": [
+
+    ],
+    "minimo_autonomico_propio": false,
+    "deducciones_autonomicas": [
+
+    ],
+    "ahorro": {
+     "20000": 0,
+     "35000": 0,
+     "60000": 0
+    }
+   },
+   "ES-AS": {
+    "territorio": "ES-AS",
+    "nombre": "Principado de Asturias",
+    "regimen": "comun",
+    "publicable": true,
+    "piezas": [
+
+    ],
+    "minimo_autonomico_propio": false,
+    "deducciones_autonomicas": [
+
+    ],
+    "ahorro": {
+     "20000": 0,
+     "35000": 0,
+     "60000": 0
+    }
+   },
+   "ES-IB": {
+    "territorio": "ES-IB",
+    "nombre": "Illes Balears",
+    "regimen": "comun",
+    "publicable": true,
+    "piezas": [
+
+    ],
+    "minimo_autonomico_propio": false,
+    "deducciones_autonomicas": [
+
+    ],
+    "ahorro": {
+     "20000": 0,
+     "35000": 0,
+     "60000": 0
+    }
+   },
+   "ES-CN": {
+    "territorio": "ES-CN",
+    "nombre": "Canarias",
+    "regimen": "comun",
+    "publicable": true,
+    "piezas": [
+
+    ],
+    "minimo_autonomico_propio": false,
+    "deducciones_autonomicas": [
+
+    ],
+    "ahorro": {
+     "20000": 0,
+     "35000": 0,
+     "60000": 0
+    }
+   },
+   "ES-CB": {
+    "territorio": "ES-CB",
+    "nombre": "Cantabria",
+    "regimen": "comun",
+    "publicable": true,
+    "piezas": [
+
+    ],
+    "minimo_autonomico_propio": false,
+    "deducciones_autonomicas": [
+
+    ],
+    "ahorro": {
+     "20000": 0,
+     "35000": 0,
+     "60000": 0
+    }
+   },
+   "ES-CM": {
+    "territorio": "ES-CM",
+    "nombre": "Castilla-La Mancha",
+    "regimen": "comun",
+    "publicable": true,
+    "piezas": [
+
+    ],
+    "minimo_autonomico_propio": false,
+    "deducciones_autonomicas": [
+
+    ],
+    "ahorro": {
+     "20000": 0,
+     "35000": 0,
+     "60000": 0
+    }
+   },
+   "ES-CL": {
+    "territorio": "ES-CL",
+    "nombre": "Castilla y León",
+    "regimen": "comun",
+    "publicable": true,
+    "piezas": [
+
+    ],
+    "minimo_autonomico_propio": false,
+    "deducciones_autonomicas": [
+
+    ],
+    "ahorro": {
+     "20000": 0,
+     "35000": 0,
+     "60000": 0
+    }
+   },
+   "ES-CT": {
+    "territorio": "ES-CT",
+    "nombre": "Cataluña",
+    "regimen": "comun",
+    "publicable": true,
+    "piezas": [
+
+    ],
+    "minimo_autonomico_propio": false,
+    "deducciones_autonomicas": [
+
+    ],
+    "ahorro": {
+     "20000": 0,
+     "35000": 0,
+     "60000": 0
+    }
+   },
+   "ES-EX": {
+    "territorio": "ES-EX",
+    "nombre": "Extremadura",
+    "regimen": "comun",
+    "publicable": true,
+    "piezas": [
+
+    ],
+    "minimo_autonomico_propio": false,
+    "deducciones_autonomicas": [
+
+    ],
+    "ahorro": {
+     "20000": 0,
+     "35000": 0,
+     "60000": 0
+    }
+   },
+   "ES-GA": {
+    "territorio": "ES-GA",
+    "nombre": "Galicia",
+    "regimen": "comun",
+    "publicable": true,
+    "piezas": [
+
+    ],
+    "minimo_autonomico_propio": false,
+    "deducciones_autonomicas": [
+     {
+      "id": "arrendamiento_vivienda_habitual_general",
+      "titulo": "Por alquiler de la vivienda habitual"
+     }
+    ],
+    "ahorro": {
+     "20000": 300,
+     "35000": 0,
+     "60000": 0
+    }
+   },
+   "ES-MD": {
+    "territorio": "ES-MD",
+    "nombre": "Comunidad de Madrid",
+    "regimen": "comun",
+    "publicable": true,
+    "piezas": [
+
+    ],
+    "minimo_autonomico_propio": false,
+    "deducciones_autonomicas": [
+
+    ],
+    "ahorro": {
+     "20000": 0,
+     "35000": 0,
+     "60000": 0
+    }
+   },
+   "ES-MC": {
+    "territorio": "ES-MC",
+    "nombre": "Región de Murcia",
+    "regimen": "comun",
+    "publicable": true,
+    "piezas": [
+
+    ],
+    "minimo_autonomico_propio": false,
+    "deducciones_autonomicas": [
+
+    ],
+    "ahorro": {
+     "20000": 0,
+     "35000": 0,
+     "60000": 0
+    }
+   },
+   "ES-RI": {
+    "territorio": "ES-RI",
+    "nombre": "La Rioja",
+    "regimen": "comun",
+    "publicable": true,
+    "piezas": [
+
+    ],
+    "minimo_autonomico_propio": false,
+    "deducciones_autonomicas": [
+
+    ],
+    "ahorro": {
+     "20000": 0,
+     "35000": 0,
+     "60000": 0
+    }
+   },
+   "ES-VC": {
+    "territorio": "ES-VC",
+    "nombre": "Comunitat Valenciana",
+    "regimen": "comun",
+    "publicable": true,
+    "piezas": [
+
+    ],
+    "minimo_autonomico_propio": false,
+    "deducciones_autonomicas": [
+
+    ],
+    "ahorro": {
+     "20000": 0,
+     "35000": 0,
+     "60000": 0
+    }
+   },
+   "ES-PV-BI": {
+    "territorio": "ES-PV-BI",
+    "nombre": "Bizkaia",
+    "regimen": "foral_pais_vasco",
+    "publicable": false,
+    "piezas": [
+     "deduccion_alquiler_vivienda"
+    ],
+    "minimo_autonomico_propio": false,
+    "deducciones_autonomicas": [
+
+    ],
+    "ahorro": null
+   },
+   "ES-PV-SS": {
+    "territorio": "ES-PV-SS",
+    "nombre": "Gipuzkoa",
+    "regimen": "foral_pais_vasco",
+    "publicable": true,
+    "piezas": [
+     "deduccion_alquiler_vivienda"
+    ],
+    "minimo_autonomico_propio": false,
+    "deducciones_autonomicas": [
+
+    ],
+    "ahorro": {
+     "20000": 1436.1,
+     "35000": 1600,
+     "60000": 1600
+    }
+   },
+   "ES-PV-VI": {
+    "territorio": "ES-PV-VI",
+    "nombre": "Araba/Álava",
+    "regimen": "foral_pais_vasco",
+    "publicable": false,
+    "piezas": [
+     "deduccion_alquiler_vivienda"
+    ],
+    "minimo_autonomico_propio": false,
+    "deducciones_autonomicas": [
+
+    ],
+    "ahorro": null
+   },
+   "ES-NC": {
+    "territorio": "ES-NC",
+    "nombre": "Comunidad Foral de Navarra",
+    "regimen": "foral_navarra",
+    "publicable": true,
+    "piezas": [
+     "deduccion_alquiler_vivienda"
+    ],
+    "minimo_autonomico_propio": false,
+    "deducciones_autonomicas": [
+
+    ],
+    "ahorro": {
+     "20000": 1350,
+     "35000": 0,
+     "60000": 0
+    }
+   }
+  },
+  "hipoteca-antes-2013": {
+   "ES-AN": {
+    "territorio": "ES-AN",
+    "nombre": "Andalucía",
+    "regimen": "comun",
+    "publicable": true,
+    "piezas": [
+     "deduccion_vivienda_transitoria"
+    ],
+    "minimo_autonomico_propio": false,
+    "deducciones_autonomicas": [
+
+    ],
+    "ahorro": {
+     "20000": 1350,
+     "35000": 1350,
+     "60000": 1350
+    }
+   },
+   "ES-AR": {
+    "territorio": "ES-AR",
+    "nombre": "Aragón",
+    "regimen": "comun",
+    "publicable": true,
+    "piezas": [
+     "deduccion_vivienda_transitoria"
+    ],
+    "minimo_autonomico_propio": false,
+    "deducciones_autonomicas": [
+
+    ],
+    "ahorro": {
+     "20000": 1350,
+     "35000": 1350,
+     "60000": 1350
+    }
+   },
+   "ES-AS": {
+    "territorio": "ES-AS",
+    "nombre": "Principado de Asturias",
+    "regimen": "comun",
+    "publicable": true,
+    "piezas": [
+     "deduccion_vivienda_transitoria"
+    ],
+    "minimo_autonomico_propio": false,
+    "deducciones_autonomicas": [
+
+    ],
+    "ahorro": {
+     "20000": 1350,
+     "35000": 1350,
+     "60000": 1350
+    }
+   },
+   "ES-IB": {
+    "territorio": "ES-IB",
+    "nombre": "Illes Balears",
+    "regimen": "comun",
+    "publicable": true,
+    "piezas": [
+     "deduccion_vivienda_transitoria"
+    ],
+    "minimo_autonomico_propio": false,
+    "deducciones_autonomicas": [
+
+    ],
+    "ahorro": {
+     "20000": 1350,
+     "35000": 1350,
+     "60000": 1350
+    }
+   },
+   "ES-CN": {
+    "territorio": "ES-CN",
+    "nombre": "Canarias",
+    "regimen": "comun",
+    "publicable": true,
+    "piezas": [
+     "deduccion_vivienda_transitoria"
+    ],
+    "minimo_autonomico_propio": false,
+    "deducciones_autonomicas": [
+
+    ],
+    "ahorro": {
+     "20000": 1350,
+     "35000": 1350,
+     "60000": 1350
+    }
+   },
+   "ES-CB": {
+    "territorio": "ES-CB",
+    "nombre": "Cantabria",
+    "regimen": "comun",
+    "publicable": true,
+    "piezas": [
+     "deduccion_vivienda_transitoria"
+    ],
+    "minimo_autonomico_propio": false,
+    "deducciones_autonomicas": [
+
+    ],
+    "ahorro": {
+     "20000": 1350,
+     "35000": 1350,
+     "60000": 1350
+    }
+   },
+   "ES-CM": {
+    "territorio": "ES-CM",
+    "nombre": "Castilla-La Mancha",
+    "regimen": "comun",
+    "publicable": true,
+    "piezas": [
+     "deduccion_vivienda_transitoria"
+    ],
+    "minimo_autonomico_propio": false,
+    "deducciones_autonomicas": [
+
+    ],
+    "ahorro": {
+     "20000": 1350,
+     "35000": 1350,
+     "60000": 1350
+    }
+   },
+   "ES-CL": {
+    "territorio": "ES-CL",
+    "nombre": "Castilla y León",
+    "regimen": "comun",
+    "publicable": true,
+    "piezas": [
+     "deduccion_vivienda_transitoria"
+    ],
+    "minimo_autonomico_propio": false,
+    "deducciones_autonomicas": [
+
+    ],
+    "ahorro": {
+     "20000": 1350,
+     "35000": 1350,
+     "60000": 1350
+    }
+   },
+   "ES-CT": {
+    "territorio": "ES-CT",
+    "nombre": "Cataluña",
+    "regimen": "comun",
+    "publicable": true,
+    "piezas": [
+     "deduccion_vivienda_transitoria"
+    ],
+    "minimo_autonomico_propio": false,
+    "deducciones_autonomicas": [
+
+    ],
+    "ahorro": {
+     "20000": 1350,
+     "35000": 1350,
+     "60000": 1350
+    }
+   },
+   "ES-EX": {
+    "territorio": "ES-EX",
+    "nombre": "Extremadura",
+    "regimen": "comun",
+    "publicable": true,
+    "piezas": [
+     "deduccion_vivienda_transitoria"
+    ],
+    "minimo_autonomico_propio": false,
+    "deducciones_autonomicas": [
+
+    ],
+    "ahorro": {
+     "20000": 1350,
+     "35000": 1350,
+     "60000": 1350
+    }
+   },
+   "ES-GA": {
+    "territorio": "ES-GA",
+    "nombre": "Galicia",
+    "regimen": "comun",
+    "publicable": true,
+    "piezas": [
+     "deduccion_vivienda_transitoria"
+    ],
+    "minimo_autonomico_propio": false,
+    "deducciones_autonomicas": [
+
+    ],
+    "ahorro": {
+     "20000": 1350,
+     "35000": 1350,
+     "60000": 1350
+    }
+   },
+   "ES-MD": {
+    "territorio": "ES-MD",
+    "nombre": "Comunidad de Madrid",
+    "regimen": "comun",
+    "publicable": true,
+    "piezas": [
+     "deduccion_vivienda_transitoria"
+    ],
+    "minimo_autonomico_propio": false,
+    "deducciones_autonomicas": [
+
+    ],
+    "ahorro": {
+     "20000": 1350,
+     "35000": 1350,
+     "60000": 1350
+    }
+   },
+   "ES-MC": {
+    "territorio": "ES-MC",
+    "nombre": "Región de Murcia",
+    "regimen": "comun",
+    "publicable": true,
+    "piezas": [
+     "deduccion_vivienda_transitoria"
+    ],
+    "minimo_autonomico_propio": false,
+    "deducciones_autonomicas": [
+
+    ],
+    "ahorro": {
+     "20000": 1350,
+     "35000": 1350,
+     "60000": 1350
+    }
+   },
+   "ES-RI": {
+    "territorio": "ES-RI",
+    "nombre": "La Rioja",
+    "regimen": "comun",
+    "publicable": true,
+    "piezas": [
+     "deduccion_vivienda_transitoria"
+    ],
+    "minimo_autonomico_propio": false,
+    "deducciones_autonomicas": [
+
+    ],
+    "ahorro": {
+     "20000": 1350,
+     "35000": 1350,
+     "60000": 1350
+    }
+   },
+   "ES-VC": {
+    "territorio": "ES-VC",
+    "nombre": "Comunitat Valenciana",
+    "regimen": "comun",
+    "publicable": true,
+    "piezas": [
+     "deduccion_vivienda_transitoria"
+    ],
+    "minimo_autonomico_propio": false,
+    "deducciones_autonomicas": [
+
+    ],
+    "ahorro": {
+     "20000": 1350,
+     "35000": 1350,
+     "60000": 1350
+    }
+   },
+   "ES-PV-BI": {
+    "territorio": "ES-PV-BI",
+    "nombre": "Bizkaia",
+    "regimen": "foral_pais_vasco",
+    "publicable": false,
+    "piezas": [
+     "deduccion_adquisicion_vivienda"
+    ],
+    "minimo_autonomico_propio": false,
+    "deducciones_autonomicas": [
+
+    ],
+    "ahorro": null
+   },
+   "ES-PV-SS": {
+    "territorio": "ES-PV-SS",
+    "nombre": "Gipuzkoa",
+    "regimen": "foral_pais_vasco",
+    "publicable": true,
+    "piezas": [
+     "deduccion_adquisicion_vivienda"
+    ],
+    "minimo_autonomico_propio": false,
+    "deducciones_autonomicas": [
+
+    ],
+    "ahorro": {
+     "20000": 1436.1,
+     "35000": 1530,
+     "60000": 1530
+    }
+   },
+   "ES-PV-VI": {
+    "territorio": "ES-PV-VI",
+    "nombre": "Araba/Álava",
+    "regimen": "foral_pais_vasco",
+    "publicable": false,
+    "piezas": [
+     "deduccion_adquisicion_vivienda"
+    ],
+    "minimo_autonomico_propio": false,
+    "deducciones_autonomicas": [
+
+    ],
+    "ahorro": null
+   },
+   "ES-NC": {
+    "territorio": "ES-NC",
+    "nombre": "Comunidad Foral de Navarra",
+    "regimen": "foral_navarra",
+    "publicable": false,
+    "piezas": [
+     "deducciones_vivienda"
+    ],
+    "minimo_autonomico_propio": false,
+    "deducciones_autonomicas": [
+
+    ],
+    "ahorro": null
+   }
+  },
+  "donativo": {
+   "ES-AN": {
+    "territorio": "ES-AN",
+    "nombre": "Andalucía",
+    "regimen": "comun",
+    "publicable": true,
+    "piezas": [
+     "deduccion_donativos"
+    ],
+    "minimo_autonomico_propio": false,
+    "deducciones_autonomicas": [
+
+    ],
+    "ahorro": {
+     "20000": 200,
+     "35000": 200,
+     "60000": 200
+    }
+   },
+   "ES-AR": {
+    "territorio": "ES-AR",
+    "nombre": "Aragón",
+    "regimen": "comun",
+    "publicable": true,
+    "piezas": [
+     "deduccion_donativos"
+    ],
+    "minimo_autonomico_propio": false,
+    "deducciones_autonomicas": [
+
+    ],
+    "ahorro": {
+     "20000": 200,
+     "35000": 200,
+     "60000": 200
+    }
+   },
+   "ES-AS": {
+    "territorio": "ES-AS",
+    "nombre": "Principado de Asturias",
+    "regimen": "comun",
+    "publicable": true,
+    "piezas": [
+     "deduccion_donativos"
+    ],
+    "minimo_autonomico_propio": false,
+    "deducciones_autonomicas": [
+
+    ],
+    "ahorro": {
+     "20000": 200,
+     "35000": 200,
+     "60000": 200
+    }
+   },
+   "ES-IB": {
+    "territorio": "ES-IB",
+    "nombre": "Illes Balears",
+    "regimen": "comun",
+    "publicable": true,
+    "piezas": [
+     "deduccion_donativos"
+    ],
+    "minimo_autonomico_propio": false,
+    "deducciones_autonomicas": [
+
+    ],
+    "ahorro": {
+     "20000": 200,
+     "35000": 200,
+     "60000": 200
+    }
+   },
+   "ES-CN": {
+    "territorio": "ES-CN",
+    "nombre": "Canarias",
+    "regimen": "comun",
+    "publicable": true,
+    "piezas": [
+     "deduccion_donativos"
+    ],
+    "minimo_autonomico_propio": false,
+    "deducciones_autonomicas": [
+
+    ],
+    "ahorro": {
+     "20000": 200,
+     "35000": 200,
+     "60000": 200
+    }
+   },
+   "ES-CB": {
+    "territorio": "ES-CB",
+    "nombre": "Cantabria",
+    "regimen": "comun",
+    "publicable": true,
+    "piezas": [
+     "deduccion_donativos"
+    ],
+    "minimo_autonomico_propio": false,
+    "deducciones_autonomicas": [
+
+    ],
+    "ahorro": {
+     "20000": 200,
+     "35000": 200,
+     "60000": 200
+    }
+   },
+   "ES-CM": {
+    "territorio": "ES-CM",
+    "nombre": "Castilla-La Mancha",
+    "regimen": "comun",
+    "publicable": true,
+    "piezas": [
+     "deduccion_donativos"
+    ],
+    "minimo_autonomico_propio": false,
+    "deducciones_autonomicas": [
+
+    ],
+    "ahorro": {
+     "20000": 200,
+     "35000": 200,
+     "60000": 200
+    }
+   },
+   "ES-CL": {
+    "territorio": "ES-CL",
+    "nombre": "Castilla y León",
+    "regimen": "comun",
+    "publicable": true,
+    "piezas": [
+     "deduccion_donativos"
+    ],
+    "minimo_autonomico_propio": false,
+    "deducciones_autonomicas": [
+
+    ],
+    "ahorro": {
+     "20000": 200,
+     "35000": 200,
+     "60000": 200
+    }
+   },
+   "ES-CT": {
+    "territorio": "ES-CT",
+    "nombre": "Cataluña",
+    "regimen": "comun",
+    "publicable": true,
+    "piezas": [
+     "deduccion_donativos"
+    ],
+    "minimo_autonomico_propio": false,
+    "deducciones_autonomicas": [
+
+    ],
+    "ahorro": {
+     "20000": 200,
+     "35000": 200,
+     "60000": 200
+    }
+   },
+   "ES-EX": {
+    "territorio": "ES-EX",
+    "nombre": "Extremadura",
+    "regimen": "comun",
+    "publicable": true,
+    "piezas": [
+     "deduccion_donativos"
+    ],
+    "minimo_autonomico_propio": false,
+    "deducciones_autonomicas": [
+
+    ],
+    "ahorro": {
+     "20000": 200,
+     "35000": 200,
+     "60000": 200
+    }
+   },
+   "ES-GA": {
+    "territorio": "ES-GA",
+    "nombre": "Galicia",
+    "regimen": "comun",
+    "publicable": true,
+    "piezas": [
+     "deduccion_donativos"
+    ],
+    "minimo_autonomico_propio": false,
+    "deducciones_autonomicas": [
+
+    ],
+    "ahorro": {
+     "20000": 200,
+     "35000": 200,
+     "60000": 200
+    }
+   },
+   "ES-MD": {
+    "territorio": "ES-MD",
+    "nombre": "Comunidad de Madrid",
+    "regimen": "comun",
+    "publicable": true,
+    "piezas": [
+     "deduccion_donativos"
+    ],
+    "minimo_autonomico_propio": false,
+    "deducciones_autonomicas": [
+
+    ],
+    "ahorro": {
+     "20000": 200,
+     "35000": 200,
+     "60000": 200
+    }
+   },
+   "ES-MC": {
+    "territorio": "ES-MC",
+    "nombre": "Región de Murcia",
+    "regimen": "comun",
+    "publicable": true,
+    "piezas": [
+     "deduccion_donativos"
+    ],
+    "minimo_autonomico_propio": false,
+    "deducciones_autonomicas": [
+
+    ],
+    "ahorro": {
+     "20000": 200,
+     "35000": 200,
+     "60000": 200
+    }
+   },
+   "ES-RI": {
+    "territorio": "ES-RI",
+    "nombre": "La Rioja",
+    "regimen": "comun",
+    "publicable": true,
+    "piezas": [
+     "deduccion_donativos"
+    ],
+    "minimo_autonomico_propio": false,
+    "deducciones_autonomicas": [
+
+    ],
+    "ahorro": {
+     "20000": 200,
+     "35000": 200,
+     "60000": 200
+    }
+   },
+   "ES-VC": {
+    "territorio": "ES-VC",
+    "nombre": "Comunitat Valenciana",
+    "regimen": "comun",
+    "publicable": true,
+    "piezas": [
+     "deduccion_donativos"
+    ],
+    "minimo_autonomico_propio": false,
+    "deducciones_autonomicas": [
+
+    ],
+    "ahorro": {
+     "20000": 200,
+     "35000": 200,
+     "60000": 200
+    }
+   },
+   "ES-PV-BI": {
+    "territorio": "ES-PV-BI",
+    "nombre": "Bizkaia",
+    "regimen": "foral_pais_vasco",
+    "publicable": false,
+    "piezas": [
+
+    ],
+    "minimo_autonomico_propio": false,
+    "deducciones_autonomicas": [
+
+    ],
+    "ahorro": null
+   },
+   "ES-PV-SS": {
+    "territorio": "ES-PV-SS",
+    "nombre": "Gipuzkoa",
+    "regimen": "foral_pais_vasco",
+    "publicable": false,
+    "piezas": [
+
+    ],
+    "minimo_autonomico_propio": false,
+    "deducciones_autonomicas": [
+
+    ],
+    "ahorro": null
+   },
+   "ES-PV-VI": {
+    "territorio": "ES-PV-VI",
+    "nombre": "Araba/Álava",
+    "regimen": "foral_pais_vasco",
+    "publicable": false,
+    "piezas": [
+
+    ],
+    "minimo_autonomico_propio": false,
+    "deducciones_autonomicas": [
+
+    ],
+    "ahorro": null
+   },
+   "ES-NC": {
+    "territorio": "ES-NC",
+    "nombre": "Comunidad Foral de Navarra",
+    "regimen": "foral_navarra",
+    "publicable": false,
+    "piezas": [
+     "deducciones_donativos"
+    ],
+    "minimo_autonomico_propio": false,
+    "deducciones_autonomicas": [
+
+    ],
+    "ahorro": null
+   }
+  }
+ }
+}

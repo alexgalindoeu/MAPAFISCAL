@@ -32,6 +32,9 @@ jobs:
       - name: web/datos/seo_*.json sale del motor
         run: Rscript tools/generar_datos_seo.R --comprobar
 
+      - name: web/datos/seo_devuelve.json sale del motor
+        run: Rscript tools/generar_datos_devuelve.R --comprobar
+
       - uses: actions/setup-node@v7
         with:
           node-version: 22
