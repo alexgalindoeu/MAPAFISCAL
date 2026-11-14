@@ -30,9 +30,9 @@ test("la reducción del 40 % baja la base en el 40 % de lo anterior a 2007", () 
   casi(con.baseLiquidableGeneral, 61000, "75.000 − 12.000 − 2.000");
   casi(sin.baseLiquidableGeneral - con.baseLiquidableGeneral, 12000, "40 % de 30.000");
   casi(con.cuotaIntegraEstatal, 8539.25, "escala estatal sobre 61.000 − mínimo de 6.700");
-  // en los forales no se aplica (sus reglas no están en el motor)
+  // País Vasco: integración del 60 % (reducción del 40 % de los 30.000 €)
   const pv = motor.liquidar(Object.assign(h(30000), { territorio: "ES-PV-BI" }), P, "auto");
-  casi(pv.baseLiquidableGeneral, motor.liquidar(Object.assign(h(0), { territorio: "ES-PV-BI" }), P, "auto").baseLiquidableGeneral, "Bizkaia");
+  casi(pv.baseLiquidableGeneral, motor.liquidar(Object.assign(h(0), { territorio: "ES-PV-BI" }), P, "auto").baseLiquidableGeneral - 12000, "Bizkaia");
 });
 
 test("rescate en Madrid: 60.000 € con 15.000 € de pensión", () => {
@@ -46,7 +46,12 @@ test("rescate en Madrid: 60.000 € con 15.000 € de pensión", () => {
   assert.deepEqual(r.mixto.cobros, [36000, 6000, 6000, 6000, 6000]);
   // fuera de plazo, de una vez tributa más
   assert.ok(C.rescate(P, yo({ anioContingencia: 2020 })).capital.extra > r.capital.extra);
-  assert.throws(() => C.rescate(P, yo({ territorio: "ES-NC" })), /régimen común/);
+  // forales: Navarra con su DT 25.ª (40 % de lo aportado hasta 2017) y País Vasco (60 % hasta 300.000 €)
+  const nc = C.rescate(P, yo({ territorio: "ES-NC" }));
+  assert.equal(nc.regimen, "foral_navarra"); assert.equal(nc.corte, 2018);
+  const bi = C.rescate(P, yo({ territorio: "ES-PV-BI" }));
+  assert.ok(bi.enPlazo && bi.reduccion > 0 && bi.capital.extra < bi.renta.extra + 1e9);
+  assert.ok(C.territoriosSelector(P).includes("ES-PV-BI") && C.territoriosSelector(P).includes("ES-NC"));
   const lista = C.porTerritorio(P, yo());
   assert.equal(lista.length, 15, "solo régimen común");
   for (let i = 1; i < lista.length; i++) assert.ok(lista[i - 1].minimo <= lista[i].minimo);

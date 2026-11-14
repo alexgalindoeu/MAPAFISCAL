@@ -21,9 +21,7 @@ liquidar_pais_vasco_scope <- function(hogar, P, modo, declarante_id = NULL) {
   bia <- rentas$base_imponible_ahorro
 
   # Reducciones de la base imponible general
-  rs <- J$reduccion_prevision_social
-  aport_pv <- (rentas$prevision_social_individual %||% 0) + (rentas$prevision_social_empresarial %||% 0)
-  red_ps <- min(aport_pv, rs$limite_conjunto %||% 12000, max(0, big))
+  red_ps <- min(reduccion_prevision_pv(rentas$prevision_por_persona, J$reduccion_prevision_social), max(0, big))
   big <- big - red_ps
   red_pc <- min(rentas$pensiones_compensatorias, max(0, big))
   big <- big - red_pc
@@ -143,22 +141,35 @@ deducciones_forales_pv <- function(hogar, J, modo, base_total, declarante_id = N
   }
 
   # Alquiler / adquisición de vivienda habitual: pagos propios de las personas del ámbito
+  # Colectivos con porcentaje incrementado (arts. 86 y 87): la casilla de la persona, la
+  # familia numerosa y la unidad monoparental
+  colectivo <- function(m) isTRUE(m$colectivo_especial_vivienda) ||
+    !identical(hogar$familia_numerosa %||% "no", "no") || identical(hogar$tipo_unidad_familiar, "monoparental")
   for (m in ambito) {
     alq <- m$alquiler_vivienda_pagos %||% 0
     if (alq > 0) {
       da <- J$deduccion_alquiler_vivienda
-      cfg <- if (isTRUE(m$colectivo_especial_vivienda)) da$colectivo_especial else da$general
+      joven <- (m$edad %||% 99) < (da$edad_max_incrementada %||% 0)
+      cfg <- if (joven || colectivo(m)) da$colectivo_especial else da$general
       v <- min(alq * cfg$porcentaje, cfg$limite)
       det$alquiler_vivienda <- red2((det$alquiler_vivienda %||% 0) + v); total <- total + v
     }
+    # Compra y cuenta vivienda: base anual común de 8.500 € (1.530 / 1.955 € de deducción)
     adq <- m$adquisicion_vivienda_pagos %||% 0
+    cv <- m$cuenta_vivienda_aportaciones %||% 0
+    dq <- J$deduccion_adquisicion_vivienda
+    menor36 <- (m$edad %||% 99) < 36
+    base_libre <- dq$cuenta_vivienda$base_maxima_conjunta %||% Inf
     if (adq > 0) {
-      dq <- J$deduccion_adquisicion_vivienda
-      cfg <- if ((m$edad %||% 99) < 36) dq$menor_36
-             else if (isTRUE(m$colectivo_especial_vivienda)) dq$colectivo_especial
-             else dq$general
+      cfg <- if (menor36) dq$menor_36 else if (colectivo(m)) dq$colectivo_especial else dq$general
       v <- min(adq * cfg$porcentaje, cfg$limite_anual)
+      base_libre <- max(0, base_libre - v / cfg$porcentaje)
       det$adquisicion_vivienda <- red2((det$adquisicion_vivienda %||% 0) + v); total <- total + v
+    }
+    if (cv > 0 && !is.null(dq$cuenta_vivienda)) {
+      ccv <- dq$cuenta_vivienda
+      v <- min(cv, base_libre) * (if (menor36) ccv$porcentaje_menor_36 else ccv$porcentaje_general)
+      det$cuenta_vivienda <- red2((det$cuenta_vivienda %||% 0) + v); total <- total + v
     }
   }
 
@@ -176,7 +187,12 @@ liquidar_navarra_scope <- function(hogar, P, modo, declarante_id = NULL) {
   else Filter(function(m) m$id == declarante_id, hogar$miembros)
 
   rentas <- agregar_rentas(personas, P, regimen)
-  blg <- max(0, rentas$base_imponible_general - min(rentas$pensiones_compensatorias, rentas$base_imponible_general))
+  # previsión social (art. 55.1.7.º) y, después, pensiones compensatorias
+  big_nv <- rentas$base_imponible_general
+  red_ps_nv <- min(reduccion_prevision_navarra(rentas$prevision_por_persona, J$reduccion_prevision_social), max(0, big_nv))
+  big_nv <- big_nv - red_ps_nv
+  red_pc_nv <- min(rentas$pensiones_compensatorias, max(0, big_nv))
+  blg <- max(0, big_nv - red_pc_nv)
   bla <- rentas$base_imponible_ahorro
 
   cig <- aplicar_escala(blg, J$escala_general_foral$tramos)
@@ -312,7 +328,7 @@ liquidar_navarra_scope <- function(hogar, P, modo, declarante_id = NULL) {
     componentes_renta = rentas,
     base_imponible_general = rentas$base_imponible_general,
     base_imponible_ahorro = rentas$base_imponible_ahorro,
-    reducciones_base = list(),
+    reducciones_base = list(prevision_social = red_ps_nv, pensiones_compensatorias = red_pc_nv),
     base_liquidable_general = blg,
     base_liquidable_ahorro = bla,
     minimo_personal_familiar = list(total = red2(ded_min + ded_fam),
@@ -333,6 +349,36 @@ liquidar_navarra_scope <- function(hogar, P, modo, declarante_id = NULL) {
     cuota_diferencial = red2(cuota_diferencial),
     tipo_medio_efectivo = round(tme, 4)
   )
+}
+
+# Reducción por aportaciones a previsión social en el País Vasco (arts. 70 a 72 de las NF del
+# IRPF), por persona: aportaciones propias hasta `limite_individual_no_empleo` (5.000 €),
+# contribuciones empresariales (sistemas de empleo) hasta `limite_individual_empleo` (8.000 €)
+# y las dos juntas hasta `limite_conjunto` (12.000 € en 2025; 10.000 € desde 2026). Sin
+# límite porcentual sobre los rendimientos.
+reduccion_prevision_pv <- function(por_persona, rs) {
+  if (is.null(rs)) return(0)
+  tot <- 0
+  for (x in por_persona %||% list())
+    tot <- tot + min(min(x$individual, rs$limite_individual_no_empleo %||% Inf) +
+                       min(x$empresarial, rs$limite_individual_empleo %||% Inf),
+                     rs$limite_conjunto %||% Inf)
+  tot
+}
+
+# Reducción por aportaciones a previsión social en Navarra (art. 55.1.7.º TR IRPF Navarra),
+# por partícipe: el menor de (a') el 30 % de sus rendimientos netos del trabajo y de
+# actividades (50 % desde los 51 años) y (b') 1.500 € más hasta 8.500 € de contribuciones
+# empresariales.
+reduccion_prevision_navarra <- function(por_persona, rs) {
+  if (is.null(rs) || is.null(rs$limite_general_abs)) return(0)
+  tot <- 0
+  for (x in por_persona %||% list()) {
+    pct <- if ((x$edad %||% 0) > (rs$edad_porcentaje_incrementado %||% Inf)) rs$limite_pct_rend_incrementado else rs$limite_pct_rend
+    lim <- min(pct * x$base_limite, rs$limite_general_abs + min(rs$incremento_contribucion_empresarial, x$empresarial))
+    tot <- tot + min(x$individual + x$empresarial, lim)
+  }
+  tot
 }
 
 # Porcentaje de incremento del mínimo por descendientes de Navarra según las rentas del sujeto

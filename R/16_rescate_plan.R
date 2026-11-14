@@ -9,9 +9,12 @@
 # validado al céntimo en tools/validar_js.R. Cálculo a mano en docs/03, «Rescate del plan
 # de pensiones».
 #
-# El País Vasco y Navarra regulan el rescate en su normativa foral (integración del 60 % del
-# primer cobro en capital con sus propios límites y reglas transitorias): pendiente de
-# incorporar con las normas forales del IRPF (BOB, BOG, BOTHA, BON); aquí se rechazan.
+# Forales (`prestaciones_prevision_capital` de su YAML):
+# - País Vasco: el primer cobro en capital se integra al 60 % hasta 300.000 € (arts. 18.a).3.ª
+#   y 19.2.a) de las NF del IRPF), sin corte por fecha de aportación; mixto = hasta 300.000 €
+#   en capital el primer año y el resto en renta.
+# - Navarra: reducción del 40 % de lo aportado hasta 2017 (`antes_2007` hace de «antes del
+#   corte»), en el año de la contingencia o los dos siguientes (DT 25.ª, LF 16/2017).
 # =============================================================================
 
 #' ¿Se puede aplicar la reducción de la DT 12.ª a lo cobrado en `anio_cobro`?
@@ -38,8 +41,10 @@ dt12_en_plazo <- function(anio_contingencia, anio_cobro, P) {
 rescate_plan <- function(territorio, ejercicio, antes_2007, despues_2007, otros_ingresos = 0,
                          tipo_otros = "pension", edad = 65, anio_contingencia = ejercicio, anios = 5) {
   P <- cargar_parametros(territorio, ejercicio)
-  if (P$meta$regimen != "comun")
-    stop("irpfsim: el rescate del plan solo está en el motor para el régimen común.", call. = FALSE)
+  reg <- P$meta$regimen
+  pc <- P$jurisdiccion$prestaciones_prevision_capital
+  if (reg != "comun" && is.null(pc))
+    stop("irpfsim: el rescate del plan no está en el motor para este territorio.", call. = FALSE)
   anios <- max(1L, min(30L, as.integer(anios)))
   antes_2007 <- max(0, antes_2007); despues_2007 <- max(0, despues_2007)
   cot <- if (tipo_otros == "sueldo") cotizaciones_trabajador(otros_ingresos, P) else 0
@@ -50,22 +55,39 @@ rescate_plan <- function(territorio, ejercicio, antes_2007, despues_2007, otros_
     liq <- liquidar(nuevo_hogar("rescate", territorio, list(d1), ejercicio), P)
     red2(liq$cuota_resultante_autoliquidacion - (liq$deducciones_cuota_diferencial$total %||% 0))
   }
-  en_plazo <- dt12_en_plazo(anio_contingencia, ejercicio, P)
+  en_plazo <- if (reg == "comun") dt12_en_plazo(anio_contingencia, ejercicio, P)
+              else if (reg == "foral_pais_vasco") TRUE
+              else foral_nc_en_plazo(anio_contingencia, ejercicio, pc)
   sin <- irpf(0, 0)
   extra <- function(cobros, dt12_primero) {
     anual <- vapply(seq_along(cobros), function(i)
       red2(irpf(cobros[[i]], if (i == 1) dt12_primero else 0) - sin), numeric(1))
     list(extra = red2(sum(anual)), anual = anual, cobros = cobros)
   }
-  dt12 <- if (en_plazo) antes_2007 else 0
-  r <- list(
-    capital = extra(antes_2007 + despues_2007, dt12),
-    renta = extra(rep((antes_2007 + despues_2007) / anios, anios), 0),
-    mixto = extra(c(antes_2007 + despues_2007 / anios, rep(despues_2007 / anios, anios - 1)), dt12)
-  )
+  tot <- antes_2007 + despues_2007
+  if (reg == "foral_pais_vasco") {
+    cap <- min(tot, pc$limite %||% Inf); resto <- tot - cap
+    dt12 <- tot
+    mixto <- extra(c(cap + resto / anios, rep(resto / anios, anios - 1)), cap)
+  } else {
+    dt12 <- if (en_plazo) antes_2007 else 0
+    mixto <- extra(c(antes_2007 + despues_2007 / anios, rep(despues_2007 / anios, anios - 1)), dt12)
+  }
+  r <- list(capital = extra(tot, dt12), renta = extra(rep(tot / anios, anios), 0), mixto = mixto)
+  pct <- if (reg == "comun") P$estatal$prestaciones_prevision_dt12$porcentaje else pc$porcentaje_reduccion
+  reduccion <- red2(min(dt12, if (reg == "comun") Inf else pc$limite %||% Inf) * pct)
+  corte <- if (reg == "comun") 2007L else if (reg == "foral_navarra") as.integer(pc$anio_corte_aportaciones) else NA_integer_
   orden <- c("capital", "renta", "mixto")
   mejor <- orden[1]
   for (k in orden[-1]) if (r[[k]]$extra < r[[mejor]]$extra - 0.005) mejor <- k
-  c(list(en_plazo = en_plazo, reduccion = red2(dt12 * P$estatal$prestaciones_prevision_dt12$porcentaje),
+  c(list(en_plazo = en_plazo, reduccion = reduccion, regimen = reg, corte = corte,
          irpf_sin = sin, anios = anios, mejor = mejor), r)
+}
+
+#' Navarra (DT 25.ª TR IRPF): contingencias desde 2018, cobro ese año o los dos siguientes;
+#' anteriores, hasta 2020.
+foral_nc_en_plazo <- function(anio_contingencia, anio_cobro, pc) {
+  if (is.null(anio_contingencia) || is.na(anio_contingencia) || anio_cobro < anio_contingencia) return(FALSE)
+  if (anio_contingencia >= pc$anio_regimen) return(anio_cobro <= anio_contingencia + pc$plazo_anios)
+  anio_cobro <= pc$ultimo_anio_anterior
 }
