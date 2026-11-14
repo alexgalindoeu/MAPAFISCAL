@@ -1564,3 +1564,28 @@ IRPF sin rescate: 0 (la reducción del art. 20 y el mínimo cubren la pensión).
 País Vasco y Navarra: el rescate tiene reglas forales propias (integración del 60 % del primer cobro en capital,
 con sus límites y su régimen transitorio). Quedan pendientes hasta comprobarlas en el BOB, el BOG, el BOTHA y el BON;
 el motor no aplica la reducción en esos regímenes y la herramienta no los ofrece.
+
+## País Vasco: vivienda, cuenta vivienda y colectivos (2026-11-14)
+
+Norma: arts. 86 y 87 de la NF 13/2013 (Bizkaia), NF 3/2014 (Gipuzkoa) y NF 33/2013 (Araba),
+en la redacción de la revisión fiscal de 2025 (NF 2/2025, 1/2025 y 3/2025). Fuente: fichas
+KA-01027, KA-01508 y KA-01353 de la Hacienda Foral de Bizkaia (cuadros desde 01-01-2025).
+
+- Alquiler: 20 % con 1.600 €; 35 % con 2.800 € si se tiene menos de 36 años a 31 de
+  diciembre o se es familia numerosa, monoparental, discapacidad >= 65 % / dependencia o
+  víctima de violencia.
+- Compra: 18 % con 1.530 €; 23 % con 1.955 € para menores de 36 y colectivos.
+- Cuenta vivienda (`cuenta_vivienda_aportaciones`): 18 % (23 % si menor de 36; el de los
+  colectivos no se aplica), con una base anual de 8.500 € común con la compra.
+
+| Caso | Cálculo | Deducción |
+|---|---|---|
+| `bi_cuenta_vivienda` (30 años, compra 4.000, cuenta 6.000) | 23 % × 4.000 = 920; base libre 8.500 − 4.000 = 4.500; 23 % × 4.500 = 1.035 | 1.955 € |
+| `bi_alquiler_joven` (33 años, alquiler 9.000) | 35 % × 9.000 = 3.150 → límite | 2.800 € |
+| `ss_fnum_compra_cuenta` (familia numerosa, compra 10.000, cuenta 3.000) | 23 % × 10.000 = 2.300 → 1.955 (agota la base de 8.500); cuenta: 0 | 1.955 € |
+| `vi_cuenta_vivienda` (40 años, cuenta 5.000) | 18 % × 5.000 | 900 € |
+
+No modelado: sin límite el año de la compra para menores de 36 (el motor no conoce el año de
+compra), crédito fiscal de 36.000 € y, desde 2026, el tope de 68.000 € de base liquidable
+para viviendas compradas o contratos de alquiler firmados desde ese año. Navarra no tiene
+deducción por cuenta vivienda en vigor (solo régimen transitorio de compras anteriores).

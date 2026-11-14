@@ -143,22 +143,35 @@ deducciones_forales_pv <- function(hogar, J, modo, base_total, declarante_id = N
   }
 
   # Alquiler / adquisición de vivienda habitual: pagos propios de las personas del ámbito
+  # Colectivos con porcentaje incrementado (arts. 86 y 87): la casilla de la persona, la
+  # familia numerosa y la unidad monoparental
+  colectivo <- function(m) isTRUE(m$colectivo_especial_vivienda) ||
+    !identical(hogar$familia_numerosa %||% "no", "no") || identical(hogar$tipo_unidad_familiar, "monoparental")
   for (m in ambito) {
     alq <- m$alquiler_vivienda_pagos %||% 0
     if (alq > 0) {
       da <- J$deduccion_alquiler_vivienda
-      cfg <- if (isTRUE(m$colectivo_especial_vivienda)) da$colectivo_especial else da$general
+      joven <- (m$edad %||% 99) < (da$edad_max_incrementada %||% 0)
+      cfg <- if (joven || colectivo(m)) da$colectivo_especial else da$general
       v <- min(alq * cfg$porcentaje, cfg$limite)
       det$alquiler_vivienda <- red2((det$alquiler_vivienda %||% 0) + v); total <- total + v
     }
+    # Compra y cuenta vivienda: base anual común de 8.500 € (1.530 / 1.955 € de deducción)
     adq <- m$adquisicion_vivienda_pagos %||% 0
+    cv <- m$cuenta_vivienda_aportaciones %||% 0
+    dq <- J$deduccion_adquisicion_vivienda
+    menor36 <- (m$edad %||% 99) < 36
+    base_libre <- dq$cuenta_vivienda$base_maxima_conjunta %||% Inf
     if (adq > 0) {
-      dq <- J$deduccion_adquisicion_vivienda
-      cfg <- if ((m$edad %||% 99) < 36) dq$menor_36
-             else if (isTRUE(m$colectivo_especial_vivienda)) dq$colectivo_especial
-             else dq$general
+      cfg <- if (menor36) dq$menor_36 else if (colectivo(m)) dq$colectivo_especial else dq$general
       v <- min(adq * cfg$porcentaje, cfg$limite_anual)
+      base_libre <- max(0, base_libre - v / cfg$porcentaje)
       det$adquisicion_vivienda <- red2((det$adquisicion_vivienda %||% 0) + v); total <- total + v
+    }
+    if (cv > 0 && !is.null(dq$cuenta_vivienda)) {
+      ccv <- dq$cuenta_vivienda
+      v <- min(cv, base_libre) * (if (menor36) ccv$porcentaje_menor_36 else ccv$porcentaje_general)
+      det$cuenta_vivienda <- red2((det$cuenta_vivienda %||% 0) + v); total <- total + v
     }
   }
 

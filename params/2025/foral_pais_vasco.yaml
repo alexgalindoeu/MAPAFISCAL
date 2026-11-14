@@ -192,16 +192,37 @@ comun:
     incompatible_con: [deduccion_edad]
 
   deduccion_alquiler_vivienda:
-    norma: "Art. 86 NF 3/2014 y equivalentes; NF 1/2025 (efectos 2025)"
-    fuente: "DF Gipuzkoa, Modelo 109 (2025)"
+    norma: "Art. 86 NF 13/2013 Bizkaia, NF 3/2014 Gipuzkoa y NF 33/2013 Araba, en la redacción de la revisión fiscal de 2025 (NF 2/2025 Bizkaia, NF 1/2025 Gipuzkoa, NF 3/2025 Araba; efectos 1-1-2025)"
+    fuente: "Hacienda Foral de Bizkaia, ficha KA-01027 «Deducción por alquiler de vivienda habitual» (cuadro desde 01-01-2025) y bizkaia.eus/es/renta-bizkaia/deducciones; DF Gipuzkoa, Modelo 109 (2025)"
     estado: confirmado
+    # 20 % con 1.600 €; 35 % con 2.800 € para menores de 36 años a 31 de diciembre, familias
+    # numerosas, unidades monoparentales, discapacidad >= 65 % o dependencia y víctimas de
+    # violencia. En conjunta, si alguno es menor de 36, el porcentaje y límite incrementados.
+    # No modelado: desde 2026, el requisito de rentas de los contratos nuevos o prorrogados.
+    edad_max_incrementada: 36
     general:            { porcentaje: 0.20, limite: 1600 }
-    colectivo_especial: { porcentaje: 0.35, limite: 2800 }  # <36 años, familia numerosa, monoparental, víctimas violencia, dependencia/discapacidad >=65 %
+    colectivo_especial: { porcentaje: 0.35, limite: 2800 }
 
   deduccion_adquisicion_vivienda:
-    norma: "Arts. 87–89 NF 3/2014 y equivalentes; NF 1/2025"
-    fuente: "DF Gipuzkoa, Modelo 109 (2025)"
+    norma: "Arts. 87 a 89 NF 13/2013 Bizkaia, NF 3/2014 Gipuzkoa y NF 33/2013 Araba, en la redacción de la revisión fiscal de 2025 (NF 2/2025 Bizkaia, NF 1/2025 Gipuzkoa, NF 3/2025 Araba)"
+    fuente: "Hacienda Foral de Bizkaia, fichas KA-01508 «Compra de vivienda habitual» y KA-01353 «Deducción por cantidades depositadas en cuenta vivienda» (cuadros desde 01-01-2025); DF Gipuzkoa, Modelo 109 (2025)"
     estado: confirmado
+    # 18 % con 1.530 € al año (8.500 € de inversión); 23 % con 1.955 € para menores de 36 años
+    # (sin límite el año de la compra: el motor no sabe el año de compra y aplica el límite) y
+    # para los colectivos (familia numerosa, monoparental, discapacidad >= 65 % o dependencia,
+    # víctimas de violencia). Crédito fiscal de 36.000 € en toda la vida (no se conoce lo ya
+    # deducido). Desde 2026, sin deducción por viviendas compradas desde ese año si la base
+    # liquidable general o la del ahorro llega a 68.000 € (no modelado).
+    # Cuenta vivienda: lo depositado en el año para comprar la vivienda habitual deduce el 18 %
+    # (23 % si se es menor de 36; el porcentaje de los colectivos no se aplica a la cuenta), con
+    # una base de 8.500 € al año común con la compra. Plazo para comprar: 6 años (10 si se abrió
+    # con menos de 36 años); si no se compra, se devuelve lo deducido con intereses.
+    cuenta_vivienda:
+      porcentaje_general: 0.18
+      porcentaje_menor_36: 0.23
+      base_maxima_conjunta: 8500
+      plazo_anios: 6
+      plazo_menor_36_anios: 10
     credito_fiscal_vital: 36000
     general:            { porcentaje: 0.18, limite_anual: 1530 }
     colectivo_especial: { porcentaje: 0.23, limite_anual: 1955 }  # familia numerosa, monoparental, víctimas violencia, dependencia/discapacidad >=65 %

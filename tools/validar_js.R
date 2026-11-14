@@ -419,6 +419,29 @@ add("vc_guarderia_2prog", "ES-VC", "biparental", "no",
          list(id="d2",rol="conyuge",edad=33, trabajo=list(dinerarias=22000,cotizacionesSs=1397)),
          list(id="h1",rol="descendiente",edad=1, gastosGuarderia=3000)))
 
+# 5k9. País Vasco — vivienda (arts. 86 y 87): cuenta vivienda con base común de 8.500 € con
+#      la compra, alquiler de menores de 36 y colectivos por familia numerosa (docs/03)
+add("bi_cuenta_vivienda", "ES-PV-BI", "ninguna", "no",
+    list(persona("d1","declarante",30, trabajo=list(dinerarias=32000, cotizaciones_ss=2080),
+                 adquisicion_vivienda_pagos=4000, cuenta_vivienda_aportaciones=6000)),
+    list(list(id="d1",rol="declarante",edad=30, trabajo=list(dinerarias=32000,cotizacionesSs=2080),
+              adquisicionViviendaPagos=4000, cuentaViviendaAportaciones=6000)))
+add("bi_alquiler_joven", "ES-PV-BI", "ninguna", "no",
+    list(persona("d1","declarante",33, trabajo=list(dinerarias=30000, cotizaciones_ss=1950), alquiler_vivienda_pagos=9000)),
+    list(list(id="d1",rol="declarante",edad=33, trabajo=list(dinerarias=30000,cotizacionesSs=1950), alquilerViviendaPagos=9000)))
+add("ss_fnum_compra_cuenta", "ES-PV-SS", "biparental", "general",
+    list(persona("d1","declarante",45, trabajo=list(dinerarias=48000, cotizaciones_ss=3120),
+                 adquisicion_vivienda_pagos=10000, cuenta_vivienda_aportaciones=3000),
+         persona("d2","conyuge",44), persona("h1","descendiente",10), persona("h2","descendiente",8),
+         persona("h3","descendiente",3)),
+    list(list(id="d1",rol="declarante",edad=45, trabajo=list(dinerarias=48000,cotizacionesSs=3120),
+              adquisicionViviendaPagos=10000, cuentaViviendaAportaciones=3000),
+         list(id="d2",rol="conyuge",edad=44), list(id="h1",rol="descendiente",edad=10),
+         list(id="h2",rol="descendiente",edad=8), list(id="h3",rol="descendiente",edad=3)))
+add("vi_cuenta_vivienda", "ES-PV-VI", "ninguna", "no",
+    list(persona("d1","declarante",40, trabajo=list(dinerarias=36000, cotizaciones_ss=2340), cuenta_vivienda_aportaciones=5000)),
+    list(list(id="d1",rol="declarante",edad=40, trabajo=list(dinerarias=36000,cotizacionesSs=2340), cuentaViviendaAportaciones=5000)))
+
 # 5l. Parejas en individual: gastos y requisitos personales por ámbito, familiares repartidas
 add("md_pareja_indiv", "ES-MD", "biparental", "general",
     list(persona("d1","declarante",30, trabajo=list(dinerarias=30000, cotizaciones_ss=1905), alquiler_vivienda_pagos=9000),

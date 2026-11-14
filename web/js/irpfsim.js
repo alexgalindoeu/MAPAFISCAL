@@ -845,19 +845,31 @@
       const val = baseTotal <= cfg.base_plena ? cfg.importe : baseTotal >= cfg.base_cero ? 0 : Math.max(0, cfg.importe - cfg.coef_reduccion * (baseTotal - cfg.base_plena));
       if (val > 0) { detalle.edad = red2(num(detalle.edad) + val); total += val; }
     }
+    // colectivos con porcentaje incrementado (arts. 86 y 87): casilla, familia numerosa o monoparental
+    const colectivo = m => !!m.colectivoEspecialVivienda || (hogar.familiaNumerosa || "no") !== "no" || hogar.tipoUnidadFamiliar === "monoparental";
     for (const m of ambito) {
       const alq = num(m.alquilerViviendaPagos);
       if (alq > 0) {
-        const cfg = m.colectivoEspecialVivienda ? J.deduccion_alquiler_vivienda.colectivo_especial : J.deduccion_alquiler_vivienda.general;
+        const da = J.deduccion_alquiler_vivienda;
+        const joven = num(m.edad, 99) < num(da.edad_max_incrementada);
+        const cfg = joven || colectivo(m) ? da.colectivo_especial : da.general;
         const v = Math.min(alq * cfg.porcentaje, cfg.limite);
         detalle.alquilerVivienda = red2(num(detalle.alquilerVivienda) + v); total += v;
       }
-      const adq = num(m.adquisicionViviendaPagos);
+      // compra y cuenta vivienda: base anual común de 8.500 € (R/07_forales.R)
+      const adq = num(m.adquisicionViviendaPagos), cv = num(m.cuentaViviendaAportaciones);
+      const dq = J.deduccion_adquisicion_vivienda, menor36 = num(m.edad, 99) < 36;
+      let baseLibre = dq.cuenta_vivienda && dq.cuenta_vivienda.base_maxima_conjunta != null ? dq.cuenta_vivienda.base_maxima_conjunta : Infinity;
       if (adq > 0) {
-        const dq = J.deduccion_adquisicion_vivienda;
-        const cfg = num(m.edad, 99) < 36 ? dq.menor_36 : m.colectivoEspecialVivienda ? dq.colectivo_especial : dq.general;
+        const cfg = menor36 ? dq.menor_36 : colectivo(m) ? dq.colectivo_especial : dq.general;
         const v = Math.min(adq * cfg.porcentaje, cfg.limite_anual);
+        baseLibre = Math.max(0, baseLibre - v / cfg.porcentaje);
         detalle.adquisicionVivienda = red2(num(detalle.adquisicionVivienda) + v); total += v;
+      }
+      if (cv > 0 && dq.cuenta_vivienda) {
+        const c = dq.cuenta_vivienda;
+        const v = Math.min(cv, baseLibre) * (menor36 ? c.porcentaje_menor_36 : c.porcentaje_general);
+        detalle.cuentaVivienda = red2(num(detalle.cuentaVivienda) + v); total += v;
       }
     }
     return { detalle, total: red2(total) };
