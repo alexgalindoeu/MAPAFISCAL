@@ -62,3 +62,40 @@ test_that("Cataluña: el alquiler (art. 612-3) mira base imponible − mínimo, 
   expect_lt(l$base_liquidable_general - 5550, 30000)
   expect_null(l$deducciones_autonomicas$detalle$arrendamiento_vivienda_habitual)
 })
+
+test_that("Cataluña: nacimiento (art. 612-1), 300 € a la familia monoparental y sin extra por parto múltiple", {
+  mono <- nuevo_hogar("v","ES-CT", list(persona("d1","declarante",34, trabajo=list(dinerarias=30000, cotizaciones_ss=1905)),
+                                       persona("h1","descendiente",0, nacido_en_ejercicio=TRUE)),
+                      tipo_unidad_familiar = "monoparental")
+  d <- liquidar(mono)$deducciones_autonomicas$detalle
+  expect_equal(d$nacimiento_adopcion_monoparental, 300)
+  expect_null(d$nacimiento_adopcion)              # variante excluyente (grupo): se aplica la mayor
+
+  # gemelos en individual (pareja): 150 € por hijo y progenitor, sin incremento por parto múltiple
+  gem <- nuevo_hogar("v","ES-CT", list(persona("d1","declarante",34, trabajo=list(dinerarias=30000, cotizaciones_ss=1905)),
+                                      persona("d2","conyuge",33, trabajo=list(dinerarias=25000, cotizaciones_ss=1588)),
+                                      persona("h1","descendiente",0, nacido_en_ejercicio=TRUE),
+                                      persona("h2","descendiente",0, nacido_en_ejercicio=TRUE)),
+                     tipo_unidad_familiar = "biparental", parto_multiple = TRUE)
+  l <- liquidar(gem, modo = "individual")
+  # (detalle del primer declarante: 2 × 150 = 300; antes sumaba 150 más por el parto múltiple)
+  expect_equal(l$deducciones_autonomicas$detalle$nacimiento_adopcion, 300)
+})
+
+test_that("Cataluña: alquiler (art. 612-3), 1.000 € para familia numerosa sin requisito de edad", {
+  mk <- function(fn) nuevo_hogar("v","ES-CT", list(
+    persona("d1","declarante",45, trabajo=list(dinerarias=30000, cotizaciones_ss=1905), alquiler_vivienda_pagos=12000),
+    persona("h1","descendiente",10), persona("h2","descendiente",8), persona("h3","descendiente",5)),
+    tipo_unidad_familiar = "monoparental", familia_numerosa = fn)
+  d <- liquidar(mk("general"))$deducciones_autonomicas$detalle
+  # 10 % de 12.000 = 1.200 -> límite 1.000 (la variante monoparental da lo mismo; solo una por grupo)
+  expect_equal(sum(unlist(d[grep("^arrendamiento", names(d))])), 1000)
+})
+
+test_that("Cataluña: alquiler (art. 612-3), límite de 1.000 € en conjunta si un declarante tiene <= 35 años", {
+  h <- nuevo_hogar("v","ES-CT", list(
+    persona("d1","declarante",30, trabajo=list(dinerarias=25000, cotizaciones_ss=1588), alquiler_vivienda_pagos=12000),
+    persona("d2","conyuge",40)), tipo_unidad_familiar = "biparental")
+  d <- liquidar(h, modo = "conjunta")$deducciones_autonomicas$detalle
+  expect_equal(d$arrendamiento_vivienda_habitual, 1000)
+})
