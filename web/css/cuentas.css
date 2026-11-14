@@ -1,0 +1,112 @@
+/* =============================================================================
+   Mapafiscal — cuentas: diálogo de acceso («Crear cuenta» / «Entrar»), bienvenida, avisos
+   para guardar cálculos y Perfil. Usa solo los tokens de mapafiscal.css (con modo oscuro).
+   ========================================================================== */
+
+/* ---- diálogo de acceso ------------------------------------------------------------ */
+.dialogo-acceso { width: min(460px, calc(100vw - 24px)); max-height: calc(100dvh - 24px); overflow: auto; }
+.dialogo-acceso .dialogo-in { position: relative; padding: 28px 28px 22px; }
+.dialogo-cerrar { position: absolute; top: 12px; right: 12px; width: 36px; height: 36px; border: 0; border-radius: 999px;
+  background: none; color: var(--tinta-3); cursor: pointer; display: grid; place-items: center; }
+.dialogo-cerrar:hover { background: var(--superficie-2); color: var(--tinta); }
+.dialogo-cerrar svg, .aviso-cuenta-cerrar svg { width: 14px; height: 14px; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; fill: none; }
+.acceso-marca { width: 40px; height: 40px; margin-bottom: 14px; }
+.acceso-marca svg { width: 100%; height: 100%; display: block; }
+
+.acceso-modos { display: grid; grid-template-columns: 1fr 1fr; gap: 4px; padding: 4px; margin: 0 0 18px;
+  background: var(--superficie-2); border: 1px solid var(--linea); border-radius: 10px; }
+.acceso-modos [role=tab] { font: inherit; font-size: 14px; font-weight: 600; border: 0; border-radius: 7px; padding: 8px 10px;
+  background: none; color: var(--tinta-2); cursor: pointer; min-height: 38px; transition: background var(--dur) var(--curva), color var(--dur) var(--curva); }
+.acceso-modos [role=tab]:hover { color: var(--tinta); }
+.acceso-modos [role=tab][aria-selected=true] { background: var(--superficie); color: var(--tinta); box-shadow: 0 1px 2px rgba(13, 27, 34, .12); }
+
+.dialogo-acceso h2 { font-size: 22px; margin-bottom: 4px; }
+.acceso-motivo { background: var(--marca-suave); color: var(--marca-tinta) !important; border-radius: 8px; padding: 10px 12px; font-size: 14px; }
+.dialogo-acceso .ventajas { gap: 10px; margin: 12px 0 20px; }
+.dialogo-acceso .ventajas li { padding-left: 28px; display: flex; flex-direction: column; gap: 1px; }
+.dialogo-acceso .ventajas li::before { left: 4px; top: 6px; }
+.dialogo-acceso .ventajas b { color: var(--tinta); font-weight: 600; font-size: 14px; }
+.dialogo-acceso .ventajas span { font-size: 13px; color: var(--tinta-3); line-height: 1.4; }
+
+.btn-google { background: var(--superficie); color: var(--tinta); border: 1px solid var(--linea-2); min-height: 44px; font-size: 15px; }
+.btn-google:hover { background: var(--superficie-2); color: var(--tinta); border-color: var(--tinta-3); }
+.dialogo-acceso .campo { margin-bottom: 12px; }
+.dialogo-acceso input[type=email] { min-height: 44px; font-size: 16px; }   /* 16 px: iOS no hace zoom */
+.dialogo-acceso input[aria-invalid=true] { border-color: var(--pierde); box-shadow: 0 0 0 1px var(--pierde); }
+.acceso-sugerencia { color: var(--tinta-2); }
+.acceso-legal .casilla { margin: 4px 0 12px; }
+.dialogo-acceso .mensaje:not(:empty) { margin: 0 0 12px; }
+.btn-bloque { width: 100%; min-height: 46px; font-size: 15px; display: inline-flex; align-items: center; justify-content: center; gap: 8px; }
+.acceso-cambio { text-align: center; font-size: 14px; margin: 14px 0 10px !important; }
+.btn-enlace { font: inherit; background: none; border: 0; padding: 0; color: var(--marca); font-weight: 600; cursor: pointer; text-decoration: underline; text-underline-offset: 2px; }
+.btn-enlace:hover { color: var(--marca-hover); }
+.dialogo-acceso .info-datos { margin: 0; text-align: center; }
+
+/* estado de carga: un giro discreto dentro del botón */
+.btn-giro { display: none; width: 15px; height: 15px; border-radius: 999px; border: 2px solid currentColor; border-right-color: transparent;
+  animation: giro .7s linear infinite; }
+.cargando .btn-giro { display: inline-block; }
+.btn.cargando { cursor: progress; }
+.btn-google.cargando svg { opacity: .4; }
+@keyframes giro { to { transform: rotate(360deg); } }
+
+/* paso 2: enlace enviado */
+.acceso-enviado { text-align: center; padding-top: 4px; }
+.acceso-enviado h2 { outline: none; }
+.acceso-sobre { width: 64px; height: 64px; margin: 0 auto 14px; border-radius: 999px; background: var(--marca-suave); display: grid; place-items: center; }
+.acceso-sobre svg { width: 32px; height: 32px; fill: none; stroke: var(--marca); stroke-width: 2.4; stroke-linejoin: round; }
+.acceso-enviado b { color: var(--tinta); overflow-wrap: anywhere; }
+.acceso-enviado .ayuda { margin: 0 0 14px; font-size: 13px; }
+.acceso-enviado-acciones { display: flex; flex-direction: column; gap: 8px; margin-top: 8px; }
+.acceso-enviado-acciones .btn { width: 100%; min-height: 44px; }
+.acceso-enviado .mensaje:not(:empty) { margin-bottom: 10px; }
+
+/* bienvenida */
+#dlg-bienvenida { width: min(440px, calc(100vw - 24px)); }
+#dlg-bienvenida .ayuda { margin-bottom: 16px; }
+
+/* ---- «Guarda este cálculo» y avisos ----------------------------------------------- */
+.ico-guardar { width: 15px; height: 15px; fill: none; stroke: currentColor; stroke-width: 1.5; stroke-linejoin: round; flex: none; }
+#btn-guardar-calculo { display: inline-flex; align-items: center; gap: 8px; }
+#btn-guardar-calculo[hidden] { display: none; }
+#btn-guardar-calculo.guardado { background: var(--gana-suave); color: var(--gana); box-shadow: none; }
+.guardar-calculo-msg:not(:empty) { margin-top: 10px; }
+.guardar-calculo-msg a { color: inherit; font-weight: 600; }
+
+.aviso-cuenta { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; margin-top: 20px; padding: 12px 14px;
+  border: 1px dashed var(--linea-2); border-radius: var(--radio); background: var(--superficie); color: var(--tinta-2); font-size: 14px; }
+.aviso-cuenta[hidden] { display: none; }
+.aviso-cuenta p { margin: 0; flex: 1 1 260px; }
+.aviso-cuenta-ico { width: 18px; height: 18px; fill: none; stroke: var(--marca); stroke-width: 1.5; stroke-linejoin: round; flex: none; }
+.aviso-cuenta-acc { display: flex; align-items: center; gap: 4px; }
+.aviso-cuenta-cerrar { width: 32px; height: 32px; border: 0; border-radius: 999px; background: none; color: var(--tinta-3); cursor: pointer; display: grid; place-items: center; }
+.aviso-cuenta-cerrar:hover { background: var(--superficie-2); color: var(--tinta); }
+
+/* ---- perfil ------------------------------------------------------------------------- */
+.btn-avatar { font-size: 13px; letter-spacing: .02em; }
+.perfil-cab { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; margin-bottom: 16px; }
+.perfil-avatar { width: 52px; height: 52px; border-radius: 999px; display: grid; place-items: center; flex: none;
+  background: var(--marca); color: var(--sobre-marca); font-family: var(--display); font-stretch: 110%; font-weight: 800; font-size: 19px;
+  box-shadow: 0 0 0 2px var(--superficie), 0 0 0 4px var(--resalte); }
+.perfil-quien { display: flex; flex-direction: column; min-width: 0; flex: 1 1 180px; }
+.perfil-quien b { font-size: 17px; overflow-wrap: anywhere; }
+.perfil-quien span { font-size: 13px; color: var(--tinta-3); overflow-wrap: anywhere; }
+.perfil-cab .plan-chip { margin-left: 0; }
+.perfil-acciones-centro { justify-content: center; }
+
+.lista-calculos { list-style: none; margin: 0; padding: 0; }
+.lista-calculos li { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 2px 12px; align-items: center; padding: 10px 0; border-top: 1px solid var(--linea); }
+.lista-calculos li:first-child { border-top: 0; padding-top: 0; }
+.lc-txt { display: flex; flex-direction: column; min-width: 0; }
+.lc-txt b { font-size: 14px; font-weight: 600; overflow-wrap: anywhere; }
+.lc-txt span { font-size: 12px; color: var(--tinta-3); }
+.lc-res { font-size: 13px; font-variant-numeric: tabular-nums; text-align: right; color: var(--tinta-2); }
+.lc-res .gana { color: var(--gana); }
+.lc-acc { grid-column: 1 / -1; display: flex; gap: 4px; margin-left: -8px; }
+
+@media (max-width: 480px) {
+  .dialogo-acceso .dialogo-in { padding: 24px 18px 18px; }
+  .dialogo-acceso h2 { font-size: 20px; }
+  .perfil-cab .btn { width: 100%; }
+}
+@media (prefers-reduced-motion: reduce) { .btn-giro { animation-duration: 2s; } }

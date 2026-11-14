@@ -44,7 +44,7 @@ base de datos, así el catálogo no puede desincronizarse del motor JS.
 
 | Función | JWT | Qué hace |
 |---|---|---|
-| `crear-checkout` | sí | crea la sesión de Stripe Checkout del plan Gestor (semanal, mensual o anual); responde `409 ya_suscrito` si ya hay una suscripción activa |
+| `crear-checkout` | sí | crea la sesión de Stripe Checkout del plan Gestor (semanal, mensual o anual); responde `409 ya_suscrito` si ya hay una suscripción activa. Con `{ producto: "informe", ejercicio }`, pago único del informe completo (ver abajo); `409 ya_incluido` si ya tiene plan |
 | `stripe-webhook` | no (firma de Stripe) | sincroniza `suscripciones` y `perfiles.plan` |
 | `portal-facturacion` | sí | abre el portal de cliente de Stripe (tarjeta, periodo, facturas, baja); `vista` elige a qué pestaña se vuelve (`perfil`, `clientes`; por defecto `#gestor`) |
 | `borrar-cuenta` | sí | borra la cuenta (derecho de supresión): cancela al momento sus suscripciones, borra el usuario y, en cascada, perfil, clientes y suscripción. Pide `{ confirmar: correo }` |
@@ -97,6 +97,23 @@ página; si no, a `SITE_URL`. Así se puede probar desde `http://localhost:8080`
 Supabase automáticamente: no hay que definirlas.
 
 ### Puesta en marcha (la hace Alex; nadie más teclea claves secretas)
+
+**Informe completo: pago único (preparado, desactivado).** `crear-checkout` con
+`{ producto: "informe", ejercicio: 2025 }` abre un Checkout `mode: "payment"` (sin suscripción
+y sin guardar la tarjeta, con factura) del precio con `lookup_key` **`informe_unico`** (o el
+secreto `STRIPE_PRICE_INFORME_UNICO` con un `price_…`). Al pagar, el webhook
+(`checkout.session.completed` o `checkout.session.async_payment_succeeded`) apunta una fila
+en `informes_comprados` (migración `20261112100000_informes_comprados.sql`; RLS: cada usuario
+lee las suyas, solo el webhook escribe) y la web desbloquea el informe de ese ejercicio. Para
+activarlo:
+
+1. Aplicar la migración `20261112100000_informes_comprados.sql`.
+2. En Stripe (modo test primero): producto **Mapafiscal · Informe completo**, precio **único**
+   (no recurrente) de **1,99 EUR**, IVA incluido (`tax_behavior: inclusive`), con `lookup_key`
+   `informe_unico`.
+3. Añadir `checkout.session.async_payment_succeeded` a los eventos del webhook (opcional:
+   solo para métodos de pago diferido) y redesplegar `crear-checkout` y `stripe-webhook`.
+4. Probar con la tarjeta de prueba y poner `informePago: true` en `web/config.js`.
 
 **Estado (2026-09-26): configurado, probado en modo test y activado en la web** (`pagosActivos: true`) en la cuenta de Stripe GALINDX
 (modo de prueba, no el *sandbox*): producto **Mapafiscal Gestor** (`prod_VKaFIrhMte2Qh3`)
@@ -179,3 +196,38 @@ dominio propio en Supabase.
 
 Para producción conviene configurar un SMTP propio: el de Supabase solo envía unos pocos
 correos por hora («email rate limit exceeded»).
+
+### Diálogo de acceso (11-11)
+
+Dos modos: **Crear cuenta** (`signInWithOtp` con `shouldCreateUser: true`; pide la casilla «He
+leído y acepto las Condiciones y la Política de privacidad») y **Entrar** (`shouldCreateUser:
+false`: si el correo no tiene cuenta lo dice y ofrece crearla). Google va arriba solo si el
+proveedor está activado; si falla (o vuelve con `?error=`), el botón se oculta y se ofrece el
+correo. Tras enviar el enlace: «Revisa tu correo», botón para abrir el buzón (Gmail, Outlook…),
+reenvío con cuenta atrás de 60 s y «Usar otro correo». La lógica sin DOM está en
+`web/js/cuentas.js` (tests en `test/cuentas.test.mjs`).
+
+### Cálculos guardados (`calculos`)
+
+«Guarda este cálculo» (calculadora y aviso del comparador) guarda el hogar en la tabla
+`calculos`, de cualquier cuenta, también gratuita, con RLS por usuario y un máximo de 50; se
+borran con la cuenta. Sin sesión, el cálculo se recuerda en `localStorage`
+(`mapafiscal.calculoPendiente`, 2 h), se abre «Crear cuenta» y se guarda al volver. **Mientras
+no se aplique `migrations/20261111100000_calculos_guardados.sql`, la web no ofrece el botón ni lo
+anuncia** (lo detecta sola). Para activarlo: SQL Editor → pegar la migración → Run.
+
+### Correos con marca (plantillas)
+
+Las plantillas están en `supabase/templates/`. Para usarlas (lo hace Alex, una vez):
+
+1. Supabase → Authentication → **Emails** → *Templates*.
+2. **Magic Link**: asunto `Tu enlace para entrar en Mapafiscal`; en *Message body* (fuente),
+   pega entero `templates/magic_link.html`. Guarda.
+3. **Confirm signup**: asunto `Confirma tu cuenta de Mapafiscal`; pega
+   `templates/confirmation.html`. Guarda.
+4. Authentication → Emails → *SMTP Settings*: *Sender name* `Mapafiscal` y *Sender email*
+   `contacto@mapafiscal.es` (ya está con Brevo; solo comprobar el nombre).
+5. Prueba: pide un enlace desde la web y revisa que llega con el logotipo y el botón azul.
+
+Usan solo `{{ .ConfirmationURL }}` y `{{ .Email }}`, sin imágenes ni recursos externos (el
+logotipo está hecho con celdas de tabla), así que se ven igual en Gmail, Outlook y Apple Mail.

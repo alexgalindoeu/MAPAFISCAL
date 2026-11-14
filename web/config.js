@@ -7,7 +7,7 @@ window.MAPAFISCAL_CONFIG = {
   supabaseKey: "sb_publishable_H5plGsoIk0bKwlu2Kdf1kQ_1pTPoaFl",
 
   // Cobro con Stripe (Edge Functions crear-checkout / portal-facturacion). Activado el
-  // 2026-09-26 (Alex), con el backend configurado y probado en modo test: ver
+  // 2026-09-26, con el backend configurado y probado en modo test: ver
   // supabase/README.md. Solo cambia si «Gestionar suscripción» debe verse en Mis clientes
   // y Perfil; «Suscribirme» siempre lleva a Stripe Checkout (si no está configurado, la
   // Edge Function responde con un aviso).
@@ -25,17 +25,36 @@ window.MAPAFISCAL_CONFIG = {
   // vuelve a pedir la aceptación a quien aceptó una versión anterior.
   condicionesVersion: "2026-09-27",
 
-  // Anuncios (AdSense) en los huecos laterales de la calculadora y de "Comparar". En false,
-  // no se carga nada de Google ni la CMP: no hay banner de cookies porque no hace falta. No
-  // se muestran nunca a quien tiene plan Gestor. La versión autónoma (empaquetar.mjs) fuerza
-  // esto a false, igual que hace con pagosActivos.
-  anuncios: false, // en true cuando AdSense apruebe el sitio (ver negocio/anuncios.md §5)
+  // Anuncios (Google AdSense): carriles laterales en escritorio y huecos en el flujo. En
+  // false no se carga nada de Google ni la CMP, y no hay aviso de cookies porque no hace
+  // falta. Nunca para quien tiene plan de pago. La versión autónoma (empaquetar.mjs) lo fuerza
+  // a false. PARA ENCENDER: poner los data-ad-slot de abajo y `anuncios: true` en la misma PR
+  // (la política de cookies se adapta sola: legal/cookies.html lee este fichero).
+  anuncios: false,
   adsenseCliente: "ca-pub-3028486034839853",
 
-  // Bloques de anuncios: se crean en AdSense tras la aprobación (Anuncios → Por bloque de
-  // anuncios), uno por hueco. Vacíos, el hueco correspondiente no pide nada.
-  adsenseHuecoCalc: "",
-  adsenseHuecoComparar: "",
-  adsenseHuecoRailIzq: "",
-  adsenseHuecoRailDer: ""
+  // Consentimiento en el EEE: "google" = CMP certificada de Google («Privacidad y mensajes»
+  // de AdSense, mensaje RGPD publicado): sale sola con los anuncios, sin aviso propio.
+  // "propio" = aviso de Mapafiscal (Aceptar/Rechazar) y nada de Google hasta aceptar; solo
+  // como plan B, porque sin CMP certificada Google solo sirve anuncios limitados.
+  consentimiento: "google",
+
+  // data-ad-slot de cada bloque (AdSense → Anuncios → Por bloque de anuncios → Anuncios de
+  // display, «Adaptable»). Vacío, ese hueco no se muestra ni pide nada.
+  adsenseHuecoRailIzq: "",   // «mf-carril-izq»: carril izquierdo, escritorio ≥1280 px
+  adsenseHuecoRailDer: "",   // «mf-carril-der»: carril derecho, escritorio ≥1280 px
+  adsenseHuecoMovil: "",     // «mf-resultado-medio»: entre tarjetas del resultado, por debajo de 1280 px
+  adsenseHuecoCalc: "",      // «mf-resultado-final»: al final de la columna de resultados
+  adsenseHuecoComparar: "",  // «mf-comparar»: bajo el mapa y la tabla de Comparar
+
+  // Informe completo en PDF (js/informe.js). Vías de desbloqueo (negocio/otros-ingresos.md §1):
+  // plan de pago (siempre), pago único y anuncio bonificado. Aceptar cookies NO desbloquea.
+  // Con los dos interruptores en false, el informe es gratis para quien tenga sesión iniciada
+  // (decisión provisional, pendiente de que Alex la confirme).
+  informePago: false,      // true cuando exista en Stripe el precio con lookup_key informe_unico (supabase/README.md)
+  informePrecio: 1.99,     // IVA incluido; tiene que coincidir con el precio de Stripe
+  informeAnuncio: false,   // true cuando la red apruebe el formato bonificado (ver negocio/otros-ingresos.md)
+  informeAnuncios: 1,      // anuncios seguidos que hay que ver (1 a 3)
+  informeAnuncioUnidad: "", // bloque «rewarded» de Google Ad Manager (GPT), p. ej. "/1234567/informe_bonificado"
+  informeAfiliado: null    // banner estático de afiliado en el PDF: { texto, enlace, imagen }; null = banner propio
 };

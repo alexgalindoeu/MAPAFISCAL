@@ -21,6 +21,17 @@ const CASOS = %s;
 const tol = 0.02;
 let lines = [], nbad = 0;
 for (const [id, c] of Object.entries(CASOS)) {
+  if (c.rescate) {   // rescate del plan de pensiones (R/16_rescate_plan.R)
+    let s;
+    try { s = irpfsim.rescatePlan(c.js, PS[c.js.ejercicio]); }
+    catch (e) { lines.push("ERROR " + id + ": " + e.message); nbad++; continue; }
+    const bad = [["plazo", s.enPlazo, c.ref.en_plazo], ["sin", s.irpfSin, c.ref.sin], ["capital", s.capital.extra, c.ref.capital],
+      ["renta", s.renta.extra, c.ref.renta], ["mixto", s.mixto.extra, c.ref.mixto], ["mejor", s.mejor, c.ref.mejor]]
+      .filter(([k, a, b]) => (typeof b === "number") ? Math.abs(a - b) > tol : a !== b);
+    if (bad.length) { nbad++; lines.push("FAIL " + id + " :: " + bad.map(([k, a, b]) => k + " js=" + a + " r=" + b).join(" | ")); }
+    else lines.push("ok   " + id + "  capital=" + s.capital.extra.toFixed(2));
+    continue;
+  }
   if (c.neto) {
     let s;
     try { s = irpfsim.sueldoNeto(c.js, PS[c.js.ejercicio]); }

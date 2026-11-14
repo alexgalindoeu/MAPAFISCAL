@@ -18,12 +18,14 @@ import { fileURLToPath } from "node:url";
 import { SITIO, SLUG, ORDEN_TERRITORIOS, HERRAMIENTA, esc, euros, pct, tablaEscala, citaFuente, layout, jsonLdMigas, migasHtml } from "./seo_comun.mjs";
 import { paginaDeducciones } from "./seo_deducciones.mjs";
 import { paginasGuias, GUIAS } from "./seo_guias.mjs";
+import { paginasSueldoNeto } from "./seo_sueldo_neto.mjs";
+import { paginasRescate } from "./seo_rescate.mjs";
 
 const RAIZ = join(dirname(fileURLToPath(import.meta.url)), "..");
 const WEB = join(RAIZ, "web");
 const leerJson = f => JSON.parse(readFileSync(join(WEB, "datos", f), "utf8"));
 
-let territorios, comparativas, deducciones, guias;
+let territorios, comparativas, deducciones, guias, sueldoNeto;
 const eurosSalario = euros;
 const REGIMEN_ETIQUETA = { comun: "régimen común", foral_pais_vasco: "concierto económico del País Vasco", foral_navarra: "convenio económico de Navarra" };
 // Territorios con página de deducciones (se rellena al generar).
@@ -111,7 +113,7 @@ function paginaSalario(salario) {
     <h2 class="rotulo">Los 19 territorios, de menos a más IRPF</h2>
     <div class="envoltorio"><table class="cobertura"><thead><tr><th class="num">Puesto</th><th>Territorio</th><th class="num">Cuota líquida</th><th class="num">Tipo medio efectivo</th></tr></thead><tbody>${filasHtml}</tbody></table></div>
   </div>
-  <p><a class="btn btn-pri" href="/index.html#calculadora">Calcula tu caso real, con tu sueldo y tu situación</a></p>
+  <p><a class="btn btn-pri" href="/index.html#calculadora">Calcula tu caso real, con tu sueldo y tu situación</a> <a class="btn btn-sec" href="/sueldo-neto/${salario}/">Sueldo neto de ${esc(eurosSalario(salario))} en 12 y 14 pagas</a></p>
   </div>`;
 
   return layout({
@@ -146,7 +148,8 @@ function paginaIndiceSalarios() {
   const main = `
   <h1>¿Dónde se paga menos IRPF en España? (2025)</h1>
   <p class="entradilla">Comparativas del IRPF en los 19 territorios fiscales de España para varios sueldos de referencia. ${esc(comparativas.supuesto)}</p>
-  <div class="prosa"><ul class="lista-enlaces">${filas}</ul></div>`;
+  <div class="prosa"><ul class="lista-enlaces">${filas}</ul>
+  <p><a href="/sueldo-neto/">Sueldo neto por importe y territorio, en 12 y 14 pagas</a></p></div>`;
   return layout({
     title: "¿Dónde se paga menos IRPF en España? (2025) | Mapafiscal",
     description: "Comparativas del IRPF 2025 en los 19 territorios fiscales de España para varios sueldos: de menos a más impuesto, con tipo medio efectivo. Calculadora gratuita.",
@@ -162,6 +165,7 @@ export function generar() {
   comparativas = leerJson("seo_comparativas.json");
   deducciones = leerJson("seo_deducciones.json");
   guias = leerJson("seo_guias.json");
+  sueldoNeto = leerJson("seo_sueldo_neto.json");
   conDeducciones.clear();
   const ficheros = new Map(), urls = [], avisos = [];
   const pagina = (ruta, html) => { ficheros.set(ruta.replace(/^\//, "") + "index.html", html); urls.push(ruta); };
@@ -184,6 +188,9 @@ export function generar() {
   pagina("/comparar-sueldo/", paginaIndiceSalarios());
   const gs = paginasGuias(guias, territorios);
   for (const g of gs) pagina(g.ruta, g.html);
+  const sn = paginasSueldoNeto(sueldoNeto);
+  for (const p of sn) pagina(p.ruta, p.html);
+  for (const g of paginasRescate(territorios.generado)) pagina(g.ruta, g.html);
 
   const hoy = territorios.generado;
   ficheros.set("sitemap.xml", `<?xml version="1.0" encoding="UTF-8"?>
@@ -195,7 +202,7 @@ ${urls.map(u => `<url><loc>${SITIO}${u}</loc><lastmod>${hoy}</lastmod><changefre
   ficheros.set("robots.txt", `Sitemap: ${SITIO}/sitemap.xml\n\nUser-agent: *\nAllow: /\n`);
   return {
     ficheros, avisos, urls,
-    recuento: { territorios: ORDEN_TERRITORIOS.length, sueldos: comparativas.salarios.length, deducciones: ded.length, guias: gs.length - 1, indices: 3 }
+    recuento: { territorios: ORDEN_TERRITORIOS.length, sueldos: comparativas.salarios.length, deducciones: ded.length, guias: gs.length - 1, sueldoNeto: sn.length - 1, indices: 4 }
   };
 }
 
@@ -218,6 +225,8 @@ export function huerfanas(ficheros) {
     }
   };
   recorrer("guias");
+  recorrer("sueldo-neto");
+  recorrer("rescate-plan-pensiones");
   return fuera;
 }
 
@@ -248,7 +257,7 @@ if (process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.ur
       writeFileSync(p, html, "utf8");
     }
     for (const r of sobran) { rmSync(join(WEB, r)); console.log(`Borrada (ya no se genera): ${r}`); }
-    console.log(`Páginas SEO: ${recuento.territorios} territorios + ${recuento.deducciones} de deducciones + ${recuento.sueldos} sueldos + ${recuento.guias} guías + ${recuento.indices} índices.`);
+    console.log(`Páginas SEO: ${recuento.territorios} territorios + ${recuento.deducciones} de deducciones + ${recuento.sueldos} sueldos + ${recuento.guias} guías + ${recuento.sueldoNeto} de sueldo neto + ${recuento.indices} índices.`);
     console.log(`sitemap.xml: ${urls.length + 1} URLs.`);
   }
 }

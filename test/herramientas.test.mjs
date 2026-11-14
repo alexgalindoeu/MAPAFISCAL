@@ -108,7 +108,7 @@ async function montar(hash) {
     CustomEvent: class { constructor(type, o) { this.type = type; this.detail = o && o.detail; } },
     addEventListener() {}, fetch: async url => {
       const f = new URL("../web/" + url, import.meta.url);
-      return { ok: true, json: async () => JSON.parse(readFileSync(f, "utf8")) };
+      return { ok: true, json: async () => JSON.parse(readFileSync(f, "utf8")), text: async () => readFileSync(f, "utf8") };
     }
   };
   ctx.window = ctx;
