@@ -174,8 +174,39 @@ deducciones_donativos:
   estado: pendiente
 
 reduccion_prevision_social:
-  norma: "Art. 55.1 TR IRPF Navarra"
-  estado: pendiente
+  norma: "Art. 55.1.7.º a) DFL 4/2008 (TR IRPF Navarra): letra b´) en la redacción del art. primero.Seis de la LF 19/2021 (efectos 1-1-2022), sin cambios en la LF 22/2023 (que solo añade los 4.250 € de seguros colectivos) ni en la LF 20/2024; letra a´), redacción anterior no modificada"
+  fuente: "BOE-A-2022-2067 (LF 19/2021, texto literal de la letra b´): «1.500 euros anuales. Este límite se incrementará en 8.500 euros, siempre que tal incremento provenga de contribuciones empresariales…»); BOE-A-2024-1694 (LF 22/2023); letra a´) (30 %, 50 % para mayores de 50 años): BBVA AM, «Límites fiscalidad planes de pensiones 2023 Navarra»"
+  # Por partícipe (también en conjunta): aportaciones + contribuciones empresariales hasta el
+  # menor de a´) el 30 % de la suma de sus rendimientos netos del trabajo y de actividades
+  # (50 % si tiene más de 50 años) y b´) 1.500 € más hasta 8.500 € de contribuciones
+  # empresariales. Provisional por la letra a´), tomada de una fuente secundaria. No
+  # modelados: los 5.000 € de seguros colectivos de dependencia (letra b), los 4.250 € de
+  # seguros colectivos que no incluyen a toda la plantilla, la aportación al cónyuge con
+  # rendimientos < 8.500 € (1.000 €, ordinal 9.º) y los excesos de años anteriores.
+  estado: provisional
+  limite_general_abs: 1500
+  incremento_contribucion_empresarial: 8500
+  limite_pct_rend: 0.30
+  limite_pct_rend_incrementado: 0.50
+  edad_porcentaje_incrementado: 50      # más de 50 años
+  limite_aportacion_conyuge: 1000
+  rentas_conyuge_maximas: 8500
+  incremento_seguros_dependencia: 5000
+
+# Prestaciones de planes de pensiones cobradas en capital: la LF 16/2017 suprime desde 2018 la
+# reducción del 40 % del art. 17.2.b), pero la DT 25.ª la mantiene para la parte que procede de
+# aportaciones hasta el 31-12-2017, si han pasado dos años desde la primera aportación y se
+# cobra en el ejercicio de la contingencia o en los dos siguientes (las contingencias
+# anteriores a 2018, solo hasta 2020).
+prestaciones_prevision_capital:
+  norma: "Art. 17.2.b) DFL 4/2008 (TR IRPF Navarra) en su redacción a 31-12-2017 y DT 25.ª, añadida por el art. primero.Cuarenta y seis de la LF 16/2017 (efectos 1-1-2018)"
+  fuente: "BOE-A-2018-801 (LF 16/2017, de 27 de diciembre): preámbulo y DT 25.ª, apartados 1, 2 y 4"
+  estado: confirmado
+  porcentaje_reduccion: 0.40
+  anio_corte_aportaciones: 2018     # aportaciones hasta el 31-12-2017
+  anio_regimen: 2018                # contingencias desde 2018: ese año o los dos siguientes
+  plazo_anios: 2
+  ultimo_anio_anterior: 2020        # contingencias anteriores a 2018: cobros hasta 2020
 
 coeficientes_actualizacion_inmuebles:
   norma: "TR IRPF Navarra + Ley Foral anual (BON)"

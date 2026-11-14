@@ -23,6 +23,9 @@
 
   // ---- cálculos (también los usa test/rescate.test.mjs) --------------------------------
   const territorios = P => ORDEN.filter(t => P.territorios[t] && P.territorios[t].regimen === "comun");
+  // el selector ofrece también los forales, que el motor calcula con su norma (País Vasco y Navarra)
+  const FORALES = ["ES-PV-BI", "ES-PV-SS", "ES-PV-VI", "ES-NC"];
+  const territoriosSelector = P => territorios(P).concat(FORALES.filter(t => P.territorios[t]));
   const rescate = (P, o) => H.rescatePlan(o, P);
   function porTerritorio(P, o) {
     return territorios(P).map(t => {
@@ -33,7 +36,7 @@
   function porAnios(P, o, lista) {
     return lista.map(n => { const r = rescate(P, Object.assign({}, o, { anios: n })); return { anios: n, renta: r.renta.extra, mixto: r.mixto.extra }; });
   }
-  const CALCULOS = { territorios, rescate, porTerritorio, porAnios };
+  const CALCULOS = { territorios, territoriosSelector, rescate, porTerritorio, porAnios };
   if (typeof module !== "undefined" && module.exports) { module.exports = CALCULOS; return; }
   window.MapafiscalRescate = CALCULOS;
 
@@ -64,7 +67,7 @@
   }
 
   let P = null, forma = "capital";
-  const inicial = (location.hash.match(/[?&]t=(ES-[A-Z]{2})\b/) || [])[1];
+  const inicial = (location.hash.match(/[?&]t=(ES-[A-Z]{2}(?:-[A-Z]{2})?)\b/) || [])[1];
   const datosForm = () => ({ territorio: $("rp-territorio").value, antes2007: num("rp-antes"), despues2007: num("rp-despues"),
     otrosIngresos: num("rp-otros"), tipoOtros: $("rp-tipo-otros").value, edad: num("rp-edad") || 65,
     anioContingencia: Math.round(num("rp-contingencia")) || P.ejercicio, anios: parseInt($("rp-anios").value, 10) || 5 });
@@ -76,8 +79,11 @@
     let r;
     try { r = rescate(P, o); } catch (e) { $("rp-principal").innerHTML = '<p class="vacio">Revisa los datos introducidos.</p>'; return; }
     const total = o.antes2007 + o.despues2007, terr = P.territorios[o.territorio].nombre;
+    const pv = r.regimen === "foral_pais_vasco", corte = r.corte || 2007;
+    $("rp-antes").closest(".campo").querySelector("label").textContent = pv ? "Lo que tienes en el plan o la EPSV (aportaciones hasta 2025)" : `Lo que corresponde a aportaciones hasta el 31-12-${corte - 1}`;
+    $("rp-despues").closest(".campo").querySelector("label").textContent = pv ? "Otra parte del plan o la EPSV (se suma a la anterior)" : `Lo que corresponde a aportaciones desde ${corte}`;
     const tu = r[forma], mejor = r[r.mejor], ahorro = tu.extra - mejor.extra;
-    const nombreForma = k => k === "capital" ? FORMAS.capital : k === "mixto" ? `Mixto: lo anterior a 2007 de una vez y el resto en ${r.anios} años` : `Como renta, en ${r.anios} años`;
+    const nombreForma = k => k === "capital" ? FORMAS.capital : k === "mixto" ? (pv ? `Mixto: hasta 300.000 € de una vez y el resto en ${r.anios} años` : `Mixto: lo anterior a ${corte} de una vez y el resto en ${r.anios} años`) : `Como renta, en ${r.anios} años`;
     $("rp-chip").textContent = `${terr} · ${P.ejercicio}`;
     $("rp-tarjeta").className = "tarjeta tarjeta-resultado" + (r.mejor === forma ? " gana" : "");
     $("rp-principal").innerHTML = `<div class="res-etq">IRPF extra por rescatar ${eur0(total)} · ${esc(nombreForma(forma))}</div>
@@ -92,8 +98,9 @@
         <span class="hr-barra"><i style="width:${Math.max(2, Math.round(100 * r[k].extra / max))}%"></i></span><b>${eur0(r[k].extra)}</b></div>`).join("") + `</div>`;
     // detalle: cobros e IRPF extra año a año de la opción elegida
     const filas = [];
-    if (o.antes2007 > 0) filas.push(fila(r.enPlazo ? `Reducción del 40 % de lo aportado hasta 2006 (${eur0(o.antes2007)}), solo cobrándolo en capital`
-      : "Sin reducción del 40 %: el rescate en capital queda fuera del plazo de la DT 12.ª", r.enPlazo ? "−" + eur0(r.reduccion) : "—", r.enPlazo ? "hr-resta" : "info"));
+    if (pv) filas.push(fila("Integración del 60 % del primer cobro en capital, hasta 300.000 € (norma foral del IRPF)", r.reduccion > 0 ? "−" + eur0(r.reduccion) : "—", r.reduccion > 0 ? "hr-resta" : "info"));
+    else if (o.antes2007 > 0) filas.push(fila(r.enPlazo ? `Reducción del 40 % de lo aportado hasta ${corte - 1} (${eur0(o.antes2007)}), solo cobrándolo en capital`
+      : `Sin reducción del 40 %: el rescate en capital queda fuera del plazo de la ${r.regimen === "foral_navarra" ? "DT 25.ª de la ley foral" : "DT 12.ª"}`, r.enPlazo ? "−" + eur0(r.reduccion) : "—", r.enPlazo ? "hr-resta" : "info"));
     filas.push(fila("IRPF del año sin rescatar (tus otros ingresos)", eur0(r.irpfSin)));
     tu.cobros.forEach((c, i) => filas.push(fila(`${P.ejercicio + i}: cobras ${eur0(c)}${i === 0 && forma !== "renta" && r.reduccion > 0 ? " (con la reducción)" : ""}`, "+" + eur0(tu.anual[i]))));
     filas.push(fila("IRPF extra por el rescate", eur0(tu.extra), "total"));
@@ -111,14 +118,16 @@
     $("rp-nota").textContent = `Ejercicio ${P.ejercicio}: normativa del IRPF estatal y autonómica de ${P.ejercicio}; los años siguientes se calculan con la misma. ` +
       `Lo que cobras del plan es rendimiento del trabajo (art. 17.2.a.3.º LIRPF) y se suma a tus otros ingresos. La reducción del 40 % (DT 12.ª LIRPF) solo se aplica a lo aportado hasta el 31-12-2006, cobrado en forma de capital en un único año: ` +
       `si te jubilaste desde ${d.anio_regimen_2015}, ese año o los ${d.plazo_desde_2015_anios} siguientes; entre ${d.anio_regimen_2011} y ${d.anio_regimen_2015 - 1}, hasta el ${d.plazo_2011_2014_anios}.º año siguiente; antes, hasta ${d.ultimo_anio_anterior_2011}. ` +
-      "Tributación individual, sin otras rentas ni deducciones: para tu caso completo, usa la calculadora. El País Vasco y Navarra regulan el rescate en su normativa foral y no se incluyen.";
+      "Tributación individual, sin otras rentas ni deducciones: para tu caso completo, usa la calculadora. " +
+      "País Vasco: el primer cobro en capital de una EPSV o un plan se integra al 60 % hasta 300.000 € (arts. 18 y 19 de las normas forales del IRPF; desde 2026, lo aportado antes de ese año puede seguir este régimen). " +
+      "Navarra: reducción del 40 % de lo aportado hasta 2017, cobrado en capital el año de la jubilación o los dos siguientes (DT 25.ª de la ley foral del IRPF).";
   }
 
   cargarP().then(p => {
     P = p;
     const sel = $("rp-territorio");
-    sel.innerHTML = territorios(P).map(t => `<option value="${t}">${esc(P.territorios[t].nombre)}</option>`).join("");
-    sel.value = inicial && territorios(P).includes(inicial) ? inicial : "ES-MD";
+    sel.innerHTML = territoriosSelector(P).map(t => `<option value="${t}">${esc(P.territorios[t].nombre)}</option>`).join("");
+    sel.value = inicial && territoriosSelector(P).includes(inicial) ? inicial : "ES-MD";
     $("rp-contingencia").value = String(P.ejercicio);
     let t1;
     $("rp-form").addEventListener("input", () => { clearTimeout(t1); t1 = setTimeout(pintar, 120); });
@@ -126,7 +135,7 @@
     document.querySelectorAll('input[name="rp-forma"]').forEach(r => r.addEventListener("change", () => { forma = r.value; pintar(); }));
     $("rp-ranking").addEventListener("click", e => { const tr = e.target.closest("tr[data-t]"); if (tr) { sel.value = tr.dataset.t; pintar(); } });
     window.addEventListener("hashchange", () => {
-      const t = (location.hash.match(/^#rescate-plan[?&]t=(ES-[A-Z]{2})\b/) || [])[1];
+      const t = (location.hash.match(/^#rescate-plan[?&]t=(ES-[A-Z]{2}(?:-[A-Z]{2})?)\b/) || [])[1];
       if (t && territorios(P).includes(t)) { sel.value = t; pintar(); }
     });
     document.addEventListener("mapafiscal:vista", e => { if (e.detail && e.detail.vista === "rescate-plan") pintar(); });

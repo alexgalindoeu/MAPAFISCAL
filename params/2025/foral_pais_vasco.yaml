@@ -74,8 +74,12 @@ comun:
     incremento_discapacidad_65_o_movilidad: 2.50  # +250 %
 
   reduccion_prevision_social:
-    norma: "Arts. 70–72 NF 13/2013 y equivalentes (EPSV, planes de pensiones...)"
-    fuente: "DF Gipuzkoa, Modelo 109 (2025)"
+    norma: "Arts. 70 a 72 NF 13/2013 Bizkaia, NF 3/2014 Gipuzkoa y NF 33/2013 Araba (EPSV, planes de pensiones, mutualidades), con los 4.000 € de autónomos de la revisión fiscal de 2025 (NF 2/2025 Bizkaia, NF 1/2025 Gipuzkoa, NF 3/2025 Araba)"
+    fuente: "DF Gipuzkoa, Modelo 109 (2025); Hacienda Foral de Bizkaia, bizkaia.eus/es/renta-bizkaia/deducciones (EPSV: «Nuevo límite de 4.000 €» de autónomos)"
+    # Por persona: 5.000 € de aportaciones propias, 8.000 € de contribuciones empresariales a
+    # sistemas de empleo y 12.000 € entre todas; sin límite porcentual sobre los rendimientos.
+    # Las aportaciones a favor del cónyuge (2.400 €) y de personas con discapacidad tienen
+    # límites propios, no modelados, como los excesos que pasan a los cinco años siguientes.
     estado: confirmado
     limite_individual_no_empleo: 5000
     limite_individual_empleo: 8000
@@ -85,6 +89,20 @@ comun:
     rentas_conyuge_maximas: 8000
     limite_discapacidad_familiares: 8000
     limite_discapacidad_propio: 24250
+
+  # Prestaciones de EPSV y planes de pensiones cobradas en capital (art. 18.a).3.ª y 19.2.a)
+  # de las NF del IRPF): la primera cantidad cobrada en capital por cada contingencia, si han
+  # pasado más de dos años desde la primera aportación (cualquiera en invalidez o dependencia),
+  # se integra al 60 %, con el límite de 300.000 €; el exceso y los cobros en forma de renta, al
+  # 100 %. Desde 2026 rige un régimen nuevo (70 % de la parte de aportaciones; la rentabilidad,
+  # a la base del ahorro), pero lo que procede de aportaciones anteriores a 2026 puede optar por
+  # este régimen (ver params/2026).
+  prestaciones_prevision_capital:
+    norma: "Arts. 18.a).3.ª y 19.2.a) NF 13/2013 Bizkaia, NF 3/2014 Gipuzkoa y NF 33/2013 Araba (límite de 300.000 € desde el 1-1-2014)"
+    fuente: "Hacienda Foral de Bizkaia, guía «Integración de rendimientos del trabajo» (EPSV, PPA y PP: 60 % sobre el total percibido si los años de generación > 2; límite de 300.000 € desde el 1-1-2014)"
+    estado: confirmado
+    porcentaje_reduccion: 0.40      # se integra el 60 %
+    limite: 300000
 
   reduccion_tributacion_conjunta:
     norma: "Art. 75 NF 13/2013 y equivalentes"

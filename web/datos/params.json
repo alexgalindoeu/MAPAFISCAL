@@ -396,8 +396,8 @@
    "incremento_discapacidad_65_o_movilidad": 2.5
   },
   "reduccion_prevision_social": {
-   "norma": "Arts. 70–72 NF 13/2013 y equivalentes (EPSV, planes de pensiones...)",
-   "fuente": "DF Gipuzkoa, Modelo 109 (2025)",
+   "norma": "Arts. 70 a 72 NF 13/2013 Bizkaia, NF 3/2014 Gipuzkoa y NF 33/2013 Araba (EPSV, planes de pensiones, mutualidades), con los 4.000 € de autónomos de la revisión fiscal de 2025 (NF 2/2025 Bizkaia, NF 1/2025 Gipuzkoa, NF 3/2025 Araba)",
+   "fuente": "DF Gipuzkoa, Modelo 109 (2025); Hacienda Foral de Bizkaia, bizkaia.eus/es/renta-bizkaia/deducciones (EPSV: «Nuevo límite de 4.000 €» de autónomos)",
    "estado": "confirmado",
    "limite_individual_no_empleo": 5000,
    "limite_individual_empleo": 8000,
@@ -537,6 +537,13 @@
     }
    },
    "doble_limite_conjunta": true
+  },
+  "prestaciones_prevision_capital": {
+   "norma": "Arts. 18.a).3.ª y 19.2.a) NF 13/2013 Bizkaia, NF 3/2014 Gipuzkoa y NF 33/2013 Araba (límite de 300.000 € desde el 1-1-2014)",
+   "fuente": "Hacienda Foral de Bizkaia, guía «Integración de rendimientos del trabajo» (EPSV, PPA y PP: 60 % sobre el total percibido si los años de generación > 2; límite de 300.000 € desde el 1-1-2014)",
+   "estado": "confirmado",
+   "porcentaje_reduccion": 0.4,
+   "limite": 300000
   },
   "dt_abatimiento_pre1994": {
    "norma": "DT foral (equivalente a la DT 9ª LIRPF)",
@@ -800,6 +807,29 @@
    "umbral": 14490,
    "rentas_max_individual": 21619.59,
    "rentas_max_unidad_familiar": 28980
+  },
+  "reduccion_prevision_social": {
+   "norma": "Art. 55.1.7.º a) DFL 4/2008 (TR IRPF Navarra): letra b´) en la redacción del art. primero.Seis de la LF 19/2021 (efectos 1-1-2022), sin cambios en la LF 22/2023 (que solo añade los 4.250 € de seguros colectivos) ni en la LF 20/2024; letra a´), redacción anterior no modificada",
+   "fuente": "BOE-A-2022-2067 (LF 19/2021, texto literal de la letra b´): «1.500 euros anuales. Este límite se incrementará en 8.500 euros, siempre que tal incremento provenga de contribuciones empresariales…»); BOE-A-2024-1694 (LF 22/2023); letra a´) (30 %, 50 % para mayores de 50 años): BBVA AM, «Límites fiscalidad planes de pensiones 2023 Navarra»",
+   "estado": "provisional",
+   "limite_general_abs": 1500,
+   "incremento_contribucion_empresarial": 8500,
+   "limite_pct_rend": 0.3,
+   "limite_pct_rend_incrementado": 0.5,
+   "edad_porcentaje_incrementado": 50,
+   "limite_aportacion_conyuge": 1000,
+   "rentas_conyuge_maximas": 8500,
+   "incremento_seguros_dependencia": 5000
+  },
+  "prestaciones_prevision_capital": {
+   "norma": "Art. 17.2.b) DFL 4/2008 (TR IRPF Navarra) en su redacción a 31-12-2017 y DT 25.ª, añadida por el art. primero.Cuarenta y seis de la LF 16/2017 (efectos 1-1-2018)",
+   "fuente": "BOE-A-2018-801 (LF 16/2017, de 27 de diciembre): preámbulo y DT 25.ª, apartados 1, 2 y 4",
+   "estado": "confirmado",
+   "porcentaje_reduccion": 0.4,
+   "anio_corte_aportaciones": 2018,
+   "anio_regimen": 2018,
+   "plazo_anios": 2,
+   "ultimo_anio_anterior": 2020
   },
   "dt_abatimiento_pre1994": {
    "norma": "DT TR IRPF Navarra (equivalente a la DT 9ª LIRPF)",

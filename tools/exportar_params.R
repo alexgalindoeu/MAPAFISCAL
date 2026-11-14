@@ -84,6 +84,7 @@ params_web <- function(ejercicio) {
     deduccion_edad = pv_comun$deduccion_edad,
     deduccion_alquiler_vivienda = pv_comun$deduccion_alquiler_vivienda,
     deduccion_adquisicion_vivienda = pv_comun$deduccion_adquisicion_vivienda,
+    prestaciones_prevision_capital = pv_comun$prestaciones_prevision_capital,
     dt_abatimiento_pre1994 = pv_comun$dt_abatimiento_pre1994,
     overrides = pv$overrides
   )
@@ -103,6 +104,8 @@ params_web <- function(ejercicio) {
     deduccion_alquiler_vivienda = nv$deduccion_alquiler_vivienda,
     deduccion_emancipacion = nv$deduccion_emancipacion,
     deduccion_pension_jubilacion = nv$deduccion_pension_jubilacion,
+    reduccion_prevision_social = nv$reduccion_prevision_social,
+    prestaciones_prevision_capital = nv$prestaciones_prevision_capital,
     dt_abatimiento_pre1994 = nv$dt_abatimiento_pre1994
   )
   territorios[["ES-NC"]] <- list(nombre = "Comunidad Foral de Navarra", regimen = "foral_navarra")

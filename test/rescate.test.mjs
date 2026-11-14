@@ -46,7 +46,12 @@ test("rescate en Madrid: 60.000 € con 15.000 € de pensión", () => {
   assert.deepEqual(r.mixto.cobros, [36000, 6000, 6000, 6000, 6000]);
   // fuera de plazo, de una vez tributa más
   assert.ok(C.rescate(P, yo({ anioContingencia: 2020 })).capital.extra > r.capital.extra);
-  assert.throws(() => C.rescate(P, yo({ territorio: "ES-NC" })), /régimen común/);
+  // forales: Navarra con su DT 25.ª (40 % de lo aportado hasta 2017) y País Vasco (60 % hasta 300.000 €)
+  const nc = C.rescate(P, yo({ territorio: "ES-NC" }));
+  assert.equal(nc.regimen, "foral_navarra"); assert.equal(nc.corte, 2018);
+  const bi = C.rescate(P, yo({ territorio: "ES-PV-BI" }));
+  assert.ok(bi.enPlazo && bi.reduccion > 0 && bi.capital.extra < bi.renta.extra + 1e9);
+  assert.ok(C.territoriosSelector(P).includes("ES-PV-BI") && C.territoriosSelector(P).includes("ES-NC"));
   const lista = C.porTerritorio(P, yo());
   assert.equal(lista.length, 15, "solo régimen común");
   for (let i = 1; i < lista.length; i++) assert.ok(lista[i - 1].minimo <= lista[i].minimo);

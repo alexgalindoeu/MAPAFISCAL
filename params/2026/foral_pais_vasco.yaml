@@ -16,7 +16,13 @@
 #              discapacidad (ver overrides).
 #
 # Sin cambios en 2026 (no los toca ninguna de las normas anteriores): bonificación del
-# trabajo (art. 23), previsión social, viudedad, vivienda y exención de dividendos.
+# trabajo (art. 23), viudedad, vivienda y exención de dividendos.
+#
+# Previsión social: la revisión fiscal de 2025 (NF 2/2025 Bizkaia, NF 1/2025 Gipuzkoa, NF 3/2025
+# Araba) baja el límite conjunto a 10.000 € y, desde el 1-1-2026, separa en las prestaciones
+# en capital la parte de aportaciones (integración del 70 %) de la rentabilidad (capital
+# mobiliario); lo que procede de aportaciones anteriores a 2026 puede seguir el régimen de
+# 31-12-2025 (60 %, hasta 300.000 €), que es el que aplica el motor.
 # =============================================================================
 
 meta:
@@ -58,6 +64,12 @@ comun:
       - { hasta: 240000, tipo: 0.265 }
       - { hasta: 300000, tipo: 0.27 }
       - { hasta: .inf,   tipo: 0.28 }
+
+  reduccion_prevision_social:
+    norma: "Art. 71 NF 13/2013 Bizkaia, NF 3/2014 Gipuzkoa y NF 33/2013 Araba, en la redacción de la NF 2/2025 (Bizkaia, BOB 22-04-2025), la NF 1/2025 (Gipuzkoa, BOG 15-05-2025) y la NF 3/2025 (Araba, BOTHA 16-04-2025)"
+    fuente: "Texto del art. 71 NF 13/2013 en la versión del BOB de 22-04-2025 («será de 10.000 euros anuales, con preferencia para las realizadas a sistemas de empleo»); INVERCO, nota AP.1 sobre la reforma de la previsión social en los tres territorios (junio de 2025): 10.000 € frente a los 12.000 € vigentes"
+    estado: confirmado
+    limite_conjunto: 10000
 
   reduccion_tributacion_conjunta:
     norma: "Art. 73 NF 3/2014 Gipuzkoa, NF 13/2013 Bizkaia y NF 33/2013 Araba (redacción de 2026)"

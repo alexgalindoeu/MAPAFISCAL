@@ -39,6 +39,12 @@
     return num(tr.dinerarias) + num(tr.especie) + num(pe.previsionSocial && pe.previsionSocial.contribucionEmpresarial);
   }
 
+  // Prestación de previsión social cobrada en capital: régimen foral (País Vasco o Navarra)
+  function prestacionesCapitalForal(P, regimen) {
+    const b = regimen === "foral_pais_vasco" ? P.foral_pv : regimen === "foral_navarra" ? P.navarra : null;
+    return b && b.prestaciones_prevision_capital ? b.prestaciones_prevision_capital : null;
+  }
+
   // Rendimiento neto que fija la cuantía de la reducción del art. 20: íntegro − gastos
   // a) a e) del art. 19.2, sin los «otros gastos» de la letra f)
   function rnTrabajoPrevioArt20(pe, P, regimen) {
@@ -51,8 +57,15 @@
     }
     // plan de pensiones cobrado en capital con el régimen transitorio de la DT 12.ª LIRPF:
     // reducción del 40 % de lo aportado hasta el 31-12-2006 (solo régimen común; R/03_rentas.R)
+    // en los forales, la parte con integración reducida de su norma (R/03_rentas.R)
     const dt12 = num(tr.prestacionDt12);
-    if (regimen === "comun" && dt12 > 0) integro -= dt12 * P.estatal.prestaciones_prevision_dt12.porcentaje;
+    if (dt12 > 0) {
+      if (regimen === "comun") integro -= dt12 * P.estatal.prestaciones_prevision_dt12.porcentaje;
+      else {
+        const pc = prestacionesCapitalForal(P, regimen);
+        if (pc) integro -= Math.min(dt12, pc.limite == null ? Infinity : pc.limite) * pc.porcentaje_reduccion;
+      }
+    }
     return integro - num(tr.cotizacionesSs) - num(tr.otrosGastos);
   }
 
@@ -218,7 +231,7 @@
         const ind = num(pe.previsionSocial.aportacionIndividual), emp = num(pe.previsionSocial.contribucionEmpresarial);
         psInd += ind; psEmp += emp;
         // base del límite del 30 %: trabajo (art. 19, antes de la reducción del art. 20) y actividades
-        previsionPorPersona.push({ individual: ind, empresarial: emp, baseLimite: Math.max(0, tPrevio + ac) });
+        previsionPorPersona.push({ individual: ind, empresarial: emp, baseLimite: Math.max(0, tPrevio + ac), edad: num(pe.edad, 40) });
       }
       if (pe.reducciones) { pensComp += num(pe.reducciones.pensionesCompensatorias); anualidades += num(pe.reducciones.anualidadesAlimentosHijos); }
       retenciones += num(pe.retenciones);
@@ -775,8 +788,7 @@
       : hogar.miembros.filter(m => m.id === declaranteId);
     const r = agregarRentas(personas, P, "foral_pais_vasco");
     let big = r.baseImponibleGeneral, bia = r.baseImponibleAhorro;
-    const aport = r.previsionSocialIndividual + r.previsionSocialEmpresarial;
-    const redPs = Math.min(aport, (J.reduccion_prevision_social && J.reduccion_prevision_social.limite_conjunto) || 12000, Math.max(0, big)); big -= redPs;
+    const redPs = Math.min(reduccionPrevisionPv(r.previsionPorPersona, J.reduccion_prevision_social), Math.max(0, big)); big -= redPs;
     const redPc = Math.min(r.pensionesCompensatorias, Math.max(0, big)); big -= redPc;
     let redConj = 0;
     if (modo === "conjunta") { redConj = J.reduccion_tributacion_conjunta.importe; big = Math.max(0, big - redConj); }
@@ -906,13 +918,36 @@
     return 0;
   }
 
+  // Previsión social foral por persona (R/07_forales.R): País Vasco, arts. 70 a 72 de las NF
+  // (5.000 € propias, 8.000 € empleo, tope conjunto); Navarra, art. 55.1.7.º TR (30 % o 50 %
+  // desde los 51 años de los rendimientos, y 1.500 € más hasta 8.500 € de la empresa).
+  function reduccionPrevisionPv(porPersona, rs) {
+    if (!rs) return 0;
+    const lim = v => v == null ? Infinity : v;
+    return (porPersona || []).reduce((s, x) => s + Math.min(Math.min(x.individual, lim(rs.limite_individual_no_empleo)) +
+      Math.min(x.empresarial, lim(rs.limite_individual_empleo)), lim(rs.limite_conjunto)), 0);
+  }
+  function reduccionPrevisionNavarra(porPersona, rs) {
+    if (!rs || rs.limite_general_abs == null) return 0;
+    return (porPersona || []).reduce((s, x) => {
+      const pct = num(x.edad) > (rs.edad_porcentaje_incrementado == null ? Infinity : rs.edad_porcentaje_incrementado) ? rs.limite_pct_rend_incrementado : rs.limite_pct_rend;
+      const lim = Math.min(pct * x.baseLimite, rs.limite_general_abs + Math.min(rs.incremento_contribucion_empresarial, x.empresarial));
+      return s + Math.min(x.individual + x.empresarial, lim);
+    }, 0);
+  }
+
   function liquidarNavarraScope(hogar, P, modo, declaranteId) {
     const J = P.navarra;
     const personas = modo === "conjunta"
       ? hogar.miembros.filter(m => m.rol === "declarante" || m.rol === "conyuge" || m.rol === "descendiente")
       : hogar.miembros.filter(m => m.id === declaranteId);
     const r = agregarRentas(personas, P, "foral_navarra");
-    const blg = Math.max(0, r.baseImponibleGeneral - Math.min(r.pensionesCompensatorias, r.baseImponibleGeneral));
+    // previsión social (art. 55.1.7.º) y, después, pensiones compensatorias (R/07_forales.R)
+    let bigNv = r.baseImponibleGeneral;
+    const redPsNv = Math.min(reduccionPrevisionNavarra(r.previsionPorPersona, J.reduccion_prevision_social), Math.max(0, bigNv));
+    bigNv -= redPsNv;
+    const redPcNv = Math.min(r.pensionesCompensatorias, Math.max(0, bigNv));
+    const blg = Math.max(0, bigNv - redPcNv);
     const bla = r.baseImponibleAhorro;
     const cig = aplicarEscala(blg, J.escala_general_foral);
     const cia = aplicarEscala(bla, J.escala_ahorro_foral);
@@ -1025,7 +1060,7 @@
     return {
       modo, regimen: "foral_navarra", componentesRenta: r,
       baseImponibleGeneral: r.baseImponibleGeneral, baseImponibleAhorro: r.baseImponibleAhorro,
-      reduccionesBase: {}, baseLiquidableGeneral: blg, baseLiquidableAhorro: bla,
+      reduccionesBase: { previsionSocial: redPsNv, pensionesCompensatorias: redPcNv }, baseLiquidableGeneral: blg, baseLiquidableAhorro: bla,
       minimoPersonalFamiliar: { total: red2(dedMin + dedFam) },
       cuotaIntegraEstatal: 0, cuotaIntegraAutonomica: red2(cuotaIntegra), cuotaIntegraTotal: red2(cuotaIntegra),
       deduccionesAutonomicas: { total: red2(dedMin + dedFam + dedTrabajo + dedAlq), detalle: detAut },
@@ -1314,7 +1349,8 @@
   //      edad, anioContingencia, anios }. Se cobra desde el ejercicio de P.
   function rescatePlan(o, P) {
     const terr = P.territorios[o.territorio];
-    if (!terr || terr.regimen !== "comun") throw new Error("el rescate del plan solo está en el motor para el régimen común");
+    const reg = terr && terr.regimen, pc = terr && reg !== "comun" ? prestacionesCapitalForal(P, reg) : null;
+    if (!terr || (reg !== "comun" && !pc)) throw new Error("el rescate del plan no está en el motor para este territorio");
     const anios = Math.max(1, Math.min(30, Math.trunc(num(o.anios, 5)) || 1));
     const antes = Math.max(0, num(o.antes2007)), despues = Math.max(0, num(o.despues2007)), otros = num(o.otrosIngresos);
     const cot = o.tipoOtros === "sueldo" ? cotizacionesTrabajador(otros, P) : 0;
@@ -1325,22 +1361,36 @@
       return irpfAnual(liquidar({ territorio: o.territorio, ejercicio: P.ejercicio, tipoUnidadFamiliar: "ninguna", familiaNumerosa: "no", miembros: [d1] }, P, "auto"));
     };
     const anio = o.anioContingencia == null ? P.ejercicio : o.anioContingencia;
-    const enPlazo = dt12EnPlazo(anio, P.ejercicio, P);
+    const enPlazo = reg === "comun" ? dt12EnPlazo(anio, P.ejercicio, P) : reg === "foral_pais_vasco" ? true : foralNcEnPlazo(anio, P.ejercicio, pc);
     const sin = irpf(0, 0);
     const extra = (cobros, dt12) => {
       const anual = cobros.map((c, i) => red2(irpf(c, i === 0 ? dt12 : 0) - sin));
       return { extra: red2(anual.reduce((s, x) => s + x, 0)), anual, cobros };
     };
-    const dt12 = enPlazo ? antes : 0, tot = antes + despues;
-    const r = {
-      capital: extra([tot], dt12),
-      renta: extra(Array.from({ length: anios }, () => tot / anios), 0),
-      mixto: extra(Array.from({ length: anios }, (_, i) => despues / anios + (i === 0 ? antes : 0)), dt12)
-    };
+    const tot = antes + despues, limPc = pc && pc.limite != null ? pc.limite : Infinity;
+    let dt12, mixto;
+    if (reg === "foral_pais_vasco") {
+      // País Vasco: primer cobro en capital al 60 % hasta 300.000 €; mixto = eso en capital y el resto en renta
+      const cap = Math.min(tot, limPc), resto = tot - cap;
+      dt12 = tot;
+      mixto = extra(Array.from({ length: anios }, (_, i) => resto / anios + (i === 0 ? cap : 0)), cap);
+    } else {
+      dt12 = enPlazo ? antes : 0;
+      mixto = extra(Array.from({ length: anios }, (_, i) => despues / anios + (i === 0 ? antes : 0)), dt12);
+    }
+    const r = { capital: extra([tot], dt12), renta: extra(Array.from({ length: anios }, () => tot / anios), 0), mixto };
+    const pct = reg === "comun" ? P.estatal.prestaciones_prevision_dt12.porcentaje : pc.porcentaje_reduccion;
+    const reduccion = red2(Math.min(dt12, reg === "comun" ? Infinity : limPc) * pct);
+    const corte = reg === "comun" ? 2007 : reg === "foral_navarra" ? pc.anio_corte_aportaciones : null;
     let mejor = "capital";
     for (const k of ["renta", "mixto"]) if (r[k].extra < r[mejor].extra - 0.005) mejor = k;
-    return Object.assign({ enPlazo, reduccion: red2(dt12 * P.estatal.prestaciones_prevision_dt12.porcentaje),
-      irpfSin: sin, anios, mejor }, r);
+    return Object.assign({ enPlazo, reduccion, regimen: reg, corte, irpfSin: sin, anios, mejor }, r);
+  }
+  // Navarra (DT 25.ª TR IRPF): contingencias desde 2018, ese año o los dos siguientes; antes, hasta 2020
+  function foralNcEnPlazo(anioContingencia, anioCobro, pc) {
+    if (anioContingencia == null || !Number.isFinite(+anioContingencia) || anioCobro < anioContingencia) return false;
+    if (anioContingencia >= pc.anio_regimen) return anioCobro <= anioContingencia + pc.plazo_anios;
+    return anioCobro <= pc.ultimo_anio_anterior;
   }
 
   const api = { aplicarEscala, tipoMarginal, liquidar, compararTerritorios, optimizar,

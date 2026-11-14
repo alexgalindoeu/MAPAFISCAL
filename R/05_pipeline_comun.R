@@ -46,7 +46,7 @@ agregar_rentas <- function(personas, P, regimen) {
       # reducción del art. 20) y de actividades económicas de ESTE partícipe
       prevision_por_persona[[length(prevision_por_persona) + 1]] <- list(
         individual = ps$aportacion_individual %||% 0, empresarial = ps$contribucion_empresarial %||% 0,
-        base_limite = max(0, t$previo + ac))
+        base_limite = max(0, t$previo + ac), edad = pe$edad %||% 40)
     }
     rd <- pe$reducciones
     if (!is.null(rd)) {

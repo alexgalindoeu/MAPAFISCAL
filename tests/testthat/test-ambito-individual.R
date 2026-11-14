@@ -61,7 +61,7 @@ test_that("País Vasco: alquiler y discapacidad propios solo en el ámbito de su
   h <- pareja("ES-PV-SS", d1_extra = list(alquiler_vivienda_pagos = 6000, discapacidad = "33_64"))
   a1 <- ambito(h, "d1")$deducciones_autonomicas$detalle
   a2 <- ambito(h, "d2")$deducciones_autonomicas$detalle
-  expect_equal(a1$alquiler_vivienda, 1200)          # 20 % de 6.000 (límite 1.600)
+  expect_equal(a1$alquiler_vivienda, 2100)          # menor de 36 años: 35 % de 6.000 (límite 2.800)
   expect_null(a2$alquiler_vivienda)
   expect_gt(a1$discapacidad, 0)
   expect_null(a2$discapacidad)

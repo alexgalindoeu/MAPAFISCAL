@@ -1589,3 +1589,36 @@ No modelado: sin límite el año de la compra para menores de 36 (el motor no co
 compra), crédito fiscal de 36.000 € y, desde 2026, el tope de 68.000 € de base liquidable
 para viviendas compradas o contratos de alquiler firmados desde ese año. Navarra no tiene
 deducción por cuenta vivienda en vigor (solo régimen transitorio de compras anteriores).
+
+## Forales: planes de pensiones, EPSV y rescate (2026-11-14)
+
+### Reducción por aportaciones
+
+- **País Vasco** (arts. 70 a 72 de las NF del IRPF): por persona, 5.000 € de aportaciones
+  propias, 8.000 € de contribuciones empresariales y 12.000 € entre todas (10.000 € desde
+  2026: art. 71 en la redacción de la NF 2/2025 de Bizkaia, NF 1/2025 de Gipuzkoa y NF 3/2025
+  de Araba). Sin límite porcentual. `bi_epsv_tope`: 6.000 + 9.000 → mín(5.000 + 8.000;
+  12.000) = 12.000 € (10.000 € en `bi_epsv_tope_2026`). `ss_epsv_pareja` (conjunta o
+  individual): 4.000 € + (2.000 + 1.000) €.
+- **Navarra** (art. 55.1.7.º TR IRPF; letra b´) de la LF 19/2021, BOE-A-2022-2067): por
+  partícipe, el menor de 30 % de los rendimientos netos del trabajo y de actividades (50 % con
+  más de 50 años) y 1.500 € más hasta 8.500 € de contribuciones empresariales. Antes el
+  motor no aplicaba ninguna reducción. `nc_plan_55`: rendimiento 40.000 + 2.000 − 2.600 =
+  39.400; 50 % = 19.700; límite 1.500 + 2.000 = 3.500 → base liquidable 35.900.
+  `nc_plan_30pct`: 30 % × (4.000 − 260) = 1.122 → base 2.618. La letra a´) (30 % / 50 %)
+  queda `provisional` (fuente secundaria).
+
+### Rescate en capital
+
+- **País Vasco** (arts. 18.a).3.ª y 19.2.a) de las NF; guía de la Hacienda Foral de Bizkaia):
+  el primer cobro en capital se integra al 60 % hasta 300.000 € (reducción del 40 %). Desde
+  2026, lo que procede de aportaciones anteriores puede seguir este régimen (el motor lo
+  aplica). Ejemplo (Bizkaia, 2026, 80.000 € y 15.000 € de pensión): IRPF con 15.000 € = 0;
+  con 15.000 + 60 % × 80.000 = 63.000 € → 16.237,80 € extra. En renta (5 × 16.000 €): 26.212 €.
+  Mixto = hasta 300.000 € en capital y el resto en renta (`rescate25_ss_tope`: 300.000 € el
+  primer año, reducción 120.000 €).
+- **Navarra** (art. 17.2.b) en su redacción a 31-12-2017 y DT 25.ª, LF 16/2017,
+  BOE-A-2018-801): 40 % de lo aportado hasta 2017, cobrado en capital el año de la
+  contingencia o los dos siguientes (las contingencias anteriores a 2018, solo hasta 2020).
+  `rescate26_nc_plazo` (contingencia 2025): reducción 16.000 €; `rescate26_nc_fuera`
+  (contingencia 2022): sin reducción.

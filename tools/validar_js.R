@@ -442,6 +442,37 @@ add("vi_cuenta_vivienda", "ES-PV-VI", "ninguna", "no",
     list(persona("d1","declarante",40, trabajo=list(dinerarias=36000, cotizaciones_ss=2340), cuenta_vivienda_aportaciones=5000)),
     list(list(id="d1",rol="declarante",edad=40, trabajo=list(dinerarias=36000,cotizacionesSs=2340), cuentaViviendaAportaciones=5000)))
 
+# 5k10. Previsión social foral: País Vasco (5.000 / 8.000 / 12.000 €; 10.000 € en 2026) y
+#       Navarra (art. 55.1.7.º: 30 % o 50 % desde los 51 años; 1.500 € + 8.500 € de empresa)
+add("bi_epsv_tope", "ES-PV-BI", "ninguna", "no",
+    list(persona("d1","declarante",45, trabajo=list(dinerarias=60000, cotizaciones_ss=3900),
+                 prevision_social=list(aportacion_individual=6000, contribucion_empresarial=9000))),
+    list(list(id="d1",rol="declarante",edad=45, trabajo=list(dinerarias=60000,cotizacionesSs=3900),
+              previsionSocial=list(aportacionIndividual=6000, contribucionEmpresarial=9000))))
+add("bi_epsv_tope_2026", "ES-PV-BI", "ninguna", "no",
+    list(persona("d1","declarante",45, trabajo=list(dinerarias=60000, cotizaciones_ss=3900),
+                 prevision_social=list(aportacion_individual=6000, contribucion_empresarial=9000))),
+    list(list(id="d1",rol="declarante",edad=45, trabajo=list(dinerarias=60000,cotizacionesSs=3900),
+              previsionSocial=list(aportacionIndividual=6000, contribucionEmpresarial=9000))), ejercicio = 2026)
+add("ss_epsv_pareja", "ES-PV-SS", "biparental", "no",
+    list(persona("d1","declarante",50, trabajo=list(dinerarias=45000, cotizaciones_ss=2925), prevision_social=list(aportacion_individual=4000)),
+         persona("d2","conyuge",48, trabajo=list(dinerarias=30000, cotizaciones_ss=1950), prevision_social=list(aportacion_individual=2000, contribucion_empresarial=1000))),
+    list(list(id="d1",rol="declarante",edad=50, trabajo=list(dinerarias=45000,cotizacionesSs=2925), previsionSocial=list(aportacionIndividual=4000)),
+         list(id="d2",rol="conyuge",edad=48, trabajo=list(dinerarias=30000,cotizacionesSs=1950), previsionSocial=list(aportacionIndividual=2000, contribucionEmpresarial=1000))))
+add("nc_plan_55", "ES-NC", "ninguna", "no",
+    list(persona("d1","declarante",55, trabajo=list(dinerarias=40000, cotizaciones_ss=2600),
+                 prevision_social=list(aportacion_individual=3000, contribucion_empresarial=2000))),
+    list(list(id="d1",rol="declarante",edad=55, trabajo=list(dinerarias=40000,cotizacionesSs=2600),
+              previsionSocial=list(aportacionIndividual=3000, contribucionEmpresarial=2000))))
+add("nc_plan_30pct", "ES-NC", "ninguna", "no",
+    list(persona("d1","declarante",40, trabajo=list(dinerarias=4000, cotizaciones_ss=260), prevision_social=list(aportacion_individual=1500)),
+         persona("h1","descendiente",5)),
+    list(list(id="d1",rol="declarante",edad=40, trabajo=list(dinerarias=4000,cotizacionesSs=260), previsionSocial=list(aportacionIndividual=1500)),
+         list(id="h1",rol="descendiente",edad=5)))
+add("nc_plan_2026", "ES-NC", "ninguna", "no",
+    list(persona("d1","declarante",58, trabajo=list(dinerarias=52000, cotizaciones_ss=3380), prevision_social=list(aportacion_individual=1500, contribucion_empresarial=6000))),
+    list(list(id="d1",rol="declarante",edad=58, trabajo=list(dinerarias=52000,cotizacionesSs=3380), previsionSocial=list(aportacionIndividual=1500, contribucionEmpresarial=6000))), ejercicio = 2026)
+
 # 5l. Parejas en individual: gastos y requisitos personales por ámbito, familiares repartidas
 add("md_pareja_indiv", "ES-MD", "biparental", "general",
     list(persona("d1","declarante",30, trabajo=list(dinerarias=30000, cotizaciones_ss=1905), alquiler_vivienda_pagos=9000),
@@ -800,7 +831,13 @@ casos_rescate <- list(
   list(id = "rescate26_an_fuera_plazo", territorio = "ES-AN", antes = 40000, despues = 10000, otros = 12000, anio = 2020, anios = 3),
   list(id = "rescate26_vc_2012", territorio = "ES-VC", antes = 50000, despues = 0, otros = 0, anio = 2012, anios = 10),
   list(id = "rescate26_ex_sin_antes", territorio = "ES-EX", antes = 0, despues = 45000, otros = 18000, anio = 2026, anios = 3),
-  list(id = "rescate25_ga_capital", territorio = "ES-GA", antes = 25000, despues = 15000, otros = 20000, anio = 2024, anios = 2, ejercicio = 2025)
+  list(id = "rescate25_ga_capital", territorio = "ES-GA", antes = 25000, despues = 15000, otros = 20000, anio = 2024, anios = 2, ejercicio = 2025),
+  # forales: País Vasco (60 % hasta 300.000 €) y Navarra (40 % de lo aportado hasta 2017, DT 25.ª)
+  list(id = "rescate26_bi_pension", territorio = "ES-PV-BI", antes = 30000, despues = 50000, otros = 15000, anio = 2026, anios = 5),
+  list(id = "rescate25_ss_tope", territorio = "ES-PV-SS", antes = 0, despues = 350000, otros = 20000, anio = 2025, anios = 10, ejercicio = 2025),
+  list(id = "rescate26_vi_sueldo", territorio = "ES-PV-VI", antes = 10000, despues = 30000, otros = 30000, tipo = "sueldo", edad = 62, anio = 2026, anios = 3),
+  list(id = "rescate26_nc_plazo", territorio = "ES-NC", antes = 40000, despues = 20000, otros = 15000, anio = 2025, anios = 4),
+  list(id = "rescate26_nc_fuera", territorio = "ES-NC", antes = 40000, despues = 20000, otros = 15000, anio = 2022, anios = 4)
 )
 for (cr in casos_rescate) {
   ej <- cr$ejercicio %||% 2026
