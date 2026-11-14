@@ -109,11 +109,14 @@
     ],
     "minimo_autonomico_propio": true,
     "deducciones_autonomicas": [
-
+     {
+      "id": "nacimiento_adopcion",
+      "titulo": "Por nacimiento o adopción de hijos"
+     }
     ],
     "ahorro": {
-     "20000": 966.68,
-     "35000": 966.68,
+     "20000": 1231.68,
+     "35000": 1231.68,
      "60000": 966.68
     }
    },
@@ -181,12 +184,15 @@
     ],
     "minimo_autonomico_propio": false,
     "deducciones_autonomicas": [
-
+     {
+      "id": "nacimiento_adopcion",
+      "titulo": "Por nacimiento o adopción de un hijo o de una hija o por acogimiento familiar"
+     }
     ],
     "ahorro": {
-     "20000": 988,
-     "35000": 988,
-     "60000": 988
+     "20000": 1288,
+     "35000": 1288,
+     "60000": 1288
     }
    },
    "ES-EX": {
@@ -253,10 +259,13 @@
     ],
     "minimo_autonomico_propio": false,
     "deducciones_autonomicas": [
-
+     {
+      "id": "nacimiento_adopcion",
+      "titulo": "Por nacimiento o adopción"
+     }
     ],
     "ahorro": {
-     "20000": 988,
+     "20000": 1088,
      "35000": 988,
      "60000": 988
     }
@@ -449,12 +458,15 @@
     ],
     "minimo_autonomico_propio": false,
     "deducciones_autonomicas": [
-
+     {
+      "id": "familia_numerosa_general",
+      "titulo": "Por familia numerosa"
+     }
     ],
     "ahorro": {
-     "20000": 0,
-     "35000": 0,
-     "60000": 0
+     "20000": 597,
+     "35000": 597,
+     "60000": 597
     }
    },
    "ES-CB": {
@@ -596,11 +608,14 @@
     ],
     "minimo_autonomico_propio": false,
     "deducciones_autonomicas": [
-
+     {
+      "id": "material_escolar_libros_familia_numerosa",
+      "titulo": "Por gastos en la adquisición de material escolar y libros de texto"
+     }
     ],
     "ahorro": {
      "20000": 0,
-     "35000": 0,
+     "35000": 240,
      "60000": 0
     }
    },
@@ -1595,11 +1610,14 @@
     ],
     "minimo_autonomico_propio": false,
     "deducciones_autonomicas": [
-
+     {
+      "id": "contribuyente_discapacidad",
+      "titulo": "Para contribuyentes con discapacidad"
+     }
     ],
     "ahorro": {
-     "20000": 570,
-     "35000": 570,
+     "20000": 720,
+     "35000": 720,
      "60000": 570
     }
    },
@@ -1935,11 +1953,14 @@
     ],
     "minimo_autonomico_propio": false,
     "deducciones_autonomicas": [
-
+     {
+      "id": "contribuyente_discapacidad",
+      "titulo": "Para contribuyentes con discapacidad"
+     }
     ],
     "ahorro": {
      "20000": 2034.85,
-     "35000": 2494.2,
+     "35000": 2644.2,
      "60000": 2494.2
     }
    },
@@ -2203,11 +2224,14 @@
     ],
     "minimo_autonomico_propio": false,
     "deducciones_autonomicas": [
-
+     {
+      "id": "arrendamiento_vivienda_habitual",
+      "titulo": "Por alquiler de la vivienda habitual"
+     }
     ],
     "ahorro": {
-     "20000": 0,
-     "35000": 0,
+     "20000": 500,
+     "35000": 500,
      "60000": 0
     }
    },
@@ -2278,11 +2302,14 @@
     ],
     "minimo_autonomico_propio": false,
     "deducciones_autonomicas": [
-
+     {
+      "id": "arrendamiento_vivienda_habitual",
+      "titulo": "Por arrendamiento de vivienda habitual"
+     }
     ],
     "ahorro": {
-     "20000": 0,
-     "35000": 0,
+     "20000": 300,
+     "35000": 300,
      "60000": 0
     }
    },

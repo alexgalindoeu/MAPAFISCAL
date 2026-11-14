@@ -268,7 +268,7 @@
   }
 
   // ---- 3. HTML del informe (pantalla e impresión) ---------------------------------------
-  const CAT = { declaracion: "Declaración", prevision: "Ahorro", territorio: "Residencia", deduccion_potencial: "Revisar" };
+  const CAT = { declaracion: "Declaración", prevision: "Ahorro", territorio: "Residencia", deduccion_potencial: "Deducción" };
   const LOGO = '<svg viewBox="0 0 32 32" aria-hidden="true" class="inf-logo"><rect width="32" height="32" rx="8" fill="#1f3fc4"/><path fill="#fff" d="M7 10.5 13 8v15.5L7 26z"/><path fill="#ffd23f" d="M13 8l6 2.5V26l-6-2.5z"/><path fill="#fff" fill-opacity=".55" d="M19 10.5 25 8v15.5L19 26z"/></svg>';
 
   // o = { banner, afiliado: { texto, enlace, imagen }, fecha, web }
@@ -304,15 +304,9 @@
       `<tr><td>${esc(d.nombre)}</td><td class="inf-norma">${esc(d.norma)}${d.estado && d.estado !== "confirmado" ? ` <span class="inf-estado">${esc(d.estado)}</span>` : ""}</td><td class="imp">−${eur(d.importe)}</td></tr>`).join("")}</tbody></table>`
       : '<p class="inf-nota">Con estos datos no se aplica ninguna deducción.</p>'}</section>
   <section class="inf-sec"><h2>Cómo pagar menos</h2>
-    ${c.consejos.length ? `<ol class="inf-consejos">${c.consejos.map(k => `<li><div class="inf-con-cab"><b>${esc(k.titulo)}</b><span>${k.ahorro == null ? "a revisar" : (k.yaAplicado ? "" : "−") + eur0(k.ahorro) + "/año"}</span></div>
+    ${c.consejos.length ? `<ol class="inf-consejos">${c.consejos.map(k => `<li><div class="inf-con-cab"><b>${esc(k.titulo)}</b><span>${k.ahorro == null ? "" : (k.yaAplicado ? "" : "−") + eur0(k.ahorro) + "/año"}</span></div>
       <p><span class="inf-cat">${esc(CAT[k.categoria] || k.categoria)}</span>${esc(k.detalle)}</p></li>`).join("")}</ol>`
       : '<p class="inf-nota">El motor no detecta palancas de ahorro relevantes para esta situación.</p>'}</section>
-  <section class="inf-sec inf-salto"><h2>Tu IRPF en los ${c.comparacion.total} territorios fiscales</h2>
-    <p>Con tu misma situación, ${esc(c.territorio.corto)} es el <b>${c.comparacion.puesto}.º</b> de ${c.comparacion.total} (del más barato al más caro).
-      Entre el más barato (${esc(c.comparacion.barato.nombre)}) y el más caro (${esc(c.comparacion.caro.nombre)}) hay ${eur0(c.comparacion.caro.cuota - c.comparacion.barato.cuota)} al año.</p>
-    <table class="inf-tabla inf-cmp"><thead><tr><th>#</th><th>Territorio</th><th class="imp">Cuota</th><th class="imp">Tipo medio</th><th class="imp">Diferencia</th></tr></thead><tbody>${c.comparacion.filas.map((x, i) =>
-      `<tr class="${x.tuyo ? "tu" : ""}"><td>${i + 1}</td><td>${esc(x.nombre)}${x.regimen !== "comun" ? " <small>(foral)</small>" : ""}</td><td class="imp">${eur0(x.cuota)}</td><td class="imp">${pct(x.tipoMedio)}</td><td class="imp">${x.tuyo ? "tú" : Math.abs(x.dif) < 0.5 ? "igual" : (x.dif < 0 ? "−" : "+") + eur0(Math.abs(x.dif))}</td></tr>`).join("")}</tbody></table>
-    <p class="inf-nota">Cambiar de residencia fiscal exige vivir allí más de 183 días al año y tener allí el centro de intereses económicos.</p></section>
   <footer class="inf-pie">
     ${c.avisos.map(a => `<p>${esc(a)}</p>`).join("")}
     <p>Simulación orientativa calculada por el motor de Mapafiscal con la normativa del ejercicio ${c.ejercicio} (escalas, mínimos y deducciones con su norma en ${esc(web.replace(/\/$/, ""))}/#metodologia). No sustituye a la declaración oficial ni a un asesoramiento profesional. Los datos no se guardan: el informe se calcula en tu navegador.</p>
@@ -392,7 +386,7 @@
       plan: `<a class="btn btn-txt" href="#planes" data-inf="planes">Incluido en el plan Gestor</a>`
     };
     return `<div class="inf-candado tarjeta"><h2>Desbloquea tu informe completo</h2>
-      <p>Desglose línea a línea, deducciones aplicadas con su norma, tu IRPF en los 19 territorios y cómo pagar menos, en un PDF para guardar.</p>
+      <p>Desglose línea a línea, deducciones aplicadas con su norma y cómo pagar menos, en un PDF para guardar.</p>
       <div class="inf-opciones">${e.opciones.map(o => OP[o]).join("")}</div>
       <p class="ayuda">El resultado básico de la calculadora sigue siendo gratis y sin condiciones.</p>
       <p class="mensaje" id="inf-msg" role="status"></p></div>`;
