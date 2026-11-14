@@ -37,14 +37,14 @@ const DEDUCCION_POR_ID = { nacimiento_adopcion: "la deducción por nacimiento o 
 // Claves que no hace falta explicar (internas) o que se explican junto con otra.
 const INTERNAS = new Set(["id", "norma", "tipo", "grupo", "suma_bases", "base_gate", "prorratea_progenitores",
   "multiple_por_hijo", "campo", "campos", "anios_ventana", "anios_ventana_desde", "importe", "importe_multiple",
-  "importes_por_orden", "importe_conjunta", "base_maxima", "limite_pct_cuota_autonomica", "limite_por_hijo_adicional", "base_ahorro_max", "porcentaje", "limite", "limite_conjunta", "limite_si_campo", "primer_ciclo",
+  "importes_por_orden", "importe_conjunta", "base_maxima", "limite_pct_cuota_autonomica", "limite_por_hijo_adicional", "base_ahorro_max", "por_declarante_en_conjunta", "porcentaje", "limite", "limite_conjunta", "limite_si_campo", "primer_ciclo",
   "sobre_cuota_integra", "hijos_desde_orden", "edad_hijo_min", "edad_hijo_max", "edad_ascendiente_min",
   "ascendiente_discapacidad", "edad_ascendiente_min_discapacidad", "requiere_minimo_ascendiente",
   "base_max_individual", "base_max_conjunta", "base_min_individual", "base_min_conjunta",
   "miembros_uf_hijos_edad_max", "descendientes_min", "descendientes_max", "descendientes_edad_max_cuenta",
   "prorratea_desempleo"]);
 const EXPLICADAS = new Set(["requiere_familia_numerosa", "familia_numerosa_categoria", "requiere_familia_numerosa_reciente",
-  "requiere_monoparental", "requiere_titulo_monoparental", "requiere_discapacidad_grado", "requiere_discapacidad_contribuyente", "requiere_discapacidad_65_de",
+  "requiere_monoparental", "requiere_titulo_monoparental", "requiere_discapacidad_grado", "requiere_trabajo_o_actividad", "municipio_hab_max", "requiere_discapacidad_contribuyente", "requiere_discapacidad_65_de",
   "edad_max", "edad_min", "descendiente_edad_max", "requiere_zona_despoblada", "requiere_progenitores_trabajan",
   "requiere_desempleo", "base_max_por_miembro_uf", "taper_individual", "taper_conjunta", "incremento_municipio",
   "factor_discapacidad", "duplica_hijo_discapacidad", "descendientes_sin_deduccion"]);
@@ -56,6 +56,7 @@ const conQuien = de => ({ contribuyente: "el contribuyente", contribuyente_o_des
 
 function etiquetaBase(d) {
   if (d.base_gate === "menos_minimo") return "la base imponible total menos el mínimo personal y familiar";
+  if (d.base_gate === "menos_minimo_contribuyente_descendientes") return "la base imponible total menos el mínimo del contribuyente y el mínimo por descendientes";
   if (d.base_gate === "general_menos_minimo") return "la base imponible general menos el mínimo personal y familiar";
   if (d.suma_bases === "imponibles") return "la suma de las bases imponibles general y del ahorro";
   return "la suma de las bases liquidables general y del ahorro";
@@ -71,7 +72,8 @@ function rango(min, max) {
 // por el tercero y siguientes» (cualquier número de claves; la última, «N+»).
 const ORDINAL = ["", "primer", "segundo", "tercero", "cuarto", "quinto", "sexto", "séptimo", "octavo"];
 function textoPorOrden(o) {
-  const claves = Object.keys(o).sort((a, b) => parseInt(a) - parseInt(b));
+  const claves = Object.keys(o).filter(c => o[c] > 0).sort((a, b) => parseInt(a) - parseInt(b));
+  if (!claves.length) return null;
   const partes = claves.map((c, i) => {
     const n = parseInt(c), ord = ORDINAL[n];
     if (!ord) return null;
@@ -84,7 +86,7 @@ function textoPorOrden(o) {
 function cuanto(d) {
   const lim = d.limite != null ? `, con un máximo de ${eur(d.limite)}${d.limite_conjunta != null ? ` (${eur(d.limite_conjunta)} en tributación conjunta)` : ""}` : "";
   switch (d.tipo) {
-    case "fija": return eur(d.importe);
+    case "fija": return eur(d.importe) + (d.por_declarante_en_conjunta ? " (en tributación conjunta, por cada cónyuge que cumpla los requisitos)" : "");
     case "fija_por_hijo": {
       let s = `${eur(d.importe)} por cada hijo`;
       if (d.hijos_desde_orden) s += ` a partir del ${d.hijos_desde_orden}.º`;
@@ -173,6 +175,8 @@ function requisitos(d) {
     else r.push(`Tener ${b} hijos${que} como máximo`);
   }
   if (d.descendiente_edad_max != null) r.push(`Tener algún hijo${edadHijos(d.descendiente_edad_max)}`);
+  if (d.requiere_trabajo_o_actividad) r.push("Obtener rendimientos del trabajo (también pensiones) o de actividades económicas");
+  if (d.municipio_hab_max != null) r.push(`Residir en un municipio de menos de ${miles(String(d.municipio_hab_max + 1))} habitantes`);
   if (d.requiere_zona_despoblada) r.push("Residir en uno de los municipios que la comunidad considera en riesgo de despoblación");
   if (d.requiere_progenitores_trabajan) r.push("Que los progenitores obtengan rendimientos del trabajo o de actividades económicas");
   if (d.requiere_desempleo) r.push(`Que algún progenitor esté en desempleo e inscrito como demandante de empleo${d.prorratea_desempleo ? " (el importe se prorratea por los meses en esa situación)" : ""}`);

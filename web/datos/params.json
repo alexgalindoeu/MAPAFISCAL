@@ -1082,6 +1082,8 @@
      {
       "id": "nacimiento_adopcion_tercer_hijo_renta_baja",
       "norma": "Art. 110-2 DL 1/2005 Aragón",
+      "estado": "provisional",
+      "fuente": "Arts. 110-2, 160-1 y 160-2.1 TR de tributos cedidos de Aragón (DL 1/2005); AEAT Manual Práctico Renta 2025, Parte 2, Aragón, «Por nacimiento o adopción del tercer hijo o sucesivos» (https://sede.agenciatributaria.gob.es/Sede/ayuda/manuales-videos-folletos/manuales-practicos/irpf-2025-deducciones-autonomicas/comunidad-autonoma-aragon/nacimiento-adopcion-tercer-hijo-sucesivos.html)",
       "tipo": "fija_por_hijo_nacido",
       "anios_ventana": 1,
       "importes_por_orden": {
@@ -1089,7 +1091,7 @@
        "2": 0,
        "3+": 600
       },
-      "base_gate": "menos_minimo",
+      "base_gate": "menos_minimo_contribuyente_descendientes",
       "base_max_individual": 21000,
       "base_max_conjunta": 35000,
       "prorratea_progenitores": true
@@ -1097,6 +1099,8 @@
      {
       "id": "nacimiento_adopcion_tercer_hijo_general",
       "norma": "Art. 110-2 DL 1/2005 Aragón",
+      "estado": "provisional",
+      "fuente": "Arts. 110-2, 160-1 y 160-2.1 TR de tributos cedidos de Aragón (DL 1/2005); AEAT Manual Práctico Renta 2025, Parte 2, Aragón, «Por nacimiento o adopción del tercer hijo o sucesivos» (https://sede.agenciatributaria.gob.es/Sede/ayuda/manuales-videos-folletos/manuales-practicos/irpf-2025-deducciones-autonomicas/comunidad-autonoma-aragon/nacimiento-adopcion-tercer-hijo-sucesivos.html)",
       "tipo": "fija_por_hijo_nacido",
       "anios_ventana": 1,
       "importes_por_orden": {
@@ -1104,7 +1108,7 @@
        "2": 0,
        "3+": 500
       },
-      "base_gate": "menos_minimo",
+      "base_gate": "menos_minimo_contribuyente_descendientes",
       "base_min_individual": 21000.01,
       "base_min_conjunta": 35000.01,
       "prorratea_progenitores": true
@@ -1113,10 +1117,11 @@
       "id": "cuidado_personas_dependientes",
       "norma": "Art. 110-5 DL 1/2005 Aragón",
       "estado": "provisional",
+      "fuente": "Arts. 110-5, 160-1 y 160-2.4 TR de tributos cedidos de Aragón (DL 1/2005); AEAT Manual Práctico Renta 2025, Parte 2, Aragón, «Por el cuidado de personas dependientes» (https://sede.agenciatributaria.gob.es/Sede/ayuda/manuales-videos-folletos/manuales-practicos/irpf-2025-deducciones-autonomicas/comunidad-autonoma-aragon/cuidado-personas-dependientes.html)",
       "tipo": "fija",
       "importe": 150,
       "requiere_dependiente_a_cargo": true,
-      "base_gate": "menos_minimo",
+      "base_gate": "menos_minimo_contribuyente_descendientes",
       "base_max_individual": 21000,
       "base_max_conjunta": 35000,
       "prorratea_progenitores": true
@@ -1124,10 +1129,14 @@
      {
       "id": "mayores_70_anos",
       "norma": "Art. 110-14 DL 1/2005 Aragón",
-      "estado": "provisional",
+      "estado": "confirmado",
+      "fuente": "Art. 110-14 TR de tributos cedidos de Aragón (DL 1/2005, de 26 de septiembre), vigente en 2025; AEAT Manual Práctico Renta 2025, Parte 2, Aragón, «Para mayores de 70 años» (https://sede.agenciatributaria.gob.es/Sede/ayuda/manuales-videos-folletos/manuales-practicos/irpf-2025-deducciones-autonomicas/comunidad-autonoma-aragon/mayores-70-anos.html)",
       "tipo": "fija",
       "importe": 75,
       "edad_min": 70,
+      "requiere_trabajo_o_actividad": true,
+      "por_declarante_en_conjunta": true,
+      "suma_bases": "imponibles",
       "base_max_individual": 23000,
       "base_max_conjunta": 35000
      },
@@ -1135,29 +1144,35 @@
       "id": "gastos_guarderia_menores_3",
       "norma": "Art. 110-17 DL 1/2005 Aragón",
       "estado": "provisional",
+      "fuente": "Arts. 110-17, 160-1 y 160-2.7 TR de tributos cedidos de Aragón (DL 1/2005); AEAT Manual Práctico Renta 2025, Parte 2, Aragón, «Por gastos de guardería de hijos menores de 3 años» (https://sede.agenciatributaria.gob.es/Sede/ayuda/manuales-videos-folletos/manuales-practicos/irpf-2025-deducciones-autonomicas/comunidad-autonoma-aragon/gastos-guarderia-hijos-menores-3-anos.html)",
       "tipo": "porcentaje_campo_hijo",
       "campo": "gastos_guarderia",
       "porcentaje": 0.15,
       "limite": 250,
       "edad_hijo_max": 2,
-      "base_max_individual": 35000,
-      "base_max_conjunta": 50000,
+      "base_max_individual": 34999.99,
+      "base_max_conjunta": 49999.99,
+      "base_ahorro_max": 4000,
       "prorratea_progenitores": true
      },
      {
       "id": "residencia_municipios_despoblacion",
       "norma": "Arts. 160-1 y 160-2.8 DL 1/2005 Aragón",
-      "estado": "provisional",
+      "estado": "confirmado",
+      "fuente": "Arts. 160-1 y 160-2.8 TR de tributos cedidos de Aragón (DL 1/2005, de 26 de septiembre), vigente en 2025; AEAT Manual Práctico Renta 2025, Parte 2, Aragón, «Por residencia en determinados municipios» (https://sede.agenciatributaria.gob.es/Sede/ayuda/manuales-videos-folletos/manuales-practicos/irpf-2025-deducciones-autonomicas/comunidad-autonoma-aragon/residencia-determinados-municipios.html)",
       "tipo": "fija",
       "importe": 600,
       "requiere_zona_despoblada": true,
+      "por_declarante_en_conjunta": true,
       "base_max_individual": 34999.99,
-      "base_max_conjunta": 49999.99
+      "base_max_conjunta": 49999.99,
+      "base_ahorro_max": 4000
      },
      {
       "id": "nacimiento_municipios_pequenos_renta_baja",
       "norma": "Art. 110-16 DL 1/2005 Aragón",
-      "estado": "provisional",
+      "estado": "confirmado",
+      "fuente": "Art. 110-16 TR de tributos cedidos de Aragón (DL 1/2005, de 26 de septiembre), vigente en 2025; AEAT Manual Práctico Renta 2025, Parte 2, Aragón, «Por nacimiento o adopción del primer y/o segundo hijo en poblaciones de menos de 10.000 habitantes» (https://sede.agenciatributaria.gob.es/Sede/ayuda/manuales-videos-folletos/manuales-practicos/irpf-2025-deducciones-autonomicas/comunidad-autonoma-aragon/nacimiento-adopcion-primer-segundo-hijo-10_000.html)",
       "tipo": "fija_por_hijo_nacido",
       "anios_ventana": 1,
       "importes_por_orden": {
@@ -1166,6 +1181,7 @@
        "3+": 0
       },
       "municipio_hab_max": 9999,
+      "suma_bases": "imponibles",
       "base_max_individual": 23000,
       "base_max_conjunta": 35000,
       "grupo": "nacimiento_rural_ar"
@@ -1173,7 +1189,8 @@
      {
       "id": "nacimiento_municipios_pequenos",
       "norma": "Art. 110-16 DL 1/2005 Aragón",
-      "estado": "provisional",
+      "estado": "confirmado",
+      "fuente": "Art. 110-16 TR de tributos cedidos de Aragón (DL 1/2005, de 26 de septiembre), vigente en 2025; AEAT Manual Práctico Renta 2025, Parte 2, Aragón, «Por nacimiento o adopción del primer y/o segundo hijo en poblaciones de menos de 10.000 habitantes» (https://sede.agenciatributaria.gob.es/Sede/ayuda/manuales-videos-folletos/manuales-practicos/irpf-2025-deducciones-autonomicas/comunidad-autonoma-aragon/nacimiento-adopcion-primer-segundo-hijo-10_000.html)",
       "tipo": "fija_por_hijo_nacido",
       "anios_ventana": 1,
       "importes_por_orden": {

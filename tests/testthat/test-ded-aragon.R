@@ -77,3 +77,42 @@ test_that("Aragón: gastos de guardería (15 %, límite 250 €/hijo < 3)", {
   # 15% de 3000 = 450 -> 250 ; 15% de 1000 = 150 -> 400
   expect_equal(liquidar(h)$deducciones_autonomicas$detalle$gastos_guarderia_menores_3, 400)
 })
+
+test_that("Aragón: mayores de 70, por cada cónyuge en conjunta y solo con trabajo o actividad", {
+  pens <- function(id, rol, edad) persona(id, rol, edad, trabajo=list(dinerarias=12000, cotizaciones_ss=0))
+  h <- nuevo_hogar("v","ES-AR", list(pens("d1","declarante",74), pens("d2","conyuge",72)),
+                   tipo_unidad_familiar = "biparental")
+  expect_equal(liquidar(h, modo="conjunta")$deducciones_autonomicas$detalle$mayores_70_anos, 150)   # 2 × 75
+  h1 <- nuevo_hogar("v","ES-AR", list(pens("d1","declarante",74), persona("d2","conyuge",66)),
+                    tipo_unidad_familiar = "biparental")
+  expect_equal(liquidar(h1, modo="conjunta")$deducciones_autonomicas$detalle$mayores_70_anos, 75)
+  # solo rentas del capital -> no aplica
+  h2 <- nuevo_hogar("v","ES-AR", list(persona("d1","declarante",74, capital_mobiliario=list(intereses=9000))))
+  expect_null(liquidar(h2)$deducciones_autonomicas$detalle$mayores_70_anos)
+})
+
+test_that("Aragón: el límite del art. 110-2 resta solo el mínimo del contribuyente y el de descendientes", {
+  # monoparental con 3 hijos (el 3.º nacido en el año) y un ascendiente de 80 años a cargo.
+  # Base imponible − mínimo contribuyente − mínimo descendientes; el mínimo por ascendientes NO se resta.
+  h <- nuevo_hogar("v","ES-AR", list(
+    persona("d1","declarante",40, trabajo=list(dinerarias=44000, cotizaciones_ss=2794)),
+    persona("h1","descendiente",8), persona("h2","descendiente",5),
+    persona("h3","descendiente",0, nacido_en_ejercicio=TRUE),
+    persona("a1","ascendiente",80)), tipo_unidad_familiar = "monoparental")
+  l <- liquidar(h, modo="individual")
+  bi <- l$base_imponible_general + l$base_imponible_ahorro
+  m <- l$minimo_personal_familiar
+  expect_gt(bi - m$contribuyente - m$descendientes, 21000)
+  expect_lt(bi - m$total, 21000)
+  d <- l$deducciones_autonomicas$detalle
+  expect_equal(d$nacimiento_adopcion_tercer_hijo_general, 500)
+  expect_null(d$nacimiento_adopcion_tercer_hijo_renta_baja)
+})
+
+test_that("Aragón: residencia en asentamientos de Rango X, no con base del ahorro > 4.000 €", {
+  mk <- function(int) nuevo_hogar("v","ES-AR", list(persona("d1","declarante",40,
+    trabajo=list(dinerarias=25000, cotizaciones_ss=1588), capital_mobiliario=list(intereses=int))),
+    zona_despoblada = TRUE)
+  expect_equal(liquidar(mk(1000))$deducciones_autonomicas$detalle$residencia_municipios_despoblacion, 600)
+  expect_null(liquidar(mk(5000))$deducciones_autonomicas$detalle$residencia_municipios_despoblacion)
+})

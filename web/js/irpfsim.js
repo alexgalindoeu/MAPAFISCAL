@@ -318,7 +318,7 @@
     return mejor < 0 ? 0 : ipo[mejor + "+"];
   }
 
-  function deduccionesAutonomicas(hogar, terr, P, modo, baseTotal, cuotaIntegraAut, minimo, declaranteId, baseImponible, minimoAut, baseImponibleAhorro) {
+  function deduccionesAutonomicas(hogar, terr, P, modo, baseTotal, cuotaIntegraAut, minimo, declaranteId, baseImponible, minimoAut, baseImponibleAhorro, minimoContribDesc) {
     minimo = minimo || 0;
     // suma de bases imponibles (0435 + 0460) y mínimo del gravamen autonómico (0520): los usan
     // `suma_bases: imponibles` y `base_gate: menos_minimo` (base imponible − mínimo autonómico)
@@ -328,6 +328,7 @@
     // (casillas 0435 − 0519; Murcia, art. 1.Trece); base_ahorro_max: tope de la base del ahorro
     const baseAhorro = num(baseImponibleAhorro);
     const basePuerta = d => d.base_gate === "menos_minimo" ? Math.max(0, baseImp - minAut)
+      : d.base_gate === "menos_minimo_contribuyente_descendientes" ? Math.max(0, baseImp - num(minimoContribDesc != null ? minimoContribDesc : minimo))
       : d.base_gate === "general_menos_minimo" ? Math.max(0, baseImp - baseAhorro - num(minimo))
       : (d.suma_bases === "imponibles" ? baseImp : baseTotal);
     const da = terr.deducciones_autonomicas;
@@ -353,6 +354,7 @@
         if (d.edad_min != null && edad < d.edad_min) return false;
       }
       if (d.requiere_discapacidad_contribuyente && !disc) return false;
+      if (d.requiere_trabajo_o_actividad && !p.trabajo && !p.actividades) return false;
       return true;
     };
     const esFamiliar = d =>
@@ -439,7 +441,11 @@
       const limBase = (esConj && d.limite_conjunta != null) ? d.limite_conjunta : d.limite;
       const taperEnLimite = (d.tipo === "porcentaje_campo" || d.tipo === "porcentaje_campo_hijo") && limBase != null;
       const lim = taperEnLimite ? limBase * ft : limBase;
-      if (d.tipo === "fija") val = num(d.importe);
+      if (d.tipo === "fija") {
+        val = num(d.importe);
+        // por_declarante_en_conjunta: en conjunta, una vez por cada cónyuge que cumple
+        if (d.por_declarante_en_conjunta && esConj) val *= ambito.filter(p => pasaPersonales(d, p)).length;
+      }
       else if (d.tipo === "porcentaje_campo") {
         // gasto propio de las personas del ámbito; el de hijos/ascendientes se reparte en individual
         let base = 0;
@@ -733,7 +739,7 @@
     const cuotaIntegraAutonomica = cigAut + ciaAut;
 
     const dedAut = deduccionesAutonomicas(hogar, terr, P, modo, blg + bla, cuotaIntegraAutonomica, mpf.total, declaranteId,
-      r.baseImponibleGeneral + r.baseImponibleAhorro, minimoAut, r.baseImponibleAhorro);
+      r.baseImponibleGeneral + r.baseImponibleAhorro, minimoAut, r.baseImponibleAhorro, mpf.contribuyente + mpf.descendientes);
     const dedEst = deduccionesEstatales(personas, P, blg + bla);
     let clEst = Math.max(0, cuotaIntegraEstatal - dedEst.totalEstatal);
     let clAut = Math.max(0, cuotaIntegraAutonomica - dedAut.total - dedEst.totalAutonomico);

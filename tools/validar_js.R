@@ -442,6 +442,23 @@ add("mc_alquiler_ahorro", "ES-MC", "ninguna", "no",
                  capital_mobiliario=list(intereses=2000), alquiler_vivienda_pagos=6000)),
     list(list(id="d1",rol="declarante",edad=30, trabajo=list(dinerarias=30000,cotizacionesSs=1905),
               capitalMobiliario=list(intereses=2000), alquilerViviendaPagos=6000)))
+# Aragón (cotejo 11-2026): matrimonio de pensionistas en conjunta (2 × 75 €, art. 110-14)
+# en un asentamiento de Rango X (2 × 600 €, art. 160-2.8)
+add("ar_mayores70_conjunta_rangox", "ES-AR", "biparental", "no",
+    list(persona("d1","declarante",74, trabajo=list(dinerarias=12000, cotizaciones_ss=0)),
+         persona("d2","conyuge",72, trabajo=list(dinerarias=12000, cotizaciones_ss=0))),
+    list(list(id="d1",rol="declarante",edad=74, trabajo=list(dinerarias=12000,cotizacionesSs=0)),
+         list(id="d2",rol="conyuge",edad=72, trabajo=list(dinerarias=12000,cotizacionesSs=0))),
+    despoblada = TRUE)
+# Aragón: 3.er hijo con ascendiente a cargo; el límite del art. 110-2 no resta el mínimo por
+# ascendientes -> 500 € (general) y no 600 €
+add("ar_tercer_hijo_minimos", "ES-AR", "monoparental", "no",
+    list(persona("d1","declarante",40, trabajo=list(dinerarias=44000, cotizaciones_ss=2794)),
+         persona("h1","descendiente",8), persona("h2","descendiente",5),
+         persona("h3","descendiente",0, nacido_en_ejercicio=TRUE), persona("a1","ascendiente",80)),
+    list(list(id="d1",rol="declarante",edad=40, trabajo=list(dinerarias=44000,cotizacionesSs=2794)),
+         list(id="h1",rol="descendiente",edad=8), list(id="h2",rol="descendiente",edad=5),
+         list(id="h3",rol="descendiente",edad=0, nacidoEnEjercicio=TRUE), list(id="a1",rol="ascendiente",edad=80)))
 # Canarias: pareja en individual, 2 hijos, estudios del declarante: límite (133 + 66) / 2
 add("cn_estudios_pareja", "ES-CN", "biparental", "no",
     list(persona("d1","declarante",40, trabajo=list(dinerarias=30000, cotizaciones_ss=1905), gastos_estudios_no_superiores=500),

@@ -96,6 +96,101 @@
     }
    ]
   },
+  "ES-AR": {
+   "territorio": "ES-AR",
+   "nombre": "Aragón",
+   "regimen": "comun",
+   "fichas": [
+    {
+     "titulo": "Para mayores de 70 años",
+     "url_aeat": "https://sede.agenciatributaria.gob.es/Sede/ayuda/manuales-videos-folletos/manuales-practicos/irpf-2025-deducciones-autonomicas/comunidad-autonoma-aragon/mayores-70-anos.html",
+     "boe": [
+
+     ],
+     "normas": [
+      "Art. 110-14 DL 1/2005 Aragón"
+     ],
+     "supuestos": [
+      {
+       "id": "mayores_70_anos",
+       "norma": "Art. 110-14 DL 1/2005 Aragón",
+       "tipo": "fija",
+       "importe": 75,
+       "edad_min": 70,
+       "requiere_trabajo_o_actividad": true,
+       "por_declarante_en_conjunta": true,
+       "suma_bases": "imponibles",
+       "base_max_individual": 23000,
+       "base_max_conjunta": 35000
+      }
+     ]
+    },
+    {
+     "titulo": "Por residencia en determinados municipios",
+     "url_aeat": "https://sede.agenciatributaria.gob.es/Sede/ayuda/manuales-videos-folletos/manuales-practicos/irpf-2025-deducciones-autonomicas/comunidad-autonoma-aragon/residencia-determinados-municipios.html",
+     "boe": [
+
+     ],
+     "normas": [
+      "Arts. 160-1 y 160-2.8 DL 1/2005 Aragón"
+     ],
+     "supuestos": [
+      {
+       "id": "residencia_municipios_despoblacion",
+       "norma": "Arts. 160-1 y 160-2.8 DL 1/2005 Aragón",
+       "tipo": "fija",
+       "importe": 600,
+       "requiere_zona_despoblada": true,
+       "por_declarante_en_conjunta": true,
+       "base_max_individual": 34999.99,
+       "base_max_conjunta": 49999.99,
+       "base_ahorro_max": 4000
+      }
+     ]
+    },
+    {
+     "titulo": "Por nacimiento o adopción del primer y/o segundo hijo en poblaciones de menos de 10.000 habitantes",
+     "url_aeat": "https://sede.agenciatributaria.gob.es/Sede/ayuda/manuales-videos-folletos/manuales-practicos/irpf-2025-deducciones-autonomicas/comunidad-autonoma-aragon/nacimiento-adopcion-primer-segundo-hijo-10_000.html",
+     "boe": [
+
+     ],
+     "normas": [
+      "Art. 110-16 DL 1/2005 Aragón"
+     ],
+     "supuestos": [
+      {
+       "id": "nacimiento_municipios_pequenos_renta_baja",
+       "norma": "Art. 110-16 DL 1/2005 Aragón",
+       "tipo": "fija_por_hijo_nacido",
+       "anios_ventana": 1,
+       "importes_por_orden": {
+        "1": 200,
+        "2": 300,
+        "3+": 0
+       },
+       "municipio_hab_max": 9999,
+       "suma_bases": "imponibles",
+       "base_max_individual": 23000,
+       "base_max_conjunta": 35000,
+       "grupo": "nacimiento_rural_ar"
+      },
+      {
+       "id": "nacimiento_municipios_pequenos",
+       "norma": "Art. 110-16 DL 1/2005 Aragón",
+       "tipo": "fija_por_hijo_nacido",
+       "anios_ventana": 1,
+       "importes_por_orden": {
+        "1": 100,
+        "2": 150,
+        "3+": 0
+       },
+       "municipio_hab_max": 9999,
+       "grupo": "nacimiento_rural_ar"
+      }
+     ]
+    }
+   ]
+  },
   "ES-CN": {
    "territorio": "ES-CN",
    "nombre": "Canarias",

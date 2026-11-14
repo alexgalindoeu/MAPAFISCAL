@@ -103,7 +103,8 @@ importe_por_orden <- function(ipo, k) {
 
 deducciones_autonomicas <- function(hogar, P, rentas, modo = "individual", base_total = 0,
                                     cuota_integra_autonomica = NA_real_, minimo = 0,
-                                    declarante_id = NULL, minimo_autonomico = minimo) {
+                                    declarante_id = NULL, minimo_autonomico = minimo,
+                                    minimo_contrib_desc = minimo) {
   da <- P$jurisdiccion$deducciones_autonomicas
   if (is.null(da) || identical(da$estado, "pendiente") ||
       !length(da$lista %||% list())) {
@@ -125,6 +126,10 @@ deducciones_autonomicas <- function(hogar, P, rentas, modo = "individual", base_
   base_ahorro <- rentas$base_imponible_ahorro %||% 0
   base_puerta <- function(d) {
     if (identical(g(d, "base_gate"), "menos_minimo")) return(max(0, base_imp - minimo_autonomico))
+    # base imponible − (mínimo del contribuyente + mínimo por descendientes) (0435 + 0460 −
+    # 0511 − 0513; Aragón, arts. 110-2 y 110-5)
+    if (identical(g(d, "base_gate"), "menos_minimo_contribuyente_descendientes"))
+      return(max(0, base_imp - minimo_contrib_desc))
     # base imponible GENERAL − mínimo personal y familiar (0435 − 0519; Murcia, art. 1.Trece)
     if (identical(g(d, "base_gate"), "general_menos_minimo")) return(max(0, base_imp - base_ahorro - minimo))
     if (identical(g(d, "suma_bases"), "imponibles")) return(base_imp)
@@ -157,6 +162,9 @@ deducciones_autonomicas <- function(hogar, P, rentas, modo = "individual", base_
       if (!is.null(g(d,"edad_min")) && edad <  g(d,"edad_min")) return(FALSE)
     }
     if (isTRUE(g(d,"requiere_discapacidad_contribuyente")) && !disc) return(FALSE)
+    # `requiere_trabajo_o_actividad`: la persona obtiene rendimientos del trabajo (también
+    # pensiones) o de actividades económicas (Aragón, art. 110-14)
+    if (isTRUE(g(d,"requiere_trabajo_o_actividad")) && is.null(p$trabajo) && is.null(p$actividades)) return(FALSE)
     TRUE
   }
 
@@ -299,6 +307,10 @@ deducciones_autonomicas <- function(hogar, P, rentas, modo = "individual", base_
 
     if (identical(tipo, "fija")) {
       val <- g(d, "importe") %||% 0
+      # `por_declarante_en_conjunta`: en conjunta, una vez por cada cónyuge que cumple los
+      # requisitos personales (Aragón, arts. 110-14 y 160-2.8)
+      if (isTRUE(g(d, "por_declarante_en_conjunta")) && es_conj)
+        val <- val * sum(vapply(ambito, function(p) pasa_personales(d, p), logical(1)))
 
     } else if (identical(tipo, "porcentaje_campo")) {
       # gasto propio de las personas del ámbito; el que figura en hijos/ascendientes se

@@ -337,6 +337,33 @@ discapacidad (110-3) — necesita marcar la discapacidad del recién nacido; las
 condicionadas a municipio (nacimiento 1.º/2.º en poblaciones < 10.000 hab., vivienda
 en núcleos rurales, residencia en determinados municipios); donativos e inversiones.
 
+### Cotejo con el Manual de la AEAT (11-2026)
+
+Cotejadas las 8 entradas con el Manual Práctico de Renta 2025, parte 2, Aragón.
+
+- **Confirmadas (4):** mayores de 70 años (110-14), residencia en asentamientos de Rango X
+  (160-2.8) y las dos cuantías del nacimiento del 1.º o 2.º hijo en municipios de menos de
+  10.000 habitantes (110-16).
+- **Provisionales (4):** las dos cuantías del 3.er hijo (110-2), dependientes (110-5) y
+  guardería (110-17). El régimen general está cotejado; siguen provisionales porque su cuantía
+  de fiscalidad diferenciada (600 / 720 €, 300 € y 300 / 150 €) no se modela.
+
+Correcciones:
+
+- Arts. 110-2 y 110-5: el límite es *bases imponibles − mínimo del contribuyente − mínimo por
+  descendientes* (0435 + 0460 − 0511 − 0513), no el mínimo total
+  (`base_gate: menos_minimo_contribuyente_descendientes`). Test: monoparental con 44.000 € de
+  trabajo, tres hijos (el 3.º nacido en el año) y un ascendiente de 80 años: restando el mínimo
+  total quedaría por debajo de 21.000 € (600 €); restando solo contribuyente y descendientes
+  queda por encima → **500 €**.
+- Art. 110-14: exige rendimientos del trabajo o de actividades (`requiere_trabajo_o_actividad`)
+  y es por contribuyente (`por_declarante_en_conjunta`): dos pensionistas de 74 y 72 años en
+  conjunta → 2 × 75 = **150 €**; solo intereses → 0. Límite sobre bases imponibles.
+- Art. 160-2.8: 600 € por contribuyente; base imponible del ahorro ≤ 4.000 €
+  (`base_ahorro_max`): con 5.000 € de intereses → 0.
+- Art. 110-17: bases liquidables *inferiores* a 35.000 / 50.000 € y base del ahorro ≤ 4.000 €.
+- Art. 110-16: el límite de 23.000 / 35.000 € es sobre bases imponibles.
+
 **DSL:** añadida la puerta `requiere_dependiente_a_cargo` (ascendiente ≥ 75 o
 asc./desc. con discapacidad ≥ 65 %), en R y en el motor JS.
 

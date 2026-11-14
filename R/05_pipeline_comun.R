@@ -235,7 +235,8 @@ liquidar_comun_scope <- function(hogar, P, modo, declarante_id = NULL) {
   ded_aut <- deducciones_autonomicas(hogar, P, rentas, modo, blg + bla,
                                      cuota_integra_autonomica = cuota_integra_autonomica,
                                      minimo = minimo, declarante_id = declarante_id,
-                                     minimo_autonomico = minimo_aut)
+                                     minimo_autonomico = minimo_aut,
+                                     minimo_contrib_desc = mpf$contribuyente + mpf$descendientes)
 
   cl_est <- max(0, cuota_integra_estatal - ded_est$total_estatal)
   cl_aut <- max(0, cuota_integra_autonomica - ded_aut$total - ded_est$total_autonomico)
