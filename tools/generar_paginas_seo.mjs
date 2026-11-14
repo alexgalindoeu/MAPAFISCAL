@@ -20,6 +20,7 @@ import { paginaDeducciones } from "./seo_deducciones.mjs";
 import { paginasGuias, GUIAS } from "./seo_guias.mjs";
 import { paginasSueldoNeto } from "./seo_sueldo_neto.mjs";
 import { paginasRescate } from "./seo_rescate.mjs";
+import { paginasDevuelve } from "./seo_devuelve.mjs";
 
 const RAIZ = join(dirname(fileURLToPath(import.meta.url)), "..");
 const WEB = join(RAIZ, "web");
@@ -191,6 +192,8 @@ export function generar() {
   const sn = paginasSueldoNeto(sueldoNeto);
   for (const p of sn) pagina(p.ruta, p.html);
   for (const g of paginasRescate(territorios.generado)) pagina(g.ruta, g.html);
+  // «¿Cuánto me devuelve?»: las páginas sin cifra van con noindex y fuera del sitemap.
+  for (const p of paginasDevuelve(leerJson("seo_devuelve.json"), conDeducciones)) p.indexable ? pagina(p.ruta, p.html) : ficheros.set(p.ruta.slice(1) + "index.html", p.html);
 
   const hoy = territorios.generado;
   ficheros.set("sitemap.xml", `<?xml version="1.0" encoding="UTF-8"?>
@@ -227,6 +230,7 @@ export function huerfanas(ficheros) {
   recorrer("guias");
   recorrer("sueldo-neto");
   recorrer("rescate-plan-pensiones");
+  recorrer("cuanto-me-devuelve");
   return fuera;
 }
 
