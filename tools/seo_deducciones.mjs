@@ -37,7 +37,7 @@ const DEDUCCION_POR_ID = { nacimiento_adopcion: "la deducción por nacimiento o 
 // Claves que no hace falta explicar (internas) o que se explican junto con otra.
 const INTERNAS = new Set(["id", "norma", "tipo", "grupo", "suma_bases", "base_gate", "prorratea_progenitores",
   "multiple_por_hijo", "campo", "campos", "anios_ventana", "anios_ventana_desde", "importe", "importe_multiple",
-  "importes_por_orden", "importe_conjunta", "base_maxima", "limite_pct_cuota_autonomica", "porcentaje", "limite", "limite_conjunta", "limite_si_campo", "primer_ciclo",
+  "importes_por_orden", "importe_conjunta", "base_maxima", "limite_pct_cuota_autonomica", "limite_por_hijo_adicional", "porcentaje", "limite", "limite_conjunta", "limite_si_campo", "primer_ciclo",
   "sobre_cuota_integra", "hijos_desde_orden", "edad_hijo_min", "edad_hijo_max", "edad_ascendiente_min",
   "ascendiente_discapacidad", "edad_ascendiente_min_discapacidad", "requiere_minimo_ascendiente",
   "base_max_individual", "base_max_conjunta", "base_min_individual", "base_min_conjunta",
@@ -66,6 +66,20 @@ function rango(min, max) {
   return `no supere ${eur(max)}`;
 }
 
+// importes_por_orden: { "1": a, "2": b, "3+": c } -> «a por el primer hijo, b por el segundo y c
+// por el tercero y siguientes» (cualquier número de claves; la última, «N+»).
+const ORDINAL = ["", "primer", "segundo", "tercero", "cuarto", "quinto", "sexto", "séptimo", "octavo"];
+function textoPorOrden(o) {
+  const claves = Object.keys(o).sort((a, b) => parseInt(a) - parseInt(b));
+  const partes = claves.map((c, i) => {
+    const n = parseInt(c), ord = ORDINAL[n];
+    if (!ord) return null;
+    return `${eur(o[c])} por el ${i === 0 ? ord + " hijo" : ord}${c.endsWith("+") ? " y siguientes" : ""}`;
+  });
+  if (partes.includes(null)) return null;
+  return partes.length > 1 ? partes.slice(0, -1).join(", ") + " y " + partes[partes.length - 1] : partes[0];
+}
+
 function cuanto(d) {
   const lim = d.limite != null ? `, con un máximo de ${eur(d.limite)}${d.limite_conjunta != null ? ` (${eur(d.limite_conjunta)} en tributación conjunta)` : ""}` : "";
   switch (d.tipo) {
@@ -80,8 +94,9 @@ function cuanto(d) {
     }
     case "fija_por_hijo_nacido": {
       const o = d.importes_por_orden;
-      let s = o ? `${eur(o["1"])} por el primer hijo, ${eur(o["2"])} por el segundo y ${eur(o["3+"])} por el tercero y siguientes`
+      let s = o ? textoPorOrden(o)
                 : `${eur(d.importe)} por cada hijo${d.importe_conjunta != null ? ` (${eur(d.importe_conjunta)} en tributación conjunta)` : ""}`;
+      if (!s) return null;
       const desde = d.anios_ventana_desde || 1, hasta = d.anios_ventana || 1;
       if (desde > 1) s += `, en cada uno de los ${hasta - desde + 1} años siguientes al del nacimiento o la adopción`;
       else if (hasta === 1) s += " nacido o adoptado en el año";
@@ -100,7 +115,7 @@ function cuanto(d) {
     }
     case "porcentaje_campo":
       if (!CAMPO[d.campo]) return null;
-      return `${pctCorto(d.porcentaje)} de ${CAMPO[d.campo]}${d.base_maxima != null ? ` (con una base máxima de ${eur(d.base_maxima)})` : ""}${lim}${d.limite_pct_cuota_autonomica != null ? `, sin superar el ${pctCorto(d.limite_pct_cuota_autonomica)} de la cuota íntegra autonómica` : ""}`;
+      return `${pctCorto(d.porcentaje)} de ${CAMPO[d.campo]}${d.base_maxima != null ? ` (con una base máxima de ${eur(d.base_maxima)})` : ""}${lim}${d.limite_por_hijo_adicional != null ? ` más ${eur(d.limite_por_hijo_adicional)} por cada hijo a partir del segundo` : ""}${d.limite_pct_cuota_autonomica != null ? `, sin superar el ${pctCorto(d.limite_pct_cuota_autonomica)} de la cuota íntegra autonómica` : ""}`;
     case "porcentaje_campo_hijo":
       if (!CAMPO[d.campo]) return null;
       return `${pctCorto(d.porcentaje)} de ${CAMPO[d.campo]} de cada hijo${d.edad_hijo_max != null ? ` de ${d.edad_hijo_max} años o menos` : ""}${d.limite != null ? `, con un máximo de ${eur(d.limite)} por hijo` : ""}`;

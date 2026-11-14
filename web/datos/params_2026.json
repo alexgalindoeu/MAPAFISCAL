@@ -1628,60 +1628,109 @@
      {
       "id": "nacimiento_adopcion",
       "norma": "Art. 10 DL 1/2009 Canarias",
-      "estado": "provisional",
+      "estado": "confirmado",
+      "fuente": "Art. 10 TR de tributos cedidos de Canarias (DL 1/2009, de 21 de abril), vigente en 2025; AEAT Manual Práctico Renta 2025, Parte 2, Canarias, «Por nacimiento o adopción de hijos» (https://sede.agenciatributaria.gob.es/Sede/ayuda/manuales-videos-folletos/manuales-practicos/irpf-2025-deducciones-autonomicas/comunidad-autonoma-canarias/nacimiento-adopcion-hijos.html)",
       "tipo": "fija_por_hijo_nacido",
       "anios_ventana": 1,
       "importes_por_orden": {
        "1": 265,
        "2": 265,
-       "3+": 530
+       "3": 530,
+       "4": 796,
+       "5+": 928
       },
       "prorratea_progenitores": true,
+      "suma_bases": "imponibles",
       "base_max_individual": 46455,
       "base_max_conjunta": 61770
      },
      {
       "id": "familia_numerosa_general",
       "norma": "Art. 13 DL 1/2009 Canarias",
+      "estado": "confirmado",
+      "fuente": "Art. 13 TR de tributos cedidos de Canarias (DL 1/2009, de 21 de abril), vigente en 2025; AEAT Manual Práctico Renta 2025, Parte 2, Canarias, «Por familia numerosa» (https://sede.agenciatributaria.gob.es/Sede/ayuda/manuales-videos-folletos/manuales-practicos/irpf-2025-deducciones-autonomicas/comunidad-autonoma-canarias/familia-numerosa.html)",
       "tipo": "fija",
       "importe": 597,
-      "requiere_familia_numerosa": true
+      "familia_numerosa_categoria": "general",
+      "grupo": "fn_cn"
      },
      {
       "id": "familia_numerosa_especial",
       "norma": "Art. 13 DL 1/2009 Canarias",
+      "estado": "confirmado",
+      "fuente": "Art. 13 TR de tributos cedidos de Canarias (DL 1/2009, de 21 de abril), vigente en 2025; AEAT Manual Práctico Renta 2025, Parte 2, Canarias, «Por familia numerosa» (https://sede.agenciatributaria.gob.es/Sede/ayuda/manuales-videos-folletos/manuales-practicos/irpf-2025-deducciones-autonomicas/comunidad-autonoma-canarias/familia-numerosa.html)",
       "tipo": "fija",
-      "importe": 199,
-      "requiere_familia_numerosa": "especial"
+      "importe": 796,
+      "familia_numerosa_categoria": "especial",
+      "grupo": "fn_cn"
+     },
+     {
+      "id": "familia_numerosa_general_discapacidad",
+      "norma": "Art. 13 DL 1/2009 Canarias",
+      "estado": "confirmado",
+      "fuente": "Art. 13 TR de tributos cedidos de Canarias (DL 1/2009, de 21 de abril), vigente en 2025; AEAT Manual Práctico Renta 2025, Parte 2, Canarias, «Por familia numerosa» (https://sede.agenciatributaria.gob.es/Sede/ayuda/manuales-videos-folletos/manuales-practicos/irpf-2025-deducciones-autonomicas/comunidad-autonoma-canarias/familia-numerosa.html)",
+      "tipo": "fija",
+      "importe": 1326,
+      "familia_numerosa_categoria": "general",
+      "requiere_discapacidad_65_de": "declarantes_o_descendientes",
+      "grupo": "fn_cn"
+     },
+     {
+      "id": "familia_numerosa_especial_discapacidad",
+      "norma": "Art. 13 DL 1/2009 Canarias",
+      "estado": "confirmado",
+      "fuente": "Art. 13 TR de tributos cedidos de Canarias (DL 1/2009, de 21 de abril), vigente en 2025; AEAT Manual Práctico Renta 2025, Parte 2, Canarias, «Por familia numerosa» (https://sede.agenciatributaria.gob.es/Sede/ayuda/manuales-videos-folletos/manuales-practicos/irpf-2025-deducciones-autonomicas/comunidad-autonoma-canarias/familia-numerosa.html)",
+      "tipo": "fija",
+      "importe": 1459,
+      "familia_numerosa_categoria": "especial",
+      "requiere_discapacidad_65_de": "declarantes_o_descendientes",
+      "grupo": "fn_cn"
      },
      {
       "id": "familia_monoparental",
       "norma": "Art. 11 ter DL 1/2009 Canarias",
+      "estado": "confirmado",
+      "fuente": "Art. 11 ter TR de tributos cedidos de Canarias (DL 1/2009, de 21 de abril), vigente en 2025; AEAT Manual Práctico Renta 2025, Parte 2, Canarias, «Por familias monoparentales» (https://sede.agenciatributaria.gob.es/Sede/ayuda/manuales-videos-folletos/manuales-practicos/irpf-2025-deducciones-autonomicas/comunidad-autonoma-canarias/familias-monoparentales.html)",
       "tipo": "fija",
       "importe": 133,
       "requiere_monoparental": true,
-      "descendientes_min": 1
+      "descendiente_edad_max": 17,
+      "suma_bases": "imponibles",
+      "base_max_individual": 46455,
+      "base_max_conjunta": 61770
      },
      {
       "id": "gastos_custodia_guarderias",
       "norma": "Art. 12 DL 1/2009 Canarias",
+      "estado": "confirmado",
+      "fuente": "Art. 12 TR de tributos cedidos de Canarias (DL 1/2009, de 21 de abril), vigente en 2025; AEAT Manual Práctico Renta 2025, Parte 2, Canarias, «Por gastos de custodia en guarderías» (https://sede.agenciatributaria.gob.es/Sede/ayuda/manuales-videos-folletos/manuales-practicos/irpf-2025-deducciones-autonomicas/comunidad-autonoma-canarias/gastos-custodia-guarderias.html)",
       "tipo": "porcentaje_campo_hijo",
       "campo": "gastos_guarderia",
       "porcentaje": 0.18,
       "limite": 530,
-      "edad_hijo_max": 2
+      "edad_hijo_max": 2,
+      "suma_bases": "imponibles",
+      "base_max_individual": 46455,
+      "base_max_conjunta": 61770
      },
      {
       "id": "gastos_estudios_no_superiores",
       "norma": "Art. 7 bis DL 1/2009 Canarias",
-      "estado": "provisional",
+      "estado": "confirmado",
+      "fuente": "Art. 7 bis TR de tributos cedidos de Canarias (DL 1/2009, de 21 de abril), vigente en 2025; AEAT Manual Práctico Renta 2025, Parte 2, Canarias, «Por gastos de estudios no superiores» (https://sede.agenciatributaria.gob.es/Sede/ayuda/manuales-videos-folletos/manuales-practicos/irpf-2025-deducciones-autonomicas/comunidad-autonoma-canarias/gastos-estudios-no-superiores.html)",
       "tipo": "porcentaje_campo",
       "campo": "gastos_estudios_no_superiores",
       "porcentaje": 1,
-      "limite": 133
+      "limite": 133,
+      "limite_por_hijo_adicional": 66,
+      "descendientes_min": 1,
+      "suma_bases": "imponibles",
+      "base_max_individual": 46455,
+      "base_max_conjunta": 61770
      }
     ],
     "pendientes": [
+     "incremento_discapacidad_nacimiento",
      "contribuyentes_discapacidad_mayores_65",
      "gastos_estudios_educacion_superior_fuera_isla",
      "traslado_residencia_otra_isla",

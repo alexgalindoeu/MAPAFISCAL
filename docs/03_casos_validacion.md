@@ -243,20 +243,26 @@ con discapacidad ≥ 65 %; en individual, cada progenitor aplica (2.500 + 2.000 
 
 ## Deducciones autonómicas — Canarias (DL 1/2009)
 
-Codificadas en `tests/testthat/test-ded-canarias.R`. 6 deducciones (de ~16).
+Codificadas en `tests/testthat/test-ded-canarias.R`. 6 deducciones (de ~16), cotejadas
+(11-2026) con el Manual Práctico de Renta 2025 de la AEAT y todas confirmadas. Límite de
+renta común: bases imponibles general + ahorro (0435 + 0460) ≤ 46.455 € (individual) o
+61.770 € (conjunta).
 
-| Deducción (art.) | Regla |
-|---|---|
-| Nacimiento o adopción (10) | 265 / 265 / 530 € por orden (🟡 4.º 796 €, 5.º+ 928 € no modelados), prorrateo entre progenitores, *base ≤ 46.455 / 61.770* |
-| Familia numerosa general (13) | 597 € |
-| Familia numerosa especial (13) | 796 € (597 + 199) |
-| Familia monoparental (11 ter) | 133 € (con al menos un descendiente a cargo) |
-| Gastos de custodia en guardería (12) | 18 % por descendiente < 3 años, límite 530 €/descendiente |
-| Gastos de estudios no superiores (7 bis) | 100 % (libros, transporte, uniforme, comedor), límite 133 € (🟡 no el +66 €/descendiente adicional) |
+| Deducción (art.) | Regla | Comprobación |
+|---|---|---|
+| Nacimiento o adopción (10) | 265 € el 1.º y 2.º, 530 € el 3.º, 796 € el 4.º, 928 € el 5.º y siguientes (clave `"N+"` de `importes_por_orden`); prorrateo entre progenitores, con límite de renta | 4 hijos (10, 8, 5 y 0 años) → 796 €; 5 hijos → 928 €; 3 hijos → 530 € |
+| Familia numerosa (13) | 597 € general, 796 € especial; 1.326 € / 1.459 € si un cónyuge o descendiente tiene discapacidad ≥ 65 % (variantes excluyentes, `grupo`); sin límite de renta | general 597; especial 796; con hijo al 65 %: 1.326 y 1.459 |
+| Familia monoparental (11 ter) | 133 € con algún hijo menor de edad, con límite de renta | 60.000 € de trabajo → no aplica |
+| Gastos de custodia en guardería (12) | 18 % por descendiente < 3 años, límite 530 €/descendiente, con límite de renta | 4.000 + 1.000 € → 530 + 180 = 710 €; 60.000 € de trabajo → no aplica |
+| Gastos de estudios no superiores (7 bis) | 100 %, límite 133 € por el primer descendiente y 66 € por cada uno adicional (`limite_por_hijo_adicional`), repartido en individual con dos progenitores; con límite de renta | 1.000 € con 3 hijos → 133 + 2 × 66 = 265 € |
 
-**Pendientes:** gastos de estudios de educación superior fuera de la isla (7 —
-necesita el dato "estudia fuera de la isla"), discapacidad de contribuyentes ≥ 65
-años, traslado de residencia a otra isla, donativos, inversión en acciones.
+**Correcciones del cotejo:** 4.º y 5.º hijo; FN con discapacidad; +66 €/hijo en estudios;
+límite de renta que faltaba en monoparental, guardería y estudios.
+
+**Pendientes:** incremento del art. 10 por hijo con discapacidad ≥ 65 % (600 € / 1.100 €),
+gastos de estudios de educación superior fuera de la isla (7 — necesita el dato "estudia
+fuera de la isla"), discapacidad de contribuyentes ≥ 65 años, traslado de residencia a otra
+isla, donativos, inversión en acciones.
 
 ---
 
