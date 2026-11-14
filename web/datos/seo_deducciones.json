@@ -1,6 +1,6 @@
 {
  "ejercicio": 2025,
- "generado": "2026-11-13",
+ "generado": "2026-11-14",
  "territorios": {
   "ES-AN": {
    "territorio": "ES-AN",
@@ -492,6 +492,57 @@
      "grado_65_mas_o_dependencia_moderada": 1268,
      "grado_75_15_39_puntos_o_dependencia_severa": 1521,
      "grado_75_40_puntos_o_gran_dependencia": 1897
+    },
+    "deduccion_alquiler_vivienda": {
+     "norma": "Art. 86 NF 13/2013 Bizkaia, NF 3/2014 Gipuzkoa y NF 33/2013 Araba, en la redacción de la revisión fiscal de 2025 (NF 2/2025 Bizkaia, NF 1/2025 Gipuzkoa, NF 3/2025 Araba; efectos 1-1-2025)",
+     "fuente": "Hacienda Foral de Bizkaia, ficha KA-01027 «Deducción por alquiler de vivienda habitual» (cuadro desde 01-01-2025) y bizkaia.eus/es/renta-bizkaia/deducciones; DF Gipuzkoa, Modelo 109 (2025)",
+     "estado": "confirmado",
+     "edad_max_incrementada": 36,
+     "general": {
+      "porcentaje": 0.2,
+      "limite": 1600
+     },
+     "colectivo_especial": {
+      "porcentaje": 0.35,
+      "limite": 2800
+     }
+    },
+    "deduccion_adquisicion_vivienda": {
+     "norma": "Arts. 87 a 89 NF 13/2013 Bizkaia, NF 3/2014 Gipuzkoa y NF 33/2013 Araba, en la redacción de la revisión fiscal de 2025 (NF 2/2025 Bizkaia, NF 1/2025 Gipuzkoa, NF 3/2025 Araba)",
+     "fuente": "Hacienda Foral de Bizkaia, fichas KA-01508 «Compra de vivienda habitual» y KA-01353 «Deducción por cantidades depositadas en cuenta vivienda» (cuadros desde 01-01-2025); DF Gipuzkoa, Modelo 109 (2025)",
+     "estado": "confirmado",
+     "cuenta_vivienda": {
+      "porcentaje_general": 0.18,
+      "porcentaje_menor_36": 0.23,
+      "base_maxima_conjunta": 8500,
+      "plazo_anios": 6,
+      "plazo_menor_36_anios": 10
+     },
+     "credito_fiscal_vital": 36000,
+     "general": {
+      "porcentaje": 0.18,
+      "limite_anual": 1530
+     },
+     "colectivo_especial": {
+      "porcentaje": 0.23,
+      "limite_anual": 1955
+     },
+     "menor_36": {
+      "porcentaje": 0.23,
+      "limite_anual": 1955,
+      "sin_limite_anio_compra": true
+     },
+     "transitorio_pre_2012": {
+      "general": {
+       "porcentaje": 0.18,
+       "limite_anual": 2160
+      },
+      "colectivo_especial": {
+       "porcentaje": 0.23,
+       "limite_anual": 2760
+      }
+     },
+     "doble_limite_conjunta": true
     }
    }
   },
@@ -592,9 +643,10 @@
      "incompatible_con": "deduccion_edad"
     },
     "deduccion_alquiler_vivienda": {
-     "norma": "Art. 86 NF 3/2014 y equivalentes; NF 1/2025 (efectos 2025)",
-     "fuente": "DF Gipuzkoa, Modelo 109 (2025)",
+     "norma": "Art. 86 NF 13/2013 Bizkaia, NF 3/2014 Gipuzkoa y NF 33/2013 Araba, en la redacción de la revisión fiscal de 2025 (NF 2/2025 Bizkaia, NF 1/2025 Gipuzkoa, NF 3/2025 Araba; efectos 1-1-2025)",
+     "fuente": "Hacienda Foral de Bizkaia, ficha KA-01027 «Deducción por alquiler de vivienda habitual» (cuadro desde 01-01-2025) y bizkaia.eus/es/renta-bizkaia/deducciones; DF Gipuzkoa, Modelo 109 (2025)",
      "estado": "confirmado",
+     "edad_max_incrementada": 36,
      "general": {
       "porcentaje": 0.2,
       "limite": 1600
@@ -605,9 +657,16 @@
      }
     },
     "deduccion_adquisicion_vivienda": {
-     "norma": "Arts. 87–89 NF 3/2014 y equivalentes; NF 1/2025",
-     "fuente": "DF Gipuzkoa, Modelo 109 (2025)",
+     "norma": "Arts. 87 a 89 NF 13/2013 Bizkaia, NF 3/2014 Gipuzkoa y NF 33/2013 Araba, en la redacción de la revisión fiscal de 2025 (NF 2/2025 Bizkaia, NF 1/2025 Gipuzkoa, NF 3/2025 Araba)",
+     "fuente": "Hacienda Foral de Bizkaia, fichas KA-01508 «Compra de vivienda habitual» y KA-01353 «Deducción por cantidades depositadas en cuenta vivienda» (cuadros desde 01-01-2025); DF Gipuzkoa, Modelo 109 (2025)",
      "estado": "confirmado",
+     "cuenta_vivienda": {
+      "porcentaje_general": 0.18,
+      "porcentaje_menor_36": 0.23,
+      "base_maxima_conjunta": 8500,
+      "plazo_anios": 6,
+      "plazo_menor_36_anios": 10
+     },
      "credito_fiscal_vital": 36000,
      "general": {
       "porcentaje": 0.18,

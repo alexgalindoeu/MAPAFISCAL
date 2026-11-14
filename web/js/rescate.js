@@ -80,8 +80,9 @@
     try { r = rescate(P, o); } catch (e) { $("rp-principal").innerHTML = '<p class="vacio">Revisa los datos introducidos.</p>'; return; }
     const total = o.antes2007 + o.despues2007, terr = P.territorios[o.territorio].nombre;
     const pv = r.regimen === "foral_pais_vasco", corte = r.corte || 2007;
-    $("rp-antes").closest(".campo").querySelector("label").textContent = pv ? "Lo que tienes en el plan o la EPSV (aportaciones hasta 2025)" : `Lo que corresponde a aportaciones hasta el 31-12-${corte - 1}`;
-    $("rp-despues").closest(".campo").querySelector("label").textContent = pv ? "Otra parte del plan o la EPSV (se suma a la anterior)" : `Lo que corresponde a aportaciones desde ${corte}`;
+    const etq = (id, t) => { const l = $(id); if (l) l.textContent = t; };
+    etq("rp-l-antes", pv ? "Lo que tienes en el plan o la EPSV (aportaciones hasta 2025)" : `Lo que corresponde a aportaciones hasta el 31-12-${corte - 1}`);
+    etq("rp-l-despues", pv ? "Otra parte del plan o la EPSV (se suma a la anterior)" : `Lo que corresponde a aportaciones desde ${corte}`);
     const tu = r[forma], mejor = r[r.mejor], ahorro = tu.extra - mejor.extra;
     const nombreForma = k => k === "capital" ? FORMAS.capital : k === "mixto" ? (pv ? `Mixto: hasta 300.000 € de una vez y el resto en ${r.anios} años` : `Mixto: lo anterior a ${corte} de una vez y el resto en ${r.anios} años`) : `Como renta, en ${r.anios} años`;
     $("rp-chip").textContent = `${terr} · ${P.ejercicio}`;

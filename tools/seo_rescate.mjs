@@ -102,7 +102,7 @@ function paginaHub(P, generado) {
     <h2 class="rotulo">IRPF extra por rescatar ${esc(euros(total))}, por territorio</h2>
     <p class="ayuda">${esc(supuesto(P))} Mixto: los ${esc(euros(BASE.antes2007))} anteriores a 2007 de una vez y el resto en 5 años.</p>
     <div class="envoltorio"><table class="cobertura"><thead><tr><th class="num">#</th><th>Territorio</th><th class="num">De una vez</th><th class="num">Mixto</th><th class="num">Renta</th><th>Menos IRPF</th></tr></thead><tbody>${filas}</tbody></table></div>
-    <p class="ayuda">El País Vasco y Navarra regulan el rescate en su normativa foral, con reglas propias: no se incluyen.</p>
+    <p class="ayuda">El País Vasco y Navarra tienen reglas forales propias: <a href="/irpf/bizkaia/planes-pensiones/">Bizkaia</a> · <a href="/irpf/gipuzkoa/planes-pensiones/">Gipuzkoa</a> · <a href="/irpf/araba-alava/planes-pensiones/">Araba/Álava</a> · <a href="/irpf/navarra/planes-pensiones/">Navarra</a>.</p>
   </div>
   ${cta("Calcula tu rescate", APP(), ["Ahorro por aportar antes del 31-12", "/index.html#plan-pensiones"])}
   ${bloqueFaq(qs)}

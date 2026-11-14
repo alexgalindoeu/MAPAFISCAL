@@ -30,9 +30,9 @@ test("la reducción del 40 % baja la base en el 40 % de lo anterior a 2007", () 
   casi(con.baseLiquidableGeneral, 61000, "75.000 − 12.000 − 2.000");
   casi(sin.baseLiquidableGeneral - con.baseLiquidableGeneral, 12000, "40 % de 30.000");
   casi(con.cuotaIntegraEstatal, 8539.25, "escala estatal sobre 61.000 − mínimo de 6.700");
-  // en los forales no se aplica (sus reglas no están en el motor)
+  // País Vasco: integración del 60 % (reducción del 40 % de los 30.000 €)
   const pv = motor.liquidar(Object.assign(h(30000), { territorio: "ES-PV-BI" }), P, "auto");
-  casi(pv.baseLiquidableGeneral, motor.liquidar(Object.assign(h(0), { territorio: "ES-PV-BI" }), P, "auto").baseLiquidableGeneral, "Bizkaia");
+  casi(pv.baseLiquidableGeneral, motor.liquidar(Object.assign(h(0), { territorio: "ES-PV-BI" }), P, "auto").baseLiquidableGeneral - 12000, "Bizkaia");
 });
 
 test("rescate en Madrid: 60.000 € con 15.000 € de pensión", () => {

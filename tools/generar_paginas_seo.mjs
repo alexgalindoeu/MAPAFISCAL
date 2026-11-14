@@ -20,6 +20,7 @@ import { paginaDeducciones } from "./seo_deducciones.mjs";
 import { paginasGuias, GUIAS } from "./seo_guias.mjs";
 import { paginasSueldoNeto } from "./seo_sueldo_neto.mjs";
 import { paginasRescate } from "./seo_rescate.mjs";
+import { paginasForal, enlacesSuiteForal } from "./seo_foral.mjs";
 
 const RAIZ = join(dirname(fileURLToPath(import.meta.url)), "..");
 const WEB = join(RAIZ, "web");
@@ -80,7 +81,7 @@ function paginaTerritorio(codigo) {
   <div class="prosa">
   ${cartaEscala}
   ${cartaMinimo}
-  ${cartaDeducciones}
+  ${cartaDeducciones}${enlacesSuiteForal(codigo, nombre)}
   ${cartaComparativa}
   <p><a class="btn btn-pri" href="/index.html#calculadora">Calcula tu caso real en ${esc(nombre)}</a> <a class="btn btn-sec" href="/index.html#comparar">Compáralo con los otros 18 territorios</a></p>
   <p class="ayuda">Guías: <a href="/guias/tramos-irpf-2025-2026/">tramos del IRPF 2025 y 2026</a> · <a href="/guias/minimo-personal-familiar/">mínimo personal y familiar</a> · <a href="/guias/obligacion-declarar-renta/">¿estoy obligado a declarar?</a> · <a href="/guias/plan-pensiones-desgravar/">plan de pensiones</a></p>
@@ -191,6 +192,7 @@ export function generar() {
   const sn = paginasSueldoNeto(sueldoNeto);
   for (const p of sn) pagina(p.ruta, p.html);
   for (const g of paginasRescate(territorios.generado)) pagina(g.ruta, g.html);
+  for (const g of paginasForal(territorios.generado, sueldoNeto.importes_territorio)) pagina(g.ruta, g.html);
 
   const hoy = territorios.generado;
   ficheros.set("sitemap.xml", `<?xml version="1.0" encoding="UTF-8"?>
