@@ -80,16 +80,17 @@ function enlaceDeducciones(codigo, nombre, conDeducciones) {
     : `<a href="/irpf/${SLUG[codigo]}/">IRPF en ${esc(nombre)}</a>`;
 }
 
+const de = x => x.startsWith("el ") ? "del " + x.slice(3) : "de " + x;
 // Por qué sale esa cifra, en texto plano.
 function explicacion(sit, t, d) {
   const S = SITUACIONES[sit];
   const auto = t.deducciones_autonomicas.map(x => `«${x.titulo}»`);
-  if (t.regimen !== "comun") return `En ${t.nombre} la cifra sale de ${S.foral}.`;
+  if (t.regimen !== "comun") return `En ${t.nombre} la cifra sale ${de(S.foral)}.`;
   const piezas = [];
   if (t.piezas.length) piezas.push(S.comun(d.normas) + (t.minimo_autonomico_propio ? `, con los importes propios que fija ${t.nombre} para su tramo autonómico` : ""));
   if (auto.length) piezas.push(`la deducción autonómica ${auto.join(" y ")}`);
   if (!piezas.length) return `En ${t.nombre} no hay ninguna deducción autonómica confirmada que se aplique a este caso, así que la cuota no cambia por ${S.que}.`;
-  return `En ${t.nombre} la cifra sale de ${piezas.join(" y de ")}.` +
+  return `En ${t.nombre} la cifra sale ${piezas.map(de).join(" y ")}.` +
     (!auto.length && sit !== "hipoteca-antes-2013" && sit !== "donativo" ? ` ${t.nombre} no tiene una deducción autonómica confirmada para este caso: lo que ahorras es lo que fija la ley estatal.` : "");
 }
 

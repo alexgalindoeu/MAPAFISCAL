@@ -30,6 +30,9 @@ jobs:
         run: Rscript tools/exportar_params.R --comprobar
 
       - name: web/datos/seo_*.json sale del motor
+
+      - name: web/datos/seo_devuelve.json sale del motor
+        run: Rscript tools/generar_datos_devuelve.R --comprobar
         run: Rscript tools/generar_datos_seo.R --comprobar
 
       - uses: actions/setup-node@v7
