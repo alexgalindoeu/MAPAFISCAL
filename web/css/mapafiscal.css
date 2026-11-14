@@ -177,32 +177,17 @@ main:focus { outline: none; }
 .nav a[aria-current="page"]::after { transform: scaleX(1); }
 .nav a:focus-visible { outline-offset: -4px; }
 .appbar-der { margin-left: auto; display: flex; align-items: center; gap: 12px; flex: none; }
-/* menú compacto (solo la aplicación, .appbar.con-menu): por debajo de 1180 px las secciones
-   se pliegan en un desplegable bajo la barra; la cuenta (Entrar / Crear cuenta / avatar)
-   sigue siempre visible. Las páginas estáticas, sin JS, conservan la fila desplazable. */
+/* Por debajo de 1180 px las secciones no se esconden: bajan a una segunda fila de la barra,
+   siempre visible y desplazable a los lados si no caben (decisión de Alex). La cuenta
+   (Entrar / Crear cuenta / avatar) sigue arriba a la derecha. */
 .appbar .menu-btn { display: none; }
 .menu-btn svg { width: 18px; height: 18px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; }
 @media (max-width: 1179px) {
-  .con-menu .menu-btn { display: inline-flex; }
-  .con-menu .appbar-in { height: 60px; flex-wrap: nowrap; padding-top: 0; gap: 12px; }
-  .con-menu .nav { display: none; position: absolute; top: 100%; left: 0; right: 0; order: 0; width: auto; height: auto;
-    margin: 0; flex-direction: column; gap: 2px; overflow: visible; max-height: calc(100vh - 60px); overflow-y: auto;
-    padding: 8px max(clamp(16px, 3vw, 32px), calc((100% - 1240px) / 2 + 32px)) 16px;
-    background: var(--superficie); border-bottom: 1px solid var(--linea); box-shadow: var(--sombra-alta); }
-  .con-menu.abierta .nav { display: flex; animation: vista-entra var(--dur) var(--curva); }
-  .con-menu .nav a { height: auto; padding: 12px 14px; border-radius: 8px; font-size: 15px; }
-  .con-menu .nav a:hover { background: var(--superficie-2); }
-  .con-menu .nav a::after { left: 0; right: auto; top: 10px; bottom: 10px; width: 3px; height: auto; border-radius: 0 3px 3px 0;
-    transform: scaleY(0); }
-  .con-menu .nav a:hover::after { transform: scaleY(.4); }
-  .con-menu .nav a[aria-current="page"] { background: var(--marca-suave); color: var(--marca-tinta); }
-  .con-menu .nav a[aria-current="page"]::after { transform: scaleY(1); }
-  .con-menu.abierta .menu-btn { background: var(--superficie-2); border-color: var(--tinta-3); }
+  .appbar-in { height: auto; flex-wrap: wrap; row-gap: 0; padding-top: 10px; }
+  .nav { order: 3; width: 100%; height: 44px; margin: 0 -12px; }
 }
 @media (max-width: 480px) {
-  .con-menu .appbar-in { gap: 8px; }
-  .con-menu .menu-btn { padding: 6px 9px; }
-  .con-menu .menu-btn-txt { display: none; }
+  .nav a { padding: 0 10px; font-size: 13.5px; }
 }
 @media (max-width: 400px) {
   .con-menu .marca-txt { display: none; }
