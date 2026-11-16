@@ -39,3 +39,45 @@ test_that("Canarias: nacimiento no aplica por encima del límite de renta (46.45
     persona("h1","descendiente",0, nacido_en_ejercicio=TRUE)))
   expect_null(liquidar(h, modo="individual")$deducciones_autonomicas$detalle$nacimiento_adopcion)
 })
+
+test_that("Canarias: nacimiento por orden del hijo (796 € el 4.º, 928 € el 5.º y siguientes)", {
+  mk <- function(edades) nuevo_hogar("v","ES-CN", c(list(persona("d1","declarante",40,
+    trabajo=list(dinerarias=30000, cotizaciones_ss=1905))),
+    lapply(seq_along(edades), function(i) persona(paste0("h", i), "descendiente", edades[i],
+                                                 nacido_en_ejercicio = edades[i] == 0))),
+    tipo_unidad_familiar = "monoparental")
+  expect_equal(liquidar(mk(c(10, 8, 5, 0)), modo="individual")$deducciones_autonomicas$detalle$nacimiento_adopcion, 796)
+  expect_equal(liquidar(mk(c(12, 10, 8, 5, 0)), modo="individual")$deducciones_autonomicas$detalle$nacimiento_adopcion, 928)
+  expect_equal(liquidar(mk(c(8, 5, 0)), modo="individual")$deducciones_autonomicas$detalle$nacimiento_adopcion, 530)
+})
+
+test_that("Canarias: familia numerosa 597 / 796 €, y 1.326 / 1.459 € con discapacidad >= 65 %", {
+  mk <- function(fn, disc = "no") nuevo_hogar("v","ES-CN", list(persona("d1","declarante",40,
+    trabajo=list(dinerarias=30000, cotizaciones_ss=1905)),
+    persona("h1","descendiente",10, discapacidad = disc), persona("h2","descendiente",8), persona("h3","descendiente",5)),
+    tipo_unidad_familiar = "monoparental", familia_numerosa = fn)
+  fn_total <- function(h) { d <- liquidar(h, modo="individual")$deducciones_autonomicas$detalle
+                            sum(unlist(d[grep("^familia_numerosa", names(d))])) }
+  expect_equal(fn_total(mk("general")), 597)
+  expect_equal(fn_total(mk("especial")), 796)
+  expect_equal(fn_total(mk("general", "65_mas")), 1326)
+  expect_equal(fn_total(mk("especial", "65_mas")), 1459)
+})
+
+test_that("Canarias: estudios no superiores, límite 133 € + 66 € por hijo adicional", {
+  h <- nuevo_hogar("v","ES-CN", list(persona("d1","declarante",40,
+    trabajo=list(dinerarias=30000, cotizaciones_ss=1905), gastos_estudios_no_superiores=1000),
+    persona("h1","descendiente",10), persona("h2","descendiente",8), persona("h3","descendiente",5)),
+    tipo_unidad_familiar = "monoparental")
+  # 100 % de 1.000 -> límite 133 + 2 × 66 = 265
+  expect_equal(liquidar(h, modo="individual")$deducciones_autonomicas$detalle$gastos_estudios_no_superiores, 265)
+})
+
+test_that("Canarias: monoparental y guardería con el límite de renta de 46.455 €", {
+  h1 <- persona("h1","descendiente",1); h1$gastos_guarderia <- 2000
+  h <- nuevo_hogar("v","ES-CN", list(persona("d1","declarante",40,
+    trabajo=list(dinerarias=60000, cotizaciones_ss=3810)), h1), tipo_unidad_familiar = "monoparental")
+  d <- liquidar(h, modo="individual")$deducciones_autonomicas$detalle
+  expect_null(d$familia_monoparental)
+  expect_null(d$gastos_custodia_guarderias)
+})

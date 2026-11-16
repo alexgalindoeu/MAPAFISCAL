@@ -1,6 +1,6 @@
 {
  "ejercicio": 2025,
- "generado": "2026-11-13",
+ "generado": "2026-11-14",
  "escalas": {
   "estatal_2025": {
    "norma": "Art. 63.1.1º LIRPF",
@@ -761,7 +761,7 @@
     {
      "territorio": "ES-NC",
      "nombre": "Comunidad Foral de Navarra",
-     "ahorro": 0
+     "ahorro": 420
     }
    ],
    "45000": [
@@ -858,7 +858,7 @@
     {
      "territorio": "ES-NC",
      "nombre": "Comunidad Foral de Navarra",
-     "ahorro": 0
+     "ahorro": 547.5
     }
    ],
    "60000": [
@@ -955,7 +955,7 @@
     {
      "territorio": "ES-NC",
      "nombre": "Comunidad Foral de Navarra",
-     "ahorro": 0
+     "ahorro": 622.5
     }
    ]
   }

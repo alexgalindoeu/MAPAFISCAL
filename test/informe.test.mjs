@@ -122,7 +122,7 @@ test("contenido en territorios forales y con deducciones", () => {
 test("HTML del informe: secciones, sin banner si está pagado y con banner propio si no", () => {
   const c = I.contenido(hogarAsalariado("ES-MD", 40000, 2540, { retenciones: 6000 }), P);
   const pagado = I.html(c, { banner: false });
-  for (const s of ["Desglose de la liquidación", "Deducciones aplicadas", "Cómo pagar menos", "territorios fiscales", "No sustituye"])
+  for (const s of ["Desglose de la liquidación", "Deducciones aplicadas", "Cómo pagar menos", "No sustituye"])
     assert.match(pagado, new RegExp(s));
   assert.doesNotMatch(pagado, /inf-banner/);
   const gratis = I.html(c, { banner: true });

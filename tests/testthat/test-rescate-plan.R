@@ -42,5 +42,5 @@ test_that("rescate_plan: capital, renta y mixto", {
   # sin nada anterior a 2007, el mixto es la renta
   s <- rescate_plan("ES-EX", 2026, 0, 45000, otros_ingresos = 18000, anios = 3)
   expect_equal(s$mixto$extra, s$renta$extra)
-  expect_error(rescate_plan("ES-PV-BI", 2026, 10000, 10000), "régimen común")
+  expect_true(rescate_plan("ES-PV-BI", 2026, 10000, 10000)$en_plazo)
 })

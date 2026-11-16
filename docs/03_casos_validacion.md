@@ -110,12 +110,14 @@ y que el caso sin DT 9ª computa los 40.000 € íntegros.
 ## Deducciones autonómicas — Cataluña (DL 1/2024)
 
 Codificadas en `tests/testthat/test-ded-cataluna.R`. 7 de las 13 deducciones del
-libro sexto del Código Tributario de Catalunya.
+libro sexto del Código Tributario de Catalunya. Cotejadas (11-2026) con el Manual Práctico
+de Renta 2025 de la AEAT: confirmadas todas salvo el ángel inversor (provisional: no distingue el 50 %
+de las sociedades participadas por universidades).
 
 | Deducción (art.) | Regla | Comprobación |
 |---|---|---|
-| Nacimiento o adopción (612-1) | 150 €/progenitor (individual), 300 € (conjunta), solo año del nacimiento | — |
-| Alquiler vivienda habitual (612-3) | 10 %, máx. 500 €, ≤ 35 años, *(base − mínimo) ≤ 30.000 / 45.000* | joven bajo umbral → 500 €; renta alta → 0 |
+| Nacimiento o adopción (612-1) | 150 €/progenitor (individual), 300 € (conjunta o familia monoparental), solo año del nacimiento, sin incremento por parto múltiple | monoparental → 300 €; gemelos en individual → 2 × 150 = 300 € por progenitor |
+| Alquiler vivienda habitual (612-3) | 10 %, máx. 500 € (1.000 € en conjunta), ≤ 35 años o discapacidad ≥ 65 %; 1.000 € a familias numerosas o monoparentales sin otro requisito; *(base − mínimo) ≤ 30.000 / 45.000* | joven bajo umbral → 500 €; renta alta → 0; FN de 45 años con 12.000 € → 1.200 → 1.000 €; conjunta con 12.000 € → 1.000 € |
 | Rehabilitación vivienda habitual (612-4) | 1,5 %, base máx. 9.040 € | 6.000 € → 90 €; 20.000 € → 135,60 € (tope) |
 | Donativos fomento lengua catalana/occitana (612-6) | 15 %, tope 10 % de la cuota íntegra autonómica | — |
 | Donativos a I+D+i (612-7) | 30 %, tope 10 % de la cuota íntegra autonómica | 400 € → 120 €; 50.000 € → 10 % de la cuota autonómica |
@@ -241,38 +243,49 @@ con discapacidad ≥ 65 %; en individual, cada progenitor aplica (2.500 + 2.000 
 
 ## Deducciones autonómicas — Canarias (DL 1/2009)
 
-Codificadas en `tests/testthat/test-ded-canarias.R`. 6 deducciones (de ~16).
+Codificadas en `tests/testthat/test-ded-canarias.R`. 6 deducciones (de ~16), cotejadas
+(11-2026) con el Manual Práctico de Renta 2025 de la AEAT y todas confirmadas. Límite de
+renta común: bases imponibles general + ahorro (0435 + 0460) ≤ 46.455 € (individual) o
+61.770 € (conjunta).
 
-| Deducción (art.) | Regla |
-|---|---|
-| Nacimiento o adopción (10) | 265 / 265 / 530 € por orden (🟡 4.º 796 €, 5.º+ 928 € no modelados), prorrateo entre progenitores, *base ≤ 46.455 / 61.770* |
-| Familia numerosa general (13) | 597 € |
-| Familia numerosa especial (13) | 796 € (597 + 199) |
-| Familia monoparental (11 ter) | 133 € (con al menos un descendiente a cargo) |
-| Gastos de custodia en guardería (12) | 18 % por descendiente < 3 años, límite 530 €/descendiente |
-| Gastos de estudios no superiores (7 bis) | 100 % (libros, transporte, uniforme, comedor), límite 133 € (🟡 no el +66 €/descendiente adicional) |
+| Deducción (art.) | Regla | Comprobación |
+|---|---|---|
+| Nacimiento o adopción (10) | 265 € el 1.º y 2.º, 530 € el 3.º, 796 € el 4.º, 928 € el 5.º y siguientes (clave `"N+"` de `importes_por_orden`); prorrateo entre progenitores, con límite de renta | 4 hijos (10, 8, 5 y 0 años) → 796 €; 5 hijos → 928 €; 3 hijos → 530 € |
+| Familia numerosa (13) | 597 € general, 796 € especial; 1.326 € / 1.459 € si un cónyuge o descendiente tiene discapacidad ≥ 65 % (variantes excluyentes, `grupo`); sin límite de renta | general 597; especial 796; con hijo al 65 %: 1.326 y 1.459 |
+| Familia monoparental (11 ter) | 133 € con algún hijo menor de edad, con límite de renta | 60.000 € de trabajo → no aplica |
+| Gastos de custodia en guardería (12) | 18 % por descendiente < 3 años, límite 530 €/descendiente, con límite de renta | 4.000 + 1.000 € → 530 + 180 = 710 €; 60.000 € de trabajo → no aplica |
+| Gastos de estudios no superiores (7 bis) | 100 %, límite 133 € por el primer descendiente y 66 € por cada uno adicional (`limite_por_hijo_adicional`), repartido en individual con dos progenitores; con límite de renta | 1.000 € con 3 hijos → 133 + 2 × 66 = 265 € |
 
-**Pendientes:** gastos de estudios de educación superior fuera de la isla (7 —
-necesita el dato "estudia fuera de la isla"), discapacidad de contribuyentes ≥ 65
-años, traslado de residencia a otra isla, donativos, inversión en acciones.
+**Correcciones del cotejo:** 4.º y 5.º hijo; FN con discapacidad; +66 €/hijo en estudios;
+límite de renta que faltaba en monoparental, guardería y estudios.
+
+**Pendientes:** incremento del art. 10 por hijo con discapacidad ≥ 65 % (600 € / 1.100 €),
+gastos de estudios de educación superior fuera de la isla (7 — necesita el dato "estudia
+fuera de la isla"), discapacidad de contribuyentes ≥ 65 años, traslado de residencia a otra
+isla, donativos, inversión en acciones.
 
 ---
 
 ## Deducciones autonómicas — Región de Murcia (DL 1/2010)
 
-Codificadas en `tests/testthat/test-ded-murcia.R`. 7 deducciones (de ~27).
-Fuente: TR de tributos cedidos de la Región de Murcia (DL 1/2010), art. 1, y
-AEAT *Manual Práctico Renta 2025, Parte 2 — Deducciones autonómicas / Región de Murcia*.
+Codificadas en `tests/testthat/test-ded-murcia.R`. 7 deducciones (de ~27), cotejadas (11-2026)
+con el Manual Práctico de Renta 2025 de la AEAT, parte 2, Región de Murcia: 6 confirmadas y la de
+conciliación, provisional. Los límites de renta son sobre las bases imponibles (0435 + 0460).
 
 | Deducción (art. 1.·) | Regla |
 |---|---|
 | Nacimiento o adopción (Nueve) | 100 / 200 / 300 € por orden del hijo nacido; *base ≤ 30.000 (ind.) / 50.000 (conj.)*; por mitad si ambos progenitores declaran y conviven |
 | Gastos de guardería (Tres) | 20 % de los gastos de Primer Ciclo de Ed. Infantil (0–3 años), límite **1.000 €/hijo**; *base ≤ 30.000 / 50.000* |
-| Material escolar y libros de texto (Ocho) | **120 € por descendiente** (2.º ciclo infantil, primaria y ESO); *base ≤ 20.000 / 40.000* (🟡 edad 3–16 aproxima la etapa; límites de familia numerosa 33.000/53.000 no modelados); prorrateo |
+| Material escolar y libros de texto (Ocho) | **120 € por descendiente** (2.º ciclo infantil, primaria y ESO; la edad 3–16 aproxima la etapa); *base ≤ 20.000 / 40.000*, o *≤ 33.000 / 53.000* en familia numerosa; prorrateo |
 | Contribuyentes con discapacidad (Diez) | **150 €** por contribuyente con grado ≥ 33 %; *base ≤ 40.000* (ind. o conj.) |
-| Conciliación — cuidado de descendientes (Once.A) | 20 % de las cuotas del Sistema Especial de Empleados de Hogar, límite **400 €**; al menos un hijo < 12 años (🟡 requiere alta como empleador; se usa el campo `cuotas_ss_empleada_hogar`) |
-| Familia monoparental (Dieciséis) | **303 €** con descendientes a cargo; *base + anualidades exentas ≤ 35.240 €* |
-| Arrendamiento de vivienda habitual (Trece) | 10 % de lo pagado, máx. **300 €/contrato**; ≤ 40 años (🟡 alternativas familia numerosa / discapacidad ≥ 65 % no modeladas) |
+| Conciliación — cuidado de descendientes (Once.A) | 20 % de las cuotas del Sistema Especial de Empleados de Hogar, límite **400 €**; al menos un hijo < 12 años, progenitores con trabajo o actividad, *base ≤ 34.000* (🟡 provisional: falta la modalidad B, ascendientes, y el límite es por cónyuge) |
+| Familia monoparental (Dieciséis) | **303 €** con hijos menores de edad; *base + anualidades exentas ≤ 35.240 €* |
+| Arrendamiento de vivienda habitual (Trece) | 10 % de lo pagado, máx. **300 €/contrato**; ≤ 40 años, familia numerosa o discapacidad ≥ 65 % (variantes excluyentes); *base imponible general − mínimo < 40.000* (`base_gate: general_menos_minimo`) y *base del ahorro ≤ 1.800* (`base_ahorro_max`) |
+
+Comprobaciones del cotejo: familia numerosa de 50 años con 6.000 € de alquiler → 10 % = 600 →
+**300 €**; la misma sin título → 0; con 40 años → 300; con 2.000 € de intereses (ahorro > 1.800) →
+0; con 90.000 € de sueldo → 0. Material escolar con base ≈ 27.968 €: familia numerosa con tres
+hijos de 5, 8 y 10 años → 3 × 120 = **360 €**; sin título (límite 20.000) → 0.
 
 ### Comprobación numérica (test `mc_familia`, validado R↔JS)
 
@@ -1564,3 +1577,61 @@ IRPF sin rescate: 0 (la reducción del art. 20 y el mínimo cubren la pensión).
 País Vasco y Navarra: el rescate tiene reglas forales propias (integración del 60 % del primer cobro en capital,
 con sus límites y su régimen transitorio). Quedan pendientes hasta comprobarlas en el BOB, el BOG, el BOTHA y el BON;
 el motor no aplica la reducción en esos regímenes y la herramienta no los ofrece.
+
+## País Vasco: vivienda, cuenta vivienda y colectivos (2026-11-14)
+
+Norma: arts. 86 y 87 de la NF 13/2013 (Bizkaia), NF 3/2014 (Gipuzkoa) y NF 33/2013 (Araba),
+en la redacción de la revisión fiscal de 2025 (NF 2/2025, 1/2025 y 3/2025). Fuente: fichas
+KA-01027, KA-01508 y KA-01353 de la Hacienda Foral de Bizkaia (cuadros desde 01-01-2025).
+
+- Alquiler: 20 % con 1.600 €; 35 % con 2.800 € si se tiene menos de 36 años a 31 de
+  diciembre o se es familia numerosa, monoparental, discapacidad >= 65 % / dependencia o
+  víctima de violencia.
+- Compra: 18 % con 1.530 €; 23 % con 1.955 € para menores de 36 y colectivos.
+- Cuenta vivienda (`cuenta_vivienda_aportaciones`): 18 % (23 % si menor de 36; el de los
+  colectivos no se aplica), con una base anual de 8.500 € común con la compra.
+
+| Caso | Cálculo | Deducción |
+|---|---|---|
+| `bi_cuenta_vivienda` (30 años, compra 4.000, cuenta 6.000) | 23 % × 4.000 = 920; base libre 8.500 − 4.000 = 4.500; 23 % × 4.500 = 1.035 | 1.955 € |
+| `bi_alquiler_joven` (33 años, alquiler 9.000) | 35 % × 9.000 = 3.150 → límite | 2.800 € |
+| `ss_fnum_compra_cuenta` (familia numerosa, compra 10.000, cuenta 3.000) | 23 % × 10.000 = 2.300 → 1.955 (agota la base de 8.500); cuenta: 0 | 1.955 € |
+| `vi_cuenta_vivienda` (40 años, cuenta 5.000) | 18 % × 5.000 | 900 € |
+
+No modelado: sin límite el año de la compra para menores de 36 (el motor no conoce el año de
+compra), crédito fiscal de 36.000 € y, desde 2026, el tope de 68.000 € de base liquidable
+para viviendas compradas o contratos de alquiler firmados desde ese año. Navarra no tiene
+deducción por cuenta vivienda en vigor (solo régimen transitorio de compras anteriores).
+
+## Forales: planes de pensiones, EPSV y rescate (2026-11-14)
+
+### Reducción por aportaciones
+
+- **País Vasco** (arts. 70 a 72 de las NF del IRPF): por persona, 5.000 € de aportaciones
+  propias, 8.000 € de contribuciones empresariales y 12.000 € entre todas (10.000 € desde
+  2026: art. 71 en la redacción de la NF 2/2025 de Bizkaia, NF 1/2025 de Gipuzkoa y NF 3/2025
+  de Araba). Sin límite porcentual. `bi_epsv_tope`: 6.000 + 9.000 → mín(5.000 + 8.000;
+  12.000) = 12.000 € (10.000 € en `bi_epsv_tope_2026`). `ss_epsv_pareja` (conjunta o
+  individual): 4.000 € + (2.000 + 1.000) €.
+- **Navarra** (art. 55.1.7.º TR IRPF; letra b´) de la LF 19/2021, BOE-A-2022-2067): por
+  partícipe, el menor de 30 % de los rendimientos netos del trabajo y de actividades (50 % con
+  más de 50 años) y 1.500 € más hasta 8.500 € de contribuciones empresariales. Antes el
+  motor no aplicaba ninguna reducción. `nc_plan_55`: rendimiento 40.000 + 2.000 − 2.600 =
+  39.400; 50 % = 19.700; límite 1.500 + 2.000 = 3.500 → base liquidable 35.900.
+  `nc_plan_30pct`: 30 % × (4.000 − 260) = 1.122 → base 2.618. La letra a´) (30 % / 50 %)
+  queda `provisional` (fuente secundaria).
+
+### Rescate en capital
+
+- **País Vasco** (arts. 18.a).3.ª y 19.2.a) de las NF; guía de la Hacienda Foral de Bizkaia):
+  el primer cobro en capital se integra al 60 % hasta 300.000 € (reducción del 40 %). Desde
+  2026, lo que procede de aportaciones anteriores puede seguir este régimen (el motor lo
+  aplica). Ejemplo (Bizkaia, 2026, 80.000 € y 15.000 € de pensión): IRPF con 15.000 € = 0;
+  con 15.000 + 60 % × 80.000 = 63.000 € → 16.237,80 € extra. En renta (5 × 16.000 €): 26.212 €.
+  Mixto = hasta 300.000 € en capital y el resto en renta (`rescate25_ss_tope`: 300.000 € el
+  primer año, reducción 120.000 €).
+- **Navarra** (art. 17.2.b) en su redacción a 31-12-2017 y DT 25.ª, LF 16/2017,
+  BOE-A-2018-801): 40 % de lo aportado hasta 2017, cobrado en capital el año de la
+  contingencia o los dos siguientes (las contingencias anteriores a 2018, solo hasta 2020).
+  `rescate26_nc_plazo` (contingencia 2025): reducción 16.000 €; `rescate26_nc_fuera`
+  (contingencia 2022): sin reducción.

@@ -42,7 +42,7 @@
       // reducciones
       planIndividual: 0, planEmpresa: 0, compensatoria: 0, alimentos: 0,
       // vivienda y donativos
-      alquiler: 0, hipoteca: 0, compra: 0, colectivoEspecial: false, donativos: 0, donativosRec: false
+      alquiler: 0, hipoteca: 0, compra: 0, cuentaVivienda: 0, colectivoEspecial: false, donativos: 0, donativosRec: false
     };
   }
   function estadoInicial() {
@@ -130,6 +130,7 @@
 
     m.alquilerViviendaPagos = pos(p.alquiler);
     m.adquisicionViviendaPagos = pos(p.compra);
+    if (pos(p.cuentaVivienda)) m.cuentaViviendaAportaciones = pos(p.cuentaVivienda);
     m.viviendaTransitoriaPagos = pos(p.hipoteca);
     if (p.colectivoEspecial) m.colectivoEspecialVivienda = true;
     m.donativos = pos(p.donativos);
@@ -179,7 +180,7 @@
   // ---- hogar -> estado (también hogares guardados con el formulario antiguo) -------------
   const CONOCIDOS = new Set(["id", "rol", "edad", "discapacidad", "movilidadReducida", "ayudaTerceros", "desempleado", "mesesDesempleo",
     "trabajo", "capitalMobiliario", "capitalInmobiliario", "imputacionInmobiliaria", "actividades", "ganancias",
-    "gananciasPerdidasNoTransmision", "previsionSocial", "reducciones", "alquilerViviendaPagos", "adquisicionViviendaPagos",
+    "gananciasPerdidasNoTransmision", "previsionSocial", "reducciones", "alquilerViviendaPagos", "adquisicionViviendaPagos", "cuentaViviendaAportaciones",
     "viviendaTransitoriaPagos", "colectivoEspecialVivienda", "donativos", "donativosRecurrentes", "retenciones",
     "rentasPropias", "nacidoEnEjercicio", "convivenciaMeses"]);
   function personaDesdeMiembro(m) {
@@ -200,7 +201,7 @@
       premios: n(m.gananciasPerdidasNoTransmision),
       planIndividual: n(ps.aportacionIndividual), planEmpresa: n(ps.contribucionEmpresarial),
       compensatoria: n(rd.pensionesCompensatorias), alimentos: n(rd.anualidadesAlimentosHijos),
-      alquiler: n(m.alquilerViviendaPagos), hipoteca: n(m.viviendaTransitoriaPagos), compra: n(m.adquisicionViviendaPagos),
+      alquiler: n(m.alquilerViviendaPagos), hipoteca: n(m.viviendaTransitoriaPagos), compra: n(m.adquisicionViviendaPagos), cuentaVivienda: n(m.cuentaViviendaAportaciones),
       colectivoEspecial: !!m.colectivoEspecialVivienda, donativos: n(m.donativos), donativosRec: !!m.donativosRecurrentes
     });
     p.inmuebles = (m.capitalInmobiliario || []).map(i => {
@@ -522,10 +523,11 @@
     let viv = importe(e, r + "alquiler", `Alquiler de tu vivienda habitual pagado en ${ej}`, null, { step: 50 });
     if (reg === "comun") viv += importe(e, r + "hipoteca", "Hipoteca de tu vivienda habitual comprada antes de 2013", `Capital, intereses y seguros vinculados pagados en ${ej} (régimen transitorio).`, { step: 100 });
     if (reg === "foral_pais_vasco") viv += importe(e, r + "compra", `Pagos por la compra de tu vivienda habitual en ${ej}`, "Deducción foral por adquisición de vivienda.", { step: 100 }) +
-      casilla(e, r + "colectivoEspecial", "Pertenezco a un colectivo con deducción mayor (familia numerosa o discapacidad)");
+      importe(e, r + "cuentaVivienda", `Lo que ingresaste en ${ej} en tu cuenta vivienda`, "Depósito separado para comprar tu vivienda habitual: deduce el 18 % (23 % si tienes menos de 36 años), con una base de 8.500 € al año que comparte con la compra. Tienes 6 años para comprar (10 si la abriste con menos de 36); si no, devuelves lo deducido con intereses.", { step: 100 }) +
+      casilla(e, r + "colectivoEspecial", "Pertenezco a un colectivo con deducción mayor (discapacidad de al menos el 65 %, dependencia o víctima de violencia)");
     if (reg === "comun") viv += importe(e, r + "donativos", "Donativos a ONG y fundaciones de la Ley 49/2002", "Los que tu ONG comunica a Hacienda (certificado de donaciones).") +
       casilla(e, r + "donativosRec", `Doné a la misma entidad en ${ej - 2} y ${ej - 1} sin bajar el importe`);
-    h += desplegable(id + "-viv", reg === "comun" ? "Tu vivienda y tus donativos" : "Tu vivienda", pos(p.alquiler) || pos(p.hipoteca) || pos(p.compra) || pos(p.donativos), abiertos, viv);
+    h += desplegable(id + "-viv", reg === "comun" ? "Tu vivienda y tus donativos" : "Tu vivienda", pos(p.alquiler) || pos(p.hipoteca) || pos(p.compra) || pos(p.cuentaVivienda) || pos(p.donativos), abiertos, viv);
     return h;
   }
 

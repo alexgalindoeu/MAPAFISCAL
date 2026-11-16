@@ -1,6 +1,6 @@
 {
  "ejercicio": 2025,
- "generado": "2026-11-13",
+ "generado": "2026-11-14",
  "ejercicios": {
   "por_defecto": 2025,
   "publicados": [
@@ -396,8 +396,8 @@
    "incremento_discapacidad_65_o_movilidad": 2.5
   },
   "reduccion_prevision_social": {
-   "norma": "Arts. 70–72 NF 13/2013 y equivalentes (EPSV, planes de pensiones...)",
-   "fuente": "DF Gipuzkoa, Modelo 109 (2025)",
+   "norma": "Arts. 70 a 72 NF 13/2013 Bizkaia, NF 3/2014 Gipuzkoa y NF 33/2013 Araba (EPSV, planes de pensiones, mutualidades), con los 4.000 € de autónomos de la revisión fiscal de 2025 (NF 2/2025 Bizkaia, NF 1/2025 Gipuzkoa, NF 3/2025 Araba)",
+   "fuente": "DF Gipuzkoa, Modelo 109 (2025); Hacienda Foral de Bizkaia, bizkaia.eus/es/renta-bizkaia/deducciones (EPSV: «Nuevo límite de 4.000 €» de autónomos)",
    "estado": "confirmado",
    "limite_individual_no_empleo": 5000,
    "limite_individual_empleo": 8000,
@@ -488,9 +488,10 @@
    }
   },
   "deduccion_alquiler_vivienda": {
-   "norma": "Art. 86 NF 3/2014 y equivalentes; NF 1/2025 (efectos 2025)",
-   "fuente": "DF Gipuzkoa, Modelo 109 (2025)",
+   "norma": "Art. 86 NF 13/2013 Bizkaia, NF 3/2014 Gipuzkoa y NF 33/2013 Araba, en la redacción de la revisión fiscal de 2025 (NF 2/2025 Bizkaia, NF 1/2025 Gipuzkoa, NF 3/2025 Araba; efectos 1-1-2025)",
+   "fuente": "Hacienda Foral de Bizkaia, ficha KA-01027 «Deducción por alquiler de vivienda habitual» (cuadro desde 01-01-2025) y bizkaia.eus/es/renta-bizkaia/deducciones; DF Gipuzkoa, Modelo 109 (2025)",
    "estado": "confirmado",
+   "edad_max_incrementada": 36,
    "general": {
     "porcentaje": 0.2,
     "limite": 1600
@@ -501,9 +502,16 @@
    }
   },
   "deduccion_adquisicion_vivienda": {
-   "norma": "Arts. 87–89 NF 3/2014 y equivalentes; NF 1/2025",
-   "fuente": "DF Gipuzkoa, Modelo 109 (2025)",
+   "norma": "Arts. 87 a 89 NF 13/2013 Bizkaia, NF 3/2014 Gipuzkoa y NF 33/2013 Araba, en la redacción de la revisión fiscal de 2025 (NF 2/2025 Bizkaia, NF 1/2025 Gipuzkoa, NF 3/2025 Araba)",
+   "fuente": "Hacienda Foral de Bizkaia, fichas KA-01508 «Compra de vivienda habitual» y KA-01353 «Deducción por cantidades depositadas en cuenta vivienda» (cuadros desde 01-01-2025); DF Gipuzkoa, Modelo 109 (2025)",
    "estado": "confirmado",
+   "cuenta_vivienda": {
+    "porcentaje_general": 0.18,
+    "porcentaje_menor_36": 0.23,
+    "base_maxima_conjunta": 8500,
+    "plazo_anios": 6,
+    "plazo_menor_36_anios": 10
+   },
    "credito_fiscal_vital": 36000,
    "general": {
     "porcentaje": 0.18,
@@ -529,6 +537,13 @@
     }
    },
    "doble_limite_conjunta": true
+  },
+  "prestaciones_prevision_capital": {
+   "norma": "Arts. 18.a).3.ª y 19.2.a) NF 13/2013 Bizkaia, NF 3/2014 Gipuzkoa y NF 33/2013 Araba (límite de 300.000 € desde el 1-1-2014)",
+   "fuente": "Hacienda Foral de Bizkaia, guía «Integración de rendimientos del trabajo» (EPSV, PPA y PP: 60 % sobre el total percibido si los años de generación > 2; límite de 300.000 € desde el 1-1-2014)",
+   "estado": "confirmado",
+   "porcentaje_reduccion": 0.4,
+   "limite": 300000
   },
   "dt_abatimiento_pre1994": {
    "norma": "DT foral (equivalente a la DT 9ª LIRPF)",
@@ -792,6 +807,29 @@
    "umbral": 14490,
    "rentas_max_individual": 21619.59,
    "rentas_max_unidad_familiar": 28980
+  },
+  "reduccion_prevision_social": {
+   "norma": "Art. 55.1.7.º a) DFL 4/2008 (TR IRPF Navarra): letra b´) en la redacción del art. primero.Seis de la LF 19/2021 (efectos 1-1-2022), sin cambios en la LF 22/2023 (que solo añade los 4.250 € de seguros colectivos) ni en la LF 20/2024; letra a´), redacción anterior no modificada",
+   "fuente": "BOE-A-2022-2067 (LF 19/2021, texto literal de la letra b´): «1.500 euros anuales. Este límite se incrementará en 8.500 euros, siempre que tal incremento provenga de contribuciones empresariales…»); BOE-A-2024-1694 (LF 22/2023); letra a´) (30 %, 50 % para mayores de 50 años): BBVA AM, «Límites fiscalidad planes de pensiones 2023 Navarra»",
+   "estado": "provisional",
+   "limite_general_abs": 1500,
+   "incremento_contribucion_empresarial": 8500,
+   "limite_pct_rend": 0.3,
+   "limite_pct_rend_incrementado": 0.5,
+   "edad_porcentaje_incrementado": 50,
+   "limite_aportacion_conyuge": 1000,
+   "rentas_conyuge_maximas": 8500,
+   "incremento_seguros_dependencia": 5000
+  },
+  "prestaciones_prevision_capital": {
+   "norma": "Art. 17.2.b) DFL 4/2008 (TR IRPF Navarra) en su redacción a 31-12-2017 y DT 25.ª, añadida por el art. primero.Cuarenta y seis de la LF 16/2017 (efectos 1-1-2018)",
+   "fuente": "BOE-A-2018-801 (LF 16/2017, de 27 de diciembre): preámbulo y DT 25.ª, apartados 1, 2 y 4",
+   "estado": "confirmado",
+   "porcentaje_reduccion": 0.4,
+   "anio_corte_aportaciones": 2018,
+   "anio_regimen": 2018,
+   "plazo_anios": 2,
+   "ultimo_anio_anterior": 2020
   },
   "dt_abatimiento_pre1994": {
    "norma": "DT TR IRPF Navarra (equivalente a la DT 9ª LIRPF)",
@@ -1594,60 +1632,109 @@
      {
       "id": "nacimiento_adopcion",
       "norma": "Art. 10 DL 1/2009 Canarias",
-      "estado": "provisional",
+      "estado": "confirmado",
+      "fuente": "Art. 10 TR de tributos cedidos de Canarias (DL 1/2009, de 21 de abril), vigente en 2025; AEAT Manual Práctico Renta 2025, Parte 2, Canarias, «Por nacimiento o adopción de hijos» (https://sede.agenciatributaria.gob.es/Sede/ayuda/manuales-videos-folletos/manuales-practicos/irpf-2025-deducciones-autonomicas/comunidad-autonoma-canarias/nacimiento-adopcion-hijos.html)",
       "tipo": "fija_por_hijo_nacido",
       "anios_ventana": 1,
       "importes_por_orden": {
        "1": 265,
        "2": 265,
-       "3+": 530
+       "3": 530,
+       "4": 796,
+       "5+": 928
       },
       "prorratea_progenitores": true,
+      "suma_bases": "imponibles",
       "base_max_individual": 46455,
       "base_max_conjunta": 61770
      },
      {
       "id": "familia_numerosa_general",
       "norma": "Art. 13 DL 1/2009 Canarias",
+      "estado": "confirmado",
+      "fuente": "Art. 13 TR de tributos cedidos de Canarias (DL 1/2009, de 21 de abril), vigente en 2025; AEAT Manual Práctico Renta 2025, Parte 2, Canarias, «Por familia numerosa» (https://sede.agenciatributaria.gob.es/Sede/ayuda/manuales-videos-folletos/manuales-practicos/irpf-2025-deducciones-autonomicas/comunidad-autonoma-canarias/familia-numerosa.html)",
       "tipo": "fija",
       "importe": 597,
-      "requiere_familia_numerosa": true
+      "familia_numerosa_categoria": "general",
+      "grupo": "fn_cn"
      },
      {
       "id": "familia_numerosa_especial",
       "norma": "Art. 13 DL 1/2009 Canarias",
+      "estado": "confirmado",
+      "fuente": "Art. 13 TR de tributos cedidos de Canarias (DL 1/2009, de 21 de abril), vigente en 2025; AEAT Manual Práctico Renta 2025, Parte 2, Canarias, «Por familia numerosa» (https://sede.agenciatributaria.gob.es/Sede/ayuda/manuales-videos-folletos/manuales-practicos/irpf-2025-deducciones-autonomicas/comunidad-autonoma-canarias/familia-numerosa.html)",
       "tipo": "fija",
-      "importe": 199,
-      "requiere_familia_numerosa": "especial"
+      "importe": 796,
+      "familia_numerosa_categoria": "especial",
+      "grupo": "fn_cn"
+     },
+     {
+      "id": "familia_numerosa_general_discapacidad",
+      "norma": "Art. 13 DL 1/2009 Canarias",
+      "estado": "confirmado",
+      "fuente": "Art. 13 TR de tributos cedidos de Canarias (DL 1/2009, de 21 de abril), vigente en 2025; AEAT Manual Práctico Renta 2025, Parte 2, Canarias, «Por familia numerosa» (https://sede.agenciatributaria.gob.es/Sede/ayuda/manuales-videos-folletos/manuales-practicos/irpf-2025-deducciones-autonomicas/comunidad-autonoma-canarias/familia-numerosa.html)",
+      "tipo": "fija",
+      "importe": 1326,
+      "familia_numerosa_categoria": "general",
+      "requiere_discapacidad_65_de": "declarantes_o_descendientes",
+      "grupo": "fn_cn"
+     },
+     {
+      "id": "familia_numerosa_especial_discapacidad",
+      "norma": "Art. 13 DL 1/2009 Canarias",
+      "estado": "confirmado",
+      "fuente": "Art. 13 TR de tributos cedidos de Canarias (DL 1/2009, de 21 de abril), vigente en 2025; AEAT Manual Práctico Renta 2025, Parte 2, Canarias, «Por familia numerosa» (https://sede.agenciatributaria.gob.es/Sede/ayuda/manuales-videos-folletos/manuales-practicos/irpf-2025-deducciones-autonomicas/comunidad-autonoma-canarias/familia-numerosa.html)",
+      "tipo": "fija",
+      "importe": 1459,
+      "familia_numerosa_categoria": "especial",
+      "requiere_discapacidad_65_de": "declarantes_o_descendientes",
+      "grupo": "fn_cn"
      },
      {
       "id": "familia_monoparental",
       "norma": "Art. 11 ter DL 1/2009 Canarias",
+      "estado": "confirmado",
+      "fuente": "Art. 11 ter TR de tributos cedidos de Canarias (DL 1/2009, de 21 de abril), vigente en 2025; AEAT Manual Práctico Renta 2025, Parte 2, Canarias, «Por familias monoparentales» (https://sede.agenciatributaria.gob.es/Sede/ayuda/manuales-videos-folletos/manuales-practicos/irpf-2025-deducciones-autonomicas/comunidad-autonoma-canarias/familias-monoparentales.html)",
       "tipo": "fija",
       "importe": 133,
       "requiere_monoparental": true,
-      "descendientes_min": 1
+      "descendiente_edad_max": 17,
+      "suma_bases": "imponibles",
+      "base_max_individual": 46455,
+      "base_max_conjunta": 61770
      },
      {
       "id": "gastos_custodia_guarderias",
       "norma": "Art. 12 DL 1/2009 Canarias",
+      "estado": "confirmado",
+      "fuente": "Art. 12 TR de tributos cedidos de Canarias (DL 1/2009, de 21 de abril), vigente en 2025; AEAT Manual Práctico Renta 2025, Parte 2, Canarias, «Por gastos de custodia en guarderías» (https://sede.agenciatributaria.gob.es/Sede/ayuda/manuales-videos-folletos/manuales-practicos/irpf-2025-deducciones-autonomicas/comunidad-autonoma-canarias/gastos-custodia-guarderias.html)",
       "tipo": "porcentaje_campo_hijo",
       "campo": "gastos_guarderia",
       "porcentaje": 0.18,
       "limite": 530,
-      "edad_hijo_max": 2
+      "edad_hijo_max": 2,
+      "suma_bases": "imponibles",
+      "base_max_individual": 46455,
+      "base_max_conjunta": 61770
      },
      {
       "id": "gastos_estudios_no_superiores",
       "norma": "Art. 7 bis DL 1/2009 Canarias",
-      "estado": "provisional",
+      "estado": "confirmado",
+      "fuente": "Art. 7 bis TR de tributos cedidos de Canarias (DL 1/2009, de 21 de abril), vigente en 2025; AEAT Manual Práctico Renta 2025, Parte 2, Canarias, «Por gastos de estudios no superiores» (https://sede.agenciatributaria.gob.es/Sede/ayuda/manuales-videos-folletos/manuales-practicos/irpf-2025-deducciones-autonomicas/comunidad-autonoma-canarias/gastos-estudios-no-superiores.html)",
       "tipo": "porcentaje_campo",
       "campo": "gastos_estudios_no_superiores",
       "porcentaje": 1,
-      "limite": 133
+      "limite": 133,
+      "limite_por_hijo_adicional": 66,
+      "descendientes_min": 1,
+      "suma_bases": "imponibles",
+      "base_max_individual": 46455,
+      "base_max_conjunta": 61770
      }
     ],
     "pendientes": [
+     "incremento_discapacidad_nacimiento",
      "contribuyentes_discapacidad_mayores_65",
      "gastos_estudios_educacion_superior_fuera_isla",
      "traslado_residencia_otra_isla",
@@ -2244,28 +2331,98 @@
      {
       "id": "nacimiento_adopcion",
       "norma": "Art. 612-1 DL 1/2024",
+      "estado": "confirmado",
+      "fuente": "Art. 612-1 DL 1/2024, de 12 de marzo (libro sexto del Código tributario de Catalunya), vigente en 2025; AEAT Manual Práctico Renta 2025, Parte 2, Cataluña, «Por nacimiento o adopción de un hijo o de una hija o por acogimiento familiar» (https://sede.agenciatributaria.gob.es/Sede/ayuda/manuales-videos-folletos/manuales-practicos/irpf-2025-deducciones-autonomicas/comunidad-autonoma-cataluna/nacimiento-adopcion-hijo-hija-acogimiento-familiar.html)",
       "tipo": "fija_por_hijo_nacido",
       "importe": 150,
       "importe_conjunta": 300,
-      "importe_multiple": 150,
+      "importe_multiple": 0,
       "anios_ventana": 1,
-      "prorratea_progenitores": false
+      "prorratea_progenitores": false,
+      "grupo": "nacimiento_ct"
+     },
+     {
+      "id": "nacimiento_adopcion_monoparental",
+      "norma": "Art. 612-1 DL 1/2024",
+      "estado": "confirmado",
+      "fuente": "Art. 612-1 DL 1/2024, de 12 de marzo (libro sexto del Código tributario de Catalunya), vigente en 2025; AEAT Manual Práctico Renta 2025, Parte 2, Cataluña, «Por nacimiento o adopción de un hijo o de una hija o por acogimiento familiar» (https://sede.agenciatributaria.gob.es/Sede/ayuda/manuales-videos-folletos/manuales-practicos/irpf-2025-deducciones-autonomicas/comunidad-autonoma-cataluna/nacimiento-adopcion-hijo-hija-acogimiento-familiar.html)",
+      "tipo": "fija_por_hijo_nacido",
+      "importe": 300,
+      "importe_multiple": 0,
+      "anios_ventana": 1,
+      "requiere_monoparental": true,
+      "prorratea_progenitores": false,
+      "grupo": "nacimiento_ct"
      },
      {
       "id": "arrendamiento_vivienda_habitual",
       "norma": "Art. 612-3 DL 1/2024",
+      "estado": "confirmado",
+      "fuente": "Art. 612-3 DL 1/2024, de 12 de marzo (libro sexto del Código tributario de Catalunya), vigente en 2025; AEAT Manual Práctico Renta 2025, Parte 2, Cataluña, «Por alquiler de la vivienda habitual» (https://sede.agenciatributaria.gob.es/Sede/ayuda/manuales-videos-folletos/manuales-practicos/irpf-2025-deducciones-autonomicas/comunidad-autonoma-cataluna/alquiler-vivienda-habitual.html)",
       "tipo": "porcentaje_campo",
       "campo": "alquiler_vivienda_pagos",
       "porcentaje": 0.1,
       "limite": 500,
+      "limite_conjunta": 1000,
       "edad_max": 36,
       "base_gate": "menos_minimo",
       "base_max_individual": 30000,
-      "base_max_conjunta": 45000
+      "base_max_conjunta": 45000,
+      "grupo": "alquiler_ct"
+     },
+     {
+      "id": "arrendamiento_vivienda_habitual_discapacidad",
+      "norma": "Art. 612-3 DL 1/2024",
+      "estado": "confirmado",
+      "fuente": "Art. 612-3 DL 1/2024, de 12 de marzo (libro sexto del Código tributario de Catalunya), vigente en 2025; AEAT Manual Práctico Renta 2025, Parte 2, Cataluña, «Por alquiler de la vivienda habitual» (https://sede.agenciatributaria.gob.es/Sede/ayuda/manuales-videos-folletos/manuales-practicos/irpf-2025-deducciones-autonomicas/comunidad-autonoma-cataluna/alquiler-vivienda-habitual.html)",
+      "tipo": "porcentaje_campo",
+      "campo": "alquiler_vivienda_pagos",
+      "porcentaje": 0.1,
+      "limite": 500,
+      "limite_conjunta": 1000,
+      "requiere_discapacidad_grado": "65_mas",
+      "base_gate": "menos_minimo",
+      "base_max_individual": 30000,
+      "base_max_conjunta": 45000,
+      "grupo": "alquiler_ct"
+     },
+     {
+      "id": "arrendamiento_vivienda_habitual_familia_numerosa",
+      "norma": "Art. 612-3 DL 1/2024",
+      "estado": "confirmado",
+      "fuente": "Art. 612-3 DL 1/2024, de 12 de marzo (libro sexto del Código tributario de Catalunya), vigente en 2025; AEAT Manual Práctico Renta 2025, Parte 2, Cataluña, «Por alquiler de la vivienda habitual» (https://sede.agenciatributaria.gob.es/Sede/ayuda/manuales-videos-folletos/manuales-practicos/irpf-2025-deducciones-autonomicas/comunidad-autonoma-cataluna/alquiler-vivienda-habitual.html)",
+      "tipo": "porcentaje_campo",
+      "campo": "alquiler_vivienda_pagos",
+      "porcentaje": 0.1,
+      "limite": 1000,
+      "requiere_familia_numerosa": true,
+      "prorratea_progenitores": false,
+      "base_gate": "menos_minimo",
+      "base_max_individual": 30000,
+      "base_max_conjunta": 45000,
+      "grupo": "alquiler_ct"
+     },
+     {
+      "id": "arrendamiento_vivienda_habitual_monoparental",
+      "norma": "Art. 612-3 DL 1/2024",
+      "estado": "confirmado",
+      "fuente": "Art. 612-3 DL 1/2024, de 12 de marzo (libro sexto del Código tributario de Catalunya), vigente en 2025; AEAT Manual Práctico Renta 2025, Parte 2, Cataluña, «Por alquiler de la vivienda habitual» (https://sede.agenciatributaria.gob.es/Sede/ayuda/manuales-videos-folletos/manuales-practicos/irpf-2025-deducciones-autonomicas/comunidad-autonoma-cataluna/alquiler-vivienda-habitual.html)",
+      "tipo": "porcentaje_campo",
+      "campo": "alquiler_vivienda_pagos",
+      "porcentaje": 0.1,
+      "limite": 1000,
+      "requiere_monoparental": true,
+      "prorratea_progenitores": false,
+      "base_gate": "menos_minimo",
+      "base_max_individual": 30000,
+      "base_max_conjunta": 45000,
+      "grupo": "alquiler_ct"
      },
      {
       "id": "rehabilitacion_vivienda_habitual",
       "norma": "Art. 612-4 DL 1/2024",
+      "estado": "confirmado",
+      "fuente": "Art. 612-4 DL 1/2024, de 12 de marzo (libro sexto del Código tributario de Catalunya), vigente en 2025; AEAT Manual Práctico Renta 2025, Parte 2, Cataluña, «Por rehabilitación de la vivienda habitual» (https://sede.agenciatributaria.gob.es/Sede/ayuda/manuales-videos-folletos/manuales-practicos/irpf-2025-deducciones-autonomicas/comunidad-autonoma-cataluna/rehabilitacion-vivienda-habitual.html)",
       "tipo": "porcentaje_campo",
       "campo": "rehabilitacion_vivienda_pagos",
       "porcentaje": 0.015,
@@ -2274,6 +2431,8 @@
      {
       "id": "donativos_fomento_lengua_catalana",
       "norma": "Art. 612-6 DL 1/2024",
+      "estado": "confirmado",
+      "fuente": "Art. 612-6 DL 1/2024, de 12 de marzo (libro sexto del Código tributario de Catalunya), vigente en 2025; AEAT Manual Práctico Renta 2025, Parte 2, Cataluña, «Por donativos a entidades que fomentan el uso de la lengua catalana o de la occitana» (https://sede.agenciatributaria.gob.es/Sede/ayuda/manuales-videos-folletos/manuales-practicos/irpf-2025-deducciones-autonomicas/comunidad-autonoma-cataluna/donativos-entidades-que-fomentan-lengua-occitana.html)",
       "tipo": "porcentaje_campo",
       "campo": "donativos_lengua_catalana",
       "porcentaje": 0.15,
@@ -2282,6 +2441,8 @@
      {
       "id": "donativos_investigacion_i_d_i",
       "norma": "Art. 612-7 DL 1/2024",
+      "estado": "confirmado",
+      "fuente": "Art. 612-7 DL 1/2024, de 12 de marzo (libro sexto del Código tributario de Catalunya), vigente en 2025; AEAT Manual Práctico Renta 2025, Parte 2, Cataluña, «Por donativos a entidades que fomentan la investigación científica y el desarrollo y la innovación tecnológicos» (https://sede.agenciatributaria.gob.es/Sede/ayuda/manuales-videos-folletos/manuales-practicos/irpf-2025-deducciones-autonomicas/comunidad-autonoma-cataluna/donativos-entidades-que-fomentan-investigacion.html)",
       "tipo": "porcentaje_campo",
       "campo": "donativos_investigacion",
       "porcentaje": 0.3,
@@ -2290,6 +2451,8 @@
      {
       "id": "inversion_angel_inversor",
       "norma": "Art. 612-9 DL 1/2024",
+      "estado": "provisional",
+      "fuente": "Art. 612-9 DL 1/2024; AEAT Manual Práctico Renta 2025, Parte 2, Cataluña, «Por inversión por un ángel inversor para la adquisición de acciones o participaciones sociales» (https://sede.agenciatributaria.gob.es/Sede/ayuda/manuales-videos-folletos/manuales-practicos/irpf-2025-deducciones-autonomicas/comunidad-autonoma-cataluna/inversion-angel-inversor.html)",
       "tipo": "porcentaje_campo",
       "campo": "inversion_angel_inversor",
       "porcentaje": 0.4,
@@ -2298,6 +2461,8 @@
      {
       "id": "inversion_cooperativas_agrarias_vivienda",
       "norma": "Art. 612-12 DL 1/2024",
+      "estado": "confirmado",
+      "fuente": "Art. 612-12 DL 1/2024, de 12 de marzo (libro sexto del Código tributario de Catalunya), vigente en 2025; AEAT Manual Práctico Renta 2025, Parte 2, Cataluña, «Por inversión en sociedades cooperativas agrarias y de vivienda» (https://sede.agenciatributaria.gob.es/Sede/ayuda/manuales-videos-folletos/manuales-practicos/irpf-2025-deducciones-autonomicas/comunidad-autonoma-cataluna/inversion-sociedades-cooperativas.html)",
       "tipo": "porcentaje_campo",
       "campo": "inversion_cooperativas_cat",
       "porcentaje": 0.2,
@@ -3035,6 +3200,8 @@
      {
       "id": "nacimiento_adopcion",
       "norma": "Art. 1.Nueve DL 1/2010 Murcia",
+      "estado": "confirmado",
+      "fuente": "Art. 1.Nueve TR de tributos cedidos de la Región de Murcia (DL 1/2010, de 5 de noviembre), vigente en 2025; AEAT Manual Práctico Renta 2025, Parte 2, Región de Murcia, «Por nacimiento o adopción» (https://sede.agenciatributaria.gob.es/Sede/ayuda/manuales-videos-folletos/manuales-practicos/irpf-2025-deducciones-autonomicas/comunidad-autonoma-region-murcia/nacimiento-adopcion.html)",
       "tipo": "fija_por_hijo_nacido",
       "anios_ventana": 1,
       "importes_por_orden": {
@@ -3042,6 +3209,7 @@
        "2": 200,
        "3+": 300
       },
+      "suma_bases": "imponibles",
       "base_max_individual": 30000,
       "base_max_conjunta": 50000,
       "prorratea_progenitores": true
@@ -3049,32 +3217,56 @@
      {
       "id": "gastos_guarderia",
       "norma": "Art. 1.Tres DL 1/2010 Murcia",
+      "estado": "confirmado",
+      "fuente": "Art. 1.Tres TR de tributos cedidos de la Región de Murcia (DL 1/2010, de 5 de noviembre), vigente en 2025; AEAT Manual Práctico Renta 2025, Parte 2, Región de Murcia, «Por gastos de guardería» (https://sede.agenciatributaria.gob.es/Sede/ayuda/manuales-videos-folletos/manuales-practicos/irpf-2025-deducciones-autonomicas/comunidad-autonoma-region-murcia/gastos-guarderia.html)",
       "tipo": "porcentaje_campo_hijo",
       "campo": "gastos_guarderia",
       "porcentaje": 0.2,
       "limite": 1000,
       "edad_hijo_max": 2,
+      "suma_bases": "imponibles",
       "base_max_individual": 30000,
       "base_max_conjunta": 50000
      },
      {
       "id": "material_escolar_libros",
       "norma": "Art. 1.Ocho DL 1/2010 Murcia",
-      "estado": "provisional",
+      "estado": "confirmado",
+      "fuente": "Art. 1.Ocho TR de tributos cedidos de la Región de Murcia (DL 1/2010, de 5 de noviembre), vigente en 2025; AEAT Manual Práctico Renta 2025, Parte 2, Región de Murcia, «Por gastos en la adquisición de material escolar y libros de texto» (https://sede.agenciatributaria.gob.es/Sede/ayuda/manuales-videos-folletos/manuales-practicos/irpf-2025-deducciones-autonomicas/comunidad-autonoma-region-murcia/gastos-adquisicion-material-escolar-libros-texto.html)",
       "tipo": "fija_por_hijo",
       "importe": 120,
       "edad_hijo_min": 3,
       "edad_hijo_max": 16,
+      "familia_numerosa_categoria": "no",
+      "suma_bases": "imponibles",
       "base_max_individual": 20000,
       "base_max_conjunta": 40000,
       "prorratea_progenitores": true
      },
      {
+      "id": "material_escolar_libros_familia_numerosa",
+      "norma": "Art. 1.Ocho DL 1/2010 Murcia",
+      "estado": "confirmado",
+      "fuente": "Art. 1.Ocho TR de tributos cedidos de la Región de Murcia (DL 1/2010, de 5 de noviembre), vigente en 2025; AEAT Manual Práctico Renta 2025, Parte 2, Región de Murcia, «Por gastos en la adquisición de material escolar y libros de texto» (https://sede.agenciatributaria.gob.es/Sede/ayuda/manuales-videos-folletos/manuales-practicos/irpf-2025-deducciones-autonomicas/comunidad-autonoma-region-murcia/gastos-adquisicion-material-escolar-libros-texto.html)",
+      "tipo": "fija_por_hijo",
+      "importe": 120,
+      "edad_hijo_min": 3,
+      "edad_hijo_max": 16,
+      "requiere_familia_numerosa": true,
+      "suma_bases": "imponibles",
+      "base_max_individual": 33000,
+      "base_max_conjunta": 53000,
+      "prorratea_progenitores": true
+     },
+     {
       "id": "contribuyente_discapacidad",
       "norma": "Art. 1.Diez DL 1/2010 Murcia",
+      "estado": "confirmado",
+      "fuente": "Art. 1.Diez TR de tributos cedidos de la Región de Murcia (DL 1/2010, de 5 de noviembre), vigente en 2025; AEAT Manual Práctico Renta 2025, Parte 2, Región de Murcia, «Para contribuyentes con discapacidad» (https://sede.agenciatributaria.gob.es/Sede/ayuda/manuales-videos-folletos/manuales-practicos/irpf-2025-deducciones-autonomicas/comunidad-autonoma-region-murcia/contribuyentes-discapacidad.html)",
       "tipo": "fija",
       "importe": 150,
       "requiere_discapacidad_contribuyente": true,
+      "suma_bases": "imponibles",
       "base_max_individual": 40000,
       "base_max_conjunta": 40000
      },
@@ -3082,33 +3274,78 @@
       "id": "conciliacion_cuidado_descendientes",
       "norma": "Art. 1.Once.A DL 1/2010 Murcia",
       "estado": "provisional",
+      "fuente": "Art. 1.Once TR de tributos cedidos de la Región de Murcia (DL 1/2010); AEAT Manual Práctico Renta 2025, Parte 2, Región de Murcia, «Por conciliación» (https://sede.agenciatributaria.gob.es/Sede/ayuda/manuales-videos-folletos/manuales-practicos/irpf-2025-deducciones-autonomicas/comunidad-autonoma-region-murcia/conciliacion.html)",
       "tipo": "porcentaje_campo",
       "campo": "cuotas_ss_empleada_hogar",
       "porcentaje": 0.2,
       "limite": 400,
-      "descendiente_edad_max": 11
+      "descendiente_edad_max": 11,
+      "requiere_progenitores_trabajan": true,
+      "suma_bases": "imponibles",
+      "base_max_individual": 34000,
+      "base_max_conjunta": 34000
      },
      {
       "id": "familia_monoparental",
       "norma": "Art. 1.Dieciséis DL 1/2010 Murcia",
+      "estado": "confirmado",
+      "fuente": "Art. 1.Dieciséis TR de tributos cedidos de la Región de Murcia (DL 1/2010, de 5 de noviembre), vigente en 2025; AEAT Manual Práctico Renta 2025, Parte 2, Región de Murcia, «Por familia monoparental» (https://sede.agenciatributaria.gob.es/Sede/ayuda/manuales-videos-folletos/manuales-practicos/irpf-2025-deducciones-autonomicas/comunidad-autonoma-region-murcia/familia-monoparental.html)",
       "tipo": "fija",
       "importe": 303,
       "requiere_monoparental": true,
-      "descendientes_min": 1,
+      "descendiente_edad_max": 17,
+      "suma_bases": "imponibles",
       "base_max_individual": 35240,
       "base_max_conjunta": 35240
      },
      {
       "id": "arrendamiento_vivienda_habitual",
       "norma": "Art. 1.Trece DL 1/2010 Murcia",
-      "estado": "provisional",
+      "estado": "confirmado",
+      "fuente": "Art. 1.Trece TR de tributos cedidos de la Región de Murcia (DL 1/2010, de 5 de noviembre), vigente en 2025; AEAT Manual Práctico Renta 2025, Parte 2, Región de Murcia, «Por arrendamiento de vivienda habitual» (https://sede.agenciatributaria.gob.es/Sede/ayuda/manuales-videos-folletos/manuales-practicos/irpf-2025-deducciones-autonomicas/comunidad-autonoma-region-murcia/arrendamiento-vivienda-habitual.html)",
       "tipo": "porcentaje_campo",
       "campo": "alquiler_vivienda_pagos",
       "porcentaje": 0.1,
       "limite": 300,
       "edad_max": 41,
-      "base_max_individual": 30000,
-      "base_max_conjunta": 50000
+      "base_gate": "general_menos_minimo",
+      "base_max_individual": 39999.99,
+      "base_max_conjunta": 39999.99,
+      "base_ahorro_max": 1800,
+      "grupo": "alquiler_mc"
+     },
+     {
+      "id": "arrendamiento_vivienda_habitual_familia_numerosa",
+      "norma": "Art. 1.Trece DL 1/2010 Murcia",
+      "estado": "confirmado",
+      "fuente": "Art. 1.Trece TR de tributos cedidos de la Región de Murcia (DL 1/2010, de 5 de noviembre), vigente en 2025; AEAT Manual Práctico Renta 2025, Parte 2, Región de Murcia, «Por arrendamiento de vivienda habitual» (https://sede.agenciatributaria.gob.es/Sede/ayuda/manuales-videos-folletos/manuales-practicos/irpf-2025-deducciones-autonomicas/comunidad-autonoma-region-murcia/arrendamiento-vivienda-habitual.html)",
+      "tipo": "porcentaje_campo",
+      "campo": "alquiler_vivienda_pagos",
+      "porcentaje": 0.1,
+      "limite": 300,
+      "requiere_familia_numerosa": true,
+      "prorratea_progenitores": false,
+      "base_gate": "general_menos_minimo",
+      "base_max_individual": 39999.99,
+      "base_max_conjunta": 39999.99,
+      "base_ahorro_max": 1800,
+      "grupo": "alquiler_mc"
+     },
+     {
+      "id": "arrendamiento_vivienda_habitual_discapacidad",
+      "norma": "Art. 1.Trece DL 1/2010 Murcia",
+      "estado": "confirmado",
+      "fuente": "Art. 1.Trece TR de tributos cedidos de la Región de Murcia (DL 1/2010, de 5 de noviembre), vigente en 2025; AEAT Manual Práctico Renta 2025, Parte 2, Región de Murcia, «Por arrendamiento de vivienda habitual» (https://sede.agenciatributaria.gob.es/Sede/ayuda/manuales-videos-folletos/manuales-practicos/irpf-2025-deducciones-autonomicas/comunidad-autonoma-region-murcia/arrendamiento-vivienda-habitual.html)",
+      "tipo": "porcentaje_campo",
+      "campo": "alquiler_vivienda_pagos",
+      "porcentaje": 0.1,
+      "limite": 300,
+      "requiere_discapacidad_grado": "65_mas",
+      "base_gate": "general_menos_minimo",
+      "base_max_individual": 39999.99,
+      "base_max_conjunta": 39999.99,
+      "base_ahorro_max": 1800,
+      "grupo": "alquiler_mc"
      }
     ],
     "pendientes": [

@@ -403,6 +403,53 @@ add("ct_alquiler_bi", "ES-CT", "ninguna", "no",
                  prevision_social=list(aportacion_individual=1500), alquiler_vivienda_pagos=8000)),
     list(list(id="d1",rol="declarante",edad=30, trabajo=list(dinerarias=41164,cotizacionesSs=2614),
               previsionSocial=list(aportacionIndividual=1500), alquilerViviendaPagos=8000)))
+# Cataluña (cotejo 11-2026): monoparental con FN, 45 años, alquiler 12.000 € (art. 612-3:
+# 1.000 €) y un nacimiento (art. 612-1: 300 € monoparental); gemelos sin incremento
+add("ct_mono_fn_alquiler", "ES-CT", "monoparental", "general",
+    list(persona("d1","declarante",45, trabajo=list(dinerarias=30000, cotizaciones_ss=1905), alquiler_vivienda_pagos=12000),
+         persona("h1","descendiente",10), persona("h2","descendiente",8),
+         persona("h3","descendiente",0, nacido_en_ejercicio=TRUE)),
+    list(list(id="d1",rol="declarante",edad=45, trabajo=list(dinerarias=30000,cotizacionesSs=1905), alquilerViviendaPagos=12000),
+         list(id="h1",rol="descendiente",edad=10), list(id="h2",rol="descendiente",edad=8),
+         list(id="h3",rol="descendiente",edad=0, nacidoEnEjercicio=TRUE)))
+add("ct_gemelos_conj_alquiler", "ES-CT", "biparental", "no",
+    list(persona("d1","declarante",30, trabajo=list(dinerarias=25000, cotizaciones_ss=1588), alquiler_vivienda_pagos=12000),
+         persona("d2","conyuge",40),
+         persona("h1","descendiente",0, nacido_en_ejercicio=TRUE), persona("h2","descendiente",0, nacido_en_ejercicio=TRUE)),
+    list(list(id="d1",rol="declarante",edad=30, trabajo=list(dinerarias=25000,cotizacionesSs=1588), alquilerViviendaPagos=12000),
+         list(id="d2",rol="conyuge",edad=40),
+         list(id="h1",rol="descendiente",edad=0, nacidoEnEjercicio=TRUE), list(id="h2",rol="descendiente",edad=0, nacidoEnEjercicio=TRUE)),
+    parto_multiple = TRUE)
+# Canarias (cotejo 11-2026): 4.º hijo nacido (796 €), FN general con hijo de discapacidad
+# >= 65 % (1.326 €), estudios no superiores con límite 133 + 3 × 66 €
+add("cn_cuarto_hijo_fn_disc", "ES-CN", "monoparental", "general",
+    list(persona("d1","declarante",40, trabajo=list(dinerarias=30000, cotizaciones_ss=1905), gastos_estudios_no_superiores=1000),
+         persona("h1","descendiente",10, discapacidad="65_mas"), persona("h2","descendiente",8),
+         persona("h3","descendiente",5), persona("h4","descendiente",0, nacido_en_ejercicio=TRUE)),
+    list(list(id="d1",rol="declarante",edad=40, trabajo=list(dinerarias=30000,cotizacionesSs=1905), gastosEstudiosNoSuperiores=1000),
+         list(id="h1",rol="descendiente",edad=10, discapacidad="65_mas"), list(id="h2",rol="descendiente",edad=8),
+         list(id="h3",rol="descendiente",edad=5), list(id="h4",rol="descendiente",edad=0, nacidoEnEjercicio=TRUE)))
+# Murcia (cotejo 11-2026): familia numerosa de 50 años, alquiler 6.000 € (art. 1.Trece: 300 €)
+# y material escolar con el límite de 33.000 € (3 × 120); el segundo, con 2.000 € de
+# intereses (base del ahorro > 1.800 €), pierde el alquiler
+add("mc_fn_alquiler_material", "ES-MC", "monoparental", "general",
+    list(persona("d1","declarante",50, trabajo=list(dinerarias=32000, cotizaciones_ss=2032), alquiler_vivienda_pagos=6000),
+         persona("h1","descendiente",10), persona("h2","descendiente",8), persona("h3","descendiente",5)),
+    list(list(id="d1",rol="declarante",edad=50, trabajo=list(dinerarias=32000,cotizacionesSs=2032), alquilerViviendaPagos=6000),
+         list(id="h1",rol="descendiente",edad=10), list(id="h2",rol="descendiente",edad=8), list(id="h3",rol="descendiente",edad=5)))
+add("mc_alquiler_ahorro", "ES-MC", "ninguna", "no",
+    list(persona("d1","declarante",30, trabajo=list(dinerarias=30000, cotizaciones_ss=1905),
+                 capital_mobiliario=list(intereses=2000), alquiler_vivienda_pagos=6000)),
+    list(list(id="d1",rol="declarante",edad=30, trabajo=list(dinerarias=30000,cotizacionesSs=1905),
+              capitalMobiliario=list(intereses=2000), alquilerViviendaPagos=6000)))
+# Canarias: pareja en individual, 2 hijos, estudios del declarante: límite (133 + 66) / 2
+add("cn_estudios_pareja", "ES-CN", "biparental", "no",
+    list(persona("d1","declarante",40, trabajo=list(dinerarias=30000, cotizaciones_ss=1905), gastos_estudios_no_superiores=500),
+         persona("d2","conyuge",38, trabajo=list(dinerarias=20000, cotizaciones_ss=1270)),
+         persona("h1","descendiente",10), persona("h2","descendiente",8)),
+    list(list(id="d1",rol="declarante",edad=40, trabajo=list(dinerarias=30000,cotizacionesSs=1905), gastosEstudiosNoSuperiores=500),
+         list(id="d2",rol="conyuge",edad=38, trabajo=list(dinerarias=20000,cotizacionesSs=1270)),
+         list(id="h1",rol="descendiente",edad=10), list(id="h2",rol="descendiente",edad=8)))
 
 add("vc_taper", "ES-VC", "monoparental", "no",
     list(persona("d1","declarante",30, trabajo=list(dinerarias=32000, cotizaciones_ss=1500),
@@ -418,6 +465,60 @@ add("vc_guarderia_2prog", "ES-VC", "biparental", "no",
     list(list(id="d1",rol="declarante",edad=34, trabajo=list(dinerarias=24000,cotizacionesSs=1524)),
          list(id="d2",rol="conyuge",edad=33, trabajo=list(dinerarias=22000,cotizacionesSs=1397)),
          list(id="h1",rol="descendiente",edad=1, gastosGuarderia=3000)))
+
+# 5k9. País Vasco — vivienda (arts. 86 y 87): cuenta vivienda con base común de 8.500 € con
+#      la compra, alquiler de menores de 36 y colectivos por familia numerosa (docs/03)
+add("bi_cuenta_vivienda", "ES-PV-BI", "ninguna", "no",
+    list(persona("d1","declarante",30, trabajo=list(dinerarias=32000, cotizaciones_ss=2080),
+                 adquisicion_vivienda_pagos=4000, cuenta_vivienda_aportaciones=6000)),
+    list(list(id="d1",rol="declarante",edad=30, trabajo=list(dinerarias=32000,cotizacionesSs=2080),
+              adquisicionViviendaPagos=4000, cuentaViviendaAportaciones=6000)))
+add("bi_alquiler_joven", "ES-PV-BI", "ninguna", "no",
+    list(persona("d1","declarante",33, trabajo=list(dinerarias=30000, cotizaciones_ss=1950), alquiler_vivienda_pagos=9000)),
+    list(list(id="d1",rol="declarante",edad=33, trabajo=list(dinerarias=30000,cotizacionesSs=1950), alquilerViviendaPagos=9000)))
+add("ss_fnum_compra_cuenta", "ES-PV-SS", "biparental", "general",
+    list(persona("d1","declarante",45, trabajo=list(dinerarias=48000, cotizaciones_ss=3120),
+                 adquisicion_vivienda_pagos=10000, cuenta_vivienda_aportaciones=3000),
+         persona("d2","conyuge",44), persona("h1","descendiente",10), persona("h2","descendiente",8),
+         persona("h3","descendiente",3)),
+    list(list(id="d1",rol="declarante",edad=45, trabajo=list(dinerarias=48000,cotizacionesSs=3120),
+              adquisicionViviendaPagos=10000, cuentaViviendaAportaciones=3000),
+         list(id="d2",rol="conyuge",edad=44), list(id="h1",rol="descendiente",edad=10),
+         list(id="h2",rol="descendiente",edad=8), list(id="h3",rol="descendiente",edad=3)))
+add("vi_cuenta_vivienda", "ES-PV-VI", "ninguna", "no",
+    list(persona("d1","declarante",40, trabajo=list(dinerarias=36000, cotizaciones_ss=2340), cuenta_vivienda_aportaciones=5000)),
+    list(list(id="d1",rol="declarante",edad=40, trabajo=list(dinerarias=36000,cotizacionesSs=2340), cuentaViviendaAportaciones=5000)))
+
+# 5k10. Previsión social foral: País Vasco (5.000 / 8.000 / 12.000 €; 10.000 € en 2026) y
+#       Navarra (art. 55.1.7.º: 30 % o 50 % desde los 51 años; 1.500 € + 8.500 € de empresa)
+add("bi_epsv_tope", "ES-PV-BI", "ninguna", "no",
+    list(persona("d1","declarante",45, trabajo=list(dinerarias=60000, cotizaciones_ss=3900),
+                 prevision_social=list(aportacion_individual=6000, contribucion_empresarial=9000))),
+    list(list(id="d1",rol="declarante",edad=45, trabajo=list(dinerarias=60000,cotizacionesSs=3900),
+              previsionSocial=list(aportacionIndividual=6000, contribucionEmpresarial=9000))))
+add("bi_epsv_tope_2026", "ES-PV-BI", "ninguna", "no",
+    list(persona("d1","declarante",45, trabajo=list(dinerarias=60000, cotizaciones_ss=3900),
+                 prevision_social=list(aportacion_individual=6000, contribucion_empresarial=9000))),
+    list(list(id="d1",rol="declarante",edad=45, trabajo=list(dinerarias=60000,cotizacionesSs=3900),
+              previsionSocial=list(aportacionIndividual=6000, contribucionEmpresarial=9000))), ejercicio = 2026)
+add("ss_epsv_pareja", "ES-PV-SS", "biparental", "no",
+    list(persona("d1","declarante",50, trabajo=list(dinerarias=45000, cotizaciones_ss=2925), prevision_social=list(aportacion_individual=4000)),
+         persona("d2","conyuge",48, trabajo=list(dinerarias=30000, cotizaciones_ss=1950), prevision_social=list(aportacion_individual=2000, contribucion_empresarial=1000))),
+    list(list(id="d1",rol="declarante",edad=50, trabajo=list(dinerarias=45000,cotizacionesSs=2925), previsionSocial=list(aportacionIndividual=4000)),
+         list(id="d2",rol="conyuge",edad=48, trabajo=list(dinerarias=30000,cotizacionesSs=1950), previsionSocial=list(aportacionIndividual=2000, contribucionEmpresarial=1000))))
+add("nc_plan_55", "ES-NC", "ninguna", "no",
+    list(persona("d1","declarante",55, trabajo=list(dinerarias=40000, cotizaciones_ss=2600),
+                 prevision_social=list(aportacion_individual=3000, contribucion_empresarial=2000))),
+    list(list(id="d1",rol="declarante",edad=55, trabajo=list(dinerarias=40000,cotizacionesSs=2600),
+              previsionSocial=list(aportacionIndividual=3000, contribucionEmpresarial=2000))))
+add("nc_plan_30pct", "ES-NC", "ninguna", "no",
+    list(persona("d1","declarante",40, trabajo=list(dinerarias=4000, cotizaciones_ss=260), prevision_social=list(aportacion_individual=1500)),
+         persona("h1","descendiente",5)),
+    list(list(id="d1",rol="declarante",edad=40, trabajo=list(dinerarias=4000,cotizacionesSs=260), previsionSocial=list(aportacionIndividual=1500)),
+         list(id="h1",rol="descendiente",edad=5)))
+add("nc_plan_2026", "ES-NC", "ninguna", "no",
+    list(persona("d1","declarante",58, trabajo=list(dinerarias=52000, cotizaciones_ss=3380), prevision_social=list(aportacion_individual=1500, contribucion_empresarial=6000))),
+    list(list(id="d1",rol="declarante",edad=58, trabajo=list(dinerarias=52000,cotizacionesSs=3380), previsionSocial=list(aportacionIndividual=1500, contribucionEmpresarial=6000))), ejercicio = 2026)
 
 # 5l. Parejas en individual: gastos y requisitos personales por ámbito, familiares repartidas
 add("md_pareja_indiv", "ES-MD", "biparental", "general",
@@ -777,7 +878,13 @@ casos_rescate <- list(
   list(id = "rescate26_an_fuera_plazo", territorio = "ES-AN", antes = 40000, despues = 10000, otros = 12000, anio = 2020, anios = 3),
   list(id = "rescate26_vc_2012", territorio = "ES-VC", antes = 50000, despues = 0, otros = 0, anio = 2012, anios = 10),
   list(id = "rescate26_ex_sin_antes", territorio = "ES-EX", antes = 0, despues = 45000, otros = 18000, anio = 2026, anios = 3),
-  list(id = "rescate25_ga_capital", territorio = "ES-GA", antes = 25000, despues = 15000, otros = 20000, anio = 2024, anios = 2, ejercicio = 2025)
+  list(id = "rescate25_ga_capital", territorio = "ES-GA", antes = 25000, despues = 15000, otros = 20000, anio = 2024, anios = 2, ejercicio = 2025),
+  # forales: País Vasco (60 % hasta 300.000 €) y Navarra (40 % de lo aportado hasta 2017, DT 25.ª)
+  list(id = "rescate26_bi_pension", territorio = "ES-PV-BI", antes = 30000, despues = 50000, otros = 15000, anio = 2026, anios = 5),
+  list(id = "rescate25_ss_tope", territorio = "ES-PV-SS", antes = 0, despues = 350000, otros = 20000, anio = 2025, anios = 10, ejercicio = 2025),
+  list(id = "rescate26_vi_sueldo", territorio = "ES-PV-VI", antes = 10000, despues = 30000, otros = 30000, tipo = "sueldo", edad = 62, anio = 2026, anios = 3),
+  list(id = "rescate26_nc_plazo", territorio = "ES-NC", antes = 40000, despues = 20000, otros = 15000, anio = 2025, anios = 4),
+  list(id = "rescate26_nc_fuera", territorio = "ES-NC", antes = 40000, despues = 20000, otros = 15000, anio = 2022, anios = 4)
 )
 for (cr in casos_rescate) {
   ej <- cr$ejercicio %||% 2026

@@ -81,3 +81,30 @@ test_that("Murcia: familia monoparental 303 € (con descendientes, renta <= 35.
     persona("h1","descendiente",7)), tipo_unidad_familiar="monoparental")
   expect_null(liquidar(h2, modo="individual")$deducciones_autonomicas$detalle$familia_monoparental)
 })
+
+test_that("Murcia: alquiler (art. 1.Trece), familia numerosa sin requisito de edad y límites de renta", {
+  mk <- function(sueldo, fn = "general", edad = 50, intereses = 0) nuevo_hogar("v","ES-MC", list(
+    persona("d1","declarante",edad, trabajo=list(dinerarias=sueldo, cotizaciones_ss=round(sueldo * 0.0635)),
+            capital_mobiliario=list(intereses=intereses), alquiler_vivienda_pagos=6000),
+    persona("h1","descendiente",10), persona("h2","descendiente",8), persona("h3","descendiente",5)),
+    tipo_unidad_familiar = "monoparental", familia_numerosa = fn)
+  alq <- function(h) { d <- liquidar(h, modo="individual")$deducciones_autonomicas$detalle
+                       sum(unlist(d[grep("^arrendamiento", names(d))])) }
+  expect_equal(alq(mk(30000)), 300)                    # 10 % de 6.000 = 600 -> 300
+  expect_equal(alq(mk(30000, fn = "no")), 0)           # 50 años, sin FN ni discapacidad
+  expect_equal(alq(mk(30000, fn = "no", edad = 40)), 300)
+  expect_equal(alq(mk(30000, intereses = 2000)), 0)    # base del ahorro 2.000 > 1.800
+  expect_equal(alq(mk(90000)), 0)                      # base general − mínimo >= 40.000
+})
+
+test_that("Murcia: material escolar, límite de 33.000 € para familias numerosas", {
+  mk <- function(fn) nuevo_hogar("v","ES-MC", list(
+    persona("d1","declarante",45, trabajo=list(dinerarias=32000, cotizaciones_ss=2032)),
+    persona("h1","descendiente",10), persona("h2","descendiente",8), persona("h3","descendiente",5)),
+    tipo_unidad_familiar = "monoparental", familia_numerosa = fn)
+  # base imponible ~27.968 (> 20.000, < 33.000)
+  d <- liquidar(mk("general"), modo="individual")$deducciones_autonomicas$detalle
+  expect_equal(d$material_escolar_libros_familia_numerosa, 360)   # 3 × 120
+  d0 <- liquidar(mk("no"), modo="individual")$deducciones_autonomicas$detalle
+  expect_null(d0[["material_escolar_libros"]])
+})
