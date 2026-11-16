@@ -2353,7 +2353,7 @@
     "territorio": "ES-PV-BI",
     "nombre": "Bizkaia",
     "regimen": "foral_pais_vasco",
-    "publicable": false,
+    "publicable": true,
     "piezas": [
      "deduccion_alquiler_vivienda"
     ],
@@ -2361,7 +2361,11 @@
     "deducciones_autonomicas": [
 
     ],
-    "ahorro": null
+    "ahorro": {
+     "20000": 1436.1,
+     "35000": 2800,
+     "60000": 2800
+    }
    },
    "ES-PV-SS": {
     "territorio": "ES-PV-SS",
@@ -2377,8 +2381,8 @@
     ],
     "ahorro": {
      "20000": 1436.1,
-     "35000": 1600,
-     "60000": 1600
+     "35000": 2800,
+     "60000": 2800
     }
    },
    "ES-PV-VI": {
@@ -2689,7 +2693,7 @@
     "territorio": "ES-PV-BI",
     "nombre": "Bizkaia",
     "regimen": "foral_pais_vasco",
-    "publicable": false,
+    "publicable": true,
     "piezas": [
      "deduccion_adquisicion_vivienda"
     ],
@@ -2697,7 +2701,11 @@
     "deducciones_autonomicas": [
 
     ],
-    "ahorro": null
+    "ahorro": {
+     "20000": 1436.1,
+     "35000": 1530,
+     "60000": 1530
+    }
    },
    "ES-PV-SS": {
     "territorio": "ES-PV-SS",
