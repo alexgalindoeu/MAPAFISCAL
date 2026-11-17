@@ -917,3 +917,15 @@ body.con-informe { overflow: hidden; }
 #dp-obligacion p { margin: 0 0 8px; font-size: 14px; color: var(--tinta-2); line-height: 1.5; }
 #dp-obligacion p:last-child { margin-bottom: 0; }
 @media (max-width: 560px) { .nota-inline { display: block; } }
+
+/* ---- espera antes de descargar el PDF (web/js/informe.js, interruptor pdfEspera) ---- */
+.inf-espera { max-width: 560px; margin: 0 auto 24px; display: grid; gap: 12px; }
+.inf-espera h2 { margin: 0; font-size: 18px; }
+.inf-espera h2:focus { outline: none; }
+.inf-espera-kpis, .inf-espera-cuenta { margin: 0; color: var(--tinta-2); font-size: 14px; }
+.inf-espera progress { width: 100%; height: 6px; accent-color: var(--marca, #1f3fc4); }
+.inf-espera-hueco { min-height: 100px; }
+.inf-espera-promo { display: flex; gap: 12px; align-items: flex-start; padding: 12px; border: 1px dashed var(--linea); border-radius: 10px; font-size: 14px; }
+.inf-espera-promo a { display: inline-block; margin-top: 4px; }
+.inf-espera-botones { display: flex; gap: 8px; justify-content: flex-end; flex-wrap: wrap; }
+@media print { body.imprimiendo-informe .inf-espera { display: none; } }
