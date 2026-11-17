@@ -21,6 +21,10 @@ window.MAPAFISCAL_CONFIG = {
   // Buzón de contacto: sale en los textos legales (web/legal/) y en los enlaces mailto.
   contacto: "contacto@mapafiscal.es",
 
+  // Perfiles en redes sociales: salen en el pie de la web y de las páginas generadas (js/ui.js
+  // y tools/seo_comun.mjs). Solo se muestran los que tienen URL.
+  redes: { x: "https://x.com/mapafiscal", reddit: "", facebook: "" },
+
   // Versión vigente de las condiciones (fecha de legal/condiciones.html). Al cambiarla, la web
   // vuelve a pedir la aceptación a quien aceptó una versión anterior.
   condicionesVersion: "2026-09-27",
