@@ -54,6 +54,16 @@
   const EJERCICIOS = [...new Set([...((P.ejercicios && P.ejercicios.publicados) || [P.ejercicio]).map(Number),
     ...(ejercicioUrl ? [ejercicioUrl] : [])])].sort((a, b) => a - b);
   const textoEjercicios = () => EJERCICIOS.length > 1 ? EJERCICIOS.slice(0, -1).join(", ") + " y " + EJERCICIOS[EJERCICIOS.length - 1] : String(P.ejercicio);
+  // «Renta 2025 (la declaración que se presentó en 2026)» / «Simulación 2026 (la que presentarás
+  // en 2027)», según la fecha (web/js/confianza.js)
+  const MCF = window.MapafiscalConfianza;
+  const rotuloEj = a => MCF ? MCF.rotuloEjercicio(a) : { corto: "Ejercicio " + a, detalle: "", completo: "Ejercicio " + a };
+  function pintarRotulosEjercicio() {
+    const r = rotuloEj(P.ejercicio);
+    document.querySelectorAll("[data-ejercicio-rotulo]").forEach(el => { el.textContent = r.completo; });
+    document.querySelectorAll("[data-ejercicio-corto]").forEach(el => { el.textContent = r.corto; });
+    document.querySelectorAll("[data-ejercicio-detalle]").forEach(el => { el.textContent = r.detalle.charAt(0).toUpperCase() + r.detalle.slice(1) + "."; });
+  }
   async function cargarParams(a) {
     if (PARAMS.has(a)) return PARAMS.get(a);
     const p = await datos("datos-params-" + a, `datos/params_${a}.json`);
@@ -68,7 +78,8 @@
       const id = "ej-" + el.dataset.selectorEjercicio;
       if (!el.querySelector("input")) el.innerHTML = `<span class="etiqueta" id="${id}-lbl">Ejercicio</span>
         <div class="segmentado" role="radiogroup" aria-labelledby="${id}-lbl">${EJERCICIOS.map(a =>
-          `<label><input type="radio" name="${id}" value="${a}"><span>${a}</span></label>`).join("")}</div>`;
+          `<label title="${esc(rotuloEj(a).completo)}"><input type="radio" name="${id}" value="${a}"><span>${esc(rotuloEj(a).corto)}</span></label>`).join("")}</div>
+        <p class="ayuda selector-ejercicio-detalle" data-ejercicio-detalle></p>`;
       el.querySelectorAll("input").forEach(r => { r.checked = +r.value === ejercicioPedido; r.disabled = !!cargando && +r.value !== ejercicioPedido; });
       el.setAttribute("aria-busy", cargando ? "true" : "false");
     });
@@ -76,6 +87,9 @@
   let ejercicioPedido = P.ejercicio;
   async function cambiarEjercicio(a) {
     if (a === ejercicioPedido) return;
+    // se vuelve al que ya está cargado mientras se cargaba otro (p. ej. abrir un cálculo
+    // guardado de 2025 justo al entrar): se cancela la carga pendiente
+    if (a === P.ejercicio) { ejercicioPedido = a; pintarSelectoresEjercicio(false); return; }
     ejercicioPedido = a;
     pintarSelectoresEjercicio(true);
     let nuevo;
@@ -385,7 +399,8 @@
     const cifra = hayResultado ? Math.abs(cd) : cuota;
     const rotuloCifra = !hayResultado ? `Tu ${nombreCuota.toLowerCase()} del IRPF` : estado === "gana" ? "A devolver" : estado === "pierde" ? "A ingresar" : "Ni a pagar ni a devolver";
     $("tarjeta-resultado").className = "tarjeta tarjeta-resultado" + (estado ? " " + estado : "");
-    $("res-chip").textContent = `${corto(terr)} · ${P.ejercicio}`;
+    $("res-chip").textContent = `${corto(terr)} · ${rotuloEj(P.ejercicio).corto}`;
+    $("res-chip").title = rotuloEj(P.ejercicio).completo;
     $("res-principal").innerHTML = `<div class="res-etq">${rotuloCifra}</div>
       <div class="res-cifra ${estado}"><span aria-hidden="true" id="res-cifra"></span><span class="sr">${eur(cifra)}</span></div>
       ${hayResultado
@@ -1054,7 +1069,7 @@
   // al volver de crear la cuenta: el formulario de la otra pestaña no está aquí, se rellena
   async function guardarPendiente(fila, destino) {
     const ej = +fila.ejercicio;
-    if (ej && ej !== P.ejercicio && EJERCICIOS.includes(ej)) await cambiarEjercicio(ej);
+    if (ej && ej !== ejercicioPedido && EJERCICIOS.includes(ej)) await cambiarEjercicio(ej);
     cerrarCliente();
     rellenarFormulario(fila.hogar);
     irA(destino && destino !== "cuenta" ? destino : "calculadora");
@@ -1200,7 +1215,7 @@
   async function abrirCliente(c) {
     // un cliente guardado con otro ejercicio se abre con ese ejercicio, si se ofrece
     const ej = c.hogar && +c.hogar.ejercicio;
-    if (ej && ej !== P.ejercicio && EJERCICIOS.includes(ej)) await cambiarEjercicio(ej);
+    if (ej && ej !== ejercicioPedido && EJERCICIOS.includes(ej)) await cambiarEjercicio(ej);
     clienteAbierto = { id: c.id, alias: c.alias, notas: c.notas || "" };
     $("cliente-alias").textContent = c.alias;
     $("barra-cliente").hidden = false;
@@ -1453,7 +1468,7 @@
       if (!c) return;
       if (b.dataset.calcAbrir) {
         const ej = +c.ejercicio;
-        if (ej && ej !== P.ejercicio && EJERCICIOS.includes(ej)) await cambiarEjercicio(ej);
+        if (ej && ej !== ejercicioPedido && EJERCICIOS.includes(ej)) await cambiarEjercicio(ej);
         cerrarCliente(); rellenarFormulario(c.hogar);
         guardadoHogar = JSON.stringify(c.hogar); pintarBotonesGuardar();
         irA("calculadora");
@@ -1642,6 +1657,7 @@
     document.querySelectorAll("[data-ejercicio]").forEach(el => { el.textContent = P.ejercicio; });
     document.querySelectorAll("[data-ejercicio-ant]").forEach(el => { el.textContent = P.ejercicio - Number(el.dataset.ejercicioAnt); });
     document.querySelectorAll("[data-ejercicios]").forEach(el => { el.textContent = textoEjercicios(); });
+    pintarRotulosEjercicio();
     pideFnReciente = algunaDeduccion(d => d.requiere_familia_numerosa_reciente);
     pideTituloMonoparental = algunaDeduccion(d => d.requiere_titulo_monoparental != null);
     pintarFnReciente(); pintarHijos(); pintarGastosTerritorio(); recalcular();
@@ -1735,7 +1751,7 @@
   window.MapafiscalApp = {
     ultimo: () => ultima, P: () => P, sb, irA, abrirAcceso, sesionCargada: () => sesionCargada, recargarSesion: cargarSesion,
     sesion: () => ({ usuario: !!sesion.usuario, plan: tienePlan() ? sesion.perfil.plan : "gratis" }),
-    restaurar: async (hogar, ej) => { if (ej && ej !== P.ejercicio && EJERCICIOS.includes(ej)) await cambiarEjercicio(ej); rellenarFormulario(hogar); }
+    restaurar: async (hogar, ej) => { if (ej && ej !== ejercicioPedido && EJERCICIOS.includes(ej)) await cambiarEjercicio(ej); rellenarFormulario(hogar); }
   };
   document.dispatchEvent(new CustomEvent("mapafiscal:app"));
 
@@ -1746,8 +1762,19 @@
   document.querySelectorAll("[data-ejercicio-ant]").forEach(el => { el.textContent = P.ejercicio - Number(el.dataset.ejercicioAnt); });
   document.querySelectorAll("[data-ejercicios]").forEach(el => { el.textContent = textoEjercicios(); });
   pintarSelectoresEjercicio(false);
+  pintarRotulosEjercicio();
   pintarHijos(); pintarGastosTerritorio(); recalcular(); marcarPestanaClientes(); mostrarVista({ moverFoco: Boolean(vistaDeHash()) });
-  if (ejercicioUrl && ejercicioUrl !== P.ejercicio) cambiarEjercicio(ejercicioUrl);
+  // «Comunicar un error» de la calculadora: el hogar entero, no solo los campos visibles
+  if (MCF && MCF.registrar) MCF.registrar("tarjeta-resultado", () => {
+    const u = ultima, l = u && u.liq;
+    return { herramienta: "Calculadora de la renta", territorio: `${corto(selTerr.value)} (${selTerr.value})`, ejercicio: P.ejercicio,
+      resultado: l ? `cuota resultante ${eur(l.cuotaResultanteAutoliquidacion)}, cuota diferencial ${eur(l.cuotaDiferencial)}, tributación ${l.modoTributacionElegido || "individual"}` : "",
+      entrada: u ? u.hogar : null };
+  });
+  // Sin ?ejercicio= en la URL se abre el ejercicio del año en curso si está publicado (como en
+  // las herramientas): en noviembre de 2026, la simulación de 2026; la Renta 2025, a un clic.
+  const ejInicial = ejercicioUrl || (MCF ? MCF.ejercicioEnCurso(EJERCICIOS) : P.ejercicio);
+  if (ejInicial && ejInicial !== P.ejercicio && EJERCICIOS.includes(ejInicial)) cambiarEjercicio(ejInicial);
   if (avisoPago) esperarPlan(15); else cargarSesion();
   if (errorVuelta) abrirAcceso(null, null, "entrar", errorVuelta.texto);
 })();

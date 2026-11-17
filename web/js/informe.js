@@ -143,7 +143,7 @@
     const cr = liq.componentesRenta || {};
     const miembros = hogar.miembros || [];
     const n = rol => miembros.filter(m => m.rol === rol).length;
-    const situacion = [["Territorio de residencia fiscal", `${T.nombre} (${REGIMEN[reg] || reg})`], ["Ejercicio", String(P.ejercicio)],
+    const situacion = [["Territorio de residencia fiscal", `${T.nombre} (${REGIMEN[reg] || reg})`], ["Ejercicio", typeof window !== "undefined" && window.MapafiscalConfianza ? window.MapafiscalConfianza.rotuloEjercicio(P.ejercicio).completo : String(P.ejercicio)],
       ["Unidad familiar", [n("conyuge") ? "con pareja" : "sin pareja", n("descendiente") ? `${n("descendiente")} ${n("descendiente") === 1 ? "hijo" : "hijos"}` : "",
         n("ascendiente") ? `${n("ascendiente")} ${n("ascendiente") === 1 ? "ascendiente" : "ascendientes"} a cargo` : ""].filter(Boolean).join(", ")]];
     const ingTrabajo = miembros.reduce((s, m) => s + num(m.trabajo && m.trabajo.dinerarias), 0);
