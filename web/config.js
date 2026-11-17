@@ -65,5 +65,5 @@ window.MAPAFISCAL_CONFIG = {
   // Analítica sin cookies (js/analitica.js): "goatcounter" o false. Solo páginas vistas y los
   // eventos del embudo, sin datos personales ni importes. La versión autónoma la apaga.
   analitica: "goatcounter",
-  goatcounterCodigo: "alexgalindo"   // https://alexgalindo.goatcounter.com
+  goatcounterCodigo: "mapafiscal"   // https://mapafiscal.goatcounter.com
 };
