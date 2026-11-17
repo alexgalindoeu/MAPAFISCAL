@@ -929,3 +929,13 @@ body.con-informe { overflow: hidden; }
 .inf-espera-promo a { display: inline-block; margin-top: 4px; }
 .inf-espera-botones { display: flex; gap: 8px; justify-content: flex-end; flex-wrap: wrap; }
 @media print { body.imprimiendo-informe .inf-espera { display: none; } }
+/* Espera del PDF (petición de Alex): una rueda «Generando tu PDF…» unos segundos. Los carriles
+   laterales de anuncios de la página siguen visibles junto al informe en pantalla (anuncios
+   normales de la página, no un anuncio ligado a la descarga). */
+.inf-rueda { display: flex; align-items: center; gap: 12px; font-weight: 600; color: var(--tinta-2); }
+.inf-rueda-giro { width: 28px; height: 28px; border-radius: 50%; border: 3px solid var(--linea);
+  border-top-color: var(--marca); animation: inf-giro .9s linear infinite; flex: none; }
+@keyframes inf-giro { to { transform: rotate(360deg); } }
+@media (prefers-reduced-motion: reduce) { .inf-rueda-giro { animation-duration: 2.5s; } }
+body.con-informe .anuncio-carril { z-index: 101; }
+@media (min-width: 1280px) { html.con-carriles .informe { left: var(--carril-reserva, 184px); right: var(--carril-reserva, 184px); } }

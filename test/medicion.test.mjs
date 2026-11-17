@@ -94,7 +94,8 @@ test("la pantalla de espera no lleva AdSense (política de AdSense: nada de «pr
   const espera = js.slice(js.indexOf("function mostrarEspera"), js.indexOf("function quitarEspera"));
   assert.ok(espera.length > 100);
   assert.doesNotMatch(espera, /adsbygoogle|googlesyndication|data-ad-slot/);
-  assert.match(espera, /Hazte Gestor: sin anuncios ni esperas/);
+  assert.match(espera, /Generando tu PDF/);
+  assert.doesNotMatch(espera, /Hazte Gestor/);
 });
 
 test("analítica: solo con goatcounter, un código válido y fuera de la demo", () => {

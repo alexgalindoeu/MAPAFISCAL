@@ -545,12 +545,10 @@
     el.innerHTML = `<h2 id="inf-espera-tit" tabindex="-1">Preparando tu PDF</h2>
       <div class="inf-cifra ${r.estado}"><span>${esc(r.rotulo)} · ${esc(t.corto)} · ${ultimoContenido.ejercicio}</span><b>${eur(r.cifra)}</b></div>
       <p class="inf-espera-kpis">Tipo medio ${pct(r.tipoMedio)} · tipo marginal ${pct(r.tipoMarginal)} · puesto ${ultimoContenido.comparacion.puesto} de ${ultimoContenido.comparacion.total} territorios</p>
-      <p class="inf-espera-cuenta" aria-hidden="true">Tu PDF se descarga en <b id="inf-espera-n">${s}</b> s</p>
+      <div class="inf-rueda" aria-hidden="true"><span class="inf-rueda-giro"></span><span>Generando tu PDF…</span></div>
       <progress id="inf-espera-barra" max="${s}" value="0" aria-hidden="true"></progress>
       <p class="sr" role="status" id="inf-espera-estado">Tu PDF se descargará en ${s} segundos.</p>
       <div class="inf-espera-hueco" id="inf-espera-hueco" hidden></div>
-      <aside class="inf-espera-promo">${LOGO}<div><b>Hazte Gestor: sin anuncios ni esperas.</b> Informes al instante para toda tu cartera de clientes.
-        <a href="${esc(web)}#planes" data-inf="planes">Ver el plan Gestor</a></div></aside>
       <div class="inf-espera-botones"><button class="btn btn-sec btn-sm" type="button" id="inf-espera-cancelar">Cancelar</button>
         <button class="btn btn-pri btn-sm" type="button" id="inf-espera-saltar" hidden>Descargar ahora</button></div>`;
     const cuerpo = $("inf-cuerpo");
@@ -559,7 +557,7 @@
     let auto = null;
     const listo = () => { if (auto) clearTimeout(auto); quitarEspera(); esperado = true; descargar(); };
     espera = crearEspera(s, {
-      alTic: n => { $("inf-espera-n").textContent = n; $("inf-espera-barra").value = s - n; },
+      alTic: n => { $("inf-espera-barra").value = s - n; },
       alTerminar: () => {
         $("inf-espera-estado").textContent = "Tu PDF está listo.";
         const b = $("inf-espera-saltar"); b.hidden = false; b.focus();
