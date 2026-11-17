@@ -1,0 +1,90 @@
+/* =============================================================================
+   Mapafiscal — compartir, deslizador de sueldo (#comparar) y escenarios (#escenarios).
+   Solo los tokens de mapafiscal.css (con su modo oscuro). Lógica en web/js/escenarios.js.
+   ========================================================================== */
+
+/* ---- compartir ------------------------------------------------------------------ */
+[data-compartir] { display: inline-flex; align-items: center; gap: 7px; }
+[data-compartir] svg { width: 15px; height: 15px; fill: none; stroke: currentColor; stroke-width: 1.6; stroke-linecap: round; flex: none; }
+.compartir { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 12px; margin: 12px 0 16px; }
+.compartir-msg { font-size: 13px; color: var(--tinta-2); min-height: 1em; }
+.compartir-msg-calc { margin: 8px 0 0; }
+.compartir-msg-calc:empty { display: none; }
+.compartir-manual { display: flex; flex-direction: column; gap: 4px; font-size: 12px; color: var(--tinta-3); }
+.compartir-manual input { font-family: var(--mono); font-size: 12px; min-height: 34px; }
+
+/* ---- deslizador de sueldo ---------------------------------------------------------- */
+.deslizador { margin-top: 20px; }
+.desl-cab { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 10px; margin-bottom: 14px; }
+.desl-cab .rotulo { margin: 0; }
+.desl-control label { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; font-size: 13px; font-weight: 600; color: var(--tinta-2); }
+.desl-control output { font-family: var(--display); font-stretch: 110%; font-size: 26px; font-weight: 800; color: var(--tinta);
+  letter-spacing: -.01em; font-variant-numeric: tabular-nums; }
+.desl-escala { display: flex; justify-content: space-between; font-size: 11px; color: var(--tinta-3); font-family: var(--mono); }
+
+input[type="range"]#desl-sueldo { -webkit-appearance: none; appearance: none; width: 100%; height: 28px; margin: 6px 0 2px;
+  background: transparent; cursor: pointer; --avance: 50%; }
+#desl-sueldo::-webkit-slider-runnable-track { height: 6px; border-radius: 3px;
+  background: linear-gradient(to right, var(--marca) 0 var(--avance), var(--linea-2) var(--avance) 100%); }
+#desl-sueldo::-moz-range-track { height: 6px; border-radius: 3px; background: var(--linea-2); }
+#desl-sueldo::-moz-range-progress { height: 6px; border-radius: 3px; background: var(--marca); }
+#desl-sueldo::-webkit-slider-thumb { -webkit-appearance: none; width: 22px; height: 22px; margin-top: -8px; border-radius: 50%;
+  background: var(--resalte); border: 2px solid var(--tinta); box-shadow: var(--sombra); transition: transform var(--dur) var(--curva); }
+#desl-sueldo::-moz-range-thumb { width: 18px; height: 18px; border-radius: 50%; background: var(--resalte); border: 2px solid var(--tinta); }
+#desl-sueldo:hover::-webkit-slider-thumb { transform: scale(1.1); }
+#desl-sueldo:focus { outline: none; }
+#desl-sueldo:focus-visible::-webkit-slider-thumb { box-shadow: 0 0 0 3px var(--superficie), 0 0 0 5px var(--anillo); }
+#desl-sueldo:focus-visible::-moz-range-thumb { box-shadow: 0 0 0 3px var(--superficie), 0 0 0 5px var(--anillo); }
+
+.desl-frase { margin: 12px 0 16px; font-size: 15px; line-height: 1.5; color: var(--tinta-2); min-height: 3em; }
+.desl-frase b { color: var(--tinta); }
+.desl-cuerpo { display: grid; grid-template-columns: minmax(0, 1fr); gap: 20px; }
+@media (min-width: 980px) { .desl-cuerpo { grid-template-columns: minmax(0, 5fr) minmax(0, 7fr); align-items: start; } }
+
+.desl-ranking { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 2px; }
+.desl-ranking li { display: grid; grid-template-columns: 34px minmax(0, 9em) minmax(0, 1fr) auto; align-items: center; gap: 8px;
+  padding: 3px 8px; border-radius: var(--radio-sm); font-size: 13px; position: relative;
+  transition: transform var(--dur-lenta) var(--curva), background-color var(--dur); }
+.desl-ranking li:hover { background: var(--superficie-2); }
+.desl-ranking li.tu { background: var(--resalte-suave); box-shadow: inset 3px 0 0 var(--resalte); }
+.desl-pos { font-family: var(--mono); font-size: 12px; color: var(--tinta-3); text-align: right; }
+.desl-nombre { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: var(--tinta); }
+.desl-nombre .regimen { margin-left: 6px; }
+.desl-barra { height: 8px; border-radius: 4px; background: var(--superficie-2); overflow: hidden; }
+.desl-barra i { display: block; height: 100%; background: var(--g-neto); border-radius: 4px; transition: width var(--dur-lenta) var(--curva); }
+.desl-ranking li.tu .desl-barra i { background: var(--marca); }
+.desl-cifra { font-variant-numeric: tabular-nums; font-weight: 600; text-align: right; min-width: 5.5em; }
+
+.desl-grafico { margin: 0; }
+.desl-svg { width: 100%; height: auto; display: block; overflow: visible; }
+.desl-reticula { stroke: var(--reticula); stroke-width: 1; }
+.desl-eje { fill: var(--tinta-3); font-size: 11px; font-family: var(--mono); }
+.desl-linea { fill: none; stroke: var(--linea-2); stroke-width: 1.4; stroke-linejoin: round; transition: stroke var(--dur), stroke-width var(--dur); }
+.desl-linea.foco { stroke: var(--tinta-2); stroke-width: 2.2; }
+.desl-linea.tu { stroke: var(--marca); stroke-width: 3; }
+.desl-cursor { stroke: var(--tinta-3); stroke-width: 1; stroke-dasharray: 3 3; }
+.desl-punto { fill: var(--resalte); stroke: var(--tinta); stroke-width: 2; }
+.desl-leyenda { display: flex; flex-wrap: wrap; gap: 6px 16px; font-size: 12px; color: var(--tinta-2); margin-top: 6px; }
+.desl-leyenda span { display: inline-flex; align-items: center; gap: 6px; }
+.desl-leyenda i { width: 16px; height: 3px; border-radius: 2px; background: var(--linea-2); }
+.desl-leyenda i.tu { background: var(--marca); height: 4px; }
+
+/* ---- escenarios ----------------------------------------------------------------- */
+.esc-anadir { margin-top: 12px; }
+.esc-lista { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 6px; }
+.esc-lista li { display: flex; align-items: center; justify-content: space-between; gap: 10px; font-size: 14px;
+  background: var(--superficie-2); border: 1px solid var(--linea); border-radius: 8px; padding: 6px 6px 6px 12px; }
+.esc-lista li.vacio { background: none; border-style: dashed; color: var(--tinta-3); padding: 10px 12px; }
+.esc-barras { display: flex; flex-direction: column; gap: 14px; margin-top: 4px; }
+.esc-barra .grafico-tit { display: flex; justify-content: space-between; gap: 10px; flex-wrap: wrap; font-size: 13px; color: var(--tinta-2); margin-bottom: 5px; }
+.esc-barra .grafico-tit b { color: var(--tinta); }
+.esc-barra .grafico-tit > span:last-child { white-space: nowrap; margin-left: auto; }
+.esc-barra.tu .grafico-tit > span:first-child { font-weight: 700; color: var(--tinta); }
+.esc-pista { transition: width var(--dur-lenta) var(--curva); min-width: 0; }
+.esc-barra .dif.gana, .esc-tabla .dif.gana { color: var(--gana); }
+.esc-barra .dif.pierde, .esc-tabla .dif.pierde { color: var(--pierde); }
+.esc-tabla-env { overflow-x: auto; }
+.esc-tabla { width: 100%; }
+.esc-tabla th[scope="row"] { text-align: left; font-weight: 600; }
+.esc-tabla tr.tu { background: var(--resalte-suave); }
+.esc-tabla td.dif small { display: block; font-size: 11px; color: var(--tinta-3); font-weight: 400; }

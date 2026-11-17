@@ -16,12 +16,14 @@ const jsonEmbebido =ruta => JSON.stringify(JSON.parse(leer(ruta))).replace(/<\//
 
 // La versión autónoma es siempre la demo: sin Supabase (ni supabase-js), sin pagos y sin
 // anuncios, aunque web/config.js esté configurado para producción.
-const FORZAR_DEMO = "window.MAPAFISCAL_CONFIG = Object.assign(window.MAPAFISCAL_CONFIG || {}, { demo: true, pagosActivos: false, anuncios: false, informePago: false, informeAnuncio: false, informeAnuncioUnidad: \"\", informeAfiliado: null, adsenseCliente: \"\", adsenseHuecoCalc: \"\", adsenseHuecoComparar: \"\", adsenseHuecoRailIzq: \"\", adsenseHuecoRailDer: \"\", adsenseHuecoMovil: \"\" });\n";
+const FORZAR_DEMO = "window.MAPAFISCAL_CONFIG = Object.assign(window.MAPAFISCAL_CONFIG || {}, { demo: true, pagosActivos: false, anuncios: false, informePago: false, informeAnuncio: false, informeAnuncioUnidad: \"\", informeAfiliado: null, pdfEspera: 0, analitica: false, goatcounterCodigo: \"\", adsenseCliente: \"\", adsenseHuecoCalc: \"\", adsenseHuecoComparar: \"\", adsenseHuecoRailIzq: \"\", adsenseHuecoRailDer: \"\", adsenseHuecoMovil: \"\" });\n";
 const SUPABASE_JS = /<script src="https:\/\/cdn\.jsdelivr\.net\/npm\/@supabase\/supabase-js@[^"]+"[^>]*><\/script>\n?/;
 // La demo nunca lleva anuncios.js: se quita entero (no se incrusta como irpfsim.js/app.js)
 // para que el HTML autónomo no contenga ni un rastro de "adsbygoogle" o "googlesyndication".
 const ANUNCIOS_JS = /<script src="js\/anuncios\.js"><\/script>\n?/;
-const ADSENSE_META = /<meta name="google-adsense-account"[^>]*>\n?/;
+// Ni analítica: analitica.js (GoatCounter) se quita entero, igual que anuncios.js.
+const ANALITICA_JS = /<script src="js\/analitica\.js"><\/script>\n?/;
+const ADSENSE_META =/<meta name="google-adsense-account"[^>]*>\n?/;
 // El anuncio bonificado del informe (GPT) tampoco va en la demo: se quita el bloque marcado.
 const ANUNCIO_BONIFICADO = /\/\*ANUNCIO-BONIFICADO\*\/[\s\S]*?\/\*\/ANUNCIO-BONIFICADO\*\/\n?/;
 export function informeDemo() {
@@ -44,6 +46,8 @@ export function empaquetar() {
   html = html.replace(SUPABASE_JS, "").replace(/<link rel="(?:preload|manifest|apple-touch-icon)"[^>]*>\r?\n?/g, "");
   if (!ANUNCIOS_JS.test(html)) throw new Error("No se encuentra en index.html el <script> de anuncios.js");
   html = html.replace(ANUNCIOS_JS, "");
+  if (!ANALITICA_JS.test(html)) throw new Error("No se encuentra en index.html el <script> de analitica.js");
+  html = html.replace(ANALITICA_JS, "");
   if (!ADSENSE_META.test(html)) throw new Error("No se encuentra en index.html la <meta> de AdSense");
   html = html.replace(ADSENSE_META, "");
   // el favicon va incrustado como data: URI (el HTML autónomo no tiene favicon.svg al lado)
@@ -52,6 +56,7 @@ export function empaquetar() {
   sustituir('<link rel="stylesheet" href="css/mapafiscal.css">', "<style>\n" +
     leer("css/mapafiscal.css").replace(/url\("\.\.\/fonts\//g, `url("${WEB_PUBLICA}fonts/`) + "</style>");
   sustituir('<link rel="stylesheet" href="css/cuentas.css">', "<style>\n" + leer("css/cuentas.css") + "</style>");
+  sustituir('<link rel="stylesheet" href="css/escenarios.css">', "<style>\n" + leer("css/escenarios.css") + "</style>");
   // El ID de editor de AdSense no debe quedar ni como texto en la demo, aunque FORZAR_DEMO lo
   // sobrescriba en tiempo de ejecución: se redacta en el propio config.js incrustado.
   const configSinAdsense = leer("config.js").replace(/ca-pub-\d+/, "");
@@ -69,6 +74,7 @@ export function empaquetar() {
   sustituir('<script src="js/informe.js"></script>', "<script>\n" + informeDemo() + "</script>");
   sustituir('<script src="js/rescate.js"></script>', "<script>\n" + leer("js/rescate.js") + "</script>");
   sustituir('<script src="js/conjunta.js"></script>', "<script>\n" + leer("js/conjunta.js") + "</script>");
+  sustituir('<script src="js/escenarios.js"></script>', "<script>\n" + leer("js/escenarios.js") + "</script>");
   // Las páginas legales, las de territorio y sueldo y las guías no van dentro: apuntan a la web publicada.
   html = html.replace(/href="(legal|irpf|guias|comparar-sueldo|declaracion-conjunta|dos-pagadores)\//g, (m, dir) => `href="${WEB_PUBLICA}${dir}/`);
   return html;
