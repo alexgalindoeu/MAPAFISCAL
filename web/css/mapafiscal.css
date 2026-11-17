@@ -715,9 +715,8 @@ details.mas:not([open]) summary { margin-bottom: 0; }
    Los pone anuncios.js (solo con anuncios:true y sin plan de pago). Aquí, el espacio
    reservado para que nada salte al cargar y la etiqueta «Anuncios» (AdSense solo admite
    «Anuncios» o «Enlaces patrocinados»).
-   - Huecos en el flujo (.anuncio): al final de la columna de resultados, entre dos tarjetas
-     del resultado en pantallas estrechas (.anuncio-solo-estrecho) y bajo «Comparar».
-     Nunca dentro del formulario ni junto a sus botones.
+   - Huecos en el flujo (.anuncio): al final de la columna de resultados y bajo «Comparar».
+     Nunca dentro del formulario, entre las tarjetas del resultado ni junto a sus botones.
    - Carriles laterales (.anuncio-carril, «como en los periódicos»): fijos a los lados desde
      1280 px de ancho y 720 px de alto. html.con-carriles aparta el contenido lo justo para
      que no se monten encima: 160x600 hasta 1919 px y 300x600 desde 1920 px. */
@@ -744,7 +743,6 @@ details.mas:not([open]) summary { margin-bottom: 0; }
     padding-right: calc(var(--carril-reserva) + clamp(16px, 3vw, 32px)); }
   html.con-carriles .anuncio-carril:not([hidden]) { display: flex; }
   html.vista-sin-anuncios .anuncio-carril { display: none !important; }
-  html.con-carriles .anuncio-solo-estrecho { display: none; }
 }
 
 /* Aviso de cookies propio (solo con consentimiento: "propio"; con la CMP de Google no sale).

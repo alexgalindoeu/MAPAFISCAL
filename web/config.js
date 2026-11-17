@@ -43,7 +43,6 @@ window.MAPAFISCAL_CONFIG = {
   // display, «Adaptable»). Vacío, ese hueco no se muestra ni pide nada.
   adsenseHuecoRailIzq: "7552034337", // «mf-carril-izq»: carril izquierdo, escritorio ≥1280 px
   adsenseHuecoRailDer: "6238952662", // «mf-carril-der»: carril derecho, escritorio ≥1280 px
-  adsenseHuecoMovil: "3458865755", // «mf-resultado-medio»: entre tarjetas del resultado, por debajo de 1280 px
   adsenseHuecoCalc: "2215947173", // «mf-resultado-final»: al final de la columna de resultados
   adsenseHuecoComparar: "9832702418", // «mf-comparar»: bajo el mapa y la tabla de Comparar
 
