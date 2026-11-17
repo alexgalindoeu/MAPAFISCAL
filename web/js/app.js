@@ -7,6 +7,8 @@
   "use strict";
   const CFG = window.MAPAFISCAL_CONFIG || {};
   const $ = id => document.getElementById(id);
+  // Eventos del embudo para js/analitica.js (solo el nombre: sin datos personales ni importes).
+  const medir = evento => document.dispatchEvent(new CustomEvent("mapafiscal:medir", { detail: { evento } }));
   const esc = s => String(s == null ? "" : s).replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
   const miles = s => s.replace(/\B(?=(\d{3})+(?!\d))/g, ".");
   const eur = (n, dec = 2) => {
@@ -382,6 +384,7 @@
     try { liq = irpfsim.liquidar(hogar, P, "auto"); }
     catch (e) { $("res-principal").innerHTML = `<p class="vacio">Revisa los datos introducidos.</p>`; return; }
     ultima = { hogar, liq };
+    document.dispatchEvent(new CustomEvent("mapafiscal:resultado"));   // analitica.js (sin datos)
     const reg = T[terr].regimen, comun = reg === "comun";
     const ret = FORM.retencionesHogar(hogar);
     const cd = liq.cuotaDiferencial;
@@ -1000,6 +1003,8 @@
     if (vistaActual() === "planes") pintarPlanes();
     if (vistaActual() === "perfil") pintarPerfil();
     let pagando = false;
+    // analítica: cuenta recién creada (perfil de menos de 15 min) al volver del acceso
+    if (pendienteTrasAcceso && sesion.usuario && sesion.perfil && Date.now() - Date.parse(sesion.perfil.creado_en) < 15 * 60e3) medir("registro");
     if (pendienteTrasAcceso && sesion.usuario) { pendienteTrasAcceso = false; pagando = continuarTrasAcceso(); }
     if (!pagando) mostrarBienvenida();
     document.dispatchEvent(new CustomEvent("mapafiscal:sesion"));   // informe.js
@@ -1307,6 +1312,7 @@
     precio_no_configurado: "El pago no está disponible en este momento. Inténtalo de nuevo más tarde."
   };
   async function irAFuncion(nombre, cuerpo) {
+    if (nombre === "crear-checkout" && cuerpo && cuerpo.plan) medir("suscripcion_iniciada");
     const { data, error } = await sb.functions.invoke(nombre, { body: { ...cuerpo, volver: paginaActual() } });
     if (!error && data && data.url) { location.href = data.url; return true; }
     let codigo = null;
@@ -1751,7 +1757,9 @@
   window.MapafiscalApp = {
     ultimo: () => ultima, P: () => P, sb, irA, abrirAcceso, sesionCargada: () => sesionCargada, recargarSesion: cargarSesion,
     sesion: () => ({ usuario: !!sesion.usuario, plan: tienePlan() ? sesion.perfil.plan : "gratis" }),
-    restaurar: async (hogar, ej) => { if (ej && ej !== ejercicioPedido && EJERCICIOS.includes(ej)) await cambiarEjercicio(ej); rellenarFormulario(hogar); }
+    restaurar: async (hogar, ej) => { if (ej && ej !== ejercicioPedido && EJERCICIOS.includes(ej)) await cambiarEjercicio(ej); rellenarFormulario(hogar); },
+    // js/escenarios.js (enlaces para compartir, deslizador y escenarios)
+    formulario: () => formulario, recalcular: () => recalcular()
   };
   document.dispatchEvent(new CustomEvent("mapafiscal:app"));
 

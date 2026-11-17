@@ -931,10 +931,34 @@ body.con-informe { overflow: hidden; }
 .comprobacion-cifras { display: flex; flex-wrap: wrap; gap: 12px 24px; margin: 8px 0 16px; }
 .comprobacion-cifras div { min-width: 120px; }
 .comprobacion-cifras dt { font-size: 12px; color: var(--tinta-3); }
-.comprobacion-cifras dd { margin: 0; font-size: 22px; font-weight: 700; }.muestra-casos pre.json { white-space: pre-wrap; word-break: break-all; font-size: 11px; max-height: 240px; overflow: auto;
+.comprobacion-cifras dd { margin: 0; font-size: 22px; font-weight: 700; }
+.muestra-casos pre.json { white-space: pre-wrap; word-break: break-all; font-size: 11px; max-height: 240px; overflow: auto;
   background: var(--superficie-2); padding: 8px; border-radius: 6px; margin: 6px 0 0; }
 .muestra-casos details summary { font-size: 12px; color: var(--tinta-3); cursor: pointer; margin-top: 4px; }
 .registro-cambios { list-style: none; padding: 0; margin: 8px 0 0; }
 .registro-cambios li { padding: 7px 0; border-bottom: 1px solid var(--linea); font-size: 14px; }
-.registro-cambios time { color: var(--tinta-3); font-variant-numeric: tabular-nums; margin-right: 6px; }.muestra-casos td:first-child { min-width: 200px; }
+.registro-cambios time { color: var(--tinta-3); font-variant-numeric: tabular-nums; margin-right: 6px; }
+.muestra-casos td:first-child { min-width: 200px; }
 .muestra-casos .id-caso { font-size: 11px; color: var(--tinta-3); }
+
+/* ---- espera antes de descargar el PDF (web/js/informe.js, interruptor pdfEspera) ---- */
+.inf-espera { max-width: 560px; margin: 0 auto 24px; display: grid; gap: 12px; }
+.inf-espera h2 { margin: 0; font-size: 18px; }
+.inf-espera h2:focus { outline: none; }
+.inf-espera-kpis, .inf-espera-cuenta { margin: 0; color: var(--tinta-2); font-size: 14px; }
+.inf-espera progress { width: 100%; height: 6px; accent-color: var(--marca, #1f3fc4); }
+.inf-espera-hueco { min-height: 100px; }
+.inf-espera-promo { display: flex; gap: 12px; align-items: flex-start; padding: 12px; border: 1px dashed var(--linea); border-radius: 10px; font-size: 14px; }
+.inf-espera-promo a { display: inline-block; margin-top: 4px; }
+.inf-espera-botones { display: flex; gap: 8px; justify-content: flex-end; flex-wrap: wrap; }
+@media print { body.imprimiendo-informe .inf-espera { display: none; } }
+/* Espera del PDF (petición de Alex): una rueda «Generando tu PDF…» unos segundos. Los carriles
+   laterales de anuncios de la página siguen visibles junto al informe en pantalla (anuncios
+   normales de la página, no un anuncio ligado a la descarga). */
+.inf-rueda { display: flex; align-items: center; gap: 12px; font-weight: 600; color: var(--tinta-2); }
+.inf-rueda-giro { width: 28px; height: 28px; border-radius: 50%; border: 3px solid var(--linea);
+  border-top-color: var(--marca); animation: inf-giro .9s linear infinite; flex: none; }
+@keyframes inf-giro { to { transform: rotate(360deg); } }
+@media (prefers-reduced-motion: reduce) { .inf-rueda-giro { animation-duration: 2.5s; } }
+body.con-informe .anuncio-carril { z-index: 101; }
+@media (min-width: 1280px) { html.con-carriles .informe { left: var(--carril-reserva, 184px); right: var(--carril-reserva, 184px); } }

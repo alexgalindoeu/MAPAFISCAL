@@ -29,6 +29,7 @@
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="stylesheet" href="css/mapafiscal.css">
 <link rel="stylesheet" href="css/cuentas.css">
+<link rel="stylesheet" href="css/escenarios.css">
 <meta name="google-adsense-account" content="ca-pub-3028486034839853">
 </head>
 <body>
@@ -53,6 +54,7 @@
     <nav class="nav" id="nav-principal" aria-label="Secciones">
       <a href="#calculadora" data-vista="calculadora">Calculadora</a>
       <a href="#comparar" data-vista="comparar">Comparar territorios</a>
+      <a href="#escenarios" data-vista="escenarios">Escenarios</a>
       <a href="#sueldo-neto" data-vista="sueldo-neto">Sueldo neto</a>
       <a href="#plan-pensiones" data-vista="plan-pensiones">Ahorro fiscal</a>
       <a href="#clientes" data-vista="clientes">Mis clientes</a>
@@ -235,6 +237,31 @@
     <div class="tarjeta tarjeta-ranking">
       <table class="ranking" id="ranking"></table>
     </div>
+  </div>
+
+  <!-- deslizador de sueldo (web/js/escenarios.js) -->
+  <div class="tarjeta deslizador" id="desl">
+    <div class="desl-cab">
+      <h2 class="rotulo" id="t-desl">¿Y con otro sueldo?</h2>
+      <div class="segmentado" role="radiogroup" aria-label="Situación que se calcula">
+        <label><input type="radio" name="desl-quien" value="tipo"><span>Persona sola</span></label>
+        <label><input type="radio" name="desl-quien" value="tuya"><span>Tu situación</span></label>
+      </div>
+    </div>
+    <div class="desl-control">
+      <label for="desl-sueldo">Sueldo bruto anual <output id="desl-valor" for="desl-sueldo"></output></label>
+      <input type="range" id="desl-sueldo" min="15000" max="150000" step="500" value="30000" aria-describedby="desl-nota">
+      <div class="desl-escala" aria-hidden="true"><span>15.000 €</span><span>150.000 €</span></div>
+    </div>
+    <p class="desl-frase" id="desl-frase" aria-live="polite"></p>
+    <div class="desl-cuerpo">
+      <ol class="desl-ranking" id="desl-ranking" aria-label="Los 19 territorios, de más barato a más caro"></ol>
+      <figure class="desl-grafico">
+        <svg id="desl-svg" class="desl-svg" role="img" aria-labelledby="desl-svg-tit"></svg>
+        <figcaption class="desl-leyenda" id="desl-leyenda"></figcaption>
+      </figure>
+    </div>
+    <p class="nota" id="desl-nota"></p>
   </div>
 
   <div class="tarjeta anuncio anuncio-comparar" id="anuncio-comparar" hidden>
@@ -651,6 +678,69 @@
   </div>
 </section>
 
+<!-- =========================== ESCENARIOS (web/js/escenarios.js) =========================== -->
+<section class="vista" id="v-escenarios" aria-labelledby="t-esc" hidden>
+  <div class="cabecera-vista">
+    <div>
+      <p class="antetitulo">Simulador · ejercicio <span data-ejercicio>2025</span></p>
+      <h1 id="t-esc">¿Y si…? Compara tus escenarios</h1>
+      <p class="entradilla">Parte de tu situación y prueba cambios: una subida, un hijo, una aportación al plan de pensiones, mudarte, alquilar o comprar vivienda. Cada escenario se calcula con el mismo motor que la calculadora.</p>
+    </div>
+    <div class="cabecera-acciones">
+      <div class="selector-ejercicio" data-selector-ejercicio="esc" hidden></div>
+    </div>
+  </div>
+  <div class="calc">
+    <form class="formulario" id="esc-form" autocomplete="off" novalidate>
+      <fieldset class="bloque">
+        <legend><span class="paso">1</span>Tu situación actual</legend>
+        <div class="campo">
+          <span class="etiqueta" id="esc-base-lbl">¿De qué situación partes?</span>
+          <div class="segmentado" role="radiogroup" aria-labelledby="esc-base-lbl">
+            <label><input type="radio" name="esc-base" value="calc" checked><span>La de la calculadora</span></label>
+            <label><input type="radio" name="esc-base" value="basica"><span>Una básica</span></label>
+          </div>
+        </div>
+        <div id="esc-basica" hidden>
+          <div class="campo"><label for="esc-b-sueldo">Sueldo bruto anual</label>
+            <div class="con-sufijo"><input type="number" id="esc-b-sueldo" min="0" step="500" value="30000" inputmode="decimal"><span>€</span></div></div>
+          <div class="rejilla2">
+            <div class="campo"><label for="esc-b-territorio">Territorio</label><select id="esc-b-territorio"></select></div>
+            <div class="campo"><label for="esc-b-edad">Tu edad</label><input type="number" id="esc-b-edad" min="16" max="110" step="1" value="35"></div>
+          </div>
+        </div>
+        <p class="ayuda" id="esc-base-resumen"></p>
+        <p class="ayuda"><a href="#calculadora">Cambiar mi situación en la calculadora</a></p>
+      </fieldset>
+      <fieldset class="bloque">
+        <legend><span class="paso">2</span>Añade un escenario</legend>
+        <div class="campo"><label for="esc-tipo">¿Qué cambia?</label><select id="esc-tipo"></select></div>
+        <div class="campo" id="esc-campo-valor"><label for="esc-valor" id="esc-valor-lbl">Importe</label>
+          <div class="con-sufijo"><input type="number" id="esc-valor" min="0" step="100" inputmode="decimal" aria-describedby="esc-ayuda-valor"><span id="esc-valor-suf">€</span></div></div>
+        <div class="campo" id="esc-campo-terr" hidden><label for="esc-terr">Nuevo territorio de residencia</label><select id="esc-terr"></select></div>
+        <p class="ayuda" id="esc-ayuda-valor"></p>
+        <div class="esc-anadir"><button class="btn btn-pri" type="submit">Añadir escenario</button></div>
+        <p class="mensaje" id="esc-msg" role="status"></p>
+      </fieldset>
+      <fieldset class="bloque">
+        <legend><span class="paso">3</span>Tus escenarios</legend>
+        <ul class="esc-lista" id="esc-lista"></ul>
+      </fieldset>
+    </form>
+    <div class="resultado" aria-live="polite">
+      <div class="tarjeta tarjeta-resultado" id="esc-tarjeta">
+        <div class="res-cab"><h2 class="rotulo">Comparación</h2><span class="chip" id="esc-chip"></span></div>
+        <div class="esc-barras" id="esc-barras"></div>
+      </div>
+      <div class="tarjeta">
+        <h2 class="rotulo">En cifras</h2>
+        <div class="esc-tabla-env"><table class="ranking esc-tabla" id="esc-tabla"></table></div>
+      </div>
+      <p class="nota" id="esc-nota"></p>
+    </div>
+  </div>
+</section>
+
 </main>
 
 <div class="barra-movil" id="barra-movil" aria-live="polite">
@@ -789,6 +879,8 @@
 <script src="js/informe.js"></script>
 <script src="js/rescate.js"></script>
 <script src="js/conjunta.js"></script>
+<script src="js/escenarios.js"></script>
 <script src="js/anuncios.js"></script>
+<script src="js/analitica.js"></script>
 </body>
 </html>

@@ -314,7 +314,59 @@
 </article>`;
   }
 
-  const API = { desbloqueo, contenido, planOptimo, html, PRECIO: 1.99 };
+  // ---- 4. espera antes de descargar el PDF (interruptor `pdfEspera`) -----------------------
+  // Quien no paga (plan, pago único o anuncio bonificado ya visto) espera unos segundos con su
+  // resumen y el banner propio «Hazte Gestor». Sin anuncios de AdSense en esa pantalla: la
+  // política de AdSense prohíbe mostrar anuncios durante un tiempo fijado antes de una descarga
+  // («pre-roll»; ver negocio/anuncios.md §PDF). Una sola espera por informe abierto.
+  const ESPERA_MAX = 30;
+  function segundosEspera(e) {
+    e = e || {};
+    const cfg = e.cfg || {};
+    if (e.demo || e.yaEsperado) return 0;
+    if (e.via === "plan" || e.via === "pago" || e.via === "anuncio") return 0;
+    if (e.plan && e.plan !== "gratis") return 0;
+    return Math.max(0, Math.min(ESPERA_MAX, Math.round(num(cfg.pdfEspera))));
+  }
+  // Cuenta atrás de un segundo por paso. «Saltar» solo vale cuando ha terminado (estado «lista»).
+  // o = { alTic(restante), alTerminar(), programar, anular } (programar/anular: para los tests)
+  function crearEspera(segundos, o) {
+    o = o || {};
+    const programar = o.programar || setTimeout, anular = o.anular || clearTimeout;
+    let restante = Math.max(0, Math.round(num(segundos))), t = null, est = "parada";
+    const terminar = () => { t = null; est = "lista"; if (o.alTerminar) o.alTerminar(); };
+    const tic = () => {
+      if (est !== "contando") return;
+      restante--;
+      if (o.alTic) o.alTic(restante);
+      if (restante <= 0) terminar(); else t = programar(tic, 1000);
+    };
+    return {
+      iniciar() {
+        if (est !== "parada") return;
+        est = "contando";
+        if (o.alTic) o.alTic(restante);
+        if (restante <= 0) terminar(); else t = programar(tic, 1000);
+      },
+      puedeSaltar: () => est === "lista",
+      cancelar() { if (t != null) anular(t); t = null; if (est !== "lista") est = "cancelada"; },
+      restante: () => restante,
+      estado: () => est
+    };
+  }
+  // Una promesa que se da por fallida (false) si no responde en `ms`: el hueco opcional de la
+  // espera nunca la bloquea ni la alarga.
+  function conLimite(promesa, ms, programar) {
+    programar = programar || setTimeout;
+    return new Promise(resolver => {
+      let hecho = false;
+      const fin = v => { if (!hecho) { hecho = true; resolver(!!v); } };
+      programar(() => fin(false), ms);
+      Promise.resolve(promesa).then(fin, () => fin(false));
+    });
+  }
+
+  const API = { desbloqueo, contenido, planOptimo, html, segundosEspera, crearEspera, conLimite, PRECIO: 1.99 };
   if (typeof module !== "undefined" && module.exports) { module.exports = API; return; }
   window.MapafiscalInforme = API;
 
@@ -355,12 +407,12 @@
       <button class="btn btn-sec btn-sm" type="button" id="inf-cerrar">Cerrar</button></div><div class="inf-cuerpo" id="inf-cuerpo"></div>`;
     document.body.appendChild(el);
     $("inf-cerrar").addEventListener("click", cerrar);
-    $("inf-pdf").addEventListener("click", descargar);
+    $("inf-pdf").addEventListener("click", pedirPdf);
     el.addEventListener("keydown", e => { if (e.key === "Escape") cerrar(); });
     el.addEventListener("click", e => { const b = e.target.closest("[data-inf]"); if (b) accion(b.dataset.inf); });
     return el;
   }
-  function cerrar() { const el = $("informe"); if (el) el.hidden = true; document.body.classList.remove("con-informe"); const b = $("btn-informe"); if (b) b.focus(); }
+  function cerrar() { quitarEspera(); const el = $("informe"); if (el) el.hidden = true; document.body.classList.remove("con-informe"); const b = $("btn-informe"); if (b) b.focus(); }
 
   async function abrir() {
     const a = app(), u = a && a.ultimo();
@@ -369,10 +421,13 @@
     el.hidden = false; document.body.classList.add("con-informe");
     cuerpo.innerHTML = '<p class="inf-cargando">Preparando el informe…</p>';
     const e = await estado();
+    quitarEspera();
     $("inf-pdf").hidden = !e.desbloqueado;
+    ultimoEstado = e; ultimoContenido = null; esperado = false;
     if (e.desbloqueado) {
       const fecha = new Date().toLocaleDateString("es-ES", { day: "numeric", month: "long", year: "numeric" });
-      cuerpo.innerHTML = html(contenido(u.hogar, a.P()), { banner: e.banner, afiliado: CFG.informeAfiliado, fecha, web: CFG.webPublica || "https://mapafiscal.es/" });
+      ultimoContenido = contenido(u.hogar, a.P());
+      cuerpo.innerHTML = html(ultimoContenido, { banner: e.banner, afiliado: CFG.informeAfiliado, fecha, web: CFG.webPublica || "https://mapafiscal.es/" });
     } else cuerpo.innerHTML = candado(e);
     $("inf-cerrar").focus();
   }
@@ -467,9 +522,74 @@
   }
   /*/ANUNCIO-BONIFICADO*/
 
-  // «Descargar PDF»: imprime solo el informe (css: body.imprimiendo-informe) con un título que
-  // el navegador usa como nombre del fichero.
+  // «Descargar PDF»: con plan (o pagado), directo; si no, la espera de `pdfEspera` segundos.
+  let ultimoEstado = null, ultimoContenido = null, esperado = false, espera = null;
+  function pedirPdf() {
+    if (espera) return;
+    const a = app();
+    const s = segundosEspera({ cfg: CFG, demo: !a.sb, via: ultimoEstado && ultimoEstado.via, plan: a.sesion().plan, yaEsperado: esperado });
+    if (!s || !ultimoContenido) { descargar(); return; }
+    mostrarEspera(s);
+  }
+
+  // Pantalla de espera dentro de la capa del informe (con su contenido detrás, no en una
+  // ventana aparte): resumen del resultado, cuenta atrás y banner propio. «Cancelar» siempre;
+  // «Descargar ahora» solo al terminar. La cuenta se anuncia al empezar y al acabar (no cada
+  // segundo, para no saturar el lector de pantalla).
+  function mostrarEspera(s) {
+    const r = ultimoContenido.resumen, t = ultimoContenido.territorio;
+    const web = CFG.webPublica || "https://mapafiscal.es/";
+    const el = document.createElement("section");
+    el.className = "inf-espera tarjeta"; el.id = "inf-espera";
+    el.setAttribute("aria-labelledby", "inf-espera-tit");
+    el.innerHTML = `<h2 id="inf-espera-tit" tabindex="-1">Preparando tu PDF</h2>
+      <div class="inf-cifra ${r.estado}"><span>${esc(r.rotulo)} · ${esc(t.corto)} · ${ultimoContenido.ejercicio}</span><b>${eur(r.cifra)}</b></div>
+      <p class="inf-espera-kpis">Tipo medio ${pct(r.tipoMedio)} · tipo marginal ${pct(r.tipoMarginal)} · puesto ${ultimoContenido.comparacion.puesto} de ${ultimoContenido.comparacion.total} territorios</p>
+      <div class="inf-rueda" aria-hidden="true"><span class="inf-rueda-giro"></span><span>Generando tu PDF…</span></div>
+      <progress id="inf-espera-barra" max="${s}" value="0" aria-hidden="true"></progress>
+      <p class="sr" role="status" id="inf-espera-estado">Tu PDF se descargará en ${s} segundos.</p>
+      <div class="inf-espera-hueco" id="inf-espera-hueco" hidden></div>
+      <div class="inf-espera-botones"><button class="btn btn-sec btn-sm" type="button" id="inf-espera-cancelar">Cancelar</button>
+        <button class="btn btn-pri btn-sm" type="button" id="inf-espera-saltar" hidden>Descargar ahora</button></div>`;
+    const cuerpo = $("inf-cuerpo");
+    cuerpo.insertBefore(el, cuerpo.firstChild);
+    $("inf-pdf").hidden = true;
+    let auto = null;
+    const listo = () => { if (auto) clearTimeout(auto); quitarEspera(); esperado = true; descargar(); };
+    espera = crearEspera(s, {
+      alTic: n => { $("inf-espera-barra").value = s - n; },
+      alTerminar: () => {
+        $("inf-espera-estado").textContent = "Tu PDF está listo.";
+        const b = $("inf-espera-saltar"); b.hidden = false; b.focus();
+        auto = setTimeout(listo, 800);     // se descarga solo; el botón, por si el navegador frena print()
+      }
+    });
+    $("inf-espera-saltar").addEventListener("click", () => { if (espera && espera.puedeSaltar()) listo(); });
+    $("inf-espera-cancelar").addEventListener("click", () => { if (auto) clearTimeout(auto); quitarEspera(); $("inf-pdf").focus(); });
+    $("informe").scrollTop = 0;
+    el.querySelector("h2").focus({ preventScroll: true });
+    espera.iniciar();
+    // Hueco opcional (gancho MapafiscalInforme.anuncioEspera(contenedor) => Promise<boolean>),
+    // solo para un formato que lo admita (no AdSense). Si no responde en 3 s, se oculta y la
+    // cuenta sigue igual con el banner propio.
+    if (typeof API.anuncioEspera === "function") {
+      const h = $("inf-espera-hueco");
+      h.hidden = false;
+      conLimite(API.anuncioEspera(h), 3000).then(ok => { if (!ok && h.isConnected) { h.hidden = true; h.innerHTML = ""; } });
+    }
+  }
+  function quitarEspera() {
+    if (espera) { espera.cancelar(); espera = null; }
+    const el = $("inf-espera");
+    if (el) el.remove();
+    const b = $("inf-pdf");
+    if (b && ultimoEstado && ultimoEstado.desbloqueado) b.hidden = false;
+  }
+
+  // Imprime solo el informe (css: body.imprimiendo-informe) con un título que el navegador usa
+  // como nombre del fichero.
   function descargar() {
+    document.dispatchEvent(new CustomEvent("mapafiscal:medir", { detail: { evento: "pdf_descargado" } }));   // analitica.js
     const P = app().P(), u = app().ultimo();
     const titulo = document.title;
     document.title = `Informe IRPF ${P.ejercicio} - ${nombreT(P, u.hogar.territorio)} - Mapafiscal`;

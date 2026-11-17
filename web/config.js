@@ -55,5 +55,15 @@ window.MAPAFISCAL_CONFIG = {
   informeAnuncio: false,   // true cuando la red apruebe el formato bonificado (ver negocio/otros-ingresos.md)
   informeAnuncios: 1,      // anuncios seguidos que hay que ver (1 a 3)
   informeAnuncioUnidad: "", // bloque «rewarded» de Google Ad Manager (GPT), p. ej. "/1234567/informe_bonificado"
-  informeAfiliado: null    // banner estático de afiliado en el PDF: { texto, enlace, imagen }; null = banner propio
+  informeAfiliado: null,   // banner estático de afiliado en el PDF: { texto, enlace, imagen }; null = banner propio
+
+  // Segundos de espera antes de descargar el PDF para quien no tiene plan de pago (ni ha pagado
+  // el informe): su resumen y el banner propio «Hazte Gestor». 0 = sin espera. Sin AdSense en
+  // esa pantalla: su política no admite anuncios durante una espera fija antes de una descarga.
+  pdfEspera: 5,
+
+  // Analítica sin cookies (js/analitica.js): "goatcounter" o false. Solo páginas vistas y los
+  // eventos del embudo, sin datos personales ni importes. La versión autónoma la apaga.
+  analitica: "goatcounter",
+  goatcounterCodigo: "alexgalindo"   // https://alexgalindo.goatcounter.com
 };
