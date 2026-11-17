@@ -52,6 +52,7 @@ export function empaquetar() {
   sustituir('<link rel="stylesheet" href="css/mapafiscal.css">', "<style>\n" +
     leer("css/mapafiscal.css").replace(/url\("\.\.\/fonts\//g, `url("${WEB_PUBLICA}fonts/`) + "</style>");
   sustituir('<link rel="stylesheet" href="css/cuentas.css">', "<style>\n" + leer("css/cuentas.css") + "</style>");
+  sustituir('<link rel="stylesheet" href="css/escenarios.css">', "<style>\n" + leer("css/escenarios.css") + "</style>");
   // El ID de editor de AdSense no debe quedar ni como texto en la demo, aunque FORZAR_DEMO lo
   // sobrescriba en tiempo de ejecución: se redacta en el propio config.js incrustado.
   const configSinAdsense = leer("config.js").replace(/ca-pub-\d+/, "");
@@ -69,6 +70,7 @@ export function empaquetar() {
   sustituir('<script src="js/informe.js"></script>', "<script>\n" + informeDemo() + "</script>");
   sustituir('<script src="js/rescate.js"></script>', "<script>\n" + leer("js/rescate.js") + "</script>");
   sustituir('<script src="js/conjunta.js"></script>', "<script>\n" + leer("js/conjunta.js") + "</script>");
+  sustituir('<script src="js/escenarios.js"></script>', "<script>\n" + leer("js/escenarios.js") + "</script>");
   // Las páginas legales, las de territorio y sueldo y las guías no van dentro: apuntan a la web publicada.
   html = html.replace(/href="(legal|irpf|guias|comparar-sueldo|declaracion-conjunta|dos-pagadores)\//g, (m, dir) => `href="${WEB_PUBLICA}${dir}/`);
   return html;

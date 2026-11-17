@@ -1735,7 +1735,9 @@
   window.MapafiscalApp = {
     ultimo: () => ultima, P: () => P, sb, irA, abrirAcceso, sesionCargada: () => sesionCargada, recargarSesion: cargarSesion,
     sesion: () => ({ usuario: !!sesion.usuario, plan: tienePlan() ? sesion.perfil.plan : "gratis" }),
-    restaurar: async (hogar, ej) => { if (ej && ej !== P.ejercicio && EJERCICIOS.includes(ej)) await cambiarEjercicio(ej); rellenarFormulario(hogar); }
+    restaurar: async (hogar, ej) => { if (ej && ej !== P.ejercicio && EJERCICIOS.includes(ej)) await cambiarEjercicio(ej); rellenarFormulario(hogar); },
+    // js/escenarios.js (enlaces para compartir, deslizador y escenarios)
+    formulario: () => formulario, recalcular: () => recalcular()
   };
   document.dispatchEvent(new CustomEvent("mapafiscal:app"));
 
