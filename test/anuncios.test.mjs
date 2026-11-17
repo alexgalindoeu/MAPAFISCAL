@@ -33,7 +33,7 @@ function elemento(tag, id) {
 }
 
 // Monta un navegador de mentira y ejecuta anuncios.js. `cuenta` es lo que deja app.js.
-function ejecutar(cfg, { cuenta = { cargada: true, conPlan: false }, almacen = {}, alto = 400 } = {}) {
+function ejecutar(cfg, { cuenta = { cargada: true, conPlan: false }, almacen = {}, alto = 400, ancho } = {}) {
   const els = Object.fromEntries(HUECOS.map(id => [id, elemento(id in LATERALES ? "aside" : "div", id)]));
   // Columnas laterales: <aside> con la tarjeta dentro, como en index.html.
   for (const id of Object.keys(LATERALES)) { const t = elemento("div"); t.className = "tarjeta anuncio"; els[id].appendChild(t); els[id].clientHeight = alto; }
@@ -52,7 +52,8 @@ function ejecutar(cfg, { cuenta = { cargada: true, conPlan: false }, almacen = {
     localStorage: { getItem: k => (k in almacen ? almacen[k] : null), setItem: (k, v) => { almacen[k] = String(v); }, removeItem: k => { delete almacen[k]; } },
     requestIdleCallback: f => f(), setTimeout: f => f(),
     IntersectionObserver: class { constructor(cb) { this.cb = cb; } observe(el) { observados.push({ el, io: this }); } unobserve() {} },
-    MAPAFISCAL_CONFIG: cfg, MAPAFISCAL_CUENTA: cuenta, JSON, Date, Set
+    MAPAFISCAL_CONFIG: cfg, MAPAFISCAL_CUENTA: cuenta, JSON, Date, Set,
+    matchMedia: ancho === undefined ? undefined : () => ({ matches: ancho })
   };
   ctx.window = ctx;
   vm.runInNewContext(CODIGO, ctx);
@@ -240,4 +241,39 @@ test("columnas laterales: en su vista, fuera de todo formulario y con bloque pro
   const css = leer("css/mapafiscal.css");
   assert.match(css, /\.anuncio-lateral \{ display: none; \}/, "ocultas por debajo de 1040 px");
   assert.match(css, /@media print \{ \.anuncio-lateral \{ display: none !important; \} \}/, "nunca en el PDF ni al imprimir");
+});
+
+test("móvil y tableta: las columnas pasan al final de la herramienta, adaptables y sin sticky", () => {
+  const movil = ejecutar(ENCENDIDO, { alto: 900, ancho: false });
+  movil.verTodo();
+  const ins = movil.els["anuncio-col-neto"].children[0].children[0];
+  assert.equal(ins.dataset.adFormat, "auto", "en móvil nunca vertical");
+  assert.equal(ins.dataset.fullWidthResponsive, "true");
+  assert.equal(ins.dataset.adSlot, "444");
+  const propio = ejecutar({ ...ENCENDIDO, adsenseHuecoColMovil: "8888888888" }, { ancho: false });
+  propio.verTodo();
+  assert.equal(propio.els["anuncio-col-neto"].children[0].children[0].dataset.adSlot, "8888888888");
+  const escritorio = ejecutar({ ...ENCENDIDO, adsenseHuecoColMovil: "8888888888" }, { ancho: true, alto: 900 });
+  escritorio.verTodo();
+  const e = escritorio.els["anuncio-col-neto"].children[0].children[0];
+  assert.equal(e.dataset.adSlot, "444", "el bloque móvil no se usa en escritorio");
+  assert.equal(e.dataset.adFormat, "vertical");
+  assert.match(configReal().adsenseHuecoColMovil, /^(\d{10})?$/);
+
+  const css = leer("css/mapafiscal.css");
+  const regla = css.match(/@media \(max-width: 1039\.98px\) \{\n?([\s\S]*?)\n\}/)[1];
+  assert.match(regla, /\.anuncio-lateral:not\(#anuncio-col-comparar\) \{ display: block;/, "en #comparar ya está #anuncio-comparar");
+  assert.doesNotMatch(regla, /sticky|fixed/, "en móvil nada fijo ni pegajoso");
+  assert.match(regla, /min-height: 280px/, "sitio reservado");
+});
+
+test("ningún hueco de columna va justo detrás de botones: al menos una tarjeta entera en medio", () => {
+  for (const id of Object.keys(LATERALES)) {
+    const i = INDEX.indexOf(`id="${id}"`);
+    const boton = Math.max(INDEX.lastIndexOf("<button", i), INDEX.lastIndexOf('class="btn', i));
+    const entre = INDEX.slice(boton, i);
+    assert.ok((entre.match(/<div class="tarjeta/g) || []).length >= 1, `${id}: demasiado cerca de un botón`);
+    // Lo que sigue al hueco: fin de la herramienta, no un botón.
+    assert.doesNotMatch(INDEX.slice(i, INDEX.indexOf("</section>", i)), /<button|class="btn/, `${id}: botón detrás`);
+  }
 });

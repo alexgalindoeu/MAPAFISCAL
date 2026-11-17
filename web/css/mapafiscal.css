@@ -753,6 +753,13 @@ details.mas:not([open]) summary { margin-bottom: 0; }
    Nunca dentro del formulario. Por debajo de 1040 px no se muestra (sin columna vacía). */
 .anuncio-lateral { display: none; }
 .anuncio-lateral[hidden] { display: none !important; }
+/* Móvil y tableta (<1040 px): el mismo <aside> pasa a ser un bloque normal del flujo al final
+   de la herramienta (tras el resultado), sin sticky ni nada fijo, con el sitio reservado y
+   separado del contenido. En #comparar no: allí ya está #anuncio-comparar al final. */
+@media (max-width: 1039.98px) {
+  .anuncio-lateral:not(#anuncio-col-comparar) { display: block; margin-top: 32px; }
+  .anuncio-lateral > .anuncio { min-height: 280px; }
+}
 @media (min-width: 1040px) {
   :is(.calc, .comparar):has(> .anuncio-lateral) { grid-template-rows: auto 1fr; }
   :is(.calc, .comparar):has(> .anuncio-lateral-izq) > :first-child { grid-column: 1; grid-row: 1; }

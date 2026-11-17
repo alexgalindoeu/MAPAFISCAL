@@ -57,6 +57,9 @@ window.MAPAFISCAL_CONFIG = {
   adsenseHuecoColRescate: "",    // «mf-col-rescate-plan»: bajo el formulario de #rescate-plan
   adsenseHuecoColConjunta: "",   // «mf-col-conjunta»: bajo el formulario de #conjunta
   adsenseHuecoColPagadores: "",  // «mf-col-dos-pagadores»: bajo el formulario de #dos-pagadores
+  // En móvil y tableta (menos de 1040 px) esas columnas pasan al final de cada herramienta. Vacío =
+  // el bloque de su posición; con un bloque propio, el tráfico móvil se mide aparte.
+  adsenseHuecoColMovil: "",      // «mf-final-herramienta-movil»: final de la herramienta, menos de 1040 px
 
   // Informe completo en PDF (js/informe.js). Vías de desbloqueo (negocio/otros-ingresos.md §1):
   // plan de pago (siempre), pago único y anuncio bonificado. Aceptar cookies NO desbloquea.

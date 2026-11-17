@@ -164,10 +164,13 @@
     if (h.lateral) {
       // Columna lateral: el <aside> ocupa todo el hueco libre y la tarjeta va pegada (sticky)
       // dentro. Vertical si hay alto para un 300x600; si no, adaptable normal.
+      // En móvil y tableta (<1040 px) es un bloque normal al final de la herramienta.
       destino = (el.querySelector && el.querySelector(".anuncio")) || el;
+      const ancho = !window.matchMedia || window.matchMedia("(min-width: 1040px)").matches;
       ins.style.display = "block";
-      ins.dataset.adFormat = (el.clientHeight || 0) >= 660 ? "vertical" : "auto";
-      ins.dataset.fullWidthResponsive = "false";
+      ins.dataset.adFormat = ancho && (el.clientHeight || 0) >= 660 ? "vertical" : "auto";
+      ins.dataset.fullWidthResponsive = ancho ? "false" : "true";
+      if (!ancho && cfg.adsenseHuecoColMovil) ins.dataset.adSlot = cfg.adsenseHuecoColMovil;
     } else if (!h.carril) {
       ins.style.display = "block";
       ins.dataset.adFormat = "auto";
