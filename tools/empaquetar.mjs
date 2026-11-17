@@ -71,7 +71,7 @@ export function empaquetar() {
   sustituir('<script src="js/rescate.js"></script>', "<script>\n" + leer("js/rescate.js") + "</script>");
   sustituir('<script src="js/conjunta.js"></script>', "<script>\n" + leer("js/conjunta.js") + "</script>");
   // Las páginas legales, las de territorio y sueldo y las guías no van dentro: apuntan a la web publicada.
-  html = html.replace(/href="(legal|irpf|guias|comparar-sueldo|declaracion-conjunta|dos-pagadores)\//g, (m, dir) => `href="${WEB_PUBLICA}${dir}/`);
+  html = html.replace(/href="(legal|irpf|guias|comparar-sueldo|declaracion-conjunta|dos-pagadores|validacion)\//g, (m, dir) => `href="${WEB_PUBLICA}${dir}/`);
   return html;
 }
 

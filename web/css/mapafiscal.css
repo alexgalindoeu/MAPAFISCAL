@@ -931,4 +931,10 @@ body.con-informe { overflow: hidden; }
 .comprobacion-cifras { display: flex; flex-wrap: wrap; gap: 12px 24px; margin: 8px 0 16px; }
 .comprobacion-cifras div { min-width: 120px; }
 .comprobacion-cifras dt { font-size: 12px; color: var(--tinta-3); }
-.comprobacion-cifras dd { margin: 0; font-size: 22px; font-weight: 700; }
+.comprobacion-cifras dd { margin: 0; font-size: 22px; font-weight: 700; }.muestra-casos pre.json { white-space: pre-wrap; word-break: break-all; font-size: 11px; max-height: 240px; overflow: auto;
+  background: var(--superficie-2); padding: 8px; border-radius: 6px; margin: 6px 0 0; }
+.muestra-casos details summary { font-size: 12px; color: var(--tinta-3); cursor: pointer; margin-top: 4px; }
+.registro-cambios { list-style: none; padding: 0; margin: 8px 0 0; }
+.registro-cambios li { padding: 7px 0; border-bottom: 1px solid var(--linea); font-size: 14px; }
+.registro-cambios time { color: var(--tinta-3); font-variant-numeric: tabular-nums; margin-right: 6px; }.muestra-casos td:first-child { min-width: 200px; }
+.muestra-casos .id-caso { font-size: 11px; color: var(--tinta-3); }
