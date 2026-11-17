@@ -939,3 +939,74 @@ body.con-informe { overflow: hidden; }
 @media (prefers-reduced-motion: reduce) { .inf-rueda-giro { animation-duration: 2.5s; } }
 body.con-informe .anuncio-carril { z-index: 101; }
 @media (min-width: 1280px) { html.con-carriles .informe { left: var(--carril-reserva, 184px); right: var(--carril-reserva, 184px); } }
+
+/* ---- tema, panel «Todo lo que ofrecemos» y redes del pie (web/js/ui.js) ----------------
+   El tema sigue a prefers-color-scheme salvo que se elija otro con el botón de la barra
+   (html[data-theme="light"|"dark"], guardado en localStorage «mf-tema» y aplicado en el
+   <head> antes de pintar). */
+.btn-icono { flex: none; display: inline-flex; align-items: center; justify-content: center; gap: 6px; min-width: 38px; height: 38px;
+  padding: 0 9px; border-radius: 8px; border: 1px solid transparent; background: none; color: var(--tinta-2); cursor: pointer;
+  font: inherit; font-size: 13px; font-weight: 600; transition: background-color var(--dur), color var(--dur), border-color var(--dur); }
+.btn-icono:hover { background: var(--superficie-2); color: var(--tinta); border-color: var(--linea); }
+.btn-icono svg { width: 20px; height: 20px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+.btn-icono svg .relleno { fill: currentColor; stroke: none; }
+.panel-btn { margin-left: -9px; border-color: var(--linea); background: var(--superficie); }
+.panel-btn[aria-expanded="true"] { background: var(--marca-suave); color: var(--marca-tinta); border-color: transparent; }
+.appbar-in > .panel-btn + .marca { margin-left: -14px; }
+@media (max-width: 760px) { .panel-btn-txt { display: none; } .panel-btn { margin-left: -6px; } .appbar-in > .panel-btn + .marca { margin-left: -4px; } }
+
+.panel-todo { margin: 0 auto 0 0; padding: 0; border: 0; height: 100dvh; max-height: 100dvh; width: min(400px, 92vw);
+  background: var(--superficie); color: var(--tinta); box-shadow: var(--sombra-alta); border-right: 1px solid var(--linea); overflow: hidden; }
+.panel-todo[open] { display: flex; animation: panel-entra var(--dur-lenta) var(--curva); }
+.panel-todo::backdrop { background: color-mix(in srgb, #0d1b22 45%, transparent); }
+@keyframes panel-entra { from { transform: translateX(-24px); opacity: 0; } to { transform: none; opacity: 1; } }
+html.panel-abierto { overflow: hidden; }
+.panel-in { display: flex; flex-direction: column; width: 100%; min-height: 0; }
+.panel-cab { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 16px 16px 12px 20px;
+  border-bottom: 1px solid var(--linea); }
+.panel-cab h2 { font-family: var(--display); font-stretch: 112%; font-size: 18px; font-weight: 800; letter-spacing: -.01em; }
+.panel-cerrar { width: 36px; height: 36px; border-radius: 8px; border: 0; background: none; color: var(--tinta-2); cursor: pointer; display: grid; place-items: center; }
+.panel-cerrar:hover { background: var(--superficie-2); color: var(--tinta); }
+.panel-cerrar svg { width: 16px; height: 16px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; }
+.panel-cuerpo { overflow-y: auto; overscroll-behavior: contain; padding: 6px 12px calc(24px + env(safe-area-inset-bottom)); }
+.panel-grupo { padding: 12px 0 4px; }
+.panel-grupo + .panel-grupo { border-top: 1px dashed var(--linea-2); }
+.panel-grupo .rotulo { margin: 0 8px 6px; }
+.panel-grupo ul { list-style: none; margin: 0; padding: 0; }
+.panel-item { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 12px; align-items: start; padding: 9px 8px; border-radius: 10px;
+  color: var(--tinta); text-decoration: none; }
+.panel-item:hover, .panel-item:focus-visible { background: var(--superficie-2); color: var(--tinta); }
+.panel-item[aria-current="page"] { background: var(--marca-suave); }
+.panel-item[aria-current="page"] .panel-ico { background: var(--marca); color: var(--sobre-marca); }
+.panel-ico { width: 36px; height: 36px; border-radius: 9px; display: grid; place-items: center; background: var(--marca-suave); color: var(--marca-tinta); }
+.panel-ico svg { width: 20px; height: 20px; fill: none; stroke: currentColor; stroke-width: 1.7; stroke-linecap: round; stroke-linejoin: round; }
+.panel-txt { display: flex; flex-direction: column; gap: 1px; min-width: 0; }
+.panel-txt b { font-size: 14.5px; font-weight: 600; line-height: 1.3; }
+.panel-txt > span { font-size: 13px; color: var(--tinta-3); line-height: 1.35; }
+.panel-txt .plan-chip { vertical-align: 1px; }
+
+.pie-redes { display: flex; align-items: center; gap: 6px; margin: 10px 0 8px !important; }
+.pie-redes-txt { font-size: 13px; color: var(--tinta-3); margin-right: 4px; }
+.pie-redes .red { width: 36px; height: 36px; border-radius: 50%; display: grid; place-items: center; color: var(--tinta-2);
+  border: 1px solid var(--linea-2); background: var(--superficie); transition: color var(--dur), border-color var(--dur), background-color var(--dur); }
+.pie-redes .red:hover { color: var(--sobre-marca); background: var(--marca); border-color: var(--marca); }
+.pie-redes svg { width: 17px; height: 17px; fill: none; stroke: currentColor; stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; }
+.pie-redes svg .relleno { fill: currentColor; stroke: none; }
+
+@media print {
+  .panel-btn, .tema-btn, .panel-todo, .pie-redes { display: none !important; }
+  /* Se imprime siempre en claro (también el informe en PDF), sea cual sea el tema. */
+  :root:root:root {
+    --fondo: #ffffff; --superficie: #ffffff; --superficie-2: #f4f7f6;
+    --tinta: #0d1b22; --tinta-2: #34454d; --tinta-3: #5a6b73;
+    --linea: #dbe3e1; --linea-2: #c2cecb; --reticula: rgba(13, 27, 34, .07);
+    --marca: #1f3fc4; --marca-hover: #172f9a; --marca-suave: #e6ebfb; --marca-tinta: #1a36a8; --sobre-marca: #ffffff;
+    --resalte: #ffd23f; --resalte-suave: #fff4c2; --sobre-resalte: #0d1b22;
+    --gana: #0b7a55; --gana-suave: #e1f4ec; --pierde: #b3341a; --pierde-suave: #fbe6e0; --aviso: #8a5a00; --aviso-suave: #fbf1dc;
+    --g-neto: #b9c6f4; --g-irpf: #1f3fc4; --g-ss: #6f8794; --g-estado: #0d1b22; --g-autonomia: #1f3fc4;
+    --m-g3: #0f7a55; --m-g2: #4fae86; --m-g1: #a9dbc4; --m-0: #dfe5e4;
+    --m-r1: #f2bfae; --m-r2: #e07a5c; --m-r3: #b3341a; --m-tu: #ffd23f; --m-borde: #ffffff;
+    --sombra: none; --sombra-alta: none; --anillo: #1f3fc4;
+    color-scheme: light;
+  }
+}

@@ -21,6 +21,8 @@
 <meta name="twitter:description" content="40.000 € brutos al año son 2.157 € netos al mes en 14 pagas en Madrid en 2026, y de 2.105 € a 2.163 € según el territorio. Tabla de los 19 territorios con IRPF y Seguridad Social.">
 <meta name="twitter:image" content="https://mapafiscal.es/og.png">
 <meta name="theme-color" content="#1f3fc4">
+<meta name="color-scheme" content="light dark">
+<script>try{var t=localStorage.getItem("mf-tema");if(t==="light"||t==="dark")document.documentElement.setAttribute("data-theme",t)}catch(e){}</script>
 <link rel="preload" href="/fonts/public-sans-latin-var.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="preload" href="/fonts/archivo-latin-var.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="icon" href="/favicon.svg" type="image/svg+xml">
@@ -34,6 +36,7 @@
 <body class="pagina-seo">
 <header class="appbar">
   <div class="appbar-in">
+    <button class="btn-icono panel-btn" id="btn-todo" type="button" aria-haspopup="dialog" aria-expanded="false" aria-controls="panel-todo" aria-label="Todo lo que ofrecemos" title="Todo lo que ofrecemos"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M4 6.5h16M4 12h16M4 17.5h10"/></svg><span class="panel-btn-txt">Todo</span></button>
     <a class="marca" href="/index.html" aria-label="Mapafiscal, inicio">
       <svg class="marca-ico" viewBox="0 0 32 32" aria-hidden="true"><rect width="32" height="32" rx="8" class="marca-fondo"/><path class="marca-panel" d="M7 10.5 13 8v15.5L7 26z"/><path class="marca-panel-tu" d="M13 8l6 2.5V26l-6-2.5z"/><path class="marca-panel-2" d="M19 10.5 25 8v15.5L19 26z"/></svg>
       <span class="marca-txt">Mapafiscal</span>
@@ -45,6 +48,7 @@
       <a href="/guias/">Guías</a>
     </nav>
     <div class="appbar-der">
+      <button class="btn-icono tema-btn" id="btn-tema" type="button" aria-label="Tema: automático (como el sistema). Cambiar a claro" title="Tema: automático"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><circle cx="12" cy="12" r="8"/><path class="relleno" d="M12 4a8 8 0 0 1 0 16z"/></svg></button>
       <a class="btn btn-pri btn-sm" href="/index.html#calculadora">Calcula tu caso</a>
     </div>
   </div>
@@ -70,9 +74,11 @@
 <footer class="pie">
   <div class="contenedor pie-in">
     <p><b>Mapafiscal</b> ofrece estimaciones con fines informativos. No es una liquidación oficial ni asesoramiento fiscal.</p>
+    <p class="pie-redes"><span class="pie-redes-txt">Síguenos</span><a class="red red-x" href="https://x.com/mapafiscal" rel="me noopener" target="_blank" aria-label="Mapafiscal en X (se abre en otra pestaña)" title="Mapafiscal en X"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path class="relleno" d="M18.9 1.15h3.68l-8.04 9.19L24 22.85h-7.4l-5.8-7.59-6.64 7.59H.47l8.6-9.83L0 1.15h7.59l5.24 6.93zm-1.29 19.5h2.04L6.49 3.24H4.3z"/></svg></a></p>
     <p class="pie-sec"><a href="/irpf/">IRPF por territorio</a> · <a href="/guias/">Guías del IRPF</a> · <a href="/comparar-sueldo/">Dónde se paga menos IRPF</a> · <a href="/sueldo-neto/">Sueldo neto</a> · <a href="/index.html#metodologia">Cómo calculamos</a> · Datos generados el 2026-11-14</p>
     <p class="pie-sec"><a href="/legal/aviso-legal.html">Aviso legal</a> · <a href="/legal/privacidad.html">Privacidad</a> · <a href="/legal/condiciones.html">Condiciones</a> · <a href="/legal/cookies.html">Cookies</a> · <a href="/legal/aviso-legal.html#contacto">Contacto</a></p>
   </div>
 </footer>
+<script src="/js/ui.js" defer></script>
 </body>
 </html>
