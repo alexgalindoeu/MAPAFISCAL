@@ -16,6 +16,23 @@ export const SLUG = {
 };
 export const ORDEN_TERRITORIOS = Object.keys(SLUG); // orden estable, el de params.json
 
+// Nombre como lo busca la gente, para <title> y descripciones (donde cada carácter cuenta).
+// En el cuerpo de la página se usa el nombre oficial, que sale de los datos.
+export const NOMBRE_CORTO = {
+  "ES-AN": "Andalucía", "ES-AR": "Aragón", "ES-AS": "Asturias", "ES-IB": "Baleares",
+  "ES-CN": "Canarias", "ES-CB": "Cantabria", "ES-CM": "Castilla-La Mancha", "ES-CL": "Castilla y León",
+  "ES-CT": "Cataluña", "ES-EX": "Extremadura", "ES-GA": "Galicia", "ES-MD": "Madrid",
+  "ES-MC": "Murcia", "ES-RI": "La Rioja", "ES-VC": "Comunidad Valenciana",
+  "ES-PV-BI": "Bizkaia", "ES-PV-SS": "Gipuzkoa", "ES-PV-VI": "Álava", "ES-NC": "Navarra"
+};
+// Límites orientativos de lo que Google muestra sin cortar.
+export const MAX_TITULO = 60, MAX_DESCRIPCION = 155;
+// El sufijo « | Mapafiscal» solo se añade si cabe: Google ya muestra el nombre del sitio.
+export function tituloFinal(t) {
+  const base = String(t).replace(/ \| Mapafiscal$/, "");
+  return base.length + 13 <= MAX_TITULO ? base + " | Mapafiscal" : base;
+}
+
 // Herramientas de la web principal (aplicación de una sola página).
 export const HERRAMIENTA = {
   calculadora: "/index.html#calculadora",
@@ -96,6 +113,22 @@ export function jsonLdArticulo({ titulo, descripcion, ruta, generado }) {
     publisher: { "@type": "Organization", name: "Mapafiscal", url: SITIO + "/" }
   };
 }
+// Tabla de datos con su fuente oficial (escalas, importes): ayuda a que buscadores y
+// asistentes la citen como fuente. `fuentes`: textos de norma/fuente; se enlazan los BOE.
+export function jsonLdDataset({ nombre, descripcion, ruta, generado, fuentes = [], ambito = "España" }) {
+  const ids = [...new Set(fuentes.join(" ").match(/BOE-A-\d{4}-\d+/g) || [])];
+  return {
+    "@context": "https://schema.org", "@type": "Dataset", name: nombre, description: descripcion,
+    url: SITIO + ruta, inLanguage: "es", dateModified: generado, isAccessibleForFree: true,
+    license: SITIO + "/legal/condiciones.html", spatialCoverage: { "@type": "Place", name: ambito },
+    creator: { "@type": "Organization", name: "Mapafiscal", url: SITIO + "/" },
+    citation: [...new Set(fuentes.filter(Boolean))].concat(ids.map(urlBoe), [LIRPF_BOE]).filter((x, i, a) => a.indexOf(x) === i)
+  };
+}
+// Respuesta directa al principio de la página (una frase con la cifra) y fecha visible.
+export function respuestaDirecta(html) {
+  return `<p class="respuesta-directa"><b>En resumen:</b> ${html}</p>`;
+}
 // preguntas: [[pregunta, respuesta en texto plano]]
 export function jsonLdFaq(preguntas) {
   return {
@@ -114,6 +147,9 @@ export function migasHtml(migas) {
 
 // ---- maqueta compartida ---------------------------------------------------------
 export function layout({ title, description, canonical, breadcrumb, main, generado, jsonld = [], css = [] }) {
+  title = tituloFinal(title);
+  // Fecha visible justo después del <h1>.
+  main = main.replace(/(<\/h1>)/, `$1\n  <p class="actualizado">Actualizado el <time datetime="${esc(generado)}">${esc(fecha(generado))}</time></p>`);
   const ld = jsonld.map(o => `<script type="application/ld+json">${JSON.stringify(o).replace(/</g, "\\u003c")}</script>`).join("\n");
   return `<!doctype html>
 <html lang="es">
