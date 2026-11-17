@@ -10,7 +10,7 @@
 // =============================================================================
 import {
   SLUG, HERRAMIENTA, esc, miles, eurosExactos, pctCorto, urlBoe, enlacesBoe,
-  layout, jsonLdMigas, jsonLdArticulo, migasHtml
+  layout, jsonLdMigas, jsonLdArticulo, migasHtml, NOMBRE_CORTO, MAX_TITULO, MAX_DESCRIPCION, respuestaDirecta
 } from "./seo_comun.mjs";
 
 const eur = eurosExactos;
@@ -347,16 +347,24 @@ export function paginaDeducciones(codigo, t, generado, avisos) {
 
   const comun = t.regimen === "comun";
   const ruta = `/irpf/${slug}/deducciones/`;
-  const title = `Deducciones del IRPF en ${nombre} (2025) | Mapafiscal`;
-  const description = comun
-    ? `Deducciones autonómicas de ${nombre} en la renta 2025: ${fichas.slice(0, 3).map(f => f.titulo.replace(/^(Por|Para) /, "").toLowerCase()).join(", ")}… Importes, límites, requisitos y la norma de cada una.`
-    : `Deducciones de la cuota del IRPF en ${nombre} en 2025 (${fichas.slice(0, 3).map(f => f.titulo.replace(/^(Por|Para) /, "").toLowerCase()).join(", ")}…): importes, límites y la norma foral de cada una.`;
+  const corto = NOMBRE_CORTO[codigo], nf = fichas.length;
+  const largo = `Deducciones autonómicas ${corto} 2025: importes y requisitos`;
+  const title = comun ? (largo.length <= MAX_TITULO ? largo : `Deducciones autonómicas ${corto} 2025`) : `Deducciones IRPF ${corto} 2025: forales, con importes`;
+  // Descripción: cifra + primeras deducciones, recortada para que quepa entera.
+  const ejemplos = fichas.map(f => f.titulo.replace(/^(Por|Para) /, "").replace(/\s*\(.*?\)/g, "").toLowerCase());
+  const armar = k => comun
+    ? `Deducciones autonómicas de ${corto} en la renta 2025: ${ejemplos.slice(0, k).join(", ")}… Importes, requisitos y norma. Calculadora gratis.`
+    : `Deducciones del IRPF foral de ${corto} en 2025: ${ejemplos.slice(0, k).join(", ")}… Importes, límites y norma foral. Calculadora gratis.`;
+  let k = 3; while (k > 1 && armar(k).length > MAX_DESCRIPCION) k--;
+  let description = armar(k);
+  if (description.length > MAX_DESCRIPCION) description = comun ? `Deducciones autonómicas de ${corto} en la renta 2025, con importes, requisitos y la norma de cada una. Calculadora gratis.` : `Deducciones del IRPF foral de ${corto} en 2025, con importes, límites y la norma foral de cada una. Calculadora gratis.`;
   const migas = [["Inicio", "/"], ["IRPF por territorio", "/irpf/"], [nombre, `/irpf/${slug}/`], ["Deducciones", ruta]];
   const intro = comun
     ? `<p class="entradilla">Las comunidades de régimen común pueden aprobar deducciones propias, que se restan de la parte autonómica de la cuota. Estas son deducciones de ${esc(nombre)} para la declaración de la renta de 2025 (la que se presenta en 2026), con su importe, sus requisitos principales y la norma que las regula.</p>`
     : `<p class="entradilla">${esc(nombre)} tiene su propio IRPF foral: en lugar del mínimo personal y familiar y de las deducciones autonómicas del régimen común, aplica sus propias deducciones en la cuota. Estas son algunas de las principales del ejercicio 2025, con su importe y su norma${t.norma_base ? ` (${esc(t.norma_base)})` : ""}.</p>`;
   const main = `
-  <h1>Deducciones del IRPF en ${esc(nombre)} (2025)</h1>
+  <h1>Deducciones ${comun ? "autonómicas" : "del IRPF"} de ${esc(nombre)} 2025</h1>
+  ${respuestaDirecta(`esta página recoge <b>${nf === 1 ? "1 deducción" : nf + " deducciones"}</b> ${comun ? "autonómicas" : "forales"} de ${esc(nombre)} para la renta de 2025 (${esc(ejemplos.slice(0, 2).join(" y "))}${nf > 2 ? ", entre otras" : ""}), cada una con su importe, sus requisitos y su norma oficial.`)}
   ${intro}
   <div class="prosa">
   <div class="tarjeta indice-fichas"><h2 class="rotulo">En esta página</h2><ul>${fichas.map(f => `<li>${esc(f.titulo)}</li>`).join("")}</ul>
@@ -370,7 +378,7 @@ export function paginaDeducciones(codigo, t, generado, avisos) {
     html: layout({
       title, description, canonical: ruta, breadcrumb: migasHtml(migas), main, generado,
       css: ["/css/guias.css"],
-      jsonld: [jsonLdMigas(migas), jsonLdArticulo({ titulo: `Deducciones del IRPF en ${nombre} (2025)`, descripcion: description, ruta, generado })]
+      jsonld: [jsonLdMigas(migas), jsonLdArticulo({ titulo: `Deducciones ${comun ? "autonómicas" : "del IRPF"} de ${nombre} 2025`, descripcion: description, ruta, generado })]
     })
   };
 }

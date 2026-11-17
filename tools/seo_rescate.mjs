@@ -10,7 +10,7 @@ import { readFileSync, readdirSync } from "node:fs";
 import { createRequire } from "node:module";
 import { join, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
-import { SLUG, ORDEN_TERRITORIOS, esc, euros, pct, layout, jsonLdMigas, jsonLdFaq, bloqueFaq, migasHtml, LIRPF_BOE } from "./seo_comun.mjs";
+import { SLUG, ORDEN_TERRITORIOS, NOMBRE_CORTO, esc, euros, pct, layout, jsonLdMigas, jsonLdFaq, bloqueFaq, migasHtml, LIRPF_BOE } from "./seo_comun.mjs";
 
 const require = createRequire(import.meta.url);
 const WEB = join(dirname(fileURLToPath(import.meta.url)), "..", "web");
@@ -80,8 +80,8 @@ function paginaTerritorio(P, terr, generado) {
   ${cta("Calcula tu rescate", APP(terr), ["Ver todos los territorios", HUB])}
   ${bloqueFaq(qs)}
   </div>`;
-  const title = `Rescate del plan de pensiones en ${nombre} ${P.ejercicio}: cuánto tributa | Mapafiscal`;
-  const description = `Cuánto IRPF pagas en ${nombre} por rescatar tu plan de pensiones de una vez, como renta o mixto, con la reducción del 40 % de lo aportado antes de 2007. Calculadora gratuita.`;
+  const title = `Rescate plan de pensiones ${NOMBRE_CORTO[terr]} ${P.ejercicio}: cuánto tributa`;
+  const description = `Rescatar ${euros(total)} del plan de pensiones en ${NOMBRE_CORTO[terr]} (${P.ejercicio}) sube el IRPF ${euros(r[r.mejor].extra)} con la mejor opción. Compara de una vez, renta o mixto. Calculadora gratis.`;
   return { ruta, html: layout({ title, description, canonical: ruta, breadcrumb: migasHtml(migas), main, generado,
     jsonld: [jsonLdMigas(migas), jsonLdFaq(qs)] }) };
 }
@@ -107,8 +107,8 @@ function paginaHub(P, generado) {
   ${cta("Calcula tu rescate", APP(), ["Ahorro por aportar antes del 31-12", "/index.html#plan-pensiones"])}
   ${bloqueFaq(qs)}
   </div>`;
-  const title = `Rescate del plan de pensiones ${P.ejercicio}: cuánto tributa y cómo rescatarlo | Mapafiscal`;
-  const description = "Calcula cuánto IRPF pagas por rescatar tu plan de pensiones de una vez, como renta o mixto, con la reducción del 40 % de lo aportado antes de 2007, en cada comunidad autónoma.";
+  const title = `Rescate del plan de pensiones ${P.ejercicio}: cuánto IRPF pagas`;
+  const description = `Rescatar ${euros(total)} del plan de pensiones en ${P.ejercicio} cuesta de ${euros(mejor.v[mejor.v.mejor].extra)} a ${euros(peor.v[peor.v.mejor].extra)} de IRPF según la comunidad. De una vez, renta o mixto y reducción del 40 %.`;
   return { ruta: HUB, html: layout({ title, description, canonical: HUB, breadcrumb: migasHtml(migas), main, generado,
     jsonld: [jsonLdMigas(migas), jsonLdFaq(qs)] }) };
 }
