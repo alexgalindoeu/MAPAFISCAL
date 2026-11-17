@@ -1,0 +1,54 @@
+# Mapafiscal
+
+> Calculadora gratuita del IRPF (impuesto sobre la renta) de España en sus 19 territorios fiscales: las 15 comunidades autónomas de régimen común, las tres diputaciones forales del País Vasco (Bizkaia, Gipuzkoa y Araba/Álava) y Navarra. Ejercicios 2025 y 2026. Cada cifra sale de un motor de cálculo abierto con los parámetros de la norma (LIRPF, leyes autonómicas y normas forales), y cada página cita su fuente oficial (BOE, boletines autonómicos y forales o el Manual práctico de la AEAT).
+
+Datos clave (2025, actualizados el 2026-11-14):
+
+- Escala estatal general del IRPF: 6 tramos, del 9,5 % al 24,5 % (art. 63 LIRPF); se suma a la escala autonómica de cada comunidad.
+- Con 30.000 € brutos al año (una persona, sin hijos), la cuota del IRPF va de 4.547 € en Bizkaia a 4.961 € en Cataluña.
+- Las estimaciones son informativas: no son una liquidación oficial ni asesoramiento fiscal. Contacto: contacto@mapafiscal.es.
+
+## Herramientas
+
+- [Calculadora del IRPF](https://mapafiscal.es/index.html#calculadora): la renta con tu situación real, en cualquiera de los 19 territorios.
+- [Comparador de territorios](https://mapafiscal.es/index.html#comparar): la misma situación en los 19 territorios.
+- [Sueldo neto](https://mapafiscal.es/sueldo-neto/): de bruto a neto en 12 y 14 pagas.
+- [Dónde se paga menos IRPF](https://mapafiscal.es/comparar-sueldo/): ranking de los 19 territorios por sueldo.
+
+## Guías
+
+- [Tramos del IRPF 2025 y 2026](https://mapafiscal.es/guias/tramos-irpf-2025-2026/): Escala estatal, del ahorro y de cada territorio.
+- [Mínimo personal y familiar](https://mapafiscal.es/guias/minimo-personal-familiar/): Cuánto de tu renta no paga IRPF por ti, tus hijos y tus mayores.
+- [Plan de pensiones: cuánto desgrava](https://mapafiscal.es/guias/plan-pensiones-desgravar/): Límites y ahorro real en cada territorio si aportas antes del 31 de diciembre.
+- [Deducción por donativos](https://mapafiscal.es/guias/deduccion-donativos/): El 80 % de los primeros 250 € y el resto, con ejemplos.
+- [¿Estoy obligado a declarar?](https://mapafiscal.es/guias/obligacion-declarar-renta/): Límites de ingresos y cuándo conviene declarar aunque no sea obligatorio.
+- [Calendario de la renta](https://mapafiscal.es/guias/calendario-renta/): Fechas de la campaña, domiciliación y pago en dos plazos.
+
+## IRPF por territorio
+
+- [IRPF en Andalucía](https://mapafiscal.es/irpf/andalucia/): tramos del 19 % al 47 % en 2025; [deducciones](https://mapafiscal.es/irpf/andalucia/deducciones/)
+- [IRPF en Aragón](https://mapafiscal.es/irpf/aragon/): tramos del 19 % al 50 % en 2025
+- [IRPF en Principado de Asturias](https://mapafiscal.es/irpf/asturias/): tramos del 18,5 % al 50,5 % en 2025
+- [IRPF en Illes Balears](https://mapafiscal.es/irpf/islas-baleares/): tramos del 18,5 % al 49,25 % en 2025
+- [IRPF en Canarias](https://mapafiscal.es/irpf/canarias/): tramos del 18,5 % al 50,5 % en 2025; [deducciones](https://mapafiscal.es/irpf/canarias/deducciones/)
+- [IRPF en Cantabria](https://mapafiscal.es/irpf/cantabria/): tramos del 18 % al 49 % en 2025
+- [IRPF en Castilla-La Mancha](https://mapafiscal.es/irpf/castilla-la-mancha/): tramos del 19 % al 47 % en 2025
+- [IRPF en Castilla y León](https://mapafiscal.es/irpf/castilla-y-leon/): tramos del 18,5 % al 46 % en 2025; [deducciones](https://mapafiscal.es/irpf/castilla-y-leon/deducciones/)
+- [IRPF en Cataluña](https://mapafiscal.es/irpf/cataluna/): tramos del 19 % al 50 % en 2025; [deducciones](https://mapafiscal.es/irpf/cataluna/deducciones/)
+- [IRPF en Extremadura](https://mapafiscal.es/irpf/extremadura/): tramos del 17,5 % al 49,5 % en 2025
+- [IRPF en Galicia](https://mapafiscal.es/irpf/galicia/): tramos del 18,5 % al 47 % en 2025; [deducciones](https://mapafiscal.es/irpf/galicia/deducciones/)
+- [IRPF en Comunidad de Madrid](https://mapafiscal.es/irpf/madrid/): tramos del 18 % al 45 % en 2025; [deducciones](https://mapafiscal.es/irpf/madrid/deducciones/)
+- [IRPF en Región de Murcia](https://mapafiscal.es/irpf/murcia/): tramos del 19 % al 47 % en 2025; [deducciones](https://mapafiscal.es/irpf/murcia/deducciones/)
+- [IRPF en La Rioja](https://mapafiscal.es/irpf/la-rioja/): tramos del 17,5 % al 51,5 % en 2025
+- [IRPF en Comunitat Valenciana](https://mapafiscal.es/irpf/comunidad-valenciana/): tramos del 18,5 % al 54 % en 2025; [deducciones](https://mapafiscal.es/irpf/comunidad-valenciana/deducciones/)
+- [IRPF en Bizkaia](https://mapafiscal.es/irpf/bizkaia/): tramos del 23 % al 49 % en 2025; [deducciones](https://mapafiscal.es/irpf/bizkaia/deducciones/)
+- [IRPF en Gipuzkoa](https://mapafiscal.es/irpf/gipuzkoa/): tramos del 23 % al 49 % en 2025; [deducciones](https://mapafiscal.es/irpf/gipuzkoa/deducciones/)
+- [IRPF en Araba/Álava](https://mapafiscal.es/irpf/araba-alava/): tramos del 23 % al 49 % en 2025; [deducciones](https://mapafiscal.es/irpf/araba-alava/deducciones/)
+- [IRPF en Comunidad Foral de Navarra](https://mapafiscal.es/irpf/navarra/): tramos del 13 % al 52 % en 2025; [deducciones](https://mapafiscal.es/irpf/navarra/deducciones/)
+
+## Otras páginas
+
+- [¿Cuánto me devuelve Hacienda?](https://mapafiscal.es/cuanto-me-devuelve/): hijos, alquiler, hipoteca, discapacidad y donativos.
+- [Rescate del plan de pensiones](https://mapafiscal.es/rescate-plan-pensiones/)
+- [Declaración conjunta o individual](https://mapafiscal.es/declaracion-conjunta/)
+- [Mapa del sitio](https://mapafiscal.es/sitemap.xml)

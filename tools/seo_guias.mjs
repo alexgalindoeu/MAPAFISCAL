@@ -8,21 +8,26 @@
 import {
   SLUG, ORDEN_TERRITORIOS, HERRAMIENTA, LIRPF_BOE, esc, euros, eurosExactos as eur, pct, pctCorto,
   fecha, urlBoe, tablaEscala, combinarEscalas, citaFuente, layout, jsonLdMigas, jsonLdArticulo,
-  jsonLdFaq, bloqueFaq, migasHtml
+  jsonLdFaq, jsonLdDataset, bloqueFaq, migasHtml, respuestaDirecta
 } from "./seo_comun.mjs";
 
 const iguales = (a, b) => JSON.stringify(a) === JSON.stringify(b);
 const lirpf = art => `<a href="${LIRPF_BOE}" rel="noopener">${esc(art)} de la Ley 35/2006 del IRPF</a>`;
 const RIRPF_BOE = "https://www.boe.es/buscar/act.php?id=BOE-A-2007-6820";
+// Última modificación del art. 63.1 LIRPF según el texto consolidado del BOE (nota de
+// versiones del artículo): con efectos desde el 1-1-2021, por el art. 58 de la Ley 11/2020.
+const ULTIMA_REFORMA_ART63 = `art. 58 de la Ley 11/2020, de 30 de diciembre, de Presupuestos Generales del Estado para 2021, <a href="${urlBoe("BOE-A-2020-17339")}" rel="noopener">BOE-A-2020-17339</a>`;
 const enlaceTerritorio = c => `/irpf/${SLUG[c]}/`;
+const fechaSinAnio = iso => fecha(iso).replace(/ de \d{4}$/, "");
 
-function pagina(g, { slug, titulo, h1, description, cuerpo, faq, generado }) {
+function pagina(g, { slug, titulo, h1, description, cuerpo, faq, generado, resumen, dataset }) {
   const ruta = `/guias/${slug}/`;
   const migas = [["Inicio", "/"], ["Guías del IRPF", "/guias/"], [h1, ruta]];
   const relacionadas = GUIAS.filter(x => x.slug !== slug)
     .map(x => `<li><a href="/guias/${x.slug}/">${esc(x.enlace)}</a></li>`).join("");
   const main = `
   <h1>${esc(h1)}</h1>
+  ${resumen ? respuestaDirecta(resumen) : ""}
   <div class="prosa">
   ${cuerpo}
   ${faq.length ? bloqueFaq(faq) : ""}
@@ -32,7 +37,8 @@ function pagina(g, { slug, titulo, h1, description, cuerpo, faq, generado }) {
     ruta,
     html: layout({
       title: titulo, description, canonical: ruta, breadcrumb: migasHtml(migas), main, generado, css: ["/css/guias.css"],
-      jsonld: [jsonLdMigas(migas), jsonLdArticulo({ titulo: h1, descripcion: description, ruta, generado }), ...(faq.length ? [jsonLdFaq(faq)] : [])]
+      jsonld: [jsonLdMigas(migas), jsonLdArticulo({ titulo: h1, descripcion: description, ruta, generado }), ...(faq.length ? [jsonLdFaq(faq)] : []),
+        ...(dataset ? [jsonLdDataset(Object.assign({ ruta, generado }, dataset))] : [])]
     })
   };
 }
@@ -66,6 +72,14 @@ function guiaTramos(g, T) {
   const cuotaEj = cuota(e.estatal_2025.tramos, ej);
   const pv26 = !iguales(e.pais_vasco_2025.tramos, e.pais_vasco_2026.tramos);
   const nv26 = iguales(e.navarra_2025.tramos, e.navarra_2026.tramos);
+  const est = e.estatal_2025.tramos, aho = ahorro25;
+  const ejAhorro = 10000, cuotaAhorro = cuota(ahorro25, ejAhorro);
+  // Reparto estatal/autonómico con la misma base de ejemplo en dos comunidades.
+  const reparto = ["ES-MD", "ES-CT"].map(c => {
+    const total = cuota(T.territorios[c].escala_combinada.tramos, ej);
+    return { nombre: T.territorios[c].nombre, total, auto: total - cuotaEj };
+  });
+  const r2 = x => Math.round(x * 100) / 100;
 
   const cuerpo = `
   <p class="entradilla">El IRPF se calcula aplicando a la base liquidable una escala por tramos: cada tramo de renta paga su propio tipo y solo el exceso sobre el tramo anterior tributa al tipo siguiente. En el régimen común la escala tiene dos mitades, la del Estado y la de tu comunidad autónoma; el País Vasco y Navarra aplican su propia tarifa foral completa.</p>
@@ -73,6 +87,7 @@ function guiaTramos(g, T) {
     <h2 class="rotulo">Escala estatal del IRPF ${igual26 ? "2025 y 2026" : "2025"}</h2>
     ${tablaEscala(e.estatal_2025.tramos)}
     ${igual26 ? `<p>En 2026 la escala estatal no cambia: los tramos y los tipos son los mismos que en 2025.</p>` : `<h3>Escala estatal 2026</h3>${tablaEscala(e.estatal_2026.tramos)}`}
+    ${igual26 ? `<p><b>¿Y la escala del IRPF de 2024?</b> La escala estatal general es la misma: el ${lirpf("art. 63.1.1.º")} se modificó por última vez con efectos desde el 1 de enero de 2021 (${ULTIMA_REFORMA_ART63}). Los tramos estatales de 2024, 2025 y 2026 coinciden; lo que puede cambiar de un año a otro es la parte autonómica de cada comunidad.</p>` : ""}
     ${citaFuente(e.estatal_2025)}
     <p>Ejemplo: con una base liquidable general de ${euros(ej)}, la parte estatal de la cuota es de ${eur(Math.round(cuotaEj * 100) / 100)} antes de restar el mínimo personal y las deducciones. A esa cifra se le suma la parte autonómica, que depende de dónde vivas.</p>
   </div>
@@ -84,11 +99,25 @@ function guiaTramos(g, T) {
     </tbody></table></div>
   </div>
   <div class="tarjeta">
-    <h2 class="rotulo">Escala del ahorro ${iguales(ahorro25, ahorro26) ? "2025 y 2026" : "2025"} (régimen común)</h2>
-    <p>Los intereses, los dividendos y las ganancias por vender acciones o fondos tributan aparte, en la base del ahorro, con una escala igual en todas las comunidades de régimen común. Ya sumadas las partes estatal y autonómica:</p>
+    <h2 class="rotulo">Tramos de las ganancias patrimoniales: escala del ahorro ${iguales(ahorro25, ahorro26) ? "2025 y 2026" : "2025"}</h2>
+    <p>Los intereses, los dividendos y las ganancias patrimoniales por vender acciones, fondos o un inmueble tributan aparte, en la base del ahorro, con una escala igual en todas las comunidades de régimen común. Ya sumadas las partes estatal y autonómica:</p>
     ${tablaEscala(ahorro25, "Tramo de la base liquidable del ahorro")}
     ${iguales(ahorro25, ahorro26) ? "<p>En 2026 no cambia.</p>" : `<h3>2026</h3>${tablaEscala(ahorro26, "Tramo de la base liquidable del ahorro")}`}
+    <p>Ejemplo: una ganancia patrimonial de ${euros(ejAhorro)} paga ${eur(r2(cuotaAhorro))} (los primeros ${euros(aho[0].hasta)} al ${pctCorto(aho[0].tipo)} y el resto al ${pctCorto(aho[1].tipo)}), sin sumarse al sueldo ni subir su tipo.</p>
     ${citaFuente(e.ahorro_estatal_2025)}${citaFuente(e.ahorro_autonomica_2025)}
+  </div>
+  <div class="tarjeta">
+    <h2 class="rotulo">IRPF estatal y autonómico: cómo se reparte</h2>
+    <p>En las 15 comunidades de régimen común la cuota del IRPF tiene dos partes que se calculan por separado sobre la misma base liquidable y se suman:</p>
+    <ul>
+      <li><b>Parte estatal:</b> la escala del ${lirpf("art. 63")}, igual en toda España salvo en el País Vasco y Navarra.</li>
+      <li><b>Parte autonómica:</b> la escala que aprueba cada comunidad (${lirpf("art. 74")}). Por eso el tipo máximo va del ${pctCorto(minT.max)} de ${esc(minT.nombre)} al ${pctCorto(maxT.max)} de ${esc(maxT.nombre)}.</li>
+      <li>El mínimo personal y familiar se resta en las dos partes, y las comunidades pueden fijar su propio importe para la autonómica.</li>
+      <li>Las deducciones autonómicas solo rebajan la parte autonómica de la cuota; las estatales, la estatal.</li>
+      <li>En la base del ahorro, la parte estatal (${lirpf("art. 66")}) y la autonómica (${lirpf("art. 76")}) son iguales.</li>
+    </ul>
+    <p>Ejemplo con una base liquidable general de ${euros(ej)}, antes del mínimo y de las deducciones: la parte estatal es de ${eur(r2(cuotaEj))} en todas las comunidades; la autonómica, de ${reparto.map(x => `${eur(r2(x.auto))} en ${esc(x.nombre)} (total ${eur(r2(x.total))})`).join(" y de ")}.</p>
+    <p>El País Vasco y Navarra no tienen parte estatal: aplican una sola tarifa foral completa.</p>
   </div>
   <div class="tarjeta">
     <h2 class="rotulo">País Vasco: tarifa foral ${pv26 ? "2025 y 2026" : "2025"}</h2>
@@ -108,11 +137,17 @@ function guiaTramos(g, T) {
     ["¿Los tramos del IRPF se aplican a todo el sueldo?", "No. Cada tipo se aplica solo a la parte de la base que cae dentro de su tramo. Pasar a un tramo superior no encarece lo que ya tributaba en los anteriores."],
     ["¿Cuál es el tipo máximo del IRPF en 2025?", `Depende del territorio. En el régimen común, sumando Estado y comunidad, el más alto es el de ${maxT.nombre} (${pct(maxT.max)}) y el más bajo, el de ${minT.nombre} (${pct(minT.max)}).`],
     ["¿Cambian los tramos del IRPF en 2026?", `${igual26 ? "La escala estatal es la misma en 2026." : "La escala estatal cambia en 2026."}${pv26 ? " En el País Vasco las normas forales de 2026 actualizan los tramos." : ""}${nv26 ? " Navarra mantiene su tarifa." : ""} Cada comunidad de régimen común puede modificar su parte autonómica en sus propias leyes.`],
-    ["¿Qué es la base liquidable?", "Es lo que queda de tus ingresos después de restar los gastos deducibles (como la Seguridad Social), la reducción por rendimientos del trabajo y otras reducciones, como las aportaciones a planes de pensiones."]
+    ["¿Qué es la base liquidable?", "Es lo que queda de tus ingresos después de restar los gastos deducibles (como la Seguridad Social), la reducción por rendimientos del trabajo y otras reducciones, como las aportaciones a planes de pensiones."],
+    ...(igual26 ? [["¿Cuál era la escala estatal del IRPF en 2024?", `La misma que en 2025 y 2026: ${est.length} tramos, del ${pctCorto(est[0].tipo)} al ${pctCorto(est[est.length - 1].tipo)}. El art. 63.1.1.º de la Ley del IRPF no ha cambiado desde el 1 de enero de 2021 (art. 58 de la Ley 11/2020, BOE-A-2020-17339).`]] : []),
+    ["¿Cómo tributan las ganancias patrimoniales en 2025?", `En la base del ahorro, con tramos del ${pctCorto(aho[0].tipo)} al ${pctCorto(aho[aho.length - 1].tipo)} (partes estatal y autonómica sumadas): ${aho.map((t, i) => i === 0 ? `${pctCorto(t.tipo)} hasta ${euros(t.hasta)}` : t.hasta == null ? `${pctCorto(t.tipo)} desde ${euros(aho[i - 1].hasta)}` : `${pctCorto(t.tipo)} hasta ${euros(t.hasta)}`).join(", ")}.`],
+    ["¿Qué parte del IRPF es estatal y qué parte autonómica?", `En régimen común la cuota se calcula dos veces sobre la misma base, con la escala estatal y con la de tu comunidad, y se suman. Con ${euros(ej)} de base liquidable, la parte estatal es de ${eur(r2(cuotaEj))} antes del mínimo y de las deducciones.`]
   ];
-  return pagina(g, { slug: "tramos-irpf-2025-2026", h1: "Tramos del IRPF 2025 y 2026",
-    titulo: "Tramos del IRPF 2025 y 2026: escala estatal y de cada comunidad | Mapafiscal",
-    description: "Tramos y tipos del IRPF de 2025 y 2026: escala estatal, escala del ahorro, tabla de los 19 territorios (comunidades autónomas, País Vasco y Navarra) y ejemplos.",
+  return pagina(g, { slug: "tramos-irpf-2025-2026", h1: "Tramos y escala del IRPF 2025 y 2026",
+    titulo: "Tramos IRPF 2024, 2025 y 2026: escala estatal y del ahorro",
+    description: `Escala estatal del IRPF (${pctCorto(est[0].tipo)} a ${pctCorto(est[est.length - 1].tipo)}, igual desde 2021), tramos del ahorro para ganancias patrimoniales (${pctCorto(aho[0].tipo)} a ${pctCorto(aho[aho.length - 1].tipo)}) y tabla de los 19 territorios.`,
+    resumen: `la escala estatal del IRPF de 2025 y 2026 tiene ${est.length} tramos, del <b>${pctCorto(est[0].tipo)}</b> al <b>${pctCorto(est[est.length - 1].tipo)}</b>${igual26 ? " (la misma que en 2024)" : ""}. Sumada a la autonómica, el tipo máximo va del ${pctCorto(minT.max)} de ${esc(minT.nombre)} al ${pctCorto(maxT.max)} de ${esc(maxT.nombre)}. Las ganancias patrimoniales tributan aparte, del ${pctCorto(aho[0].tipo)} al ${pctCorto(aho[aho.length - 1].tipo)}.`,
+    dataset: { nombre: "Escalas del IRPF 2025 y 2026: estatal, del ahorro, autonómicas y forales", descripcion: "Tramos y tipos marginales de la escala estatal general, la escala del ahorro y las escalas combinadas de los 19 territorios fiscales de España.",
+      fuentes: [e.estatal_2025.norma, e.estatal_2025.fuente, e.ahorro_estatal_2025.norma, e.ahorro_estatal_2025.fuente, e.pais_vasco_2026.norma, e.pais_vasco_2026.fuente, e.navarra_2025.norma, "Ley 11/2020, art. 58 (BOE-A-2020-17339)"] },
     cuerpo, faq, generado: g.generado });
 }
 
@@ -172,8 +207,10 @@ function guiaMinimo(g) {
     ["¿Quién aplica el mínimo por hijos si los padres declaran por separado?", "Se reparte a partes iguales entre los progenitores que convivan con el hijo y tengan derecho a aplicarlo."]
   ];
   return pagina(g, { slug: "minimo-personal-familiar", h1: "Mínimo personal y familiar del IRPF (2025)",
-    titulo: "Mínimo personal y familiar del IRPF 2025: importes por hijos, mayores y discapacidad | Mapafiscal",
-    description: `Mínimo personal y familiar del IRPF 2025: ${euros(c.general)} por contribuyente, importes por hijos, ascendientes y discapacidad, y las comunidades con mínimos propios.`,
+    titulo: `Mínimo personal y familiar 2025: ${euros(c.general)} e importes por hijo`,
+    resumen: `el mínimo personal del IRPF de 2025 es de <b>${eur(c.general)}</b> (${eur(c.general + c.incremento_mayor_65)} desde los 65 años) y se suman ${eur(d.importes["1"])} por el primer hijo, ${eur(d.importes["2"])} por el segundo y ${eur(d.importes["3"])} por el tercero, tanto en el gravamen estatal como en el autonómico, salvo en las comunidades con importes propios.`,
+    dataset: { nombre: "Mínimo personal y familiar del IRPF 2025", descripcion: "Importes del mínimo del contribuyente, por descendientes, ascendientes y discapacidad (estatal y autonómicos).", fuentes: [c.norma, c.fuente, d.norma, a.norma, di.norma] },
+    description: `Mínimo personal y familiar del IRPF 2025 (gravamen estatal y autonómico): ${euros(c.general)} por contribuyente, ${euros(d.importes["1"])} por el primer hijo, mayores y discapacidad.`,
     cuerpo, faq, generado: g.generado });
 }
 
@@ -220,8 +257,9 @@ function guiaPensiones(g) {
     ["¿Puedo aportar más de 1.500 euros?", `Puedes aportar más, pero solo reduce la base lo que esté dentro del límite. Con un plan de empleo de la empresa, el límite conjunto llega a ${eur(total)}.`]
   ];
   return pagina(g, { slug: "plan-pensiones-desgravar", h1: "Plan de pensiones: cuánto desgrava antes del 31 de diciembre",
-    titulo: "Cuánto desgrava un plan de pensiones en 2025 (límites y ahorro por comunidad) | Mapafiscal",
-    description: `Cuánto desgrava aportar a un plan de pensiones antes del 31 de diciembre: límite de ${euros(r.limite_general_abs)}, plan de empleo hasta ${euros(total)} y ahorro calculado en los 19 territorios.`,
+    titulo: `Cuánto desgrava un plan de pensiones 2025: hasta ${euros(r.limite_general_abs)}`,
+    resumen: `las aportaciones a un plan de pensiones reducen la base hasta <b>${eur(r.limite_general_abs)}</b> al año (${eur(total)} con plan de empleo). Con ${euros(Number(sal[1]))} brutos en ${esc(mad.nombre)}, aportar ${euros(p.aportacion_ejemplo)} rebaja el IRPF en <b>${eur(mad.ahorro)}</b>.`,
+    description: `Plan de pensiones antes del 31 de diciembre: desgrava hasta ${euros(r.limite_general_abs)} (${euros(total)} con plan de empleo). Con ${euros(Number(sal[1]))} en Madrid ahorras ${euros(mad.ahorro)}. Por comunidad.`,
     cuerpo, faq, generado: g.generado });
 }
 
@@ -269,7 +307,8 @@ function guiaDonativos(g) {
     ["¿Hay un límite para deducir donativos?", `Sí: la base de la deducción no puede pasar del ${pctCorto(l.limite_base_liquidable_pct)} de tu base liquidable. Y la deducción solo puede rebajar la cuota hasta cero: no se devuelve lo que no se pueda aplicar.`]
   ];
   return pagina(g, { slug: "deduccion-donativos", h1: "Deducción por donativos en el IRPF",
-    titulo: "Deducción por donativos en la renta: 80 % de los primeros 250 € | Mapafiscal",
+    titulo: `Deducción por donativos 2025: ${pctCorto(l.tramo1_porcentaje)} de los primeros ${euros(l.tramo1_limite)}`,
+    resumen: `donar a una ONG acogida a la Ley 49/2002 deduce el <b>${pctCorto(l.tramo1_porcentaje)}</b> de los primeros ${eur(l.tramo1_limite)} y el ${pctCorto(l.resto_porcentaje)} del resto (${pctCorto(l.resto_porcentaje_recurrente)} si es recurrente): 250 € donados te cuestan ${eur(250 - ded(250, false))}.`,
     description: `Cuánto desgravan los donativos a ONG y fundaciones en el IRPF: ${pctCorto(l.tramo1_porcentaje)} de los primeros ${euros(l.tramo1_limite)}, ${pctCorto(l.resto_porcentaje)} del resto (${pctCorto(l.resto_porcentaje_recurrente)} si es recurrente), límites y ejemplos.`,
     cuerpo, faq, generado: g.generado });
 }
@@ -311,8 +350,9 @@ function guiaObligacion(g) {
     ["¿Me conviene presentar la declaración si no estoy obligado?", "Sí, si te han retenido más de lo que te corresponde: solo así te devuelven la diferencia. Si te sale a pagar y no estás obligado, no tienes que presentarla."]
   ];
   return pagina(g, { slug: "obligacion-declarar-renta", h1: "¿Estoy obligado a hacer la declaración de la renta?",
-    titulo: `¿Estoy obligado a declarar la renta? Límites de ${euros(o.trabajo_un_pagador)} y ${euros(o.trabajo_varios_pagadores)} | Mapafiscal`,
-    description: `Quién está obligado a presentar la renta de 2025: límite de ${euros(o.trabajo_un_pagador)} con un pagador, ${euros(o.trabajo_varios_pagadores)} con varios, rentas del capital y casos en que conviene declarar aunque no sea obligatorio.`,
+    titulo: `¿Obligado a hacer la renta 2025? Límite de ${euros(o.trabajo_un_pagador)}`,
+    resumen: `en la renta de 2025 no tienes que declarar si solo cobras un sueldo de hasta <b>${eur(o.trabajo_un_pagador)}</b> de un pagador, o de hasta <b>${eur(o.trabajo_varios_pagadores)}</b> si el segundo pagador y siguientes suman más de ${eur(o.segundo_pagador_umbral)}.`,
+    description: `Quién tiene que hacer la renta 2025: ${euros(o.trabajo_un_pagador)} con un pagador, ${euros(o.trabajo_varios_pagadores)} con dos si el segundo pasa de ${euros(o.segundo_pagador_umbral)}, y cuándo conviene declarar igualmente.`,
     cuerpo, faq, generado: g.generado });
 }
 
@@ -354,8 +394,9 @@ function guiaCalendario(g) {
     ["¿Cuándo es la próxima campaña de la renta?", "Las fechas las fija cada año una orden del Ministerio de Hacienda que se publica en el BOE antes de que empiece la campaña, normalmente en primavera. En cuanto salga, la recogemos aquí."]
   ];
   return pagina(g, { slug: "calendario-renta", h1: "Calendario de la declaración de la renta",
-    titulo: `Calendario de la renta ${c.ejercicio}: fechas de la campaña | Mapafiscal`,
-    description: `Fechas de la campaña de la renta ${c.ejercicio}: del ${fecha(c.inicio)} al ${fecha(c.fin)}, domiciliación hasta el ${fecha(c.fin_domiciliacion)} y segundo plazo el ${fecha(f.segundo_plazo_hasta)}. Con la orden del BOE.`,
+    titulo: `Fechas de la declaración de la renta ${c.ejercicio}: calendario`,
+    resumen: `la campaña de la renta ${c.ejercicio} fue del <b>${fecha(c.inicio)}</b> al <b>${fecha(c.fin)}</b>; para domiciliar el pago, hasta el ${fecha(c.fin_domiciliacion)}, y el segundo plazo, hasta el ${fecha(f.segundo_plazo_hasta)}.`,
+    description: `Renta ${c.ejercicio}: del ${fechaSinAnio(c.inicio)} al ${fecha(c.fin)}; domiciliación hasta el ${fechaSinAnio(c.fin_domiciliacion)} y segundo plazo el ${fechaSinAnio(f.segundo_plazo_hasta)}. Fechas con la orden del BOE.`,
     cuerpo, faq, generado: g.generado });
 }
 
@@ -379,9 +420,9 @@ export function paginasGuias(g, T) {
   <div class="tarjeta"><h2 class="rotulo">Por territorio</h2><p>Tramos, mínimo y deducciones de cada comunidad autónoma, del País Vasco y de Navarra: <a href="/irpf/">IRPF por territorio</a>. Y si quieres comparar: <a href="/comparar-sueldo/">dónde se paga menos IRPF con tu sueldo</a>.</p></div>
   ${cta("Calcula tu IRPF", HERRAMIENTA.calculadora, ["Calcula tu sueldo neto", HERRAMIENTA.sueldoNeto])}
   </div>`;
-  const description = "Guías del IRPF con las cifras oficiales: tramos 2025 y 2026, mínimo personal y familiar, planes de pensiones, donativos, obligación de declarar y calendario de la renta.";
+  const description = "Guías del IRPF con cifras oficiales: tramos 2025 y 2026, mínimo personal, plan de pensiones, donativos, quién declara y fechas de la renta. Gratis.";
   paginas.push({ ruta: "/guias/", html: layout({
-    title: "Guías del IRPF: tramos, mínimos, deducciones y calendario | Mapafiscal", description,
+    title: "Guías del IRPF 2025 y 2026: tramos, mínimos y fechas", description,
     canonical: "/guias/", breadcrumb: migasHtml(migas), main, generado: g.generado, css: ["/css/guias.css"],
     jsonld: [jsonLdMigas(migas)] }) });
   return paginas;
