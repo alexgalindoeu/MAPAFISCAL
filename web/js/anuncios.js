@@ -25,7 +25,18 @@
     { id: "anuncio-rail-der", slot: cfg.adsenseHuecoRailDer || "", carril: true },
     { id: "anuncio-calc-medio", slot: cfg.adsenseHuecoMovil || "" },
     { id: "anuncio-calc", slot: cfg.adsenseHuecoCalc || "" },
-    { id: "anuncio-comparar", slot: cfg.adsenseHuecoComparar || "" }
+    { id: "anuncio-comparar", slot: cfg.adsenseHuecoComparar || "" },
+    // Columnas laterales dentro de las vistas (≥1040 px, en el hueco que deja la columna
+    // corta). Sin bloque propio, reutilizan el de «mf-resultado-final».
+    ...[
+      ["anuncio-col-comparar", "adsenseHuecoColComparar"],
+      ["anuncio-col-escenarios", "adsenseHuecoColEscenarios"],
+      ["anuncio-col-neto", "adsenseHuecoColNeto"],
+      ["anuncio-col-pensiones", "adsenseHuecoColPensiones"],
+      ["anuncio-col-rescate", "adsenseHuecoColRescate"],
+      ["anuncio-col-conjunta", "adsenseHuecoColConjunta"],
+      ["anuncio-col-pagadores", "adsenseHuecoColPagadores"]
+    ].map(([id, k]) => ({ id, slot: cfg[k] || cfg.adsenseHuecoCalc || "", lateral: true }))
   ].filter(h => h.slot && document.getElementById(h.id));
   if (!HUECOS.length) return;
 
@@ -149,12 +160,23 @@
     ins.className = "adsbygoogle" + (h.carril ? " mf_carril" : "");
     ins.dataset.adClient = cfg.adsenseCliente;
     ins.dataset.adSlot = h.slot;
-    if (!h.carril) {
+    let destino = el;
+    if (h.lateral) {
+      // Columna lateral: el <aside> ocupa todo el hueco libre y la tarjeta va pegada (sticky)
+      // dentro. Vertical si hay alto para un 300x600; si no, adaptable normal.
+      // En móvil y tableta (<1040 px) es un bloque normal al final de la herramienta.
+      destino = (el.querySelector && el.querySelector(".anuncio")) || el;
+      const ancho = !window.matchMedia || window.matchMedia("(min-width: 1040px)").matches;
+      ins.style.display = "block";
+      ins.dataset.adFormat = ancho && (el.clientHeight || 0) >= 660 ? "vertical" : "auto";
+      ins.dataset.fullWidthResponsive = ancho ? "false" : "true";
+      if (!ancho && cfg.adsenseHuecoColMovil) ins.dataset.adSlot = cfg.adsenseHuecoColMovil;
+    } else if (!h.carril) {
       ins.style.display = "block";
       ins.dataset.adFormat = "auto";
       ins.dataset.fullWidthResponsive = "true";
     }
-    el.appendChild(ins);
+    destino.appendChild(ins);
     (window.adsbygoogle = window.adsbygoogle || []).push({});
   }
 

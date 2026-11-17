@@ -747,6 +747,32 @@ details.mas:not([open]) summary { margin-bottom: 0; }
   html.con-carriles .anuncio-solo-estrecho { display: none; }
 }
 
+/* Columnas laterales dentro de las vistas (.anuncio-lateral, desde 1040 px): el <aside> va
+   en la columna corta, debajo de su contenido (formulario, mapa o «En cifras»), y ocupa el
+   alto que deja libre la columna larga; la tarjeta del anuncio se queda pegada al bajar.
+   Nunca dentro del formulario. Por debajo de 1040 px no se muestra (sin columna vacía). */
+.anuncio-lateral { display: none; }
+.anuncio-lateral[hidden] { display: none !important; }
+/* Móvil y tableta (<1040 px): el mismo <aside> pasa a ser un bloque normal del flujo al final
+   de la herramienta (tras el resultado), sin sticky ni nada fijo, con el sitio reservado y
+   separado del contenido. En #comparar no: allí ya está #anuncio-comparar al final. */
+@media (max-width: 1039.98px) {
+  .anuncio-lateral:not(#anuncio-col-comparar) { display: block; margin-top: 32px; }
+  .anuncio-lateral > .anuncio { min-height: 280px; }
+}
+@media (min-width: 1040px) {
+  :is(.calc, .comparar):has(> .anuncio-lateral) { grid-template-rows: auto 1fr; }
+  :is(.calc, .comparar):has(> .anuncio-lateral-izq) > :first-child { grid-column: 1; grid-row: 1; }
+  :is(.calc, .comparar):has(> .anuncio-lateral-izq) > :nth-child(2) { grid-column: 2; grid-row: 1 / span 2; }
+  :is(.calc, .comparar):has(> .anuncio-lateral-der) > :first-child { grid-column: 1; grid-row: 1 / span 2; }
+  :is(.calc, .comparar):has(> .anuncio-lateral-der) > :nth-child(2) { grid-column: 2; grid-row: 1; }
+  .anuncio-lateral { display: block; align-self: stretch; min-width: 0; }
+  .anuncio-lateral-izq { grid-column: 1; grid-row: 2; }
+  .anuncio-lateral-der { grid-column: 2; grid-row: 2; }
+  .anuncio-lateral > .anuncio { position: sticky; top: 84px; min-height: 280px; }
+}
+@media print { .anuncio-lateral { display: none !important; } }
+
 /* Aviso de cookies propio (solo con consentimiento: "propio"; con la CMP de Google no sale).
    Franja inferior compacta que no bloquea la página; «Aceptar» y «Rechazar» iguales. */
 .aviso-cookies { position: fixed; left: 12px; right: 12px; bottom: 12px; z-index: 30; max-width: 760px;
