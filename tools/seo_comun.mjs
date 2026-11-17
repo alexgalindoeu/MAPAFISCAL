@@ -4,7 +4,23 @@
 // Las usan tools/generar_paginas_seo.mjs, tools/seo_deducciones.mjs y tools/seo_guias.mjs.
 // =============================================================================
 
+import { readFileSync } from "node:fs";
+import { createRequire } from "node:module";
+import { dirname, join } from "node:path";
+import { fileURLToPath } from "node:url";
+
 export const SITIO = "https://mapafiscal.es";
+
+// Piezas de interfaz comunes con la aplicación (web/js/ui.js): script del tema en el <head>,
+// botones de la barra y redes del pie. Las redes salen de `redes` en web/config.js.
+const WEB = join(dirname(fileURLToPath(import.meta.url)), "..", "web");
+export const UI = createRequire(import.meta.url)("../web/js/ui.js");
+export function configWeb() {
+  const window = {};
+  new Function("window", readFileSync(join(WEB, "config.js"), "utf8"))(window);
+  return window.MAPAFISCAL_CONFIG || {};
+}
+const REDES_HTML = UI.htmlRedes(configWeb().redes);
 
 // ---- slugs (solo para la URL; el nombre mostrado sale siempre de los datos) ----
 export const SLUG = {
@@ -138,6 +154,8 @@ export function layout({ title, description, canonical, breadcrumb, main, genera
 <meta name="twitter:description" content="${esc(description)}">
 <meta name="twitter:image" content="${SITIO}/og.png">
 <meta name="theme-color" content="#1f3fc4">
+<meta name="color-scheme" content="light dark">
+${UI.SCRIPT_TEMA}
 <link rel="preload" href="/fonts/public-sans-latin-var.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="preload" href="/fonts/archivo-latin-var.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="icon" href="/favicon.svg" type="image/svg+xml">
@@ -149,6 +167,7 @@ ${css.map(c => `<link rel="stylesheet" href="${c}">\n`).join("")}${ld ? ld + "\n
 <body class="pagina-seo">
 <header class="appbar">
   <div class="appbar-in">
+    ${UI.HTML_BTN_PANEL}
     <a class="marca" href="/index.html" aria-label="Mapafiscal, inicio">
       <svg class="marca-ico" viewBox="0 0 32 32" aria-hidden="true"><rect width="32" height="32" rx="8" class="marca-fondo"/><path class="marca-panel" d="M7 10.5 13 8v15.5L7 26z"/><path class="marca-panel-tu" d="M13 8l6 2.5V26l-6-2.5z"/><path class="marca-panel-2" d="M19 10.5 25 8v15.5L19 26z"/></svg>
       <span class="marca-txt">Mapafiscal</span>
@@ -160,6 +179,7 @@ ${css.map(c => `<link rel="stylesheet" href="${c}">\n`).join("")}${ld ? ld + "\n
       <a href="/guias/">Guías</a>
     </nav>
     <div class="appbar-der">
+      ${UI.HTML_BTN_TEMA}
       <a class="btn btn-pri btn-sm" href="/index.html#calculadora">Calcula tu caso</a>
     </div>
   </div>
@@ -171,10 +191,12 @@ ${css.map(c => `<link rel="stylesheet" href="${c}">\n`).join("")}${ld ? ld + "\n
 <footer class="pie">
   <div class="contenedor pie-in">
     <p><b>Mapafiscal</b> ofrece estimaciones con fines informativos. No es una liquidación oficial ni asesoramiento fiscal.</p>
+    ${REDES_HTML}
     <p class="pie-sec"><a href="/irpf/">IRPF por territorio</a> · <a href="/guias/">Guías del IRPF</a> · <a href="/comparar-sueldo/">Dónde se paga menos IRPF</a> · <a href="/sueldo-neto/">Sueldo neto</a> · <a href="/index.html#metodologia">Cómo calculamos</a> · Datos generados el ${esc(generado)}</p>
     <p class="pie-sec"><a href="/legal/aviso-legal.html">Aviso legal</a> · <a href="/legal/privacidad.html">Privacidad</a> · <a href="/legal/condiciones.html">Condiciones</a> · <a href="/legal/cookies.html">Cookies</a> · <a href="/legal/aviso-legal.html#contacto">Contacto</a></p>
   </div>
 </footer>
+<script src="/js/ui.js" defer></script>
 </body>
 </html>`;
 }
