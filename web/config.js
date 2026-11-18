@@ -61,6 +61,7 @@ window.MAPAFISCAL_CONFIG = {
   adsenseHuecoColRescate: "",    // «mf-col-rescate-plan»: bajo el formulario de #rescate-plan
   adsenseHuecoColConjunta: "",   // «mf-col-conjunta»: bajo el formulario de #conjunta
   adsenseHuecoColPagadores: "",  // «mf-col-dos-pagadores»: bajo el formulario de #dos-pagadores
+  adsenseHuecoColBruto: "",      // «mf-col-bruto-necesario»: bajo el formulario de #bruto-necesario
   // En móvil y tableta (menos de 1040 px) esas columnas pasan al final de cada herramienta. Vacío =
   // el bloque de su posición; con un bloque propio, el tráfico móvil se mide aparte.
   adsenseHuecoColMovil: "",      // «mf-final-herramienta-movil»: final de la herramienta, menos de 1040 px

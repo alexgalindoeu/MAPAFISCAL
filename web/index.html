@@ -582,6 +582,88 @@
   </div>
 </section>
 
+<!-- =========================== BRUTO NECESARIO Y DOS OFERTAS (web/js/bruto.js) =========================== -->
+<section class="vista" id="v-bruto-necesario" aria-labelledby="t-bn" hidden>
+  <div class="cabecera-vista">
+    <div>
+      <p class="antetitulo">Nómina · de neto a bruto</p>
+      <h1 id="t-bn">¿Qué sueldo bruto pido?</h1>
+      <p class="entradilla">El bruto anual que necesitas para cobrar el neto que quieres, en tu territorio y en los 19, o qué oferta de trabajo te deja más dinero en el bolsillo.</p>
+    </div>
+    <div class="cabecera-acciones">
+      <div class="segmentado" role="radiogroup" aria-label="Herramienta">
+        <label><input type="radio" name="bn-modo" value="bruto" checked><span>Bruto necesario</span></label>
+        <label><input type="radio" name="bn-modo" value="comparar"><span>Comparar dos ofertas</span></label>
+      </div>
+    </div>
+  </div>
+  <div class="calc">
+    <form class="formulario" id="bn-form" autocomplete="off" novalidate>
+      <fieldset class="bloque" id="bn-bloque-neto">
+        <legend><span class="paso">1</span>El neto que quieres</legend>
+        <div class="rejilla2">
+          <div class="campo"><label for="bn-neto">Neto</label>
+            <div class="con-sufijo"><input type="number" id="bn-neto" min="0" step="50" value="2000" inputmode="decimal"><span>€</span></div></div>
+          <div class="campo"><label for="bn-periodo">Cada</label>
+            <select id="bn-periodo"><option value="mes14">Mes, en 14 pagas</option><option value="mes12">Mes, en 12 pagas</option><option value="anio">Año</option></select></div>
+        </div>
+      </fieldset>
+      <fieldset class="bloque" id="bn-bloque-ofertas" hidden>
+        <legend><span class="paso">1</span>Las dos ofertas</legend>
+        <div class="bn-oferta" role="group" aria-labelledby="bn-l-a"><p class="rotulo" id="bn-l-a">Oferta A</p>
+          <div class="campo"><label for="bn-a-bruto">Bruto anual</label>
+            <div class="con-sufijo"><input type="number" id="bn-a-bruto" min="0" step="500" value="32000" inputmode="decimal"><span>€</span></div></div>
+          <div class="rejilla2">
+            <div class="campo"><label for="bn-a-territorio">Territorio</label><select id="bn-a-territorio"></select></div>
+            <div class="campo"><label for="bn-a-pagas">Pagas</label><select id="bn-a-pagas"><option value="14">14</option><option value="12">12</option></select></div>
+          </div></div>
+        <div class="bn-oferta" role="group" aria-labelledby="bn-l-b"><p class="rotulo" id="bn-l-b">Oferta B</p>
+          <div class="campo"><label for="bn-b-bruto">Bruto anual</label>
+            <div class="con-sufijo"><input type="number" id="bn-b-bruto" min="0" step="500" value="34000" inputmode="decimal"><span>€</span></div></div>
+          <div class="rejilla2">
+            <div class="campo"><label for="bn-b-territorio">Territorio</label><select id="bn-b-territorio"></select></div>
+            <div class="campo"><label for="bn-b-pagas">Pagas</label><select id="bn-b-pagas"><option value="12">12</option><option value="14">14</option></select></div>
+          </div></div>
+      </fieldset>
+      <fieldset class="bloque">
+        <legend><span class="paso">2</span>Tu situación</legend>
+        <div class="campo" id="bn-campo-territorio"><label for="bn-territorio">Territorio donde resides</label><select id="bn-territorio"></select></div>
+        <div class="rejilla2">
+          <div class="campo"><label for="bn-contrato">Contrato</label>
+            <select id="bn-contrato"><option value="indefinido">Indefinido</option><option value="temporal">Temporal</option></select></div>
+          <div class="campo"><label for="bn-edad">Tu edad</label><input type="number" id="bn-edad" min="16" max="110" step="1" value="35"></div>
+        </div>
+        <div class="campo"><label for="bn-hijos">Hijos que conviven contigo</label><p class="ayuda">Se calcula como familia monoparental (sin pareja), igual que el sueldo neto.</p>
+          <select id="bn-hijos"><option value="0">Ninguno</option><option>1</option><option>2</option><option>3</option><option>4</option><option>5</option></select></div>
+        <div class="hr-edades" id="bn-edades"></div>
+      </fieldset>
+    </form>
+    <div class="resultado" aria-live="polite">
+      <div class="tarjeta tarjeta-resultado" id="bn-tarjeta">
+        <div class="res-cab"><h2 class="rotulo">Resultado</h2><span class="chip" id="bn-chip"></span></div>
+        <div id="bn-principal"></div>
+        <div class="res-graficos" id="bn-graficos"></div>
+        <div class="acciones-res">
+          <a class="btn btn-pri" href="#sueldo-neto">De bruto a neto</a>
+          <a class="btn btn-sec" href="#calculadora">Calcular mi declaración</a>
+        </div>
+      </div>
+      <div class="tarjeta">
+        <h2 class="rotulo" id="bn-t-desglose">Desglose</h2>
+        <table class="desglose" id="bn-desglose"></table>
+      </div>
+      <div class="tarjeta tarjeta-ranking" id="bn-rank-tarjeta">
+        <h2 class="rotulo" id="bn-t-ranking">Bruto necesario en los 19 territorios</h2>
+        <table class="ranking hr-ranking" id="bn-ranking"></table>
+      </div>
+      <p class="nota" id="bn-nota"></p>
+    </div>
+    <aside class="anuncio-lateral anuncio-lateral-izq" id="anuncio-col-bruto" aria-label="Publicidad" hidden>
+      <div class="tarjeta anuncio"><span class="anuncio-etiqueta">Anuncios</span></div>
+    </aside>
+  </div>
+</section>
+
 <!-- =========================== CONJUNTA O INDIVIDUAL (web/js/conjunta.js) =========================== -->
 <section class="vista" id="v-conjunta" aria-labelledby="t-cj" hidden>
   <div class="cabecera-vista">
@@ -898,6 +980,7 @@
 <script src="js/informe.js"></script>
 <script src="js/rescate.js"></script>
 <script src="js/conjunta.js"></script>
+<script src="js/bruto.js"></script>
 <script src="js/escenarios.js"></script>
 <script src="js/anuncios.js"></script>
 <script src="js/analitica.js"></script>

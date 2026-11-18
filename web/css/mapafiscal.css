@@ -1036,3 +1036,18 @@ html.panel-abierto { overflow: hidden; }
     color-scheme: light;
   }
 }
+
+/* ---- #bruto-necesario (web/js/bruto.js) ---- */
+.res-cifra small { font-size: .45em; font-weight: 600; color: var(--tinta-2); }
+.bn-oferta { border: 1px solid var(--linea); border-radius: 10px; padding: 12px; background: var(--superficie-2); }
+.bn-oferta + .bn-oferta { margin-top: 12px; }
+.bn-oferta .rotulo { margin: 0 0 8px; }
+.bn-ofertas dd small { font-size: 12px; font-weight: 500; color: var(--tinta-3); }
+.bn-ofertas dd.bn-mes { font-size: 12.5px; font-weight: 500; color: var(--tinta-2); margin-top: 2px; }
+.bn-ofertas > div.gana { box-shadow: inset 0 3px 0 var(--gana); }
+.bn-reparto { display: flex; }
+.bn-reparto i.bn-imp { background: var(--g-ss); border-radius: 0; }
+.bn-tabla td.num, .bn-tabla th.num { font-variant-numeric: tabular-nums; }
+@media (max-width: 520px) { .bn-ofertas { grid-template-columns: 1fr; } }
+#bn-campo-territorio[hidden] + .rejilla2 { clear: both; }
+@media (max-width: 520px) { .bn-tabla { font-size: 12.5px; } .bn-tabla td, .bn-tabla th { padding-left: 4px; padding-right: 4px; } }

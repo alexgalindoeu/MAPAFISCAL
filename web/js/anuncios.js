@@ -35,7 +35,8 @@
       ["anuncio-col-pensiones", "adsenseHuecoColPensiones"],
       ["anuncio-col-rescate", "adsenseHuecoColRescate"],
       ["anuncio-col-conjunta", "adsenseHuecoColConjunta"],
-      ["anuncio-col-pagadores", "adsenseHuecoColPagadores"]
+      ["anuncio-col-pagadores", "adsenseHuecoColPagadores"],
+      ["anuncio-col-bruto", "adsenseHuecoColBruto"]
     ].map(([id, k]) => ({ id, slot: cfg[k] || cfg.adsenseHuecoCalc || "", lateral: true }))
   ].filter(h => h.slot && document.getElementById(h.id));
   if (!HUECOS.length) return;
