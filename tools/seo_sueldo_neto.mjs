@@ -117,7 +117,7 @@ export function paginasSueldoNeto(d) {
       jsonld: [jsonLdMigas(migas), jsonLdFaq(faq)],
       title: `${titulo}: ${euros(f.neto / 14)} al mes | Mapafiscal`,
       description: `${euros(b)} brutos en ${n} son ${euros(f.neto)} netos al año en ${EJ}: ${euros(f.neto / 12)} al mes en 12 pagas o ${euros(f.neto / 14)} en 14. Desglose de IRPF y Seguridad Social y comparación con los 19 territorios.`,
-      canonical: rutaTer(b, c), breadcrumb: migasHtml(migas), main, generado: gen
+      canonical: rutaTer(b, c), breadcrumb: migasHtml(migas), main, generado: gen, ejercicio: EJ
     });
   }
 
@@ -161,7 +161,7 @@ export function paginasSueldoNeto(d) {
       jsonld: [jsonLdMigas(migas), jsonLdFaq(faq)],
       title: `${titulo} | Mapafiscal`,
       description: `${euros(b)} brutos al año son ${euros(md.neto / 14)} netos al mes en 14 pagas en Madrid en ${EJ}, y de ${euros(peor.neto / 14)} a ${euros(mejor.neto / 14)} según el territorio. Tabla de los 19 territorios con IRPF y Seguridad Social.`,
-      canonical: rutaNac(b), breadcrumb: migasHtml(migas), main, generado: gen
+      canonical: rutaNac(b), breadcrumb: migasHtml(migas), main, generado: gen, ejercicio: EJ
     });
   }
 
@@ -193,7 +193,7 @@ export function paginasSueldoNeto(d) {
       jsonld: [jsonLdMigas(migas), jsonLdFaq(faq)],
       title: `${titulo} | Mapafiscal`,
       description: `${euros(m)} brutos al mes son ${euros(md12.neto / 12)} netos en 12 pagas y ${euros(md14.neto / 14)} en 14 pagas en Madrid en ${EJ}. Tabla con los 19 territorios fiscales de España.`,
-      canonical: rutaMes(m), breadcrumb: migasHtml(migas), main, generado: gen
+      canonical: rutaMes(m), breadcrumb: migasHtml(migas), main, generado: gen, ejercicio: EJ
     });
   }
 
@@ -213,7 +213,7 @@ export function paginasSueldoNeto(d) {
       jsonld: [jsonLdMigas(migas)],
       title: `Sueldo neto ${EJ}: de bruto a neto en 12 y 14 pagas por territorio | Mapafiscal`,
       description: `Tablas de sueldo neto ${EJ} de 15.000 a 100.000 € brutos y de los sueldos mensuales más buscados, en 12 y 14 pagas, en los 19 territorios fiscales de España.`,
-      canonical: "/sueldo-neto/", breadcrumb: migasHtml(migas), main, generado: gen
+      canonical: "/sueldo-neto/", breadcrumb: migasHtml(migas), main, generado: gen, ejercicio: EJ
     });
   }
 

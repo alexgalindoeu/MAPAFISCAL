@@ -33,6 +33,9 @@ falla (`--comprobar` de los dos generadores) si los JSON o las páginas de `web/
 `web/comparar-sueldo/` y `web/guias/` no coinciden. Las páginas de deducciones solo publican lo
 `confirmado` con fuente primaria y con todos sus supuestos confirmados; las fechas de campaña de
 la guía del calendario están en `params/calendario_renta.yaml`.
+`web/datos/seo_fechas.json` guarda el hash del contenido y la fecha de cambio de cada página SEO
+(y de `web/index.html`): da el `lastmod` del sitemap y el «Contenido actualizado» del pie. Lo
+reescribe `node tools/generar_paginas_seo.mjs`; si cambias `web/index.html`, regenéralo también.
 
 ## Estructura
 

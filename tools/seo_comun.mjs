@@ -5,6 +5,7 @@
 // =============================================================================
 
 import { readFileSync } from "node:fs";
+import { createHash } from "node:crypto";
 import { createRequire } from "node:module";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
@@ -121,12 +122,49 @@ export function jsonLdMigas(migas) {
       { "@type": "ListItem", position: i + 1, name: nombre }, ruta ? { item: SITIO + ruta } : {}))
   };
 }
+// ---- fecha de cambio del contenido -------------------------------------------------
+// Cada página dice cuándo cambió de verdad su contenido (no cuándo se regeneraron los datos).
+// La maqueta escribe estas marcas y tools/generar_paginas_seo.mjs las sustituye por la fecha
+// guardada en web/datos/seo_fechas.json para el hash del contenido (ver fecharContenido).
+export const MARCA_FECHA = "@@FECHA_CONTENIDO@@", MARCA_FECHA_LARGA = "@@FECHA_CONTENIDO_LARGA@@";
+// Hash del contenido sin las fechas que no son contenido: las marcas de arriba y las fechas de
+// generación de los datos (`generados`, ISO), que cambian cada vez que se exportan aunque no
+// cambie ninguna cifra.
+// Solo cuenta lo que lee la persona: <title>, descripción y <main> (si los hay). Cambiar la
+// cabecera, el pie o los metadatos comunes no cambia la fecha de ninguna página.
+export function hashContenido(html, generados = []) {
+  const main = html.match(/<main[\s\S]*<\/main>/);
+  let s = main ? [html.match(/<title>[\s\S]*?<\/title>/)?.[0], html.match(/<meta name="description"[^>]*>/)?.[0], main[0]].join("\n") : html;
+  for (const g of new Set(generados)) s = s.split(g).join("@@GENERADO@@").split(fecha(g)).join("@@GENERADO@@");
+  return createHash("sha256").update(s).digest("hex").slice(0, 16);
+}
+// Sustituye las marcas de cada HTML por la fecha guardada si su hash no ha cambiado, o por `hoy`
+// si es nuevo o cambió (`previa(ruta)` puede dar una fecha mejor para páginas nuevas). Devuelve
+// el registro nuevo, ordenado por ruta, para que el JSON sea estable.
+export function fecharContenido(ficheros, registro, { generados, hoy, previa = () => null }) {
+  const nuevo = {};
+  for (const r of [...ficheros.keys()].filter(k => k.endsWith(".html")).sort()) {
+    const html = ficheros.get(r), hash = hashContenido(html, generados);
+    const antes = registro[r];
+    const f = antes && antes.hash === hash ? antes.fecha : (!antes && previa(r)) || hoy;
+    nuevo[r] = { hash, fecha: f };
+    ficheros.set(r, html.split(MARCA_FECHA_LARGA).join(fecha(f)).split(MARCA_FECHA).join(f));
+  }
+  return nuevo;
+}
+
+// Organización editora: va en todas las páginas (mismo @id que en la portada).
+export const ORGANIZACION = {
+  "@context": "https://schema.org", "@type": "Organization", "@id": SITIO + "/#organizacion",
+  name: "Mapafiscal", url: SITIO + "/", logo: SITIO + "/iconos/icono-512.png"
+};
+
 export function jsonLdArticulo({ titulo, descripcion, ruta, generado }) {
   return {
     "@context": "https://schema.org", "@type": "Article", headline: titulo, description: descripcion,
-    inLanguage: "es", mainEntityOfPage: SITIO + ruta, dateModified: generado,
-    author: { "@type": "Organization", name: "Mapafiscal", url: SITIO + "/" },
-    publisher: { "@type": "Organization", name: "Mapafiscal", url: SITIO + "/" }
+    inLanguage: "es", mainEntityOfPage: SITIO + ruta, dateModified: MARCA_FECHA,
+    author: { "@id": SITIO + "/#organizacion" },
+    publisher: { "@id": SITIO + "/#organizacion" }
   };
 }
 // Tabla de datos con su fuente oficial (escalas, importes): ayuda a que buscadores y
@@ -161,11 +199,15 @@ export function migasHtml(migas) {
   return migas.map(([n, r], i) => i < migas.length - 1 && r ? `<a href="${r}">${esc(n)}</a>` : esc(n)).join(" › ");
 }
 
+// Ejercicio por defecto del pie (el de los datos SEO); las páginas de otro ejercicio lo pasan.
+export const EJERCICIO = { valor: null };
+
 // ---- maqueta compartida ---------------------------------------------------------
-export function layout({ title, description, canonical, breadcrumb, main, generado, jsonld = [], css = [] }) {
+export function layout({ title, description, canonical, breadcrumb, main, generado, ejercicio = EJERCICIO.valor, jsonld = [], css = [] }) {
   title = tituloFinal(title);
   // Fecha visible justo después del <h1>.
-  main = main.replace(/(<\/h1>)/, `$1\n  <p class="actualizado">Actualizado el <time datetime="${esc(generado)}">${esc(fecha(generado))}</time></p>`);
+  main = main.replace(/(<\/h1>)/, `$1\n  <p class="actualizado">Actualizado el <time datetime="${MARCA_FECHA}">${MARCA_FECHA_LARGA}</time></p>`);
+  jsonld = [ORGANIZACION, ...jsonld];
   const ld = jsonld.map(o => `<script type="application/ld+json">${JSON.stringify(o).replace(/</g, "\\u003c")}</script>`).join("\n");
   return `<!doctype html>
 <html lang="es">
@@ -228,7 +270,8 @@ ${css.map(c => `<link rel="stylesheet" href="${c}">\n`).join("")}${ld ? ld + "\n
   <div class="contenedor pie-in">
     <p><b>Mapafiscal</b> ofrece estimaciones con fines informativos. No es una liquidación oficial ni asesoramiento fiscal.</p>
     ${REDES_HTML}
-    <p class="pie-sec"><a href="/irpf/">IRPF por territorio</a> · <a href="/guias/">Guías del IRPF</a> · <a href="/comparar-sueldo/">Dónde se paga menos IRPF</a> · <a href="/sueldo-neto/">Sueldo neto</a> · <a href="/index.html#metodologia">Cómo calculamos</a> · Datos generados el ${esc(generado)}</p>
+    <p class="pie-sec"><a href="/irpf/">IRPF por territorio</a> · <a href="/guias/">Guías del IRPF</a> · <a href="/comparar-sueldo/">Dónde se paga menos IRPF</a> · <a href="/sueldo-neto/">Sueldo neto</a> · <a href="/index.html#metodologia">Cómo calculamos</a></p>
+    <p class="pie-sec pie-fechas">Normativa revisada el <time datetime="${esc(generado)}">${esc(fecha(generado))}</time> · Contenido actualizado el <time datetime="${MARCA_FECHA}">${MARCA_FECHA_LARGA}</time>${ejercicio ? ` · Ejercicio ${esc(ejercicio)} (renta que se declara en ${esc(+ejercicio + 1)})` : ""}</p>
     <p class="pie-sec"><a href="/legal/aviso-legal.html">Aviso legal</a> · <a href="/legal/privacidad.html">Privacidad</a> · <a href="/legal/condiciones.html">Condiciones</a> · <a href="/legal/cookies.html">Cookies</a> · <a href="/legal/aviso-legal.html#contacto">Contacto</a></p>
   </div>
 </footer>

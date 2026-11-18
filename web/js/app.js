@@ -1675,7 +1675,7 @@
   };
   function tituloVista(v) {
     if (TITULOS_VISTA[v]) return TITULOS_VISTA[v]();
-    const h = $("v-" + v) && $("v-" + v).querySelector("h1");
+    const h = $("v-" + v) && $("v-" + v).querySelector("h1, .titulo-vista");
     return h ? h.textContent.trim() + " | Mapafiscal" : "Mapafiscal";
   }
   let vistaSel = null;           // vista elegida en esta sesión (no depende de poder tocar el hash)
@@ -1715,7 +1715,7 @@
     window.scrollTo(0, 0);
     // el foco va al título de la vista, para que el lector de pantalla anuncie el cambio
     if (moverFoco) {
-      const titulo = $("v-" + v).querySelector("h1");
+      const titulo = $("v-" + v).querySelector("h1, .titulo-vista");
       if (titulo) { titulo.setAttribute("tabindex", "-1"); titulo.focus({ preventScroll: true }); }
     }
     document.dispatchEvent(new CustomEvent("mapafiscal:vista", { detail: { vista: v } }));
