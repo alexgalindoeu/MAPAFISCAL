@@ -64,6 +64,14 @@ window.MAPAFISCAL_CONFIG = {
   // En móvil y tableta (menos de 1040 px) esas columnas pasan al final de cada herramienta. Vacío =
   // el bloque de su posición; con un bloque propio, el tráfico móvil se mide aparte.
   adsenseHuecoColMovil: "",      // «mf-final-herramienta-movil»: final de la herramienta, menos de 1040 px
+  // Páginas informativas (guías, /irpf/, /sueldo-neto/, /comparar-sueldo/): huecos entre
+  // tarjetas, tras la introducción, en medio de las largas y antes de las preguntas
+  // frecuentes. Vacío = el bloque de «mf-resultado-final»; con uno propio («mf-paginas-seo»)
+  // se miden aparte.
+  adsenseHuecoSeo: "",
+  // Prueba de uno frente a dos carriles: fracción de visitantes (0 a 1) sin carril derecho.
+  // 0 = sin prueba. Para probar a medias: 0.5 (anuncios.js reparte y GoatCounter mide).
+  pruebaCarriles: 0,
 
   // Informe completo en PDF (js/informe.js). Vías de desbloqueo (negocio/otros-ingresos.md §1):
   // plan de pago (siempre), pago único y anuncio bonificado. Aceptar cookies NO desbloquea.
