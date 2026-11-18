@@ -7,7 +7,7 @@ import assert from "node:assert/strict";
 import { createRequire } from "node:module";
 
 const require = createRequire(import.meta.url);
-const P = require("../web/datos/params_2026.json");
+const P = require("../web/datos/params.json");
 const C = require("../web/js/conjunta.js");
 const motor = require("../web/js/irpfsim.js");
 const casi = (a, b, msg) => assert.ok(Math.abs(a - b) < 0.015, `${msg}: ${a} ≠ ${b}`);

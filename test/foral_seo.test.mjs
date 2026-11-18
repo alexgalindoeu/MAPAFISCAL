@@ -30,7 +30,7 @@ test("25 páginas forales, en el sitemap y enlazadas desde la página del territ
 });
 
 test("las cifras salen del motor y no hay avisos de obra", () => {
-  const P = JSON.parse(readFileSync(new URL("../web/datos/params_2026.json", import.meta.url), "utf8"));
+  const P = JSON.parse(readFileSync(new URL("../web/datos/params.json", import.meta.url), "utf8"));
   const s = motor.sueldoNeto({ bruto: 30000, territorio: "ES-PV-BI", edad: 40, hijos: [], tipoContrato: "indefinido" }, P);
   const miles = x => String(Math.round(x)).replace(/\B(?=(\d{3})+(?!\d))/g, ".") + " €";
   assert.ok(ficheros.get("irpf/bizkaia/sueldo-neto/index.html").includes(miles(s.neto)));
