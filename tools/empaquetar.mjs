@@ -16,7 +16,7 @@ const jsonEmbebido =ruta => JSON.stringify(JSON.parse(leer(ruta))).replace(/<\//
 
 // La versión autónoma es siempre la demo: sin Supabase (ni supabase-js), sin pagos y sin
 // anuncios, aunque web/config.js esté configurado para producción.
-const FORZAR_DEMO = "window.MAPAFISCAL_CONFIG = Object.assign(window.MAPAFISCAL_CONFIG || {}, { demo: true, pagosActivos: false, anuncios: false, informePago: false, informeAnuncio: false, informeAnuncioUnidad: \"\", informeAfiliado: null, pdfEspera: 0, analitica: false, goatcounterCodigo: \"\", adsenseCliente: \"\", adsenseHuecoCalc: \"\", adsenseHuecoComparar: \"\", adsenseHuecoRailIzq: \"\", adsenseHuecoRailDer: \"\", adsenseHuecoMovil: \"\" });\n";
+const FORZAR_DEMO = "window.MAPAFISCAL_CONFIG = Object.assign(window.MAPAFISCAL_CONFIG || {}, { demo: true, pagosActivos: false, anuncios: false, informePago: false, informeAnuncio: false, informeAnuncioUnidad: \"\", informeAfiliado: null, pdfEspera: 0, analitica: false, goatcounterCodigo: \"\", adsenseCliente: \"\", adsenseHuecoCalc: \"\", adsenseHuecoComparar: \"\", adsenseHuecoRailIzq: \"\", adsenseHuecoRailDer: \"\", adsenseHuecoMovil: \"\", adsenseHuecoColComparar: \"\", adsenseHuecoColEscenarios: \"\", adsenseHuecoColNeto: \"\", adsenseHuecoColPensiones: \"\", adsenseHuecoColRescate: \"\", adsenseHuecoColConjunta: \"\", adsenseHuecoColPagadores: \"\", adsenseHuecoColMovil: \"\" });\n";
 const SUPABASE_JS = /<script src="https:\/\/cdn\.jsdelivr\.net\/npm\/@supabase\/supabase-js@[^"]+"[^>]*><\/script>\n?/;
 // La demo nunca lleva anuncios.js: se quita entero (no se incrusta como irpfsim.js/app.js)
 // para que el HTML autónomo no contenga ni un rastro de "adsbygoogle" o "googlesyndication".
@@ -66,6 +66,7 @@ export function empaquetar() {
     // los demás ejercicios (params_<año>.json -> id="datos-params-<año>"), para las herramientas
     otrosEjercicios().map(f => `\n<script type="application/json" id="datos-${f.replace(".json", "").replace("_", "-")}">` +
       jsonEmbebido("datos/" + f) + "</script>").join(""));
+  sustituir('<script src="js/ui.js"></script>', "<script>\n" + leer("js/ui.js") + "</script>");
   sustituir('<script src="js/irpfsim.js"></script>', "<script>\n" + leer("js/irpfsim.js") + "</script>");
   sustituir('<script src="js/formulario.js"></script>', "<script>\n" + leer("js/formulario.js") + "</script>");
   sustituir('<script src="js/cuentas.js"></script>', "<script>\n" + leer("js/cuentas.js") + "</script>");

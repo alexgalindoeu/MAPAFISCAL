@@ -4,7 +4,23 @@
 // Las usan tools/generar_paginas_seo.mjs, tools/seo_deducciones.mjs y tools/seo_guias.mjs.
 // =============================================================================
 
+import { readFileSync } from "node:fs";
+import { createRequire } from "node:module";
+import { dirname, join } from "node:path";
+import { fileURLToPath } from "node:url";
+
 export const SITIO = "https://mapafiscal.es";
+
+// Piezas de interfaz comunes con la aplicación (web/js/ui.js): script del tema en el <head>,
+// botones de la barra y redes del pie. Las redes salen de `redes` en web/config.js.
+const WEB = join(dirname(fileURLToPath(import.meta.url)), "..", "web");
+export const UI = createRequire(import.meta.url)("../web/js/ui.js");
+export function configWeb() {
+  const window = {};
+  new Function("window", readFileSync(join(WEB, "config.js"), "utf8"))(window);
+  return window.MAPAFISCAL_CONFIG || {};
+}
+const REDES_HTML = UI.htmlRedes(configWeb().redes);
 
 // ---- slugs (solo para la URL; el nombre mostrado sale siempre de los datos) ----
 export const SLUG = {
@@ -15,6 +31,23 @@ export const SLUG = {
   "ES-PV-BI": "bizkaia", "ES-PV-SS": "gipuzkoa", "ES-PV-VI": "araba-alava", "ES-NC": "navarra"
 };
 export const ORDEN_TERRITORIOS = Object.keys(SLUG); // orden estable, el de params.json
+
+// Nombre como lo busca la gente, para <title> y descripciones (donde cada carácter cuenta).
+// En el cuerpo de la página se usa el nombre oficial, que sale de los datos.
+export const NOMBRE_CORTO = {
+  "ES-AN": "Andalucía", "ES-AR": "Aragón", "ES-AS": "Asturias", "ES-IB": "Baleares",
+  "ES-CN": "Canarias", "ES-CB": "Cantabria", "ES-CM": "Castilla-La Mancha", "ES-CL": "Castilla y León",
+  "ES-CT": "Cataluña", "ES-EX": "Extremadura", "ES-GA": "Galicia", "ES-MD": "Madrid",
+  "ES-MC": "Murcia", "ES-RI": "La Rioja", "ES-VC": "Comunidad Valenciana",
+  "ES-PV-BI": "Bizkaia", "ES-PV-SS": "Gipuzkoa", "ES-PV-VI": "Álava", "ES-NC": "Navarra"
+};
+// Límites orientativos de lo que Google muestra sin cortar.
+export const MAX_TITULO = 60, MAX_DESCRIPCION = 155;
+// El sufijo « | Mapafiscal» solo se añade si cabe: Google ya muestra el nombre del sitio.
+export function tituloFinal(t) {
+  const base = String(t).replace(/ \| Mapafiscal$/, "");
+  return base.length + 13 <= MAX_TITULO ? base + " | Mapafiscal" : base;
+}
 
 // Herramientas de la web principal (aplicación de una sola página).
 export const HERRAMIENTA = {
@@ -96,6 +129,22 @@ export function jsonLdArticulo({ titulo, descripcion, ruta, generado }) {
     publisher: { "@type": "Organization", name: "Mapafiscal", url: SITIO + "/" }
   };
 }
+// Tabla de datos con su fuente oficial (escalas, importes): ayuda a que buscadores y
+// asistentes la citen como fuente. `fuentes`: textos de norma/fuente; se enlazan los BOE.
+export function jsonLdDataset({ nombre, descripcion, ruta, generado, fuentes = [], ambito = "España" }) {
+  const ids = [...new Set(fuentes.join(" ").match(/BOE-A-\d{4}-\d+/g) || [])];
+  return {
+    "@context": "https://schema.org", "@type": "Dataset", name: nombre, description: descripcion,
+    url: SITIO + ruta, inLanguage: "es", dateModified: generado, isAccessibleForFree: true,
+    license: SITIO + "/legal/condiciones.html", spatialCoverage: { "@type": "Place", name: ambito },
+    creator: { "@type": "Organization", name: "Mapafiscal", url: SITIO + "/" },
+    citation: [...new Set(fuentes.filter(Boolean))].concat(ids.map(urlBoe), [LIRPF_BOE]).filter((x, i, a) => a.indexOf(x) === i)
+  };
+}
+// Respuesta directa al principio de la página (una frase con la cifra) y fecha visible.
+export function respuestaDirecta(html) {
+  return `<p class="respuesta-directa"><b>En resumen:</b> ${html}</p>`;
+}
 // preguntas: [[pregunta, respuesta en texto plano]]
 export function jsonLdFaq(preguntas) {
   return {
@@ -114,6 +163,9 @@ export function migasHtml(migas) {
 
 // ---- maqueta compartida ---------------------------------------------------------
 export function layout({ title, description, canonical, breadcrumb, main, generado, jsonld = [], css = [] }) {
+  title = tituloFinal(title);
+  // Fecha visible justo después del <h1>.
+  main = main.replace(/(<\/h1>)/, `$1\n  <p class="actualizado">Actualizado el <time datetime="${esc(generado)}">${esc(fecha(generado))}</time></p>`);
   const ld = jsonld.map(o => `<script type="application/ld+json">${JSON.stringify(o).replace(/</g, "\\u003c")}</script>`).join("\n");
   return `<!doctype html>
 <html lang="es">
@@ -138,6 +190,8 @@ export function layout({ title, description, canonical, breadcrumb, main, genera
 <meta name="twitter:description" content="${esc(description)}">
 <meta name="twitter:image" content="${SITIO}/og.png">
 <meta name="theme-color" content="#1f3fc4">
+<meta name="color-scheme" content="light dark">
+${UI.SCRIPT_TEMA}
 <link rel="preload" href="/fonts/public-sans-latin-var.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="preload" href="/fonts/archivo-latin-var.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="icon" href="/favicon.svg" type="image/svg+xml">
@@ -149,6 +203,7 @@ ${css.map(c => `<link rel="stylesheet" href="${c}">\n`).join("")}${ld ? ld + "\n
 <body class="pagina-seo">
 <header class="appbar">
   <div class="appbar-in">
+    ${UI.HTML_BTN_PANEL}
     <a class="marca" href="/index.html" aria-label="Mapafiscal, inicio">
       <svg class="marca-ico" viewBox="0 0 32 32" aria-hidden="true"><rect width="32" height="32" rx="8" class="marca-fondo"/><path class="marca-panel" d="M7 10.5 13 8v15.5L7 26z"/><path class="marca-panel-tu" d="M13 8l6 2.5V26l-6-2.5z"/><path class="marca-panel-2" d="M19 10.5 25 8v15.5L19 26z"/></svg>
       <span class="marca-txt">Mapafiscal</span>
@@ -160,6 +215,7 @@ ${css.map(c => `<link rel="stylesheet" href="${c}">\n`).join("")}${ld ? ld + "\n
       <a href="/guias/">Guías</a>
     </nav>
     <div class="appbar-der">
+      ${UI.HTML_BTN_TEMA}
       <a class="btn btn-pri btn-sm" href="/index.html#calculadora">Calcula tu caso</a>
     </div>
   </div>
@@ -171,10 +227,12 @@ ${css.map(c => `<link rel="stylesheet" href="${c}">\n`).join("")}${ld ? ld + "\n
 <footer class="pie">
   <div class="contenedor pie-in">
     <p><b>Mapafiscal</b> ofrece estimaciones con fines informativos. No es una liquidación oficial ni asesoramiento fiscal.</p>
+    ${REDES_HTML}
     <p class="pie-sec"><a href="/irpf/">IRPF por territorio</a> · <a href="/guias/">Guías del IRPF</a> · <a href="/comparar-sueldo/">Dónde se paga menos IRPF</a> · <a href="/sueldo-neto/">Sueldo neto</a> · <a href="/index.html#metodologia">Cómo calculamos</a> · Datos generados el ${esc(generado)}</p>
     <p class="pie-sec"><a href="/legal/aviso-legal.html">Aviso legal</a> · <a href="/legal/privacidad.html">Privacidad</a> · <a href="/legal/condiciones.html">Condiciones</a> · <a href="/legal/cookies.html">Cookies</a> · <a href="/legal/aviso-legal.html#contacto">Contacto</a></p>
   </div>
 </footer>
+<script src="/js/ui.js" defer></script>
 </body>
 </html>`;
 }
