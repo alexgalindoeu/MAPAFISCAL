@@ -1036,3 +1036,7 @@ html.panel-abierto { overflow: hidden; }
     color-scheme: light;
   }
 }
+
+/* Importe que no se puede leer con seguridad (js/importe.js): el campo y su mensaje. */
+input[aria-invalid="true"] { border-color: var(--rojo, #b42318); box-shadow: 0 0 0 2px color-mix(in srgb, var(--rojo, #b42318) 25%, transparent); }
+.error-importe { margin: 4px 0 0; font-size: 13px; color: var(--rojo, #b42318); }

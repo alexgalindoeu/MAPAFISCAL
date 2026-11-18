@@ -135,7 +135,7 @@
   const esc = s => String(s == null ? "" : s).replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
   const miles = s => s.replace(/\B(?=(\d{3})+(?!\d))/g, ".");
   const eur = (n, dec = 0) => { const v = Math.abs(n || 0).toFixed(dec).split("."); return (n < -0.004 && Math.abs(n) >= 0.5 ? "−" : "") + miles(v[0]) + (dec ? "," + v[1] : "") + " €"; };
-  const num = id => { const v = parseFloat($(id).value); return Number.isFinite(v) ? Math.max(0, v) : 0; };
+  const num = id => Math.max(0, window.MapafiscalImporte.valor($(id)));   // js/importe.js
   const CORTO = { "ES-IB": "Illes Balears", "ES-VC": "C. Valenciana", "ES-PV-VI": "Araba/Álava", "ES-PV-BI": "Bizkaia", "ES-PV-SS": "Gipuzkoa" };
   const nombre = (P, t) => CORTO[t] || P.territorios[t].nombre;
   const foral = (P, t) => P.territorios[t].regimen !== "comun" ? '<span class="regimen">foral</span>' : "";
@@ -250,7 +250,7 @@
   // ---- #dos-pagadores --------------------------------------------------------------------
   let edadesDp;
   const P_dp = () => PS[+$("dp-ejercicio").value] || PS[ejercicioActual()];
-  const retVal = id => { const v = $(id).value.trim(); return v === "" ? null : Math.max(0, parseFloat(v) || 0); };
+  const retVal = id => { const v = $(id).value.trim(); return v === "" ? null : Math.max(0, window.MapafiscalImporte.valor($(id))); };
   const datosDp = () => ({ territorio: $("dp-territorio").value, edad: num("dp-edad") || 35, hijos: edadesDp(),
     p1: { bruto: num("dp-b1"), contrato: $("dp-c1").value, retencion: retVal("dp-r1") },
     p2: { bruto: num("dp-b2"), contrato: $("dp-c2").value, retencion: retVal("dp-r2") } });

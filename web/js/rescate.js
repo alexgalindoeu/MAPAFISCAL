@@ -46,7 +46,7 @@
   const miles = s => s.replace(/\B(?=(\d{3})+(?!\d))/g, ".");
   const eur0 = n => (n < -0.5 ? "−" : "") + miles(Math.abs(Math.round(n || 0)).toString()) + " €";
   const pct = n => (100 * (n || 0)).toFixed(1).replace(".", ",") + " %";
-  const num = id => { const v = parseFloat($(id).value); return Number.isFinite(v) ? Math.max(0, v) : 0; };
+  const num = id => Math.max(0, window.MapafiscalImporte.valor($(id)));   // js/importe.js
   const fila = (c, i, cls = "") => `<tr class="${cls}"><td>${c}</td><td class="cas"></td><td class="imp">${i}</td></tr>`;
   const barra = (v, max) => `<span class="hr-barra"><i style="width:${max > 0 ? Math.max(2, Math.round(100 * v / max)) : 0}%"></i></span>`;
 

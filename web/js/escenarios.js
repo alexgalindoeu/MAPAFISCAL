@@ -547,7 +547,7 @@
     if (modo === "calc") return estadoCalc();
     const e = F.estadoInicial();
     e.territorio = $("esc-b-territorio").value || "ES-MD";
-    e.personas.d1.salario = Math.max(0, +$("esc-b-sueldo").value || 0);
+    e.personas.d1.salario = Math.max(0, window.MapafiscalImporte.valor($("esc-b-sueldo")));
     e.personas.d1.edad = Math.max(16, Math.min(110, +$("esc-b-edad").value || 35));
     return e;
   }
@@ -576,7 +576,7 @@
       e.preventDefault();
       if (E.lista.length >= MAX_ESCENARIOS) { $("esc-msg").textContent = `Como mucho ${MAX_ESCENARIOS} escenarios: quita alguno para añadir otro.`; return; }
       const tipo = $("esc-tipo").value, def = TIPOS[tipo];
-      const v = def.terr ? $("esc-terr").value : Math.max(0, +$("esc-valor").value || 0);
+      const v = def.terr ? $("esc-terr").value : Math.max(0, window.MapafiscalImporte.valor($("esc-valor")));
       E.lista.push({ t: tipo, v });
       $("esc-msg").textContent = `Añadido: ${describir({ t: tipo, v })}.`;
       pintarEscenarios();
