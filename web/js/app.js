@@ -445,6 +445,7 @@
     if (hayResultado) f(cd < 0 ? "Resultado: a devolver" : "Resultado: a ingresar", "", eur(Math.abs(cd)), "total");
     else filas[filas.length - 1] = filas[filas.length - 1].replace('class="sub"', 'class="total"');
     $("res-desglose").innerHTML = filas.join("");
+    if (window.mfExplicacion) mfExplicacion.pintar($("res-explicacion"), liq, P);
 
     // deducciones aplicadas
     const det = Object.assign({}, (liq.deduccionesAutonomicas && liq.deduccionesAutonomicas.detalle) || {});

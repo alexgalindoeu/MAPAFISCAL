@@ -213,6 +213,7 @@
     try { s = caso(P, o); } catch (e) { $("neto-principal").innerHTML = `<p class="vacio">Revisa los datos introducidos.</p>`; $("neto-graficos").innerHTML = ""; return; }
     cabecera("neto", P, terr, enSubida ? "gana" : "");
     $("neto-nota").textContent = notaEjercicio(P) + " Tributación individual o conjunta, la más favorable. Sin otras rentas ni deducciones por gastos: para tu caso completo, usa la calculadora.";
+    $("neto-explicacion").hidden = true;
     if (enSubida) return pintarSubida(P, o);
 
     const liq = s.liquidacion, ct = H.cotizacionesTrabajadorDetalle(o.bruto, P, o.tipoContrato);
@@ -241,6 +242,7 @@
     filas.push(fila(`IRPF del año (${pct(o.bruto > 0 ? s.irpf / o.bruto : 0)} del bruto)`, "−" + eur(s.irpf), "sub"));
     filas.push(fila("Sueldo neto anual", eur(s.neto), "total"));
     $("neto-desglose").innerHTML = filas.join("");
+    if (typeof window !== "undefined" && window.mfExplicacion) window.mfExplicacion.pintar($("neto-explicacion"), liq, P);
 
     const lista = netoPorTerritorio(P, o), yo = lista.find(x => x.territorio === terr);
     const min = lista[lista.length - 1].neto, max = lista[0].neto;
