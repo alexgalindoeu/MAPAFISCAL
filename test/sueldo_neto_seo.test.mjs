@@ -8,7 +8,8 @@ import { generar } from "../tools/generar_paginas_seo.mjs";
 const require = createRequire(import.meta.url);
 const motor = require("../web/js/irpfsim.js");
 const D = require("../web/datos/seo_sueldo_neto.json");
-const P = require(`../web/datos/params_${D.ejercicio}.json`);
+const P0 = require("../web/datos/params.json");
+const P = P0.ejercicio === D.ejercicio ? P0 : require(`../web/datos/params_${D.ejercicio}.json`);
 const { ficheros, urls } = generar();
 
 test("seo_sueldo_neto.json coincide con irpfsim.sueldoNeto (R ↔ JS)", () => {

@@ -13,8 +13,8 @@ const LATERALES = { "anuncio-col-comparar": ["comparar", "adsenseHuecoColCompara
   "anuncio-col-neto": ["sueldo-neto", "adsenseHuecoColNeto"], "anuncio-col-pensiones": ["plan-pensiones", "adsenseHuecoColPensiones"],
   "anuncio-col-rescate": ["rescate-plan", "adsenseHuecoColRescate"], "anuncio-col-conjunta": ["conjunta", "adsenseHuecoColConjunta"],
   "anuncio-col-pagadores": ["dos-pagadores", "adsenseHuecoColPagadores"] };
-const HUECOS = ["anuncio-rail-izq", "anuncio-rail-der", "anuncio-calc-medio", "anuncio-calc", "anuncio-comparar", ...Object.keys(LATERALES)];
-const SLOTS = { adsenseHuecoRailIzq: "111", adsenseHuecoRailDer: "222", adsenseHuecoMovil: "333", adsenseHuecoCalc: "444", adsenseHuecoComparar: "555" };
+const HUECOS = ["anuncio-rail-izq", "anuncio-rail-der", "anuncio-calc", "anuncio-comparar", ...Object.keys(LATERALES)];
+const SLOTS = { adsenseHuecoRailIzq: "111", adsenseHuecoRailDer: "222", adsenseHuecoCalc: "444", adsenseHuecoComparar: "555" };
 
 function configReal() {
   const window = {};
@@ -99,9 +99,10 @@ test("sin plan: reserva el sitio, llena cada hueco al verse y carga adsbygoogle 
   const r = ejecutar(ENCENDIDO);
   for (const id of HUECOS) assert.equal(r.els[id].hidden, false, id);
   assert.equal(r.document.documentElement.classList.has("con-carriles"), true);
-  assert.equal(r.scripts().length, 0, "nada de Google antes de que un hueco vaya a verse");
+  assert.equal(r.scripts().length, 1, "con la CMP de Google, adsbygoogle.js se carga al entrar para que salga el mensaje");
+  assert.equal(r.ins().length, 0, "ningún hueco se llena antes de verse");
   r.verTodo();
-  assert.equal(r.scripts().length, 1);
+  assert.equal(r.scripts().length, 1, "una sola vez");
   assert.match(r.scripts()[0].src, /^https:\/\/pagead2\.googlesyndication\.com\/pagead\/js\/adsbygoogle\.js\?client=ca-pub-/);
   assert.equal(r.ins().length, HUECOS.length);
   const carril = r.els["anuncio-rail-izq"].children[0];
@@ -126,11 +127,16 @@ test("con plan de pago no hay anuncios ni se carga nada de Google", () => {
 test("espera a saber si hay plan antes de pedir nada", () => {
   const r = ejecutar(ENCENDIDO, { cuenta: { cargada: false, conPlan: false } });
   r.verTodo();
-  assert.equal(r.scripts().length, 0, "sin cuenta conocida no se pide ningún anuncio");
+  assert.equal(r.scripts().length, 0, "sin cuenta conocida no se carga nada de Google, ni la CMP");
   r.document.dispatch("mapafiscal:cuenta", { cargada: true, conPlan: true });
   r.verTodo();
   assert.equal(r.scripts().length, 0);
   for (const id of HUECOS) assert.equal(r.els[id].hidden, true, id);
+  const sin = ejecutar(ENCENDIDO, { cuenta: { cargada: false, conPlan: false } });
+  assert.equal(sin.scripts().length, 0);
+  sin.document.dispatch("mapafiscal:cuenta", { cargada: true, conPlan: false });
+  assert.equal(sin.scripts().length, 1, "sin plan, la CMP se carga al conocer la cuenta aunque no se vea ningún hueco");
+  assert.equal(sin.ins().length, 0);
 });
 
 test("quien tuvo plan no ve el sitio reservado; si deja de tenerlo, vuelven los anuncios", () => {
@@ -185,6 +191,17 @@ test("los huecos están fuera del formulario, lejos de botones y etiquetados com
     const bloque = INDEX.slice(i, INDEX.indexOf("</", i) + 10);
     assert.match(bloque, /<span class="anuncio-etiqueta">Anuncios<\/span>/, `${id}: la etiqueta debe ser «Anuncios»`);
   }
+});
+
+test("ningún anuncio entre las tarjetas del resultado: solo al final de la columna", () => {
+  assert.doesNotMatch(INDEX, /anuncio-calc-medio|anuncio-solo-estrecho/);
+  assert.doesNotMatch(CODIGO, /adsenseHuecoMovil/);
+  assert.equal(configReal().adsenseHuecoMovil, undefined);
+  const a0 = INDEX.indexOf('<aside class="resultado"'), a1 = INDEX.indexOf("</aside>", a0);
+  const anuncios = [...INDEX.slice(a0, a1).matchAll(/class="tarjeta anuncio[^"]*" id="([^"]+)"/g)].map(m => m[1]);
+  assert.deepEqual(anuncios, ["anuncio-calc"]);
+  const aside = INDEX.slice(a0, a1);
+  assert.match(aside.slice(aside.lastIndexOf('<div class="tarjeta')), /^<div class="tarjeta anuncio anuncio-calc" id="anuncio-calc"/, "el hueco es lo último del resultado");
 });
 
 test("la política de cookies explica la publicidad solo cuando hay anuncios", () => {

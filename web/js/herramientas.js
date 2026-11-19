@@ -59,8 +59,11 @@
   async function cargarDatos() {
     const P0 = await datos("datos-params", "datos/params.json");
     PS[P0.ejercicio] = P0;
-    const otro = P0.ejercicio + 1;      // el año siguiente (2026), si se ha exportado
-    try { const P1 = await datos("datos-params-" + otro, "datos/params_" + otro + ".json"); PS[P1.ejercicio] = P1; } catch (e) { /* solo el por defecto */ }
+    // los demás ejercicios publicados (params/ejercicios.yaml), sea el anterior o el siguiente
+    const otros = ((P0.ejercicios && P0.ejercicios.publicados) || [P0.ejercicio + 1]).map(Number).filter(a => a !== P0.ejercicio);
+    await Promise.all(otros.map(async otro => {
+      try { const P1 = await datos("datos-params-" + otro, "datos/params_" + otro + ".json"); PS[P1.ejercicio] = P1; } catch (e) { /* solo el por defecto */ }
+    }));
   }
   const ejercicios = () => Object.keys(PS).map(Number).sort();
   // el año en curso, o el más reciente de los disponibles
@@ -190,8 +193,11 @@
       <ul class="leyenda-reparto">${partes.map(p => `<li><i style="background:var(${p.color})"></i>${esc(p.n)} <b>${eur0(Math.max(0, p.v))}</b></li>`).join("")}</ul></div>`;
   }
   // cabecera de la tarjeta de resultado: chip del territorio y color del borde
+  // «Renta 2025» / «Simulación 2026» (web/js/confianza.js)
+  const rotEj = a => window.MapafiscalConfianza ? window.MapafiscalConfianza.rotuloEjercicio(a) : { corto: String(a), completo: String(a) };
   function cabecera(pre, P, terr, estado) {
-    $(pre + "-chip").textContent = `${nombre(P, terr)} · ${P.ejercicio}`;
+    $(pre + "-chip").textContent = `${nombre(P, terr)} · ${rotEj(P.ejercicio).corto}`;
+    $(pre + "-chip").title = rotEj(P.ejercicio).completo;
     $(pre + "-tarjeta").className = "tarjeta tarjeta-resultado" + (estado ? " " + estado : "");
   }
   const PARA_TI = { c: "neto", color: "--g-neto" }, IRPF = { c: "irpf", color: "--g-irpf" }, SS = { c: "ss", color: "--g-ss" };
@@ -401,7 +407,7 @@
 
   cargarDatos().then(() => {
     const P = PS[ejercicioActual()];
-    $("neto-ejercicio").innerHTML = ejercicios().map(y => `<option value="${y}">${y}</option>`).join("");
+    $("neto-ejercicio").innerHTML = ejercicios().map(y => `<option value="${y}">${esc(rotEj(y).completo)}</option>`).join("");
     $("neto-ejercicio").value = String(ejercicioActual());
     opcionesTerritorio(P, $("neto-territorio"), "ES-MD");
     opcionesTerritorio(P, $("pp-territorio"), "ES-MD", x => x.regimen !== "foral_navarra");

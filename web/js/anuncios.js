@@ -9,6 +9,8 @@
 // - Quien tiene plan de pago no ve anuncios ni el aviso de cookies.
 // - Nada se pide a Google hasta saber si hay plan; cada hueco se llena una sola vez, cuando
 //   está a punto de verse (IntersectionObserver) y con el navegador libre. Sin recargas.
+//   Con la CMP de Google, adsbygoogle.js se carga al quedar libre el navegador aunque no se
+//   vea ningún hueco, para que el mensaje de consentimiento salga nada más entrar.
 // - Nunca en el formulario de cálculo ni pegados a botones; nunca en Planes, Mis clientes,
 //   Perfil ni Metodología. Sin anuncios automáticos, anclados ni intersticiales.
 // - Espacio reservado (CSS) para que el contenido no salte al cargar el anuncio.
@@ -25,7 +27,6 @@
   const HUECOS = [
     { id: "anuncio-rail-izq", slot: cfg.adsenseHuecoRailIzq || "", carril: true },
     { id: "anuncio-rail-der", slot: cfg.adsenseHuecoRailDer || "", carril: true },
-    { id: "anuncio-calc-medio", slot: cfg.adsenseHuecoMovil || "" },
     { id: "anuncio-calc", slot: cfg.adsenseHuecoCalc || "" },
     { id: "anuncio-comparar", slot: cfg.adsenseHuecoComparar || "" },
     // Columnas laterales dentro de las vistas (≥1040 px, en el hueco que deja la columna
@@ -115,7 +116,16 @@
   let consentido = false;
   function pedirConsentimientoYObservar() {
     const modo = cfg.consentimiento || "google";
-    if (modo === "google") { consentido = true; observar(); return; }
+    if (modo === "google") {
+      // adsbygoogle.js trae la CMP de Google: se carga en cuanto el navegador queda libre,
+      // aunque no haya ningún hueco a la vista (portada en móvil), para que el mensaje de
+      // consentimiento salga al entrar. Los huecos se siguen llenando al verse.
+      consentido = true;
+      const precargar = () => { if (permitido) ponerScript(); };
+      if ("requestIdleCallback" in window) requestIdleCallback(precargar, { timeout: 3000 }); else setTimeout(precargar, 500);
+      observar();
+      return;
+    }
     if (modo !== "propio") return;                     // sin CMP no se carga nada
     const previo = leerConsentimiento();
     if (previo === "si") { consentido = true; observar(); return; }
@@ -172,18 +182,20 @@
     const ir = () => llenar(h);
     if ("requestIdleCallback" in window) requestIdleCallback(ir, { timeout: 2000 }); else setTimeout(ir, 200);
   }
+  function ponerScript() {
+    if (scriptPuesto) return;
+    scriptPuesto = true;
+    const s = document.createElement("script");
+    s.async = true;
+    s.src = "https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=" + encodeURIComponent(cfg.adsenseCliente);
+    s.crossOrigin = "anonymous";
+    document.head.appendChild(s);
+  }
   function llenar(h) {
     const el = document.getElementById(h.id);
     if (!permitido || h.lleno || !el || el.hidden) return;
     h.lleno = true; huboAnuncio = true;
-    if (!scriptPuesto) {
-      scriptPuesto = true;
-      const s = document.createElement("script");
-      s.async = true;
-      s.src = "https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=" + encodeURIComponent(cfg.adsenseCliente);
-      s.crossOrigin = "anonymous";
-      document.head.appendChild(s);
-    }
+    ponerScript();
     const ins = document.createElement("ins");
     ins.className = "adsbygoogle" + (h.carril ? " mf_carril" : "");
     ins.dataset.adClient = cfg.adsenseCliente;

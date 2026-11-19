@@ -15,7 +15,7 @@
 import { readFileSync, writeFileSync, mkdirSync, existsSync, readdirSync, rmSync } from "node:fs";
 import { join, dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
-import { SITIO, SLUG, ORDEN_TERRITORIOS, HERRAMIENTA, NOMBRE_CORTO, esc, euros, pct, pctCorto, tablaEscala, citaFuente, layout, jsonLdMigas, jsonLdFaq, jsonLdDataset, bloqueFaq, respuestaDirecta, migasHtml } from "./seo_comun.mjs";
+import { SITIO, SLUG, ORDEN_TERRITORIOS, HERRAMIENTA, NOMBRE_CORTO, esc, euros, difEuros, pct, pctCorto, tablaEscala, citaFuente, layout, jsonLdMigas, jsonLdFaq, jsonLdDataset, bloqueFaq, respuestaDirecta, migasHtml } from "./seo_comun.mjs";
 import { robotsTxt, llmsTxt } from "./seo_ia.mjs";
 import { paginaDeducciones } from "./seo_deducciones.mjs";
 import { paginasGuias, GUIAS } from "./seo_guias.mjs";
@@ -144,7 +144,7 @@ function paginaSalario(salario) {
   <p class="entradilla">Comparativa de los 19 territorios fiscales de España con el mismo sueldo bruto. ${esc(comparativas.supuesto)}</p>
   <div class="prosa">
   <div class="tarjeta">
-    <p>Con ${esc(eurosSalario(salario))} brutos, la cuota líquida va de <b>${esc(euros(masBarato.cuota_liquida_total))}</b> en ${esc(masBarato.nombre)} a <b>${esc(euros(masCaro.cuota_liquida_total))}</b> en ${esc(masCaro.nombre)}: una diferencia de ${esc(euros(masCaro.cuota_liquida_total - masBarato.cuota_liquida_total))} al año entre el territorio más barato y el más caro, para el mismo caso.</p>
+    <p>Con ${esc(eurosSalario(salario))} brutos, la cuota líquida va de <b>${esc(euros(masBarato.cuota_liquida_total))}</b> en ${esc(masBarato.nombre)} a <b>${esc(euros(masCaro.cuota_liquida_total))}</b> en ${esc(masCaro.nombre)}: una diferencia de ${esc(difEuros(masCaro.cuota_liquida_total, masBarato.cuota_liquida_total))} al año entre el territorio más barato y el más caro, para el mismo caso.</p>
   </div>
   <div class="tarjeta tarjeta-tabla">
     <h2 class="rotulo">Los 19 territorios, de menos a más IRPF</h2>
@@ -233,6 +233,8 @@ export function generar() {
   for (const p of paginasDevuelve(leerJson("seo_devuelve.json"), conDeducciones)) p.indexable ? pagina(p.ruta, p.html) : ficheros.set(p.ruta.slice(1) + "index.html", p.html);
   for (const g of paginasForal(territorios.generado, sueldoNeto.importes_territorio)) pagina(g.ruta, g.html);
 
+  // «Cómo comprobamos los cálculos»: la escribe tools/generar_validacion.mjs; aquí solo va al sitemap
+  urls.push("/validacion/");
   const hoy = territorios.generado;
   ficheros.set("sitemap.xml", `<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
