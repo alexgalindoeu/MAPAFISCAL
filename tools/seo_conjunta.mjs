@@ -36,7 +36,7 @@ function pagina({ ruta, migas, h1, entradilla, cuerpo, faq, title, description, 
   ${cuerpo}
   ${bloqueFaq(faq)}
   </div>`;
-  return { ruta, html: layout({ title, description, canonical: ruta, breadcrumb: migasHtml(migas), main, generado,
+  return { ruta, html: layout({ title, description, canonical: ruta, breadcrumb: migasHtml(migas), main, generado, ejercicio: paramsRecientes().ejercicio,
     jsonld: [jsonLdMigas(migas), jsonLdFaq(faq)] }) };
 }
 

@@ -82,7 +82,7 @@ function paginaTerritorio(P, terr, generado) {
   </div>`;
   const title = `Rescate plan de pensiones ${NOMBRE_CORTO[terr]} ${P.ejercicio}: cuánto tributa`;
   const description = `Rescatar ${euros(total)} del plan de pensiones en ${NOMBRE_CORTO[terr]} (${P.ejercicio}) sube el IRPF ${euros(r[r.mejor].extra)} con la mejor opción. Compara de una vez, renta o mixto. Calculadora gratis.`;
-  return { ruta, html: layout({ title, description, canonical: ruta, breadcrumb: migasHtml(migas), main, generado,
+  return { ruta, html: layout({ title, description, canonical: ruta, breadcrumb: migasHtml(migas), main, generado, ejercicio: P.ejercicio,
     jsonld: [jsonLdMigas(migas), jsonLdFaq(qs)] }) };
 }
 
@@ -109,7 +109,7 @@ function paginaHub(P, generado) {
   </div>`;
   const title = `Rescate del plan de pensiones ${P.ejercicio}: cuánto IRPF pagas`;
   const description = `Rescatar ${euros(total)} del plan de pensiones en ${P.ejercicio} cuesta de ${euros(mejor.v[mejor.v.mejor].extra)} a ${euros(peor.v[peor.v.mejor].extra)} de IRPF según la comunidad. De una vez, renta o mixto y reducción del 40 %.`;
-  return { ruta: HUB, html: layout({ title, description, canonical: HUB, breadcrumb: migasHtml(migas), main, generado,
+  return { ruta: HUB, html: layout({ title, description, canonical: HUB, breadcrumb: migasHtml(migas), main, generado, ejercicio: P.ejercicio,
     jsonld: [jsonLdMigas(migas), jsonLdFaq(qs)] }) };
 }
 
