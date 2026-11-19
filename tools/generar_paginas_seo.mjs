@@ -12,10 +12,11 @@
 // la calculadora interactiva. Así Google puede indexar cada territorio y cada
 // sueldo como una página propia, con su propio título y su propia URL.
 // =============================================================================
+import { execFileSync } from "node:child_process";
 import { readFileSync, writeFileSync, mkdirSync, existsSync, readdirSync, rmSync } from "node:fs";
 import { join, dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
-import { SITIO, SLUG, ORDEN_TERRITORIOS, HERRAMIENTA, NOMBRE_CORTO, esc, euros, difEuros, pct, pctCorto, tablaEscala, citaFuente, layout, jsonLdMigas, jsonLdFaq, jsonLdDataset, bloqueFaq, respuestaDirecta, migasHtml } from "./seo_comun.mjs";
+import { SITIO, SLUG, ORDEN_TERRITORIOS, HERRAMIENTA, NOMBRE_CORTO, esc, euros, difEuros, pct, pctCorto, tablaEscala, citaFuente, layout, jsonLdMigas, jsonLdFaq, jsonLdDataset, bloqueFaq, respuestaDirecta, migasHtml, fecharContenido, hashContenido, EJERCICIO } from "./seo_comun.mjs";
 import { robotsTxt, llmsTxt } from "./seo_ia.mjs";
 import { paginaDeducciones } from "./seo_deducciones.mjs";
 import { paginasGuias, GUIAS } from "./seo_guias.mjs";
@@ -27,6 +28,7 @@ import { paginasForal, enlacesSuiteForal } from "./seo_foral.mjs";
 
 const RAIZ = join(dirname(fileURLToPath(import.meta.url)), "..");
 const WEB = join(RAIZ, "web");
+const sinCR = s => s.replace(/\r/g, "");
 const leerJson = f => JSON.parse(readFileSync(join(WEB, "datos", f), "utf8"));
 
 let territorios, comparativas, deducciones, guias, sueldoNeto;
@@ -197,12 +199,60 @@ function paginaIndiceSalarios() {
 // ---- generar --------------------------------------------------------------------------
 // Devuelve { ficheros: Map<ruta relativa a web/, contenido>, avisos, recuento } sin escribir
 // nada: lo usan la escritura, `--comprobar` y test/contenidos.test.mjs.
-export function generar() {
+// ---- fechas de cambio por página ------------------------------------------------------
+// web/datos/seo_fechas.json guarda, por fichero, el hash del contenido y la fecha en que cambió
+// por última vez. Es versionado y determinista: con el registro al día, --comprobar no necesita
+// el historial de git (la CI clona con poca profundidad) ni la fecha de hoy. Si una página cambia
+// y no se regenera, su hash ya no coincide, la fecha pasaría a hoy y --comprobar falla.
+// La portada (web/index.html) no se genera aquí, pero entra en el registro por su hash.
+export const REGISTRO_FECHAS = "datos/seo_fechas.json";
+const hoyIso = () => process.env.MAPAFISCAL_HOY || new Date().toISOString().slice(0, 10);
+// Solo para páginas que aún no están en el registro (el primer arranque, o al recuperar una
+// rama): recorre los commits disponibles y toma la fecha del más antiguo desde el que el texto
+// de la página ya era el de hoy, ignorando todas las fechas (las de generación cambiaban en cada
+// exportación). No se usa al comprobar: allí cualquier página nueva sin registro ya es un fallo.
+const MESES_RE = "enero|febrero|marzo|abril|mayo|junio|julio|agosto|septiembre|octubre|noviembre|diciembre";
+// También la línea «Actualizado el …» y el sufijo « | Mapafiscal» del título, que la maqueta
+// añadió o quitó en todas las páginas a la vez sin cambiar el texto.
+const sinFechas = s => s.replace(/\n\s*<p class="actualizado">.*<\/p>/, "").replace(/ \| Mapafiscal<\/title>/, "</title>").replace(/@@FECHA_CONTENIDO(_LARGA)?@@/g, "").replace(/\d{4}-\d{2}-\d{2}/g, "")
+  .replace(new RegExp(`\\d{1,2} de (${MESES_RE}) de \\d{4}`, "g"), "");
+function previaGit(ficheros) {
+  const git = (args, input) => execFileSync("git", args, { cwd: RAIZ, input, maxBuffer: 1 << 30, stdio: ["pipe", "pipe", "ignore"] });
+  let commits;
+  try { commits = git(["log", "--format=%H %cs", "--", "web"]).toString().trim().split("\n").filter(Boolean).map(l => l.split(" ")); }
+  catch { return () => null; }
+  const rutas = [...ficheros.keys()].filter(r => r.endsWith(".html"));
+  const actual = new Map(rutas.map(r => [r, hashContenido(sinFechas(ficheros.get(r)))]));
+  const fecha = new Map(), cerrada = new Set();
+  for (const [sha, dia] of commits) {
+    const vivos = rutas.filter(r => !cerrada.has(r));
+    if (!vivos.length) break;
+    const sal = git(["cat-file", "--batch"], vivos.map(r => `${sha}:web/${r}`).join("\n") + "\n");
+    let i = 0;
+    for (const r of vivos) {
+      const fin = sal.indexOf(10, i), cab = sal.subarray(i, fin).toString().split(" ");
+      if (cab[1] !== "blob") { cerrada.add(r); i = fin + 1; continue; }
+      const n = +cab[2], txt = sal.subarray(fin + 1, fin + 1 + n).toString("utf8");
+      i = fin + 2 + n;
+      if (hashContenido(sinFechas(sinCR(txt))) === actual.get(r)) fecha.set(r, dia);
+      else cerrada.add(r);
+    }
+  }
+  return r => fecha.get(r) || null;
+}
+function leerRegistro() {
+  const p = join(WEB, REGISTRO_FECHAS);
+  return existsSync(p) ? JSON.parse(readFileSync(p, "utf8")) : {};
+}
+
+export function generar({ conGit = false } = {}) {
   territorios = leerJson("seo_territorios.json");
   comparativas = leerJson("seo_comparativas.json");
   deducciones = leerJson("seo_deducciones.json");
   guias = leerJson("seo_guias.json");
   sueldoNeto = leerJson("seo_sueldo_neto.json");
+  const devuelve = leerJson("seo_devuelve.json");
+  EJERCICIO.valor = territorios.ejercicio;
   conDeducciones.clear();
   const ficheros = new Map(), urls = [], avisos = [];
   const pagina = (ruta, html) => { ficheros.set(ruta.replace(/^\//, "") + "index.html", html); urls.push(ruta); };
@@ -230,16 +280,27 @@ export function generar() {
   for (const g of paginasRescate(territorios.generado)) pagina(g.ruta, g.html);
   for (const g of paginasConjuntaPagadores(territorios.generado)) pagina(g.ruta, g.html);
   // «¿Cuánto me devuelve?»: las páginas sin cifra van con noindex y fuera del sitemap.
-  for (const p of paginasDevuelve(leerJson("seo_devuelve.json"), conDeducciones)) p.indexable ? pagina(p.ruta, p.html) : ficheros.set(p.ruta.slice(1) + "index.html", p.html);
+  for (const p of paginasDevuelve(devuelve, conDeducciones)) p.indexable ? pagina(p.ruta, p.html) : ficheros.set(p.ruta.slice(1) + "index.html", p.html);
   for (const g of paginasForal(territorios.generado, sueldoNeto.importes_territorio)) pagina(g.ruta, g.html);
 
   // «Cómo comprobamos los cálculos»: la escribe tools/generar_validacion.mjs; aquí solo va al sitemap
   urls.push("/validacion/");
-  const hoy = territorios.generado;
+  // Fecha real de cambio de cada página (y de la portada, que se escribe a mano).
+  const generados = [territorios, comparativas, deducciones, guias, sueldoNeto, devuelve].map(d => d.generado).filter(Boolean);
+  const anterior = leerRegistro();
+  const conPortada = new Map(ficheros);
+  conPortada.set("index.html", sinCR(readFileSync(join(WEB, "index.html"), "utf8")));
+  // «Cómo comprobamos los cálculos» la escribe tools/generar_validacion.mjs, pero su fecha va aquí.
+  const VALIDACION = "validacion/index.html";
+  if (existsSync(join(WEB, VALIDACION))) conPortada.set(VALIDACION, sinCR(readFileSync(join(WEB, VALIDACION), "utf8")));
+  const registro = fecharContenido(conPortada, anterior, { generados, hoy: hoyIso(), previa: conGit ? previaGit(conPortada) : undefined });
+  for (const [r, html] of conPortada) if (r !== "index.html" && r !== VALIDACION) ficheros.set(r, html);
+  ficheros.set(REGISTRO_FECHAS, "{\n" + Object.entries(registro).map(([r, v]) => ` ${JSON.stringify(r)}: ${JSON.stringify(v)}`).join(",\n") + "\n}\n");
+  const lastmod = u => registro[u.replace(/^\//, "") + "index.html"].fecha;
   ficheros.set("sitemap.xml", `<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-<url><loc>${SITIO}/</loc><lastmod>${hoy}</lastmod><changefreq>weekly</changefreq><priority>1.0</priority></url>
-${urls.map(u => `<url><loc>${SITIO}${u}</loc><lastmod>${hoy}</lastmod><changefreq>monthly</changefreq><priority>${u.startsWith("/guias/") || u === "/irpf/" ? "0.8" : "0.7"}</priority></url>`).join("\n")}
+<url><loc>${SITIO}/</loc><lastmod>${registro["index.html"].fecha}</lastmod><changefreq>weekly</changefreq><priority>1.0</priority></url>
+${urls.map(u => `<url><loc>${SITIO}${u}</loc><lastmod>${lastmod(u)}</lastmod><changefreq>monthly</changefreq><priority>${u.startsWith("/guias/") || u === "/irpf/" ? "0.8" : "0.7"}</priority></url>`).join("\n")}
 </urlset>
 `);
   ficheros.set("robots.txt", robotsTxt());
@@ -276,11 +337,10 @@ export function huerfanas(ficheros) {
   return fuera;
 }
 
-const sinCR = s => s.replace(/\r/g, "");
 
 if (process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {
   const comprobar = process.argv.includes("--comprobar");
-  const { ficheros, avisos, recuento, urls } = generar();
+  const { ficheros, avisos, recuento, urls } = generar({ conGit: !comprobar });
   for (const a of avisos) console.warn("Aviso: " + a);
   const sobran = huerfanas(ficheros);
   if (comprobar) {

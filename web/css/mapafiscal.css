@@ -138,7 +138,7 @@ body {
 a { color: var(--marca); text-underline-offset: 2px; transition: color var(--dur); }
 a:hover { color: var(--marca-hover); }
 h1, h2, h3 { text-wrap: balance; margin: 0; }
-h1 { font-family: var(--display); font-stretch: 112%; }
+h1, .titulo-vista { font-family: var(--display); font-stretch: 112%; }
 :focus-visible { outline: 2px solid var(--anillo); outline-offset: 2px; border-radius: 4px; }
 ::selection { background: var(--resalte); color: var(--sobre-resalte); }
 
@@ -149,8 +149,8 @@ h1 { font-family: var(--display); font-stretch: 112%; }
   transform: translateY(calc(-100% - 16px)); padding: 10px 14px; border-radius: 8px;
   background: var(--marca); color: var(--sobre-marca); font-weight: 600; box-shadow: var(--sombra-alta); }
 .salto-contenido:focus { transform: translateY(0); color: var(--sobre-marca); }
-.vista h1[tabindex="-1"]:focus { outline: none; }
-.vista h1[tabindex="-1"]:focus-visible { outline: 2px solid var(--anillo); outline-offset: 4px; border-radius: 2px; }
+.vista :is(h1, .titulo-vista)[tabindex="-1"]:focus { outline: none; }
+.vista :is(h1, .titulo-vista)[tabindex="-1"]:focus-visible { outline: 2px solid var(--anillo); outline-offset: 4px; border-radius: 2px; }
 main:focus { outline: none; }
 .appbar { position: sticky; top: 0; z-index: 20; background: color-mix(in srgb, var(--superficie) 92%, transparent);
   -webkit-backdrop-filter: saturate(1.4) blur(10px); backdrop-filter: saturate(1.4) blur(10px); border-bottom: 1px solid var(--linea); }
@@ -217,7 +217,7 @@ main:focus { outline: none; }
 .vista:not([hidden]) { animation: vista-entra var(--dur-lenta) var(--curva); }
 @keyframes vista-entra { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
 .cabecera-vista { display: flex; justify-content: space-between; align-items: flex-end; gap: 16px 24px; margin-bottom: 24px; flex-wrap: wrap; }
-.cabecera-vista h1 { font-size: clamp(26px, 3.4vw, 36px); font-weight: 800; letter-spacing: -.025em; line-height: 1.1; }
+.cabecera-vista :is(h1, .titulo-vista) { font-size: clamp(26px, 3.4vw, 36px); font-weight: 800; letter-spacing: -.025em; line-height: 1.1; }
 .antetitulo { display: inline-flex; align-items: center; gap: 8px; font-family: var(--mono); font-size: 12px; font-weight: 500;
   letter-spacing: .04em; text-transform: uppercase; color: var(--tinta-3); margin: 0 0 10px; }
 .antetitulo::before { content: ""; width: 18px; height: 2px; background: var(--resalte); box-shadow: 0 0 0 1px color-mix(in srgb, var(--tinta) 15%, transparent); }
