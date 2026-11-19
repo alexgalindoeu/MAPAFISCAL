@@ -85,7 +85,7 @@
     etq("rp-l-despues", pv ? "Otra parte del plan o la EPSV (se suma a la anterior)" : `Lo que corresponde a aportaciones desde ${corte}`);
     const tu = r[forma], mejor = r[r.mejor], ahorro = tu.extra - mejor.extra;
     const nombreForma = k => k === "capital" ? FORMAS.capital : k === "mixto" ? (pv ? `Mixto: hasta 300.000 € de una vez y el resto en ${r.anios} años` : `Mixto: lo anterior a ${corte} de una vez y el resto en ${r.anios} años`) : `Como renta, en ${r.anios} años`;
-    $("rp-chip").textContent = `${terr} · ${P.ejercicio}`;
+    $("rp-chip").textContent = `${terr} · ${window.MapafiscalConfianza ? window.MapafiscalConfianza.rotuloEjercicio(P.ejercicio).corto : P.ejercicio}`;
     $("rp-tarjeta").className = "tarjeta tarjeta-resultado" + (r.mejor === forma ? " gana" : "");
     $("rp-principal").innerHTML = `<div class="res-etq">IRPF extra por rescatar ${eur0(total)} · ${esc(nombreForma(forma))}</div>
       <div class="res-cifra">${eur0(tu.extra)}</div>

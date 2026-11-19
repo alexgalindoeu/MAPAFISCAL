@@ -193,8 +193,11 @@
       <ul class="leyenda-reparto">${partes.map(p => `<li><i style="background:var(${p.color})"></i>${esc(p.n)} <b>${eur0(Math.max(0, p.v))}</b></li>`).join("")}</ul></div>`;
   }
   // cabecera de la tarjeta de resultado: chip del territorio y color del borde
+  // «Renta 2025» / «Simulación 2026» (web/js/confianza.js)
+  const rotEj = a => window.MapafiscalConfianza ? window.MapafiscalConfianza.rotuloEjercicio(a) : { corto: String(a), completo: String(a) };
   function cabecera(pre, P, terr, estado) {
-    $(pre + "-chip").textContent = `${nombre(P, terr)} · ${P.ejercicio}`;
+    $(pre + "-chip").textContent = `${nombre(P, terr)} · ${rotEj(P.ejercicio).corto}`;
+    $(pre + "-chip").title = rotEj(P.ejercicio).completo;
     $(pre + "-tarjeta").className = "tarjeta tarjeta-resultado" + (estado ? " " + estado : "");
   }
   const PARA_TI = { c: "neto", color: "--g-neto" }, IRPF = { c: "irpf", color: "--g-irpf" }, SS = { c: "ss", color: "--g-ss" };
@@ -404,7 +407,7 @@
 
   cargarDatos().then(() => {
     const P = PS[ejercicioActual()];
-    $("neto-ejercicio").innerHTML = ejercicios().map(y => `<option value="${y}">${y}</option>`).join("");
+    $("neto-ejercicio").innerHTML = ejercicios().map(y => `<option value="${y}">${esc(rotEj(y).completo)}</option>`).join("");
     $("neto-ejercicio").value = String(ejercicioActual());
     opcionesTerritorio(P, $("neto-territorio"), "ES-MD");
     opcionesTerritorio(P, $("pp-territorio"), "ES-MD", x => x.regimen !== "foral_navarra");
