@@ -12,7 +12,7 @@ const INDEX = leer("index.html");
 const LATERALES = { "anuncio-col-comparar": ["comparar", "adsenseHuecoColComparar"], "anuncio-col-escenarios": ["escenarios", "adsenseHuecoColEscenarios"],
   "anuncio-col-neto": ["sueldo-neto", "adsenseHuecoColNeto"], "anuncio-col-pensiones": ["plan-pensiones", "adsenseHuecoColPensiones"],
   "anuncio-col-rescate": ["rescate-plan", "adsenseHuecoColRescate"], "anuncio-col-conjunta": ["conjunta", "adsenseHuecoColConjunta"],
-  "anuncio-col-pagadores": ["dos-pagadores", "adsenseHuecoColPagadores"] };
+  "anuncio-col-pagadores": ["dos-pagadores", "adsenseHuecoColPagadores"], "anuncio-col-bruto": ["bruto-necesario", "adsenseHuecoColBruto"] };
 const HUECOS = ["anuncio-rail-izq", "anuncio-rail-der", "anuncio-calc", "anuncio-comparar", ...Object.keys(LATERALES)];
 const SLOTS = { adsenseHuecoRailIzq: "111", adsenseHuecoRailDer: "222", adsenseHuecoCalc: "444", adsenseHuecoComparar: "555" };
 

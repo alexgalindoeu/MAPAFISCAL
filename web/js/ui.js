@@ -46,6 +46,7 @@
     { grupo: "Calcular", items: [
       { titulo: "Calculadora de la renta", texto: "¿A pagar o a devolver? Tu IRPF al detalle, con las casillas de Renta Web.", href: "#calculadora", icono: "calculadora" },
       { titulo: "Sueldo neto", texto: "De bruto a neto en 12 o 14 pagas, en tu territorio.", href: "#sueldo-neto", icono: "nomina" },
+      { titulo: "¿Qué sueldo bruto pido?", texto: "De neto a bruto, en los 19 territorios, y qué oferta de trabajo te deja más.", href: "#bruto-necesario", icono: "nomina" },
       { titulo: "¿Cuánto neto gano con mi subida?", texto: "Lo que de verdad llega al bolsillo de cada euro de subida.", href: "#sueldo-neto?subida", icono: "subida" },
       { titulo: "Dos pagadores", texto: "Si te obliga a declarar y cuánto te puede salir a pagar.", href: "#dos-pagadores", icono: "dospagadores" },
       { titulo: "¿Cuánto me devuelve Hacienda?", texto: "Hijos, alquiler, hipoteca, discapacidad, donativos… situación a situación.", href: "/cuanto-me-devuelve/", icono: "devolucion" }
