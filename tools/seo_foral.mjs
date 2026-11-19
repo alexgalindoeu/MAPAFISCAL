@@ -88,7 +88,7 @@ function pagina(P, t, sec, { h1, entradilla, cuerpo, qs, title, description }, g
   ${bloqueFaq(qs)}
   ${otrasSecciones(P, t, sec)}
   </div>`;
-  return { ruta: r, html: layout({ title: `${title} | Mapafiscal`, description, canonical: r, breadcrumb: migasHtml(migas), main, generado,
+  return { ruta: r, html: layout({ title: `${title} | Mapafiscal`, description, canonical: r, breadcrumb: migasHtml(migas), main, generado, ejercicio: P.ejercicio,
     jsonld: [jsonLdMigas(migas), jsonLdFaq(qs)] }) };
 }
 
@@ -323,7 +323,7 @@ function pPaisVasco(P, generado) {
   </div>`;
   return { ruta: "/irpf/pais-vasco/", html: layout({ title: `IRPF País Vasco ${ej}: Bizkaia, Gipuzkoa y Álava comparados | Mapafiscal`,
     description: `IRPF y sueldo neto en el País Vasco (${ej}): Bizkaia, Gipuzkoa y Álava comparados entre sí, con Navarra y con Madrid. Diferencias en deducciones y calculadora gratuita.`,
-    canonical: "/irpf/pais-vasco/", breadcrumb: migasHtml(migas), main, generado, jsonld: [jsonLdMigas(migas), jsonLdFaq(qs)] }) };
+    canonical: "/irpf/pais-vasco/", breadcrumb: migasHtml(migas), main, generado, ejercicio: ej, jsonld: [jsonLdMigas(migas), jsonLdFaq(qs)] }) };
 }
 
 // Bloque de enlaces para la página /irpf/<territorio>/ (vacío si no es foral)

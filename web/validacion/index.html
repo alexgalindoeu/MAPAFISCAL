@@ -1,0 +1,204 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Cómo comprobamos los cálculos | Mapafiscal</title>
+<meta name="description" content="Cómo se verifica la calculadora del IRPF de Mapafiscal: 150 casos que el motor de referencia en R y el de la web dan iguales al céntimo, ejemplos oficiales de la AEAT y la Hacienda Foral, fechas de actualización por territorio y registro de cambios.">
+<link rel="canonical" href="https://mapafiscal.es/validacion/">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Mapafiscal">
+<meta property="og:title" content="Cómo comprobamos los cálculos | Mapafiscal">
+<meta property="og:description" content="Cómo se verifica la calculadora del IRPF de Mapafiscal: 150 casos que el motor de referencia en R y el de la web dan iguales al céntimo, ejemplos oficiales de la AEAT y la Hacienda Foral, fechas de actualización por territorio y registro de cambios.">
+<meta property="og:url" content="https://mapafiscal.es/validacion/">
+<meta property="og:locale" content="es_ES">
+<meta property="og:image" content="https://mapafiscal.es/og.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Mapafiscal: el mismo sueldo, 19 IRPF distintos">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Cómo comprobamos los cálculos | Mapafiscal">
+<meta name="twitter:description" content="Cómo se verifica la calculadora del IRPF de Mapafiscal: 150 casos que el motor de referencia en R y el de la web dan iguales al céntimo, ejemplos oficiales de la AEAT y la Hacienda Foral, fechas de actualización por territorio y registro de cambios.">
+<meta name="twitter:image" content="https://mapafiscal.es/og.png">
+<meta name="theme-color" content="#1f3fc4">
+<link rel="preload" href="/fonts/public-sans-latin-var.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="/fonts/archivo-latin-var.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="/iconos/apple-touch-icon.png">
+<link rel="manifest" href="/manifest.webmanifest">
+<link rel="stylesheet" href="/css/mapafiscal.css">
+<link rel="stylesheet" href="/css/seo.css">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Mapafiscal","item":"https://mapafiscal.es/"},{"@type":"ListItem","position":2,"name":"Cómo comprobamos los cálculos","item":"https://mapafiscal.es/validacion/"}]}</script>
+</head>
+<body class="pagina-seo">
+<header class="appbar">
+  <div class="appbar-in">
+    <a class="marca" href="/index.html" aria-label="Mapafiscal, inicio">
+      <svg class="marca-ico" viewBox="0 0 32 32" aria-hidden="true"><rect width="32" height="32" rx="8" class="marca-fondo"/><path class="marca-panel" d="M7 10.5 13 8v15.5L7 26z"/><path class="marca-panel-tu" d="M13 8l6 2.5V26l-6-2.5z"/><path class="marca-panel-2" d="M19 10.5 25 8v15.5L19 26z"/></svg>
+      <span class="marca-txt">Mapafiscal</span>
+    </a>
+    <nav class="nav" aria-label="Secciones">
+      <a href="/index.html#calculadora">Calculadora</a>
+      <a href="/index.html#comparar">Comparar territorios</a>
+      <a href="/irpf/">IRPF por territorio</a>
+      <a href="/guias/">Guías</a>
+    </nav>
+    <div class="appbar-der">
+      <a class="btn btn-pri btn-sm" href="/index.html#calculadora">Calcula tu caso</a>
+    </div>
+  </div>
+</header>
+<main class="contenedor pagina-seo-main">
+  <p class="migas"><a href="/">Mapafiscal</a> › Cómo comprobamos los cálculos</p>
+  
+  <h1>Cómo comprobamos los cálculos</h1>
+  <p class="entradilla">Todo lo que ves aquí sale del propio repositorio de Mapafiscal, que es público, y se regenera en cada publicación de la web.</p>
+
+  <h2 id="validador">Dos motores que tienen que dar lo mismo</h2>
+  <p>El IRPF se calcula con dos programas escritos por separado: el motor de referencia en R y el de la web en JavaScript, que es el que corre en tu navegador.
+  Un validador liquida cada caso de prueba con los dos y exige que coincidan al céntimo (±0,02 €) en las bases liquidables, los mínimos, las cuotas íntegras, líquida, resultante y diferencial, la modalidad de tributación y la obligación de declarar.</p>
+  <dl class="comprobacion-cifras">
+    <div><dt>Casos de prueba</dt><dd>150</dd></div>
+    <div><dt>Coinciden al céntimo</dt><dd>150 de 150</dd></div>
+    <div><dt>Cifras comparadas</dt><dd>1.547</dd></div>
+    <div><dt>Territorios con casos</dt><dd>19 de 19</dd></div>
+  </dl>
+  <p>Por ejercicio: 2025, 113 casos; 2026, 37 casos. Por tipo: 131 declaraciones completas, 8 de sueldo neto y 11 de rescate del plan de pensiones.
+  Los casos están en <a href="https://github.com/alexgalindoeu/MAPAFISCAL/blob/main/tools/validar_js.R" rel="noopener">tools/validar_js.R</a> y el cálculo a mano de muchos de ellos, en <a href="https://github.com/alexgalindoeu/MAPAFISCAL/blob/main/docs/03_casos_validacion.md" rel="noopener">docs/03_casos_validacion.md</a>.</p>
+
+  <h2 id="muestra">Una muestra de los casos</h2>
+  <p>Un caso de cada grupo (régimen común, País Vasco y Navarra en cada ejercicio, sueldo neto y rescate), con su entrada y la cifra principal de cada motor.</p>
+  <div class="tarjeta tarjeta-tabla"><table class="cobertura muestra-casos"><thead><tr><th>Caso y entrada</th><th>Cifra</th><th class="num">Motor R</th><th class="num">Web (JS)</th><th>Resultado</th></tr></thead><tbody>
+  <tr><td><code class="id-caso">aeat_ejemplo_ar</code><br>Aragón, 2025 · declarante de 40 años (intereses 2.800 €, ganancias 23.900 €)
+      <details><summary>Entrada completa (JSON)</summary><pre class="json">{&quot;territorio&quot;:&quot;ES-AR&quot;,&quot;ejercicio&quot;:2025,&quot;tipoUnidadFamiliar&quot;:&quot;ninguna&quot;,&quot;familiaNumerosa&quot;:&quot;no&quot;,&quot;miembros&quot;:[{&quot;id&quot;:&quot;d1&quot;,&quot;rol&quot;:&quot;declarante&quot;,&quot;edad&quot;:40,&quot;capitalMobiliario&quot;:{&quot;intereses&quot;:2800},&quot;gananciasPerdidasNoTransmision&quot;:23900}]}</pre></details></td>
+      <td>Cuota líquida</td><td class="num">4.767,14 €</td>
+      <td class="num">4.767,14 €</td><td>Coinciden</td></tr>
+<tr><td><code class="id-caso">bi_alquiler_joven</code><br>Bizkaia, 2025 · declarante de 33 años (trabajo 30.000 €, cotizaciones 1.950 €)
+      <details><summary>Entrada completa (JSON)</summary><pre class="json">{&quot;territorio&quot;:&quot;ES-PV-BI&quot;,&quot;ejercicio&quot;:2025,&quot;tipoUnidadFamiliar&quot;:&quot;ninguna&quot;,&quot;familiaNumerosa&quot;:&quot;no&quot;,&quot;miembros&quot;:[{&quot;id&quot;:&quot;d1&quot;,&quot;rol&quot;:&quot;declarante&quot;,&quot;edad&quot;:33,&quot;trabajo&quot;:{&quot;dinerarias&quot;:30000,&quot;cotizacionesSs&quot;:1950},&quot;alquilerViviendaPagos&quot;:9000}]}</pre></details></td>
+      <td>Cuota líquida</td><td class="num">1.745,00 €</td>
+      <td class="num">1.745,00 €</td><td>Coinciden</td></tr>
+<tr><td><code class="id-caso">formulario_completo_ES-NC</code><br>Comunidad Foral de Navarra, 2025 · declarante de 52 años (trabajo 38.000 €, cotizaciones 2.400 €, intereses 400 €, dividendos 900 €, ganancias 1.500 €, plan de pensiones 1.500 €, donativos 150 €, retenciones 9.000 €) · cónyuge de 49 años (trabajo 21.000 €, cotizaciones 1.330 €, intereses 120 €, plan de pensiones 800 €, retenciones 2.300 €) · hijo de 12 años · hijo de 2 años · ascendiente de 81 años
+      <details><summary>Entrada completa (JSON)</summary><pre class="json">{&quot;territorio&quot;:&quot;ES-NC&quot;,&quot;ejercicio&quot;:2025,&quot;tipoUnidadFamiliar&quot;:&quot;biparental&quot;,&quot;familiaNumerosa&quot;:&quot;general&quot;,&quot;miembros&quot;:[{&quot;id&quot;:&quot;d1&quot;,&quot;rol&quot;:&quot;declarante&quot;,&quot;edad&quot;:52,&quot;discapacidad&quot;:&quot;33_64&quot;,&quot;trabajo&quot;:{&quot;dinerarias&quot;:38000,&quot;especie&quot;:1200,&quot;cotizacionesSs&quot;:2400,&quot;otrosGastos&quot;:300,&quot;movilidadGeografica&quot;:true,&quot;trabajadorActivoDiscapacidad&quot;:true,&quot;rendimientoIrregular&quot;:{&quot;importe&quot;:6000,&quot;anios&quot;:3}},&quot;capitalMobiliario&quot;:{&quot;intereses&quot;:400,&quot;dividendos&quot;:900,&quot;seguros&quot;:250},&quot;capitalInmobiliario&quot;:[{&quot;ingresos&quot;:9600,&quot;gastosFinancieros&quot;:1500,&quot;gastosDeducibles&quot;:2100,&quot;arrendamientoVivienda&quot;:true,&quot;tipoArrendamiento&quot;:&quot;general&quot;},{&quot;ingresos&quot;:3000,&quot;gastosFinancieros&quot;:4200,&quot;gastosDeducibles&quot;:600,&quot;arrendamientoVivienda&quot;:false}],&quot;imputacionInmobiliaria&quot;:[{&quot;valorCatastral&quot;:80000,&quot;revisado10Anios&quot;:true},{&quot;valorCatastral&quot;:30000,&quot;revisado10Anios&quot;:false}],&quot;actividades&quot;:{&quot;metodo&quot;:&quot;directa_simplificada&quot;,&quot;rendimientoNetoPrevio&quot;:12000,&quot;inicioActividad&quot;:true},&quot;ganancias&quot;:[{&quot;valorTransmision&quot;:180000,&quot;valorAdquisicion&quot;:60000,&quot;fechaAdquisicion&quot;:&quot;1992-04-10&quot;,&quot;fechaTransmision&quot;:&quot;2025-09-15&quot;,&quot;tipoElemento&quot;:&quot;inmueble&quot;,&quot;esTransmision&quot;:true},{&quot;valorTransmision&quot;:8000,&quot;valorAdquisicion&quot;:11000,&quot;fechaAdquisicion&quot;:&quot;2021-02-01&quot;,&quot;fechaTransmision&quot;:&quot;2025-05-20&quot;,&quot;tipoElemento&quot;:&quot;fondo&quot;,&quot;esTransmision&quot;:true}],&quot;gananciasPerdidasNoTransmision&quot;:1500,&quot;previsionSocial&quot;:{&quot;aportacionIndividual&quot;:1500,&quot;contribucionEmpresarial&quot;:1000},&quot;reducciones&quot;:{&quot;pensionesCompensatorias&quot;:2400,&quot;anualidadesAlimentosHijos&quot;:3600},&quot;alquilerViviendaPagos&quot;:0,&quot;donativos&quot;:150,&quot;retenciones&quot;:9000},{&quot;id&quot;:&quot;d2&quot;,&quot;rol&quot;:&quot;conyuge&quot;,&quot;edad&quot;:49,&quot;trabajo&quot;:{&quot;dinerarias&quot;:21000,&quot;cotizacionesSs&quot;:1330},&quot;capitalMobiliario&quot;:{&quot;intereses&quot;:120},&quot;previsionSocial&quot;:{&quot;aportacionIndividual&quot;:800},&quot;retenciones&quot;:2300},{&quot;id&quot;:&quot;h1&quot;,&quot;rol&quot;:&quot;descendiente&quot;,&quot;edad&quot;:12,&quot;discapacidad&quot;:&quot;33_64&quot;,&quot;convivenciaMeses&quot;:0},{&quot;id&quot;:&quot;h2&quot;,&quot;rol&quot;:&quot;descendiente&quot;,&quot;edad&quot;:2},{&quot;id&quot;:&quot;a1&quot;,&quot;rol&quot;:&quot;ascendiente&quot;,&quot;edad&quot;:81,&quot;discapacidad&quot;:&quot;65_mas&quot;,&quot;rentasPropias&quot;:6000}]}</pre></details></td>
+      <td>Cuota líquida</td><td class="num">33.231,64 €</td>
+      <td class="num">33.231,64 €</td><td>Coinciden</td></tr>
+<tr><td><code class="id-caso">dt12_md_capital</code><br>Comunidad de Madrid, 2026 · declarante de 66 años (trabajo 75.000 €)
+      <details><summary>Entrada completa (JSON)</summary><pre class="json">{&quot;territorio&quot;:&quot;ES-MD&quot;,&quot;ejercicio&quot;:2026,&quot;tipoUnidadFamiliar&quot;:&quot;ninguna&quot;,&quot;familiaNumerosa&quot;:&quot;no&quot;,&quot;miembros&quot;:[{&quot;id&quot;:&quot;d1&quot;,&quot;rol&quot;:&quot;declarante&quot;,&quot;edad&quot;:66,&quot;trabajo&quot;:{&quot;dinerarias&quot;:75000,&quot;cotizacionesSs&quot;:0,&quot;prestacionDt12&quot;:30000}}]}</pre></details></td>
+      <td>Cuota líquida</td><td class="num">16.333,44 €</td>
+      <td class="num">16.333,44 €</td><td>Coinciden</td></tr>
+<tr><td><code class="id-caso">bi_epsv_tope_2026</code><br>Bizkaia, 2026 · declarante de 45 años (trabajo 60.000 €, cotizaciones 3.900 €, plan de pensiones 6.000 €)
+      <details><summary>Entrada completa (JSON)</summary><pre class="json">{&quot;territorio&quot;:&quot;ES-PV-BI&quot;,&quot;ejercicio&quot;:2026,&quot;tipoUnidadFamiliar&quot;:&quot;ninguna&quot;,&quot;familiaNumerosa&quot;:&quot;no&quot;,&quot;miembros&quot;:[{&quot;id&quot;:&quot;d1&quot;,&quot;rol&quot;:&quot;declarante&quot;,&quot;edad&quot;:45,&quot;trabajo&quot;:{&quot;dinerarias&quot;:60000,&quot;cotizacionesSs&quot;:3900},&quot;previsionSocial&quot;:{&quot;aportacionIndividual&quot;:6000,&quot;contribucionEmpresarial&quot;:9000}}]}</pre></details></td>
+      <td>Cuota líquida</td><td class="num">13.184,80 €</td>
+      <td class="num">13.184,80 €</td><td>Coinciden</td></tr>
+<tr><td><code class="id-caso">ej2026_nc_15000</code><br>Comunidad Foral de Navarra, 2026 · declarante de 40 años (trabajo 15.000 €, cotizaciones 953 €)
+      <details><summary>Entrada completa (JSON)</summary><pre class="json">{&quot;territorio&quot;:&quot;ES-NC&quot;,&quot;ejercicio&quot;:2026,&quot;tipoUnidadFamiliar&quot;:&quot;ninguna&quot;,&quot;familiaNumerosa&quot;:&quot;no&quot;,&quot;miembros&quot;:[{&quot;id&quot;:&quot;d1&quot;,&quot;rol&quot;:&quot;declarante&quot;,&quot;edad&quot;:40,&quot;trabajo&quot;:{&quot;dinerarias&quot;:15000,&quot;cotizacionesSs&quot;:953}}]}</pre></details></td>
+      <td>Cuota líquida</td><td class="num">0,00 €</td>
+      <td class="num">0,00 €</td><td>Coinciden</td></tr>
+<tr><td><code class="id-caso">neto25_an_100000</code><br>Andalucía, 2025 · 40 años, sueldo bruto 100.000 €
+      <details><summary>Entrada completa (JSON)</summary><pre class="json">{&quot;bruto&quot;:100000,&quot;territorio&quot;:&quot;ES-AN&quot;,&quot;ejercicio&quot;:2025,&quot;edad&quot;:40,&quot;hijos&quot;:[],&quot;tipoContrato&quot;:&quot;indefinido&quot;,&quot;aportacionPlan&quot;:0,&quot;donativos&quot;:0}</pre></details></td>
+      <td>Sueldo neto anual</td><td class="num">63.977,81 €</td>
+      <td class="num">63.977,81 €</td><td>Coinciden</td></tr>
+<tr><td><code class="id-caso">rescate25_ga_capital</code><br>Galicia, 2025 · 65 años, plan (hasta 2006) 25.000 €, plan (desde 2007) 15.000 €, otros ingresos 20.000 €
+      <details><summary>Entrada completa (JSON)</summary><pre class="json">{&quot;territorio&quot;:&quot;ES-GA&quot;,&quot;ejercicio&quot;:2025,&quot;antes2007&quot;:25000,&quot;despues2007&quot;:15000,&quot;otrosIngresos&quot;:20000,&quot;tipoOtros&quot;:&quot;pension&quot;,&quot;edad&quot;:65,&quot;anioContingencia&quot;:2024,&quot;anios&quot;:2}</pre></details></td>
+      <td>IRPF extra de rescatar de una vez</td><td class="num">9.700,27 €</td>
+      <td class="num">9.700,27 €</td><td>Coinciden</td></tr>
+  </tbody></table></div>
+
+  <h2 id="oficiales">Cotejados con ejemplos oficiales</h2>
+  <p>Además de comparar los dos motores entre sí, algunos casos reproducen ejemplos resueltos por la Agencia Tributaria y por las haciendas forales. Estos son los que tenemos documentados, recalculados ahora con el motor de la web:</p>
+  <div class="tarjeta">
+    <h3>Ejemplo 1 de la AEAT: Madrid, 16.500 € íntegros del trabajo y 1.200 € de cotizaciones</h3>
+    <p class="ayuda">Fuente: AEAT · Ejercicio 2025 · caso <code>da61_aeat_md</code> del validador</p>
+    <table class="cobertura"><thead><tr><th>Cifra</th><th class="num">Oficial</th><th class="num">Mapafiscal</th><th></th></tr></thead><tbody>
+    <tr><td>Base liquidable general</td><td class="num">6.782,00 €</td><td class="num">6.782,00 €</td><td>Al céntimo</td></tr><tr><td>Cuota íntegra total (estatal + autonómica)</td><td class="num">187,19 €</td><td class="num">187,19 €</td><td>Al céntimo</td></tr>
+    </tbody></table></div>
+<div class="tarjeta">
+    <h3>Ejemplo práctico de la AEAT «Cálculo de las cuotas íntegras estatal y autonómica»: Aragón, base general de 23.900 € y del ahorro de 2.800 €</h3>
+    <p class="ayuda">Fuente: AEAT · Ejercicio 2025 · caso <code>aeat_ejemplo_ar</code> del validador</p>
+    <table class="cobertura"><thead><tr><th>Cifra</th><th class="num">Oficial</th><th class="num">Mapafiscal</th><th></th></tr></thead><tbody>
+    <tr><td>Cuota íntegra estatal</td><td class="num">2.406,50 €</td><td class="num">2.406,50 €</td><td>Al céntimo</td></tr><tr><td>Cuota íntegra autonómica</td><td class="num">2.360,64 €</td><td class="num">2.360,64 €</td><td>Al céntimo</td></tr>
+    </tbody></table></div>
+<div class="tarjeta">
+    <h3>Ejemplo 4 del Manual teórico Renta y Patrimonio 2025 de la Hacienda Foral de Navarra: Paco (16.000 €) y Teresa (27.000 €), hijos de 2, 5 y 7 años, declaraciones individuales</h3>
+    <p class="ayuda">Fuente: Hacienda Foral de Navarra · Ejercicio 2025 · caso <code>nc_ejemplo4_manual</code> del validador</p>
+    <table class="cobertura"><thead><tr><th>Cifra</th><th class="num">Oficial</th><th class="num">Mapafiscal</th><th></th></tr></thead><tbody>
+    <tr><td>Deducción por mínimo familiar de Paco + la de Teresa (1.659,70 + 1.452,24)</td><td class="num">3.111,94 €</td><td class="num">3.111,94 €</td><td>Al céntimo</td></tr>
+    </tbody></table></div>
+  <p class="ayuda">Los parámetros se cotejan además con el BOE, los boletines autonómicos y forales y el Manual Práctico de Renta de la AEAT: cada cifra del motor lleva la norma de la que sale.</p>
+  
+  <h2 id="territorios">Última actualización de cada territorio</h2>
+  <p>Fecha del último cambio en los parámetros de cada territorio (escalas, mínimos, deducciones), sacada del historial de
+  <a href="https://github.com/alexgalindoeu/MAPAFISCAL/tree/main/params" rel="noopener">params/</a>. Un ejercicio que hereda del anterior cuenta también los cambios de lo heredado.
+  Núcleo estatal (Ley del IRPF): 2025, 12 de noviembre de 2026; 2026, 12 de noviembre de 2026.</p>
+  <div class="tarjeta tarjeta-tabla"><table class="cobertura"><thead><tr><th>Territorio</th><th class="num">Ejercicio 2025</th><th class="num">Ejercicio 2026</th></tr></thead><tbody>
+  <tr><td>Andalucía</td><td class="num">28-09-2026</td><td class="num">11-11-2026</td></tr>
+<tr><td>Aragón</td><td class="num">25-09-2026</td><td class="num">11-11-2026</td></tr>
+<tr><td>Principado de Asturias</td><td class="num">26-09-2026</td><td class="num">11-11-2026</td></tr>
+<tr><td>Illes Balears</td><td class="num">26-09-2026</td><td class="num">11-11-2026</td></tr>
+<tr><td>Canarias</td><td class="num">14-11-2026</td><td class="num">14-11-2026</td></tr>
+<tr><td>Cantabria</td><td class="num">25-09-2026</td><td class="num">11-11-2026</td></tr>
+<tr><td>Castilla-La Mancha</td><td class="num">26-09-2026</td><td class="num">11-11-2026</td></tr>
+<tr><td>Castilla y León</td><td class="num">26-09-2026</td><td class="num">11-11-2026</td></tr>
+<tr><td>Cataluña</td><td class="num">14-11-2026</td><td class="num">14-11-2026</td></tr>
+<tr><td>Extremadura</td><td class="num">25-09-2026</td><td class="num">11-11-2026</td></tr>
+<tr><td>Galicia</td><td class="num">27-09-2026</td><td class="num">11-11-2026</td></tr>
+<tr><td>Comunidad de Madrid</td><td class="num">26-09-2026</td><td class="num">11-11-2026</td></tr>
+<tr><td>Región de Murcia</td><td class="num">14-11-2026</td><td class="num">14-11-2026</td></tr>
+<tr><td>La Rioja</td><td class="num">26-09-2026</td><td class="num">11-11-2026</td></tr>
+<tr><td>Comunitat Valenciana</td><td class="num">26-09-2026</td><td class="num">11-11-2026</td></tr>
+<tr><td>Bizkaia</td><td class="num">14-11-2026</td><td class="num">14-11-2026</td></tr>
+<tr><td>Gipuzkoa</td><td class="num">14-11-2026</td><td class="num">14-11-2026</td></tr>
+<tr><td>Araba/Álava</td><td class="num">14-11-2026</td><td class="num">14-11-2026</td></tr>
+<tr><td>Comunidad Foral de Navarra</td><td class="num">14-11-2026</td><td class="num">14-11-2026</td></tr>
+  </tbody></table></div>
+  
+  <h2 id="cambios">Registro de cambios del motor</h2>
+  <p>Los últimos 31 cambios en el motor de cálculo (<a href="https://github.com/alexgalindoeu/MAPAFISCAL/tree/main/R" rel="noopener">R/</a>,
+  <a href="https://github.com/alexgalindoeu/MAPAFISCAL/blob/main/web/js/irpfsim.js" rel="noopener">web/js/irpfsim.js</a>) y en sus parámetros (<a href="https://github.com/alexgalindoeu/MAPAFISCAL/tree/main/params" rel="noopener">params/</a>).
+  El historial completo está en <a href="https://github.com/alexgalindoeu/MAPAFISCAL/commits/main" rel="noopener">GitHub</a>.</p>
+  <ul class="registro-cambios">
+  <li><time datetime="2026-11-14">14-11-2026</time> <a href="https://github.com/alexgalindoeu/MAPAFISCAL/commit/b9ec295be36970c1683600a1c68dc808f18169a3" rel="noopener"><code>b9ec295</code></a> Cotejo Murcia: deducciones autonómicas 2025 confirmadas con el Manual de la AEAT</li>
+  <li><time datetime="2026-11-14">14-11-2026</time> <a href="https://github.com/alexgalindoeu/MAPAFISCAL/commit/828f6593323a64745cfd8bdffa9a50c0dc950675" rel="noopener"><code>828f659</code></a> Foral: planes de pensiones y EPSV (País Vasco y art. 55 de Navarra) y rescate foral</li>
+  <li><time datetime="2026-11-14">14-11-2026</time> <a href="https://github.com/alexgalindoeu/MAPAFISCAL/commit/442e6fee1872c31d579f587b7bbde5ede3c3e649" rel="noopener"><code>442e6fe</code></a> Cotejo Canarias: deducciones autonómicas 2025 confirmadas con el Manual de la AEAT</li>
+  <li><time datetime="2026-11-14">14-11-2026</time> <a href="https://github.com/alexgalindoeu/MAPAFISCAL/commit/9cb0bc7c4c8c20194e250b0817eca5246830fa60" rel="noopener"><code>9cb0bc7</code></a> Foral: vivienda del País Vasco con su norma (cuenta vivienda, menores de 36 y colectivos)</li>
+  <li><time datetime="2026-11-12">12-11-2026</time> <a href="https://github.com/alexgalindoeu/MAPAFISCAL/commit/7a2d8c60f30ac2b0a54984cb54128073a87eb8b5" rel="noopener"><code>7a2d8c6</code></a> Motor: tope de intereses y reparación por inmueble (art. 23.1.a LIRPF) y varias imputaciones inmobiliarias</li>
+  <li><time datetime="2026-11-12">12-11-2026</time> <a href="https://github.com/alexgalindoeu/MAPAFISCAL/commit/2182c417853dc185e96af29281b79b676358bf7d" rel="noopener"><code>2182c41</code></a> Motor: rescate del plan de pensiones con la reducción del 40 % de la DT 12.ª (R y JS)</li>
+  <li><time datetime="2026-11-11">11-11-2026</time> <a href="https://github.com/alexgalindoeu/MAPAFISCAL/commit/f25bcf0d67372b72488d7d70d7b835f3afd70203" rel="noopener"><code>f25bcf0</code></a> Motor 2026: escalas y mínimos autonómicos; erratas forales de 2025</li>
+  <li><time datetime="2026-11-11">11-11-2026</time> <a href="https://github.com/alexgalindoeu/MAPAFISCAL/commit/d41407159ad8f4355829977d29fa543394c414f9" rel="noopener"><code>d414071</code></a> Contenidos SEO: deducciones por territorio y seis guías del IRPF</li>
+  <li><time datetime="2026-11-11">11-11-2026</time> <a href="https://github.com/alexgalindoeu/MAPAFISCAL/commit/e0d059f84efaceb7f07c1d4494d98ae7e1c72e53" rel="noopener"><code>e0d059f</code></a> Herramientas: cotizaciones del trabajador, sueldo neto, subida y ahorro fiscal antes del 31-12</li>
+  <li><time datetime="2026-09-28">28-09-2026</time> <a href="https://github.com/alexgalindoeu/MAPAFISCAL/commit/a7dc6fa687906d164ca3d37acd2ff113e9d6708a" rel="noopener"><code>a7dc6fa</code></a> Motor 2026: territorios forales (País Vasco +2 % y Navarra LF 17/2025)</li>
+  <li><time datetime="2026-09-28">28-09-2026</time> <a href="https://github.com/alexgalindoeu/MAPAFISCAL/commit/996e80c8867f90152eeaa51b5de70b19df97f4af" rel="noopener"><code>996e80c</code></a> Andalucía (#26): nacimiento de 400 € en municipios despoblados y límite de alquiler de 1.500 € con discapacidad</li>
+  <li><time datetime="2026-09-28">28-09-2026</time> <a href="https://github.com/alexgalindoeu/MAPAFISCAL/commit/e22ede488b5cd892fd0bd583e9c4a157a70a0433" rel="noopener"><code>e22ede4</code></a> Motor 2026: núcleo estatal (DA 61.ª del RDL 5/2026 y deducciones con plazo)</li>
+  <li><time datetime="2026-09-27">27-09-2026</time> <a href="https://github.com/alexgalindoeu/MAPAFISCAL/commit/e7019a2641c609c7b280cfea8cb0b84894740336" rel="noopener"><code>e7019a2</code></a> Motor: varios ejercicios con herencia entre años (base del ejercicio 2026)</li>
+  <li><time datetime="2026-09-27">27-09-2026</time> <a href="https://github.com/alexgalindoeu/MAPAFISCAL/commit/52c39088069f9aa5456d21fabb38fdc4c1a083a6" rel="noopener"><code>52c3908</code></a> Cotejo #16 (Galicia): seis deducciones confirmadas y corregidas</li>
+  <li><time datetime="2026-09-26">26-09-2026</time> <a href="https://github.com/alexgalindoeu/MAPAFISCAL/commit/f8e282e0f8e84dbfd71b0930a550cd54c75c247f" rel="noopener"><code>f8e282e</code></a> Cotejo #16 (Castilla y León): familia numerosa confirmada y corregida según el número de descendientes</li>
+  <li><time datetime="2026-09-26">26-09-2026</time> <a href="https://github.com/alexgalindoeu/MAPAFISCAL/commit/a51cbec0fe892bd0c734c8e81b0919b69e5ffc32" rel="noopener"><code>a51cbec</code></a> Motor: puertas de renta autonómicas con bases imponibles y mínimo del gravamen autonómico</li>
+  <li><time datetime="2026-09-26">26-09-2026</time> <a href="https://github.com/alexgalindoeu/MAPAFISCAL/commit/2a56455ccd9428eeac80e4d18707d7a95dfcff7f" rel="noopener"><code>2a56455</code></a> Contribución empresarial a planes de pensiones: rendimiento íntegro del trabajo (art. 17.1.e LIRPF)</li>
+  <li><time datetime="2026-09-26">26-09-2026</time> <a href="https://github.com/alexgalindoeu/MAPAFISCAL/commit/de7d59eea0dca667cbc48f918e70b66268fe544b" rel="noopener"><code>de7d59e</code></a> Cotejo #16 (C. Valenciana): seis deducciones confirmadas, título monoparental y meses en desempleo en la web</li>
+  <li><time datetime="2026-09-26">26-09-2026</time> <a href="https://github.com/alexgalindoeu/MAPAFISCAL/commit/6752edb3901c308be693e9e4d1226b237483d6cd" rel="noopener"><code>6752edb</code></a> Navarra: IPREM de 8.400 € confirmado, incremento por rentas de cada sujeto pasivo y +668 € monoparental en conjunta</li>
+  <li><time datetime="2026-09-26">26-09-2026</time> <a href="https://github.com/alexgalindoeu/MAPAFISCAL/commit/bf7cf8db09f65a7a2946d1b88f6728fe6137b486" rel="noopener"><code>bf7cf8d</code></a> Web: casilla de título de familia numerosa reciente (Madrid, art. 13 bis)</li>
+  <li><time datetime="2026-09-26">26-09-2026</time> <a href="https://github.com/alexgalindoeu/MAPAFISCAL/commit/ece8a19721a19fb1a242cd9f61afd63d974651dd" rel="noopener"><code>ece8a19</code></a> Navarra: mínimos personal y familiar (art. 62.9) según el texto de la Ley Foral 22/2023</li>
+  <li><time datetime="2026-09-26">26-09-2026</time> <a href="https://github.com/alexgalindoeu/MAPAFISCAL/commit/b836c5be7c8f6f7e3403ab6e078392ff124d70ba" rel="noopener"><code>b836c5b</code></a> Cotejo #16 (Madrid): seis deducciones confirmadas y corregidas; límite de la UF por miembro y gastos educativos por hijo</li>
+  <li><time datetime="2026-09-26">26-09-2026</time> <a href="https://github.com/alexgalindoeu/MAPAFISCAL/commit/f56065585e9b871a3d5aa91479f616c53caa2d40" rel="noopener"><code>f560655</code></a> Planes de pensiones: límites por partícipe (también en conjunta) y 30 % sobre el rendimiento del art. 19</li>
+  <li><time datetime="2026-09-26">26-09-2026</time> <a href="https://github.com/alexgalindoeu/MAPAFISCAL/commit/32cf1c57f236e8f7ae9866f4c24c4c25d034c32f" rel="noopener"><code>32cf1c5</code></a> Obligación de declarar (art. 96 LIRPF) en el motor y en la web</li>
+  <li><time datetime="2026-09-26">26-09-2026</time> <a href="https://github.com/alexgalindoeu/MAPAFISCAL/commit/94ea4eb8044d52d84da4b6e00c47cbb2400b0773" rel="noopener"><code>94ea4eb</code></a> Cotejo #16 (Andalucía): tres deducciones confirmadas; nueva regla de ascendientes en el DSL</li>
+  <li><time datetime="2026-09-26">26-09-2026</time> <a href="https://github.com/alexgalindoeu/MAPAFISCAL/commit/48a64e05ac2d5b1d9b33bd3dc5c4ff17ec1fd85e" rel="noopener"><code>48a64e0</code></a> Motor JS: deducciones estatales de donativos y vivienda anterior a 2013; tope de donativos sobre la base</li>
+  <li><time datetime="2026-09-26">26-09-2026</time> <a href="https://github.com/alexgalindoeu/MAPAFISCAL/commit/2f0be8304afdfa06ab84ede4048a5b18993bd806" rel="noopener"><code>2f0be83</code></a> Motor: mínimos personales y familiares autonómicos (8 CCAA) en el gravamen autonómico</li>
+  <li><time datetime="2026-09-25">25-09-2026</time> <a href="https://github.com/alexgalindoeu/MAPAFISCAL/commit/b0845366823ead911dec0881131e7854fabd3b69" rel="noopener"><code>b084536</code></a> Motor: reducción del art. 20 sin los 2.000 € previos y deducción de 340 € por rendimientos del trabajo</li>
+  <li><time datetime="2026-09-25">25-09-2026</time> <a href="https://github.com/alexgalindoeu/MAPAFISCAL/commit/bbce7902a7ba18973f5cbed367b2121cd1b0fc56" rel="noopener"><code>bbce790</code></a> Validador de paridad R ↔ JavaScript, generadores y CI del motor R</li>
+  <li><time datetime="2026-09-25">25-09-2026</time> <a href="https://github.com/alexgalindoeu/MAPAFISCAL/commit/ff7ffc891e41c386c5eb0ab39303debcfbd196df" rel="noopener"><code>ff7ffc8</code></a> Motor R de referencia, parámetros 2025 y tests</li>
+  <li><time datetime="2026-09-25">25-09-2026</time> <a href="https://github.com/alexgalindoeu/MAPAFISCAL/commit/aa3e638a48189f02a3c4cc097a7e9014bb1f90bc" rel="noopener"><code>aa3e638</code></a> Importar Mapafiscal desde el artifact de Claude</li>
+  </ul>
+
+  <h2 id="error">¿Has visto un error?</h2>
+  <p>Debajo de cada resultado de la calculadora y de las herramientas hay un enlace «Comunicar un error»: abre tu correo con los datos del cálculo para que nos digas qué cifra esperabas y de dónde sale. También puedes escribir a <a href="mailto:contacto@mapafiscal.es">contacto@mapafiscal.es</a>.</p>
+</main>
+<footer class="pie">
+  <div class="contenedor pie-in">
+    <p><b>Mapafiscal</b> ofrece estimaciones con fines informativos. No es una liquidación oficial ni asesoramiento fiscal.</p>
+    <p class="pie-sec"><a href="/irpf/">IRPF por territorio</a> · <a href="/guias/">Guías del IRPF</a> · <a href="/comparar-sueldo/">Dónde se paga menos IRPF</a> · <a href="/sueldo-neto/">Sueldo neto</a> · <a href="/index.html#metodologia">Cómo calculamos</a> · Datos generados el 2026-11-14</p>
+    <p class="pie-sec"><a href="/legal/aviso-legal.html">Aviso legal</a> · <a href="/legal/privacidad.html">Privacidad</a> · <a href="/legal/condiciones.html">Condiciones</a> · <a href="/legal/cookies.html">Cookies</a> · <a href="/legal/aviso-legal.html#contacto">Contacto</a></p>
+  </div>
+</footer>
+<script type="application/json" id="datos-validacion">{"git":{"fechas":{"estatal":{"2025":1794475254,"2026":1794475254},"territorios":{"ES-AN":{"2025":1790584206,"2026":1794417281},"ES-AR":{"2025":1790369829,"2026":1794417281},"ES-AS":{"2025":1790403320,"2026":1794417281},"ES-IB":{"2025":1790403320,"2026":1794417281},"ES-CN":{"2025":1794653039,"2026":1794653039},"ES-CB":{"2025":1790369829,"2026":1794417281},"ES-CM":{"2025":1790454213,"2026":1794417281},"ES-CL":{"2025":1790454726,"2026":1794417281},"ES-CT":{"2025":1794649460,"2026":1794649460},"ES-EX":{"2025":1790369829,"2026":1794417281},"ES-GA":{"2025":1790502861,"2026":1794417281},"ES-MD":{"2025":1790455212,"2026":1794417281},"ES-MC":{"2025":1794653401,"2026":1794653401},"ES-RI":{"2025":1790403320,"2026":1794417281},"ES-VC":{"2025":1790454213,"2026":1794417281},"ES-PV-BI":{"2025":1794653138,"2026":1794653138},"ES-PV-SS":{"2025":1794653138,"2026":1794653138},"ES-PV-VI":{"2025":1794653138,"2026":1794653138},"ES-NC":{"2025":1794653138,"2026":1794653138}}},"cambios":[{"hash":"b9ec295be36970c1683600a1c68dc808f18169a3","dia":"2026-11-14","asunto":"Cotejo Murcia: deducciones autonómicas 2025 confirmadas con el Manual de la AEAT"},{"hash":"828f6593323a64745cfd8bdffa9a50c0dc950675","dia":"2026-11-14","asunto":"Foral: planes de pensiones y EPSV (País Vasco y art. 55 de Navarra) y rescate foral"},{"hash":"442e6fee1872c31d579f587b7bbde5ede3c3e649","dia":"2026-11-14","asunto":"Cotejo Canarias: deducciones autonómicas 2025 confirmadas con el Manual de la AEAT"},{"hash":"9cb0bc7c4c8c20194e250b0817eca5246830fa60","dia":"2026-11-14","asunto":"Foral: vivienda del País Vasco con su norma (cuenta vivienda, menores de 36 y colectivos)"},{"hash":"7a2d8c60f30ac2b0a54984cb54128073a87eb8b5","dia":"2026-11-12","asunto":"Motor: tope de intereses y reparación por inmueble (art. 23.1.a LIRPF) y varias imputaciones inmobiliarias"},{"hash":"2182c417853dc185e96af29281b79b676358bf7d","dia":"2026-11-12","asunto":"Motor: rescate del plan de pensiones con la reducción del 40 % de la DT 12.ª (R y JS)"},{"hash":"f25bcf0d67372b72488d7d70d7b835f3afd70203","dia":"2026-11-11","asunto":"Motor 2026: escalas y mínimos autonómicos; erratas forales de 2025"},{"hash":"d41407159ad8f4355829977d29fa543394c414f9","dia":"2026-11-11","asunto":"Contenidos SEO: deducciones por territorio y seis guías del IRPF"},{"hash":"e0d059f84efaceb7f07c1d4494d98ae7e1c72e53","dia":"2026-11-11","asunto":"Herramientas: cotizaciones del trabajador, sueldo neto, subida y ahorro fiscal antes del 31-12"},{"hash":"a7dc6fa687906d164ca3d37acd2ff113e9d6708a","dia":"2026-09-28","asunto":"Motor 2026: territorios forales (País Vasco +2 % y Navarra LF 17/2025)"},{"hash":"996e80c8867f90152eeaa51b5de70b19df97f4af","dia":"2026-09-28","asunto":"Andalucía (#26): nacimiento de 400 € en municipios despoblados y límite de alquiler de 1.500 € con discapacidad"},{"hash":"e22ede488b5cd892fd0bd583e9c4a157a70a0433","dia":"2026-09-28","asunto":"Motor 2026: núcleo estatal (DA 61.ª del RDL 5/2026 y deducciones con plazo)"},{"hash":"e7019a2641c609c7b280cfea8cb0b84894740336","dia":"2026-09-27","asunto":"Motor: varios ejercicios con herencia entre años (base del ejercicio 2026)"},{"hash":"52c39088069f9aa5456d21fabb38fdc4c1a083a6","dia":"2026-09-27","asunto":"Cotejo #16 (Galicia): seis deducciones confirmadas y corregidas"},{"hash":"f8e282e0f8e84dbfd71b0930a550cd54c75c247f","dia":"2026-09-26","asunto":"Cotejo #16 (Castilla y León): familia numerosa confirmada y corregida según el número de descendientes"},{"hash":"a51cbec0fe892bd0c734c8e81b0919b69e5ffc32","dia":"2026-09-26","asunto":"Motor: puertas de renta autonómicas con bases imponibles y mínimo del gravamen autonómico"},{"hash":"2a56455ccd9428eeac80e4d18707d7a95dfcff7f","dia":"2026-09-26","asunto":"Contribución empresarial a planes de pensiones: rendimiento íntegro del trabajo (art. 17.1.e LIRPF)"},{"hash":"de7d59eea0dca667cbc48f918e70b66268fe544b","dia":"2026-09-26","asunto":"Cotejo #16 (C. Valenciana): seis deducciones confirmadas, título monoparental y meses en desempleo en la web"},{"hash":"6752edb3901c308be693e9e4d1226b237483d6cd","dia":"2026-09-26","asunto":"Navarra: IPREM de 8.400 € confirmado, incremento por rentas de cada sujeto pasivo y +668 € monoparental en conjunta"},{"hash":"bf7cf8db09f65a7a2946d1b88f6728fe6137b486","dia":"2026-09-26","asunto":"Web: casilla de título de familia numerosa reciente (Madrid, art. 13 bis)"},{"hash":"ece8a19721a19fb1a242cd9f61afd63d974651dd","dia":"2026-09-26","asunto":"Navarra: mínimos personal y familiar (art. 62.9) según el texto de la Ley Foral 22/2023"},{"hash":"b836c5be7c8f6f7e3403ab6e078392ff124d70ba","dia":"2026-09-26","asunto":"Cotejo #16 (Madrid): seis deducciones confirmadas y corregidas; límite de la UF por miembro y gastos educativos por hijo"},{"hash":"f56065585e9b871a3d5aa91479f616c53caa2d40","dia":"2026-09-26","asunto":"Planes de pensiones: límites por partícipe (también en conjunta) y 30 % sobre el rendimiento del art. 19"},{"hash":"32cf1c57f236e8f7ae9866f4c24c4c25d034c32f","dia":"2026-09-26","asunto":"Obligación de declarar (art. 96 LIRPF) en el motor y en la web"},{"hash":"94ea4eb8044d52d84da4b6e00c47cbb2400b0773","dia":"2026-09-26","asunto":"Cotejo #16 (Andalucía): tres deducciones confirmadas; nueva regla de ascendientes en el DSL"},{"hash":"48a64e05ac2d5b1d9b33bd3dc5c4ff17ec1fd85e","dia":"2026-09-26","asunto":"Motor JS: deducciones estatales de donativos y vivienda anterior a 2013; tope de donativos sobre la base"},{"hash":"2f0be8304afdfa06ab84ede4048a5b18993bd806","dia":"2026-09-26","asunto":"Motor: mínimos personales y familiares autonómicos (8 CCAA) en el gravamen autonómico"},{"hash":"b0845366823ead911dec0881131e7854fabd3b69","dia":"2026-09-25","asunto":"Motor: reducción del art. 20 sin los 2.000 € previos y deducción de 340 € por rendimientos del trabajo"},{"hash":"bbce7902a7ba18973f5cbed367b2121cd1b0fc56","dia":"2026-09-25","asunto":"Validador de paridad R ↔ JavaScript, generadores y CI del motor R"},{"hash":"ff7ffc891e41c386c5eb0ab39303debcfbd196df","dia":"2026-09-25","asunto":"Motor R de referencia, parámetros 2025 y tests"},{"hash":"aa3e638a48189f02a3c4cc097a7e9014bb1f90bc","dia":"2026-09-25","asunto":"Importar Mapafiscal desde el artifact de Claude"}]}}</script>
+</body>
+</html>

@@ -5,6 +5,7 @@
 // =============================================================================
 
 import { readFileSync } from "node:fs";
+import { createHash } from "node:crypto";
 import { createRequire } from "node:module";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
@@ -64,6 +65,9 @@ export const HERRAMIENTA = {
 export const esc = s => String(s).replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
 export const miles = s => s.replace(/\B(?=(\d{3})+(?!\d))/g, ".");
 export const euros = n => miles(String(Math.round(n))) + " €";
+// Diferencia entre dos cifras que se muestran redondeadas: se restan las cifras que se ven,
+// para que la cuenta cuadre al leerla (553 € y no 552 € por los céntimos de cada una).
+export const difEuros = (a, b) => euros(Math.round(a) - Math.round(b));
 // Con céntimos solo si los hay: 463,95 € / 1.500 €.
 export function eurosExactos(n) {
   const c = Math.round(n * 100);
@@ -121,12 +125,51 @@ export function jsonLdMigas(migas) {
       { "@type": "ListItem", position: i + 1, name: nombre }, ruta ? { item: SITIO + ruta } : {}))
   };
 }
+// ---- fecha de cambio del contenido -------------------------------------------------
+// Cada página dice cuándo cambió de verdad su contenido (no cuándo se regeneraron los datos).
+// La maqueta escribe estas marcas y tools/generar_paginas_seo.mjs las sustituye por la fecha
+// guardada en web/datos/seo_fechas.json para el hash del contenido (ver fecharContenido).
+export const MARCA_FECHA = "@@FECHA_CONTENIDO@@", MARCA_FECHA_LARGA = "@@FECHA_CONTENIDO_LARGA@@";
+// Hash del contenido sin las fechas que no son contenido: las marcas de arriba y las fechas de
+// generación de los datos (`generados`, ISO), que cambian cada vez que se exportan aunque no
+// cambie ninguna cifra.
+// Solo cuenta lo que lee la persona: <title>, descripción y <main> (si los hay). Cambiar la
+// cabecera, el pie o los metadatos comunes no cambia la fecha de ninguna página.
+export function hashContenido(html, generados = []) {
+  const main = html.match(/<main[\s\S]*<\/main>/);
+  let s = main ? [html.match(/<title>[\s\S]*?<\/title>/)?.[0], html.match(/<meta name="description"[^>]*>/)?.[0], main[0]].join("\n") : html;
+  for (const g of new Set(generados)) s = s.split(g).join("@@GENERADO@@").split(fecha(g)).join("@@GENERADO@@");
+  // Los huecos de anuncios no son contenido: no mueven la fecha.
+  s = s.replace(/<div class="tarjeta anuncio anuncio-seo"[^>]*><span class="anuncio-etiqueta">Anuncios<\/span><\/div>\s*/g, "");
+  return createHash("sha256").update(s).digest("hex").slice(0, 16);
+}
+// Sustituye las marcas de cada HTML por la fecha guardada si su hash no ha cambiado, o por `hoy`
+// si es nuevo o cambió (`previa(ruta)` puede dar una fecha mejor para páginas nuevas). Devuelve
+// el registro nuevo, ordenado por ruta, para que el JSON sea estable.
+export function fecharContenido(ficheros, registro, { generados, hoy, previa = () => null }) {
+  const nuevo = {};
+  for (const r of [...ficheros.keys()].filter(k => k.endsWith(".html")).sort()) {
+    const html = ficheros.get(r), hash = hashContenido(html, generados);
+    const antes = registro[r];
+    const f = antes && antes.hash === hash ? antes.fecha : (!antes && previa(r)) || hoy;
+    nuevo[r] = { hash, fecha: f };
+    ficheros.set(r, html.split(MARCA_FECHA_LARGA).join(fecha(f)).split(MARCA_FECHA).join(f));
+  }
+  return nuevo;
+}
+
+// Organización editora: va en todas las páginas (mismo @id que en la portada).
+export const ORGANIZACION = {
+  "@context": "https://schema.org", "@type": "Organization", "@id": SITIO + "/#organizacion",
+  name: "Mapafiscal", url: SITIO + "/", logo: SITIO + "/iconos/icono-512.png"
+};
+
 export function jsonLdArticulo({ titulo, descripcion, ruta, generado }) {
   return {
     "@context": "https://schema.org", "@type": "Article", headline: titulo, description: descripcion,
-    inLanguage: "es", mainEntityOfPage: SITIO + ruta, dateModified: generado,
-    author: { "@type": "Organization", name: "Mapafiscal", url: SITIO + "/" },
-    publisher: { "@type": "Organization", name: "Mapafiscal", url: SITIO + "/" }
+    inLanguage: "es", mainEntityOfPage: SITIO + ruta, dateModified: MARCA_FECHA,
+    author: { "@id": SITIO + "/#organizacion" },
+    publisher: { "@id": SITIO + "/#organizacion" }
   };
 }
 // Tabla de datos con su fuente oficial (escalas, importes): ayuda a que buscadores y
@@ -161,11 +204,72 @@ export function migasHtml(migas) {
   return migas.map(([n, r], i) => i < migas.length - 1 && r ? `<a href="${r}">${esc(n)}</a>` : esc(n)).join(" › ");
 }
 
+// Ejercicio por defecto del pie (el de los datos SEO); las páginas de otro ejercicio lo pasan.
+export const EJERCICIO = { valor: null };
+
+// ---- anuncios ---------------------------------------------------------------------
+// Las páginas informativas llevan anuncios con el mismo sistema que la aplicación
+// (web/js/anuncios.js + web/config.js: consentimiento, carga diferida, nada para quien tiene
+// plan, espacio reservado). Aquí solo se colocan los huecos; el script decide si se llenan.
+export const RUTAS_CON_ANUNCIOS = [/^\/guias\//, /^\/irpf\//, /^\/sueldo-neto\//, /^\/comparar-sueldo\//];
+export const conAnuncios = ruta => RUTAS_CON_ANUNCIOS.some(r => r.test(ruta));
+
+const huecoSeo = pos => `<div class="tarjeta anuncio anuncio-seo" id="anuncio-seo-${pos}" data-anuncio-seo="${pos}" hidden>` +
+  `<span class="anuncio-etiqueta">Anuncios</span></div>`;
+export const CARRILES_HTML = `<aside class="anuncio-carril anuncio-carril-izq" id="anuncio-rail-izq" hidden>
+  <span class="anuncio-etiqueta">Anuncios</span>
+</aside>
+<aside class="anuncio-carril anuncio-carril-der" id="anuncio-rail-der" hidden>
+  <span class="anuncio-etiqueta">Anuncios</span>
+</aside>`;
+
+// Posiciones de los bloques hijos directos del primer <div class="prosa"> (las tarjetas).
+function bloquesProsa(main) {
+  const ini = main.indexOf('<div class="prosa"');
+  if (ini < 0) return [];
+  const re = /<(\/?)div\b[^>]*>/g;
+  re.lastIndex = main.indexOf(">", ini) + 1;
+  const bloques = [];
+  let d = 1, m;
+  while (d > 0 && (m = re.exec(main))) {
+    if (m[1]) { d--; continue; }
+    if (d === 1) bloques.push({ i: m.index, faq: /class="[^"]*\bfaq\b/.test(m[0]) });
+    d++;
+  }
+  return bloques;
+}
+
+// Huecos en el flujo, siempre entre tarjetas (nunca dentro de una tabla ni antes del <h1>):
+// - «intro»: tras el primer bloque y antes del primer bloque secundario;
+// - «medio»: entre bloques de las páginas largas (6 bloques o más);
+// - «faq»: tras las tablas principales y justo antes de las preguntas frecuentes.
+// Entre dos anuncios queda siempre al menos un bloque de contenido.
+export function ponerHuecos(main) {
+  const b = bloquesProsa(main);
+  if (b.length < 2) return main;
+  const sitios = [];
+  const poner = (k, pos) => {
+    if (k < 1 || k >= b.length || sitios.some(s => Math.abs(s.k - k) < 2)) return;
+    sitios.push({ k, pos });
+  };
+  const kFaq = b.findIndex(x => x.faq);
+  if (!b[1].faq) poner(1, "intro");
+  if (b.length >= 6) poner(Math.floor(b.length / 2), "medio");
+  if (kFaq > 0) poner(kFaq, "faq");
+  sitios.sort((x, y) => y.k - x.k).forEach(({ k, pos }) => {
+    main = main.slice(0, b[k].i) + huecoSeo(pos) + "\n  " + main.slice(b[k].i);
+  });
+  return main;
+}
+
 // ---- maqueta compartida ---------------------------------------------------------
-export function layout({ title, description, canonical, breadcrumb, main, generado, jsonld = [], css = [] }) {
+export function layout({ title, description, canonical, breadcrumb, main, generado, ejercicio = EJERCICIO.valor, jsonld = [], css = [] }) {
   title = tituloFinal(title);
+  const anuncios = conAnuncios(canonical);
+  if (anuncios) main = ponerHuecos(main);
   // Fecha visible justo después del <h1>.
-  main = main.replace(/(<\/h1>)/, `$1\n  <p class="actualizado">Actualizado el <time datetime="${esc(generado)}">${esc(fecha(generado))}</time></p>`);
+  main = main.replace(/(<\/h1>)/, `$1\n  <p class="actualizado">Actualizado el <time datetime="${MARCA_FECHA}">${MARCA_FECHA_LARGA}</time></p>`);
+  jsonld = [ORGANIZACION, ...jsonld];
   const ld = jsonld.map(o => `<script type="application/ld+json">${JSON.stringify(o).replace(/</g, "\\u003c")}</script>`).join("\n");
   return `<!doctype html>
 <html lang="es">
@@ -201,7 +305,7 @@ ${UI.SCRIPT_TEMA}
 <link rel="stylesheet" href="/css/seo.css">
 ${css.map(c => `<link rel="stylesheet" href="${c}">\n`).join("")}${ld ? ld + "\n" : ""}</head>
 <body class="pagina-seo">
-<header class="appbar">
+${anuncios ? CARRILES_HTML + "\n" : ""}<header class="appbar">
   <div class="appbar-in">
     ${UI.HTML_BTN_PANEL}
     <a class="marca" href="/index.html" aria-label="Mapafiscal, inicio">
@@ -228,11 +332,14 @@ ${css.map(c => `<link rel="stylesheet" href="${c}">\n`).join("")}${ld ? ld + "\n
   <div class="contenedor pie-in">
     <p><b>Mapafiscal</b> ofrece estimaciones con fines informativos. No es una liquidación oficial ni asesoramiento fiscal.</p>
     ${REDES_HTML}
-    <p class="pie-sec"><a href="/irpf/">IRPF por territorio</a> · <a href="/guias/">Guías del IRPF</a> · <a href="/comparar-sueldo/">Dónde se paga menos IRPF</a> · <a href="/sueldo-neto/">Sueldo neto</a> · <a href="/index.html#metodologia">Cómo calculamos</a> · Datos generados el ${esc(generado)}</p>
+    <p class="pie-sec"><a href="/irpf/">IRPF por territorio</a> · <a href="/guias/">Guías del IRPF</a> · <a href="/comparar-sueldo/">Dónde se paga menos IRPF</a> · <a href="/sueldo-neto/">Sueldo neto</a> · <a href="/index.html#metodologia">Cómo calculamos</a></p>
+    <p class="pie-sec pie-fechas">Normativa revisada el <time datetime="${esc(generado)}">${esc(fecha(generado))}</time> · Contenido actualizado el <time datetime="${MARCA_FECHA}">${MARCA_FECHA_LARGA}</time>${ejercicio ? ` · Ejercicio ${esc(ejercicio)} (renta que se declara en ${esc(+ejercicio + 1)})` : ""}</p>
     <p class="pie-sec"><a href="/legal/aviso-legal.html">Aviso legal</a> · <a href="/legal/privacidad.html">Privacidad</a> · <a href="/legal/condiciones.html">Condiciones</a> · <a href="/legal/cookies.html">Cookies</a> · <a href="/legal/aviso-legal.html#contacto">Contacto</a></p>
   </div>
 </footer>
 <script src="/js/ui.js" defer></script>
-</body>
+<script src="/config.js" defer></script>
+<script src="/js/analitica.js" defer></script>
+${anuncios ? '<script src="/js/anuncios.js" defer></script>\n' : ""}</body>
 </html>`;
 }

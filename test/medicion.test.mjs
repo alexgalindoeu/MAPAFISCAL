@@ -112,7 +112,7 @@ test("analítica: rutas de vista sin parámetros, eventos de una lista cerrada y
   assert.equal(A.rutaVista("/index.html", "planes"), "/#planes");
   assert.equal(A.rutaVista("/", "informe=pagado&x=1"), "/", "nada del hash real");
   assert.equal(A.rutaVista("/?email=a@b.c", "planes"), "/#planes", "nada de la query");
-  assert.deepEqual(A.EVENTOS, ["calculo_iniciado", "calculo_completado", "resultado_compartido", "pdf_descargado", "registro", "suscripcion_iniciada"]);
+  assert.deepEqual(A.EVENTOS, ["calculo_iniciado", "calculo_completado", "resultado_compartido", "pdf_descargado", "registro", "suscripcion_iniciada", "carriles_uno", "carriles_dos"]);
   for (const e of A.EVENTOS) assert.deepEqual(A.datosEvento(e), { path: e, title: e, event: true });
   assert.equal(A.datosEvento("cuota_1234"), null);
   assert.equal(A.datosEvento(undefined), null);

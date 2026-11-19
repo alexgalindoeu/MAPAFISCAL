@@ -8,7 +8,7 @@ import { motor, P } from "./ayuda.mjs";
 const require = createRequire(import.meta.url);
 const F = require("../web/js/formulario.js");
 const S = require("../web/js/escenarios.js");
-const P26 = require("../web/datos/params_2026.json");
+const P26 = require("../web/datos/params.json");
 const ctx = p => ({ ejercicio: p.ejercicio, cotizar: s => motor.cotizacionesTrabajador(s, p) });
 
 function estado(cambios) {

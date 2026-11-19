@@ -110,8 +110,8 @@
 <section class="vista" id="v-calculadora" aria-labelledby="t-calc" hidden>
   <div class="cabecera-vista">
     <div>
-      <p class="antetitulo">Declaración de la renta · ejercicio <span data-ejercicio>2025</span></p>
-      <h1 id="t-calc">Calcula tu IRPF</h1>
+      <p class="antetitulo">Declaración de la renta · <span data-ejercicio-rotulo>Renta 2025</span></p>
+      <h2 class="titulo-vista" id="t-calc">Calcula tu IRPF · <span data-ejercicio-corto>Renta 2025</span></h2>
       <p class="entradilla">Con tu situación real: escala estatal y autonómica o foral, mínimos, reducciones y las deducciones de tu territorio. El resultado se actualiza mientras escribes.</p>
     </div>
     <div class="cabecera-acciones">
@@ -190,10 +190,7 @@
       <div class="tarjeta">
         <h2 class="rotulo">Desglose de la liquidación</h2>
         <table class="desglose" id="res-desglose"></table>
-      </div>
-
-      <div class="tarjeta anuncio anuncio-solo-estrecho" id="anuncio-calc-medio" hidden>
-        <span class="anuncio-etiqueta">Anuncios</span>
+        <details id="res-explicacion" hidden></details>
       </div>
 
       <div class="tarjeta" id="tarjeta-deducciones">
@@ -206,7 +203,8 @@
         <ul class="palancas" id="res-palancas"></ul>
       </div>
 
-      <p class="res-pie"><a href="#metodologia">Cómo calculamos</a></p>
+      <p class="res-pie"><a href="#metodologia">Cómo calculamos</a> · <a href="validacion/">Cómo lo comprobamos</a></p>
+      <p class="res-pie ayuda-privacidad">El cálculo se hace en tu navegador: no lo enviamos a ningún servidor. Solo se guarda si, con tu cuenta, pulsas «Guarda este cálculo» o «Guardar como cliente». <a href="legal/privacidad.html">Privacidad</a></p>
 
       <div class="tarjeta anuncio anuncio-calc" id="anuncio-calc" hidden>
         <span class="anuncio-etiqueta">Anuncios</span>
@@ -219,8 +217,8 @@
 <section class="vista" id="v-comparar" aria-labelledby="t-comp" hidden>
   <div class="cabecera-vista">
     <div>
-      <p class="antetitulo">Comparador · ejercicio <span data-ejercicio>2025</span></p>
-      <h1 id="t-comp">La misma situación, en 19 territorios</h1>
+      <p class="antetitulo">Comparador · <span data-ejercicio-rotulo>Renta 2025</span></p>
+      <h2 class="titulo-vista" id="t-comp">La misma situación, en 19 territorios</h2>
       <p class="entradilla" id="comp-entradilla"></p>
     </div>
     <div class="cabecera-acciones">
@@ -286,7 +284,7 @@
 <section class="vista" id="v-clientes" aria-labelledby="t-cli" hidden>
   <div class="cabecera-vista">
     <div>
-      <h1 id="t-cli">Mis clientes</h1>
+      <h2 class="titulo-vista" id="t-cli">Mis clientes</h2>
       <p class="entradilla">Guarda la situación de cada cliente, recalcúlala cuando cambie la normativa y compara su factura fiscal entre territorios.</p>
     </div>
     <div class="cabecera-acciones" id="cli-acciones" hidden>
@@ -301,7 +299,7 @@
 <section class="vista" id="v-planes" aria-labelledby="t-planes" hidden>
   <div class="cabecera-vista cabecera-centrada">
     <div>
-      <h1 id="t-planes">Planes</h1>
+      <h2 class="titulo-vista" id="t-planes">Planes</h2>
       <p class="entradilla">La calculadora es y será gratuita. Para asesores y gestorías que llevan carteras de clientes, el plan Gestor desbloquea «Mis clientes»: perfiles guardados, optimización por cliente e informes.</p>
       <div class="segmentado segmentado-centro" role="radiogroup" aria-label="Periodo de facturación">
         <label><input type="radio" name="periodo" value="semanal"><span>Semanal</span></label>
@@ -345,7 +343,7 @@
 <section class="vista" id="v-perfil" aria-labelledby="t-perfil" hidden>
   <div class="cabecera-vista">
     <div>
-      <h1 id="t-perfil">Perfil</h1>
+      <h2 class="titulo-vista" id="t-perfil">Perfil</h2>
       <p class="entradilla">Tu cuenta, tu plan y tu suscripción.</p>
     </div>
   </div>
@@ -356,7 +354,7 @@
 <section class="vista" id="v-metodologia" aria-labelledby="t-met" hidden>
   <div class="cabecera-vista">
     <div>
-      <h1 id="t-met">Metodología y cobertura</h1>
+      <h2 class="titulo-vista" id="t-met">Metodología y cobertura</h2>
       <p class="entradilla">Cómo calcula Mapafiscal y de dónde salen sus parámetros.</p>
     </div>
   </div>
@@ -364,7 +362,15 @@
     <div class="prosa">
       <h2>Cómo se calcula</h2>
       <p>El motor liquida el IRPF siguiendo el orden de la declaración: rendimientos netos, integración y compensación de rentas en las bases general y del ahorro, reducciones (planes de pensiones, tributación conjunta), mínimo personal y familiar, escalas estatal y autonómica —o la tarifa foral en el País Vasco y Navarra—, deducciones y, con las retenciones, la cuota diferencial. Para cada hogar prueba la tributación individual y la conjunta y se queda con la más favorable.</p>
-      <p>Hay dos implementaciones del mismo motor: la de referencia en R y la del navegador en JavaScript. Un validador automático comprueba que ambas dan el mismo resultado, al céntimo, en todos los casos de prueba.</p>
+      <p>Hay dos implementaciones del mismo motor: la de referencia en R y la del navegador en JavaScript. Un validador automático comprueba que ambas dan el mismo resultado, al céntimo, en todos los casos de prueba. Los casos, los ejemplos oficiales de la AEAT y de las haciendas forales que reproducimos, la fecha de actualización de cada territorio y el registro de cambios están en <a href="validacion/">Cómo comprobamos los cálculos</a>.</p>
+      <p>Cada cálculo indica su ejercicio: <b>Renta</b> es una declaración cuyo año ya ha terminado (la que se presenta en la campaña de abril a junio del año siguiente) y <b>Simulación</b>, la del año en curso, que se presentará el año que viene con la normativa vigente hoy.</p>
+      <h2 id="tus-datos">Tus datos</h2>
+      <ul class="privacidad-datos">
+        <li><b>En tu navegador.</b> Lo que escribes en la calculadora y en las herramientas se calcula en tu dispositivo: no se envía a Mapafiscal ni se guarda en ningún servidor. El informe en PDF también se genera en tu navegador.</li>
+        <li><b>En Supabase, solo si guardas.</b> Con cuenta, al pulsar «Guarda este cálculo» o «Guardar como cliente» se guardan en nuestra base de datos (Supabase, en la Unión Europea) los datos de ese cálculo, su resultado y el alias y las notas que escribas, junto con el correo de tu cuenta. Los borras cuando quieras desde tu perfil o desde «Mis clientes».</li>
+        <li><b>En Stripe, solo si pagas.</b> Los pagos se hacen en las páginas de Stripe, que recoge tu tarjeta y tus datos de facturación. Mapafiscal no ve el número de tu tarjeta: solo guarda tu plan y el estado de la suscripción.</li>
+      </ul>
+      <p>Más detalle en la <a href="legal/privacidad.html">política de privacidad</a>.</p>
       <h2>Fuentes</h2>
       <p>Ley 35/2006 del IRPF y su reglamento; leyes de tributos cedidos de cada comunidad autónoma; Normas Forales de Bizkaia, Gipuzkoa y Araba; Texto Refundido del IRPF de Navarra; y el <i>Manual Práctico de Renta 2025</i> de la AEAT (partes 1 y 2). Cada cifra del motor lleva la norma de la que procede.</p>
     </div>
@@ -380,7 +386,7 @@
   <div class="cabecera-vista">
     <div>
       <p class="antetitulo">Nómina · Seguridad Social e IRPF</p>
-      <h1 id="t-neto">Sueldo neto por territorio</h1>
+      <h2 class="titulo-vista" id="t-neto">Sueldo neto por territorio</h2>
       <p class="entradilla" id="neto-entradilla">Lo que te queda de tu sueldo bruto tras la Seguridad Social y el IRPF del año, en tu territorio y en los 19 territorios fiscales.</p>
     </div>
     <div class="cabecera-acciones">
@@ -426,6 +432,7 @@
       <div class="tarjeta">
         <h2 class="rotulo">Desglose</h2>
         <table class="desglose" id="neto-desglose"></table>
+        <details id="neto-explicacion" hidden></details>
       </div>
       <div class="tarjeta tarjeta-ranking">
         <h2 class="rotulo" id="neto-t-ranking">Neto en los 19 territorios</h2>
@@ -444,7 +451,7 @@
   <div class="cabecera-vista">
     <div>
       <p class="antetitulo">Ahorro fiscal · plan de pensiones y donativos</p>
-      <h1 id="t-pp">Ahorra en tu IRPF antes del 31 de diciembre</h1>
+      <h2 class="titulo-vista" id="t-pp">Ahorra en tu IRPF antes del 31 de diciembre</h2>
       <p class="entradilla" id="pp-entradilla">Cuánto te devuelve Hacienda por aportar a un plan de pensiones o por donar a una ONG este año, y cuánto conviene aportar.</p>
     </div>
     <div class="cabecera-acciones">
@@ -514,7 +521,7 @@
   <div class="cabecera-vista">
     <div>
       <p class="antetitulo">Plan de pensiones · rescate</p>
-      <h1 id="t-rp">¿Cuánto tributa rescatar mi plan de pensiones?</h1>
+      <h2 class="titulo-vista" id="t-rp">¿Cuánto tributa rescatar mi plan de pensiones?</h2>
       <p class="entradilla">El IRPF extra de cobrar tu plan de una vez, como renta o de forma mixta, con la reducción del 40 % de lo aportado antes de 2007, y en qué territorio tributa menos.</p>
     </div>
     <div class="cabecera-acciones">
@@ -582,12 +589,94 @@
   </div>
 </section>
 
+<!-- =========================== BRUTO NECESARIO Y DOS OFERTAS (web/js/bruto.js) =========================== -->
+<section class="vista" id="v-bruto-necesario" aria-labelledby="t-bn" hidden>
+  <div class="cabecera-vista">
+    <div>
+      <p class="antetitulo">Nómina · de neto a bruto</p>
+      <h2 class="titulo-vista" id="t-bn">¿Qué sueldo bruto pido?</h2>
+      <p class="entradilla">El bruto anual que necesitas para cobrar el neto que quieres, en tu territorio y en los 19, o qué oferta de trabajo te deja más dinero en el bolsillo.</p>
+    </div>
+    <div class="cabecera-acciones">
+      <div class="segmentado" role="radiogroup" aria-label="Herramienta">
+        <label><input type="radio" name="bn-modo" value="bruto" checked><span>Bruto necesario</span></label>
+        <label><input type="radio" name="bn-modo" value="comparar"><span>Comparar dos ofertas</span></label>
+      </div>
+    </div>
+  </div>
+  <div class="calc">
+    <form class="formulario" id="bn-form" autocomplete="off" novalidate>
+      <fieldset class="bloque" id="bn-bloque-neto">
+        <legend><span class="paso">1</span>El neto que quieres</legend>
+        <div class="rejilla2">
+          <div class="campo"><label for="bn-neto">Neto</label>
+            <div class="con-sufijo"><input type="number" id="bn-neto" min="0" step="50" value="2000" inputmode="decimal"><span>€</span></div></div>
+          <div class="campo"><label for="bn-periodo">Cada</label>
+            <select id="bn-periodo"><option value="mes14">Mes, en 14 pagas</option><option value="mes12">Mes, en 12 pagas</option><option value="anio">Año</option></select></div>
+        </div>
+      </fieldset>
+      <fieldset class="bloque" id="bn-bloque-ofertas" hidden>
+        <legend><span class="paso">1</span>Las dos ofertas</legend>
+        <div class="bn-oferta" role="group" aria-labelledby="bn-l-a"><p class="rotulo" id="bn-l-a">Oferta A</p>
+          <div class="campo"><label for="bn-a-bruto">Bruto anual</label>
+            <div class="con-sufijo"><input type="number" id="bn-a-bruto" min="0" step="500" value="32000" inputmode="decimal"><span>€</span></div></div>
+          <div class="rejilla2">
+            <div class="campo"><label for="bn-a-territorio">Territorio</label><select id="bn-a-territorio"></select></div>
+            <div class="campo"><label for="bn-a-pagas">Pagas</label><select id="bn-a-pagas"><option value="14">14</option><option value="12">12</option></select></div>
+          </div></div>
+        <div class="bn-oferta" role="group" aria-labelledby="bn-l-b"><p class="rotulo" id="bn-l-b">Oferta B</p>
+          <div class="campo"><label for="bn-b-bruto">Bruto anual</label>
+            <div class="con-sufijo"><input type="number" id="bn-b-bruto" min="0" step="500" value="34000" inputmode="decimal"><span>€</span></div></div>
+          <div class="rejilla2">
+            <div class="campo"><label for="bn-b-territorio">Territorio</label><select id="bn-b-territorio"></select></div>
+            <div class="campo"><label for="bn-b-pagas">Pagas</label><select id="bn-b-pagas"><option value="12">12</option><option value="14">14</option></select></div>
+          </div></div>
+      </fieldset>
+      <fieldset class="bloque">
+        <legend><span class="paso">2</span>Tu situación</legend>
+        <div class="campo" id="bn-campo-territorio"><label for="bn-territorio">Territorio donde resides</label><select id="bn-territorio"></select></div>
+        <div class="rejilla2">
+          <div class="campo"><label for="bn-contrato">Contrato</label>
+            <select id="bn-contrato"><option value="indefinido">Indefinido</option><option value="temporal">Temporal</option></select></div>
+          <div class="campo"><label for="bn-edad">Tu edad</label><input type="number" id="bn-edad" min="16" max="110" step="1" value="35"></div>
+        </div>
+        <div class="campo"><label for="bn-hijos">Hijos que conviven contigo</label><p class="ayuda">Se calcula como familia monoparental (sin pareja), igual que el sueldo neto.</p>
+          <select id="bn-hijos"><option value="0">Ninguno</option><option>1</option><option>2</option><option>3</option><option>4</option><option>5</option></select></div>
+        <div class="hr-edades" id="bn-edades"></div>
+      </fieldset>
+    </form>
+    <div class="resultado" aria-live="polite">
+      <div class="tarjeta tarjeta-resultado" id="bn-tarjeta">
+        <div class="res-cab"><h2 class="rotulo">Resultado</h2><span class="chip" id="bn-chip"></span></div>
+        <div id="bn-principal"></div>
+        <div class="res-graficos" id="bn-graficos"></div>
+        <div class="acciones-res">
+          <a class="btn btn-pri" href="#sueldo-neto">De bruto a neto</a>
+          <a class="btn btn-sec" href="#calculadora">Calcular mi declaración</a>
+        </div>
+      </div>
+      <div class="tarjeta">
+        <h2 class="rotulo" id="bn-t-desglose">Desglose</h2>
+        <table class="desglose" id="bn-desglose"></table>
+      </div>
+      <div class="tarjeta tarjeta-ranking" id="bn-rank-tarjeta">
+        <h2 class="rotulo" id="bn-t-ranking">Bruto necesario en los 19 territorios</h2>
+        <table class="ranking hr-ranking" id="bn-ranking"></table>
+      </div>
+      <p class="nota" id="bn-nota"></p>
+    </div>
+    <aside class="anuncio-lateral anuncio-lateral-izq" id="anuncio-col-bruto" aria-label="Publicidad" hidden>
+      <div class="tarjeta anuncio"><span class="anuncio-etiqueta">Anuncios</span></div>
+    </aside>
+  </div>
+</section>
+
 <!-- =========================== CONJUNTA O INDIVIDUAL (web/js/conjunta.js) =========================== -->
 <section class="vista" id="v-conjunta" aria-labelledby="t-cj" hidden>
   <div class="cabecera-vista">
     <div>
       <p class="antetitulo">Renta en pareja · modalidad de tributación</p>
-      <h1 id="t-cj">¿Declaración conjunta o individual?</h1>
+      <h2 class="titulo-vista" id="t-cj">¿Declaración conjunta o individual?</h2>
       <p class="entradilla">Qué modalidad os sale mejor con vuestros sueldos y vuestros hijos, cuánto ahorráis y por qué, en vuestro territorio y en los 19.</p>
     </div>
   </div>
@@ -638,7 +727,7 @@
   <div class="cabecera-vista">
     <div>
       <p class="antetitulo">Renta · varios pagadores</p>
-      <h1 id="t-dp">Dos pagadores: ¿tengo que declarar y me sale a pagar?</h1>
+      <h2 class="titulo-vista" id="t-dp">Dos pagadores: ¿tengo que declarar y me sale a pagar?</h2>
       <p class="entradilla">Si este año has cobrado de dos empresas (o de una empresa y del paro), mira si estás obligado a hacer la declaración y cuánto te tocará pagar o te devolverán.</p>
     </div>
   </div>
@@ -700,7 +789,7 @@
   <div class="cabecera-vista">
     <div>
       <p class="antetitulo">Renta · deducciones</p>
-      <h1 id="t-dd">Encuentra tus deducciones</h1>
+      <h2 class="titulo-vista" id="t-dd">Encuentra tus deducciones</h2>
       <p class="entradilla">Responde unas preguntas sobre tu hogar y te decimos qué deducciones estatales y de tu comunidad podrían corresponderte, con sus requisitos, cuánto ahorran y la norma que las regula.</p>
     </div>
   </div>
@@ -794,7 +883,7 @@
   <div class="cabecera-vista">
     <div>
       <p class="antetitulo">Simulador · ejercicio <span data-ejercicio>2025</span></p>
-      <h1 id="t-esc">¿Y si…? Compara tus escenarios</h1>
+      <h2 class="titulo-vista" id="t-esc">¿Y si…? Compara tus escenarios</h2>
       <p class="entradilla">Parte de tu situación y prueba cambios: una subida, un hijo, una aportación al plan de pensiones, mudarte, alquilar o comprar vivienda. Cada escenario se calcula con el mismo motor que la calculadora.</p>
     </div>
     <div class="cabecera-acciones">
@@ -866,7 +955,7 @@
   <div class="contenedor pie-in">
     <p><b>Mapafiscal</b> ofrece estimaciones con fines informativos. No es una liquidación oficial ni asesoramiento fiscal.</p>
     <p class="pie-sec"><a href="irpf/">IRPF por territorio</a> · <a href="guias/">Guías del IRPF</a> · <a href="comparar-sueldo/">Dónde se paga menos IRPF</a> · <a href="sueldo-neto/">Sueldo neto por importe</a></p>
-    <p class="pie-sec"><a href="#metodologia">Cómo calculamos</a> · Normativa del ejercicio <span data-ejercicio>2025</span> · Motor validado R ↔ JavaScript · Cartografía: <span title="es-atlas (MIT) sobre datos del Instituto Geográfico Nacional, CC BY 4.0">© Instituto Geográfico Nacional (CC BY 4.0)</span></p>
+    <p class="pie-sec"><a href="#metodologia">Cómo calculamos</a> · Normativa del ejercicio <span data-ejercicio>2025</span> · <a href="validacion/">Motor validado R ↔ JavaScript</a> · Cartografía: <span title="es-atlas (MIT) sobre datos del Instituto Geográfico Nacional, CC BY 4.0">© Instituto Geográfico Nacional (CC BY 4.0)</span></p>
     <p class="pie-sec"><a href="legal/aviso-legal.html">Aviso legal</a> · <a href="legal/privacidad.html">Privacidad</a> · <a href="legal/condiciones.html">Condiciones</a> · <a href="legal/cookies.html">Cookies</a><span id="pie-configurar-cookies" hidden> · <a href="legal/cookies.html#publicidad">Configurar cookies</a></span> · <a href="legal/aviso-legal.html#contacto">Contacto</a></p>
   </div>
 </footer>
@@ -974,6 +1063,7 @@
     <h2 id="t-guardar">Guardar cliente</h2>
     <div class="campo"><label for="guardar-alias">Alias del cliente</label><input type="text" id="guardar-alias" maxlength="120" required placeholder="p. ej. Familia G. — Getafe"><p class="ayuda">Usa un alias: no hace falta nombre completo ni NIF.</p></div>
     <div class="campo"><label for="guardar-notas">Notas (opcional)</label><textarea id="guardar-notas" rows="3" maxlength="4000"></textarea></div>
+    <p class="ayuda-privacidad">Hasta ahora todo se ha calculado en tu navegador. Al guardar, los datos de este cálculo, su resultado, el alias y las notas se envían a nuestra base de datos (Supabase, en la Unión Europea), asociados a tu cuenta; solo tú los ves y los borras cuando quieras. Los pagos van aparte, a Stripe. <a href="legal/privacidad.html" target="_blank" rel="noopener">Privacidad</a></p>
     <p class="mensaje" id="guardar-msg" role="status"></p>
     <div class="dialogo-acciones">
       <button class="btn btn-sec" value="cancelar" type="submit" formnovalidate>Cancelar</button>
@@ -983,8 +1073,10 @@
 </dialog>
 <!--/CUERPO-->
 <script src="config.js"></script>
+<script src="js/confianza.js"></script>
 <script src="js/ui.js"></script>
 <script src="js/irpfsim.js"></script>
+<script src="js/explicacion.js"></script>
 <script src="js/formulario.js"></script>
 <script src="js/cuentas.js"></script>
 <script src="js/app.js"></script>
@@ -992,6 +1084,7 @@
 <script src="js/informe.js"></script>
 <script src="js/rescate.js"></script>
 <script src="js/conjunta.js"></script>
+<script src="js/bruto.js"></script>
 <script src="js/deducciones.js"></script>
 <script src="js/escenarios.js"></script>
 <script src="js/anuncios.js"></script>

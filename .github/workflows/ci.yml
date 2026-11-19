@@ -23,6 +23,8 @@ jobs:
           node-version: ${{ matrix.node }}
       - name: Tests del motor, parámetros y empaquetado
         run: npm test
+      - name: Página de validación (casos R ↔ JS y ejemplos oficiales de docs/03)
+        run: node tools/generar_validacion.mjs --comprobar
       - name: Empaquetar HTML autónomo
         run: npm run empaquetar
       - name: Subir HTML empaquetado

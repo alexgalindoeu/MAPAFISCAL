@@ -296,7 +296,13 @@
       ". Cada deducción tiene más requisitos de los que caben aquí (justificantes, plazos, límites): compruébalos en su norma antes de aplicarla. Es una orientación, no asesoramiento fiscal.";
   }
 
-  Promise.all([datos("datos-params", "datos/params.json"), datos("datos-seo-deducciones", "datos/seo_deducciones.json").catch(() => null)]).then(([p, seo]) => {
+  // Las deducciones verificadas (seo_deducciones.json) son de un ejercicio concreto: se usan los
+  // parámetros de ese mismo ejercicio aunque el ejercicio por defecto de la web sea otro.
+  Promise.all([datos("datos-params", "datos/params.json"), datos("datos-seo-deducciones", "datos/seo_deducciones.json").catch(() => null)])
+    .then(([p, seo]) => seo && seo.ejercicio && seo.ejercicio !== p.ejercicio
+      ? datos("datos-params-" + seo.ejercicio, "datos/params_" + seo.ejercicio + ".json").then(q => [q, seo], () => [p, seo])
+      : [p, seo])
+    .then(([p, seo]) => {
     P = p; SEO = seo;
     const sel = $("dd-territorio"), ts = COMUNES.concat(FORALES).filter(t => P.territorios[t]);
     sel.innerHTML = ts.map(t => `<option value="${t}">${esc(P.territorios[t].nombre)}</option>`).join("");
