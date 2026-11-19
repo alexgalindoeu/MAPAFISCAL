@@ -59,8 +59,11 @@
   async function cargarDatos() {
     const P0 = await datos("datos-params", "datos/params.json");
     PS[P0.ejercicio] = P0;
-    const otro = P0.ejercicio + 1;      // el año siguiente (2026), si se ha exportado
-    try { const P1 = await datos("datos-params-" + otro, "datos/params_" + otro + ".json"); PS[P1.ejercicio] = P1; } catch (e) { /* solo el por defecto */ }
+    // los demás ejercicios publicados (params/ejercicios.yaml), sea el anterior o el siguiente
+    const otros = ((P0.ejercicios && P0.ejercicios.publicados) || [P0.ejercicio + 1]).map(Number).filter(a => a !== P0.ejercicio);
+    await Promise.all(otros.map(async otro => {
+      try { const P1 = await datos("datos-params-" + otro, "datos/params_" + otro + ".json"); PS[P1.ejercicio] = P1; } catch (e) { /* solo el por defecto */ }
+    }));
   }
   const ejercicios = () => Object.keys(PS).map(Number).sort();
   // el año en curso, o el más reciente de los disponibles

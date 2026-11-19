@@ -9,7 +9,7 @@ import vm from "node:vm";
 import { motor, P as P25 } from "./ayuda.mjs";
 
 const require = createRequire(import.meta.url);
-const P = require("../web/datos/params_2026.json");
+const P = require("../web/datos/params.json");
 const C = require("../web/js/herramientas.js");
 const casi = (real, esperado, msg) => assert.ok(Math.abs(real - esperado) < 0.015, `${msg}: ${real} ≠ ${esperado}`);
 const yo = (o = {}) => Object.assign({ bruto: 30000, territorio: "ES-MD", edad: 35, hijos: [], tipoContrato: "indefinido" }, o);

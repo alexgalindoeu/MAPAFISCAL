@@ -2,7 +2,9 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { readdirSync, readFileSync } from "node:fs";
-import { P } from "./ayuda.mjs";
+import { createRequire } from "node:module";
+// params.json: el ejercicio por defecto (params/ejercicios.yaml)
+const P = createRequire(import.meta.url)("../web/datos/params.json");
 
 const REGIMENES = new Set(["comun", "foral_pais_vasco", "foral_navarra"]);
 const ESTADOS = new Set(["confirmado", "provisional", "cargado", "pendiente"]);
@@ -25,7 +27,8 @@ function comprobarEscala(escala, nombre) {
 }
 
 test("ejercicio y fecha de generación", () => {
-  assert.equal(P.ejercicio, 2025);
+  assert.equal(P.ejercicio, P.ejercicios.por_defecto);
+  assert.equal(P.ejercicio, 2026, "por defecto, el ejercicio en curso (revisión externa del 17-11)");
   assert.match(P.generado, /^\d{4}-\d{2}-\d{2}$/);
 });
 

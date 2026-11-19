@@ -64,6 +64,9 @@ export const HERRAMIENTA = {
 export const esc = s => String(s).replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
 export const miles = s => s.replace(/\B(?=(\d{3})+(?!\d))/g, ".");
 export const euros = n => miles(String(Math.round(n))) + " €";
+// Diferencia entre dos cifras que se muestran redondeadas: se restan las cifras que se ven,
+// para que la cuenta cuadre al leerla (553 € y no 552 € por los céntimos de cada una).
+export const difEuros = (a, b) => euros(Math.round(a) - Math.round(b));
 // Con céntimos solo si los hay: 463,95 € / 1.500 €.
 export function eurosExactos(n) {
   const c = Math.round(n * 100);

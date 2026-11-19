@@ -20,8 +20,26 @@ export function paginasSueldoNeto(d) {
   const conTerritorio = new Set(d.importes_territorio);
   const importes = Object.keys(d.sueldos).map(Number).sort((a, b) => a - b);
   const nombre = c => d.nombres[c];
-  const fila = (b, c) => d.sueldos[String(b)].territorios[c];
-  const ss = b => d.sueldos[String(b)].ss;
+  // Cifras como se ven: en euros enteros y cuadradas, para que las restas y las sumas de la
+  // página den exactamente lo que se lee (bruto − SS − IRPF = neto, diferencias entre
+  // territorios). La Seguridad Social total se redondea y sus partes se ajustan por el
+  // método del mayor resto para que sumen ese total.
+  const ssVista = new Map();
+  const ss = b => {
+    if (ssVista.has(b)) return ssVista.get(b);
+    const o = d.sueldos[String(b)].ss, total = Math.round(o.total);
+    const partes = ["contingencias_comunes", "desempleo", "formacion_profesional", "mei", "solidaridad"].filter(k => k in o);
+    const r = { ...o, total };
+    partes.forEach(k => { r[k] = Math.floor(o[k]); });
+    let falta = total - partes.reduce((a, k) => a + r[k], 0);
+    [...partes].sort((x, y) => (o[y] - Math.floor(o[y])) - (o[x] - Math.floor(o[x]))).forEach(k => { if (falta > 0 && o[k] > 0) { r[k]++; falta--; } });
+    ssVista.set(b, r);
+    return r;
+  };
+  const fila = (b, c) => {
+    const o = d.sueldos[String(b)].territorios[c], irpf = Math.round(o.irpf);
+    return { ...o, irpf, neto: b - ss(b).total - irpf };
+  };
   const ranking = b => ORDEN_TERRITORIOS.map(c => ({ c, ...fila(b, c) })).sort((x, y) => y.neto - x.neto || x.c.localeCompare(y.c));
   const rutaNac = b => `/sueldo-neto/${b}/`;
   const rutaTer = (b, c) => `/sueldo-neto/${b}/${SLUG[c]}/`;
@@ -123,8 +141,8 @@ export function paginasSueldoNeto(d) {
 
   // ---- nacional por importe ------------------------------------------------------------
   function tabla19(b, mensualDe) {
-    return `<div class="envoltorio"><table class="cobertura"><thead><tr><th class="num">Puesto</th><th>Territorio</th><th class="num">Neto anual</th><th class="num">12 pagas</th><th class="num">14 pagas</th><th class="num">IRPF</th><th class="num">Tipo medio</th></tr></thead><tbody>${ranking(b).map((x, i) =>
-      `<tr><td class="num">${i + 1}</td><td>${enlaceTer(b, x.c, nombre(x.c))}</td><td class="num">${esc(euros(x.neto))}</td><td class="num"${mensualDe === 12 ? ' style="font-weight:700"' : ""}>${esc(euros(x.neto / 12))}</td><td class="num"${mensualDe === 14 ? ' style="font-weight:700"' : ""}>${esc(euros(x.neto / 14))}</td><td class="num">${esc(euros(x.irpf))}</td><td class="num">${esc(pct((x.irpf + ss(b).total) / b))}</td></tr>`).join("")}</tbody></table></div>`;
+    return `<div class="envoltorio"><table class="cobertura"><thead><tr><th class="num">Puesto</th><th>Territorio</th><th class="num">Neto anual</th><th class="num">12 pagas</th><th class="num">14 pagas</th><th class="num">IRPF</th><th class="num">Tipo medio IRPF</th><th class="num">Carga total (IRPF + SS)</th></tr></thead><tbody>${ranking(b).map((x, i) =>
+      `<tr><td class="num">${i + 1}</td><td>${enlaceTer(b, x.c, nombre(x.c))}</td><td class="num">${esc(euros(x.neto))}</td><td class="num"${mensualDe === 12 ? ' style="font-weight:700"' : ""}>${esc(euros(x.neto / 12))}</td><td class="num"${mensualDe === 14 ? ' style="font-weight:700"' : ""}>${esc(euros(x.neto / 14))}</td><td class="num">${esc(euros(x.irpf))}</td><td class="num">${esc(pct(x.irpf / b))}</td><td class="num">${esc(pct((x.irpf + ss(b).total) / b))}</td></tr>`).join("")}</tbody></table></div>`;
   }
   function paginaNacional(b, i) {
     const r = ranking(b), s = ss(b), mejor = r[0], peor = r[r.length - 1];
