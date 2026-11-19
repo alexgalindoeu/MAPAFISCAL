@@ -6,7 +6,7 @@
 
 body.pagina-seo { background: var(--fondo); color: var(--tinta); font: 15px/1.55 var(--sans); margin: 0; }
 
-.pagina-seo-main { padding: 28px 0 56px; }
+.pagina-seo-main { padding-top: 28px; padding-bottom: 56px; }
 .pagina-seo-main h1 { font-size: clamp(22px, 3vw, 30px); margin: 4px 0 8px; letter-spacing: -.01em; }
 
 .migas { font-size: 13px; color: var(--tinta-3); margin: 0 0 14px; }

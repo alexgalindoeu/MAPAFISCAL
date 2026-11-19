@@ -16,7 +16,7 @@ import { execFileSync } from "node:child_process";
 import { readFileSync, writeFileSync, mkdirSync, existsSync, readdirSync, rmSync } from "node:fs";
 import { join, dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
-import { SITIO, SLUG, ORDEN_TERRITORIOS, HERRAMIENTA, NOMBRE_CORTO, esc, euros, pct, pctCorto, tablaEscala, citaFuente, layout, jsonLdMigas, jsonLdFaq, jsonLdDataset, bloqueFaq, respuestaDirecta, migasHtml, fecharContenido, hashContenido, EJERCICIO } from "./seo_comun.mjs";
+import { SITIO, SLUG, ORDEN_TERRITORIOS, HERRAMIENTA, NOMBRE_CORTO, esc, euros, difEuros, pct, pctCorto, tablaEscala, citaFuente, layout, jsonLdMigas, jsonLdFaq, jsonLdDataset, bloqueFaq, respuestaDirecta, migasHtml, fecharContenido, hashContenido, EJERCICIO } from "./seo_comun.mjs";
 import { robotsTxt, llmsTxt } from "./seo_ia.mjs";
 import { paginaDeducciones } from "./seo_deducciones.mjs";
 import { paginasGuias, GUIAS } from "./seo_guias.mjs";
@@ -146,7 +146,7 @@ function paginaSalario(salario) {
   <p class="entradilla">Comparativa de los 19 territorios fiscales de España con el mismo sueldo bruto. ${esc(comparativas.supuesto)}</p>
   <div class="prosa">
   <div class="tarjeta">
-    <p>Con ${esc(eurosSalario(salario))} brutos, la cuota líquida va de <b>${esc(euros(masBarato.cuota_liquida_total))}</b> en ${esc(masBarato.nombre)} a <b>${esc(euros(masCaro.cuota_liquida_total))}</b> en ${esc(masCaro.nombre)}: una diferencia de ${esc(euros(masCaro.cuota_liquida_total - masBarato.cuota_liquida_total))} al año entre el territorio más barato y el más caro, para el mismo caso.</p>
+    <p>Con ${esc(eurosSalario(salario))} brutos, la cuota líquida va de <b>${esc(euros(masBarato.cuota_liquida_total))}</b> en ${esc(masBarato.nombre)} a <b>${esc(euros(masCaro.cuota_liquida_total))}</b> en ${esc(masCaro.nombre)}: una diferencia de ${esc(difEuros(masCaro.cuota_liquida_total, masBarato.cuota_liquida_total))} al año entre el territorio más barato y el más caro, para el mismo caso.</p>
   </div>
   <div class="tarjeta tarjeta-tabla">
     <h2 class="rotulo">Los 19 territorios, de menos a más IRPF</h2>
@@ -283,13 +283,18 @@ export function generar({ conGit = false } = {}) {
   for (const p of paginasDevuelve(devuelve, conDeducciones)) p.indexable ? pagina(p.ruta, p.html) : ficheros.set(p.ruta.slice(1) + "index.html", p.html);
   for (const g of paginasForal(territorios.generado, sueldoNeto.importes_territorio)) pagina(g.ruta, g.html);
 
+  // «Cómo comprobamos los cálculos»: la escribe tools/generar_validacion.mjs; aquí solo va al sitemap
+  urls.push("/validacion/");
   // Fecha real de cambio de cada página (y de la portada, que se escribe a mano).
   const generados = [territorios, comparativas, deducciones, guias, sueldoNeto, devuelve].map(d => d.generado).filter(Boolean);
   const anterior = leerRegistro();
   const conPortada = new Map(ficheros);
   conPortada.set("index.html", sinCR(readFileSync(join(WEB, "index.html"), "utf8")));
+  // «Cómo comprobamos los cálculos» la escribe tools/generar_validacion.mjs, pero su fecha va aquí.
+  const VALIDACION = "validacion/index.html";
+  if (existsSync(join(WEB, VALIDACION))) conPortada.set(VALIDACION, sinCR(readFileSync(join(WEB, VALIDACION), "utf8")));
   const registro = fecharContenido(conPortada, anterior, { generados, hoy: hoyIso(), previa: conGit ? previaGit(conPortada) : undefined });
-  for (const [r, html] of conPortada) if (r !== "index.html") ficheros.set(r, html);
+  for (const [r, html] of conPortada) if (r !== "index.html" && r !== VALIDACION) ficheros.set(r, html);
   ficheros.set(REGISTRO_FECHAS, "{\n" + Object.entries(registro).map(([r, v]) => ` ${JSON.stringify(r)}: ${JSON.stringify(v)}`).join(",\n") + "\n}\n");
   const lastmod = u => registro[u.replace(/^\//, "") + "index.html"].fecha;
   ficheros.set("sitemap.xml", `<?xml version="1.0" encoding="UTF-8"?>

@@ -28,10 +28,16 @@ jobs:
       url: ${{ steps.despliegue.outputs.page_url }}
     steps:
       - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0   # historial completo: fechas por territorio y registro de cambios de web/validacion/
       - uses: actions/setup-node@v7
         with:
           node-version: 22
       - run: npm test
+      # «Cómo comprobamos los cálculos» (web/validacion/): validador R ↔ JS, ejemplos oficiales,
+      # fechas de params/ y registro de cambios del motor, al día en cada publicación.
+      - name: Página de validación
+        run: node tools/generar_validacion.mjs
       # Los textos legales no llevan datos personales del titular (regla absoluta, 28-09-2026):
       # solo el nombre comercial y el correo de contacto. Si ese correo sigue siendo el
       # marcador de pruebas, esto falla y no se publica.

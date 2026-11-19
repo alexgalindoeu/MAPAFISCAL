@@ -11,5 +11,5 @@
 # `publicados`; los demás se exportan para el validador y para probarlos.
 # =============================================================================
 
-por_defecto: 2025
+por_defecto: 2026
 publicados: [2025, 2026]

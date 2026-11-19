@@ -35,6 +35,12 @@
 <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"¿Cuánto IRPF paga un jubilado en Gipuzkoa?","acceptedAnswer":{"@type":"Answer","text":"Con una pensión de 22.000 € y 67 años, 2.237 € al año en 2026. La pensión tributa como rendimiento del trabajo con la tarifa foral, sin cotizaciones a la Seguridad Social."}},{"@type":"Question","name":"¿Hay alguna ventaja por edad en el IRPF de Gipuzkoa?","acceptedAnswer":{"@type":"Answer","text":"Sí: una deducción en la cuota de 393 € desde los 65 años y de 714 € desde los 75, que se reduce a partir de 20.000 € de base."}},{"@type":"Question","name":"¿La pensión de la Seguridad Social tributa igual que un sueldo?","acceptedAnswer":{"@type":"Answer","text":"Es rendimiento del trabajo, como el sueldo, pero no paga cotizaciones. Las pensiones de incapacidad permanente absoluta y gran invalidez están exentas."}},{"@type":"Question","name":"¿Cómo tributa cobrar la EPSV al jubilarme?","acceptedAnswer":{"@type":"Answer","text":"Es rendimiento del trabajo y se suma a la pensión. El primer cobro en forma de capital se integra al 60 %, con un límite de 300.000 €; lo cobrado como renta, al 100 %. La calculadora de rescate compara las tres formas."}}]}</script>
 </head>
 <body class="pagina-seo">
+<aside class="anuncio-carril anuncio-carril-izq" id="anuncio-rail-izq" hidden>
+  <span class="anuncio-etiqueta">Anuncios</span>
+</aside>
+<aside class="anuncio-carril anuncio-carril-der" id="anuncio-rail-der" hidden>
+  <span class="anuncio-etiqueta">Anuncios</span>
+</aside>
 <header class="appbar">
   <div class="appbar-in">
     <button class="btn-icono panel-btn" id="btn-todo" type="button" aria-haspopup="dialog" aria-expanded="false" aria-controls="panel-todo" aria-label="Todo lo que ofrecemos" title="Todo lo que ofrecemos"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M4 6.5h16M4 12h16M4 17.5h10"/></svg><span class="panel-btn-txt">Todo</span></button>
@@ -65,6 +71,7 @@
   <div class="tarjeta tarjeta-tabla"><h2 class="rotulo">IRPF de una pensión en Gipuzkoa (2026)</h2>
     <p class="ayuda">Supuesto: pensionista sin otras rentas, tributación individual. Última columna: la misma pensión en Madrid, como referencia del régimen común.</p>
     <div class="envoltorio"><table class="cobertura"><thead><tr><th>Pensión anual</th><th class="num">Gipuzkoa, 67 años</th><th class="num">Gipuzkoa, 76 años</th><th class="num">Madrid, 67 años</th></tr></thead><tbody><tr><td>14.000 €</td><td class="num">0 €</td><td class="num">0 €</td><td class="num">0 €</td></tr><tr><td>18.000 €</td><td class="num">741 €</td><td class="num">420 €</td><td class="num">1.327 €</td></tr><tr><td>22.000 €</td><td class="num">2.237 €</td><td class="num">1.916 €</td><td class="num">2.708 €</td></tr><tr><td>26.000 €</td><td class="num">3.646 €</td><td class="num">3.421 €</td><td class="num">3.814 €</td></tr><tr><td>32.000 €</td><td class="num">5.562 €</td><td class="num">5.530 €</td><td class="num">5.482 €</td></tr><tr><td>40.000 €</td><td class="num">7.900 €</td><td class="num">7.900 €</td><td class="num">7.922 €</td></tr></tbody></table></div></div>
+  <div class="tarjeta anuncio anuncio-seo" id="anuncio-seo-intro" data-anuncio-seo="intro" hidden><span class="anuncio-etiqueta">Anuncios</span></div>
   <div class="tarjeta"><h2 class="rotulo">Ventajas para mayores de 65 años en Gipuzkoa</h2><p>Deducción por edad: <b>393 €</b> desde los 65 años y <b>714 €</b> desde los 75, completa con una base de hasta 20.000 € y decreciente hasta desaparecer en 30.000 €.</p><p class="cita">Norma: Art. 83 NF 3/2014 Gipuzkoa, NF 13/2013 Bizkaia y NF 33/2013 Araba (redacción de 2026); en conjunta, art. 100.d) NF 3/2014 y equivalentes.</p>
     <p>Si cobras tu EPSV o tu plan de pensiones de una vez, el primer cobro en capital se integra solo al 60 %, hasta 300.000 €.</p><p class="cita">Norma: Arts. 18.a).3.ª y 19.2.a) NF 13/2013 Bizkaia, NF 3/2014 Gipuzkoa y NF 33/2013 Araba (límite de 300.000 € desde el 1-1-2014).</p></div>
   <p><a class="btn btn-pri" href="/index.html#calculadora">Calcula tu IRPF como pensionista</a> <a class="btn btn-sec" href="/index.html#rescate-plan?t=ES-PV-SS">¿Cuánto tributa cobrar mi EPSV?</a></p>
@@ -82,5 +89,8 @@
   </div>
 </footer>
 <script src="/js/ui.js" defer></script>
+<script src="/config.js" defer></script>
+<script src="/js/analitica.js" defer></script>
+<script src="/js/anuncios.js" defer></script>
 </body>
 </html>

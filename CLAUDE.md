@@ -22,7 +22,12 @@ Rscript tools/sincronizar_supabase.R         # params.json -> supabase/seed/ (ca
 Rscript tools/generar_datos_seo.R            # motor -> web/datos/seo_*.json (territorios, comparativas, deducciones, guías)
 node tools/generar_paginas_seo.mjs           # esos JSON -> web/irpf/* (y */deducciones/), web/comparar-sueldo/*, web/guias/*, sitemap.xml
 node tools/generar_paginas_seo.mjs --comprobar  # lo que hace la CI: falla si alguna página está desfasada
+node tools/generar_validacion.mjs            # web/validacion/ («Cómo comprobamos los cálculos»); «Publicar web» la regenera sola
+node tools/generar_validacion.mjs --comprobar   # CI: casos R ↔ JS y ejemplos oficiales citados de docs/03
 ```
+
+Los ejemplos oficiales de `web/validacion/` (lista `EJEMPLOS` de `tools/generar_validacion.mjs`)
+citan frases de `docs/03_casos_validacion.md`: si cambias ese texto, actualiza las `anclas`.
 
 Si cambias una regla en R: (1) haz el mismo cambio en `web/js/irpfsim.js`, (2) añade el
 caso a `tools/validar_js.R`, (3) `Rscript tools/montar_validador.R` y abre
