@@ -138,7 +138,7 @@ body {
 a { color: var(--marca); text-underline-offset: 2px; transition: color var(--dur); }
 a:hover { color: var(--marca-hover); }
 h1, h2, h3 { text-wrap: balance; margin: 0; }
-h1 { font-family: var(--display); font-stretch: 112%; }
+h1, .titulo-vista { font-family: var(--display); font-stretch: 112%; }
 :focus-visible { outline: 2px solid var(--anillo); outline-offset: 2px; border-radius: 4px; }
 ::selection { background: var(--resalte); color: var(--sobre-resalte); }
 
@@ -149,8 +149,8 @@ h1 { font-family: var(--display); font-stretch: 112%; }
   transform: translateY(calc(-100% - 16px)); padding: 10px 14px; border-radius: 8px;
   background: var(--marca); color: var(--sobre-marca); font-weight: 600; box-shadow: var(--sombra-alta); }
 .salto-contenido:focus { transform: translateY(0); color: var(--sobre-marca); }
-.vista h1[tabindex="-1"]:focus { outline: none; }
-.vista h1[tabindex="-1"]:focus-visible { outline: 2px solid var(--anillo); outline-offset: 4px; border-radius: 2px; }
+.vista :is(h1, .titulo-vista)[tabindex="-1"]:focus { outline: none; }
+.vista :is(h1, .titulo-vista)[tabindex="-1"]:focus-visible { outline: 2px solid var(--anillo); outline-offset: 4px; border-radius: 2px; }
 main:focus { outline: none; }
 .appbar { position: sticky; top: 0; z-index: 20; background: color-mix(in srgb, var(--superficie) 92%, transparent);
   -webkit-backdrop-filter: saturate(1.4) blur(10px); backdrop-filter: saturate(1.4) blur(10px); border-bottom: 1px solid var(--linea); }
@@ -217,7 +217,7 @@ main:focus { outline: none; }
 .vista:not([hidden]) { animation: vista-entra var(--dur-lenta) var(--curva); }
 @keyframes vista-entra { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
 .cabecera-vista { display: flex; justify-content: space-between; align-items: flex-end; gap: 16px 24px; margin-bottom: 24px; flex-wrap: wrap; }
-.cabecera-vista h1 { font-size: clamp(26px, 3.4vw, 36px); font-weight: 800; letter-spacing: -.025em; line-height: 1.1; }
+.cabecera-vista :is(h1, .titulo-vista) { font-size: clamp(26px, 3.4vw, 36px); font-weight: 800; letter-spacing: -.025em; line-height: 1.1; }
 .antetitulo { display: inline-flex; align-items: center; gap: 8px; font-family: var(--mono); font-size: 12px; font-weight: 500;
   letter-spacing: .04em; text-transform: uppercase; color: var(--tinta-3); margin: 0 0 10px; }
 .antetitulo::before { content: ""; width: 18px; height: 2px; background: var(--resalte); box-shadow: 0 0 0 1px color-mix(in srgb, var(--tinta) 15%, transparent); }
@@ -715,9 +715,8 @@ details.mas:not([open]) summary { margin-bottom: 0; }
    Los pone anuncios.js (solo con anuncios:true y sin plan de pago). Aquí, el espacio
    reservado para que nada salte al cargar y la etiqueta «Anuncios» (AdSense solo admite
    «Anuncios» o «Enlaces patrocinados»).
-   - Huecos en el flujo (.anuncio): al final de la columna de resultados, entre dos tarjetas
-     del resultado en pantallas estrechas (.anuncio-solo-estrecho) y bajo «Comparar».
-     Nunca dentro del formulario ni junto a sus botones.
+   - Huecos en el flujo (.anuncio): al final de la columna de resultados y bajo «Comparar».
+     Nunca dentro del formulario, entre las tarjetas del resultado ni junto a sus botones.
    - Carriles laterales (.anuncio-carril, «como en los periódicos»): fijos a los lados desde
      1280 px de ancho y 720 px de alto. html.con-carriles aparta el contenido lo justo para
      que no se monten encima: 160x600 hasta 1919 px y 300x600 desde 1920 px. */
@@ -744,7 +743,6 @@ details.mas:not([open]) summary { margin-bottom: 0; }
     padding-right: calc(var(--carril-reserva) + clamp(16px, 3vw, 32px)); }
   html.con-carriles .anuncio-carril:not([hidden]) { display: flex; }
   html.vista-sin-anuncios .anuncio-carril { display: none !important; }
-  html.con-carriles .anuncio-solo-estrecho { display: none; }
 }
 
 /* Columnas laterales dentro de las vistas (.anuncio-lateral, desde 1040 px): el <aside> va
@@ -943,6 +941,31 @@ body.con-informe { overflow: hidden; }
 #dp-obligacion p { margin: 0 0 8px; font-size: 14px; color: var(--tinta-2); line-height: 1.5; }
 #dp-obligacion p:last-child { margin-bottom: 0; }
 @media (max-width: 560px) { .nota-inline { display: block; } }
+
+/* ---- confianza (web/js/confianza.js): rótulo del ejercicio, «Comunicar un error», privacidad ---- */
+.selector-ejercicio { flex-wrap: wrap; }
+.selector-ejercicio-detalle { flex-basis: 100%; margin: 0; font-size: 12px; color: var(--tinta-3); }
+.res-error { margin: 14px 0 0; font-size: 12px; color: var(--tinta-3); }
+.enlace-error { background: none; border: 0; padding: 0; font: inherit; font-weight: 600; color: var(--marca-tinta);
+  text-decoration: underline; text-underline-offset: 2px; cursor: pointer; }
+.enlace-error:hover { color: var(--marca-hover); }
+.enlace-error:focus-visible { outline: 2px solid var(--marca); outline-offset: 2px; border-radius: 2px; }
+@media print { .res-error { display: none; } }
+.privacidad-datos { list-style: none; padding: 0; margin: 8px 0 0; display: grid; gap: 8px; }
+.privacidad-datos li { padding: 10px 12px; border: 1px solid var(--linea); border-radius: 8px; background: var(--superficie-2); }
+.ayuda-privacidad { font-size: 12px; color: var(--tinta-3); margin: 8px 0 0; }
+.comprobacion-cifras { display: flex; flex-wrap: wrap; gap: 12px 24px; margin: 8px 0 16px; }
+.comprobacion-cifras div { min-width: 120px; }
+.comprobacion-cifras dt { font-size: 12px; color: var(--tinta-3); }
+.comprobacion-cifras dd { margin: 0; font-size: 22px; font-weight: 700; }
+.muestra-casos pre.json { white-space: pre-wrap; word-break: break-all; font-size: 11px; max-height: 240px; overflow: auto;
+  background: var(--superficie-2); padding: 8px; border-radius: 6px; margin: 6px 0 0; }
+.muestra-casos details summary { font-size: 12px; color: var(--tinta-3); cursor: pointer; margin-top: 4px; }
+.registro-cambios { list-style: none; padding: 0; margin: 8px 0 0; }
+.registro-cambios li { padding: 7px 0; border-bottom: 1px solid var(--linea); font-size: 14px; }
+.registro-cambios time { color: var(--tinta-3); font-variant-numeric: tabular-nums; margin-right: 6px; }
+.muestra-casos td:first-child { min-width: 200px; }
+.muestra-casos .id-caso { font-size: 11px; color: var(--tinta-3); }
 
 /* ---- espera antes de descargar el PDF (web/js/informe.js, interruptor pdfEspera) ---- */
 .inf-espera { max-width: 560px; margin: 0 auto 24px; display: grid; gap: 12px; }

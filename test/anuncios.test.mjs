@@ -13,8 +13,8 @@ const LATERALES = { "anuncio-col-comparar": ["comparar", "adsenseHuecoColCompara
   "anuncio-col-neto": ["sueldo-neto", "adsenseHuecoColNeto"], "anuncio-col-pensiones": ["plan-pensiones", "adsenseHuecoColPensiones"],
   "anuncio-col-rescate": ["rescate-plan", "adsenseHuecoColRescate"], "anuncio-col-conjunta": ["conjunta", "adsenseHuecoColConjunta"],
   "anuncio-col-pagadores": ["dos-pagadores", "adsenseHuecoColPagadores"], "anuncio-col-bruto": ["bruto-necesario", "adsenseHuecoColBruto"] };
-const HUECOS = ["anuncio-rail-izq", "anuncio-rail-der", "anuncio-calc-medio", "anuncio-calc", "anuncio-comparar", ...Object.keys(LATERALES)];
-const SLOTS = { adsenseHuecoRailIzq: "111", adsenseHuecoRailDer: "222", adsenseHuecoMovil: "333", adsenseHuecoCalc: "444", adsenseHuecoComparar: "555" };
+const HUECOS = ["anuncio-rail-izq", "anuncio-rail-der", "anuncio-calc", "anuncio-comparar", ...Object.keys(LATERALES)];
+const SLOTS = { adsenseHuecoRailIzq: "111", adsenseHuecoRailDer: "222", adsenseHuecoCalc: "444", adsenseHuecoComparar: "555" };
 
 function configReal() {
   const window = {};
@@ -24,7 +24,7 @@ function configReal() {
 
 function clases() {
   const s = new Set();
-  return { has: c => s.has(c), add: c => s.add(c), remove: c => s.delete(c), toggle: (c, si) => (si ? s.add(c) : s.delete(c), si) };
+  return { has: c => s.has(c), contains: c => s.has(c), add: c => s.add(c), remove: c => s.delete(c), toggle: (c, si) => (si ? s.add(c) : s.delete(c), si) };
 }
 function elemento(tag, id) {
   return { tagName: tag, id, hidden: true, children: [], dataset: {}, style: {}, classList: clases(),
@@ -45,7 +45,8 @@ function ejecutar(cfg, { cuenta = { cargada: true, conPlan: false }, almacen = {
     getElementById: id => els[id] || null,
     createElement: tag => elemento(tag),
     addEventListener: (t, f) => { (oyentes[t] = oyentes[t] || []).push(f); },
-    dispatch: (t, detail) => (oyentes[t] || []).forEach(f => f({ detail }))
+    dispatch: (t, detail) => (oyentes[t] || []).forEach(f => f({ detail })),
+    dispatchEvent: e => (oyentes[e.type] || []).forEach(f => f(e))
   };
   const ctx = {
     document, location: { hash: "#calculadora", reload() {} },
@@ -53,6 +54,7 @@ function ejecutar(cfg, { cuenta = { cargada: true, conPlan: false }, almacen = {
     requestIdleCallback: f => f(), setTimeout: f => f(),
     IntersectionObserver: class { constructor(cb) { this.cb = cb; } observe(el) { observados.push({ el, io: this }); } unobserve() {} },
     MAPAFISCAL_CONFIG: cfg, MAPAFISCAL_CUENTA: cuenta, JSON, Date, Set,
+    CustomEvent: class { constructor(t, o) { this.type = t; this.detail = o && o.detail; } },
     matchMedia: ancho === undefined ? undefined : () => ({ matches: ancho })
   };
   ctx.window = ctx;
@@ -97,9 +99,10 @@ test("sin plan: reserva el sitio, llena cada hueco al verse y carga adsbygoogle 
   const r = ejecutar(ENCENDIDO);
   for (const id of HUECOS) assert.equal(r.els[id].hidden, false, id);
   assert.equal(r.document.documentElement.classList.has("con-carriles"), true);
-  assert.equal(r.scripts().length, 0, "nada de Google antes de que un hueco vaya a verse");
+  assert.equal(r.scripts().length, 1, "con la CMP de Google, adsbygoogle.js se carga al entrar para que salga el mensaje");
+  assert.equal(r.ins().length, 0, "ningún hueco se llena antes de verse");
   r.verTodo();
-  assert.equal(r.scripts().length, 1);
+  assert.equal(r.scripts().length, 1, "una sola vez");
   assert.match(r.scripts()[0].src, /^https:\/\/pagead2\.googlesyndication\.com\/pagead\/js\/adsbygoogle\.js\?client=ca-pub-/);
   assert.equal(r.ins().length, HUECOS.length);
   const carril = r.els["anuncio-rail-izq"].children[0];
@@ -124,11 +127,16 @@ test("con plan de pago no hay anuncios ni se carga nada de Google", () => {
 test("espera a saber si hay plan antes de pedir nada", () => {
   const r = ejecutar(ENCENDIDO, { cuenta: { cargada: false, conPlan: false } });
   r.verTodo();
-  assert.equal(r.scripts().length, 0, "sin cuenta conocida no se pide ningún anuncio");
+  assert.equal(r.scripts().length, 0, "sin cuenta conocida no se carga nada de Google, ni la CMP");
   r.document.dispatch("mapafiscal:cuenta", { cargada: true, conPlan: true });
   r.verTodo();
   assert.equal(r.scripts().length, 0);
   for (const id of HUECOS) assert.equal(r.els[id].hidden, true, id);
+  const sin = ejecutar(ENCENDIDO, { cuenta: { cargada: false, conPlan: false } });
+  assert.equal(sin.scripts().length, 0);
+  sin.document.dispatch("mapafiscal:cuenta", { cargada: true, conPlan: false });
+  assert.equal(sin.scripts().length, 1, "sin plan, la CMP se carga al conocer la cuenta aunque no se vea ningún hueco");
+  assert.equal(sin.ins().length, 0);
 });
 
 test("quien tuvo plan no ve el sitio reservado; si deja de tenerlo, vuelven los anuncios", () => {
@@ -183,6 +191,17 @@ test("los huecos están fuera del formulario, lejos de botones y etiquetados com
     const bloque = INDEX.slice(i, INDEX.indexOf("</", i) + 10);
     assert.match(bloque, /<span class="anuncio-etiqueta">Anuncios<\/span>/, `${id}: la etiqueta debe ser «Anuncios»`);
   }
+});
+
+test("ningún anuncio entre las tarjetas del resultado: solo al final de la columna", () => {
+  assert.doesNotMatch(INDEX, /anuncio-calc-medio|anuncio-solo-estrecho/);
+  assert.doesNotMatch(CODIGO, /adsenseHuecoMovil/);
+  assert.equal(configReal().adsenseHuecoMovil, undefined);
+  const a0 = INDEX.indexOf('<aside class="resultado"'), a1 = INDEX.indexOf("</aside>", a0);
+  const anuncios = [...INDEX.slice(a0, a1).matchAll(/class="tarjeta anuncio[^"]*" id="([^"]+)"/g)].map(m => m[1]);
+  assert.deepEqual(anuncios, ["anuncio-calc"]);
+  const aside = INDEX.slice(a0, a1);
+  assert.match(aside.slice(aside.lastIndexOf('<div class="tarjeta')), /^<div class="tarjeta anuncio anuncio-calc" id="anuncio-calc"/, "el hueco es lo último del resultado");
 });
 
 test("la política de cookies explica la publicidad solo cuando hay anuncios", () => {
@@ -276,4 +295,100 @@ test("ningún hueco de columna va justo detrás de botones: al menos una tarjeta
     // Lo que sigue al hueco: fin de la herramienta, no un botón.
     assert.doesNotMatch(INDEX.slice(i, INDEX.indexOf("</section>", i)), /<button|class="btn/, `${id}: botón detrás`);
   }
+});
+
+// ---- páginas SEO ---------------------------------------------------------------------------
+import { ponerHuecos, conAnuncios, layout } from "../tools/seo_comun.mjs";
+
+test("páginas SEO: huecos entre tarjetas, nunca dentro de una tabla ni antes del <h1>", () => {
+  const t = n => `<div class="tarjeta"><h2>B${n}</h2><table><tr><td><div>x</div></td></tr></table></div>`;
+  const main = `<h1>T</h1><p class="entradilla">i</p><div class="prosa">${[1, 2, 3, 4, 5, 6].map(t).join("")}<div class="tarjeta faq"><h2>FAQ</h2></div></div>`;
+  const r = ponerHuecos(main);
+  const pos = [...r.matchAll(/data-anuncio-seo="(\w+)"/g)].map(m => m[1]);
+  assert.deepEqual(pos, ["intro", "medio", "faq"]);
+  assert.ok(r.indexOf("anuncio-seo") > r.indexOf("</h1>"));
+  // cada hueco va justo antes de una tarjeta, fuera de las tablas
+  for (const m of r.matchAll(/<div class="tarjeta anuncio anuncio-seo"[^]*?<\/div>\s*/g))
+    assert.match(r.slice(m.index + m[0].length), /^<div class="tarjeta/);
+  assert.equal(r.replace(/<div class="tarjeta anuncio anuncio-seo"[^]*?<\/div>\s*/g, ""), main);
+  // páginas cortas: no se juntan dos anuncios
+  const corta = `<h1>T</h1><div class="prosa">${t(1)}<div class="tarjeta faq"></div></div>`;
+  assert.equal((ponerHuecos(corta).match(/data-anuncio-seo/g) || []).length, 1);
+});
+
+test("páginas SEO: solo guías, /irpf/, /sueldo-neto/ y /comparar-sueldo/ cargan anuncios.js", () => {
+  for (const r of ["/guias/", "/irpf/madrid/", "/sueldo-neto/30000/", "/comparar-sueldo/"]) assert.ok(conAnuncios(r), r);
+  for (const r of ["/cuanto-me-devuelve/", "/declaracion-conjunta/", "/legal/cookies.html"]) assert.ok(!conAnuncios(r), r);
+  const pag = ruta => layout({ title: "t", description: "d", canonical: ruta, breadcrumb: "", generado: "2026-11-18",
+    main: `<h1>T</h1><div class="prosa"><div class="tarjeta">a</div><div class="tarjeta">b</div></div>` });
+  const si = pag("/irpf/madrid/"), no = pag("/cuanto-me-devuelve/");
+  assert.match(si, /<script src="\/js\/anuncios\.js" defer>/);
+  assert.match(si, /<script src="\/config\.js" defer>/);
+  assert.match(si, /id="anuncio-rail-izq"/);
+  assert.doesNotMatch(no, /anuncios\.js|anuncio-rail|data-anuncio-seo/);
+});
+
+function ejecutarSeo(cfg, { almacen = {}, respuesta } = {}) {
+  const els = { "anuncio-seo-intro": elemento("div", "anuncio-seo-intro"), "anuncio-rail-izq": elemento("aside", "anuncio-rail-izq") };
+  const head = elemento("head"), body = elemento("body");
+  body.classList.add("pagina-seo");
+  const pedidos = [];
+  const document = {
+    documentElement: elemento("html"), head, body, readyState: "complete",
+    getElementById: id => els[id] || null, createElement: tag => elemento(tag),
+    querySelectorAll: s => s === "[data-anuncio-seo]" ? [els["anuncio-seo-intro"]] : [],
+    addEventListener() {}, dispatchEvent() {}
+  };
+  const ctx = {
+    document, location: { hash: "", reload() {} },
+    localStorage: { getItem: k => (k in almacen ? almacen[k] : null), setItem: (k, v) => { almacen[k] = String(v); }, removeItem: k => { delete almacen[k]; } },
+    requestIdleCallback: f => f(), setTimeout: f => f(), addEventListener() {}, CustomEvent: class { constructor(t, o) { this.type = t; this.detail = o && o.detail; } },
+    MAPAFISCAL_CONFIG: cfg, JSON, Date, Set, URL, Promise, Math, Number,
+    fetch: (url, o) => { pedidos.push({ url, o }); return respuesta ? Promise.resolve(respuesta) : Promise.reject(new Error("red")); }
+  };
+  ctx.window = ctx;
+  vm.runInNewContext(CODIGO, ctx);
+  return { els, head, pedidos, almacen };
+}
+const espera = () => new Promise(r => setImmediate(r));
+const scriptsDe = head => head.children.filter(c => c.tagName === "script");
+const TOKEN = "sb-pqiqrcvuztxrwrwizppj-auth-token";
+
+test("páginas SEO sin sesión: anuncios con el bloque de las páginas o el de resultado", async () => {
+  const r = ejecutarSeo(ENCENDIDO);
+  await espera();
+  assert.equal(r.pedidos.length, 0);
+  assert.equal(r.els["anuncio-seo-intro"].hidden, false);
+  assert.equal(scriptsDe(r.head).length, 1);
+  assert.equal(r.els["anuncio-seo-intro"].children.find(c => c.tagName === "ins").dataset.adSlot, "444");
+  const r2 = ejecutarSeo({ ...ENCENDIDO, adsenseHuecoSeo: "999" });
+  await espera();
+  assert.equal(r2.els["anuncio-seo-intro"].children.find(c => c.tagName === "ins").dataset.adSlot, "999");
+});
+
+test("páginas SEO con sesión: pregunta el plan a perfiles; con plan, nada de Google", async () => {
+  const almacen = { [TOKEN]: JSON.stringify({ access_token: "abc", user: { id: "u1" } }) };
+  const con = ejecutarSeo(ENCENDIDO, { almacen: { ...almacen }, respuesta: { ok: true, json: () => Promise.resolve([{ plan: "gestor" }]) } });
+  await espera(); await espera();
+  assert.match(con.pedidos[0].url, /\/rest\/v1\/perfiles\?select=plan&id=eq\.u1$/);
+  assert.equal(con.pedidos[0].o.headers.Authorization, "Bearer abc");
+  assert.equal(scriptsDe(con.head).length, 0);
+  assert.equal(con.els["anuncio-seo-intro"].hidden, true);
+  const sin = ejecutarSeo(ENCENDIDO, { almacen: { ...almacen }, respuesta: { ok: true, json: () => Promise.resolve([{ plan: "gratis" }]) } });
+  await espera(); await espera();
+  assert.equal(scriptsDe(sin.head).length, 1);
+  // si la consulta falla, manda la pista de la aplicación
+  const fallo = ejecutarSeo(ENCENDIDO, { almacen: { ...almacen, "mapafiscal.sinAnuncios": "1" } });
+  await espera(); await espera();
+  assert.equal(scriptsDe(fallo.head).length, 0);
+});
+
+test("prueba de carriles: con pruebaCarriles, el grupo «uno» pierde el carril derecho y se recuerda", () => {
+  const almacen = { "mapafiscal.pruebaCarriles": "uno" };
+  const r = ejecutar({ ...ENCENDIDO, pruebaCarriles: 0.5 }, { almacen });
+  assert.ok(!r.ctx.document.getElementById("anuncio-rail-der") || r.els["anuncio-rail-der"].hidden);
+  const r1 = ejecutar({ ...ENCENDIDO, pruebaCarriles: 1 });
+  assert.equal(r1.almacen["mapafiscal.pruebaCarriles"], "uno");
+  const r2 = ejecutar({ ...ENCENDIDO, pruebaCarriles: 0 }, { almacen: { "mapafiscal.pruebaCarriles": "uno" } });
+  assert.equal(r2.els["anuncio-rail-der"].hidden, false);
 });

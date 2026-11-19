@@ -8,7 +8,7 @@ import vm from "node:vm";
 
 const require = createRequire(import.meta.url);
 const motor = require("../web/js/irpfsim.js");
-const P = require("../web/datos/params_2026.json");
+const P = require("../web/datos/params.json");
 const B = require("../web/js/bruto.js");
 const yo = (o = {}) => Object.assign({ territorio: "ES-MD", edad: 35, hijos: [], tipoContrato: "indefinido" }, o);
 
