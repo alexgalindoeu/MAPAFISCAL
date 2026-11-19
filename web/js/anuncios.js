@@ -1,6 +1,8 @@
 // Anuncios (Google AdSense): carriles laterales «como en los periódicos» en escritorio y
 // huecos en el flujo de la página. No toca la lógica de app.js: solo lee
 // window.MAPAFISCAL_CUENTA y escucha «mapafiscal:cuenta» y «mapafiscal:vista».
+// En las páginas estáticas SEO (body.pagina-seo, tools/seo_comun.mjs) no hay app.js: el plan
+// se averigua aquí mismo con la sesión de Supabase guardada en el navegador (ver cuentaEstatica).
 //
 // Reglas (negocio/anuncios.md, fuera del repo):
 // - Con `anuncios: false` (o en la demo) no se ejecuta nada: ni Google, ni CMP, ni huecos.
@@ -37,9 +39,35 @@
       ["anuncio-col-rescate", "adsenseHuecoColRescate"],
       ["anuncio-col-conjunta", "adsenseHuecoColConjunta"],
       ["anuncio-col-pagadores", "adsenseHuecoColPagadores"]
-    ].map(([id, k]) => ({ id, slot: cfg[k] || cfg.adsenseHuecoCalc || "", lateral: true }))
+    ].map(([id, k]) => ({ id, slot: cfg[k] || cfg.adsenseHuecoCalc || "", lateral: true })),
+    // Huecos en el flujo de las páginas SEO (intro, medio, faq). Sin bloque propio, el de
+    // «mf-resultado-final».
+    ...Array.from(document.querySelectorAll ? document.querySelectorAll("[data-anuncio-seo]") : []).map(el => ({ id: el.id, slot: cfg.adsenseHuecoSeo || cfg.adsenseHuecoCalc || "" }))
   ].filter(h => h.slot && document.getElementById(h.id));
   if (!HUECOS.length) return;
+
+  // Prueba de densidad: uno o dos carriles. `pruebaCarriles` en config.js es la fracción de
+  // visitantes (0 a 1) a los que se les quita el carril derecho; el reparto es al azar y se
+  // recuerda en el navegador. GoatCounter recibe «carriles_uno» o «carriles_dos» una vez por
+  // página, para comparar páginas vistas por visita en cada grupo; AdSense separa los
+  // ingresos por bloque. 0 o ausente = sin prueba, dos carriles para todos.
+  const fraccionUno = Math.min(1, Math.max(0, Number(cfg.pruebaCarriles) || 0));
+  if (fraccionUno > 0) {
+    const CLAVE = "mapafiscal.pruebaCarriles";
+    let grupo = null;
+    try { grupo = localStorage.getItem(CLAVE); } catch (e) { /* sin almacenamiento */ }
+    if (grupo !== "uno" && grupo !== "dos") {
+      grupo = Math.random() < fraccionUno ? "uno" : "dos";
+      try { localStorage.setItem(CLAVE, grupo); } catch (e) { /* sin almacenamiento */ }
+    }
+    if (grupo === "uno") {
+      const i = HUECOS.findIndex(h => h.id === "anuncio-rail-der");
+      if (i >= 0) HUECOS.splice(i, 1); // su <aside> se queda oculto (hidden en el marcado)
+    }
+    const medir = () => document.dispatchEvent(new CustomEvent("mapafiscal:medir", { detail: { evento: "carriles_" + grupo } }));
+    // analitica.js (defer, después de este) ya escucha cuando salta DOMContentLoaded.
+    if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", medir); else setTimeout(medir, 0);
+  }
 
   // Vistas sin anuncios: los carriles se ocultan al entrar en ellas.
   const SIN_ANUNCIOS = new Set(["planes", "clientes", "perfil", "metodologia"]);
@@ -120,7 +148,7 @@
     aviso.setAttribute("aria-label", "Cookies de publicidad");
     aviso.innerHTML =
       '<p>Mostramos anuncios de Google para mantener Mapafiscal gratis. ¿Aceptas que Google use cookies para ello? ' +
-      'La web funciona igual si rechazas. <a href="legal/cookies.html#publicidad">Más información</a></p>' +
+      'La web funciona igual si rechazas. <a href="/legal/cookies.html#publicidad">Más información</a></p>' +
       '<div class="aviso-cookies-botones">' +
       '<button type="button" class="btn btn-sec btn-sm" data-consentir="no">Rechazar</button>' +
       '<button type="button" class="btn btn-sec btn-sm" data-consentir="si">Aceptar</button></div>';
@@ -215,5 +243,28 @@
   }
 
   document.addEventListener("mapafiscal:cuenta", e => alConocerCuenta(e.detail));
-  alConocerCuenta(window.MAPAFISCAL_CUENTA);
+  if (document.body && document.body.classList && document.body.classList.contains("pagina-seo")) cuentaEstatica().then(alConocerCuenta);
+  else alConocerCuenta(window.MAPAFISCAL_CUENTA);
+
+  // Páginas estáticas: sin app.js ni supabase-js. Se lee la sesión que supabase-js guarda en
+  // localStorage (sb-<ref>-auth-token) y, si la hay, se pregunta el plan a la tabla perfiles
+  // (RLS: cada usuario solo ve su fila). Sin sesión, sin plan. Si la consulta falla, manda la
+  // pista guardada por la aplicación («tenía plan»), para no enseñar anuncios a quien paga.
+  function cuentaEstatica() {
+    const sinPlan = { cargada: true, conPlan: false };
+    let ref = "", tok = null;
+    try { ref = new URL(cfg.supabaseUrl).hostname.split(".")[0]; } catch (e) { return Promise.resolve(sinPlan); }
+    try { tok = JSON.parse(leer("sb-" + ref + "-auth-token") || "null"); } catch (e) { tok = null; }
+    const pista = { cargada: true, conPlan: !!leer(PISTA_PLAN) };
+    if (!tok || !tok.access_token || !tok.user || !tok.user.id) return Promise.resolve(pista.conPlan ? pista : sinPlan);
+    if (!window.fetch) return Promise.resolve(pista);
+    const url = cfg.supabaseUrl.replace(/\/$/, "") + "/rest/v1/perfiles?select=plan&id=eq." + encodeURIComponent(tok.user.id);
+    return fetch(url, { headers: { apikey: cfg.supabaseKey, Authorization: "Bearer " + tok.access_token } })
+      .then(r => r.ok ? r.json() : Promise.reject(r.status))
+      .then(filas => {
+        const plan = filas && filas[0] && filas[0].plan;
+        return { cargada: true, conPlan: !!plan && plan !== "gratis" };
+      })
+      .catch(() => pista);
+  }
 })();

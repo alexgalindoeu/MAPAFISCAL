@@ -164,9 +164,66 @@ export function migasHtml(migas) {
   return migas.map(([n, r], i) => i < migas.length - 1 && r ? `<a href="${r}">${esc(n)}</a>` : esc(n)).join(" › ");
 }
 
+// ---- anuncios ---------------------------------------------------------------------
+// Las páginas informativas llevan anuncios con el mismo sistema que la aplicación
+// (web/js/anuncios.js + web/config.js: consentimiento, carga diferida, nada para quien tiene
+// plan, espacio reservado). Aquí solo se colocan los huecos; el script decide si se llenan.
+export const RUTAS_CON_ANUNCIOS = [/^\/guias\//, /^\/irpf\//, /^\/sueldo-neto\//, /^\/comparar-sueldo\//];
+export const conAnuncios = ruta => RUTAS_CON_ANUNCIOS.some(r => r.test(ruta));
+
+const huecoSeo = pos => `<div class="tarjeta anuncio anuncio-seo" id="anuncio-seo-${pos}" data-anuncio-seo="${pos}" hidden>` +
+  `<span class="anuncio-etiqueta">Anuncios</span></div>`;
+export const CARRILES_HTML = `<aside class="anuncio-carril anuncio-carril-izq" id="anuncio-rail-izq" hidden>
+  <span class="anuncio-etiqueta">Anuncios</span>
+</aside>
+<aside class="anuncio-carril anuncio-carril-der" id="anuncio-rail-der" hidden>
+  <span class="anuncio-etiqueta">Anuncios</span>
+</aside>`;
+
+// Posiciones de los bloques hijos directos del primer <div class="prosa"> (las tarjetas).
+function bloquesProsa(main) {
+  const ini = main.indexOf('<div class="prosa"');
+  if (ini < 0) return [];
+  const re = /<(\/?)div\b[^>]*>/g;
+  re.lastIndex = main.indexOf(">", ini) + 1;
+  const bloques = [];
+  let d = 1, m;
+  while (d > 0 && (m = re.exec(main))) {
+    if (m[1]) { d--; continue; }
+    if (d === 1) bloques.push({ i: m.index, faq: /class="[^"]*\bfaq\b/.test(m[0]) });
+    d++;
+  }
+  return bloques;
+}
+
+// Huecos en el flujo, siempre entre tarjetas (nunca dentro de una tabla ni antes del <h1>):
+// - «intro»: tras el primer bloque y antes del primer bloque secundario;
+// - «medio»: entre bloques de las páginas largas (6 bloques o más);
+// - «faq»: tras las tablas principales y justo antes de las preguntas frecuentes.
+// Entre dos anuncios queda siempre al menos un bloque de contenido.
+export function ponerHuecos(main) {
+  const b = bloquesProsa(main);
+  if (b.length < 2) return main;
+  const sitios = [];
+  const poner = (k, pos) => {
+    if (k < 1 || k >= b.length || sitios.some(s => Math.abs(s.k - k) < 2)) return;
+    sitios.push({ k, pos });
+  };
+  const kFaq = b.findIndex(x => x.faq);
+  if (!b[1].faq) poner(1, "intro");
+  if (b.length >= 6) poner(Math.floor(b.length / 2), "medio");
+  if (kFaq > 0) poner(kFaq, "faq");
+  sitios.sort((x, y) => y.k - x.k).forEach(({ k, pos }) => {
+    main = main.slice(0, b[k].i) + huecoSeo(pos) + "\n  " + main.slice(b[k].i);
+  });
+  return main;
+}
+
 // ---- maqueta compartida ---------------------------------------------------------
 export function layout({ title, description, canonical, breadcrumb, main, generado, jsonld = [], css = [] }) {
   title = tituloFinal(title);
+  const anuncios = conAnuncios(canonical);
+  if (anuncios) main = ponerHuecos(main);
   // Fecha visible justo después del <h1>.
   main = main.replace(/(<\/h1>)/, `$1\n  <p class="actualizado">Actualizado el <time datetime="${esc(generado)}">${esc(fecha(generado))}</time></p>`);
   const ld = jsonld.map(o => `<script type="application/ld+json">${JSON.stringify(o).replace(/</g, "\\u003c")}</script>`).join("\n");
@@ -204,7 +261,7 @@ ${UI.SCRIPT_TEMA}
 <link rel="stylesheet" href="/css/seo.css">
 ${css.map(c => `<link rel="stylesheet" href="${c}">\n`).join("")}${ld ? ld + "\n" : ""}</head>
 <body class="pagina-seo">
-<header class="appbar">
+${anuncios ? CARRILES_HTML + "\n" : ""}<header class="appbar">
   <div class="appbar-in">
     ${UI.HTML_BTN_PANEL}
     <a class="marca" href="/index.html" aria-label="Mapafiscal, inicio">
@@ -236,6 +293,8 @@ ${css.map(c => `<link rel="stylesheet" href="${c}">\n`).join("")}${ld ? ld + "\n
   </div>
 </footer>
 <script src="/js/ui.js" defer></script>
-</body>
+<script src="/config.js" defer></script>
+<script src="/js/analitica.js" defer></script>
+${anuncios ? '<script src="/js/anuncios.js" defer></script>\n' : ""}</body>
 </html>`;
 }
