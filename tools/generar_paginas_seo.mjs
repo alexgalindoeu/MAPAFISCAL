@@ -15,7 +15,8 @@
 import { readFileSync, writeFileSync, mkdirSync, existsSync, readdirSync, rmSync } from "node:fs";
 import { join, dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
-import { SITIO, SLUG, ORDEN_TERRITORIOS, HERRAMIENTA, esc, euros, pct, tablaEscala, citaFuente, layout, jsonLdMigas, migasHtml } from "./seo_comun.mjs";
+import { SITIO, SLUG, ORDEN_TERRITORIOS, HERRAMIENTA, NOMBRE_CORTO, esc, euros, pct, pctCorto, tablaEscala, citaFuente, layout, jsonLdMigas, jsonLdFaq, jsonLdDataset, bloqueFaq, respuestaDirecta, migasHtml } from "./seo_comun.mjs";
+import { robotsTxt, llmsTxt } from "./seo_ia.mjs";
 import { paginaDeducciones } from "./seo_deducciones.mjs";
 import { paginasGuias, GUIAS } from "./seo_guias.mjs";
 import { paginasSueldoNeto } from "./seo_sueldo_neto.mjs";
@@ -48,11 +49,28 @@ function paginaTerritorio(codigo) {
     intro = `<p class="entradilla">${esc(nombre)} tributa por el ${REGIMEN_ETIQUETA[t.regimen]}: no aplica la escala estatal del IRPF, sino su propia tarifa foral completa.</p>`;
   }
 
+  const corto = NOMBRE_CORTO[codigo];
+  const tr = t.escala_combinada.tramos, tMin = tr[0].tipo, tMax = tr[tr.length - 1].tipo, desdeMax = tr[tr.length - 2]?.hasta;
+  // Tarifa 2026: solo la foral, que está en los parámetros con su norma (régimen común: 2025).
+  const e = guias.escalas;
+  const esc26 = t.regimen === "foral_pais_vasco" ? e.pais_vasco_2026 : t.regimen === "foral_navarra" ? e.navarra_2026 : null;
+  const esc25f = t.regimen === "foral_pais_vasco" ? e.pais_vasco_2025 : t.regimen === "foral_navarra" ? e.navarra_2025 : null;
+  const con26 = Boolean(esc26 && esc25f && JSON.stringify(esc25f.tramos) === JSON.stringify(tr));
+  const igual26 = con26 && JSON.stringify(esc26.tramos) === JSON.stringify(tr);
+  const fila30 = comparativas.comparativas["30000"].find(f => f.territorio === codigo);
+  const fuentesEscala = [t.escala_combinada.fuente_estatal, t.escala_combinada.fuente_autonomica, con26 && !igual26 ? esc26 : null].filter(Boolean);
   const cartaEscala = `<div class="tarjeta">
-    <h2 class="rotulo">Escala del IRPF en ${esc(nombre)} (2025)</h2>
-    ${tablaEscala(t.escala_combinada.tramos)}
+    <h2 class="rotulo">Tabla de tramos del IRPF en ${esc(nombre)} ${igual26 ? "2025 y 2026" : "2025"}${esComun ? " (estatal + autonómico)" : ""}</h2>
+    ${tablaEscala(tr)}
     ${esComun ? citaFuente(t.escala_combinada.fuente_estatal) + citaFuente(t.escala_combinada.fuente_autonomica) : citaFuente(t.escala_combinada.fuente_autonomica)}
-  </div>`;
+    ${igual26 ? `<p>En 2026 la tarifa de ${esc(nombre)} no cambia: los tramos y los tipos son los mismos que en 2025.</p>` : ""}
+  </div>${con26 && !igual26 ? `
+  <div class="tarjeta">
+    <h2 class="rotulo">Tabla de tramos del IRPF en ${esc(nombre)} 2026</h2>
+    <p>Para 2026 la norma foral actualiza los límites de los tramos; los tipos no cambian.</p>
+    ${tablaEscala(esc26.tramos)}
+    ${citaFuente(esc26)}
+  </div>` : ""}`;
 
   const cartaMinimo = esComun && t.minimo_contribuyente ? `<div class="tarjeta">
     <h2 class="rotulo">Mínimo personal</h2>
@@ -77,22 +95,37 @@ function paginaTerritorio(codigo) {
     <div class="envoltorio"><table class="cobertura"><thead><tr><th>Sueldo bruto</th><th class="num">Puesto (de más barato a más caro)</th><th class="num">Cuota líquida</th><th class="num">Tipo medio</th><th></th></tr></thead><tbody>${filasComparativa}</tbody></table></div>
   </div>`;
 
+  const anios = con26 ? "2025 y 2026" : "2025";
+  const resumen = `en ${esc(nombre)} el IRPF de 2025 va del <b>${esc(pctCorto(tMin))}</b> al <b>${esc(pctCorto(tMax))}</b>${esComun ? " (escala estatal y autonómica sumadas)" : ", con su tarifa foral"}; el tipo máximo se aplica desde ${esc(euros(desdeMax))} de base liquidable. Con 30.000 € brutos al año, una persona sin hijos paga <b>${esc(euros(fila30.cuota_liquida_total))}</b> de IRPF (tipo medio del ${esc(pct(fila30.tipo_medio_efectivo))}), el puesto ${fila30.puesto} de 19.`;
+  const faq = [
+    [`¿Cuáles son los tramos del IRPF en ${nombre} en 2025?`, `${tr.length} tramos, del ${pctCorto(tMin)} al ${pctCorto(tMax)}${esComun ? ", ya sumadas la escala estatal y la autonómica" : ""}. El tipo máximo se aplica a la base liquidable general que pasa de ${euros(desdeMax)}.`],
+    [`¿Cuánto IRPF se paga con 30.000 € en ${nombre}?`, `${euros(fila30.cuota_liquida_total)} al año (tipo medio del ${pct(fila30.tipo_medio_efectivo)}) para una persona de 40 años, sin hijos y con un solo pagador, en 2025. Es el puesto ${fila30.puesto} de 19 territorios, de más barato a más caro.`],
+    esComun
+      ? [`¿Quién fija el IRPF en ${nombre}?`, `El Estado fija la escala estatal y ${nombre} su escala autonómica, que se suma a la estatal. ${nombre} también aprueba sus propias deducciones autonómicas.`]
+      : [`¿Se aplica la escala estatal en ${nombre}?`, `No. ${nombre} tiene su propio IRPF foral: aplica su tarifa completa y sus deducciones, no la escala estatal ni las autonómicas.`]
+  ];
+  if (con26) faq.push([`¿Cambia la tabla del IRPF de ${nombre} en 2026?`, igual26
+    ? `No: en 2026 la tarifa de ${nombre} mantiene los mismos tramos y tipos que en 2025.`
+    : `Sí: para 2026 se actualizan los límites de los tramos (el primero pasa de ${euros(tr[0].hasta)} a ${euros(esc26.tramos[0].hasta)}); los tipos, del ${pctCorto(tMin)} al ${pctCorto(tMax)}, no cambian.`]);
   const main = `
-  <h1>IRPF en ${esc(nombre)} en 2025</h1>
+  <h1>IRPF en ${esc(nombre)} ${anios}: tramos y tabla</h1>
+  ${respuestaDirecta(resumen)}
   ${intro}
   <div class="prosa">
   ${cartaEscala}
   ${cartaMinimo}
   ${cartaDeducciones}${enlacesSuiteForal(codigo, nombre)}
   ${cartaComparativa}
+  ${bloqueFaq(faq)}
   <p><a class="btn btn-pri" href="/index.html#calculadora">Calcula tu caso real en ${esc(nombre)}</a> <a class="btn btn-sec" href="/index.html#comparar">Compáralo con los otros 18 territorios</a></p>
   <p class="ayuda">Guías: <a href="/guias/tramos-irpf-2025-2026/">tramos del IRPF 2025 y 2026</a> · <a href="/guias/minimo-personal-familiar/">mínimo personal y familiar</a> · <a href="/guias/obligacion-declarar-renta/">¿estoy obligado a declarar?</a> · <a href="/guias/plan-pensiones-desgravar/">plan de pensiones</a></p>
   </div>`;
 
   return layout({
-    jsonld: [jsonLdMigas([["Inicio", "/"], ["IRPF por territorio", "/irpf/"], [nombre, `/irpf/${slug}/`]])],
-    title: `IRPF en ${nombre} (2025): tramos, mínimo y comparativa | Mapafiscal`,
-    description: `Tramos del IRPF en ${nombre} para 2025, mínimo personal y en qué puesto queda frente a los otros 18 territorios fiscales de España, con sueldos de ejemplo. Calculadora gratuita.`,
+    jsonld: [jsonLdMigas([["Inicio", "/"], ["IRPF por territorio", "/irpf/"], [nombre, `/irpf/${slug}/`]]), jsonLdFaq(faq),
+      jsonLdDataset({ nombre: `Escala del IRPF en ${nombre} ${anios}`, descripcion: `Tramos de la base liquidable general y tipo marginal del IRPF en ${nombre}${esComun ? " (escala estatal más autonómica)" : " (tarifa foral)"}, del ${pctCorto(tMin)} al ${pctCorto(tMax)}.`, ruta: `/irpf/${slug}/`, generado: territorios.generado, ambito: nombre, fuentes: fuentesEscala.flatMap(f => [f.norma, f.fuente]) })],
+    title: con26 ? `IRPF ${corto} 2025 y 2026: tabla de tramos hasta el ${pctCorto(tMax)}` : `Tramos IRPF ${corto} 2025: tabla del ${pctCorto(tMin)} al ${pctCorto(tMax)}`,
+    description: `Tabla del IRPF en ${corto} ${anios}: tramos del ${pctCorto(tMin)} al ${pctCorto(tMax)}. Con 30.000 € brutos pagas ${euros(fila30.cuota_liquida_total)} (puesto ${fila30.puesto} de 19). Calculadora gratis.`,
     canonical: `/irpf/${slug}/`,
     breadcrumb: `<a href="/index.html">Inicio</a> › <a href="/irpf/">IRPF por territorio</a> › ${esc(nombre)}`,
     main, generado: territorios.generado
@@ -107,6 +140,7 @@ function paginaSalario(salario) {
 
   const main = `
   <h1>¿Dónde se paga menos IRPF con ${esc(eurosSalario(salario))} de sueldo? (2025)</h1>
+  ${respuestaDirecta(`con ${esc(eurosSalario(salario))} brutos al año, el IRPF de 2025 va de <b>${esc(euros(masBarato.cuota_liquida_total))}</b> en ${esc(masBarato.nombre)} a <b>${esc(euros(masCaro.cuota_liquida_total))}</b> en ${esc(masCaro.nombre)}.`)}
   <p class="entradilla">Comparativa de los 19 territorios fiscales de España con el mismo sueldo bruto. ${esc(comparativas.supuesto)}</p>
   <div class="prosa">
   <div class="tarjeta">
@@ -120,8 +154,8 @@ function paginaSalario(salario) {
   </div>`;
 
   return layout({
-    title: `¿Dónde se paga menos IRPF con ${eurosSalario(salario)}? (2025) | Mapafiscal`,
-    description: `Con ${eurosSalario(salario)} de sueldo bruto al año, así queda la cuota del IRPF en los 19 territorios fiscales de España en 2025, de más barato a más caro. Calculadora gratuita.`,
+    title: `IRPF con ${eurosSalario(salario)} brutos 2025: de ${euros(masBarato.cuota_liquida_total)} a ${euros(masCaro.cuota_liquida_total)}`,
+    description: `Con ${eurosSalario(salario)} brutos pagas ${euros(masBarato.cuota_liquida_total)} de IRPF en ${NOMBRE_CORTO[masBarato.territorio]} y ${euros(masCaro.cuota_liquida_total)} en ${NOMBRE_CORTO[masCaro.territorio]} (2025). Ranking de los 19 y calculadora gratis.`,
     canonical: `/comparar-sueldo/${salario}/`,
     breadcrumb: `<a href="/index.html">Inicio</a> › <a href="/comparar-sueldo/">Dónde se paga menos IRPF</a> › ${esc(eurosSalario(salario))}`,
     main, generado: territorios.generado
@@ -132,7 +166,7 @@ function paginaSalario(salario) {
 function paginaIndiceTerritorios() {
   const filas = ORDEN_TERRITORIOS.map(c => `<li><a href="/irpf/${SLUG[c]}/">IRPF en ${esc(territorios.territorios[c].nombre)}</a></li>`).join("");
   const main = `
-  <h1>IRPF por territorio (2025)</h1>
+  <h1>IRPF por comunidad autónoma y territorio foral (2025)</h1>
   <p class="entradilla">Tramos, mínimo personal y comparativa de cada uno de los 19 territorios fiscales de España: las 15 comunidades autónomas de régimen común, las tres diputaciones forales del País Vasco y Navarra.</p>
   <div class="prosa"><ul class="lista-enlaces">${filas}</ul>
   <div class="tarjeta"><h2 class="rotulo">Deducciones por territorio</h2><ul class="lista-enlaces">${ORDEN_TERRITORIOS.filter(c => conDeducciones.has(c)).map(c => `<li><a href="/irpf/${SLUG[c]}/deducciones/">Deducciones en ${esc(territorios.territorios[c].nombre)}</a></li>`).join("")}</ul></div>
@@ -140,8 +174,8 @@ function paginaIndiceTerritorios() {
   </div>`;
   return layout({
     jsonld: [jsonLdMigas([["Inicio", "/"], ["IRPF por territorio", "/irpf/"]])],
-    title: "IRPF por territorio en España (2025) | Mapafiscal",
-    description: "Tramos, mínimo personal y comparativa del IRPF 2025 en los 19 territorios fiscales de España: 15 comunidades autónomas, las 3 diputaciones forales vascas y Navarra.",
+    title: "IRPF por comunidad autónoma 2025: tramos de los 19 territorios",
+    description: "Tablas de tramos del IRPF 2025 en las 15 comunidades autónomas, Bizkaia, Gipuzkoa, Álava y Navarra: tipos, mínimo personal y deducciones. Calculadora gratis.",
     canonical: "/irpf/", breadcrumb: `<a href="/index.html">Inicio</a> › IRPF por territorio`, main, generado: territorios.generado
   });
 }
@@ -154,8 +188,8 @@ function paginaIndiceSalarios() {
   <div class="prosa"><ul class="lista-enlaces">${filas}</ul>
   <p><a href="/sueldo-neto/">Sueldo neto por importe y territorio, en 12 y 14 pagas</a></p></div>`;
   return layout({
-    title: "¿Dónde se paga menos IRPF en España? (2025) | Mapafiscal",
-    description: "Comparativas del IRPF 2025 en los 19 territorios fiscales de España para varios sueldos: de menos a más impuesto, con tipo medio efectivo. Calculadora gratuita.",
+    title: "Dónde se paga menos IRPF en España 2025: ranking de 19",
+    description: "Ranking del IRPF 2025 en los 19 territorios fiscales con sueldos de 20.000 a 100.000 €: de menos a más impuesto y tipo medio. Calculadora gratis.",
     canonical: "/comparar-sueldo/", breadcrumb: `<a href="/index.html">Inicio</a> › Dónde se paga menos IRPF`, main, generado: territorios.generado
   });
 }
@@ -208,7 +242,8 @@ export function generar() {
 ${urls.map(u => `<url><loc>${SITIO}${u}</loc><lastmod>${hoy}</lastmod><changefreq>monthly</changefreq><priority>${u.startsWith("/guias/") || u === "/irpf/" ? "0.8" : "0.7"}</priority></url>`).join("\n")}
 </urlset>
 `);
-  ficheros.set("robots.txt", `Sitemap: ${SITIO}/sitemap.xml\n\nUser-agent: *\nAllow: /\n`);
+  ficheros.set("robots.txt", robotsTxt());
+  ficheros.set("llms.txt", llmsTxt({ territorios, comparativas, guias, GUIAS, conDeducciones }));
   return {
     ficheros, avisos, urls,
     recuento: { territorios: ORDEN_TERRITORIOS.length, sueldos: comparativas.salarios.length, deducciones: ded.length, guias: gs.length - 1, sueldoNeto: sn.length - 1, indices: 4 }

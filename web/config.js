@@ -21,6 +21,10 @@ window.MAPAFISCAL_CONFIG = {
   // Buzón de contacto: sale en los textos legales (web/legal/) y en los enlaces mailto.
   contacto: "contacto@mapafiscal.es",
 
+  // Perfiles en redes sociales: salen en el pie de la web y de las páginas generadas (js/ui.js
+  // y tools/seo_comun.mjs). Solo se muestran los que tienen URL.
+  redes: { x: "https://x.com/mapafiscal", reddit: "", facebook: "" },
+
   // Versión vigente de las condiciones (fecha de legal/condiciones.html). Al cambiarla, la web
   // vuelve a pedir la aceptación a quien aceptó una versión anterior.
   condicionesVersion: "2026-09-27",
@@ -45,6 +49,20 @@ window.MAPAFISCAL_CONFIG = {
   adsenseHuecoRailDer: "6238952662", // «mf-carril-der»: carril derecho, escritorio ≥1280 px
   adsenseHuecoCalc: "2215947173", // «mf-resultado-final»: al final de la columna de resultados
   adsenseHuecoComparar: "9832702418", // «mf-comparar»: bajo el mapa y la tabla de Comparar
+  // Columnas laterales dentro de las vistas («laterales de periódico», solo ≥1040 px): el
+  // hueco vacío que queda junto a la columna más larga. Vacías = usan adsenseHuecoCalc; para
+  // medir cada posición por separado, crear un bloque por posición con el nombre indicado y
+  // pegar aquí su data-ad-slot.
+  adsenseHuecoColComparar: "",   // «mf-col-comparar»: bajo el mapa de #comparar
+  adsenseHuecoColEscenarios: "", // «mf-col-escenarios»: bajo «En cifras» de #escenarios
+  adsenseHuecoColNeto: "",       // «mf-col-sueldo-neto»: bajo el formulario de #sueldo-neto
+  adsenseHuecoColPensiones: "",  // «mf-col-plan-pensiones»: bajo el formulario de #plan-pensiones
+  adsenseHuecoColRescate: "",    // «mf-col-rescate-plan»: bajo el formulario de #rescate-plan
+  adsenseHuecoColConjunta: "",   // «mf-col-conjunta»: bajo el formulario de #conjunta
+  adsenseHuecoColPagadores: "",  // «mf-col-dos-pagadores»: bajo el formulario de #dos-pagadores
+  // En móvil y tableta (menos de 1040 px) esas columnas pasan al final de cada herramienta. Vacío =
+  // el bloque de su posición; con un bloque propio, el tráfico móvil se mide aparte.
+  adsenseHuecoColMovil: "",      // «mf-final-herramienta-movil»: final de la herramienta, menos de 1040 px
 
   // Informe completo en PDF (js/informe.js). Vías de desbloqueo (negocio/otros-ingresos.md §1):
   // plan de pago (siempre), pago único y anuncio bonificado. Aceptar cookies NO desbloquea.

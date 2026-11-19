@@ -23,3 +23,5 @@ body.pagina-seo { background: var(--fondo); color: var(--tinta); font: 15px/1.55
 .lista-enlaces li { border-bottom: 1px solid var(--linea); padding: 10px 0; }
 .lista-enlaces a { color: var(--tinta); text-decoration: none; font-weight: 500; }
 .lista-enlaces a:hover { color: var(--marca); text-decoration: underline; }
+.actualizado { color: var(--tinta-2, #5b6472); font-size: .875rem; margin: -6px 0 14px; }
+.respuesta-directa { background: var(--marca-suave, #eef2ff); border-left: 4px solid var(--marca); border-radius: 8px; padding: 12px 16px; margin: 0 0 18px; }

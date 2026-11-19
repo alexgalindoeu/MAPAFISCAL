@@ -127,7 +127,7 @@ test("config.js: espera de 5 s y GoatCounter con el código mapafiscal", () => {
   const c = window.MAPAFISCAL_CONFIG;
   assert.equal(c.pdfEspera, 5);
   assert.equal(c.analitica, "goatcounter");
-  assert.equal(c.goatcounterCodigo, "alexgalindo");
+  assert.equal(c.goatcounterCodigo, "mapafiscal");
 });
 
 test("la versión empaquetada no lleva analítica ni espera", () => {
