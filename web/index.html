@@ -784,6 +784,100 @@
   </div>
 </section>
 
+<!-- =========================== ENCUENTRA TUS DEDUCCIONES (web/js/deducciones.js) =========================== -->
+<section class="vista" id="v-encuentra-deducciones" aria-labelledby="t-dd" hidden>
+  <div class="cabecera-vista">
+    <div>
+      <p class="antetitulo">Renta · deducciones</p>
+      <h2 class="titulo-vista" id="t-dd">Encuentra tus deducciones</h2>
+      <p class="entradilla">Responde unas preguntas sobre tu hogar y te decimos qué deducciones estatales y de tu comunidad podrían corresponderte, con sus requisitos, cuánto ahorran y la norma que las regula.</p>
+    </div>
+  </div>
+  <div class="calc">
+    <form class="formulario" id="dd-form" autocomplete="off" novalidate>
+      <fieldset class="bloque">
+        <legend><span class="paso">1</span>Tú</legend>
+        <div class="campo"><label for="dd-territorio">Comunidad donde resides</label><select id="dd-territorio"></select></div>
+        <div class="rejilla2">
+          <div class="campo"><label for="dd-edad">Tu edad</label><input type="number" id="dd-edad" min="16" max="110" step="1" value="32" inputmode="numeric"></div>
+          <div class="campo"><label for="dd-discapacidad">Discapacidad</label>
+            <select id="dd-discapacidad"><option value="no">No</option><option value="33_64">Del 33 % al 64 %</option><option value="65_mas">65 % o más</option></select></div>
+        </div>
+        <div class="campo"><label for="dd-bruto">Tus ingresos brutos aproximados al año</label>
+          <div class="con-sufijo"><input type="number" id="dd-bruto" min="0" step="1000" value="24000" inputmode="decimal"><span>€</span></div>
+          <p class="ayuda">Tu sueldo o pensión antes de impuestos: muchas deducciones tienen un límite de renta.</p></div>
+        <div class="rejilla2">
+          <div class="campo"><label for="dd-pareja">¿Tienes cónyuge?</label><select id="dd-pareja"><option value="no">No</option><option value="si">Sí</option></select></div>
+          <div class="campo" id="dd-l-bruto-pareja" hidden><label for="dd-bruto-pareja">Sus ingresos brutos</label>
+            <div class="con-sufijo"><input type="number" id="dd-bruto-pareja" min="0" step="1000" value="18000" inputmode="decimal"><span>€</span></div></div>
+        </div>
+      </fieldset>
+      <fieldset class="bloque">
+        <legend><span class="paso">2</span>Tu familia</legend>
+        <div class="rejilla2">
+          <div class="campo"><label for="dd-hijos">Hijos que conviven contigo</label>
+            <select id="dd-hijos"><option value="0">Ninguno</option><option>1</option><option selected>2</option><option>3</option><option>4</option><option>5</option></select></div>
+          <div class="campo"><label for="dd-fn">Familia numerosa</label>
+            <select id="dd-fn"><option value="no">No</option><option value="general">General</option><option value="especial">Especial</option></select></div>
+        </div>
+        <div id="dd-bloque-hijos">
+          <div class="hr-edades" id="dd-edades"></div>
+          <p class="ayuda">Pon 0 si nació o lo adoptaste este año.</p>
+          <label class="casilla"><input type="checkbox" id="dd-multiple"> Parto o adopción múltiple este año</label>
+          <label class="casilla"><input type="checkbox" id="dd-hijo-disc"> Algún hijo tiene una discapacidad del 33 % o más</label>
+        </div>
+        <div class="campo"><label for="dd-ascendiente">¿Vive contigo un padre o una madre mayor?</label>
+          <select id="dd-ascendiente"><option value="no">No</option><option value="65">Sí, de más de 65 años</option><option value="75">Sí, de más de 75 años</option></select></div>
+        <p class="ayuda">Sin cónyuge y con hijos, contamos tu hogar como familia monoparental.</p>
+      </fieldset>
+      <fieldset class="bloque">
+        <legend><span class="paso">3</span>Vivienda y municipio</legend>
+        <div class="campo"><label for="dd-alquiler">Alquiler de tu vivienda habitual pagado en el año</label>
+          <div class="con-sufijo"><input type="number" id="dd-alquiler" min="0" step="100" value="0" inputmode="decimal"><span>€</span></div></div>
+        <div class="campo"><label for="dd-habitantes">Habitantes de tu municipio</label>
+          <select id="dd-habitantes"><option value="">Más de 20.000</option><option value="20000">De 10.001 a 20.000</option><option value="10000">De 5.001 a 10.000</option><option value="5000">De 3.001 a 5.000</option><option value="3000">De 1.001 a 3.000</option><option value="1000">Hasta 1.000</option></select></div>
+        <label class="casilla"><input type="checkbox" id="dd-despoblada"> Mi municipio figura en la lista oficial de zonas en riesgo de despoblación de mi comunidad</label>
+      </fieldset>
+      <fieldset class="bloque">
+        <legend><span class="paso">4</span>Gastos del año</legend>
+        <div class="rejilla2">
+          <div class="campo"><label for="dd-guarderia">Guardería o escuela infantil</label>
+            <div class="con-sufijo"><input type="number" id="dd-guarderia" min="0" step="100" value="0" inputmode="decimal"><span>€</span></div></div>
+          <div class="campo"><label for="dd-educacion">Libros, material y escolaridad</label>
+            <div class="con-sufijo"><input type="number" id="dd-educacion" min="0" step="50" value="0" inputmode="decimal"><span>€</span></div></div>
+          <div class="campo"><label for="dd-donativos">Donativos a ONG y fundaciones</label>
+            <div class="con-sufijo"><input type="number" id="dd-donativos" min="0" step="50" value="0" inputmode="decimal"><span>€</span></div></div>
+          <div class="campo"><label for="dd-empleada">Cotizaciones de empleada del hogar</label>
+            <div class="con-sufijo"><input type="number" id="dd-empleada" min="0" step="100" value="0" inputmode="decimal"><span>€</span></div></div>
+        </div>
+        <p class="ayuda">Si no los sabes, déjalos a 0: te diremos qué deducciones dependen de cada gasto y hasta cuánto ahorran.</p>
+      </fieldset>
+    </form>
+    <div class="resultado" aria-live="polite">
+      <div class="tarjeta tarjeta-resultado" id="dd-tarjeta">
+        <div class="res-cab"><h2 class="rotulo">Resultado</h2><span class="chip" id="dd-chip"></span></div>
+        <div id="dd-principal"></div>
+        <div class="acciones-res">
+          <a class="btn btn-pri" href="#calculadora">Calcular mi declaración exacta</a>
+          <a class="btn btn-sec" id="dd-ver-todas" href="irpf/">Todas las deducciones de mi comunidad</a>
+        </div>
+      </div>
+      <div class="tarjeta">
+        <h2 class="rotulo">Deducciones que encajan con tus respuestas</h2>
+        <ul class="dd-lista" id="dd-lista"></ul>
+      </div>
+      <div class="tarjeta" id="dd-posibles-caja" hidden>
+        <h2 class="rotulo">Podrían corresponderte si tienes estos gastos</h2>
+        <ul class="dd-lista" id="dd-posibles"></ul>
+      </div>
+      <p class="nota" id="dd-nota"></p>
+    </div>
+    <aside class="anuncio-lateral anuncio-lateral-izq" id="anuncio-col-deducciones" aria-label="Publicidad" hidden>
+      <div class="tarjeta anuncio"><span class="anuncio-etiqueta">Anuncios</span></div>
+    </aside>
+  </div>
+</section>
+
 <!-- =========================== ESCENARIOS (web/js/escenarios.js) =========================== -->
 <section class="vista" id="v-escenarios" aria-labelledby="t-esc" hidden>
   <div class="cabecera-vista">
@@ -991,6 +1085,7 @@
 <script src="js/rescate.js"></script>
 <script src="js/conjunta.js"></script>
 <script src="js/bruto.js"></script>
+<script src="js/deducciones.js"></script>
 <script src="js/escenarios.js"></script>
 <script src="js/anuncios.js"></script>
 <script src="js/analitica.js"></script>

@@ -39,7 +39,8 @@
       ["anuncio-col-rescate", "adsenseHuecoColRescate"],
       ["anuncio-col-conjunta", "adsenseHuecoColConjunta"],
       ["anuncio-col-pagadores", "adsenseHuecoColPagadores"],
-      ["anuncio-col-bruto", "adsenseHuecoColBruto"]
+      ["anuncio-col-bruto", "adsenseHuecoColBruto"],
+      ["anuncio-col-deducciones", "adsenseHuecoColDeducciones"]
     ].map(([id, k]) => ({ id, slot: cfg[k] || cfg.adsenseHuecoCalc || "", lateral: true })),
     // Huecos en el flujo de las páginas SEO (intro, medio, faq). Sin bloque propio, el de
     // «mf-resultado-final».
