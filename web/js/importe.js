@@ -74,7 +74,15 @@
     return { ok: true, vacio: false, valor, error: null };
   }
 
-  const API = { parsearImporte };
+  // Para escribir un importe en un campo data-importe: formato español sin miles y con coma
+  // decimal («30000,5»), hasta 2 decimales. Así lo que se repinta se relee con el mismo valor;
+  // con punto decimal, «123.456» se releía como 123456 (ver test/importe.test.mjs).
+  function formatearImporte(v) {
+    if (v === null || v === undefined || v === "" || !Number.isFinite(Number(v))) return "";
+    return Number(v).toLocaleString("es-ES", { useGrouping: false, maximumFractionDigits: 2 });
+  }
+
+  const API = { parsearImporte, formatearImporte };
   if (typeof module !== "undefined" && module.exports) { module.exports = API; return; }
 
   // ==== navegador ==========================================================================
@@ -114,5 +122,5 @@
     const u = el.dataset.ultimoValido;
     return u ? Number(u) : 0;
   }
-  window.MapafiscalImporte = { parsearImporte, valor };
+  window.MapafiscalImporte = { parsearImporte, formatearImporte, valor };
 })();
