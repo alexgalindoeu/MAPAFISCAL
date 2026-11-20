@@ -110,24 +110,29 @@ function paginaTerritorio(codigo) {
     ? `No: en 2026 la tarifa de ${nombre} mantiene los mismos tramos y tipos que en 2025.`
     : `Sí: para 2026 se actualizan los límites de los tramos (el primero pasa de ${euros(tr[0].hasta)} a ${euros(esc26.tramos[0].hasta)}); los tipos, del ${pctCorto(tMin)} al ${pctCorto(tMax)}, no cambian.`]);
   const main = `
-  <h1>IRPF en ${esc(nombre)} ${anios}: tramos y tabla</h1>
+  <h1>${esComun ? `IRPF en ${esc(nombre)} ${anios}: tramos y tabla` : `Tablas IRPF ${esc(nombre)} ${anios}: escala de la tarifa foral`}</h1>
+  ${esComun ? "" : `<div class="prosa">${cartaEscala}</div>`}
   ${respuestaDirecta(resumen)}
   ${intro}
   <div class="prosa">
-  ${cartaEscala}
+  ${esComun ? cartaEscala : ""}
   ${cartaMinimo}
   ${cartaDeducciones}${enlacesSuiteForal(codigo, nombre)}
   ${cartaComparativa}
   ${bloqueFaq(faq)}
   <p><a class="btn btn-pri" href="/index.html#calculadora">Calcula tu caso real en ${esc(nombre)}</a> <a class="btn btn-sec" href="/index.html#comparar">Compáralo con los otros 18 territorios</a></p>
-  <p class="ayuda">Guías: <a href="/guias/tramos-irpf-2025-2026/">tramos del IRPF 2025 y 2026</a> · <a href="/guias/minimo-personal-familiar/">mínimo personal y familiar</a> · <a href="/guias/obligacion-declarar-renta/">¿estoy obligado a declarar?</a> · <a href="/guias/plan-pensiones-desgravar/">plan de pensiones</a></p>
+  <p class="ayuda">Guías: <a href="/guias/tramos-irpf-2025-2026/">tramos del IRPF 2025 y 2026</a> · <a href="/guias/minimo-personal-familiar/">mínimo personal y familiar</a> · <a href="/guias/obligacion-declarar-renta/">¿estoy obligado a declarar?</a> · <a href="/guias/plan-pensiones-desgravar/">plan de pensiones</a> · <a href="/guias/deduccion-donativos/">donativos</a> · <a href="/guias/calendario-renta/">calendario de la renta</a></p>
   </div>`;
 
   return layout({
     jsonld: [jsonLdMigas([["Inicio", "/"], ["IRPF por territorio", "/irpf/"], [nombre, `/irpf/${slug}/`]]), jsonLdFaq(faq),
       jsonLdDataset({ nombre: `Escala del IRPF en ${nombre} ${anios}`, descripcion: `Tramos de la base liquidable general y tipo marginal del IRPF en ${nombre}${esComun ? " (escala estatal más autonómica)" : " (tarifa foral)"}, del ${pctCorto(tMin)} al ${pctCorto(tMax)}.`, ruta: `/irpf/${slug}/`, generado: territorios.generado, ambito: nombre, fuentes: fuentesEscala.flatMap(f => [f.norma, f.fuente]) })],
-    title: con26 ? `IRPF ${corto} 2025 y 2026: tabla de tramos hasta el ${pctCorto(tMax)}` : `Tramos IRPF ${corto} 2025: tabla del ${pctCorto(tMin)} al ${pctCorto(tMax)}`,
-    description: `Tabla del IRPF en ${corto} ${anios}: tramos del ${pctCorto(tMin)} al ${pctCorto(tMax)}. Con 30.000 € brutos pagas ${euros(fila30.cuota_liquida_total)} (puesto ${fila30.puesto} de 19). Calculadora gratis.`,
+    title: !esComun
+      ? `Tablas IRPF ${corto} ${anios}: escala del ${pctCorto(tMin)} al ${pctCorto(tMax)}`
+      : con26 ? `IRPF ${corto} 2025 y 2026: tabla de tramos hasta el ${pctCorto(tMax)}` : `Tramos IRPF ${corto} 2025: tabla del ${pctCorto(tMin)} al ${pctCorto(tMax)}`,
+    description: !esComun
+      ? `Tablas IRPF ${anios} de ${corto}: escala foral con ${tr.length} tramos, del ${pctCorto(tMin)} al ${pctCorto(tMax)}. Con 30.000 € brutos pagas ${euros(fila30.cuota_liquida_total)}. Calculadora gratis.`
+      : `Tabla del IRPF en ${corto} ${anios}: tramos del ${pctCorto(tMin)} al ${pctCorto(tMax)}. Con 30.000 € brutos pagas ${euros(fila30.cuota_liquida_total)} (puesto ${fila30.puesto} de 19). Calculadora gratis.`,
     canonical: `/irpf/${slug}/`,
     breadcrumb: `<a href="/index.html">Inicio</a> › <a href="/irpf/">IRPF por territorio</a> › ${esc(nombre)}`,
     main, generado: territorios.generado

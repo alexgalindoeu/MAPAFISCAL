@@ -6,7 +6,7 @@
 // cita su norma con enlace a la fuente primaria (BOE o Manual práctico de la AEAT).
 // =============================================================================
 import {
-  SLUG, ORDEN_TERRITORIOS, HERRAMIENTA, LIRPF_BOE, esc, euros, eurosExactos as eur, pct, pctCorto,
+  SLUG, ORDEN_TERRITORIOS, NOMBRE_CORTO, HERRAMIENTA, LIRPF_BOE, esc, euros, eurosExactos as eur, pct, pctCorto,
   fecha, urlBoe, tablaEscala, combinarEscalas, citaFuente, layout, jsonLdMigas, jsonLdArticulo,
   jsonLdFaq, jsonLdDataset, bloqueFaq, migasHtml, respuestaDirecta
 } from "./seo_comun.mjs";
@@ -32,6 +32,7 @@ function pagina(g, { slug, titulo, h1, description, cuerpo, faq, generado, resum
   ${cuerpo}
   ${faq.length ? bloqueFaq(faq) : ""}
   <div class="tarjeta"><h2 class="rotulo">Otras guías</h2><ul class="lista-enlaces">${relacionadas}</ul></div>
+  <div class="tarjeta"><h2 class="rotulo">Tablas del IRPF por territorio</h2><p>${ORDEN_TERRITORIOS.map(c => `<a href="${enlaceTerritorio(c)}">${esc(NOMBRE_CORTO[c])}</a>`).join(" · ")}</p><p><a href="/irpf/">IRPF por territorio</a></p></div>
   </div>`;
   return {
     ruta,
