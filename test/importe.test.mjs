@@ -41,3 +41,13 @@ test("rango por campo", () => {
   mal("200000000", { max: 1e8 });
   mal(NaN); mal(Infinity);
 });
+
+test("lo que la web escribe en un campo se relee con el mismo valor (ida y vuelta)", () => {
+  const { formatearImporte: f } = createRequire(import.meta.url)("../web/js/importe.js");
+  for (const x of [0, 5, 123.456, 30000.5, 1234.56, 2074, 99999999.99]) {
+    const t = f(x);
+    assert.ok(!t.includes("."), `${x} -> ${t} no debe llevar punto`);
+    assert.equal(p(t).valor, Math.round(x * 100) / 100, `${x} -> ${t}`);
+  }
+  assert.equal(f(null), ""); assert.equal(f(""), "");
+});

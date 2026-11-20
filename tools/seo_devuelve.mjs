@@ -5,7 +5,7 @@
 // mismo hogar con y sin la situación y solo cuenta piezas confirmadas. Un territorio sin
 // cifra tiene página con `noindex` y no va al sitemap. Lo usa tools/generar_paginas_seo.mjs.
 // =============================================================================
-import { SLUG, ORDEN_TERRITORIOS, esc, euros, eurosExactos, layout, jsonLdMigas, jsonLdFaq, bloqueFaq, migasHtml } from "./seo_comun.mjs";
+import { NOMBRE_CORTO, tituloQueQuepa, SLUG, ORDEN_TERRITORIOS, esc, euros, eurosExactos, layout, jsonLdMigas, jsonLdFaq, bloqueFaq, migasHtml } from "./seo_comun.mjs";
 
 const HUB = "/cuanto-me-devuelve/";
 const CALC = "/index.html#calculadora";
@@ -13,58 +13,58 @@ const CALC = "/index.html#calculadora";
 // Textos de cada situación. `que`: «por …»; `hogar(d, s)`: el caso de referencia.
 export const SITUACIONES = {
   "hijo": {
-    nombre: "Tener un hijo", que: "tener un hijo",
+    nombre: "Tener un hijo", corto: "tener un hijo", que: "tener un hijo",
     hogar: s => `Pareja con dos sueldos de ${s} cada uno y un hijo nacido en 2025, frente a la misma pareja sin hijos.`,
     comun: n => `el mínimo por descendientes (${n.minimo_descendientes}), que es mayor durante los tres primeros años del niño y se reparte entre los dos progenitores`,
     foral: "la deducción foral por descendientes, que se resta directamente de la cuota",
     extra: "La deducción por maternidad del art. 81 LIRPF va aparte, en la cuota diferencial, y no está sumada en esta cifra."
   },
   "familia-numerosa": {
-    nombre: "Familia numerosa", que: "ser familia numerosa",
+    nombre: "Familia numerosa", corto: "familia numerosa", que: "ser familia numerosa",
     hogar: s => `Pareja con dos sueldos de ${s} cada uno y tres hijos de 2, 6 y 10 años, con título de familia numerosa general frente a la misma familia sin título.`,
     comun: () => "las deducciones autonómicas por familia numerosa",
     foral: "",
     extra: "La deducción estatal por familia numerosa del art. 81 bis LIRPF se pide aparte, en la cuota diferencial, y no está sumada en esta cifra."
   },
   "ascendiente-a-cargo": {
-    nombre: "Ascendiente a cargo", que: "tener a un padre o una madre a cargo",
+    nombre: "Ascendiente a cargo", corto: "padre o madre a cargo", que: "tener a un padre o una madre a cargo",
     hogar: (s, d) => `Una persona de 50 años con ${s} que convive todo el año con su madre de ${d.importes.edad_ascendiente} años, con ${euros(d.importes.rentas_ascendiente)} de rentas propias, frente a la misma persona sola.`,
     comun: n => `el mínimo por ascendientes (${n.minimo_ascendientes}), mayor a partir de los 75 años`,
     foral: "la deducción foral por ascendientes que conviven con el contribuyente"
   },
   "mayor-65": {
-    nombre: "Cumplir 65 años", que: "tener más de 65 años",
+    nombre: "Cumplir 65 años", corto: "mayores de 65", que: "tener más de 65 años",
     hogar: s => `Una persona de 67 años con ${s} de rendimientos del trabajo (sueldo o pensión), frente a la misma persona con 60 años.`,
     comun: n => `el incremento del mínimo del contribuyente a partir de los 65 años (${n.minimo_contribuyente})`,
     foral: "la deducción foral por edad del contribuyente"
   },
   "discapacidad-33": {
-    nombre: "Discapacidad del 33 %", que: "tener una discapacidad del 33 %",
+    nombre: "Discapacidad del 33 %", corto: "discapacidad del 33 %", que: "tener una discapacidad del 33 %",
     hogar: s => `Una persona de 40 años con ${s} y un grado de discapacidad entre el 33 % y el 65 %, frente a la misma persona sin discapacidad.`,
     comun: n => `el mínimo por discapacidad del contribuyente (${n.minimo_discapacidad})`,
     foral: "la deducción foral por discapacidad del contribuyente"
   },
   "discapacidad-65": {
-    nombre: "Discapacidad del 65 %", que: "tener una discapacidad del 65 % o más",
+    nombre: "Discapacidad del 65 %", corto: "discapacidad del 65 %", que: "tener una discapacidad del 65 % o más",
     hogar: s => `Una persona de 40 años con ${s} y un grado de discapacidad igual o superior al 65 %, frente a la misma persona sin discapacidad.`,
     comun: n => `el mínimo por discapacidad del contribuyente (${n.minimo_discapacidad}), con el incremento por gastos de asistencia`,
     foral: "la deducción foral por discapacidad del contribuyente"
   },
   "alquiler": {
-    nombre: "Vivir de alquiler", que: "vivir de alquiler",
+    nombre: "Vivir de alquiler", corto: "alquiler", que: "vivir de alquiler",
     hogar: (s, d) => `Una persona de 30 años con ${s} que paga ${euros(d.importes.alquiler)} al año de alquiler de su vivienda habitual, frente a la misma persona sin alquiler.`,
     comun: () => "las deducciones autonómicas por alquiler de la vivienda habitual",
     foral: "la deducción foral por alquiler de la vivienda habitual",
     extra: "En el tramo estatal, la deducción por alquiler solo se mantiene para contratos firmados antes de 2015 (régimen transitorio) y no está sumada en esta cifra."
   },
   "hipoteca-antes-2013": {
-    nombre: "Hipoteca anterior a 2013", que: "pagar una hipoteca firmada antes de 2013",
+    nombre: "Hipoteca anterior a 2013", corto: "hipoteca previa a 2013", que: "pagar una hipoteca firmada antes de 2013",
     hogar: (s, d) => `Una persona de 45 años con ${s} que paga ${euros(d.importes.hipoteca)} al año (capital e intereses) por la hipoteca de una vivienda habitual comprada antes de 2013, frente a la misma persona sin hipoteca.`,
     comun: n => `la deducción estatal transitoria por inversión en vivienda habitual (${n.deduccion_vivienda_transitoria})`,
     foral: "la deducción foral por adquisición de vivienda habitual, que en el País Vasco no depende de la fecha de compra"
   },
   "donativo": {
-    nombre: "Hacer un donativo", que: "hacer un donativo",
+    nombre: "Hacer un donativo", corto: "donativo", que: "hacer un donativo",
     hogar: (s, d) => `Una persona de 40 años con ${s} que dona ${euros(d.importes.donativo)} en el año a una ONG acogida a la Ley 49/2002, frente a la misma persona sin donativo.`,
     comun: n => `la deducción por donativos (${n.deduccion_donativos})`,
     foral: ""
@@ -137,7 +137,7 @@ function paginaTerritorio(sit, t, d, conDeducciones, generado) {
   </div>`;
   const html = layout({
     jsonld: [jsonLdMigas(migas), jsonLdFaq(faq)],
-    title: `¿Cuánto me devuelve Hacienda por ${S.que} en ${nombre}? (2025) | Mapafiscal`,
+    title: tituloQueQuepa(`Devolución por ${S.corto} en ${NOMBRE_CORTO[codigo]} (renta 2025)`, `Devolución por ${S.corto} en ${NOMBRE_CORTO[codigo]} (2025)`, `Devolución IRPF 2025: ${S.corto}, ${NOMBRE_CORTO[codigo]}`, `Devolución 2025: ${S.corto}, ${NOMBRE_CORTO[codigo]}`),
     description, canonical: ruta(sit, codigo), breadcrumb: migasHtml(migas), main, generado
   });
   return { ruta: ruta(sit, codigo), html: t.publicable ? html : noindex(html), indexable: t.publicable };
@@ -170,7 +170,7 @@ function paginaHub(sit, ts, d, generado) {
   </div>`;
   return { ruta: ruta(sit), indexable: true, html: layout({
     jsonld: [jsonLdMigas(migas), jsonLdFaq(faq)],
-    title: `¿Cuánto me devuelve Hacienda por ${S.que}? (2025) | Mapafiscal`,
+    title: tituloQueQuepa(`¿Cuánto me devuelve Hacienda por ${S.corto}? (Renta 2025)`, `Devolución por ${S.corto}: los 19 territorios (Renta 2025)`, `Devolución por ${S.corto} (Renta 2025)`),
     description: `${resumen} Tabla de los 19 territorios fiscales a tres sueldos.`,
     canonical: ruta(sit), breadcrumb: migasHtml(migas), main, generado
   }) };
@@ -186,7 +186,7 @@ function paginaIndice(d, generado) {
   <p><a class="btn btn-pri" href="${CALC}">Calcula tu caso real</a></p></div>`;
   return { ruta: HUB, indexable: true, html: layout({
     jsonld: [jsonLdMigas(migas)],
-    title: "¿Cuánto me devuelve Hacienda por…? Situaciones del IRPF 2025 | Mapafiscal",
+    title: "¿Cuánto me devuelve Hacienda por…? Situaciones del IRPF 2025",
     description: "Cuánto rebaja el IRPF de 2025 tener un hijo, ser familia numerosa, vivir de alquiler, una hipoteca anterior a 2013, una discapacidad o un donativo, en los 19 territorios.",
     canonical: HUB, breadcrumb: migasHtml(migas), main, generado
   }) };

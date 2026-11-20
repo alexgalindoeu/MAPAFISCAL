@@ -17,6 +17,8 @@
   // ---- utilidades -----------------------------------------------------------
   const n = v => { const x = typeof v === "number" ? v : parseFloat(v); return Number.isFinite(x) ? x : 0; };
   const pos = v => Math.max(0, n(v));
+  // importe para un campo data-importe, en formato español (js/importe.js); sin el módulo, tal cual
+  const imp = v => (typeof window !== "undefined" && window.MapafiscalImporte) ? window.MapafiscalImporte.formatearImporte(v) : (v == null ? "" : String(v));
   const esc = s => String(s == null ? "" : s).replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
   const camel = s => s.replace(/_([a-z])/g, (_, c) => c.toUpperCase());
   const snake = s => s.replace(/[A-Z]/g, c => "_" + c.toLowerCase());
@@ -391,7 +393,7 @@
   function importe(e, k, etq, ayuda, extra) {
     const v = get(e, k), id = idCampo(k);
     return `<div class="campo"><label for="${id}">${etq}</label>
-      <div class="con-sufijo"><input type="text" data-importe id="${id}" data-k="${k}" min="0" step="${(extra && extra.step) || 10}" inputmode="decimal" value="${n(v)}"${ayuda ? ` aria-describedby="${id}-ay"` : ""}><span>€</span></div>
+      <div class="con-sufijo"><input type="text" data-importe id="${id}" data-k="${k}" min="0" step="${(extra && extra.step) || 10}" inputmode="decimal" value="${imp(n(v))}"${ayuda ? ` aria-describedby="${id}-ay"` : ""}><span>€</span></div>
       ${ayuda ? `<p class="ayuda" id="${id}-ay">${ayuda}</p>` : ""}</div>`;
   }
   function numero(e, k, etq, attrs, ayuda) {
@@ -447,7 +449,7 @@
       ${importe(e, r + "salario", "Salario o pensión bruta anual", "Retribuciones dinerarias íntegras del certificado de retenciones de tu empresa o de la Seguridad Social.", { step: 100 })}
       ${casilla(e, r + "pension", "Es una pensión de jubilación de la Seguridad Social")}
       <div class="campo"><label for="${idCampo(r + "ss")}">Cotizaciones a la Seguridad Social</label>
-        <div class="con-sufijo"><input type="text" data-importe id="${idCampo(r + "ss")}" data-k="${r}ss" min="0" step="10" inputmode="decimal" value="${ssVal}" aria-describedby="${idCampo(r + "ss")}-ay"><span>€</span></div>
+        <div class="con-sufijo"><input type="text" data-importe id="${idCampo(r + "ss")}" data-k="${r}ss" min="0" step="10" inputmode="decimal" value="${imp(ssVal)}" aria-describedby="${idCampo(r + "ss")}-ay"><span>€</span></div>
         <p class="ayuda" id="${idCampo(r + "ss")}-ay">${ssAuto ? `Estimadas con los tipos del trabajador de ${ej} (contrato indefinido). Cámbialas si las conoces: vienen en tu certificado de retenciones.`
           : `Importe introducido. <button class="btn btn-txt btn-sm" type="button" data-accion="ss-auto" data-p="${id}">Volver a estimarlas</button>`}</p></div>
       ${importe(e, r + "retenciones", "Retenciones e ingresos a cuenta del año", "Suma las de todos tus certificados (trabajo, banco, alquileres) y los pagos fraccionados de los modelos 130 o 131.", { step: 50 })}`;
@@ -626,7 +628,7 @@
       const v = get(e, el.dataset.k);
       if (el.type === "checkbox") el.checked = !!v;
       else if (el.type === "radio") el.checked = el.value === String(v);
-      else el.value = v == null ? "" : v;
+      else el.value = v == null ? "" : (el.hasAttribute && el.hasAttribute("data-importe") && typeof v === "number" ? imp(v) : v);
     }
     // elemento -> estado
     function leer(el) {
@@ -653,7 +655,7 @@
       const m = el.dataset.k.match(/^personas\.(d1|d2)\.(salario|pension)$/);
       if (m && !e.personas[m[1]].ssManual) {
         const ss = raiz.querySelector(`[data-k="personas.${m[1]}.ss"]`);
-        if (ss) ss.value = cotizaciones(e.personas[m[1]], op.contexto());
+        if (ss) ss.value = imp(cotizaciones(e.personas[m[1]], op.contexto()));
       }
       if ((el.type === "checkbox" || el.type === "radio" || el.tagName === "SELECT") && ESTRUCTURA.test(el.dataset.k)) pintar();
       else pintarAvisos();

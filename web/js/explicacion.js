@@ -15,8 +15,8 @@
 
   const red2 = x => Math.round((x + Number.EPSILON) * 100) / 100;
   const num = x => (typeof x === "number" && Number.isFinite(x) ? x : 0);
-  const fmt = new Intl.NumberFormat("es-ES", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-  const eur0 = x => Number.isInteger(num(x)) ? num(x).toLocaleString("es-ES", { useGrouping: true }) + " €" : eur(x);
+  const fmt = new Intl.NumberFormat("es-ES", { minimumFractionDigits: 2, maximumFractionDigits: 2, useGrouping: "always" });
+  const eur0 = x => Number.isInteger(num(x)) ? num(x).toLocaleString("es-ES", { useGrouping: "always" }) + " €" : eur(x);
   const eur = x => fmt.format(red2(num(x))) + " €";
   const pct = t => (Math.round(t * 10000) / 100).toLocaleString("es-ES", { maximumFractionDigits: 2 }) + " %";
   const esc = s => String(s == null ? "" : s).replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));

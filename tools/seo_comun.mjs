@@ -50,6 +50,12 @@ export function tituloFinal(t) {
   return base.length + 13 <= MAX_TITULO ? base + " | Mapafiscal" : base;
 }
 
+// Límite que comprueba test/seo_paginas.test.mjs. Devuelve la primera variante que cabe.
+export const MAX_TITULO_DURO = 65;
+export function tituloQueQuepa(...variantes) {
+  return variantes.find(v => v.length <= MAX_TITULO_DURO) ?? variantes[variantes.length - 1];
+}
+
 // Herramientas de la web principal (aplicación de una sola página).
 export const HERRAMIENTA = {
   calculadora: "/index.html#calculadora",
