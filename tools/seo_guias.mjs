@@ -88,7 +88,7 @@ function guiaTramos(g, T) {
     <h2 class="rotulo">Escala estatal del IRPF ${igual26 ? "2025 y 2026" : "2025"}</h2>
     ${tablaEscala(e.estatal_2025.tramos)}
     ${igual26 ? `<p>En 2026 la escala estatal no cambia: los tramos y los tipos son los mismos que en 2025.</p>` : `<h3>Escala estatal 2026</h3>${tablaEscala(e.estatal_2026.tramos)}`}
-    ${igual26 ? `<p><b>¿Y la escala del IRPF de 2024?</b> La escala estatal general es la misma: el ${lirpf("art. 63.1.1.º")} se modificó por última vez con efectos desde el 1 de enero de 2021 (${ULTIMA_REFORMA_ART63}). Los tramos estatales de 2024, 2025 y 2026 coinciden; lo que puede cambiar de un año a otro es la parte autonómica de cada comunidad.</p>` : ""}
+    ${igual26 ? `<p><b>¿Y la escala del IRPF de 2024?</b> La escala estatal general es la misma: el ${lirpf("art. 63.1.1.º")} se modificó por última vez con efectos desde el 1 de enero de 2021 (${ULTIMA_REFORMA_ART63}). Los tramos estatales de 2024, 2025 y 2026 coinciden; lo que puede cambiar de un año a otro es la parte autonómica de cada comunidad. Más detalle en la <a href="/guias/escala-irpf-2024/">escala del IRPF 2024</a>.</p>` : ""}
     ${citaFuente(e.estatal_2025)}
     <p>Ejemplo: con una base liquidable general de ${euros(ej)}, la parte estatal de la cuota es de ${eur(Math.round(cuotaEj * 100) / 100)} antes de restar el mínimo personal y las deducciones. A esa cifra se le suma la parte autonómica, que depende de dónde vivas.</p>
   </div>
@@ -149,6 +149,44 @@ function guiaTramos(g, T) {
     resumen: `la escala estatal del IRPF de 2025 y 2026 tiene ${est.length} tramos, del <b>${pctCorto(est[0].tipo)}</b> al <b>${pctCorto(est[est.length - 1].tipo)}</b>${igual26 ? " (la misma que en 2024)" : ""}. Sumada a la autonómica, el tipo máximo va del ${pctCorto(minT.max)} de ${esc(minT.nombre)} al ${pctCorto(maxT.max)} de ${esc(maxT.nombre)}. Las ganancias patrimoniales tributan aparte, del ${pctCorto(aho[0].tipo)} al ${pctCorto(aho[aho.length - 1].tipo)}.`,
     dataset: { nombre: "Escalas del IRPF 2025 y 2026: estatal, del ahorro, autonómicas y forales", descripcion: "Tramos y tipos marginales de la escala estatal general, la escala del ahorro y las escalas combinadas de los 19 territorios fiscales de España.",
       fuentes: [e.estatal_2025.norma, e.estatal_2025.fuente, e.ahorro_estatal_2025.norma, e.ahorro_estatal_2025.fuente, e.pais_vasco_2026.norma, e.pais_vasco_2026.fuente, e.navarra_2025.norma, "Ley 11/2020, art. 58 (BOE-A-2020-17339)"] },
+    cuerpo, faq, generado: g.generado });
+}
+
+// ---- 1 bis. Escala 2024 -------------------------------------------------------------
+// Solo la escala estatal general: el art. 63.1.1.º no cambia desde 2021. La del ahorro no
+// se publica para 2024 porque los params la citan con el 5.º tramo «vigente desde 2025».
+function guiaEscala2024(g) {
+  const e = g.escalas, est = e.estatal_2025.tramos;
+  const ahorroIgual2024 = !/desde 2025/.test(e.ahorro_estatal_2025.norma || "");
+  const ult = est[est.length - 1];
+  const cuerpo = `
+  <p class="entradilla">La escala estatal general del IRPF de 2024 es la misma que la de 2025 y 2026. El ${lirpf("art. 63.1.1.º")} se modificó por última vez con efectos desde el 1 de enero de 2021 (${ULTIMA_REFORMA_ART63}), así que los tramos y los tipos estatales no han cambiado desde entonces.</p>
+  <div class="tarjeta">
+    <h2 class="rotulo">Escala estatal general del IRPF 2024</h2>
+    ${tablaEscala(est)}
+    <p>Es la mitad estatal de la escala: en las comunidades de régimen común se suma a la escala autonómica de cada comunidad. El País Vasco y Navarra no la aplican, porque tienen su propia tarifa foral completa.</p>
+    ${citaFuente(e.estatal_2025)}
+    <p>Texto consolidado de la norma: <a href="${LIRPF_BOE}" rel="noopener">Ley 35/2006 del IRPF en el BOE</a>.</p>
+  </div>
+  <div class="tarjeta">
+    <h2 class="rotulo">La parte autonómica de 2024 depende de cada comunidad</h2>
+    <p>La cuota total del IRPF de 2024 no sale solo de esta tabla: cada comunidad autónoma aprueba su propia escala para la parte autonómica (${lirpf("art. 74")}) y puede cambiarla de un año a otro. Por eso el tipo marginal total de 2024 no es el mismo en todas las comunidades.</p>
+    <p>Mapafiscal calcula los ejercicios <b>2025 y 2026</b>; no reproduce las escalas autonómicas de 2024. Para la escala completa de tu territorio en 2025, con la parte autonómica, consulta su página:</p>
+    <p>${ORDEN_TERRITORIOS.map(c => `<a href="${enlaceTerritorio(c)}">${esc(NOMBRE_CORTO[c])}</a>`).join(" · ")}</p>
+    <p>Y en la guía de <a href="/guias/tramos-irpf-2025-2026/">tramos del IRPF 2025 y 2026</a> tienes la escala estatal, la del ahorro y la tabla de los 19 territorios.</p>
+  </div>
+  ${ahorroIgual2024 ? "" : `<div class="tarjeta"><h2 class="rotulo">¿Y la escala del ahorro de 2024?</h2><p>No la incluimos aquí: la escala del ahorro estatal (${lirpf("art. 66.1")}) que usa Mapafiscal es la redacción con un quinto tramo vigente desde 2025, así que no coincide necesariamente con la de 2024. La de 2025 y 2026 está en la <a href="/guias/tramos-irpf-2025-2026/">guía de tramos</a>.</p></div>`}
+  ${cta("Calcula tu IRPF de 2025", HERRAMIENTA.calculadora, ["Tramos 2025 y 2026", "/guias/tramos-irpf-2025-2026/"])}`;
+  const faq = [
+    ["¿Cuál es la escala estatal del IRPF de 2024?", `Tiene ${est.length} tramos, del ${pctCorto(est[0].tipo)} al ${pctCorto(ult.tipo)}, y es la misma que en 2025 y 2026: el art. 63.1.1.º de la Ley del IRPF no ha cambiado desde el 1 de enero de 2021 (art. 58 de la Ley 11/2020, BOE-A-2020-17339).`],
+    ["¿Cambió la escala estatal del IRPF entre 2024 y 2025?", "No. Los tramos y los tipos estatales de la base liquidable general son los mismos en 2024, 2025 y 2026."],
+    ["¿Cuánto es el tipo máximo del IRPF en 2024?", `La parte estatal llega al ${pctCorto(ult.tipo)}. El tipo máximo total depende de la escala autonómica de cada comunidad, que Mapafiscal no reproduce para 2024.`],
+    ["¿Mapafiscal calcula la renta de 2024?", "No. Mapafiscal calcula los ejercicios 2025 y 2026. Las escalas autonómicas de 2024 dependen de las leyes de cada comunidad para ese año."]
+  ];
+  return pagina(g, { slug: "escala-irpf-2024", h1: "Escala del IRPF 2024: tramos y tipos estatales",
+    titulo: "Escala IRPF 2024: tramos y tipos estatales",
+    description: `Escala estatal del IRPF 2024: ${est.length} tramos del ${pctCorto(est[0].tipo)} al ${pctCorto(ult.tipo)}, igual que en 2025 y 2026 (art. 63.1.1.º LIRPF, sin cambios desde 2021). La parte autonómica depende de cada comunidad.`,
+    resumen: `la escala estatal del IRPF de 2024 tiene ${est.length} tramos, del <b>${pctCorto(est[0].tipo)}</b> al <b>${pctCorto(ult.tipo)}</b>, y es la misma que en 2025 y 2026. La parte autonómica depende de cada comunidad.`,
     cuerpo, faq, generado: g.generado });
 }
 
@@ -403,6 +441,7 @@ function guiaCalendario(g) {
 
 export const GUIAS = [
   { slug: "tramos-irpf-2025-2026", enlace: "Tramos del IRPF 2025 y 2026", resumen: "Escala estatal, del ahorro y de cada territorio.", fn: guiaTramos },
+  { slug: "escala-irpf-2024", enlace: "Escala del IRPF 2024", resumen: "Tramos y tipos estatales de 2024, iguales que en 2025 y 2026.", fn: guiaEscala2024 },
   { slug: "minimo-personal-familiar", enlace: "Mínimo personal y familiar", resumen: "Cuánto de tu renta no paga IRPF por ti, tus hijos y tus mayores.", fn: guiaMinimo },
   { slug: "plan-pensiones-desgravar", enlace: "Plan de pensiones: cuánto desgrava", resumen: "Límites y ahorro real en cada territorio si aportas antes del 31 de diciembre.", fn: guiaPensiones },
   { slug: "deduccion-donativos", enlace: "Deducción por donativos", resumen: "El 80 % de los primeros 250 € y el resto, con ejemplos.", fn: guiaDonativos },
