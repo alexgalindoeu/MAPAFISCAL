@@ -93,7 +93,7 @@
     return { lista, porId, firmes: lista.filter(ok), noFirmes: lista.filter(d => !ok(d)).length };
   }
 
-  const eurTxt = n => Math.round(n).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".") + " €";
+  const eurTxt = n => (Math.round(n) < 0 ? "−" : "") + Math.abs(Math.round(n)).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".") + " €";
   const pctTxt = p => (Math.round(p * 1000) / 10).toString().replace(".", ",") + " %";
   // importe en una frase corta
   function cuanto(d) {

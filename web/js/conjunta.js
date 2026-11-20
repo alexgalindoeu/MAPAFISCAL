@@ -134,6 +134,8 @@
   const $ = id => document.getElementById(id);
   const esc = s => String(s == null ? "" : s).replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
   const miles = s => s.replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+  // resta: sin signo si el importe redondeado es 0 (evita «−0 €»)
+  const menos = n => (Math.abs(n || 0) >= 0.5 ? "−" : "") + eur(Math.abs(n || 0));
   const eur = (n, dec = 0) => { const v = Math.abs(n || 0).toFixed(dec).split("."); return (n < -0.004 && Math.abs(n) >= 0.5 ? "−" : "") + miles(v[0]) + (dec ? "," + v[1] : "") + " €"; };
   const num = id => Math.max(0, window.MapafiscalImporte.valor($(id)));   // js/importe.js
   const CORTO = { "ES-IB": "Illes Balears", "ES-VC": "C. Valenciana", "ES-PV-VI": "Araba/Álava", "ES-PV-BI": "Bizkaia", "ES-PV-SS": "Gipuzkoa" };
@@ -287,10 +289,10 @@
     $("dp-obligacion").innerHTML = ob.map(x => `<p>${x}</p>`).join("");
     // desglose
     const filas = [fila("Sueldo del primer pagador", eur(o.p1.bruto)), fila("Sueldo del segundo pagador", eur(o.p2.bruto)),
-      fila("Cotizaciones a la Seguridad Social", "−" + eur(r.cotizaciones), "hr-resta"),
+      fila("Cotizaciones a la Seguridad Social", menos(r.cotizaciones), "hr-resta"),
       fila("IRPF del año con los dos sueldos sumados", eur(r.irpf), "sub"),
-      fila(`Retención del primer pagador${r.estimada[0] ? " (estimada)" : ""}`, "−" + eur(r.retenciones[0]), "hr-resta"),
-      fila(`Retención del segundo pagador${r.estimada[1] ? " (estimada)" : ""}`, "−" + eur(r.retenciones[1]), "hr-resta"),
+      fila(`Retención del primer pagador${r.estimada[0] ? " (estimada)" : ""}`, menos(r.retenciones[0]), "hr-resta"),
+      fila(`Retención del segundo pagador${r.estimada[1] ? " (estimada)" : ""}`, menos(r.retenciones[1]), "hr-resta"),
       fila(pagar ? "Resultado: a pagar" : "Resultado: a devolver", eur(Math.abs(r.resultado)), "total")];
     $("dp-desglose").innerHTML = filas.join("");
     // escenarios: mismo total, otro reparto

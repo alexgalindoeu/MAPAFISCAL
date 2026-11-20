@@ -10,6 +10,8 @@
 //
 // Aquí no se calcula ningún impuesto: solo se maquetan las cifras del motor.
 // =============================================================================
+// resta: sin signo si el importe redondeado es 0 (evita «−0 €»)
+const menos = n => (Math.round(Math.abs(n)) ? "−" : "") + euros(Math.abs(n));
 import { SLUG, ORDEN_TERRITORIOS, HERRAMIENTA, esc, euros, pct, layout, jsonLdMigas, jsonLdFaq, bloqueFaq, migasHtml } from "./seo_comun.mjs";
 
 const FORAL = new Set(["ES-PV-BI", "ES-PV-SS", "ES-PV-VI", "ES-NC"]);
@@ -78,8 +80,8 @@ export function paginasSueldoNeto(d) {
       ["Desempleo", s.desempleo, d.cotizaciones.tipos.desempleo_indefinido],
       ["Formación profesional", s.formacion_profesional, d.cotizaciones.tipos.formacion_profesional],
       ["Mecanismo de equidad intergeneracional", s.mei, d.cotizaciones.tipos.mei]]
-      .map(([t, x, tp]) => `<tr><td>${esc(t)} (${esc(pct2(tp))})</td><td class="num">−${esc(euros(x))}</td></tr>`).join("")
-      + (s.solidaridad > 0 ? `<tr><td>Cotización adicional de solidaridad</td><td class="num">−${esc(euros(s.solidaridad))}</td></tr>` : "");
+      .map(([t, x, tp]) => `<tr><td>${esc(t)} (${esc(pct2(tp))})</td><td class="num">${esc(menos(x))}</td></tr>`).join("")
+      + (s.solidaridad > 0 ? `<tr><td>Cotización adicional de solidaridad</td><td class="num">${esc(menos(s.solidaridad))}</td></tr>` : "");
     const topeSs = s.base_mensual < b / 12 - 0.005
       ? ` Tu sueldo mensual prorrateado (${euros(b / 12)}) supera la base máxima de cotización (${euros(d.cotizaciones.base_maxima_mensual)} al mes): por encima de ella solo se paga la cotización de solidaridad.` : "";
     const comparacion = puesto === 1
@@ -115,8 +117,8 @@ export function paginasSueldoNeto(d) {
     <div class="envoltorio"><table class="cobertura"><tbody>
       <tr><td>Sueldo bruto anual</td><td class="num">${esc(euros(b))}</td></tr>
       ${filasSs}
-      <tr><td><b>Seguridad Social</b> (${esc(pct(s.total / b))})</td><td class="num"><b>−${esc(euros(s.total))}</b></td></tr>
-      <tr><td><b>IRPF del año</b> (tipo medio ${esc(pct(tipoIrpf))})</td><td class="num"><b>−${esc(euros(f.irpf))}</b></td></tr>
+      <tr><td><b>Seguridad Social</b> (${esc(pct(s.total / b))})</td><td class="num"><b>${esc(menos(s.total))}</b></td></tr>
+      <tr><td><b>IRPF del año</b> (tipo medio ${esc(pct(tipoIrpf))})</td><td class="num"><b>${esc(menos(f.irpf))}</b></td></tr>
       <tr><td><b>Sueldo neto anual</b></td><td class="num"><b>${esc(euros(f.neto))}</b></td></tr>
     </tbody></table></div>
     <p>Entre IRPF y Seguridad Social se va el ${esc(pct(tipoTotal))} del bruto. De cada 100 € más de sueldo, ${esc(euros(100 * f.marginal))} se irían en impuestos y cotizaciones (${esc(euros(100 * f.marginal_irpf))} de IRPF): es tu tipo marginal.${esc(topeSs)}</p>
