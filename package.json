@@ -8,6 +8,7 @@
     "empaquetar": "node tools/empaquetar.mjs",
     "servir": "node tools/servir.mjs",
     "validar": "node tools/validar_js_node.js",
+    "test:e2e": "node test/e2e/web.e2e.mjs",
     "generar:seo": "node tools/generar_paginas_seo.mjs"
   },
   "engines": {

@@ -34,3 +34,18 @@ jobs:
           name: mapafiscal-html
           path: dist/mapafiscal.html
           if-no-files-found: error
+
+  e2e:
+    name: E2E en el navegador (Playwright)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 22
+      - name: Instalar Playwright y Chromium
+        run: |
+          npm install --no-save playwright
+          npx playwright install --with-deps chromium
+      - name: Pruebas E2E
+        run: npm run test:e2e
