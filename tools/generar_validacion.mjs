@@ -24,7 +24,7 @@ const require = createRequire(import.meta.url);
 const RAIZ = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 const V = require("./validar_js_node.js");
 const irpfsim = require(join(RAIZ, "web/js/irpfsim.js"));
-const REPO = "https://github.com/alexgalindoeu/MAPAFISCAL";
+// Sin enlaces al repositorio: su dirección lleva el nombre del titular (decisión de Alex, 17-11-2026).
 const SALIDA = "web/validacion/index.html";
 const leer = f => readFileSync(join(RAIZ, f), "utf8");
 
@@ -253,7 +253,7 @@ function construir({ conGit = true, previa = null } = {}) {
   const fechasHtml = !git || !git.fechas ? "" : `
   <h2 id="territorios">Última actualización de cada territorio</h2>
   <p>Fecha del último cambio en los parámetros de cada territorio (escalas, mínimos, deducciones), sacada del historial de
-  <a href="${REPO}/tree/main/params" rel="noopener">params/</a>. Un ejercicio que hereda del anterior cuenta también los cambios de lo heredado.
+  params/. Un ejercicio que hereda del anterior cuenta también los cambios de lo heredado.
   Núcleo estatal (Ley del IRPF): ${ejercicios.map(a => `${a}, ${esc(fecha(isoDe(git.fechas.estatal[a])))}`).join("; ")}.</p>
   <div class="tarjeta tarjeta-tabla"><table class="cobertura"><thead><tr><th>Territorio</th>${ejercicios.map(a => `<th class="num">Ejercicio ${a}</th>`).join("")}</tr></thead><tbody>
   ${Object.keys(territorios).map(k => `<tr><td>${esc(nombres[k])}</td>${ejercicios.map(a => `<td class="num">${git.fechas.territorios[k] && git.fechas.territorios[k][a] ? esc(isoDe(git.fechas.territorios[k][a]).split("-").reverse().join("-")) : "—"}</td>`).join("")}</tr>`).join("\n")}
@@ -261,11 +261,11 @@ function construir({ conGit = true, previa = null } = {}) {
 
   const cambiosHtml = !git || !git.cambios ? "" : `
   <h2 id="cambios">Registro de cambios del motor</h2>
-  <p>Los últimos ${git.cambios.length} cambios en el motor de cálculo (<a href="${REPO}/tree/main/R" rel="noopener">R/</a>,
-  <a href="${REPO}/blob/main/web/js/irpfsim.js" rel="noopener">web/js/irpfsim.js</a>) y en sus parámetros (<a href="${REPO}/tree/main/params" rel="noopener">params/</a>).
-  El historial completo está en <a href="${REPO}/commits/main" rel="noopener">GitHub</a>.</p>
+  <p>Los últimos ${git.cambios.length} cambios en el motor de cálculo (R/,
+  web/js/irpfsim.js) y en sus parámetros (params/).
+  El historial completo está en el repositorio del proyecto.</p>
   <ul class="registro-cambios">
-  ${git.cambios.map(c => `<li><time datetime="${c.dia}">${esc(c.dia.split("-").reverse().join("-"))}</time> <a href="${REPO}/commit/${c.hash}" rel="noopener"><code>${c.hash.slice(0, 7)}</code></a> ${esc(c.asunto)}</li>`).join("\n  ")}
+  ${git.cambios.map(c => `<li><time datetime="${c.dia}">${esc(c.dia.split("-").reverse().join("-"))}</time> <code>${c.hash.slice(0, 7)}</code> ${esc(c.asunto)}</li>`).join("\n  ")}
   </ul>`;
 
   const titulo = "Cómo comprobamos los cálculos | Mapafiscal";
@@ -285,7 +285,7 @@ function construir({ conGit = true, previa = null } = {}) {
     <div><dt>Territorios con casos</dt><dd>${terrCubiertos} de ${Object.keys(territorios).length}</dd></div>
   </dl>
   <p>Por ejercicio: ${porEjercicio.map(([a, n]) => `${a}, ${n} casos`).join("; ")}. Por tipo: ${porTipo("liquidacion")} declaraciones completas, ${porTipo("neto")} de sueldo neto y ${porTipo("rescate")} de rescate del plan de pensiones.
-  Los casos están en <a href="${REPO}/blob/main/tools/validar_js.R" rel="noopener">tools/validar_js.R</a> y el cálculo a mano de muchos de ellos, en <a href="${REPO}/blob/main/docs/03_casos_validacion.md" rel="noopener">docs/03_casos_validacion.md</a>.</p>
+  Los casos están en tools/validar_js.R y el cálculo a mano de muchos de ellos, en docs/03_casos_validacion.md.</p>
 
   <h2 id="muestra">Una muestra de los casos</h2>
   <p>Un caso de cada grupo (régimen común, País Vasco y Navarra en cada ejercicio, sueldo neto y rescate), con su entrada y la cifra principal de cada motor.</p>
