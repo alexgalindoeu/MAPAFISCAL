@@ -43,7 +43,7 @@ function existeEnWeb(rutaSitio) {
 
 test("hay páginas que validar", () => assert.ok(PAGINAS.length > 100, String(PAGINAS.length)));
 
-test("cada página tiene un único <title> no vacío (aviso si supera 65 caracteres)", () => {
+test("cada página tiene un único <title> no vacío de 65 caracteres como máximo", () => {
   const largos = [];
   for (const { ruta, cuerpo } of PAGINAS) {
     const n = (cuerpo.match(/<title>/gi) || []).length;
@@ -52,7 +52,7 @@ test("cada página tiene un único <title> no vacío (aviso si supera 65 caracte
     assert.ok(t.length > 0, `${ruta}: <title> vacío`);
     if (t.length > MAX_TITULO) largos.push(`${ruta} (${t.length})`);
   }
-  if (largos.length) console.warn(`AVISO SEO: ${largos.length} títulos de más de ${MAX_TITULO} caracteres:\n  ` + largos.join("\n  "));
+  assert.equal(largos.length, 0, `${largos.length} títulos de más de ${MAX_TITULO} caracteres:\n  ` + largos.join("\n  "));
 });
 
 test("cada página tiene una meta description no vacía", () => {

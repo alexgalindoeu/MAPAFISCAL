@@ -10,7 +10,7 @@ import { readFileSync, readdirSync } from "node:fs";
 import { createRequire } from "node:module";
 import { join, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
-import { SLUG, ORDEN_TERRITORIOS, NOMBRE_CORTO, esc, euros, pct, layout, jsonLdMigas, jsonLdFaq, bloqueFaq, migasHtml, LIRPF_BOE } from "./seo_comun.mjs";
+import { tituloQueQuepa, SLUG, ORDEN_TERRITORIOS, NOMBRE_CORTO, esc, euros, pct, layout, jsonLdMigas, jsonLdFaq, bloqueFaq, migasHtml, LIRPF_BOE } from "./seo_comun.mjs";
 
 const require = createRequire(import.meta.url);
 const WEB = join(dirname(fileURLToPath(import.meta.url)), "..", "web");
@@ -80,7 +80,7 @@ function paginaTerritorio(P, terr, generado) {
   ${cta("Calcula tu rescate", APP(terr), ["Ver todos los territorios", HUB])}
   ${bloqueFaq(qs)}
   </div>`;
-  const title = `Rescate plan de pensiones ${NOMBRE_CORTO[terr]} ${P.ejercicio}: cuánto tributa`;
+  const title = tituloQueQuepa(`Rescate plan de pensiones ${NOMBRE_CORTO[terr]} ${P.ejercicio}: cuánto tributa`, `Rescate plan de pensiones ${NOMBRE_CORTO[terr]} ${P.ejercicio}: IRPF`);
   const description = `Rescatar ${euros(total)} del plan de pensiones en ${NOMBRE_CORTO[terr]} (${P.ejercicio}) sube el IRPF ${euros(r[r.mejor].extra)} con la mejor opción. Compara de una vez, renta o mixto. Calculadora gratis.`;
   return { ruta, html: layout({ title, description, canonical: ruta, breadcrumb: migasHtml(migas), main, generado, ejercicio: P.ejercicio,
     jsonld: [jsonLdMigas(migas), jsonLdFaq(qs)] }) };

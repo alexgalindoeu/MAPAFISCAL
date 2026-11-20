@@ -81,7 +81,7 @@ function paginasConjunta(P, generado) {
   out.push(pagina({ ruta: HUB_CJ, migas: migasHub, generado,
     h1: `Declaración conjunta o individual ${P.ejercicio}: cuál os conviene`,
     entradilla: `Con un sueldo de 30.000 € y la pareja sin ingresos, la conjunta ahorra ${esc(euros(C.conjunta(P, pareja(30000, 0)).ahorro))} en ${esc(nombre(P, TERR))}. Deja de compensar cuando el segundo sueldo pasa de unos ${esc(euros(um))}.`,
-    title: `Declaración conjunta o individual ${P.ejercicio}: cuál conviene y cuánto se ahorra | Mapafiscal`,
+    title: `Declaración conjunta o individual ${P.ejercicio}: cuál conviene`,
     description: `Calcula si os conviene la declaración conjunta o la individual en ${P.ejercicio}: reducción de 3.400 €, mínimos y ejemplos por sueldo en los 19 territorios fiscales.`,
     faq: faqCj(P),
     cuerpo: `${reglasCj(P)}

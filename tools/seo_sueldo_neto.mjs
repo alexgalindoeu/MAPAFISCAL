@@ -12,7 +12,7 @@
 // =============================================================================
 // resta: sin signo si el importe redondeado es 0 (evita «−0 €»)
 const menos = n => (Math.round(Math.abs(n)) ? "−" : "") + euros(Math.abs(n));
-import { SLUG, ORDEN_TERRITORIOS, HERRAMIENTA, esc, euros, pct, layout, jsonLdMigas, jsonLdFaq, bloqueFaq, migasHtml } from "./seo_comun.mjs";
+import { NOMBRE_CORTO, SLUG, ORDEN_TERRITORIOS, HERRAMIENTA, esc, euros, pct, layout, jsonLdMigas, jsonLdFaq, bloqueFaq, migasHtml } from "./seo_comun.mjs";
 
 const FORAL = new Set(["ES-PV-BI", "ES-PV-SS", "ES-PV-VI", "ES-NC"]);
 const pct2 = n => (100 * n).toFixed(2).replace(".", ",") + " %";
@@ -135,7 +135,7 @@ export function paginasSueldoNeto(d) {
   </div>`;
     return layout({
       jsonld: [jsonLdMigas(migas), jsonLdFaq(faq)],
-      title: `${titulo}: ${euros(f.neto / 14)} al mes | Mapafiscal`,
+      title: `Sueldo neto ${euros(b)} en ${NOMBRE_CORTO[c]} (${EJ}): ${euros(f.neto / 14)}/mes`,
       description: `${euros(b)} brutos en ${n} son ${euros(f.neto)} netos al año en ${EJ}: ${euros(f.neto / 12)} al mes en 12 pagas o ${euros(f.neto / 14)} en 14. Desglose de IRPF y Seguridad Social y comparación con los 19 territorios.`,
       canonical: rutaTer(b, c), breadcrumb: migasHtml(migas), main, generado: gen, ejercicio: EJ
     });
