@@ -243,7 +243,16 @@
   }
 
   // hogar guardado -> formulario (abrir cliente); admite los hogares del formulario anterior
+  // pasa siempre por migrarHogar (esquema.js): admite hogares sin versión y rechaza con un aviso
+  // lo que no cumple el contrato del motor, sin romper la página
   function rellenarFormulario(h) {
+    const ESQ = window.MapafiscalEsquema;
+    if (ESQ) {
+      const m = ESQ.migrarHogar(h);
+      if (!m.ok) { alert("No se ha podido abrir este hogar: " + m.error); return; }
+      if (m.avisos.length && typeof console !== "undefined") console.warn("[hogar] " + m.avisos.join(" "));
+      h = ESQ.sinVersion(m.hogar);
+    }
     selTerr.value = T[h.territorio] ? h.territorio : selTerr.value;
     formulario.rellenar(h);
     pintarAyudaMunicipio(); recalcular();
@@ -1026,8 +1035,11 @@
   // y se guarda al volver (continuarTrasAcceso). Con plan Gestor, el botón es «Guardar como
   // cliente» (su cartera); sin la tabla `calculos` desplegada, todo queda como antes.
   let guardadoHogar = null;      // hogar (JSON) del último cálculo guardado, para no duplicarlo
+  // el hogar se guarda con `schema_version` (esquema.js); las comparaciones se hacen sin ella
+  const conVersion = h => window.MapafiscalEsquema ? window.MapafiscalEsquema.conVersion(h) : h;
+  const huellaHogar = h => JSON.stringify(window.MapafiscalEsquema ? window.MapafiscalEsquema.sinVersion(h) : h);
   function filaActual() {
-    const { hogar, liq } = ultima;
+    const { liq } = ultima, hogar = conVersion(ultima.hogar);
     return MC.filaCalculo({ hogar, liq, ejercicio: P.ejercicio, territorio: hogar.territorio, nombreTerritorio: corto(hogar.territorio),
       retenciones: FORM.retencionesHogar(hogar), motor: P.generado });
   }
@@ -1053,7 +1065,7 @@
       return false;
     }
     sesion.calculos.unshift(data);
-    guardadoHogar = JSON.stringify(fila.hogar);
+    guardadoHogar = huellaHogar(fila.hogar);
     avisoGuardado(`Guardado en tu <a href="#perfil">perfil</a>.`);
     pintarBotonesGuardar();
     return true;
@@ -1067,7 +1079,7 @@
         { destino: desde || "calculadora" }, "crear");
       return;
     }
-    if (guardadoHogar === JSON.stringify(fila.hogar)) { irA("perfil"); return; }
+    if (guardadoHogar === huellaHogar(fila.hogar)) { irA("perfil"); return; }
     const b = $("btn-guardar-calculo");
     ocupado(b, true);
     insertarCalculo(fila).finally(() => ocupado(b, false));
@@ -1248,7 +1260,7 @@
     if (!alias) { msg.textContent = "Pon un alias para reconocer al cliente."; msg.className = "mensaje error"; return; }
     const { hogar, liq } = ultima;
     const fila = {
-      alias, notas: $("guardar-notas").value.trim() || null, territorio: hogar.territorio, ejercicio: P.ejercicio, hogar,
+      alias, notas: $("guardar-notas").value.trim() || null, territorio: hogar.territorio, ejercicio: P.ejercicio, hogar: conVersion(hogar),
       resultado: { cuotaLiquidaTotal: liq.cuotaLiquidaTotal, cuotaResultanteAutoliquidacion: liq.cuotaResultanteAutoliquidacion,
         cuotaDiferencial: liq.cuotaDiferencial, retenciones: FORM.retencionesHogar(hogar),
         tipoMedioEfectivo: liq.tipoMedioEfectivo, modo: liq.modoTributacionElegido, motor: P.generado },
@@ -1477,7 +1489,7 @@
         const ej = +c.ejercicio;
         if (ej && ej !== ejercicioPedido && EJERCICIOS.includes(ej)) await cambiarEjercicio(ej);
         cerrarCliente(); rellenarFormulario(c.hogar);
-        guardadoHogar = JSON.stringify(c.hogar); pintarBotonesGuardar();
+        guardadoHogar = huellaHogar(c.hogar); pintarBotonesGuardar();
         irA("calculadora");
         return;
       }
@@ -1486,7 +1498,7 @@
       const { error } = await sb.from("calculos").delete().eq("id", c.id);
       if (error) { b.disabled = false; alert("No se pudo borrar. " + MC.textoError(error).texto); return; }
       sesion.calculos = sesion.calculos.filter(x => x.id !== c.id);
-      if (guardadoHogar === JSON.stringify(c.hogar)) guardadoHogar = null;
+      if (guardadoHogar === huellaHogar(c.hogar)) guardadoHogar = null;
       pintarPerfil();
     });
 

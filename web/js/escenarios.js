@@ -19,6 +19,7 @@
   const NAVEGADOR = typeof window !== "undefined" && typeof document !== "undefined";
   const H = (NAVEGADOR && window.irpfsim) || (typeof require === "function" ? require("./irpfsim.js") : null);
   const F = (NAVEGADOR && window.formularioIrpf) || (typeof require === "function" ? require("./formulario.js") : null);
+  const ESQ = (NAVEGADOR && window.MapafiscalEsquema) || (typeof require === "function" ? require("./esquema.js") : null);
 
   if (NAVEGADOR) {
     window.MAPAFISCAL_HERRAMIENTAS = Object.assign(window.MAPAFISCAL_HERRAMIENTAS || {}, {
@@ -107,6 +108,29 @@
   const hogarDesdeCompartido = (h, a, P) => hogarDesdeEstado(estadoDesdeCompartido(h, a), P);
   const clonar = x => JSON.parse(JSON.stringify(x));
 
+  // ---- versión del formato ---------------------------------------------------------------
+  // `schema_version` es la versión del formato del payload (no el ejercicio, que va en `e`).
+  // Los enlaces anteriores no la llevan (versión 0) y se abren igual. El hogar (`h`) pasa por
+  // migrarHogar (esquema.js): un importe en texto se convierte con aviso o se rechaza.
+  // payload decodificado -> { ok, payload, avisos } | { ok: false, error }
+  function leerCompartido(p) {
+    if (!p || typeof p !== "object") return { ok: false, error: "El enlace no contiene datos válidos." };
+    const avisos = [];
+    const v = p.schema_version == null ? 0 : p.schema_version;
+    if (!Number.isInteger(v) || v < 0) return { ok: false, error: `La versión del enlace («${p.schema_version}») no es válida.` };
+    if (v > ESQ.VERSION) avisos.push(`Este enlace usa un formato más nuevo (versión ${v}) que el de esta página (versión ${ESQ.VERSION}): se abre con lo que se reconoce.`);
+    const q = Object.assign({}, p, { schema_version: ESQ.VERSION });
+    if (p.h != null) {
+      // el hogar compartido hereda la versión del payload
+      const m = ESQ.migrarHogar(Object.assign({}, p.h, { schema_version: Math.min(v, ESQ.VERSION) }));
+      if (!m.ok) return { ok: false, error: m.error };
+      q.h = ESQ.sinVersion(m.hogar);
+      avisos.push(...m.avisos);
+    }
+    if (p.f != null && (typeof p.f !== "object" || Array.isArray(p.f))) return { ok: false, error: "Los campos del enlace no son válidos." };
+    return { ok: true, payload: q, avisos };
+  }
+
   // ---- escenarios -----------------------------------------------------------------------
   const TIPOS = {
     sueldo: { op: "Me suben (o bajan) el sueldo", campo: "Nuevo sueldo bruto anual", euros: true },
@@ -178,7 +202,7 @@
   const SUELDO_MIN = 15000, SUELDO_MAX = 150000;
   const PUNTOS = (() => { const l = []; for (let s = SUELDO_MIN; s <= SUELDO_MAX; s += 5000) l.push(s); return l; })();
 
-  const CALCULOS = { codificar, decodificar, podar, podarHogar, estadoDesdeCompartido, hogarDesdeCompartido, aplicar,
+  const CALCULOS = { codificar, decodificar, leerCompartido, podar, podarHogar, estadoDesdeCompartido, hogarDesdeCompartido, aplicar,
     resultado, calcularEscenarios, hogarTipo, hogarConSueldo, porTerritorio, TIPOS, PUNTOS, SUELDO_MIN, SUELDO_MAX };
   if (typeof module !== "undefined" && module.exports) { module.exports = CALCULOS; return; }
   window.MapafiscalEscenarios = CALCULOS;
@@ -221,7 +245,7 @@
     const a = App(), u = a && a.ultimo();
     if (!u) return null;
     const { h, a: auto } = podarHogar(u.hogar, a.P());
-    return { v: 1, e: a.P().ejercicio, h, a: auto };
+    return { v: 1, schema_version: ESQ.VERSION, e: a.P().ejercicio, h, a: auto };
   }
   // herramientas: valores de los campos de su formulario (y de los selectores de su cabecera)
   function camposVista(v) {
@@ -236,7 +260,7 @@
       else if (el.type === "checkbox") f[el.id] = el.checked ? 1 : 0;
       else f[el.id] = el.value;
     }
-    return { v: 1, f };
+    return { v: 1, schema_version: ESQ.VERSION, f };
   }
   const payloads = {};        // vista -> función (escenarios la registra más abajo)
   function payloadDe(v) {
@@ -331,12 +355,30 @@
     }
     return true;
   }
+  // aviso no bloqueante al abrir un enlace (formato nuevo, importe convertido o rechazado)
+  function avisoEnlace(texto, error) {
+    if (typeof console !== "undefined") (error ? console.error : console.warn)("[enlace] " + texto);
+    let d = document.getElementById("aviso-enlace");
+    if (!d) {
+      d = document.createElement("div");
+      d.id = "aviso-enlace"; d.setAttribute("role", "status");
+      d.style.cssText = "position:fixed;left:16px;right:16px;bottom:16px;z-index:50;max-width:40rem;margin:0 auto;padding:.75rem 1rem;border-radius:8px;background:#fff8e1;color:#4a3b00;border:1px solid #e0c060;box-shadow:0 2px 8px rgba(0,0,0,.15)";
+      d.addEventListener("click", () => d.remove());
+      document.body.appendChild(d);
+    }
+    d.textContent = texto;
+    if (error) d.style.background = "#fdecea";
+  }
   async function abrirEnlace() {
     const m = location.hash.match(/^#([\w-]+)\?(?:[^#]*&)?s=([A-Za-z0-9_-]+)/);
     if (!m) return;
-    const v = m[1], p = await decodificar(m[2]);
+    const v = m[1], crudo = await decodificar(m[2]);
     try { history.replaceState(null, "", "#" + v); } catch (e) { /* sin historial */ }
-    if (!p) return;
+    if (!crudo) return;
+    const leido = leerCompartido(crudo);
+    if (!leido.ok) { avisoEnlace("No se ha podido abrir el enlace compartido: " + leido.error, true); return; }
+    if (leido.avisos.length) avisoEnlace(leido.avisos.join(" "), false);
+    const p = leido.payload;
     if (p.f) await aplicarHerramienta(v, p.f);
     else if (p.h) {
       await aplicarHogar(p);
@@ -654,7 +696,7 @@
     const e = estadoBase();
     if (!e || !P()) return null;
     const { h, a } = podarHogar(hogarDesdeEstado(e, P()), P());
-    return { v: 1, e: P().ejercicio, h, a, x: E.lista };
+    return { v: 1, schema_version: ESQ.VERSION, e: P().ejercicio, h, a, x: E.lista };
   };
 
   // ---- arranque ----------------------------------------------------------------------
