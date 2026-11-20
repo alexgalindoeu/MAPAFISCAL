@@ -220,6 +220,11 @@
     }
     destino.appendChild(ins);
     (window.adsbygoogle = window.adsbygoogle || []).push({});
+    // Si AdSense no llega a servir nada (bloqueador, cuenta en revisión, sin inventario), el
+    // hueco reservado no se queda como un recuadro en blanco: se oculta a los 8 s.
+    if (!h.carril) setTimeout(() => {
+      if (ins.dataset.adStatus !== "filled" && !ins.querySelector("iframe")) el.hidden = true;
+    }, 8000);
   }
 
   // Carriles fuera en las vistas sin anuncios (son de página, no de vista).

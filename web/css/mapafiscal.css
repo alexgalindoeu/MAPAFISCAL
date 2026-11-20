@@ -559,6 +559,13 @@ details.mas:not([open]) summary { margin-bottom: 0; }
 .tabla-clientes .acc { text-align: right; white-space: nowrap; }
 .tarjeta-tabla { padding: 0; overflow: hidden; }
 .tarjeta-tabla .envoltorio { overflow-x: auto; }
+/* Lo que no es la tabla (rótulo, ayuda, notas) lleva el margen interior de cualquier tarjeta */
+.tarjeta-tabla > :not(table):not(.envoltorio) { margin-left: 20px; margin-right: 20px; }
+.tarjeta-tabla > :first-child:not(table):not(.envoltorio) { margin-top: 18px; }
+.tarjeta-tabla > :last-child:not(table):not(.envoltorio) { margin-bottom: 18px; }
+.tarjeta-tabla > .ayuda { margin-bottom: 12px; }
+.tarjeta-tabla .cobertura :is(th, td):first-child { padding-left: 20px; }
+.tarjeta-tabla .cobertura :is(th, td):last-child { padding-right: 20px; }
 .estado-vacio { text-align: center; padding: 48px 20px; }
 .estado-vacio h2 { font-size: 20px; margin-bottom: 8px; }
 .estado-vacio p { color: var(--tinta-2); max-width: 52ch; margin: 0 auto 18px; }

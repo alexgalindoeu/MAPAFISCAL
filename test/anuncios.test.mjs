@@ -343,7 +343,7 @@ function ejecutarSeo(cfg, { almacen = {}, respuesta } = {}) {
   const ctx = {
     document, location: { hash: "", reload() {} },
     localStorage: { getItem: k => (k in almacen ? almacen[k] : null), setItem: (k, v) => { almacen[k] = String(v); }, removeItem: k => { delete almacen[k]; } },
-    requestIdleCallback: f => f(), setTimeout: f => f(), addEventListener() {}, CustomEvent: class { constructor(t, o) { this.type = t; this.detail = o && o.detail; } },
+    requestIdleCallback: f => f(), setTimeout: (f, ms) => (ms >= 8000 ? 0 : f()), addEventListener() {}, CustomEvent: class { constructor(t, o) { this.type = t; this.detail = o && o.detail; } },
     MAPAFISCAL_CONFIG: cfg, JSON, Date, Set, URL, Promise, Math, Number,
     fetch: (url, o) => { pedidos.push({ url, o }); return respuesta ? Promise.resolve(respuesta) : Promise.reject(new Error("red")); }
   };
