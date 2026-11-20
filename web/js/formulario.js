@@ -391,7 +391,7 @@
   function importe(e, k, etq, ayuda, extra) {
     const v = get(e, k), id = idCampo(k);
     return `<div class="campo"><label for="${id}">${etq}</label>
-      <div class="con-sufijo"><input type="number" id="${id}" data-k="${k}" min="0" step="${(extra && extra.step) || 10}" inputmode="decimal" value="${n(v)}"${ayuda ? ` aria-describedby="${id}-ay"` : ""}><span>€</span></div>
+      <div class="con-sufijo"><input type="text" data-importe id="${id}" data-k="${k}" min="0" step="${(extra && extra.step) || 10}" inputmode="decimal" value="${n(v)}"${ayuda ? ` aria-describedby="${id}-ay"` : ""}><span>€</span></div>
       ${ayuda ? `<p class="ayuda" id="${id}-ay">${ayuda}</p>` : ""}</div>`;
   }
   function numero(e, k, etq, attrs, ayuda) {
@@ -447,7 +447,7 @@
       ${importe(e, r + "salario", "Salario o pensión bruta anual", "Retribuciones dinerarias íntegras del certificado de retenciones de tu empresa o de la Seguridad Social.", { step: 100 })}
       ${casilla(e, r + "pension", "Es una pensión de jubilación de la Seguridad Social")}
       <div class="campo"><label for="${idCampo(r + "ss")}">Cotizaciones a la Seguridad Social</label>
-        <div class="con-sufijo"><input type="number" id="${idCampo(r + "ss")}" data-k="${r}ss" min="0" step="10" inputmode="decimal" value="${ssVal}" aria-describedby="${idCampo(r + "ss")}-ay"><span>€</span></div>
+        <div class="con-sufijo"><input type="text" data-importe id="${idCampo(r + "ss")}" data-k="${r}ss" min="0" step="10" inputmode="decimal" value="${ssVal}" aria-describedby="${idCampo(r + "ss")}-ay"><span>€</span></div>
         <p class="ayuda" id="${idCampo(r + "ss")}-ay">${ssAuto ? `Estimadas con los tipos del trabajador de ${ej} (contrato indefinido). Cámbialas si las conoces: vienen en tu certificado de retenciones.`
           : `Importe introducido. <button class="btn btn-txt btn-sm" type="button" data-accion="ss-auto" data-p="${id}">Volver a estimarlas</button>`}</p></div>
       ${importe(e, r + "retenciones", "Retenciones e ingresos a cuenta del año", "Suma las de todos tus certificados (trabajo, banco, alquileres) y los pagos fraccionados de los modelos 130 o 131.", { step: 50 })}`;
@@ -635,6 +635,9 @@
       let v;
       if (el.type === "checkbox") v = el.checked;
       else if (el.type === "radio") { if (!el.checked) return; v = el.value; }
+      // importes en formato español (js/importe.js): el municipio vacío sigue siendo "" (no 0)
+      else if (el.hasAttribute("data-importe") && typeof window !== "undefined" && window.MapafiscalImporte)
+        v = k === "municipio" ? (el.value.trim() === "" ? "" : String(window.MapafiscalImporte.valor(el))) : window.MapafiscalImporte.valor(el);
       else if (el.type === "number" && k !== "municipio") v = el.value === "" ? 0 : n(el.value);
       else v = el.value;
       if (/\.ss$/.test(k)) set(e, k.replace(/ss$/, "ssManual"), true);

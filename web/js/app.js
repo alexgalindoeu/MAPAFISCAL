@@ -17,7 +17,7 @@
   };
   const eur0 = n => eur(n, 0);
   const pct = n => (100 * (n || 0)).toFixed(2).replace(".", ",") + " %";
-  const num = id => { const v = parseFloat($(id).value); return Number.isFinite(v) ? v : 0; };
+  const num = id => window.MapafiscalImporte.valor($(id));   // js/importe.js: formato español, con error visible
   const camel = s => s.replace(/_([a-z])/g, (_, c) => c.toUpperCase());
 
   // ---- datos: embebidos (versión autónoma) o servidos junto a la web ---------------
@@ -1592,7 +1592,7 @@
       trabajo: salario > 0 ? { dinerarias: salario, cotizacionesSs: ssEstimada(salario) } : null }]
   });
   function pintarMiniCalc() {
-    const salario = Math.max(0, Math.min(1e7, parseFloat(mc.salario.value) || 0)), terr = mc.terr.value;
+    const salario = Math.max(0, Math.min(1e7, window.MapafiscalImporte.valor(mc.salario))), terr = mc.terr.value;
     let cmp;
     try { cmp = irpfsim.compararTerritorios(hogarRapido(terr, salario), P); } catch (e) { $("mc-res").innerHTML = '<p class="vacio">Revisa el sueldo.</p>'; return; }
     const val = c => c.cuotaResultanteAutoliquidacion;
@@ -1637,7 +1637,7 @@
   $("mc-res").addEventListener("click", e => {
     if (!e.target.closest("[data-mc-ir]")) return;
     selTerr.value = mc.terr.value;
-    formulario.estado.personas.d1.salario = Math.max(0, parseFloat(mc.salario.value) || 0);
+    formulario.estado.personas.d1.salario = Math.max(0, window.MapafiscalImporte.valor(mc.salario));
     pintarGastosTerritorio(); recalcular();
   });
 

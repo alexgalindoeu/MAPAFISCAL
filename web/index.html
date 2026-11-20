@@ -83,7 +83,7 @@
       <p class="entradilla">Cada comunidad y cada territorio foral tiene su escala, sus mínimos y sus deducciones. Calcula tu declaración con la normativa del tuyo y mira cuánto pagarías en el resto de España. Gratis, sin registrarte y sin que tus datos salgan de tu navegador.</p>
       <form class="minicalc" id="minicalc" autocomplete="off" novalidate aria-label="Cálculo rápido">
         <div class="minicalc-campos">
-          <div class="campo"><label for="mc-salario">Tu sueldo bruto anual</label><div class="con-sufijo"><input type="number" id="mc-salario" min="0" step="500" value="30000" inputmode="numeric"><span>€</span></div></div>
+          <div class="campo"><label for="mc-salario">Tu sueldo bruto anual</label><div class="con-sufijo"><input type="text" data-importe id="mc-salario" min="0" step="500" value="30000" inputmode="decimal"><span>€</span></div></div>
           <div class="campo"><label for="mc-territorio">Dónde vives</label><select id="mc-territorio"></select></div>
         </div>
         <div class="minicalc-res" id="mc-res" aria-live="polite"></div>
@@ -135,7 +135,7 @@
         </div>
         <div class="campo">
           <label for="f-municipio">Habitantes de tu municipio <span class="ayuda">(opcional)</span></label>
-          <input type="number" id="f-municipio" data-k="municipio" min="0" step="100" placeholder="p. ej. 4200" inputmode="numeric" aria-describedby="ayuda-municipio">
+          <input type="text" data-importe id="f-municipio" data-k="municipio" min="0" step="100" placeholder="p. ej. 4200" inputmode="decimal" aria-describedby="ayuda-municipio">
           <p class="ayuda" id="ayuda-municipio"></p>
         </div>
         <label class="casilla"><input type="checkbox" id="f-despoblada" data-k="despoblada"> Mi municipio figura en la lista oficial de zonas rurales o en riesgo de despoblación de mi comunidad</label>
@@ -401,9 +401,9 @@
       <fieldset class="bloque">
         <legend><span class="paso">1</span>Tu sueldo</legend>
         <div class="campo"><label for="neto-bruto" id="neto-lbl-bruto">Sueldo bruto anual</label>
-          <div class="con-sufijo"><input type="number" id="neto-bruto" min="0" step="500" value="30000" inputmode="decimal"><span>€</span></div></div>
+          <div class="con-sufijo"><input type="text" data-importe id="neto-bruto" min="0" step="500" value="30000" inputmode="decimal"><span>€</span></div></div>
         <div class="campo" id="neto-campo-nuevo" hidden><label for="neto-nuevo">Sueldo bruto anual con la subida</label>
-          <div class="con-sufijo"><input type="number" id="neto-nuevo" min="0" step="500" value="33000" inputmode="decimal"><span>€</span></div></div>
+          <div class="con-sufijo"><input type="text" data-importe id="neto-nuevo" min="0" step="500" value="33000" inputmode="decimal"><span>€</span></div></div>
         <div class="campo"><label for="neto-contrato">Contrato</label>
           <select id="neto-contrato"><option value="indefinido">Indefinido</option><option value="temporal">Temporal (duración determinada)</option></select></div>
       </fieldset>
@@ -466,7 +466,7 @@
       <fieldset class="bloque">
         <legend><span class="paso">1</span>Tus datos</legend>
         <div class="campo"><label for="pp-bruto">Sueldo bruto anual</label>
-          <div class="con-sufijo"><input type="number" id="pp-bruto" min="0" step="500" value="40000" inputmode="decimal"><span>€</span></div></div>
+          <div class="con-sufijo"><input type="text" data-importe id="pp-bruto" min="0" step="500" value="40000" inputmode="decimal"><span>€</span></div></div>
         <div class="campo"><label for="pp-territorio">Territorio donde resides</label><select id="pp-territorio"></select></div>
         <div class="rejilla2">
           <div class="campo"><label for="pp-edad">Tu edad</label><input type="number" id="pp-edad" min="16" max="110" step="1" value="45"></div>
@@ -478,15 +478,15 @@
       <fieldset class="bloque" id="pp-bloque-plan">
         <legend><span class="paso">2</span>Plan de pensiones</legend>
         <div class="campo"><label for="pp-aportacion">Lo que piensas aportar este año</label>
-          <div class="con-sufijo"><input type="number" id="pp-aportacion" min="0" step="100" value="1500" inputmode="decimal"><span>€</span></div>
+          <div class="con-sufijo"><input type="text" data-importe id="pp-aportacion" min="0" step="100" value="1500" inputmode="decimal"><span>€</span></div>
           <p class="ayuda">Tus aportaciones de todo el año, incluidas las que ya hayas hecho.</p></div>
         <div class="campo"><label for="pp-empresa">Aportación de tu empresa a un plan de empleo <span class="ayuda">(si la hay)</span></label>
-          <div class="con-sufijo"><input type="number" id="pp-empresa" min="0" step="100" value="0" inputmode="decimal"><span>€</span></div></div>
+          <div class="con-sufijo"><input type="text" data-importe id="pp-empresa" min="0" step="100" value="0" inputmode="decimal"><span>€</span></div></div>
       </fieldset>
       <fieldset class="bloque" id="pp-bloque-donativos" hidden>
         <legend><span class="paso">2</span>Donativos</legend>
         <div class="campo"><label for="pp-donativo">Lo que piensas donar este año a ONG y fundaciones</label>
-          <div class="con-sufijo"><input type="number" id="pp-donativo" min="0" step="10" value="250" inputmode="decimal"><span>€</span></div>
+          <div class="con-sufijo"><input type="text" data-importe id="pp-donativo" min="0" step="10" value="250" inputmode="decimal"><span>€</span></div>
           <p class="ayuda">Entidades acogidas a la Ley 49/2002 (la mayoría de ONG, fundaciones y la Iglesia).</p></div>
         <label class="casilla"><input type="checkbox" id="pp-recurrente"> Ya doné a la misma entidad en 2024 y 2025, igual o más cada año</label>
       </fieldset>
@@ -537,10 +537,10 @@
       <fieldset class="bloque">
         <legend><span class="paso">1</span>Tu plan</legend>
         <div class="campo"><label for="rp-antes" id="rp-l-antes">Lo que corresponde a aportaciones hasta el 31-12-2006</label>
-          <div class="con-sufijo"><input type="number" id="rp-antes" min="0" step="1000" value="30000" inputmode="decimal"><span>€</span></div>
+          <div class="con-sufijo"><input type="text" data-importe id="rp-antes" min="0" step="1000" value="30000" inputmode="decimal"><span>€</span></div>
           <p class="ayuda">Con su rentabilidad. Tu gestora te lo indica en el certificado de derechos consolidados.</p></div>
         <div class="campo"><label for="rp-despues" id="rp-l-despues">Lo que corresponde a aportaciones desde 2007</label>
-          <div class="con-sufijo"><input type="number" id="rp-despues" min="0" step="1000" value="30000" inputmode="decimal"><span>€</span></div></div>
+          <div class="con-sufijo"><input type="text" data-importe id="rp-despues" min="0" step="1000" value="30000" inputmode="decimal"><span>€</span></div></div>
         <div class="rejilla2">
           <div class="campo"><label for="rp-contingencia">Año de tu jubilación</label><input type="number" id="rp-contingencia" min="1980" max="2100" step="1" value="2026"></div>
           <div class="campo" id="rp-forma-anios"><label for="rp-anios">Repartido en</label>
@@ -550,7 +550,7 @@
       <fieldset class="bloque">
         <legend><span class="paso">2</span>Tus otros ingresos del año</legend>
         <div class="campo"><label for="rp-otros">Otros ingresos brutos al año</label>
-          <div class="con-sufijo"><input type="number" id="rp-otros" min="0" step="500" value="15000" inputmode="decimal"><span>€</span></div></div>
+          <div class="con-sufijo"><input type="text" data-importe id="rp-otros" min="0" step="500" value="15000" inputmode="decimal"><span>€</span></div></div>
         <div class="rejilla2">
           <div class="campo"><label for="rp-tipo-otros">Son</label>
             <select id="rp-tipo-otros"><option value="pension">Una pensión pública</option><option value="sueldo">Un sueldo</option></select></div>
@@ -610,7 +610,7 @@
         <legend><span class="paso">1</span>El neto que quieres</legend>
         <div class="rejilla2">
           <div class="campo"><label for="bn-neto">Neto</label>
-            <div class="con-sufijo"><input type="number" id="bn-neto" min="0" step="50" value="2000" inputmode="decimal"><span>€</span></div></div>
+            <div class="con-sufijo"><input type="text" data-importe id="bn-neto" min="0" step="50" value="2000" inputmode="decimal"><span>€</span></div></div>
           <div class="campo"><label for="bn-periodo">Cada</label>
             <select id="bn-periodo"><option value="mes14">Mes, en 14 pagas</option><option value="mes12">Mes, en 12 pagas</option><option value="anio">Año</option></select></div>
         </div>
@@ -619,14 +619,14 @@
         <legend><span class="paso">1</span>Las dos ofertas</legend>
         <div class="bn-oferta" role="group" aria-labelledby="bn-l-a"><p class="rotulo" id="bn-l-a">Oferta A</p>
           <div class="campo"><label for="bn-a-bruto">Bruto anual</label>
-            <div class="con-sufijo"><input type="number" id="bn-a-bruto" min="0" step="500" value="32000" inputmode="decimal"><span>€</span></div></div>
+            <div class="con-sufijo"><input type="text" data-importe id="bn-a-bruto" min="0" step="500" value="32000" inputmode="decimal"><span>€</span></div></div>
           <div class="rejilla2">
             <div class="campo"><label for="bn-a-territorio">Territorio</label><select id="bn-a-territorio"></select></div>
             <div class="campo"><label for="bn-a-pagas">Pagas</label><select id="bn-a-pagas"><option value="14">14</option><option value="12">12</option></select></div>
           </div></div>
         <div class="bn-oferta" role="group" aria-labelledby="bn-l-b"><p class="rotulo" id="bn-l-b">Oferta B</p>
           <div class="campo"><label for="bn-b-bruto">Bruto anual</label>
-            <div class="con-sufijo"><input type="number" id="bn-b-bruto" min="0" step="500" value="34000" inputmode="decimal"><span>€</span></div></div>
+            <div class="con-sufijo"><input type="text" data-importe id="bn-b-bruto" min="0" step="500" value="34000" inputmode="decimal"><span>€</span></div></div>
           <div class="rejilla2">
             <div class="campo"><label for="bn-b-territorio">Territorio</label><select id="bn-b-territorio"></select></div>
             <div class="campo"><label for="bn-b-pagas">Pagas</label><select id="bn-b-pagas"><option value="12">12</option><option value="14">14</option></select></div>
@@ -695,11 +695,11 @@
       <fieldset class="bloque">
         <legend><span class="paso">2</span>Ingresos</legend>
         <div class="rejilla2">
-          <div class="campo"><label for="cj-a-bruto">Sueldo bruto anual (tú)</label><div class="con-sufijo"><input type="number" id="cj-a-bruto" min="0" step="500" value="30000" inputmode="decimal"><span>€</span></div></div>
+          <div class="campo"><label for="cj-a-bruto">Sueldo bruto anual (tú)</label><div class="con-sufijo"><input type="text" data-importe id="cj-a-bruto" min="0" step="500" value="30000" inputmode="decimal"><span>€</span></div></div>
           <div class="campo"><label for="cj-a-edad">Tu edad</label><input type="number" id="cj-a-edad" min="16" max="110" value="40"></div>
         </div>
         <div class="rejilla2" id="cj-b-bloque">
-          <div class="campo"><label for="cj-b-bruto">Sueldo bruto anual (tu pareja)</label><div class="con-sufijo"><input type="number" id="cj-b-bruto" min="0" step="500" value="6000" inputmode="decimal"><span>€</span></div></div>
+          <div class="campo"><label for="cj-b-bruto">Sueldo bruto anual (tu pareja)</label><div class="con-sufijo"><input type="text" data-importe id="cj-b-bruto" min="0" step="500" value="6000" inputmode="decimal"><span>€</span></div></div>
           <div class="campo"><label for="cj-b-edad">Su edad</label><input type="number" id="cj-b-edad" min="16" max="110" value="40"></div>
         </div>
         <p class="ayuda">Sueldo o pensión. Pon 0 si no tiene ingresos.</p>
@@ -736,15 +736,15 @@
       <fieldset class="bloque">
         <legend><span class="paso">1</span>Tus pagadores</legend>
         <div class="rejilla2">
-          <div class="campo"><label for="dp-b1">Primer pagador: bruto del año</label><div class="con-sufijo"><input type="number" id="dp-b1" min="0" step="500" value="14000" inputmode="decimal"><span>€</span></div></div>
+          <div class="campo"><label for="dp-b1">Primer pagador: bruto del año</label><div class="con-sufijo"><input type="text" data-importe id="dp-b1" min="0" step="500" value="14000" inputmode="decimal"><span>€</span></div></div>
           <div class="campo"><label for="dp-c1">Contrato</label><select id="dp-c1"><option value="indefinido">Indefinido</option><option value="temporal">Temporal</option></select></div>
         </div>
-        <div class="campo"><label for="dp-r1">Retención del primero (opcional)</label><div class="con-sufijo"><input type="number" id="dp-r1" min="0" step="10" placeholder="en blanco: estimada" inputmode="decimal"><span>€</span></div></div>
+        <div class="campo"><label for="dp-r1">Retención del primero (opcional)</label><div class="con-sufijo"><input type="text" data-importe id="dp-r1" min="0" step="10" placeholder="en blanco: estimada" inputmode="decimal"><span>€</span></div></div>
         <div class="rejilla2">
-          <div class="campo"><label for="dp-b2">Segundo pagador: bruto del año</label><div class="con-sufijo"><input type="number" id="dp-b2" min="0" step="500" value="5000" inputmode="decimal"><span>€</span></div></div>
+          <div class="campo"><label for="dp-b2">Segundo pagador: bruto del año</label><div class="con-sufijo"><input type="text" data-importe id="dp-b2" min="0" step="500" value="5000" inputmode="decimal"><span>€</span></div></div>
           <div class="campo"><label for="dp-c2">Contrato</label><select id="dp-c2"><option value="indefinido">Indefinido</option><option value="temporal" selected>Temporal</option></select></div>
         </div>
-        <div class="campo"><label for="dp-r2">Retención del segundo (opcional)</label><div class="con-sufijo"><input type="number" id="dp-r2" min="0" step="10" placeholder="en blanco: estimada" inputmode="decimal"><span>€</span></div></div>
+        <div class="campo"><label for="dp-r2">Retención del segundo (opcional)</label><div class="con-sufijo"><input type="text" data-importe id="dp-r2" min="0" step="10" placeholder="en blanco: estimada" inputmode="decimal"><span>€</span></div></div>
         <p class="ayuda">Las retenciones están en tu certificado de retenciones o en tus datos fiscales.</p>
       </fieldset>
       <fieldset class="bloque">
@@ -804,12 +804,12 @@
             <select id="dd-discapacidad"><option value="no">No</option><option value="33_64">Del 33 % al 64 %</option><option value="65_mas">65 % o más</option></select></div>
         </div>
         <div class="campo"><label for="dd-bruto">Tus ingresos brutos aproximados al año</label>
-          <div class="con-sufijo"><input type="number" id="dd-bruto" min="0" step="1000" value="24000" inputmode="decimal"><span>€</span></div>
+          <div class="con-sufijo"><input type="text" data-importe id="dd-bruto" min="0" step="1000" value="24000" inputmode="decimal"><span>€</span></div>
           <p class="ayuda">Tu sueldo o pensión antes de impuestos: muchas deducciones tienen un límite de renta.</p></div>
         <div class="rejilla2">
           <div class="campo"><label for="dd-pareja">¿Tienes cónyuge?</label><select id="dd-pareja"><option value="no">No</option><option value="si">Sí</option></select></div>
           <div class="campo" id="dd-l-bruto-pareja" hidden><label for="dd-bruto-pareja">Sus ingresos brutos</label>
-            <div class="con-sufijo"><input type="number" id="dd-bruto-pareja" min="0" step="1000" value="18000" inputmode="decimal"><span>€</span></div></div>
+            <div class="con-sufijo"><input type="text" data-importe id="dd-bruto-pareja" min="0" step="1000" value="18000" inputmode="decimal"><span>€</span></div></div>
         </div>
       </fieldset>
       <fieldset class="bloque">
@@ -833,7 +833,7 @@
       <fieldset class="bloque">
         <legend><span class="paso">3</span>Vivienda y municipio</legend>
         <div class="campo"><label for="dd-alquiler">Alquiler de tu vivienda habitual pagado en el año</label>
-          <div class="con-sufijo"><input type="number" id="dd-alquiler" min="0" step="100" value="0" inputmode="decimal"><span>€</span></div></div>
+          <div class="con-sufijo"><input type="text" data-importe id="dd-alquiler" min="0" step="100" value="0" inputmode="decimal"><span>€</span></div></div>
         <div class="campo"><label for="dd-habitantes">Habitantes de tu municipio</label>
           <select id="dd-habitantes"><option value="">Más de 20.000</option><option value="20000">De 10.001 a 20.000</option><option value="10000">De 5.001 a 10.000</option><option value="5000">De 3.001 a 5.000</option><option value="3000">De 1.001 a 3.000</option><option value="1000">Hasta 1.000</option></select></div>
         <label class="casilla"><input type="checkbox" id="dd-despoblada"> Mi municipio figura en la lista oficial de zonas en riesgo de despoblación de mi comunidad</label>
@@ -842,13 +842,13 @@
         <legend><span class="paso">4</span>Gastos del año</legend>
         <div class="rejilla2">
           <div class="campo"><label for="dd-guarderia">Guardería o escuela infantil</label>
-            <div class="con-sufijo"><input type="number" id="dd-guarderia" min="0" step="100" value="0" inputmode="decimal"><span>€</span></div></div>
+            <div class="con-sufijo"><input type="text" data-importe id="dd-guarderia" min="0" step="100" value="0" inputmode="decimal"><span>€</span></div></div>
           <div class="campo"><label for="dd-educacion">Libros, material y escolaridad</label>
-            <div class="con-sufijo"><input type="number" id="dd-educacion" min="0" step="50" value="0" inputmode="decimal"><span>€</span></div></div>
+            <div class="con-sufijo"><input type="text" data-importe id="dd-educacion" min="0" step="50" value="0" inputmode="decimal"><span>€</span></div></div>
           <div class="campo"><label for="dd-donativos">Donativos a ONG y fundaciones</label>
-            <div class="con-sufijo"><input type="number" id="dd-donativos" min="0" step="50" value="0" inputmode="decimal"><span>€</span></div></div>
+            <div class="con-sufijo"><input type="text" data-importe id="dd-donativos" min="0" step="50" value="0" inputmode="decimal"><span>€</span></div></div>
           <div class="campo"><label for="dd-empleada">Cotizaciones de empleada del hogar</label>
-            <div class="con-sufijo"><input type="number" id="dd-empleada" min="0" step="100" value="0" inputmode="decimal"><span>€</span></div></div>
+            <div class="con-sufijo"><input type="text" data-importe id="dd-empleada" min="0" step="100" value="0" inputmode="decimal"><span>€</span></div></div>
         </div>
         <p class="ayuda">Si no los sabes, déjalos a 0: te diremos qué deducciones dependen de cada gasto y hasta cuánto ahorran.</p>
       </fieldset>
@@ -903,7 +903,7 @@
         </div>
         <div id="esc-basica" hidden>
           <div class="campo"><label for="esc-b-sueldo">Sueldo bruto anual</label>
-            <div class="con-sufijo"><input type="number" id="esc-b-sueldo" min="0" step="500" value="30000" inputmode="decimal"><span>€</span></div></div>
+            <div class="con-sufijo"><input type="text" data-importe id="esc-b-sueldo" min="0" step="500" value="30000" inputmode="decimal"><span>€</span></div></div>
           <div class="rejilla2">
             <div class="campo"><label for="esc-b-territorio">Territorio</label><select id="esc-b-territorio"></select></div>
             <div class="campo"><label for="esc-b-edad">Tu edad</label><input type="number" id="esc-b-edad" min="16" max="110" step="1" value="35"></div>
@@ -916,7 +916,7 @@
         <legend><span class="paso">2</span>Añade un escenario</legend>
         <div class="campo"><label for="esc-tipo">¿Qué cambia?</label><select id="esc-tipo"></select></div>
         <div class="campo" id="esc-campo-valor"><label for="esc-valor" id="esc-valor-lbl">Importe</label>
-          <div class="con-sufijo"><input type="number" id="esc-valor" min="0" step="100" inputmode="decimal" aria-describedby="esc-ayuda-valor"><span id="esc-valor-suf">€</span></div></div>
+          <div class="con-sufijo"><input type="text" data-importe id="esc-valor" min="0" step="100" inputmode="decimal" aria-describedby="esc-ayuda-valor"><span id="esc-valor-suf">€</span></div></div>
         <div class="campo" id="esc-campo-terr" hidden><label for="esc-terr">Nuevo territorio de residencia</label><select id="esc-terr"></select></div>
         <p class="ayuda" id="esc-ayuda-valor"></p>
         <div class="esc-anadir"><button class="btn btn-pri" type="submit">Añadir escenario</button></div>
@@ -1076,6 +1076,7 @@
 <script src="js/confianza.js"></script>
 <script src="js/ui.js"></script>
 <script src="js/irpfsim.js"></script>
+<script src="js/importe.js"></script>
 <script src="js/explicacion.js"></script>
 <script src="js/formulario.js"></script>
 <script src="js/cuentas.js"></script>

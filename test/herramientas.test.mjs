@@ -114,6 +114,7 @@ async function montar(hash) {
   ctx.window = ctx;
   vm.createContext(ctx);
   vm.runInContext(readFileSync(new URL("../web/js/irpfsim.js", import.meta.url), "utf8"), ctx);
+  vm.runInContext(readFileSync(new URL("../web/js/importe.js", import.meta.url), "utf8"), ctx);
   vm.runInContext(readFileSync(new URL("../web/js/herramientas.js", import.meta.url), "utf8"), ctx);
   await new Promise(r => setTimeout(r, 50));
   return { els, oyentes, ctx };

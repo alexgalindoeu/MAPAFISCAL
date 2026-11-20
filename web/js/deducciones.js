@@ -224,6 +224,8 @@
   const esc = s => String(s == null ? "" : s).replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
   const eur0 = n => eurTxt(n || 0);
   const val = id => $(id).value;
+  // importes en formato español (js/importe.js); sin el módulo (tests), como antes
+  const imp = id => window.MapafiscalImporte ? Math.max(0, window.MapafiscalImporte.valor($(id))) : num(val(id));
   async function datos(idScript, url) {
     const el = document.getElementById(idScript);
     if (el) return JSON.parse(el.textContent);
@@ -244,13 +246,13 @@
     $("dd-bloque-hijos").hidden = n === 0;
   }
   const respuestas = () => ({
-    territorio: val("dd-territorio"), edad: num(val("dd-edad"), 40), bruto: num(val("dd-bruto")), discapacidad: val("dd-discapacidad"),
-    pareja: val("dd-pareja") === "si", brutoPareja: num(val("dd-bruto-pareja")),
+    territorio: val("dd-territorio"), edad: num(val("dd-edad"), 40), bruto: imp("dd-bruto"), discapacidad: val("dd-discapacidad"),
+    pareja: val("dd-pareja") === "si", brutoPareja: imp("dd-bruto-pareja"),
     hijos: edades.map((h, i) => ({ edad: h.edad, discapacidad: i === 0 && $("dd-hijo-disc").checked ? "33_64" : "no" })),
     partoMultiple: $("dd-multiple").checked, familiaNumerosa: val("dd-fn"), ascendiente: val("dd-ascendiente"),
-    alquiler: num(val("dd-alquiler")), habitantes: val("dd-habitantes"), zonaDespoblada: $("dd-despoblada").checked,
-    guarderia: num(val("dd-guarderia")), educacion: num(val("dd-educacion")), donativos: num(val("dd-donativos")),
-    empleadaHogar: num(val("dd-empleada"))
+    alquiler: imp("dd-alquiler"), habitantes: val("dd-habitantes"), zonaDespoblada: $("dd-despoblada").checked,
+    guarderia: imp("dd-guarderia"), educacion: imp("dd-educacion"), donativos: imp("dd-donativos"),
+    empleadaHogar: imp("dd-empleada")
   });
 
   const etiquetaEstado = a => a.firme ? "" : `<span class="dd-estado" title="Cifra pendiente de verificar con la fuente oficial">${esc(a.estado === "provisional" ? "Provisional" : "Pendiente de verificar")}</span>`;

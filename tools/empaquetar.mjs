@@ -71,6 +71,7 @@ export function empaquetar() {
   sustituir('<script src="js/confianza.js"></script>', "<script>\n" + leer("js/confianza.js") + "</script>");
   sustituir('<script src="js/ui.js"></script>', "<script>\n" + leer("js/ui.js") + "</script>");
   sustituir('<script src="js/irpfsim.js"></script>', "<script>\n" + leer("js/irpfsim.js") + "</script>");
+  sustituir('<script src="js/importe.js"></script>', "<script>\n" + leer("js/importe.js") + "</script>");
   sustituir('<script src="js/formulario.js"></script>', "<script>\n" + leer("js/formulario.js") + "</script>");
   sustituir('<script src="js/cuentas.js"></script>', "<script>\n" + leer("js/cuentas.js") + "</script>");
   sustituir('<script src="js/explicacion.js"></script>', "<script>\n" + leer("js/explicacion.js") + "</script>");

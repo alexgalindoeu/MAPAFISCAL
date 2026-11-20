@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-<url><loc>https://mapafiscal.es/</loc><lastmod>2026-11-19</lastmod><changefreq>weekly</changefreq><priority>1.0</priority></url>
+<url><loc>https://mapafiscal.es/</loc><lastmod>2026-11-20</lastmod><changefreq>weekly</changefreq><priority>1.0</priority></url>
 <url><loc>https://mapafiscal.es/irpf/andalucia/</loc><lastmod>2026-11-17</lastmod><changefreq>monthly</changefreq><priority>0.7</priority></url>
 <url><loc>https://mapafiscal.es/irpf/andalucia/deducciones/</loc><lastmod>2026-11-17</lastmod><changefreq>monthly</changefreq><priority>0.7</priority></url>
 <url><loc>https://mapafiscal.es/irpf/aragon/</loc><lastmod>2026-11-17</lastmod><changefreq>monthly</changefreq><priority>0.7</priority></url>
@@ -778,5 +778,5 @@
 <url><loc>https://mapafiscal.es/irpf/navarra/discapacidad/</loc><lastmod>2026-11-14</lastmod><changefreq>monthly</changefreq><priority>0.7</priority></url>
 <url><loc>https://mapafiscal.es/irpf/navarra/planes-pensiones/</loc><lastmod>2026-11-14</lastmod><changefreq>monthly</changefreq><priority>0.7</priority></url>
 <url><loc>https://mapafiscal.es/irpf/pais-vasco/</loc><lastmod>2026-11-14</lastmod><changefreq>monthly</changefreq><priority>0.7</priority></url>
-<url><loc>https://mapafiscal.es/validacion/</loc><lastmod>2026-11-19</lastmod><changefreq>monthly</changefreq><priority>0.7</priority></url>
+<url><loc>https://mapafiscal.es/validacion/</loc><lastmod>2026-11-20</lastmod><changefreq>monthly</changefreq><priority>0.7</priority></url>
 </urlset>

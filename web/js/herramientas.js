@@ -32,7 +32,7 @@
   };
   const eur0 = n => eur(n, 0);
   const pct = (n, dec = 1) => (100 * (n || 0)).toFixed(dec).replace(".", ",") + " %";
-  const num = id => { const v = parseFloat($(id).value); return Number.isFinite(v) ? Math.max(0, v) : 0; };
+  const num = id => Math.max(0, window.MapafiscalImporte.valor($(id)));   // js/importe.js
   const red2 = n => Math.round((n + 1e-9) * 100) / 100;
 
   const ORDEN = ["ES-AN", "ES-AR", "ES-AS", "ES-IB", "ES-CN", "ES-CB", "ES-CL", "ES-CM", "ES-CT", "ES-EX", "ES-GA",

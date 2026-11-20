@@ -74,6 +74,7 @@ test("la vista #rescate-plan se pinta con los datos de 2026", async () => {
   ctx.window = ctx;
   vm.createContext(ctx);
   vm.runInContext(readFileSync(new URL("../web/js/irpfsim.js", import.meta.url), "utf8"), ctx);
+  vm.runInContext(readFileSync(new URL("../web/js/importe.js", import.meta.url), "utf8"), ctx);
   vm.runInContext(readFileSync(new URL("../web/js/rescate.js", import.meta.url), "utf8"), ctx);
   await new Promise(r => setTimeout(r, 50));
   assert.ok(ctx.MAPAFISCAL_HERRAMIENTAS["rescate-plan"], "tarjeta de portada");
