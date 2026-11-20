@@ -156,10 +156,13 @@ main:focus { outline: none; }
   -webkit-backdrop-filter: saturate(1.4) blur(10px); backdrop-filter: saturate(1.4) blur(10px); border-bottom: 1px solid var(--linea); }
 .appbar-in { max-width: 1240px; margin: 0 auto; padding: 0 clamp(16px, 3vw, 32px); height: 60px;
   display: flex; align-items: center; gap: 28px; }
-.marca { display: flex; align-items: center; gap: 10px; text-decoration: none; color: var(--tinta); flex: none; }
+.marca { display: flex; align-items: baseline; gap: 1px; text-decoration: none; color: var(--tinta); flex: none; }
 .marca:hover { color: var(--tinta); }
-.marca-ico { width: 30px; height: 30px; transition: transform var(--dur-lenta) var(--curva); }
-.marca:hover .marca-ico { transform: rotate(-6deg); }
+.marca-ico { width: 20px; height: 16.2px; flex: none; align-self: center; transform: translateY(-1px); transition: transform var(--dur-lenta) var(--curva); }
+.marca:hover .marca-ico { transform: translateY(-1px) rotate(-6deg); }
+.marca-m { fill: var(--marca); }
+.marca-m-tu { fill: var(--resalte); }
+.con-menu .marca-ico { width: 30px; height: 24.4px; }
 .marca-fondo { fill: var(--marca); }
 .marca-trazo { fill: none; stroke: var(--sobre-marca); stroke-width: 2.2; stroke-linecap: round; stroke-linejoin: round; }
 .marca-panel { fill: var(--sobre-marca); }
@@ -556,6 +559,13 @@ details.mas:not([open]) summary { margin-bottom: 0; }
 .tabla-clientes .acc { text-align: right; white-space: nowrap; }
 .tarjeta-tabla { padding: 0; overflow: hidden; }
 .tarjeta-tabla .envoltorio { overflow-x: auto; }
+/* Lo que no es la tabla (rótulo, ayuda, notas) lleva el margen interior de cualquier tarjeta */
+.tarjeta-tabla > :not(table):not(.envoltorio) { margin-left: 20px; margin-right: 20px; }
+.tarjeta-tabla > :first-child:not(table):not(.envoltorio) { margin-top: 18px; }
+.tarjeta-tabla > :last-child:not(table):not(.envoltorio) { margin-bottom: 18px; }
+.tarjeta-tabla > .ayuda { margin-bottom: 12px; }
+.tarjeta-tabla .cobertura :is(th, td):first-child { padding-left: 20px; }
+.tarjeta-tabla .cobertura :is(th, td):last-child { padding-right: 20px; }
 .estado-vacio { text-align: center; padding: 48px 20px; }
 .estado-vacio h2 { font-size: 20px; margin-bottom: 8px; }
 .estado-vacio p { color: var(--tinta-2); max-width: 52ch; margin: 0 auto 18px; }
