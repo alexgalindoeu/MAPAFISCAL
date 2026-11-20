@@ -30,10 +30,17 @@
 <link rel="manifest" href="/manifest.webmanifest">
 <link rel="stylesheet" href="/css/mapafiscal.css">
 <link rel="stylesheet" href="/css/seo.css">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"Organization","@id":"https://mapafiscal.es/#organizacion","name":"Mapafiscal","url":"https://mapafiscal.es/","logo":"https://mapafiscal.es/iconos/icono-512.png"}</script>
 <script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Inicio","item":"https://mapafiscal.es/"},{"@type":"ListItem","position":2,"name":"IRPF por territorio","item":"https://mapafiscal.es/irpf/"},{"@type":"ListItem","position":3,"name":"Bizkaia","item":"https://mapafiscal.es/irpf/bizkaia/"},{"@type":"ListItem","position":4,"name":"Discapacidad"}]}</script>
 <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"¿Cuánto baja el IRPF por discapacidad en Bizkaia?","acceptedAnswer":{"@type":"Answer","text":"Con 26.000 € de sueldo, una persona con un grado del 33 % paga 2.542 € en lugar de 3.448 €: 906 € menos al año en 2026."}},{"@type":"Question","name":"¿Qué grado de discapacidad hace falta?","acceptedAnswer":{"@type":"Answer","text":"Desde el 33 %, reconocido por el órgano competente. Los importes suben desde el 65 % y con la necesidad de ayuda de tercera persona o la dependencia reconocida."}},{"@type":"Question","name":"¿Puedo deducir por un familiar con discapacidad?","acceptedAnswer":{"@type":"Answer","text":"Sí, por los descendientes y ascendientes a tu cargo que convivan contigo y tengan rentas bajas. En Bizkaia es una deducción en la cuota, con los mismos importes que la propia."}},{"@type":"Question","name":"¿Las pensiones por incapacidad tributan?","acceptedAnswer":{"@type":"Answer","text":"Las de incapacidad permanente absoluta y gran invalidez están exentas. Las de incapacidad permanente total tributan como rendimiento del trabajo."}}]}</script>
 </head>
 <body class="pagina-seo">
+<aside class="anuncio-carril anuncio-carril-izq" id="anuncio-rail-izq" hidden>
+  <span class="anuncio-etiqueta">Anuncios</span>
+</aside>
+<aside class="anuncio-carril anuncio-carril-der" id="anuncio-rail-der" hidden>
+  <span class="anuncio-etiqueta">Anuncios</span>
+</aside>
 <header class="appbar">
   <div class="appbar-in">
     <button class="btn-icono panel-btn" id="btn-todo" type="button" aria-haspopup="dialog" aria-expanded="false" aria-controls="panel-todo" aria-label="Todo lo que ofrecemos" title="Todo lo que ofrecemos"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M4 6.5h16M4 12h16M4 17.5h10"/></svg><span class="panel-btn-txt">Todo</span></button>
@@ -64,6 +71,7 @@
   <div class="tarjeta tarjeta-tabla"><h2 class="rotulo">IRPF con y sin discapacidad en Bizkaia (2026)</h2>
     <p class="ayuda">Supuesto: persona soltera de 40 años, sin hijos, solo con su sueldo.</p>
     <div class="envoltorio"><table class="cobertura"><thead><tr><th>Sueldo bruto</th><th class="num">Sin discapacidad</th><th class="num">Grado 33-64 %</th><th class="num">Grado 65 % o más</th><th class="num">Ahorro (65 %)</th></tr></thead><tbody><tr><td>20.000 €</td><td class="num">1.393 €</td><td class="num">487 €</td><td class="num">99 €</td><td class="num">1.294 €</td></tr><tr><td>26.000 €</td><td class="num">3.448 €</td><td class="num">2.542 €</td><td class="num">2.154 €</td><td class="num">1.294 €</td></tr><tr><td>32.000 €</td><td class="num">5.019 €</td><td class="num">4.113 €</td><td class="num">3.725 €</td><td class="num">1.294 €</td></tr><tr><td>40.000 €</td><td class="num">7.113 €</td><td class="num">6.207 €</td><td class="num">5.819 €</td><td class="num">1.294 €</td></tr><tr><td>55.000 €</td><td class="num">11.899 €</td><td class="num">10.993 €</td><td class="num">10.605 €</td><td class="num">1.294 €</td></tr></tbody></table></div></div>
+  <div class="tarjeta anuncio anuncio-seo" id="anuncio-seo-intro" data-anuncio-seo="intro" hidden><span class="anuncio-etiqueta">Anuncios</span></div>
   <div class="tarjeta"><h2 class="rotulo">Qué reconoce la normativa de Bizkaia</h2><p>Deducción en la cuota por discapacidad o dependencia, propia o de un familiar a cargo: <b>906 €</b> con un grado del 33 % al 64 %; <b>1.294 €</b> desde el 65 % o con dependencia moderada; <b>1.552 €</b> desde el 75 % con 15 a 39 puntos de ayuda de tercera persona o dependencia severa; <b>1.935 €</b> desde el 75 % con 40 puntos o más o gran dependencia.</p><p class="cita">Norma: Art. 82.1 NF 13/2013 Bizkaia (redacción del art. 53 de la NF 7/2025).</p>
     <p>Los trabajadores en activo con discapacidad tienen además la bonificación del trabajo incrementada: un 100 % más con un grado del 33 % al 64 % y un 250 % más desde el 65 % o con movilidad reducida.</p><p class="cita">Norma: Art. 23 NF 13/2013 y equivalentes.</p></div>
   <p><a class="btn btn-pri" href="/index.html#calculadora">Calcula tu IRPF con discapacidad</a> <a class="btn btn-sec" href="/index.html#comparar">Compara con otros territorios</a></p>
@@ -75,10 +83,14 @@
   <div class="contenedor pie-in">
     <p><b>Mapafiscal</b> ofrece estimaciones con fines informativos. No es una liquidación oficial ni asesoramiento fiscal.</p>
     <p class="pie-redes"><span class="pie-redes-txt">Síguenos</span><a class="red red-x" href="https://x.com/mapafiscal" rel="me noopener" target="_blank" aria-label="Mapafiscal en X (se abre en otra pestaña)" title="Mapafiscal en X"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path class="relleno" d="M18.9 1.15h3.68l-8.04 9.19L24 22.85h-7.4l-5.8-7.59-6.64 7.59H.47l8.6-9.83L0 1.15h7.59l5.24 6.93zm-1.29 19.5h2.04L6.49 3.24H4.3z"/></svg></a></p>
-    <p class="pie-sec"><a href="/irpf/">IRPF por territorio</a> · <a href="/guias/">Guías del IRPF</a> · <a href="/comparar-sueldo/">Dónde se paga menos IRPF</a> · <a href="/sueldo-neto/">Sueldo neto</a> · <a href="/index.html#metodologia">Cómo calculamos</a> · Datos generados el 2026-11-14</p>
+    <p class="pie-sec"><a href="/irpf/">IRPF por territorio</a> · <a href="/guias/">Guías del IRPF</a> · <a href="/comparar-sueldo/">Dónde se paga menos IRPF</a> · <a href="/sueldo-neto/">Sueldo neto</a> · <a href="/index.html#metodologia">Cómo calculamos</a></p>
+    <p class="pie-sec pie-fechas">Normativa revisada el <time datetime="2026-11-14">14 de noviembre de 2026</time> · Contenido actualizado el <time datetime="2026-11-14">14 de noviembre de 2026</time> · Ejercicio 2026 (renta que se declara en 2027)</p>
     <p class="pie-sec"><a href="/legal/aviso-legal.html">Aviso legal</a> · <a href="/legal/privacidad.html">Privacidad</a> · <a href="/legal/condiciones.html">Condiciones</a> · <a href="/legal/cookies.html">Cookies</a> · <a href="/legal/aviso-legal.html#contacto">Contacto</a></p>
   </div>
 </footer>
 <script src="/js/ui.js" defer></script>
+<script src="/config.js" defer></script>
+<script src="/js/analitica.js" defer></script>
+<script src="/js/anuncios.js" defer></script>
 </body>
 </html>

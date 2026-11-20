@@ -18,7 +18,7 @@
 (function () {
   "use strict";
 
-  const EVENTOS = ["calculo_iniciado", "calculo_completado", "resultado_compartido", "pdf_descargado", "registro", "suscripcion_iniciada"];
+  const EVENTOS = ["calculo_iniciado", "calculo_completado", "resultado_compartido", "pdf_descargado", "registro", "suscripcion_iniciada", "carriles_uno", "carriles_dos"];
   const VISTA = /^[a-z0-9-]{1,40}$/;
 
   function activa(cfg) {

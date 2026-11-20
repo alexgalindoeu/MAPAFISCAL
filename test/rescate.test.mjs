@@ -8,7 +8,7 @@ import vm from "node:vm";
 
 const require = createRequire(import.meta.url);
 const motor = require("../web/js/irpfsim.js");
-const P = require("../web/datos/params_2026.json");
+const P = require("../web/datos/params.json");
 const C = require("../web/js/rescate.js");
 const casi = (a, b, m) => assert.ok(Math.abs(a - b) < 0.015, `${m}: ${a} ≠ ${b}`);
 const yo = (o = {}) => Object.assign({ territorio: "ES-MD", antes2007: 30000, despues2007: 30000, otrosIngresos: 15000,

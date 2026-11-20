@@ -30,10 +30,17 @@
 <link rel="manifest" href="/manifest.webmanifest">
 <link rel="stylesheet" href="/css/mapafiscal.css">
 <link rel="stylesheet" href="/css/seo.css">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"Organization","@id":"https://mapafiscal.es/#organizacion","name":"Mapafiscal","url":"https://mapafiscal.es/","logo":"https://mapafiscal.es/iconos/icono-512.png"}</script>
 <script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Inicio","item":"https://mapafiscal.es/"},{"@type":"ListItem","position":2,"name":"IRPF por territorio","item":"https://mapafiscal.es/irpf/"},{"@type":"ListItem","position":3,"name":"Bizkaia","item":"https://mapafiscal.es/irpf/bizkaia/"},{"@type":"ListItem","position":4,"name":"Planes de pensiones y EPSV"}]}</script>
 <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"¿Cuánto puedo desgravar por mi EPSV o plan de pensiones en Bizkaia?","acceptedAnswer":{"@type":"Answer","text":"Hasta 5.000 € al año por tus aportaciones y 8.000 € por las de tu empresa, con un máximo conjunto de 10.000 € en 2026."}},{"@type":"Question","name":"¿Cuánto IRPF ahorro aportando 5.000 €?","acceptedAnswer":{"@type":"Answer","text":"Con un sueldo de 35.000 € en Bizkaia, 1.400 € en 2026. El ahorro es la aportación por tu tipo marginal: cuanto mayor es el sueldo, más ahorra la misma aportación."}},{"@type":"Question","name":"¿Cómo tributa el rescate en Bizkaia?","acceptedAnswer":{"@type":"Answer","text":"Como rendimiento del trabajo. El primer cobro en capital se integra al 60 % hasta 300.000 €; lo cobrado como renta, entero."}},{"@type":"Question","name":"¿Conviene cobrarlo de una vez o como renta?","acceptedAnswer":{"@type":"Answer","text":"Depende del importe y de tus otros ingresos: de una vez aprovecha la reducción pero concentra la renta en un año; repartido baja el tipo de cada año. La calculadora compara las tres formas con tus datos."}}]}</script>
 </head>
 <body class="pagina-seo">
+<aside class="anuncio-carril anuncio-carril-izq" id="anuncio-rail-izq" hidden>
+  <span class="anuncio-etiqueta">Anuncios</span>
+</aside>
+<aside class="anuncio-carril anuncio-carril-der" id="anuncio-rail-der" hidden>
+  <span class="anuncio-etiqueta">Anuncios</span>
+</aside>
 <header class="appbar">
   <div class="appbar-in">
     <button class="btn-icono panel-btn" id="btn-todo" type="button" aria-haspopup="dialog" aria-expanded="false" aria-controls="panel-todo" aria-label="Todo lo que ofrecemos" title="Todo lo que ofrecemos"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M4 6.5h16M4 12h16M4 17.5h10"/></svg><span class="panel-btn-txt">Todo</span></button>
@@ -62,6 +69,7 @@
   <div class="prosa">
   
   <div class="tarjeta"><h2 class="rotulo">Límites de reducción en Bizkaia (2026)</h2><p>Puedes reducir de la base hasta <b>5.000 €</b> al año por tus aportaciones y hasta <b>8.000 €</b> por las contribuciones de tu empresa, con un máximo conjunto de <b>10.000 €</b>. No hay límite porcentual sobre tus rendimientos. Las aportaciones a favor del cónyuge con rentas inferiores a 8.000 € reducen hasta 2.400 € más.</p><p class="cita">Norma: Art. 71 NF 13/2013 Bizkaia, NF 3/2014 Gipuzkoa y NF 33/2013 Araba, en la redacción de la NF 2/2025 (Bizkaia, BOB 22-04-2025), la NF 1/2025 (Gipuzkoa, BOG 15-05-2025) y la NF 3/2025 (Araba, BOTHA 16-04-2025).</p></div>
+  <div class="tarjeta anuncio anuncio-seo" id="anuncio-seo-intro" data-anuncio-seo="intro" hidden><span class="anuncio-etiqueta">Anuncios</span></div>
   <div class="tarjeta tarjeta-tabla"><h2 class="rotulo">Cuánto IRPF ahorras con tu aportación</h2>
     <p class="ayuda">Supuesto: persona soltera de 40 años, sin hijos, que aporta por su cuenta. Ahorro de IRPF del año.</p>
     <div class="envoltorio"><table class="cobertura"><thead><tr><th>Sueldo bruto</th><th class="num">Aportando 1.500 €</th><th class="num">Aportando 3.000 €</th><th class="num">Aportando 5.000 €</th></tr></thead><tbody><tr><td>25.000 €</td><td class="num">420 €</td><td class="num">805 €</td><td class="num">1.265 €</td></tr><tr><td>35.000 €</td><td class="num">420 €</td><td class="num">840 €</td><td class="num">1.400 €</td></tr><tr><td>50.000 €</td><td class="num">525 €</td><td class="num">1.050 €</td><td class="num">1.750 €</td></tr><tr><td>70.000 €</td><td class="num">600 €</td><td class="num">1.200 €</td><td class="num">2.000 €</td></tr></tbody></table></div></div>
@@ -70,6 +78,7 @@
     <p class="ayuda">Supuesto: pensión pública de 18.000 € al año, 65 años, jubilación en 2026. Mixto y renta, en 5 años. Suma de lo que sube el IRPF en todos los años.</p>
     <div class="envoltorio"><table class="cobertura"><thead><tr><th>Importe</th><th class="num">De una vez</th><th class="num">Mixto</th><th class="num">Como renta</th><th>Menos IRPF</th></tr></thead><tbody><tr><td>40.000 €</td><td class="num">7.859 €</td><td class="num">7.859 €</td><td class="num">14.525 €</td><td>de una vez</td></tr><tr><td>80.000 €</td><td class="num">16.697 €</td><td class="num">16.697 €</td><td class="num">27.101 €</td><td>de una vez</td></tr><tr><td>150.000 €</td><td class="num">34.874 €</td><td class="num">34.874 €</td><td class="num">49.795 €</td><td>de una vez</td></tr></tbody></table></div></div>
   <p><a class="btn btn-pri" href="/index.html#rescate-plan?t=ES-PV-BI">Calcula tu rescate</a> <a class="btn btn-sec" href="/index.html#plan-pensiones">Ahorro por aportar antes del 31-12</a></p>
+  <div class="tarjeta anuncio anuncio-seo" id="anuncio-seo-faq" data-anuncio-seo="faq" hidden><span class="anuncio-etiqueta">Anuncios</span></div>
   <div class="tarjeta faq"><h2 class="rotulo">Preguntas frecuentes</h2><details><summary>¿Cuánto puedo desgravar por mi EPSV o plan de pensiones en Bizkaia?</summary><p>Hasta 5.000 € al año por tus aportaciones y 8.000 € por las de tu empresa, con un máximo conjunto de 10.000 € en 2026.</p></details><details><summary>¿Cuánto IRPF ahorro aportando 5.000 €?</summary><p>Con un sueldo de 35.000 € en Bizkaia, 1.400 € en 2026. El ahorro es la aportación por tu tipo marginal: cuanto mayor es el sueldo, más ahorra la misma aportación.</p></details><details><summary>¿Cómo tributa el rescate en Bizkaia?</summary><p>Como rendimiento del trabajo. El primer cobro en capital se integra al 60 % hasta 300.000 €; lo cobrado como renta, entero.</p></details><details><summary>¿Conviene cobrarlo de una vez o como renta?</summary><p>Depende del importe y de tus otros ingresos: de una vez aprovecha la reducción pero concentra la renta en un año; repartido baja el tipo de cada año. La calculadora compara las tres formas con tus datos.</p></details></div>
   <p class="ayuda">Más sobre el IRPF en Bizkaia: <a href="/irpf/bizkaia/">tramos y resumen</a> · <a href="/irpf/bizkaia/simulador-renta/">simulador de la renta</a> · <a href="/irpf/bizkaia/sueldo-neto/">sueldo neto</a> · <a href="/irpf/bizkaia/jubilados/">jubilados y pensionistas</a> · <a href="/irpf/bizkaia/familia-numerosa/">familia numerosa</a> · <a href="/irpf/bizkaia/discapacidad/">discapacidad</a> · <a href="/irpf/pais-vasco/">los tres territorios vascos, comparados</a></p>
   </div>
@@ -78,10 +87,14 @@
   <div class="contenedor pie-in">
     <p><b>Mapafiscal</b> ofrece estimaciones con fines informativos. No es una liquidación oficial ni asesoramiento fiscal.</p>
     <p class="pie-redes"><span class="pie-redes-txt">Síguenos</span><a class="red red-x" href="https://x.com/mapafiscal" rel="me noopener" target="_blank" aria-label="Mapafiscal en X (se abre en otra pestaña)" title="Mapafiscal en X"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path class="relleno" d="M18.9 1.15h3.68l-8.04 9.19L24 22.85h-7.4l-5.8-7.59-6.64 7.59H.47l8.6-9.83L0 1.15h7.59l5.24 6.93zm-1.29 19.5h2.04L6.49 3.24H4.3z"/></svg></a></p>
-    <p class="pie-sec"><a href="/irpf/">IRPF por territorio</a> · <a href="/guias/">Guías del IRPF</a> · <a href="/comparar-sueldo/">Dónde se paga menos IRPF</a> · <a href="/sueldo-neto/">Sueldo neto</a> · <a href="/index.html#metodologia">Cómo calculamos</a> · Datos generados el 2026-11-14</p>
+    <p class="pie-sec"><a href="/irpf/">IRPF por territorio</a> · <a href="/guias/">Guías del IRPF</a> · <a href="/comparar-sueldo/">Dónde se paga menos IRPF</a> · <a href="/sueldo-neto/">Sueldo neto</a> · <a href="/index.html#metodologia">Cómo calculamos</a></p>
+    <p class="pie-sec pie-fechas">Normativa revisada el <time datetime="2026-11-14">14 de noviembre de 2026</time> · Contenido actualizado el <time datetime="2026-11-14">14 de noviembre de 2026</time> · Ejercicio 2026 (renta que se declara en 2027)</p>
     <p class="pie-sec"><a href="/legal/aviso-legal.html">Aviso legal</a> · <a href="/legal/privacidad.html">Privacidad</a> · <a href="/legal/condiciones.html">Condiciones</a> · <a href="/legal/cookies.html">Cookies</a> · <a href="/legal/aviso-legal.html#contacto">Contacto</a></p>
   </div>
 </footer>
 <script src="/js/ui.js" defer></script>
+<script src="/config.js" defer></script>
+<script src="/js/analitica.js" defer></script>
+<script src="/js/anuncios.js" defer></script>
 </body>
 </html>

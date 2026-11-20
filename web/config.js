@@ -47,7 +47,6 @@ window.MAPAFISCAL_CONFIG = {
   // display, «Adaptable»). Vacío, ese hueco no se muestra ni pide nada.
   adsenseHuecoRailIzq: "7552034337", // «mf-carril-izq»: carril izquierdo, escritorio ≥1280 px
   adsenseHuecoRailDer: "6238952662", // «mf-carril-der»: carril derecho, escritorio ≥1280 px
-  adsenseHuecoMovil: "3458865755", // «mf-resultado-medio»: entre tarjetas del resultado, por debajo de 1280 px
   adsenseHuecoCalc: "2215947173", // «mf-resultado-final»: al final de la columna de resultados
   adsenseHuecoComparar: "9832702418", // «mf-comparar»: bajo el mapa y la tabla de Comparar
   // Columnas laterales dentro de las vistas («laterales de periódico», solo ≥1040 px): el
@@ -61,9 +60,19 @@ window.MAPAFISCAL_CONFIG = {
   adsenseHuecoColRescate: "",    // «mf-col-rescate-plan»: bajo el formulario de #rescate-plan
   adsenseHuecoColConjunta: "",   // «mf-col-conjunta»: bajo el formulario de #conjunta
   adsenseHuecoColPagadores: "",  // «mf-col-dos-pagadores»: bajo el formulario de #dos-pagadores
+  adsenseHuecoColBruto: "",      // «mf-col-bruto-necesario»: bajo el formulario de #bruto-necesario
+  adsenseHuecoColDeducciones: "", // «mf-col-encuentra-deducciones»: bajo el formulario de #encuentra-deducciones
   // En móvil y tableta (menos de 1040 px) esas columnas pasan al final de cada herramienta. Vacío =
   // el bloque de su posición; con un bloque propio, el tráfico móvil se mide aparte.
   adsenseHuecoColMovil: "",      // «mf-final-herramienta-movil»: final de la herramienta, menos de 1040 px
+  // Páginas informativas (guías, /irpf/, /sueldo-neto/, /comparar-sueldo/): huecos entre
+  // tarjetas, tras la introducción, en medio de las largas y antes de las preguntas
+  // frecuentes. Vacío = el bloque de «mf-resultado-final»; con uno propio («mf-paginas-seo»)
+  // se miden aparte.
+  adsenseHuecoSeo: "",
+  // Prueba de uno frente a dos carriles: fracción de visitantes (0 a 1) sin carril derecho.
+  // 0 = sin prueba. Para probar a medias: 0.5 (anuncios.js reparte y GoatCounter mide).
+  pruebaCarriles: 0,
 
   // Informe completo en PDF (js/informe.js). Vías de desbloqueo (negocio/otros-ingresos.md §1):
   // plan de pago (siempre), pago único y anuncio bonificado. Aceptar cookies NO desbloquea.

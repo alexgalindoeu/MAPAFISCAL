@@ -2,7 +2,7 @@ import { createRequire } from "node:module";
 
 const require = createRequire(import.meta.url);
 export const motor = require("../web/js/irpfsim.js");
-export const P = require("../web/datos/params.json");
+export const P = require("../web/datos/params_2025.json");
 
 // Hogar de una sola persona con salario (o pensión) y cotizaciones dadas.
 export function hogarAsalariado(territorio, salario, cotizaciones, extra = {}) {

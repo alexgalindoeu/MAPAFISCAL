@@ -156,6 +156,8 @@
   }
   const ejercicios = () => Object.keys(PS).map(Number).sort();
   const ejercicioActual = () => { const y = new Date().getFullYear(), e = ejercicios(); return e.includes(y) ? y : e[e.length - 1]; };
+  // «Renta 2025» / «Simulación 2026» (web/js/confianza.js)
+  const rotEj = a => window.MapafiscalConfianza ? window.MapafiscalConfianza.rotuloEjercicio(a) : { corto: String(a), completo: String(a) };
 
   function hijos(selId, contId) {
     let edades = [];
@@ -206,7 +208,7 @@
     $("cj-b-bloque").hidden = o.tipo === "monoparental";
     let r;
     try { r = conjunta(P, o); } catch (e) { $("cj-principal").innerHTML = '<p class="vacio">Revisa los datos introducidos.</p>'; return; }
-    $("cj-chip").textContent = `${nombre(P, o.territorio)} · ${P.ejercicio}`;
+    $("cj-chip").textContent = `${nombre(P, o.territorio)} · ${rotEj(P.ejercicio).corto}`;
     $("cj-tarjeta").className = "tarjeta tarjeta-resultado" + (r.conj && r.ahorro >= 1 ? " gana" : "");
     const conviene = !r.conj ? "Individual" : r.ahorro < 1 ? "Da igual" : r.mejor === "conjunta" ? "Conjunta" : "Individual";
     $("cj-principal").innerHTML = `<div class="res-etq">Os conviene la declaración</div>
@@ -263,7 +265,7 @@
     try { r = dosPagadores(P, o); } catch (e) { $("dp-principal").innerHTML = '<p class="vacio">Revisa los datos introducidos.</p>'; return; }
     const od = P.estatal.obligacion_declarar, pagar = r.resultado > 0.5, devolver = r.resultado < -0.5;
     const noObligado = r.obligado === false;
-    $("dp-chip").textContent = `${nombre(P, o.territorio)} · ${P.ejercicio}`;
+    $("dp-chip").textContent = `${nombre(P, o.territorio)} · ${rotEj(P.ejercicio).corto}`;
     $("dp-tarjeta").className = "tarjeta tarjeta-resultado" + (devolver || noObligado ? " gana" : pagar ? " pierde" : "");
     const etiq = r.obligado == null ? "Obligación de declarar: según la norma foral" : r.obligado ? "Estás obligado a declarar" : "No estás obligado a declarar";
     $("dp-principal").innerHTML = `<div class="res-etq">${etiq}</div>
@@ -315,7 +317,7 @@
   };
   cargarDatos().then(() => {
     const P = PS[ejercicioActual()];
-    for (const id of ["cj-ejercicio", "dp-ejercicio"]) { $(id).innerHTML = ejercicios().map(y => `<option value="${y}">${y}</option>`).join(""); $(id).value = String(ejercicioActual()); }
+    for (const id of ["cj-ejercicio", "dp-ejercicio"]) { $(id).innerHTML = ejercicios().map(y => `<option value="${y}">${esc(rotEj(y).completo)}</option>`).join(""); $(id).value = String(ejercicioActual()); }
     opciones(P, $("cj-territorio"), "ES-MD"); opciones(P, $("dp-territorio"), "ES-MD");
     edadesCj = hijos("cj-hijos", "cj-edades"); edadesDp = hijos("dp-hijos", "dp-edades");
     const enlazar = (form, f) => { let t; $(form).addEventListener("input", () => { clearTimeout(t); t = setTimeout(f, 150); }); $(form).addEventListener("change", f); };

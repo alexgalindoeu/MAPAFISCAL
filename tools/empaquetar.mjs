@@ -16,7 +16,7 @@ const jsonEmbebido =ruta => JSON.stringify(JSON.parse(leer(ruta))).replace(/<\//
 
 // La versión autónoma es siempre la demo: sin Supabase (ni supabase-js), sin pagos y sin
 // anuncios, aunque web/config.js esté configurado para producción.
-const FORZAR_DEMO = "window.MAPAFISCAL_CONFIG = Object.assign(window.MAPAFISCAL_CONFIG || {}, { demo: true, pagosActivos: false, anuncios: false, informePago: false, informeAnuncio: false, informeAnuncioUnidad: \"\", informeAfiliado: null, pdfEspera: 0, analitica: false, goatcounterCodigo: \"\", adsenseCliente: \"\", adsenseHuecoCalc: \"\", adsenseHuecoComparar: \"\", adsenseHuecoRailIzq: \"\", adsenseHuecoRailDer: \"\", adsenseHuecoMovil: \"\", adsenseHuecoColComparar: \"\", adsenseHuecoColEscenarios: \"\", adsenseHuecoColNeto: \"\", adsenseHuecoColPensiones: \"\", adsenseHuecoColRescate: \"\", adsenseHuecoColConjunta: \"\", adsenseHuecoColPagadores: \"\", adsenseHuecoColMovil: \"\" });\n";
+const FORZAR_DEMO = "window.MAPAFISCAL_CONFIG = Object.assign(window.MAPAFISCAL_CONFIG || {}, { demo: true, pagosActivos: false, anuncios: false, informePago: false, informeAnuncio: false, informeAnuncioUnidad: \"\", informeAfiliado: null, pdfEspera: 0, analitica: false, goatcounterCodigo: \"\", adsenseCliente: \"\", adsenseHuecoCalc: \"\", adsenseHuecoComparar: \"\", adsenseHuecoRailIzq: \"\", adsenseHuecoRailDer: \"\", adsenseHuecoColComparar: \"\", adsenseHuecoColEscenarios: \"\", adsenseHuecoColNeto: \"\", adsenseHuecoColPensiones: \"\", adsenseHuecoColRescate: \"\", adsenseHuecoColConjunta: \"\", adsenseHuecoColPagadores: \"\", adsenseHuecoColBruto: \"\", adsenseHuecoColDeducciones: \"\", adsenseHuecoColMovil: \"\" });\n";
 const SUPABASE_JS = /<script src="https:\/\/cdn\.jsdelivr\.net\/npm\/@supabase\/supabase-js@[^"]+"[^>]*><\/script>\n?/;
 // La demo nunca lleva anuncios.js: se quita entero (no se incrusta como irpfsim.js/app.js)
 // para que el HTML autónomo no contenga ni un rastro de "adsbygoogle" o "googlesyndication".
@@ -62,23 +62,29 @@ export function empaquetar() {
   const configSinAdsense = leer("config.js").replace(/ca-pub-\d+/, "");
   sustituir('<script src="config.js"></script>', "<script>\n" + configSinAdsense + FORZAR_DEMO + "</script>\n" +
     '<script type="application/json" id="datos-params">' + jsonEmbebido("datos/params.json") + "</script>\n" +
-    '<script type="application/json" id="datos-mapa">' + jsonEmbebido("datos/mapa_es.json") + "</script>" +
+    '<script type="application/json" id="datos-mapa">' + jsonEmbebido("datos/mapa_es.json") + "</script>\n" +
+    // fichas de deducciones verificadas (las de las páginas SEO), para «Encuentra tus deducciones»
+    '<script type="application/json" id="datos-seo-deducciones">' + jsonEmbebido("datos/seo_deducciones.json") + "</script>" +
     // los demás ejercicios (params_<año>.json -> id="datos-params-<año>"), para las herramientas
     otrosEjercicios().map(f => `\n<script type="application/json" id="datos-${f.replace(".json", "").replace("_", "-")}">` +
       jsonEmbebido("datos/" + f) + "</script>").join(""));
+  sustituir('<script src="js/confianza.js"></script>', "<script>\n" + leer("js/confianza.js") + "</script>");
   sustituir('<script src="js/ui.js"></script>', "<script>\n" + leer("js/ui.js") + "</script>");
   sustituir('<script src="js/irpfsim.js"></script>', "<script>\n" + leer("js/irpfsim.js") + "</script>");
   sustituir('<script src="js/importe.js"></script>', "<script>\n" + leer("js/importe.js") + "</script>");
   sustituir('<script src="js/formulario.js"></script>', "<script>\n" + leer("js/formulario.js") + "</script>");
   sustituir('<script src="js/cuentas.js"></script>', "<script>\n" + leer("js/cuentas.js") + "</script>");
+  sustituir('<script src="js/explicacion.js"></script>', "<script>\n" + leer("js/explicacion.js") + "</script>");
   sustituir('<script src="js/app.js"></script>', "<script>\n" + leer("js/app.js") + "</script>");
   sustituir('<script src="js/herramientas.js"></script>', "<script>\n" + leer("js/herramientas.js") + "</script>");
   sustituir('<script src="js/informe.js"></script>', "<script>\n" + informeDemo() + "</script>");
   sustituir('<script src="js/rescate.js"></script>', "<script>\n" + leer("js/rescate.js") + "</script>");
   sustituir('<script src="js/conjunta.js"></script>', "<script>\n" + leer("js/conjunta.js") + "</script>");
+  sustituir('<script src="js/bruto.js"></script>', "<script>\n" + leer("js/bruto.js") + "</script>");
+  sustituir('<script src="js/deducciones.js"></script>', "<script>\n" + leer("js/deducciones.js") + "</script>");
   sustituir('<script src="js/escenarios.js"></script>', "<script>\n" + leer("js/escenarios.js") + "</script>");
   // Las páginas legales, las de territorio y sueldo y las guías no van dentro: apuntan a la web publicada.
-  html = html.replace(/href="(legal|irpf|guias|comparar-sueldo|declaracion-conjunta|dos-pagadores)\//g, (m, dir) => `href="${WEB_PUBLICA}${dir}/`);
+  html = html.replace(/href="(legal|irpf|guias|comparar-sueldo|declaracion-conjunta|dos-pagadores|validacion)\//g, (m, dir) => `href="${WEB_PUBLICA}${dir}/`);
   return html;
 }
 
