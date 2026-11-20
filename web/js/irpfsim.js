@@ -7,7 +7,14 @@
   "use strict";
 
   const red2 = n => Math.round((n + 1e-9) * 100) / 100;
-  const num = (x, d = 0) => (x === undefined || x === null || Number.isNaN(x)) ? d : x;
+  // Entradas numéricas del hogar: vacío (undefined, null, NaN) = valor por defecto. Un texto o
+  // cualquier otro tipo es un error de quien llama: antes «"30000"» se concatenaba y daba cuotas
+  // absurdas. R tampoco opera con texto (error «non-numeric argument»), así que ambos motores fallan.
+  const num = (x, d = 0) => {
+    if (x === undefined || x === null || Number.isNaN(x)) return d;
+    if (typeof x !== "number") throw new TypeError("irpfsim: se esperaba un número y llegó " + JSON.stringify(x));
+    return x;
+  };
 
   // Escala progresiva por tramos marginales. tramos: [{hasta|null, tipo}]
   function aplicarEscala(base, tramos) {
