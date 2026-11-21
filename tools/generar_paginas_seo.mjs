@@ -16,7 +16,7 @@ import { execFileSync } from "node:child_process";
 import { readFileSync, writeFileSync, mkdirSync, existsSync, readdirSync, rmSync } from "node:fs";
 import { join, dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
-import { SITIO, SLUG, ORDEN_TERRITORIOS, HERRAMIENTA, NOMBRE_CORTO, esc, euros, difEuros, pct, pctCorto, tablaEscala, citaFuente, layout, jsonLdMigas, jsonLdFaq, jsonLdDataset, bloqueFaq, respuestaDirecta, migasHtml, fecharContenido, hashContenido, EJERCICIO } from "./seo_comun.mjs";
+import { SITIO, SLUG, ORDEN_TERRITORIOS, HERRAMIENTA, NOMBRE_CORTO, esc, euros, eurosExactos, difEuros, pct, pctCorto, tablaEscala, citaFuente, layout, jsonLdMigas, jsonLdFaq, jsonLdDataset, bloqueFaq, respuestaDirecta, migasHtml, fecharContenido, hashContenido, EJERCICIO } from "./seo_comun.mjs";
 import { robotsTxt, llmsTxt } from "./seo_ia.mjs";
 import { paginaDeducciones } from "./seo_deducciones.mjs";
 import { paginasGuias, GUIAS } from "./seo_guias.mjs";
@@ -24,7 +24,7 @@ import { paginasSueldoNeto } from "./seo_sueldo_neto.mjs";
 import { paginasRescate } from "./seo_rescate.mjs";
 import { paginasConjuntaPagadores, CARPETAS_CONJUNTA } from "./seo_conjunta.mjs";
 import { paginasDevuelve } from "./seo_devuelve.mjs";
-import { paginasForal, enlacesSuiteForal } from "./seo_foral.mjs";
+import { paginasForal, enlacesSuiteForal, enlacesVascos, escalasAhorro, ejemploPasoAPaso, normaDelTerritorio, rasgoForalDe, paramsForal, BOLETIN } from "./seo_foral.mjs";
 
 const RAIZ = join(dirname(fileURLToPath(import.meta.url)), "..");
 const WEB = join(RAIZ, "web");
@@ -36,6 +36,7 @@ const eurosSalario = euros;
 const REGIMEN_ETIQUETA = { comun: "régimen común", foral_pais_vasco: "concierto económico del País Vasco", foral_navarra: "convenio económico de Navarra" };
 // Territorios con página de deducciones (se rellena al generar).
 const conDeducciones = new Set();
+const HACIENDA_FAQ = { "ES-PV-BI": "La Hacienda Foral de Bizkaia", "ES-PV-SS": "La Hacienda Foral de Gipuzkoa", "ES-PV-VI": "La Hacienda Foral de Álava", "ES-NC": "La Hacienda Foral de Navarra" };
 
 // ---- página por territorio -------------------------------------------------------
 function paginaTerritorio(codigo) {
@@ -61,7 +62,7 @@ function paginaTerritorio(codigo) {
   const igual26 = con26 && JSON.stringify(esc26.tramos) === JSON.stringify(tr);
   const fila30 = comparativas.comparativas["30000"].find(f => f.territorio === codigo);
   const fuentesEscala = [t.escala_combinada.fuente_estatal, t.escala_combinada.fuente_autonomica, con26 && !igual26 ? esc26 : null].filter(Boolean);
-  const cartaEscala = `<div class="tarjeta">
+  let cartaEscala = `<div class="tarjeta">
     <h2 class="rotulo">Tabla de tramos del IRPF en ${esc(nombre)} ${igual26 ? "2025 y 2026" : "2025"}${esComun ? " (estatal + autonómico)" : ""}</h2>
     ${tablaEscala(tr)}
     ${esComun ? citaFuente(t.escala_combinada.fuente_estatal) + citaFuente(t.escala_combinada.fuente_autonomica) : citaFuente(t.escala_combinada.fuente_autonomica)}
@@ -73,6 +74,62 @@ function paginaTerritorio(codigo) {
     ${tablaEscala(esc26.tramos)}
     ${citaFuente(esc26)}
   </div>` : ""}`;
+
+  // Páginas forales: las dos tarifas completas con ancla, la escala del ahorro, un ejemplo
+  // paso a paso con el motor y un índice de contenidos arriba.
+  let indiceForal = "", cartasForal = "", faqForal = [];
+  if (!esComun) {
+    const anioTabla = (anio, tramos, fuente, nota) => `<div class="tarjeta" id="tabla-${anio}">
+    <h2 class="rotulo">Tabla de tramos del IRPF en ${esc(nombre)} ${anio}</h2>
+    ${nota ? `<p>${nota}</p>` : ""}
+    ${tablaEscala(tramos)}
+    ${citaFuente({ norma: normaDelTerritorio(codigo, fuente.norma), fuente: fuente.fuente })}
+  </div>`;
+    const f25 = t.escala_combinada.fuente_autonomica;
+    cartaEscala = anioTabla(2025, tr, f25, "") + (con26 ? anioTabla(2026, esc26.tramos, esc26, igual26
+      ? `En 2026 la tarifa de ${esc(nombre)} no cambia: los tramos y los tipos son los mismos que en 2025.`
+      : "Para 2026 la norma foral actualiza los límites de los tramos; los tipos no cambian.") : "");
+    const ahorro = escalasAhorro(codigo, con26 ? [2025, 2026] : [2025]);
+    const ahorroIgual = ahorro.length === 2 && JSON.stringify(ahorro[0].tramos) === JSON.stringify(ahorro[1].tramos);
+    const cartaAhorro = !ahorro.length ? "" : `<div class="tarjeta" id="tabla-ahorro">
+    <h2 class="rotulo">Escala del ahorro en ${esc(nombre)} ${ahorro.map(a => a.ejercicio).join(" y ")}</h2>
+    <p>Los intereses, los dividendos y las ganancias por venta de bienes forman la base liquidable del ahorro, que tributa con una escala propia, aparte de la tarifa general.${ahorroIgual ? ` En ${ahorro[1].ejercicio} la escala no cambia.` : ""}</p>
+    ${(ahorroIgual ? [ahorro[0]] : ahorro).map(a => `${ahorro.length > 1 && !ahorroIgual ? `<h3>${a.ejercicio}</h3>` : ""}${tablaEscala(a.tramos, "Tramo de la base liquidable del ahorro")}`).join("")}
+    <p class="ayuda">Norma: ${esc(normaDelTerritorio(codigo, f25.norma).replace(/^Art\. \d+(\.\d+)? /, ""))} (escala del ahorro). Es la que aplica la calculadora.</p>
+  </div>`;
+    const ej = ejemploPasoAPaso(codigo, 2025, 30000);
+    let cartaEjemplo = "";
+    if (ej && Math.abs(ej.cuotaLiquida - fila30.cuota_liquida_total) < 0.005) {
+      const ex = eurosExactos;
+      const filasTr = ej.tramos.map(x => `<tr><td>${esc(ex(x.desde))} a ${esc(ex(x.hasta))}</td><td class="num">${esc(ex(x.parte))}</td><td class="num">${esc(pct(x.tipo))}</td><td class="num">${esc(ex(x.cuota))}</td></tr>`).join("");
+      cartaEjemplo = `<div class="tarjeta tarjeta-tabla" id="ejemplo-30000">
+    <h2 class="rotulo">Ejemplo paso a paso: 30.000 € brutos en ${esc(nombre)} (2025)</h2>
+    <p class="ayuda">${esc(comparativas.supuesto)}</p>
+    <ol>
+      <li>Sueldo bruto: <b>${esc(ex(ej.bruto))}</b>. Menos ${esc(ex(ej.cotizaciones))} de cotizaciones a la Seguridad Social: rendimiento de ${esc(ex(ej.trabajoPrevio))}.</li>
+      ${ej.reduccionTrabajo ? `<li>Menos ${esc(ex(ej.reduccionTrabajo))} de bonificación del trabajo: rendimiento neto de ${esc(ex(ej.trabajoPrevio - ej.reduccionTrabajo))}.</li>` : ""}
+      <li>Base liquidable general: <b>${esc(ex(ej.base))}</b>.</li>
+      <li>Cuota íntegra con la tarifa, tramo a tramo (tabla siguiente): <b>${esc(ex(ej.cuotaIntegra))}</b>.</li>
+      ${ej.restas.map(([n, v]) => `<li>${esc(n)}: −${esc(ex(v))}.</li>`).join("")}
+      <li>Cuota líquida (IRPF del año): <b>${esc(ex(ej.cuotaLiquida))}</b>.</li>
+    </ol>
+    <div class="envoltorio"><table class="cobertura"><thead><tr><th>Tramo de la base</th><th class="num">Base en el tramo</th><th class="num">Tipo</th><th class="num">Cuota</th></tr></thead><tbody>${filasTr}<tr><td><b>Cuota íntegra</b></td><td class="num">${esc(ex(ej.base))}</td><td></td><td class="num"><b>${esc(ex(ej.cuotaIntegra))}</b></td></tr></tbody></table></div>
+    <p class="ayuda">Cálculo del mismo motor que la calculadora. <a href="/irpf/${slug}/simulador-renta/">Simula tu caso</a>.</p>
+  </div>`;
+    }
+    cartasForal = cartaAhorro + cartaEjemplo;
+    const ind = [["tabla-2025", `Tabla IRPF ${nombre} 2025`], con26 && ["tabla-2026", `Tabla IRPF ${nombre} 2026`],
+      cartaAhorro && ["tabla-ahorro", "Escala del ahorro"], cartaEjemplo && ["ejemplo-30000", "Ejemplo con 30.000 €"], ["preguntas", "Preguntas frecuentes"]].filter(Boolean);
+    indiceForal = `<nav class="tarjeta indice" aria-label="Contenido"><h2 class="rotulo">En esta página</h2><ul class="lista-enlaces">${ind.map(([id, txt]) => `<li><a href="#${id}">${esc(txt)}</a></li>`).join("")}</ul></nav>`;
+    const art = n => n.replace(/^Art\./, "art.");
+    const e = guias.escalas.estatal_2025.tramos;
+    const P25 = paramsForal(2025);
+    const rasgo = P25 ? rasgoForalDe(P25, codigo).replace(/&[a-z#0-9]+;/g, " ") : "";
+    faqForal = [
+      [`¿Qué diferencia hay entre las tablas de ${nombre} y las del régimen común?`, `En régimen común la escala tiene dos mitades, la estatal (del ${pctCorto(e[0].tipo)} al ${pctCorto(e[e.length - 1].tipo)}, ${art(guias.escalas.estatal_2025.norma)}) y la autonómica, que se suman. ${nombre} aplica una tarifa foral única de ${tr.length} tramos, del ${pctCorto(tMin)} al ${pctCorto(tMax)}. ${rasgo}`.trim()],
+      [`¿Dónde se publica la tabla oficial del IRPF de ${nombre}?`, `En el ${BOLETIN[codigo]}. La tarifa de 2025 está en el ${art(normaDelTerritorio(codigo, f25.norma))}${con26 && !igual26 ? `; la de 2026, en el ${art(normaDelTerritorio(codigo, esc26.norma))}` : ""}. ${HACIENDA_FAQ[codigo]} la recoge también en su información de la campaña de la renta.`]
+    ];
+  }
 
   const cartaMinimo = esComun && t.minimo_contribuyente ? `<div class="tarjeta">
     <h2 class="rotulo">Mínimo personal</h2>
@@ -109,17 +166,18 @@ function paginaTerritorio(codigo) {
   if (con26) faq.push([`¿Cambia la tabla del IRPF de ${nombre} en 2026?`, igual26
     ? `No: en 2026 la tarifa de ${nombre} mantiene los mismos tramos y tipos que en 2025.`
     : `Sí: para 2026 se actualizan los límites de los tramos (el primero pasa de ${euros(tr[0].hasta)} a ${euros(esc26.tramos[0].hasta)}); los tipos, del ${pctCorto(tMin)} al ${pctCorto(tMax)}, no cambian.`]);
+  faq.push(...faqForal);
   const main = `
   <h1>${esComun ? `IRPF en ${esc(nombre)} ${anios}: tramos y tabla` : `Tablas IRPF ${esc(nombre)} ${anios}: escala de la tarifa foral`}</h1>
-  ${esComun ? "" : `<div class="prosa">${cartaEscala}</div>`}
+  ${esComun ? "" : `<div class="prosa">${indiceForal}${cartaEscala}</div>`}
   ${respuestaDirecta(resumen)}
   ${intro}
   <div class="prosa">
   ${esComun ? cartaEscala : ""}
   ${cartaMinimo}
-  ${cartaDeducciones}${enlacesSuiteForal(codigo, nombre)}
+  ${cartasForal}${cartaDeducciones}${enlacesSuiteForal(codigo, nombre)}${enlacesVascos(codigo)}
   ${cartaComparativa}
-  ${bloqueFaq(faq)}
+  ${esComun ? bloqueFaq(faq) : bloqueFaq(faq).replace('class="tarjeta faq"', 'class="tarjeta faq" id="preguntas"')}
   <p><a class="btn btn-pri" href="/index.html#calculadora">Calcula tu caso real en ${esc(nombre)}</a> <a class="btn btn-sec" href="/index.html#comparar">Compáralo con los otros 18 territorios</a></p>
   <p class="ayuda">Guías: <a href="/guias/tramos-irpf-2025-2026/">tramos del IRPF 2025 y 2026</a> · <a href="/guias/minimo-personal-familiar/">mínimo personal y familiar</a> · <a href="/guias/obligacion-declarar-renta/">¿estoy obligado a declarar?</a> · <a href="/guias/plan-pensiones-desgravar/">plan de pensiones</a> · <a href="/guias/deduccion-donativos/">donativos</a> · <a href="/guias/calendario-renta/">calendario de la renta</a></p>
   </div>`;

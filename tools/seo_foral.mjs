@@ -344,3 +344,66 @@ export function paginasForal(generado, importesSueldoNeto = []) {
   out.push(pPaisVasco(P, generado));
   return out;
 }
+
+// ---- piezas de la página /irpf/<foral>/ (tablas IRPF) -------------------------------------
+const BOLETIN = { "ES-PV-BI": "Boletín Oficial de Bizkaia (BOB)", "ES-PV-SS": "Boletín Oficial de Gipuzkoa (BOG)",
+  "ES-PV-VI": "Boletín Oficial del Territorio Histórico de Álava (BOTHA)", "ES-NC": "Boletín Oficial de Navarra (BON)" };
+const CLAVE_NORMA = { "ES-PV-BI": /Bizkaia/, "ES-PV-SS": /Gipuzkoa/, "ES-PV-VI": /Araba/ };
+// De una cita conjunta de los tres territorios, la parte del territorio (o la cita entera).
+export function normaDelTerritorio(t, norma) {
+  if (!CLAVE_NORMA[t]) return norma;
+  const parte = String(norma).split(/ \/ |(?<=\)), (?=art)|(?<=\)) y (?=art)/i).find(p => CLAVE_NORMA[t].test(p));
+  return parte ? parte.replace(/^a/, "A") : norma;
+}
+function paramsDe(ej) {
+  for (const n of readdirSync(join(WEB, "datos")).filter(n => /^params(_\d{4})?\.json$/.test(n))) {
+    const P = JSON.parse(readFileSync(join(WEB, "datos", n), "utf8"));
+    if (P.ejercicio === ej) return P;
+  }
+  return null;
+}
+// Escala del ahorro de cada ejercicio publicado: [{ ejercicio, tramos }] (solo los que existan).
+export function escalasAhorro(t, ejercicios) {
+  return ejercicios.map(ej => { const P = paramsDe(ej); const tr = P && juris(P, t).escala_ahorro_foral;
+    return tr && tr.length ? { ejercicio: ej, tramos: tr } : null; }).filter(Boolean);
+}
+// Ejemplo paso a paso con el motor: sueldo bruto, cotizaciones, base, cuota por tramos,
+// minoración o deducciones y cuota líquida. null si no hay parámetros o la suma no cuadra.
+export function ejemploPasoAPaso(t, ej, bruto) {
+  const P = paramsDe(ej);
+  if (!P) return null;
+  const { liq } = irpf(P, t, [asalariado(P, bruto)]);
+  const J = juris(P, t), base = liq.baseLiquidableGeneral;
+  let previo = 0;
+  const tramos = [];
+  for (const tr of J.escala_general_foral) {
+    const hasta = tr.hasta == null ? Infinity : tr.hasta;
+    if (base <= previo) break;
+    const parte = Math.min(base, hasta) - previo;
+    tramos.push({ desde: previo, hasta: Math.min(base, hasta), parte, tipo: tr.tipo, cuota: parte * tr.tipo });
+    previo = hasta;
+  }
+  const suma = tramos.reduce((a, x) => a + x.cuota, 0);
+  if (Math.abs(suma - liq.cuotaIntegraTotal) > 0.01) return null;
+  const c = liq.componentesRenta;
+  const cot = motor.cotizacionesTrabajador(bruto, P);
+  const restas = [];
+  if (liq.minoracionCuota) restas.push(["Minoración general de la cuota", liq.minoracionCuota]);
+  const det = (liq.deduccionesAutonomicas && liq.deduccionesAutonomicas.detalle) || {};
+  const NOM = { minimoPersonal: "Deducción por mínimo personal", minimoFamiliar: "Deducción por mínimo familiar", trabajo: "Deducción por rendimientos del trabajo" };
+  for (const [k, v] of Object.entries(det)) if (v) restas.push([NOM[k] || k, v]);
+  const sumaRestas = restas.reduce((a, [, v]) => a + v, 0);
+  if (Math.abs(liq.cuotaIntegraTotal - sumaRestas - liq.cuotaLiquidaTotal) > 0.01) return null;
+  return { ejercicio: ej, bruto, cotizaciones: cot, trabajoPrevio: c.trabajoPrevio, reduccionTrabajo: c.reduccionTrabajo,
+    base, tramos, cuotaIntegra: liq.cuotaIntegraTotal, restas, cuotaLiquida: liq.cuotaLiquidaTotal, esPv: esPv(t) };
+}
+export { rasgoForal as rasgoForalDe, paramsDe as paramsForal };
+// Enlaces entre las páginas de tablas de los tres territorios vascos y la comparativa.
+export function enlacesVascos(codigo) {
+  if (!PV.includes(codigo)) return "";
+  const N = { "ES-PV-BI": "Bizkaia", "ES-PV-SS": "Gipuzkoa", "ES-PV-VI": "Álava" };
+  return `<div class="tarjeta"><h2 class="rotulo">Tablas del IRPF en los otros territorios vascos</h2><ul class="lista-enlaces">` +
+    PV.filter(t => t !== codigo).map(t => `<li><a href="${ruta(t)}">Tablas IRPF ${N[t]}</a></li>`).join("") +
+    `<li><a href="/irpf/pais-vasco/">IRPF en el País Vasco: Bizkaia, Gipuzkoa y Álava, comparados</a></li></ul></div>`;
+}
+export { BOLETIN };
