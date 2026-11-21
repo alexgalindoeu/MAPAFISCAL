@@ -8,8 +8,12 @@
 import {
   SLUG, ORDEN_TERRITORIOS, NOMBRE_CORTO, HERRAMIENTA, LIRPF_BOE, esc, euros, eurosExactos as eur, pct, pctCorto,
   fecha, urlBoe, tablaEscala, combinarEscalas, citaFuente, layout, jsonLdMigas, jsonLdArticulo,
-  jsonLdFaq, jsonLdDataset, bloqueFaq, migasHtml, respuestaDirecta
+  jsonLdFaq, jsonLdDataset, bloqueFaq, migasHtml, respuestaDirecta, difEuros
 } from "./seo_comun.mjs";
+import { readFileSync } from "node:fs";
+import { createRequire } from "node:module";
+import { join, dirname } from "node:path";
+import { fileURLToPath } from "node:url";
 
 const iguales = (a, b) => JSON.stringify(a) === JSON.stringify(b);
 const lirpf = art => `<a href="${LIRPF_BOE}" rel="noopener">${esc(art)} de la Ley 35/2006 del IRPF</a>`;
@@ -439,6 +443,152 @@ function guiaCalendario(g) {
     cuerpo, faq, generado: g.generado });
 }
 
+// ---- Guías con el motor JS (web/js/irpfsim.js sobre web/datos/params.json) ------------
+const requireM = createRequire(import.meta.url);
+const WEB_G = join(dirname(fileURLToPath(import.meta.url)), "..", "web");
+const MOTOR = requireM(join(WEB_G, "js", "irpfsim.js"));
+const PARAMS = () => JSON.parse(readFileSync(join(WEB_G, "datos", "params.json"), "utf8"));
+const COMPARATIVAS = () => JSON.parse(readFileSync(join(WEB_G, "datos", "seo_comparativas.json"), "utf8"));
+const neto = (P, terr, bruto) => MOTOR.sueldoNeto({ territorio: terr, bruto, edad: 40 }, P);
+const SUP_MOTOR = P => `Persona sola de 40 años, un único sueldo, sin hijos ni deducciones; IRPF del ejercicio ${P.ejercicio} calculado con el motor de Mapafiscal y cotizaciones del trabajador según los parámetros del mismo año. No es una liquidación oficial.`;
+const tablaG = (cab, filas) => `<div class="envoltorio"><table class="cobertura"><thead><tr>${cab.map((c, i) => `<th${i ? ' class="num"' : ""}>${esc(c)}</th>`).join("")}</tr></thead><tbody>${filas.map(f => `<tr>${f.map((c, i) => `<td${i ? ' class="num"' : ""}>${c}</td>`).join("")}</tr>`).join("")}</tbody></table></div>`;
+const ET_BOE = urlBoe("BOE-A-2015-11430");
+
+// ---- 12 o 14 pagas ----------------------------------------------------------------------
+const BRUTOS_PAGAS = [20000, 30000, 40000, 60000];
+function guiaPagas(g) {
+  const P = PARAMS(), T = "ES-MD", nom = NOMBRE_CORTO[T];
+  const fil = BRUTOS_PAGAS.map(b => { const r = neto(P, T, b); return { b, r, m12: r.neto / 12, m14: r.neto / 14 }; });
+  const x = fil[1];
+  const cuerpo = `
+  <p class="entradilla">El número de pagas no cambia lo que ganas en el año: cambia cómo te llega. Con el mismo sueldo bruto anual, en 14 pagas cada nómina ordinaria es más pequeña y en junio y diciembre cobras además dos pagas extra; en 12 pagas cobras lo mismo todos los meses. El IRPF y las cotizaciones del año son los mismos.</p>
+  <div class="tarjeta tarjeta-tabla">
+    <h2 class="rotulo">Neto mensual con 12 y con 14 pagas en ${esc(nom)} (${P.ejercicio})</h2>
+    <p class="ayuda">${esc(SUP_MOTOR(P))} Neto por paga = neto anual entre el número de pagas.</p>
+    ${tablaG(["Bruto anual", "Cotizaciones", "IRPF del año", "Neto anual", "Neto con 12 pagas", "Neto por paga con 14"],
+      fil.map(f => [esc(euros(f.b)), esc(eur(f.r.cotizaciones)), esc(eur(f.r.irpf)), esc(eur(f.r.neto)), esc(eur(f.m12)), esc(eur(f.m14))]))}
+    <p>Con ${euros(x.b)} brutos, el neto del año es ${eur(x.r.neto)} en los dos casos: ${eur(x.m12)} al mes en 12 pagas, o ${eur(x.m14)} en cada una de las 14 (doce nóminas más dos extras).</p>
+  </div>
+  <div class="tarjeta">
+    <h2 class="rotulo">La prorrata de las pagas extra</h2>
+    <p>Las pagas extraordinarias las fija el convenio colectivo o el contrato. El <a href="${ET_BOE}" rel="noopener">art. 31 del Estatuto de los Trabajadores</a> reconoce al menos dos al año (una en Navidad y otra en el mes que fije el convenio) y permite que el convenio las prorratee en las doce mensualidades. Si están prorrateadas, cada nómina lleva una parte de las extras y cobras 12 pagas iguales; si no, se cobran aparte en los meses de la paga.</p>
+    <p>Prorratear o no es solo una cuestión de calendario de cobro: el bruto anual, las cotizaciones del año y el IRPF final no cambian.</p>
+  </div>
+  <div class="tarjeta">
+    <h2 class="rotulo">¿Y la retención?</h2>
+    <p>La empresa no calcula la retención de cada nómina por separado: calcula un tipo de retención con lo que prevé pagarte en todo el año y lo aplica a cada pago, también a las extras (<a href="${RIRPF_BOE}" rel="noopener">arts. 80 a 87 del Reglamento del IRPF</a>). Por eso el porcentaje de retención no depende de que cobres en 12 o en 14 pagas.</p>
+    <p>La retención es un anticipo. El IRPF que pagas de verdad se ajusta en la declaración de la renta: si te han retenido de más, Hacienda te devuelve la diferencia; si te han retenido de menos, la pagas. Las cifras de esta página son el IRPF final del año, no la retención de tu nómina.</p>
+  </div>
+  ${cta("Calcula tu sueldo neto", HERRAMIENTA.sueldoNeto, ["Calcula tu IRPF", HERRAMIENTA.calculadora])}`;
+  const faq = [
+    ["¿Se cobra más con 14 pagas que con 12?", `No. Con el mismo bruto anual el neto del año es el mismo. Con ${euros(x.b)} brutos en ${nom} son ${eur(x.r.neto)} netos al año: ${eur(x.m12)} al mes en 12 pagas o ${eur(x.m14)} por paga en 14.`],
+    ["¿Se paga más IRPF con 14 pagas?", "No. El IRPF se calcula sobre lo que cobras en el año, no por nómina. El número de pagas solo cambia cuándo cobras."],
+    ["¿Qué es tener las pagas prorrateadas?", "Que las pagas extra se reparten entre las doce nóminas del año: cobras doce pagas iguales y en junio y diciembre no hay paga extra aparte."],
+    ["¿Por qué la paga extra lleva retención?", "Porque la retención se calcula sobre todo lo que cobras en el año y se aplica a cada pago, también a las extras. No es un impuesto aparte."]
+  ];
+  return pagina(g, { slug: "12-o-14-pagas", h1: "12 o 14 pagas: cuánto cobras al mes con el mismo sueldo",
+    titulo: "12 o 14 pagas: neto mensual con el mismo sueldo bruto",
+    resumen: `con el mismo bruto anual el neto del año no cambia: con ${euros(x.b)} en ${esc(nom)} son <b>${eur(x.m12)}</b> al mes en 12 pagas o <b>${eur(x.m14)}</b> por paga en 14.`,
+    description: `12 o 14 pagas: con ${euros(x.b)} brutos en Madrid cobras ${euros(x.m12)} al mes en 12 pagas o ${euros(x.m14)} en 14. Prorrata de extras y retención.`,
+    cuerpo, faq, generado: g.generado });
+}
+
+// ---- Tipo marginal y tipo medio ----------------------------------------------------------
+const OTRO_T = "ES-CT";
+function marginalDe(P, terr, bruto) {
+  const r = neto(P, terr, bruto), l = r.liquidacion, t = P.territorios[terr];
+  const escala = MOTOR.tipoMarginal(l.baseLiquidableGeneral, P.estatal.escala_general_estatal) + MOTOR.tipoMarginal(l.baseLiquidableGeneral, t.escala_general_autonomica);
+  const mas = neto(P, terr, bruto + 1000);
+  return { bruto, r, escala, medio: r.irpf / bruto, irpfMas: mas.irpf - r.irpf, netoMas: mas.neto - r.neto };
+}
+function guiaMarginal(g) {
+  const P = PARAMS();
+  const casos = [];
+  for (const terr of ["ES-MD", OTRO_T]) for (const b of [30000, 60000]) casos.push(Object.assign({ terr, nombre: NOMBRE_CORTO[terr] }, marginalDe(P, terr, b)));
+  const [m30, m60, o30, o60] = casos;
+  const cuerpo = `
+  <p class="entradilla">El tipo marginal es el porcentaje que pagas por el último euro que ganas: el del tramo de la escala en el que cae tu base. El tipo medio es el IRPF que pagas en total dividido entre lo que ganas. El marginal sirve para saber cuánto te queda de un euro más; el medio, cuánto pagas en conjunto. El medio siempre es bastante más bajo, porque los primeros euros tributan a tipos menores y una parte de la renta queda cubierta por el mínimo personal.</p>
+  <div class="tarjeta tarjeta-tabla">
+    <h2 class="rotulo">Ejemplos con el motor (${P.ejercicio})</h2>
+    <p class="ayuda">${esc(SUP_MOTOR(P))} Tipo marginal: suma de los tipos estatal y autonómico del tramo en el que cae la base liquidable general. Tipo medio: IRPF del año entre el sueldo bruto.</p>
+    ${tablaG(["Territorio y sueldo", "Base liquidable", "Tipo marginal", "IRPF del año", "Tipo medio sobre el bruto", "IRPF por 1.000 € más"],
+      casos.map(c => [`${esc(c.nombre)}, ${esc(euros(c.bruto))}`, esc(eur(c.r.liquidacion.baseLiquidableGeneral)), esc(pctCorto(c.escala)), esc(eur(c.r.irpf)), esc(pct(c.medio)), esc(eur(c.irpfMas))]))}
+    <p>Con ${euros(m30.bruto)} en ${esc(m30.nombre)} el tipo marginal es del ${pctCorto(m30.escala)}, pero el IRPF del año es el ${pct(m30.medio)} del sueldo. Con ${euros(m60.bruto)}, el marginal sube al ${pctCorto(m60.escala)} y el medio al ${pct(m60.medio)}. En ${esc(o30.nombre)}, con los mismos sueldos, el marginal es del ${pctCorto(o30.escala)} y del ${pctCorto(o60.escala)}.</p>
+  </div>
+  <div class="tarjeta">
+    <h2 class="rotulo">El mito: «si me suben el sueldo y cambio de tramo, cobro menos»</h2>
+    <p>No pasa. La escala del IRPF es progresiva por tramos (${lirpf("arts. 63 y 74")}): cada tipo se aplica solo a la parte de la base que cae dentro de su tramo. Si una subida te mete en el tramo siguiente, el tipo más alto lo pagan solo los euros que pasan del límite; los anteriores siguen tributando igual que antes.</p>
+    <p>Con el motor: en ${esc(m30.nombre)}, pasar de ${euros(m30.bruto)} a ${euros(m30.bruto + 1000)} brutos sube el IRPF en ${eur(m30.irpfMas)} y el neto del año en ${eur(m30.netoMas)}. Con ${euros(m60.bruto)}, los 1.000 € más dejan ${eur(m60.netoMas)} netos. El neto crece siempre que crece el bruto.</p>
+    <p>Lo que sí puede ocurrir es que suba la retención de tu nómina o que dejes de cumplir el límite de renta de alguna deducción o ayuda. Eso no es un efecto de los tramos.</p>
+  </div>
+  <div class="tarjeta">
+    <h2 class="rotulo">Para qué sirve cada uno</h2>
+    <ul>
+      <li><b>Tipo marginal</b>: para decidir. Te dice cuánto IRPF ahorras con una reducción de la base (como una <a href="/guias/plan-pensiones-desgravar/">aportación a un plan de pensiones</a>) o cuánto pagas por unos ingresos extra.</li>
+      <li><b>Tipo medio</b>: para comparar. Te dice qué parte de tu sueldo se va en IRPF y es la cifra que tiene sentido comparar entre territorios o entre años.</li>
+    </ul>
+    <p>La columna «IRPF por 1.000 € más» no tiene por qué coincidir con el tipo marginal de la escala: las cotizaciones se restan antes de aplicar la escala, y algunas reducciones (como la de rendimientos del trabajo para sueldos bajos) cambian con el sueldo. Los tramos de cada territorio están en <a href="/guias/tramos-irpf-2025-2026/">tramos del IRPF</a>.</p>
+  </div>
+  ${cta("Calcula tu IRPF", HERRAMIENTA.calculadora, ["Compara territorios", HERRAMIENTA.comparar])}`;
+  const faq = [
+    ["¿Qué diferencia hay entre tipo marginal y tipo medio?", `El marginal es el tipo del tramo en el que cae tu último euro; el medio es el IRPF total dividido entre lo que ganas. Con ${euros(m30.bruto)} en ${m30.nombre} el marginal es del ${pctCorto(m30.escala)} y el medio sobre el bruto, del ${pct(m30.medio)}.`],
+    ["¿Puedo cobrar menos por cambiar de tramo?", `No. El tipo más alto solo se aplica a los euros que pasan del límite del tramo. En ${m30.nombre}, pasar de ${euros(m30.bruto)} a ${euros(m30.bruto + 1000)} brutos deja ${eur(m30.netoMas)} netos más al año.`],
+    ["¿Qué tipo uso para saber cuánto desgrava un plan de pensiones?", "El marginal: la aportación reduce la base, y lo que te ahorras sale de los tramos más altos que dejas de pagar."],
+    ["¿El tipo marginal es el mismo en toda España?", `No. En régimen común la mitad estatal es igual, pero cada comunidad fija su escala autonómica. Con ${euros(m60.bruto)} el marginal es del ${pctCorto(m60.escala)} en ${m60.nombre} y del ${pctCorto(o60.escala)} en ${o60.nombre}.`]
+  ];
+  return pagina(g, { slug: "tipo-marginal-y-tipo-medio", h1: "Tipo marginal y tipo medio del IRPF: en qué se diferencian",
+    titulo: "Tipo marginal y tipo medio del IRPF, con ejemplos",
+    resumen: `el tipo marginal es lo que pagas por el último euro; el medio, el IRPF total entre lo que ganas. Con ${euros(m30.bruto)} en ${esc(m30.nombre)}: marginal del <b>${pctCorto(m30.escala)}</b> y medio del <b>${pct(m30.medio)}</b>. Cambiar de tramo nunca reduce el neto.`,
+    description: `Tipo marginal y tipo medio del IRPF con ejemplos de 30.000 y 60.000 € en Madrid y Cataluña. Por qué cambiar de tramo no hace que cobres menos.`,
+    cuerpo, faq, generado: g.generado });
+}
+
+// ---- Cambiar de comunidad ----------------------------------------------------------------
+function guiaCambioComunidad(g) {
+  const C = COMPARATIVAS(), S = "30000", lista = C.comparativas[S];
+  const pri = lista[0], ult = lista[lista.length - 1], mad = lista.find(x => x.territorio === "ES-MD");
+  const comun = lista.filter(x => !/^ES-(PV|NC)/.test(x.territorio));
+  const cPri = comun[0], cUlt = comun[comun.length - 1];
+  const filas = lista.map(x => [`<a href="${enlaceTerritorio(x.territorio)}">${esc(x.nombre)}</a>`, esc(eur(x.cuota_liquida_total)), esc(pct(x.tipo_medio_efectivo)), esc(difEuros(x.cuota_liquida_total, pri.cuota_liquida_total))]);
+  const cuerpo = `
+  <p class="entradilla">En el IRPF no eliges comunidad: te corresponde la de tu residencia habitual en el año. Y como cada comunidad tiene su propia escala autonómica y sus deducciones, mudarte puede cambiar lo que pagas.</p>
+  <div class="tarjeta">
+    <h2 class="rotulo">Qué comunidad te corresponde</h2>
+    <p>Según el ${lirpf("art. 72")}, resides en la comunidad autónoma en la que pasas más días del período impositivo (el año natural). Las ausencias temporales cuentan como días en la comunidad de tu residencia. Si así no se puede saber, se mira dónde tienes el principal centro de tus intereses (donde obtienes la mayor parte de tu base imponible) y, en último término, tu última residencia declarada.</p>
+    <p>No importa dónde esté tu empresa ni dónde figures empadronado si en realidad vives en otro sitio: cuenta dónde vives. El padrón es un indicio, pero Hacienda puede comprobar la residencia real.</p>
+    <p class="cita">Norma: ${lirpf("art. 72")}. En el País Vasco y Navarra la residencia se determina con criterios equivalentes del Concierto y del Convenio Económico.</p>
+  </div>
+  <div class="tarjeta">
+    <h2 class="rotulo">Cuándo cuenta el cambio</h2>
+    <ul>
+      <li>La comunidad es una sola para todo el año: la renta no se reparte por meses. Si te mudas a mitad de año, te corresponde aquella en la que hayas pasado más días.</li>
+      <li>Por eso, quien se muda en la segunda mitad del año suele declarar ese ejercicio todavía en la comunidad de origen, y la nueva cuenta desde el año siguiente.</li>
+      <li>Los cambios de residencia cuyo objetivo principal sea pagar menos no producen efecto (${lirpf("art. 72.3")}); en ese caso Hacienda puede exigir la diferencia con intereses.</li>
+      <li>Cuando te mudes, actualiza tu domicilio fiscal en la Agencia Tributaria.</li>
+    </ul>
+  </div>
+  <div class="tarjeta tarjeta-tabla">
+    <h2 class="rotulo">Cuánto cambia el IRPF con ${euros(Number(S))} brutos (${C.ejercicio})</h2>
+    <p class="ayuda">${esc(C.supuesto)}</p>
+    ${tablaG(["Territorio", "Cuota líquida", "Tipo medio efectivo", "Diferencia con el más bajo"], filas)}
+    <p>Con ${euros(Number(S))} brutos, la cuota va de ${eur(pri.cuota_liquida_total)} en ${esc(pri.nombre)} a ${eur(ult.cuota_liquida_total)} en ${esc(ult.nombre)}: ${difEuros(ult.cuota_liquida_total, pri.cuota_liquida_total)} al año. Solo entre comunidades de régimen común, de ${eur(cPri.cuota_liquida_total)} en ${esc(cPri.nombre)} a ${eur(cUlt.cuota_liquida_total)} en ${esc(cUlt.nombre)} (${difEuros(cUlt.cuota_liquida_total, cPri.cuota_liquida_total)}). En ${esc(mad.nombre)}, ${eur(mad.cuota_liquida_total)}.</p>
+    <p>Estas cifras no incluyen deducciones autonómicas (alquiler, hijos, etc.), que pueden pesar más que la diferencia de escala. Compara con tus datos en la calculadora.</p>
+  </div>
+  <div class="tarjeta"><p>Otros sueldos: <a href="/comparar-sueldo/">dónde se paga menos IRPF con tu sueldo</a>. Tramos, mínimos y deducciones de cada comunidad: <a href="/irpf/">IRPF por territorio</a>.</p></div>
+  ${cta("Compara tu IRPF entre territorios", HERRAMIENTA.comparar, ["Calcula tu IRPF", HERRAMIENTA.calculadora])}`;
+  const faq = [
+    ["¿En qué comunidad hago la renta si me he mudado?", "En la de tu residencia habitual en el año, que es donde hayas pasado más días del año natural (art. 72 de la Ley del IRPF). Toda la renta del año se declara en esa comunidad."],
+    ["Si me mudo en diciembre, ¿declaro en la nueva comunidad?", "Normalmente no: si has pasado la mayor parte del año en la comunidad anterior, ese ejercicio se declara allí y la nueva cuenta desde el año siguiente."],
+    ["¿Basta con empadronarme en otra comunidad?", "No. Cuenta dónde vives de verdad. El padrón es un indicio, y un cambio hecho para pagar menos no produce efecto."],
+    [`¿Cuánto cambia el IRPF entre comunidades con ${euros(Number(S))}?`, `Con ${euros(Number(S))} brutos y el supuesto de la tabla, de ${eur(pri.cuota_liquida_total)} en ${pri.nombre} a ${eur(ult.cuota_liquida_total)} en ${ult.nombre} (ejercicio ${C.ejercicio}), sin contar deducciones autonómicas.`]
+  ];
+  return pagina(g, { slug: "cambiar-de-comunidad-irpf", h1: "Cambiar de comunidad: dónde haces la renta y cuánto cambia",
+    titulo: "Cambiar de comunidad: en cuál haces la renta del IRPF",
+    resumen: `te corresponde la comunidad en la que pasas más días del año (art. 72 de la Ley del IRPF). Con ${euros(Number(S))} brutos, la cuota va de <b>${eur(pri.cuota_liquida_total)}</b> en ${esc(pri.nombre)} a <b>${eur(ult.cuota_liquida_total)}</b> en ${esc(ult.nombre)}.`,
+    description: `Si te mudas, haces la renta en la comunidad donde pasas más días del año. Con 30.000 € el IRPF cambia hasta ${difEuros(ult.cuota_liquida_total, pri.cuota_liquida_total)} según el territorio.`,
+    cuerpo, faq, generado: g.generado });
+}
+
 export const GUIAS = [
   { slug: "tramos-irpf-2025-2026", enlace: "Tramos del IRPF 2025 y 2026", resumen: "Escala estatal, del ahorro y de cada territorio.", fn: guiaTramos },
   { slug: "escala-irpf-2024", enlace: "Escala del IRPF 2024", resumen: "Tramos y tipos estatales de 2024, iguales que en 2025 y 2026.", fn: guiaEscala2024 },
@@ -446,7 +596,10 @@ export const GUIAS = [
   { slug: "plan-pensiones-desgravar", enlace: "Plan de pensiones: cuánto desgrava", resumen: "Límites y ahorro real en cada territorio si aportas antes del 31 de diciembre.", fn: guiaPensiones },
   { slug: "deduccion-donativos", enlace: "Deducción por donativos", resumen: "El 80 % de los primeros 250 € y el resto, con ejemplos.", fn: guiaDonativos },
   { slug: "obligacion-declarar-renta", enlace: "¿Estoy obligado a declarar?", resumen: "Límites de ingresos y cuándo conviene declarar aunque no sea obligatorio.", fn: guiaObligacion },
-  { slug: "calendario-renta", enlace: "Calendario de la renta", resumen: "Fechas de la campaña, domiciliación y pago en dos plazos.", fn: guiaCalendario }
+  { slug: "calendario-renta", enlace: "Calendario de la renta", resumen: "Fechas de la campaña, domiciliación y pago en dos plazos.", fn: guiaCalendario },
+  { slug: "12-o-14-pagas", enlace: "12 o 14 pagas", resumen: "Neto mensual con el mismo bruto, prorrata de las extras y retención.", fn: guiaPagas },
+  { slug: "tipo-marginal-y-tipo-medio", enlace: "Tipo marginal y tipo medio", resumen: "La diferencia, con ejemplos, y por qué cambiar de tramo no te hace cobrar menos.", fn: guiaMarginal },
+  { slug: "cambiar-de-comunidad-irpf", enlace: "Cambiar de comunidad", resumen: "En qué comunidad haces la renta si te mudas y cuánto cambia el IRPF.", fn: guiaCambioComunidad }
 ];
 
 export function paginasGuias(g, T) {
