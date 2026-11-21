@@ -2,30 +2,89 @@
    Mapafiscal — páginas SEO (por territorio y por sueldo)
    Reutiliza los tokens y las clases de mapafiscal.css; esto solo añade lo que
    esas páginas necesitan y el resto de la aplicación no.
+
+   Maqueta editorial: una columna de lectura centrada sobre papel (--superficie), secciones
+   separadas por filetes y espacio en lugar de tarjetas, títulos de sección en caja baja y
+   tablas con filete fuerte bajo la cabecera. Las clases del HTML (.tarjeta, .rotulo) se
+   mantienen: aquí solo cambia cómo se ven dentro de body.pagina-seo.
    ========================================================================== */
 
-body.pagina-seo { background: var(--fondo); color: var(--tinta); font: 15px/1.55 var(--sans); margin: 0; }
+body.pagina-seo { background: var(--superficie); color: var(--tinta); font: 16px/1.6 var(--sans); margin: 0; }
 
-.pagina-seo-main { padding-top: 28px; padding-bottom: 56px; }
-.pagina-seo-main h1 { font-size: clamp(22px, 3vw, 30px); margin: 4px 0 8px; letter-spacing: -.01em; }
+/* Columna de lectura: ~880 px para tablas y gráficos; la prosa, más estrecha (≈70 caracteres). */
+.pagina-seo-main > *, .pagina-seo-confianza > * { max-width: 880px; margin-left: auto; margin-right: auto; }
+.pagina-seo-main { padding-top: 28px; padding-bottom: 64px; }
+.pagina-seo-main h1 { font-size: clamp(30px, 4.2vw, 44px); font-weight: 800; line-height: 1.06; letter-spacing: -.03em;
+  margin-top: 6px; margin-bottom: 10px; text-wrap: balance; }
+.pagina-seo-main > .entradilla { font-size: 18px; line-height: 1.5; color: var(--tinta-2); margin-top: 18px; margin-bottom: 0; }
+/* Titular y prosa suelta, más estrechos que la columna pero alineados con su borde izquierdo
+   (el margen en % se mide sobre <main>, así que coincide con el de la columna centrada). */
+.pagina-seo-main > :is(h1, .entradilla, p:not(.migas):not(.actualizado)) { margin-left: max(0px, calc((100% - 880px) / 2)); margin-right: auto; }
+.pagina-seo-main > h1 { max-width: 760px; }
+.pagina-seo-main > :is(.entradilla, p:not(.migas):not(.actualizado)) { max-width: 40em; }
 
-.migas { font-size: 13px; color: var(--tinta-3); margin: 0 0 14px; }
+.migas { font-size: 13px; color: var(--tinta-3); margin: 0 auto 18px; }
 .migas a { color: var(--tinta-3); text-decoration: underline; text-underline-offset: 2px; }
 .migas a:hover { color: var(--marca); }
+.actualizado { color: var(--tinta-3); font-size: 13px; margin-top: 0; margin-bottom: 22px; padding-bottom: 18px; border-bottom: 1px solid var(--linea-2); }
 
-.pagina-seo .prosa { max-width: none; margin-top: 20px; display: flex; flex-direction: column; gap: 0; }
-.pagina-seo .prosa .tarjeta { margin-top: 16px; }
+/* Secciones: sin caja, con filete y aire. */
+.pagina-seo .prosa { max-width: 880px; margin-top: 28px; display: flex; flex-direction: column; gap: 0; }
+.pagina-seo .prosa p { max-width: 40em; }
+.pagina-seo .prosa .tarjeta p { max-width: 40em; }
+.pagina-seo .prosa p, .pagina-seo .prosa li { color: var(--tinta-2); }
+.pagina-seo-main .tarjeta { background: none; border: 0; border-top: 1px solid var(--linea-2); border-radius: 0; box-shadow: none;
+  padding: 26px 0 0; margin-top: 44px; }
+.pagina-seo-main .tarjeta + .tarjeta { margin-top: 44px; }
 .pagina-seo .prosa .tarjeta:first-child { margin-top: 0; }
-.pagina-seo .prosa p { max-width: 68ch; }
-.pagina-seo .prosa .tarjeta p { max-width: none; }
+.pagina-seo .prosa > .respuesta-directa + .tarjeta, .pagina-seo .prosa > p + .tarjeta { margin-top: 36px; }
+.pagina-seo-main .tarjeta > :last-child { margin-bottom: 0; }
+.pagina-seo-main .tarjeta-tabla { overflow: visible; }
+.pagina-seo-main .tarjeta-tabla > :not(table):not(.envoltorio) { margin-left: 0; margin-right: 0; }
+.pagina-seo-main .tarjeta-tabla > :first-child:not(table):not(.envoltorio) { margin-top: 0; }
+.pagina-seo-main .tarjeta-tabla > :last-child:not(table):not(.envoltorio) { margin-bottom: 0; }
 
-.lista-enlaces { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 4px 24px; }
+/* Títulos de sección: en caja baja, con la tipografía de titulares. */
+.pagina-seo .rotulo, .pagina-seo .prosa h2 { font-family: var(--display); font-stretch: 108%; font-size: clamp(20px, 2.3vw, 24px);
+  font-weight: 800; letter-spacing: -.02em; line-height: 1.2; text-transform: none; color: var(--tinta); margin: 0 0 14px; max-width: 34ch; }
+
+/* Tablas: cabecera con filete fuerte, filas con aire y cifras tabulares alineadas. */
+.pagina-seo-main .cobertura { font-size: 14.5px; }
+.pagina-seo-main .cobertura th { font-size: 12.5px; }
+.pagina-seo-main .cobertura td { padding: 9px 8px; }
+.pagina-seo-main .cobertura :is(th, td):first-child { padding-left: 0; }
+.pagina-seo-main .cobertura :is(th, td):last-child { padding-right: 0; }
+.pagina-seo-main .cobertura tbody tr:hover td { background: var(--superficie-2); }
+.pagina-seo-main .cobertura tr.destacada td, .pagina-seo-main .cobertura tr.destacada:hover td { background: var(--resalte-suave); }
+.pagina-seo-main .cobertura tr.destacada td:first-child { box-shadow: inset 3px 0 0 var(--resalte); padding-left: 8px; }
+.pagina-seo-main .envoltorio { overflow-x: auto; }
+.pagina-seo-main .tarjeta .ayuda, .pagina-seo-main .tarjeta-tabla > .ayuda { font-size: 12.5px; line-height: 1.5; color: var(--tinta-3); margin-top: 10px; max-width: 72ch; }
+@media (max-width: 640px) {
+  .pagina-seo-main .cobertura { font-size: 13.5px; }
+  .pagina-seo-main .cobertura td { padding: 8px 6px; }
+}
+
+.lista-enlaces { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 0 32px; }
 .lista-enlaces li { border-bottom: 1px solid var(--linea); padding: 10px 0; }
 .lista-enlaces a { color: var(--tinta); text-decoration: none; font-weight: 500; }
 .lista-enlaces a:hover { color: var(--marca); text-decoration: underline; }
-.actualizado { color: var(--tinta-2, #5b6472); font-size: .875rem; margin: -6px 0 14px; }
-.respuesta-directa { background: var(--marca-suave, #eef2ff); border-left: 4px solid var(--marca); border-radius: 8px; padding: 12px 16px; margin: 0 0 18px; }
+
+/* «En resumen»: la respuesta de la página, como entradilla destacada con filete. */
+.respuesta-directa { font-size: 17px; line-height: 1.55; color: var(--tinta); border-left: 3px solid var(--marca);
+  padding: 2px 0 2px 18px; margin: 0 0 8px; }
+.pagina-seo .prosa .respuesta-directa { color: var(--tinta); }
+.respuesta-directa b { color: var(--tinta); }
 .pie-fechas { font-size: .8125rem; }
+
+/* Preguntas frecuentes: a lo ancho de la columna, sin caja. */
+.pagina-seo-main .tarjeta.faq { max-width: none; margin-left: 0; margin-right: 0; }
+.pagina-seo-main .faq details { padding: 12px 0; border-top: 1px solid var(--linea); border-bottom: 0; }
+.pagina-seo-main .faq details:first-of-type { border-top: 0; }
+.pagina-seo-main .faq summary { font-size: 16px; }
+.pagina-seo-main .faq details p { max-width: 40em; }
+
+/* Huecos de anuncios: espacio reservado entre filetes finos, sin aspecto de tarjeta. */
+.pagina-seo-main .tarjeta.anuncio { border-top: 1px solid var(--linea); border-bottom: 1px solid var(--linea); padding: 8px 0; }
 
 /* Curva del bruto al neto (tools/seo_grafico.mjs): SVG inline con las variables del tema. */
 .grafico { margin: 0; }
@@ -40,7 +99,27 @@ body.pagina-seo { background: var(--fondo); color: var(--tinta); font: 15px/1.55
 .grafico-datos summary { cursor: pointer; color: var(--marca-tinta); }
 @media (max-width: 520px) { .grafico-svg .g-eje { font-size: 15px; } .grafico-svg .g-valor { font-size: 16px; } }
 
-/* Bloque de confianza al pie del contenido de cada página generada. */
-.confianza { display: flex; flex-wrap: wrap; gap: 4px 14px; list-style: none; padding: 10px 14px; margin: 24px 0 0; border: 1px solid var(--linea); border-radius: var(--radio, 10px); background: var(--superficie); color: var(--tinta-2); font-size: .875rem; }
+/* Bloque de confianza al pie del contenido de cada página generada: una línea de pie, sin caja. */
+.confianza { display: flex; flex-wrap: wrap; gap: 4px 16px; list-style: none; padding: 14px 0 0; margin: 8px auto 0;
+  border-top: 1px solid var(--linea-2); color: var(--tinta-2); font-size: .8125rem; }
 .confianza li { margin: 0; }
-.pagina-seo-confianza { padding-top: 0; padding-bottom: 24px; }
+.pagina-seo-confianza { padding-top: 0; padding-bottom: 32px; }
+.pagina-seo .pie { background: var(--fondo); }
+
+/* Glosario: letras como capitulares a la izquierda del grupo, índice de letras sin caja. */
+.pagina-seo-main .tarjeta.indice { border-top: 0; padding-top: 0; }
+.pagina-seo-main .indice p { font-family: var(--display); font-stretch: 110%; font-size: 18px; font-weight: 700; color: var(--tinta-3);
+  word-spacing: 2px; margin: 0; max-width: none; }
+.pagina-seo-main .indice a { padding: 2px 3px; text-decoration-thickness: 1px; text-underline-offset: 4px; }
+.pagina-seo-main .indice a:hover { text-decoration-thickness: 2px; }
+.pagina-seo-main [id^="letra-"] > .rotulo { font-size: 40px; line-height: 1; color: var(--marca); margin-bottom: 4px; }
+.pagina-seo-main [id^="letra-"] { scroll-margin-top: 90px; }
+@media (min-width: 700px) {
+  .pagina-seo-main [id^="letra-"] { display: grid; grid-template-columns: 72px minmax(0, 1fr); align-items: start; margin-top: 28px; }
+  .pagina-seo-main .prosa > [id^="letra-"] + [id^="letra-"] { margin-top: 28px; }
+  .pagina-seo-main [id^="letra-"] .lista-guias li:first-child { padding-top: 4px; }
+}
+
+/* Listas de enlaces dentro de la prosa: alineadas con el texto (guias.css sangra las <ul> normales). */
+.pagina-seo .prosa :is(.lista-enlaces, .lista-guias) { padding-left: 0; margin: 0; }
+.pagina-seo .prosa :is(.lista-enlaces, .lista-guias) li { margin: 0; }
