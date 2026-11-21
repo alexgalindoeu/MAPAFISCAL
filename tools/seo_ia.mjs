@@ -18,7 +18,7 @@ ${BOTS_IA.map(b => `User-agent: ${b}\nAllow: /`).join("\n\n")}
 `;
 }
 
-export function llmsTxt({ territorios, comparativas, guias, GUIAS, conDeducciones }) {
+export function llmsTxt({ territorios, comparativas, guias, GUIAS, conDeducciones, VIVIENDA = [] }) {
   const T = territorios.territorios;
   const est = guias.escalas.estatal_2025.tramos;
   const c30 = comparativas.comparativas["30000"];
@@ -47,6 +47,11 @@ Datos clave (${territorios.ejercicio}, actualizados el ${territorios.generado}):
 ## Guías
 
 ${GUIAS.map(g => `- [${g.enlace}](${SITIO}/guias/${g.slug}/): ${g.resumen}`).join("\n")}
+
+## Vivienda
+
+- [Cómo tributa la vivienda en el IRPF](${SITIO}/vivienda/): vivienda habitual, segunda vivienda, alquiler y venta.
+${VIVIENDA.filter(v => v.slug).map(v => `- [${v.enlace}](${SITIO}/vivienda/${v.slug}/): ${v.resumen}`).join("\n")}
 
 ## IRPF por territorio
 

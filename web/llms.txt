@@ -28,6 +28,14 @@ Datos clave (2025, actualizados el 2026-11-14):
 - [Tipo marginal y tipo medio](https://mapafiscal.es/guias/tipo-marginal-y-tipo-medio/): La diferencia, con ejemplos, y por qué cambiar de tramo no te hace cobrar menos.
 - [Cambiar de comunidad](https://mapafiscal.es/guias/cambiar-de-comunidad-irpf/): En qué comunidad haces la renta si te mudas y cuánto cambia el IRPF.
 
+## Vivienda
+
+- [Cómo tributa la vivienda en el IRPF](https://mapafiscal.es/vivienda/): vivienda habitual, segunda vivienda, alquiler y venta.
+- [Segunda vivienda: imputación de rentas](https://mapafiscal.es/vivienda/segunda-vivienda/): Cuánto se imputa por el valor catastral, prorrata por días y copropiedad.
+- [Alquiler por temporadas](https://mapafiscal.es/vivienda/alquiler-por-temporadas/): Rendimiento por los días alquilados, imputación por el resto y la reducción de vivienda.
+- [Vender una vivienda](https://mapafiscal.es/vivienda/venta-vivienda/): La ganancia patrimonial, la base del ahorro y las exenciones por reinversión y por edad.
+- [Vender un piso alquilado](https://mapafiscal.es/vivienda/vender-piso-alquilado/): Por qué la amortización de los años de alquiler aumenta la ganancia.
+
 ## IRPF por territorio
 
 - [IRPF en Andalucía](https://mapafiscal.es/irpf/andalucia/): tramos del 19 % al 47 % en 2025; [deducciones](https://mapafiscal.es/irpf/andalucia/deducciones/)

@@ -28,6 +28,7 @@ import { paginasConjuntaPagadores, CARPETAS_CONJUNTA } from "./seo_conjunta.mjs"
 import { paginasDevuelve } from "./seo_devuelve.mjs";
 import { paginaMetodologia } from "./seo_metodologia.mjs";
 import { paginasGlosario, enlazarGlosario, HUB_GLOSARIO } from "./seo_glosario.mjs";
+import { paginasVivienda, PAGINAS_VIVIENDA, HUB_VIVIENDA } from "./seo_vivienda.mjs";
 import { paginasForal, enlacesSuiteForal, enlacesVascos, escalasAhorro, ejemploPasoAPaso, normaDelTerritorio, rasgoForalDe, paramsForal, BOLETIN } from "./seo_foral.mjs";
 
 const RAIZ = join(dirname(fileURLToPath(import.meta.url)), "..");
@@ -354,6 +355,9 @@ export function generar({ conGit = false } = {}) {
   const gs = paginasGuias(guias, territorios);
   // primera aparición de los términos clave → glosario (como mucho 3 por página)
   for (const g of gs) pagina(g.ruta, g.ruta === "/guias/" ? g.html : enlazarGlosario(g.html));
+  // Sección «Vivienda» (/vivienda/): ejemplos con el motor JS sobre params.json
+  const viv = paginasVivienda(guias);
+  for (const v of viv) pagina(v.ruta, enlazarGlosario(v.html));
   const glo = paginasGlosario({ comparativas, guias, generado: territorios.generado });
   for (const g of glo) pagina(g.ruta, g.html);
   const sn = paginasSueldoNeto(sueldoNeto);
@@ -382,14 +386,14 @@ export function generar({ conGit = false } = {}) {
   ficheros.set("sitemap.xml", `<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
 <url><loc>${SITIO}/</loc><lastmod>${registro["index.html"].fecha}</lastmod><changefreq>weekly</changefreq><priority>1.0</priority></url>
-${urls.map(u => `<url><loc>${SITIO}${u}</loc><lastmod>${lastmod(u)}</lastmod><changefreq>monthly</changefreq><priority>${u.startsWith("/guias/") || u === "/irpf/" || u === HUB_GLOSARIO ? "0.8" : "0.7"}</priority></url>`).join("\n")}
+${urls.map(u => `<url><loc>${SITIO}${u}</loc><lastmod>${lastmod(u)}</lastmod><changefreq>monthly</changefreq><priority>${u.startsWith("/guias/") || u.startsWith(HUB_VIVIENDA) || u === "/irpf/" || u === HUB_GLOSARIO ? "0.8" : "0.7"}</priority></url>`).join("\n")}
 </urlset>
 `);
   ficheros.set("robots.txt", robotsTxt());
-  ficheros.set("llms.txt", llmsTxt({ territorios, comparativas, guias, GUIAS, conDeducciones }));
+  ficheros.set("llms.txt", llmsTxt({ territorios, comparativas, guias, GUIAS, conDeducciones, VIVIENDA: PAGINAS_VIVIENDA }));
   return {
     ficheros, avisos, urls,
-    recuento: { territorios: ORDEN_TERRITORIOS.length, sueldos: comparativas.salarios.length, deducciones: ded.length, porDeduccion: porDeduccion.length, guias: gs.length - 1, sueldoNeto: sn.length - 1, glosario: glo.length - 1, indices: 5 }
+    recuento: { territorios: ORDEN_TERRITORIOS.length, sueldos: comparativas.salarios.length, deducciones: ded.length, porDeduccion: porDeduccion.length, guias: gs.length - 1, sueldoNeto: sn.length - 1, glosario: glo.length - 1, vivienda: viv.length - 1, indices: 6 }
   };
 }
 
@@ -422,6 +426,7 @@ export function huerfanas(ficheros) {
   for (const c of CARPETAS_CONJUNTA) recorrer(c);
   recorrer("cuanto-me-devuelve");
   recorrer("glosario");
+  recorrer("vivienda");
   return fuera;
 }
 
@@ -451,7 +456,7 @@ if (process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.ur
       writeFileSync(p, html, "utf8");
     }
     for (const r of sobran) { rmSync(join(WEB, r)); console.log(`Borrada (ya no se genera): ${r}`); }
-    console.log(`Páginas SEO: ${recuento.territorios} territorios + ${recuento.deducciones} de deducciones (${recuento.porDeduccion} fichas) + ${recuento.sueldos} sueldos + ${recuento.guias} guías + ${recuento.sueldoNeto} de sueldo neto + ${recuento.glosario} términos del glosario + ${recuento.indices} índices.`);
+    console.log(`Páginas SEO: ${recuento.territorios} territorios + ${recuento.deducciones} de deducciones (${recuento.porDeduccion} fichas) + ${recuento.sueldos} sueldos + ${recuento.guias} guías + ${recuento.sueldoNeto} de sueldo neto + ${recuento.glosario} términos del glosario + ${recuento.vivienda} de vivienda + ${recuento.indices} índices.`);
     console.log(`sitemap.xml: ${urls.length + 1} URLs.`);
   }
 }

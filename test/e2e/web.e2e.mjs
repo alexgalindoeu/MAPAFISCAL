@@ -54,7 +54,7 @@ async function abrir(ruta, opciones = {}) {
 }
 
 try {
-  for (const ruta of ["/", "/irpf/", "/guias/calendario-renta/", "/glosario/", "/glosario/base-liquidable/", "/validacion/"]) {
+  for (const ruta of ["/", "/irpf/", "/guias/calendario-renta/", "/vivienda/", "/vivienda/venta-vivienda/", "/glosario/", "/glosario/base-liquidable/", "/validacion/"]) {
     await prueba(`carga sin errores de JS: ${ruta}`, async () => {
       const p = await abrir(ruta);
       await p.waitForTimeout(500);
@@ -115,7 +115,7 @@ try {
   // Accesibilidad con axe-core (devDependency): fallan las infracciones «serious» y
   // «critical» de las páginas revisadas, en modo claro y oscuro.
   const axe = readFileSync(require.resolve("axe-core/axe.min.js"), "utf8");
-  const rutasAxe = ["/#calculadora", "/#comparar", "/#planes", "/irpf/madrid/", "/irpf/bizkaia/", "/guias/calendario-renta/", "/glosario/", "/glosario/base-liquidable/", "/validacion/"];
+  const rutasAxe = ["/#calculadora", "/#comparar", "/#planes", "/irpf/madrid/", "/irpf/bizkaia/", "/guias/calendario-renta/", "/vivienda/", "/vivienda/segunda-vivienda/", "/glosario/", "/glosario/base-liquidable/", "/validacion/"];
   for (const colorScheme of ["light", "dark"]) {
     for (const ruta of rutasAxe) {
       await prueba(`axe sin infracciones serious/critical (${colorScheme}): ${ruta}`, async () => {

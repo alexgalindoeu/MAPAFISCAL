@@ -239,7 +239,7 @@
  "guias/cambiar-de-comunidad-irpf/index.html": {"hash":"f6aa2081205294d2","fecha":"2026-11-21"},
  "guias/deduccion-donativos/index.html": {"hash":"58c6b3db3e70cb07","fecha":"2026-11-21"},
  "guias/escala-irpf-2024/index.html": {"hash":"da473df8e729ad10","fecha":"2026-11-21"},
- "guias/index.html": {"hash":"352e2a8a1fcdce37","fecha":"2026-11-21"},
+ "guias/index.html": {"hash":"44f8af0db1f8bb4a","fecha":"2026-11-21"},
  "guias/minimo-personal-familiar/index.html": {"hash":"f5ae96d2705e9a4b","fecha":"2026-11-21"},
  "guias/obligacion-declarar-renta/index.html": {"hash":"e6d836c60be12ca2","fecha":"2026-11-21"},
  "guias/plan-pensiones-desgravar/index.html": {"hash":"c6b5e0e9a4fbf9af","fecha":"2026-11-21"},
@@ -879,5 +879,10 @@
  "sueldo-neto/mensual/2000/index.html": {"hash":"33b8f52291c30887","fecha":"2026-11-21"},
  "sueldo-neto/mensual/2500/index.html": {"hash":"d3bc6732701486b0","fecha":"2026-11-21"},
  "sueldo-neto/mensual/3000/index.html": {"hash":"566058c24c609415","fecha":"2026-11-21"},
- "validacion/index.html": {"hash":"1752f810e9008ab1","fecha":"2026-11-21"}
+ "validacion/index.html": {"hash":"1752f810e9008ab1","fecha":"2026-11-21"},
+ "vivienda/alquiler-por-temporadas/index.html": {"hash":"97af4c7621eab0b7","fecha":"2026-11-21"},
+ "vivienda/index.html": {"hash":"ec5217e7b77465b3","fecha":"2026-11-21"},
+ "vivienda/segunda-vivienda/index.html": {"hash":"1f77f8a3b1b0fe52","fecha":"2026-11-21"},
+ "vivienda/vender-piso-alquilado/index.html": {"hash":"c8395014851d3342","fecha":"2026-11-21"},
+ "vivienda/venta-vivienda/index.html": {"hash":"580d89b9ca604d3e","fecha":"2026-11-21"}
 }

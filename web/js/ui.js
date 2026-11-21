@@ -41,6 +41,7 @@
     ] },
     { grupo: "Guías y páginas", items: [
       { titulo: "Guías del IRPF", texto: "Tramos, mínimos, deducciones y calendario, con su norma.", href: "/guias/", icono: "libro" },
+      { titulo: "Vivienda", texto: "Segunda vivienda, alquiler y venta: cómo tributan en el IRPF.", href: "/vivienda/" },
       { titulo: "IRPF por territorio", texto: "Escala, mínimo y deducciones de cada comunidad y territorio foral.", href: "/irpf/", icono: "territorio" },
       { titulo: "Sueldo neto por importe", texto: "Tablas de bruto a neto de 15.000 a 100.000 € en los 19 territorios.", href: "/sueldo-neto/", icono: "nomina" },
       { titulo: "Declaración conjunta: casos", texto: "Con hijos, un solo sueldo, pareja de hecho o separados.", href: "/declaracion-conjunta/", icono: "pareja" },
