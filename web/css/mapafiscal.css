@@ -324,7 +324,6 @@ main:focus { outline: none; }
 @media (min-width: 1040px) { .herramientas { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
 .herramienta { display: block; padding: 16px 0 18px; border-bottom: 1px solid var(--linea-2); text-decoration: none; color: inherit; }
 .herramienta:hover { color: inherit; }
-.herramienta-ico { display: none; }
 .herramienta h3 { font-family: var(--display); font-stretch: 106%; font-size: 17px; font-weight: 700; letter-spacing: -.01em; line-height: 1.25;
   display: flex; align-items: baseline; gap: 4px 8px; flex-wrap: wrap; transition: color var(--dur); }
 .herramienta:hover h3, .herramienta:focus-visible h3 { color: var(--marca-tinta); text-decoration: underline; text-decoration-thickness: 1px; text-underline-offset: 3px; }
@@ -1062,13 +1061,10 @@ html.panel-abierto { overflow: hidden; }
 .panel-grupo + .panel-grupo { border-top: 1px dashed var(--linea-2); }
 .panel-grupo .rotulo { margin: 0 8px 6px; font-size: 13px; color: var(--tinta-2); }
 .panel-grupo ul { list-style: none; margin: 0; padding: 0; }
-.panel-item { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 12px; align-items: start; padding: 9px 8px; border-radius: 10px;
+.panel-item { display: block; padding: 9px 8px 9px 10px; border-radius: 0; border-left: 2px solid transparent;
   color: var(--tinta); text-decoration: none; }
 .panel-item:hover, .panel-item:focus-visible { background: var(--superficie-2); color: var(--tinta); }
-.panel-item[aria-current="page"] { background: var(--marca-suave); }
-.panel-item[aria-current="page"] .panel-ico { background: var(--marca); color: var(--sobre-marca); }
-.panel-ico { width: 36px; height: 36px; border-radius: 9px; display: grid; place-items: center; background: var(--marca-suave); color: var(--marca-tinta); }
-.panel-ico svg { width: 20px; height: 20px; fill: none; stroke: currentColor; stroke-width: 1.7; stroke-linecap: round; stroke-linejoin: round; }
+.panel-item[aria-current="page"] { background: var(--marca-suave); border-left-color: var(--marca); }
 .panel-txt { display: flex; flex-direction: column; gap: 1px; min-width: 0; }
 .panel-txt b { font-size: 14.5px; font-weight: 600; line-height: 1.3; }
 .panel-txt > span { font-size: 13px; color: var(--tinta-3); line-height: 1.35; }
@@ -1151,9 +1147,6 @@ input[aria-invalid="true"] { border-color: var(--rojo, #b42318); box-shadow: 0 0
 /* «Todo»: la línea corta del menú se alarga. */
 .panel-btn svg path { transition: d var(--dur-lenta) var(--curva); }
 .panel-btn:is(:hover, :focus-visible) svg path { d: path("M4 6.5h16M4 12h16M4 17.5h16"); }
-/* Menú «Todo»: el icono de cada entrada se desplaza un poco hacia el texto. */
-.panel-ico { transition: transform var(--dur) var(--curva); }
-.panel-item:is(:hover, :focus-visible) .panel-ico { transform: translateX(2px); }
 /* Mapa: el territorio bajo el ratón se marca con el borde de la marca. */
 .mapa-svg .terr { transition: opacity var(--dur), fill var(--dur-lenta), stroke-width var(--dur); }
 .mapa-svg .terr:hover, .mapa-svg .terr.foco { stroke: var(--marca); stroke-width: 1.4; }
@@ -1163,6 +1156,6 @@ input[aria-invalid="true"] { border-color: var(--rojo, #b42318); box-shadow: 0 0
 .faq summary::before { content: "›"; display: inline-block; font-size: 1.25em; line-height: 1; width: .6em; text-align: center; color: var(--marca); font-weight: 700; transition: transform var(--dur) var(--curva); }
 .faq details[open] > summary::before { transform: rotate(90deg); }
 @media (prefers-reduced-motion: reduce) {
-  .tema-btn svg, .panel-btn svg path, .panel-ico, .faq summary::before { transition: none; }
-  .tema-btn:is(:hover, :focus-visible) svg, .panel-item:is(:hover, :focus-visible) .panel-ico { transform: none; }
+  .tema-btn svg, .panel-btn svg path, .faq summary::before { transition: none; }
+  .tema-btn:is(:hover, :focus-visible) svg { transform: none; }
 }

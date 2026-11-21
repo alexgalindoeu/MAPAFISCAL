@@ -1570,18 +1570,6 @@
   }
 
   // ---- inicio: portada con cálculo rápido, mapa y acceso a las herramientas ---------------
-  // Iconos de línea propios (24×24, trazo con currentColor). Las herramientas nuevas pueden
-  // usar cualquiera con `icono: "<clave>"`.
-  const ICONOS = {
-    calculadora: '<rect x="5" y="3" width="14" height="18" rx="2"/><path d="M8 7h8M8.5 11.5h.01M12 11.5h.01M15.5 11.5h.01M8.5 15h.01M12 15h.01M15.5 15v3M8.5 18h.01M12 18h.01"/>',
-    mapa: '<path d="M9 4 3 6.5v13.5l6-2.5 6 2.5 6-2.5V4l-6 2.5z"/><path d="M9 4v13.5M15 6.5V20"/>',
-    cartera: '<rect x="3" y="7" width="18" height="13" rx="2"/><path d="M9 7V5.5A1.5 1.5 0 0 1 10.5 4h3A1.5 1.5 0 0 1 15 5.5V7M3 13h18"/>',
-    nomina: '<rect x="3" y="6" width="18" height="12" rx="2"/><circle cx="12" cy="12" r="2.5"/><path d="M6.5 9.5h1M16.5 14.5h1"/>',
-    hucha: '<path d="M4 12a7 6 0 0 1 13.4-2.4L20 9v4l-2 1a7 6 0 0 1-2 3v2h-2.5v-1.2a8 8 0 0 1-3 0V19H8v-2a6 6 0 0 1-4-5z"/><path d="M10 7.5h3M15 11h.01"/>',
-    calendario: '<rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4M8 14h.01M12 14h.01M16 14h.01M8 17.5h.01M12 17.5h.01"/>',
-    grafico: '<path d="M4 20V11M10 20V5M16 20v-7M21 20H3"/>'
-  };
-  const icono = k => `<svg viewBox="0 0 24 24" aria-hidden="true">${ICONOS[k] || ICONOS.grafico}</svg>`;
   // Solo herramientas que ya existen (nada de «próximamente»). La que destaca cambia según el
   // mes (CFG.destacados: mes 0-11 -> clave; lo rellena Lanzamiento en web/config.js); sin esa
   // tabla, se destaca el comparador. Otras secciones añaden las suyas con
@@ -1658,7 +1646,7 @@
     const dest = (CFG.destacados && CFG.destacados[new Date().getMonth()]) || "comparar";
     const claves = Object.keys(H).sort((a, b) => (b === dest) - (a === dest));
     $("herramientas").innerHTML = claves.map(k => { const h = H[k]; return `
-      <a class="herramienta" href="${esc(h.href)}"><span class="herramienta-ico">${icono(h.icono)}</span>
+      <a class="herramienta" href="${esc(h.href)}">
         <h3>${esc(h.titulo)}${h.plan ? '<span class="plan-chip">Gestor</span>' : ""}${k === dest ? '<span class="chip tu">Te puede interesar</span>' : ""}</h3><p>${esc(h.texto)}</p></a>`; }).join("");
     // franja de rigor: cifras sacadas de los propios parámetros, nada inventado
     const terrs = Object.values(T), comun = terrs.filter(t => t.regimen === "comun").length;
