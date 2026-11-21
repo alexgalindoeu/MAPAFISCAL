@@ -246,7 +246,7 @@ function construir({ conGit = true, previa = null } = {}) {
   const bloqueEjemplos = ejemplos.map(e => `<div class="tarjeta">
     <h3>${esc(e.titulo)}</h3>
     <p class="ayuda">Fuente: ${esc(e.fuente)} · Ejercicio ${esc(e.ejercicio)} · caso <code>${esc(e.caso)}</code> del validador</p>
-    <table class="cobertura"><thead><tr><th>Cifra</th><th class="num">Oficial</th><th class="num">Mapafiscal</th><th></th></tr></thead><tbody>
+    <table class="cobertura"><thead><tr><th>Cifra</th><th class="num">Oficial</th><th class="num">Mapafiscal</th><th><span class="sr-only">Coincide</span></th></tr></thead><tbody>
     ${e.filas.map(f => `<tr><td>${esc(f.concepto)}</td><td class="num">${eur(f.oficial)}</td><td class="num">${eur(f.motor)}</td><td>${f.ok ? "Al céntimo" : "Distinta"}</td></tr>`).join("")}
     </tbody></table></div>`).join("\n");
 

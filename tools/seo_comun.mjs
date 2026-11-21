@@ -217,15 +217,16 @@ export const EJERCICIO = { valor: null };
 // Las páginas informativas llevan anuncios con el mismo sistema que la aplicación
 // (web/js/anuncios.js + web/config.js: consentimiento, carga diferida, nada para quien tiene
 // plan, espacio reservado). Aquí solo se colocan los huecos; el script decide si se llenan.
-export const RUTAS_CON_ANUNCIOS = [/^\/guias\//, /^\/irpf\//, /^\/sueldo-neto\//, /^\/comparar-sueldo\//];
+export const RUTAS_CON_ANUNCIOS = [/^\/guias\//, /^\/irpf\//, /^\/sueldo-neto\//, /^\/comparar-sueldo\//,
+  /^\/cuanto-me-devuelve\//, /^\/declaracion-conjunta\//, /^\/dos-pagadores\//, /^\/rescate-plan-pensiones\//];
 export const conAnuncios = ruta => RUTAS_CON_ANUNCIOS.some(r => r.test(ruta));
 
 const huecoSeo = pos => `<div class="tarjeta anuncio anuncio-seo" id="anuncio-seo-${pos}" data-anuncio-seo="${pos}" hidden>` +
   `<span class="anuncio-etiqueta">Anuncios</span></div>`;
-export const CARRILES_HTML = `<aside class="anuncio-carril anuncio-carril-izq" id="anuncio-rail-izq" hidden>
+export const CARRILES_HTML = `<aside class="anuncio-carril anuncio-carril-izq" id="anuncio-rail-izq" aria-label="Anuncios (izquierda)" hidden>
   <span class="anuncio-etiqueta">Anuncios</span>
 </aside>
-<aside class="anuncio-carril anuncio-carril-der" id="anuncio-rail-der" hidden>
+<aside class="anuncio-carril anuncio-carril-der" id="anuncio-rail-der" aria-label="Anuncios (derecha)" hidden>
   <span class="anuncio-etiqueta">Anuncios</span>
 </aside>`;
 
@@ -314,9 +315,9 @@ ${css.map(c => `<link rel="stylesheet" href="${c}">\n`).join("")}${ld ? ld + "\n
 ${anuncios ? CARRILES_HTML + "\n" : ""}<header class="appbar">
   <div class="appbar-in">
     ${UI.HTML_BTN_PANEL}
-    <a class="marca" href="/index.html" aria-label="Mapafiscal, inicio">
+    <a class="marca" href="/index.html">
       <svg class="marca-ico" viewBox="0 0 101 82" aria-hidden="true"><polygon class="marca-m" points="2,80 16,4 28,4 54,30 46,41 24,20 17,80"/><polygon class="marca-m" points="72,2 83,2 99,80 85,80 75,30"/><polygon class="marca-m-tu" points="31,80 46,80 87,24 79,10"/></svg>
-      <span class="marca-txt">apafiscal</span>
+      <span class="marca-txt"><span class="sr-only">M</span>apafiscal</span>
     </a>
     <nav class="nav" aria-label="Secciones">
       <a href="/index.html#calculadora">Calculadora</a>
