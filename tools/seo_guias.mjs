@@ -610,6 +610,7 @@ export function paginasGuias(g, T) {
   <p class="entradilla">Lo esencial de la renta explicado con las cifras oficiales de cada año y su norma: tramos, mínimos, deducciones y fechas. Todo enlaza con la calculadora para que lo apliques a tu caso.</p>
   <div class="prosa">
   <div class="tarjeta"><ul class="lista-guias">${GUIAS.map(x => `<li><a href="/guias/${x.slug}/">${esc(x.enlace)}</a><span>${esc(x.resumen)}</span></li>`).join("")}</ul></div>
+  <div class="tarjeta"><h2 class="rotulo">Vivienda</h2><p>Segunda vivienda, alquiler y venta en el IRPF, con ejemplos del motor: <a href="/vivienda/">cómo tributa la vivienda</a>.</p></div>
   <div class="tarjeta"><h2 class="rotulo">Por territorio</h2><p>Tramos, mínimo y deducciones de cada comunidad autónoma, del País Vasco y de Navarra: <a href="/irpf/">IRPF por territorio</a>. Y si quieres comparar: <a href="/comparar-sueldo/">dónde se paga menos IRPF con tu sueldo</a>.</p></div>
   ${cta("Calcula tu IRPF", HERRAMIENTA.calculadora, ["Calcula tu sueldo neto", HERRAMIENTA.sueldoNeto])}
   </div>`;

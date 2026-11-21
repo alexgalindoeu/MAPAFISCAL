@@ -53,8 +53,6 @@
 /* paso 2: enlace enviado */
 .acceso-enviado { text-align: center; padding-top: 4px; }
 .acceso-enviado h2 { outline: none; }
-.acceso-sobre { width: 64px; height: 64px; margin: 0 auto 14px; border-radius: 999px; background: var(--marca-suave); display: grid; place-items: center; }
-.acceso-sobre svg { width: 32px; height: 32px; fill: none; stroke: var(--marca); stroke-width: 2.4; stroke-linejoin: round; }
 .acceso-enviado b { color: var(--tinta); overflow-wrap: anywhere; }
 .acceso-enviado .ayuda { margin: 0 0 14px; font-size: 13px; }
 .acceso-enviado-acciones { display: flex; flex-direction: column; gap: 8px; margin-top: 8px; }
@@ -66,7 +64,6 @@
 #dlg-bienvenida .ayuda { margin-bottom: 16px; }
 
 /* ---- «Guarda este cálculo» y avisos ----------------------------------------------- */
-.ico-guardar { width: 15px; height: 15px; fill: none; stroke: currentColor; stroke-width: 1.5; stroke-linejoin: round; flex: none; }
 #btn-guardar-calculo { display: inline-flex; align-items: center; gap: 8px; }
 #btn-guardar-calculo[hidden] { display: none; }
 #btn-guardar-calculo.guardado { background: var(--gana-suave); color: var(--gana); box-shadow: none; }

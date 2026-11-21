@@ -17,28 +17,6 @@
 
   const esc = s => String(s).replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
 
-  // ---- iconos de línea (24×24, trazo con currentColor) ----------------------------------
-  const ICONOS = {
-    calculadora: '<rect x="5" y="3" width="14" height="18" rx="2"/><path d="M8 7h8M8.5 11.5h.01M12 11.5h.01M15.5 11.5h.01M8.5 15h.01M12 15h.01M15.5 15v3M8.5 18h.01M12 18h.01"/>',
-    mapa: '<path d="M9 4 3 6.5v13.5l6-2.5 6 2.5 6-2.5V4l-6 2.5z"/><path d="M9 4v13.5M15 6.5V20"/>',
-    cartera: '<rect x="3" y="7" width="18" height="13" rx="2"/><path d="M9 7V5.5A1.5 1.5 0 0 1 10.5 4h3A1.5 1.5 0 0 1 15 5.5V7M3 13h18"/>',
-    nomina: '<rect x="3" y="6" width="18" height="12" rx="2"/><circle cx="12" cy="12" r="2.5"/><path d="M6.5 9.5h1M16.5 14.5h1"/>',
-    hucha: '<path d="M4 12a7 6 0 0 1 13.4-2.4L20 9v4l-2 1a7 6 0 0 1-2 3v2h-2.5v-1.2a8 8 0 0 1-3 0V19H8v-2a6 6 0 0 1-4-5z"/><path d="M10 7.5h3M15 11h.01"/>',
-    calendario: '<rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4M8 14h.01M12 14h.01M16 14h.01M8 17.5h.01M12 17.5h.01"/>',
-    grafico: '<path d="M4 20V11M10 20V5M16 20v-7M21 20H3"/>',
-    subida: '<path d="M4 18 10 12l4 4 6-7"/><path d="M15 9h5v5"/>',
-    pareja: '<circle cx="8.5" cy="8" r="3"/><circle cx="16" cy="9" r="2.5"/><path d="M3 20a5.5 5.5 0 0 1 11 0M13.5 20a4.5 4.5 0 0 1 7.5-3.4"/>',
-    dospagadores: '<rect x="3" y="4" width="11" height="8" rx="1.5"/><rect x="10" y="12" width="11" height="8" rx="1.5"/><path d="M6 8h5M13 16h5"/>',
-    rescate: '<path d="M12 3v9M8 8l4 4 4-4"/><path d="M4 14v4a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-4"/>',
-    devolucion: '<path d="M4 9h12a4 4 0 0 1 0 8H9"/><path d="M8 5 4 9l4 4"/>',
-    libro: '<path d="M4 5.5A1.5 1.5 0 0 1 5.5 4H11v16H5.5A1.5 1.5 0 0 1 4 18.5zM20 5.5A1.5 1.5 0 0 0 18.5 4H13v16h5.5a1.5 1.5 0 0 0 1.5-1.5z"/>',
-    territorio: '<path d="M12 21s-6.5-5.6-6.5-11a6.5 6.5 0 0 1 13 0c0 5.4-6.5 11-6.5 11z"/><circle cx="12" cy="10" r="2.4"/>',
-    ranking: '<path d="M5 20v-6h4v6M10 20V8h4v12M15 20v-9h4v9M3 20h18"/>',
-    lupa: '<circle cx="11" cy="11" r="6"/><path d="m20 20-4.2-4.2"/>',
-    escudo: '<path d="M12 3 5 6v5c0 4.5 3 8.3 7 10 4-1.7 7-5.5 7-10V6z"/><path d="m9 12 2 2 4-4"/>',
-    estrella: '<path d="m12 3.5 2.6 5.3 5.8.8-4.2 4.1 1 5.8L12 16.8l-5.2 2.7 1-5.8-4.2-4.1 5.8-.8z"/>'
-  };
-  const icono = k => `<svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">${ICONOS[k] || ICONOS.grafico}</svg>`;
 
   // ---- catálogo del panel «Todo lo que ofrecemos» -----------------------------------------
   // href que empieza por "#": vista de la aplicación (index.html). Si no, página estática.
@@ -63,6 +41,7 @@
     ] },
     { grupo: "Guías y páginas", items: [
       { titulo: "Guías del IRPF", texto: "Tramos, mínimos, deducciones y calendario, con su norma.", href: "/guias/", icono: "libro" },
+      { titulo: "Vivienda", texto: "Segunda vivienda, alquiler y venta: cómo tributan en el IRPF.", href: "/vivienda/" },
       { titulo: "IRPF por territorio", texto: "Escala, mínimo y deducciones de cada comunidad y territorio foral.", href: "/irpf/", icono: "territorio" },
       { titulo: "Sueldo neto por importe", texto: "Tablas de bruto a neto de 15.000 a 100.000 € en los 19 territorios.", href: "/sueldo-neto/", icono: "nomina" },
       { titulo: "Declaración conjunta: casos", texto: "Con hijos, un solo sueldo, pareja de hecho o separados.", href: "/declaracion-conjunta/", icono: "pareja" },
@@ -87,7 +66,7 @@
   function htmlPanel(opc) {
     const grupos = CATALOGO.map((g, i) => `
       <section class="panel-grupo" aria-labelledby="panel-g${i}"><h3 class="rotulo" id="panel-g${i}">${esc(g.grupo)}</h3><ul>${g.items.map(it => `
-        <li><a class="panel-item" href="${esc(resolver(it.href, opc))}"><span class="panel-ico">${icono(it.icono)}</span><span class="panel-txt"><b>${esc(it.titulo)}${it.plan ? ' <span class="plan-chip">Gestor</span>' : ""}</b><span>${esc(it.texto)}</span></span></a></li>`).join("")}</ul></section>`).join("");
+        <li><a class="panel-item" href="${esc(resolver(it.href, opc))}"><span class="panel-txt"><b>${esc(it.titulo)}${it.plan ? ' <span class="plan-chip">Gestor</span>' : ""}</b><span>${esc(it.texto)}</span></span></a></li>`).join("")}</ul></section>`).join("");
     return `<div class="panel-in">
       <div class="panel-cab"><h2 id="panel-todo-t">Todo lo que ofrecemos</h2>
         <button class="panel-cerrar" type="button" data-cerrar-panel aria-label="Cerrar el panel"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M4 4l8 8M12 4l-8 8"/></svg></button></div>
@@ -217,7 +196,7 @@
     }
   }
 
-  const API = { CLAVE_TEMA, SCRIPT_TEMA, CATALOGO, ICONOS, REDES, HTML_BTN_TEMA, HTML_BTN_PANEL, resolver, htmlPanel, htmlRedes };
+  const API = { CLAVE_TEMA, SCRIPT_TEMA, CATALOGO, REDES, HTML_BTN_TEMA, HTML_BTN_PANEL, resolver, htmlPanel, htmlRedes };
   if (typeof module === "object" && module.exports) module.exports = API;
   else global.MapafiscalUI = API;
   if (typeof document !== "undefined") {

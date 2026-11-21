@@ -6,6 +6,7 @@ import { fileURLToPath } from "node:url";
 import { generar, huerfanas } from "../tools/generar_paginas_seo.mjs";
 import { redactarFicha } from "../tools/seo_deducciones.mjs";
 import { GUIAS } from "../tools/seo_guias.mjs";
+import { PAGINAS_VIVIENDA } from "../tools/seo_vivienda.mjs";
 
 const WEB = fileURLToPath(new URL("../web/", import.meta.url));
 const { ficheros, urls } = generar();
@@ -98,4 +99,41 @@ test("el redactor no publica supuestos con claves que no sabe explicar", () => {
 test("el pie de la web principal enlaza el IRPF por territorio y las guías", () => {
   const pie = readFileSync(WEB + "index.html", "utf8").match(/<footer class="pie">[\s\S]*?<\/footer>/)[0];
   assert.ok(pie.includes('href="irpf/"') && pie.includes('href="guias/"'));
+});
+
+// ---- sección «Vivienda» (tools/seo_vivienda.mjs) ------------------------------------------
+const rutaViv = v => `vivienda/${v.slug ? v.slug + "/" : ""}index.html`;
+test("vivienda: portada y cuatro páginas, fuera de /guias/, con FAQ, migas y fuentes del BOE", () => {
+  assert.equal(PAGINAS_VIVIENDA.length, 5);
+  for (const v of PAGINAS_VIVIENDA) {
+    const html = ficheros.get(rutaViv(v));
+    assert.ok(html, rutaViv(v));
+    assert.match(html, /"@type":"FAQPage"/, v.slug);
+    assert.match(html, /<p class="migas"><a href="\/">Inicio<\/a> › (<a href="\/vivienda\/">Vivienda<\/a> › |Vivienda)/, v.slug);
+    assert.ok(html.includes("BOE-A-2006-20764") && html.includes("BOE-A-2007-6820"), `${v.slug}: faltan la Ley o el Reglamento`);
+    assert.ok(html.includes('href="/index.html#calculadora"'), `${v.slug}: sin enlace a la calculadora`);
+    if (v.slug) assert.ok(!ficheros.has(`guias/${v.slug}/index.html`));
+  }
+  for (const v of PAGINAS_VIVIENDA.filter(x => x.slug)) assert.ok(ficheros.get("vivienda/index.html").includes(`href="/vivienda/${v.slug}/"`), v.slug);
+  assert.ok(urls.includes("/vivienda/") && urls.includes("/vivienda/venta-vivienda/"));
+  assert.ok(!GUIAS.some(g => /vivienda/.test(g.slug)));
+});
+
+test("vivienda: las cifras de los tipos de imputación salen de params.json", () => {
+  const P = JSON.parse(readFileSync(WEB + "datos/params.json", "utf8"));
+  const imp = P.estatal.imputacion_renta_inmobiliaria;
+  const html = ficheros.get("vivienda/segunda-vivienda/index.html");
+  const pc = n => String(Math.round(n * 10000) / 100).replace(".", ",") + " %";
+  assert.ok(html.includes(pc(imp.tipo_general)) && html.includes(pc(imp.tipo_revisado_10_anios)));
+  assert.ok(html.includes("80.000 €"));
+  // la venta avisa de que la calculadora no aplica las exenciones
+  assert.match(ficheros.get("vivienda/venta-vivienda/index.html"), /todavía no aplica la exención por reinversión/);
+});
+
+test("vivienda: en el menú y el pie de las páginas generadas y en la portada", () => {
+  const g = ficheros.get("guias/index.html");
+  assert.match(g, /<nav class="nav"[\s\S]*?href="\/vivienda\/"[\s\S]*?<\/nav>/);
+  assert.match(g, /<footer[\s\S]*href="\/vivienda\/"/);
+  const portada = readFileSync(WEB + "index.html", "utf8");
+  assert.match(portada, /<nav class="nav" id="nav-principal"[\s\S]*?href="vivienda\/"[\s\S]*?<\/nav>/);
 });

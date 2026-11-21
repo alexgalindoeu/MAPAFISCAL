@@ -62,6 +62,7 @@
       <a href="#plan-pensiones" data-vista="plan-pensiones">Ahorro fiscal</a>
       <a href="#clientes" data-vista="clientes">Mis clientes</a>
       <a href="#planes" data-vista="planes">Planes</a>
+      <a href="vivienda/">Vivienda</a>
     </nav>
     <div class="appbar-der">
       <button class="btn-icono tema-btn" id="btn-tema" type="button" aria-label="Tema: automático (como el sistema). Cambiar a claro" title="Tema: automático"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><circle cx="12" cy="12" r="8"/><path class="relleno" d="M12 4a8 8 0 0 1 0 16z"/></svg></button>
@@ -78,7 +79,6 @@
 <section class="vista" id="v-inicio" aria-labelledby="t-inicio">
   <div class="portada">
     <div class="portada-texto">
-      <p class="antetitulo">Atlas del IRPF · 19 territorios fiscales</p>
       <h1 id="t-inicio">El mismo sueldo, <span class="subrayado">19&nbsp;IRPF distintos</span></h1>
       <p class="entradilla">Cada comunidad y cada territorio foral tiene su escala, sus mínimos y sus deducciones. Calcula tu declaración con la normativa del tuyo y mira cuánto pagarías en el resto de España. Gratis, sin registrarte y sin que tus datos salgan de tu navegador.</p>
       <form class="minicalc" id="minicalc" autocomplete="off" novalidate aria-label="Cálculo rápido">
@@ -179,7 +179,7 @@
         <p class="res-obligacion" id="res-obligacion"></p>
         <p class="res-pista" id="res-pista" hidden></p>
         <div class="acciones-res">
-          <button class="btn btn-pri" type="button" id="btn-guardar-calculo" hidden><svg class="ico-guardar" viewBox="0 0 16 16" aria-hidden="true"><path d="M3.5 2h7l2 2v10h-9z"/><path d="M5.5 2v3.5h4V2M5.5 14v-4.5h5V14"/></svg><span id="btn-guardar-calculo-txt">Guarda este cálculo</span></button>
+          <button class="btn btn-pri" type="button" id="btn-guardar-calculo" hidden><span id="btn-guardar-calculo-txt">Guarda este cálculo</span></button>
           <button class="btn btn-pri" type="button" id="btn-guardar-cliente">Guardar como cliente</button>
           <a class="btn btn-sec" href="#comparar">Comparar en los 19 territorios</a>
           <button class="btn btn-sec" type="button" id="btn-informe" hidden>Informe completo (PDF)</button>
@@ -954,7 +954,7 @@
 <footer class="pie">
   <div class="contenedor pie-in">
     <p><b>Mapafiscal</b> ofrece estimaciones con fines informativos. No es una liquidación oficial ni asesoramiento fiscal.</p>
-    <p class="pie-sec"><a href="irpf/">IRPF por territorio</a> · <a href="guias/">Guías del IRPF</a> · <a href="comparar-sueldo/">Dónde se paga menos IRPF</a> · <a href="sueldo-neto/">Sueldo neto por importe</a></p>
+    <p class="pie-sec"><a href="irpf/">IRPF por territorio</a> · <a href="guias/">Guías del IRPF</a> · <a href="vivienda/">Vivienda</a> · <a href="comparar-sueldo/">Dónde se paga menos IRPF</a> · <a href="sueldo-neto/">Sueldo neto por importe</a></p>
     <p class="pie-sec"><a href="#metodologia">Cómo calculamos</a> · Normativa del ejercicio <span data-ejercicio>2025</span> · <a href="validacion/">Motor validado R ↔ JavaScript</a> · Cartografía: <span title="es-atlas (MIT) sobre datos del Instituto Geográfico Nacional, CC BY 4.0">© Instituto Geográfico Nacional (CC BY 4.0)</span></p>
     <p class="pie-sec"><a href="legal/aviso-legal.html">Aviso legal</a> · <a href="legal/privacidad.html">Privacidad</a> · <a href="legal/condiciones.html">Condiciones</a> · <a href="legal/cookies.html">Cookies</a><span id="pie-configurar-cookies" hidden> · <a href="legal/cookies.html#publicidad">Configurar cookies</a></span> · <a href="legal/aviso-legal.html#contacto">Contacto</a></p>
   </div>
@@ -999,7 +999,6 @@
 
     <!-- paso 2: enlace enviado -->
     <div class="acceso-enviado" id="acceso-enviado" hidden>
-      <div class="acceso-sobre" aria-hidden="true"><svg viewBox="0 0 48 48"><rect x="5" y="11" width="38" height="27" rx="4"/><path d="M6 13l18 14 18-14"/></svg></div>
       <h2 id="t-enviado" tabindex="-1">Revisa tu correo</h2>
       <p>Te hemos enviado un enlace a <b id="acceso-enviado-a"></b>. Ábrelo en este dispositivo para <span id="acceso-enviado-para">entrar</span>.</p>
       <p class="ayuda">¿No te llega? Puede tardar un minuto. Revisa la carpeta de spam o de promociones: el remitente es Mapafiscal (contacto@mapafiscal.es).</p>

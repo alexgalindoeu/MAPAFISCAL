@@ -4,7 +4,7 @@
    (tarjeta, cobertura, rotulo, ayuda, btn) y solo añade lo propio de estas páginas.
    ========================================================================== */
 
-.pagina-seo .prosa h3 { font-size: 15px; margin: 14px 0 6px; }
+.pagina-seo .prosa h3 { font-size: 17px; font-weight: 700; letter-spacing: -.005em; color: var(--tinta); margin: 22px 0 6px; }
 .pagina-seo .prosa ul { padding-left: 20px; margin: 8px 0; }
 .pagina-seo .prosa li { margin: 4px 0; }
 
