@@ -94,6 +94,34 @@ function explicacion(sit, t, d) {
     (!auto.length && sit !== "hipoteca-antes-2013" && sit !== "donativo" ? ` ${t.nombre} no tiene una deducción autonómica confirmada para este caso: lo que ahorras es lo que fija la ley estatal.` : "");
 }
 
+// Texto propio de cada página: puesto entre los territorios con cifra, distancia al que más y
+// al que menos rebaja, cómo cambia con el sueldo y, para la discapacidad, el otro grado.
+// Todo sale de seo_devuelve.json.
+const PAR = { "discapacidad-33": "discapacidad-65", "discapacidad-65": "discapacidad-33" };
+function contexto(sit, t, d) {
+  const S = SITUACIONES[sit], sal = d.salarios.map(String), med = sal[1], a = t.ahorro[med];
+  const con = ORDEN_TERRITORIOS.map(c => d.situaciones[sit][c]).filter(x => x.publicable).sort((x, y) => y.ahorro[med] - x.ahorro[med] || x.territorio.localeCompare(y.territorio));
+  const mayor = con.filter(x => x.ahorro[med] > a).length, iguales = con.filter(x => x.ahorro[med] === a).length;
+  const max = con[0], min = con[con.length - 1], media = con.reduce((s, x) => s + x.ahorro[med], 0) / con.length;
+  const out = [];
+  if (max.ahorro[med] === min.ahorro[med]) out.push(`Con ${euros(+med)} brutos la rebaja es la misma en los ${con.length} territorios con cifra.`);
+  else {
+    out.push(mayor === 0 ? `Con ${euros(+med)} brutos, ${t.nombre} es ${iguales > 1 ? `uno de los ${iguales} territorios` : "el territorio"} donde más rebaja ${S.que}, de los ${con.length} con cifra publicada.`
+      : `Con ${euros(+med)} brutos, ${t.nombre} queda en el puesto ${mayor + 1} de ${con.length}${iguales > 1 ? ` (empatado con ${iguales - 1} más)` : ""}: ${eurosExactos(max.ahorro[med] - a)} menos que en ${max.nombre}, donde más se rebaja.`);
+    if (a > min.ahorro[med] && mayor > 0) out.push(`Frente a ${min.nombre}, donde menos, son ${eurosExactos(a - min.ahorro[med])} más.`);
+    out.push(Math.abs(a - media) < 1 ? "Es lo mismo que la media de los territorios con cifra." : `La media de los territorios con cifra es ${eurosExactos(media)}.`);
+  }
+  const v = sal.map(s => t.ahorro[s]);
+  out.push(v.every(x => x === v[0]) ? `En ${t.nombre} la rebaja no depende del sueldo: es ${eurosExactos(v[0])} con ${euros(+sal[0])}, con ${euros(+sal[1])} y con ${euros(+sal[2])} brutos.`
+    : `En ${t.nombre} la rebaja ${v[2] > v[0] ? "crece" : "baja"} con el sueldo: ${eurosExactos(v[0])} con ${euros(+sal[0])} brutos y ${eurosExactos(v[2])} con ${euros(+sal[2])}.`);
+  const otra = PAR[sit] && d.situaciones[PAR[sit]][t.territorio];
+  if (otra && otra.publicable) {
+    const b = otra.ahorro[med], O = SITUACIONES[PAR[sit]];
+    out.push(b === a ? `Por ${O.que} la rebaja sería la misma, ${eurosExactos(b)}.` : `Por ${O.que}, en cambio, la rebaja sería de ${eurosExactos(b)} (${eurosExactos(Math.abs(b - a))} ${b > a ? "más" : "menos"}).`);
+  }
+  return out.join(" ");
+}
+
 function paginaTerritorio(sit, t, d, conDeducciones, generado) {
   const S = SITUACIONES[sit], codigo = t.territorio, nombre = t.nombre;
   const sal = d.salarios.map(String), med = sal[1];
@@ -104,11 +132,13 @@ function paginaTerritorio(sit, t, d, conDeducciones, generado) {
     const a = t.ahorro[med];
     const filas = sal.map(s => `<tr><td>${esc(euros(+s))}</td><td class="num"><b>${esc(eurosExactos(t.ahorro[s]))}</b></td></tr>`).join("");
     const exp = explicacion(sit, t, d);
+    const extraUnico = contexto(sit, t, d);
     cuerpo = `<div class="tarjeta">
     <p class="cifra-destacada">Con ${esc(euros(+med))} brutos, ${S.que} en ${esc(nombre)} rebaja la cuota del IRPF en <b>${esc(eurosExactos(a))}</b> al año.</p>
     <p>${esc(exp)}</p>
     ${S.extra && t.regimen === "comun" ? `<p>${esc(S.extra)}</p>` : ""}
   </div>
+  <div class="tarjeta"><h2 class="rotulo">${esc(nombre)} frente a los otros territorios</h2><p>${esc(extraUnico)}</p></div>
   <div class="tarjeta tarjeta-tabla">
     <h2 class="rotulo">Rebaja de la cuota según el sueldo</h2>
     <div class="envoltorio"><table class="cobertura"><thead><tr><th>Sueldo bruto anual</th><th class="num">Pagas de menos</th></tr></thead><tbody>${filas}</tbody></table></div>
