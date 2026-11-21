@@ -1122,3 +1122,26 @@ input[aria-invalid="true"] { border-color: var(--rojo, #b42318); box-shadow: 0 0
 .herramienta h3 .plan-chip { margin-left: 0; }
 /* «al año, con tu misma situación» se leía cortado con «…» en móvil. */
 .comp-resumen dd small { white-space: normal; overflow: visible; text-overflow: clip; }
+
+/* ---- Pequeños gestos al pasar el ratón (como la M): cortos y sin pasarse ---- */
+/* Tema: el semicírculo gira media vuelta. */
+.tema-btn svg { transition: transform var(--dur-lenta) var(--curva); }
+.tema-btn:is(:hover, :focus-visible) svg { transform: rotate(180deg); }
+/* «Todo»: la línea corta del menú se alarga. */
+.panel-btn svg path { transition: d var(--dur-lenta) var(--curva); }
+.panel-btn:is(:hover, :focus-visible) svg path { d: path("M4 6.5h16M4 12h16M4 17.5h16"); }
+/* Menú «Todo»: el icono de cada entrada se desplaza un poco hacia el texto. */
+.panel-ico { transition: transform var(--dur) var(--curva); }
+.panel-item:is(:hover, :focus-visible) .panel-ico { transform: translateX(2px); }
+/* Mapa: el territorio bajo el ratón se marca con el borde de la marca. */
+.mapa-svg .terr { transition: opacity var(--dur), fill var(--dur-lenta), stroke-width var(--dur); }
+.mapa-svg .terr:hover, .mapa-svg .terr.foco { stroke: var(--marca); stroke-width: 1.4; }
+/* Preguntas frecuentes: la flecha gira al abrir. */
+.faq summary { list-style: none; display: flex; gap: 8px; align-items: baseline; }
+.faq summary::-webkit-details-marker { display: none; }
+.faq summary::before { content: "›"; display: inline-block; color: var(--marca); font-weight: 700; transition: transform var(--dur) var(--curva); }
+.faq details[open] > summary::before { transform: rotate(90deg); }
+@media (prefers-reduced-motion: reduce) {
+  .tema-btn svg, .panel-btn svg path, .panel-ico, .faq summary::before { transition: none; }
+  .tema-btn:is(:hover, :focus-visible) svg, .panel-item:is(:hover, :focus-visible) .panel-ico { transform: none; }
+}
