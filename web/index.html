@@ -41,18 +41,18 @@
      .anuncio-carril en mapafiscal.css). Vacíos y ocultos hasta que anuncios.js decida
      mostrarlos: nunca para quien tiene plan Gestor ni con anuncios:false. La etiqueta
      solo puede ser «Anuncios» o «Enlaces patrocinados» (política de AdSense). -->
-<aside class="anuncio-carril anuncio-carril-izq" id="anuncio-rail-izq" hidden>
+<aside class="anuncio-carril anuncio-carril-izq" id="anuncio-rail-izq" aria-label="Anuncios (izquierda)" hidden>
   <span class="anuncio-etiqueta">Anuncios</span>
 </aside>
-<aside class="anuncio-carril anuncio-carril-der" id="anuncio-rail-der" hidden>
+<aside class="anuncio-carril anuncio-carril-der" id="anuncio-rail-der" aria-label="Anuncios (derecha)" hidden>
   <span class="anuncio-etiqueta">Anuncios</span>
 </aside>
 <header class="appbar con-menu" id="appbar">
   <div class="appbar-in">
     <button class="btn-icono panel-btn" id="btn-todo" type="button" aria-haspopup="dialog" aria-expanded="false" aria-controls="panel-todo" aria-label="Todo lo que ofrecemos" title="Todo lo que ofrecemos"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M4 6.5h16M4 12h16M4 17.5h10"/></svg><span class="panel-btn-txt">Todo</span></button>
-    <a class="marca" href="#inicio" aria-label="Mapafiscal, inicio">
+    <a class="marca" href="#inicio">
       <svg class="marca-ico" viewBox="0 0 101 82" aria-hidden="true"><polygon class="marca-m" points="2,80 16,4 28,4 54,30 46,41 24,20 17,80"/><polygon class="marca-m" points="72,2 83,2 99,80 85,80 75,30"/><polygon class="marca-m-tu" points="31,80 46,80 87,24 79,10"/></svg>
-      <span class="marca-txt">apafiscal</span>
+      <span class="marca-txt"><span class="sr-only">M</span>apafiscal</span>
     </a>
     <nav class="nav" id="nav-principal" aria-label="Secciones">
       <a href="#calculadora" data-vista="calculadora">Calculadora</a>
@@ -239,7 +239,7 @@
       <div class="leyenda" id="leyenda"></div>
       <p class="nota">Pulsa un territorio para calcular con esa residencia. Canarias, en el recuadro, a escala reducida.</p>
     </div>
-    <div class="tarjeta tarjeta-ranking">
+    <div class="tarjeta tarjeta-ranking" tabindex="0">
       <table class="ranking" id="ranking"></table>
     </div>
     <aside class="anuncio-lateral anuncio-lateral-izq" id="anuncio-col-comparar" aria-label="Publicidad" hidden>
@@ -434,7 +434,7 @@
         <table class="desglose" id="neto-desglose"></table>
         <details id="neto-explicacion" hidden></details>
       </div>
-      <div class="tarjeta tarjeta-ranking">
+      <div class="tarjeta tarjeta-ranking" tabindex="0">
         <h2 class="rotulo" id="neto-t-ranking">Neto en los 19 territorios</h2>
         <table class="ranking hr-ranking" id="neto-ranking"></table>
       </div>
@@ -505,7 +505,7 @@
         <h2 class="rotulo">Detalle</h2>
         <table class="desglose" id="pp-desglose"></table>
       </div>
-      <div class="tarjeta tarjeta-ranking">
+      <div class="tarjeta tarjeta-ranking" tabindex="0">
         <h2 class="rotulo" id="pp-t-ranking">Ahorro por territorio</h2>
         <table class="ranking hr-ranking" id="pp-ranking"></table>
       </div>
@@ -577,7 +577,7 @@
         <h2 class="rotulo">Según en cuántos años lo repartes</h2>
         <table class="ranking rp-anios" id="rp-anios-tabla"></table>
       </div>
-      <div class="tarjeta tarjeta-ranking">
+      <div class="tarjeta tarjeta-ranking" tabindex="0">
         <h2 class="rotulo" id="rp-t-ranking">IRPF extra por territorio</h2>
         <table class="ranking hr-ranking" id="rp-ranking"></table>
       </div>
@@ -659,7 +659,7 @@
         <h2 class="rotulo" id="bn-t-desglose">Desglose</h2>
         <table class="desglose" id="bn-desglose"></table>
       </div>
-      <div class="tarjeta tarjeta-ranking" id="bn-rank-tarjeta">
+      <div class="tarjeta tarjeta-ranking" tabindex="0" id="bn-rank-tarjeta">
         <h2 class="rotulo" id="bn-t-ranking">Bruto necesario en los 19 territorios</h2>
         <table class="ranking hr-ranking" id="bn-ranking"></table>
       </div>
@@ -713,7 +713,7 @@
       </div>
       <div class="tarjeta"><h2 class="rotulo">Por qué</h2><ul class="cj-porque" id="cj-porque"></ul></div>
       <div class="tarjeta"><h2 class="rotulo">Las dos modalidades</h2><table class="desglose cj-tabla" id="cj-desglose"></table></div>
-      <div class="tarjeta tarjeta-ranking"><h2 class="rotulo">En los 19 territorios, de menos a más IRPF</h2><table class="ranking hr-ranking" id="cj-ranking"></table></div>
+      <div class="tarjeta tarjeta-ranking" tabindex="0"><h2 class="rotulo">En los 19 territorios, de menos a más IRPF</h2><table class="ranking hr-ranking" id="cj-ranking"></table></div>
       <p class="nota" id="cj-nota"></p>
     </div>
     <aside class="anuncio-lateral anuncio-lateral-izq" id="anuncio-col-conjunta" aria-label="Publicidad" hidden>
@@ -775,7 +775,7 @@
         </ul></div>
       <div class="tarjeta"><h2 class="rotulo">Desglose</h2><table class="desglose" id="dp-desglose"></table></div>
       <div class="tarjeta"><h2 class="rotulo" id="dp-t-escenarios">Según lo que te pague el segundo</h2><table class="ranking" id="dp-escenarios"></table></div>
-      <div class="tarjeta tarjeta-ranking"><h2 class="rotulo">Resultado en los 19 territorios</h2><table class="ranking hr-ranking" id="dp-ranking"></table></div>
+      <div class="tarjeta tarjeta-ranking" tabindex="0"><h2 class="rotulo">Resultado en los 19 territorios</h2><table class="ranking hr-ranking" id="dp-ranking"></table></div>
       <p class="nota" id="dp-nota"></p>
     </div>
     <aside class="anuncio-lateral anuncio-lateral-izq" id="anuncio-col-pagadores" aria-label="Publicidad" hidden>

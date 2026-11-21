@@ -37,9 +37,9 @@
 <header class="appbar">
   <div class="appbar-in">
     <button class="btn-icono panel-btn" id="btn-todo" type="button" aria-haspopup="dialog" aria-expanded="false" aria-controls="panel-todo" aria-label="Todo lo que ofrecemos" title="Todo lo que ofrecemos"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M4 6.5h16M4 12h16M4 17.5h10"/></svg><span class="panel-btn-txt">Todo</span></button>
-    <a class="marca" href="/index.html" aria-label="Mapafiscal, inicio">
+    <a class="marca" href="/index.html">
       <svg class="marca-ico" viewBox="0 0 101 82" aria-hidden="true"><polygon class="marca-m" points="2,80 16,4 28,4 54,30 46,41 24,20 17,80"/><polygon class="marca-m" points="72,2 83,2 99,80 85,80 75,30"/><polygon class="marca-m-tu" points="31,80 46,80 87,24 79,10"/></svg>
-      <span class="marca-txt">apafiscal</span>
+      <span class="marca-txt"><span class="sr-only">M</span>apafiscal</span>
     </a>
     <nav class="nav" aria-label="Secciones">
       <a href="/index.html#calculadora">Calculadora</a>
@@ -114,19 +114,19 @@
   <div class="tarjeta">
     <h3>Ejemplo 1 de la AEAT: Madrid, 16.500 € íntegros del trabajo y 1.200 € de cotizaciones</h3>
     <p class="ayuda">Fuente: AEAT · Ejercicio 2025 · caso <code>da61_aeat_md</code> del validador</p>
-    <table class="cobertura"><thead><tr><th>Cifra</th><th class="num">Oficial</th><th class="num">Mapafiscal</th><th></th></tr></thead><tbody>
+    <table class="cobertura"><thead><tr><th>Cifra</th><th class="num">Oficial</th><th class="num">Mapafiscal</th><th><span class="sr-only">Coincide</span></th></tr></thead><tbody>
     <tr><td>Base liquidable general</td><td class="num">6.782,00 €</td><td class="num">6.782,00 €</td><td>Al céntimo</td></tr><tr><td>Cuota íntegra total (estatal + autonómica)</td><td class="num">187,19 €</td><td class="num">187,19 €</td><td>Al céntimo</td></tr>
     </tbody></table></div>
 <div class="tarjeta">
     <h3>Ejemplo práctico de la AEAT «Cálculo de las cuotas íntegras estatal y autonómica»: Aragón, base general de 23.900 € y del ahorro de 2.800 €</h3>
     <p class="ayuda">Fuente: AEAT · Ejercicio 2025 · caso <code>aeat_ejemplo_ar</code> del validador</p>
-    <table class="cobertura"><thead><tr><th>Cifra</th><th class="num">Oficial</th><th class="num">Mapafiscal</th><th></th></tr></thead><tbody>
+    <table class="cobertura"><thead><tr><th>Cifra</th><th class="num">Oficial</th><th class="num">Mapafiscal</th><th><span class="sr-only">Coincide</span></th></tr></thead><tbody>
     <tr><td>Cuota íntegra estatal</td><td class="num">2.406,50 €</td><td class="num">2.406,50 €</td><td>Al céntimo</td></tr><tr><td>Cuota íntegra autonómica</td><td class="num">2.360,64 €</td><td class="num">2.360,64 €</td><td>Al céntimo</td></tr>
     </tbody></table></div>
 <div class="tarjeta">
     <h3>Ejemplo 4 del Manual teórico Renta y Patrimonio 2025 de la Hacienda Foral de Navarra: Paco (16.000 €) y Teresa (27.000 €), hijos de 2, 5 y 7 años, declaraciones individuales</h3>
     <p class="ayuda">Fuente: Hacienda Foral de Navarra · Ejercicio 2025 · caso <code>nc_ejemplo4_manual</code> del validador</p>
-    <table class="cobertura"><thead><tr><th>Cifra</th><th class="num">Oficial</th><th class="num">Mapafiscal</th><th></th></tr></thead><tbody>
+    <table class="cobertura"><thead><tr><th>Cifra</th><th class="num">Oficial</th><th class="num">Mapafiscal</th><th><span class="sr-only">Coincide</span></th></tr></thead><tbody>
     <tr><td>Deducción por mínimo familiar de Paco + la de Teresa (1.659,70 + 1.452,24)</td><td class="num">3.111,94 €</td><td class="num">3.111,94 €</td><td>Al céntimo</td></tr>
     </tbody></table></div>
   <p class="ayuda">Los parámetros se cotejan además con el BOE, los boletines autonómicos y forales y el Manual Práctico de Renta de la AEAT: cada cifra del motor lleva la norma de la que sale.</p>

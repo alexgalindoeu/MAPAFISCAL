@@ -151,7 +151,7 @@ function paginaTerritorio(codigo) {
   const cartaComparativa = `<div class="tarjeta tarjeta-tabla">
     <h2 class="rotulo">¿Cómo queda ${esc(nombre)} frente a los otros 18 territorios?</h2>
     <p class="ayuda">Caso de referencia: ${esc(comparativas.supuesto)}</p>
-    <div class="envoltorio"><table class="cobertura"><thead><tr><th>Sueldo bruto</th><th class="num">Puesto (de más barato a más caro)</th><th class="num">Cuota líquida</th><th class="num">Tipo medio</th><th></th></tr></thead><tbody>${filasComparativa}</tbody></table></div>
+    <div class="envoltorio"><table class="cobertura"><thead><tr><th>Sueldo bruto</th><th class="num">Puesto (de más barato a más caro)</th><th class="num">Cuota líquida</th><th class="num">Tipo medio</th><th><span class="sr-only">Acción</span></th></tr></thead><tbody>${filasComparativa}</tbody></table></div>
   </div>`;
 
   const anios = con26 ? "2025 y 2026" : "2025";

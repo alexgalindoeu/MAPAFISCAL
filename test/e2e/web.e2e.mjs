@@ -111,6 +111,25 @@ try {
       await p.context().close();
     });
   }
+
+  // Accesibilidad con axe-core (devDependency): fallan las infracciones «serious» y
+  // «critical» de las páginas revisadas, en modo claro y oscuro.
+  const axe = readFileSync(require.resolve("axe-core/axe.min.js"), "utf8");
+  const rutasAxe = ["/#calculadora", "/#comparar", "/#planes", "/irpf/madrid/", "/irpf/bizkaia/", "/guias/calendario-renta/", "/validacion/"];
+  for (const colorScheme of ["light", "dark"]) {
+    for (const ruta of rutasAxe) {
+      await prueba(`axe sin infracciones serious/critical (${colorScheme}): ${ruta}`, async () => {
+        const p = await abrir(ruta, { colorScheme });
+        await p.waitForTimeout(500);
+        await p.addScriptTag({ content: axe });
+        const graves = await p.evaluate(async () => (await window.axe.run(document, { resultTypes: ["violations"] })).violations
+          .filter(v => v.impact === "serious" || v.impact === "critical")
+          .map(v => `${v.impact} ${v.id}: ${v.nodes.slice(0, 3).map(n => n.target.join(" ")).join(" | ")}`));
+        assert.deepEqual(graves, []);
+        await p.context().close();
+      });
+    }
+  }
 } finally {
   await navegador.close();
   servidor.kill();

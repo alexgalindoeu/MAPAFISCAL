@@ -140,6 +140,7 @@ a:hover { color: var(--marca-hover); }
 h1, h2, h3 { text-wrap: balance; margin: 0; }
 h1, .titulo-vista { font-family: var(--display); font-stretch: 112%; }
 :focus-visible { outline: 2px solid var(--anillo); outline-offset: 2px; border-radius: 4px; }
+.sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0; }
 ::selection { background: var(--resalte); color: var(--sobre-resalte); }
 
 .contenedor { max-width: 1240px; margin: 0 auto; padding: 0 clamp(16px, 3vw, 32px); }
@@ -572,7 +573,7 @@ details.mas:not([open]) summary { margin-bottom: 0; }
 /* «Mis clientes» sin plan de pago: pestaña atenuada con candado y vista difuminada */
 .icono-candado { width: 13px; height: 13px; fill: none; stroke: currentColor; stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; flex: none; }
 .nav a.bloqueada { gap: 6px; }
-.nav a.bloqueada span { filter: blur(.6px); opacity: .6; }
+.nav a.bloqueada span { filter: blur(.4px); opacity: .85; }
 .nav a.bloqueada .icono-candado { opacity: .8; }
 .bloqueo { display: grid; overflow: hidden; padding-bottom: 24px; }
 .bloqueo > * { grid-area: 1 / 1; }
