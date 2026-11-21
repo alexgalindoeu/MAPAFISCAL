@@ -12,6 +12,7 @@
 // =============================================================================
 // resta: sin signo si el importe redondeado es 0 (evita «−0 €»)
 const menos = n => (Math.round(Math.abs(n)) ? "−" : "") + euros(Math.abs(n));
+import { graficoBrutoNeto, serieSueldoNeto } from "./seo_grafico.mjs";
 import { NOMBRE_CORTO, SLUG, ORDEN_TERRITORIOS, HERRAMIENTA, esc, euros, pct, layout, jsonLdMigas, jsonLdFaq, bloqueFaq, migasHtml } from "./seo_comun.mjs";
 
 const FORAL = new Set(["ES-PV-BI", "ES-PV-SS", "ES-PV-VI", "ES-NC"]);
@@ -146,6 +147,7 @@ export function paginasSueldoNeto(d) {
     <p>Entre IRPF y Seguridad Social se va el ${esc(pct(tipoTotal))} del bruto. De cada 100 € más de sueldo, ${esc(euros(100 * f.marginal))} se irían en impuestos y cotizaciones (${esc(euros(100 * f.marginal_irpf))} de IRPF): es tu tipo marginal.${esc(topeSs)}</p>
     <p class="ayuda">${notaSs}</p>
   </div>
+  ${graficoBrutoNeto({ serie: serieSueldoNeto(d, c), marca: b, titulo: `Del bruto al neto en ${n}`, pie: `Neto mensual en 12 pagas y tipo medio del IRPF en ${n} para cada sueldo bruto anual de ${euros(importes[0])} a ${euros(importes.at(-1))} (${EJ}, persona soltera sin hijos). El punto marca ${euros(b)}.` })}
   <div class="tarjeta tarjeta-tabla">
     <h2 class="rotulo">${esc(n)} frente a los otros 18 territorios</h2>
     <p>${esc(comparacion)} Son ${esc(frenteMedia)}.${vecinosPuesto ? ` ${esc(vecinosPuesto)}.` : ""} ${esc(regimen)}</p>
@@ -206,6 +208,7 @@ export function paginasSueldoNeto(d) {
     ${tabla19(b)}
     <p class="ayuda">${esc(supuesto)} ${notaSs}</p>
   </div>
+  ${graficoBrutoNeto({ serie: serieSueldoNeto(d), marca: b, titulo: "Del bruto al neto: media de los 19 territorios", pie: `Media de los 19 territorios del neto mensual en 12 pagas y del tipo medio del IRPF para cada sueldo bruto anual de ${euros(importes[0])} a ${euros(importes.at(-1))} (${EJ}, persona soltera sin hijos). El punto marca ${euros(b)}.` })}
   <div class="tarjeta"><h2 class="rotulo">Cuánto cambia con el sueldo</h2>
     <p>${esc(cambio)}</p>
     <div class="envoltorio"><table class="cobertura"><thead><tr><th>Bruto anual</th><th class="num">Neto mínimo</th><th class="num">Neto máximo</th><th class="num">Diferencia</th><th class="num">Neto en Madrid</th></tr></thead><tbody>${filasVent}</tbody></table></div></div>

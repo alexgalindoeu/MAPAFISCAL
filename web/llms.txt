@@ -24,6 +24,9 @@ Datos clave (2025, actualizados el 2026-11-14):
 - [Deducción por donativos](https://mapafiscal.es/guias/deduccion-donativos/): El 80 % de los primeros 250 € y el resto, con ejemplos.
 - [¿Estoy obligado a declarar?](https://mapafiscal.es/guias/obligacion-declarar-renta/): Límites de ingresos y cuándo conviene declarar aunque no sea obligatorio.
 - [Calendario de la renta](https://mapafiscal.es/guias/calendario-renta/): Fechas de la campaña, domiciliación y pago en dos plazos.
+- [12 o 14 pagas](https://mapafiscal.es/guias/12-o-14-pagas/): Neto mensual con el mismo bruto, prorrata de las extras y retención.
+- [Tipo marginal y tipo medio](https://mapafiscal.es/guias/tipo-marginal-y-tipo-medio/): La diferencia, con ejemplos, y por qué cambiar de tramo no te hace cobrar menos.
+- [Cambiar de comunidad](https://mapafiscal.es/guias/cambiar-de-comunidad-irpf/): En qué comunidad haces la renta si te mudas y cuánto cambia el IRPF.
 
 ## IRPF por territorio
 
@@ -52,4 +55,5 @@ Datos clave (2025, actualizados el 2026-11-14):
 - [¿Cuánto me devuelve Hacienda?](https://mapafiscal.es/cuanto-me-devuelve/): hijos, alquiler, hipoteca, discapacidad y donativos.
 - [Rescate del plan de pensiones](https://mapafiscal.es/rescate-plan-pensiones/)
 - [Declaración conjunta o individual](https://mapafiscal.es/declaracion-conjunta/)
+- [Glosario del IRPF](https://mapafiscal.es/glosario/): definiciones de los términos de la renta, con su artículo de la ley.
 - [Mapa del sitio](https://mapafiscal.es/sitemap.xml)

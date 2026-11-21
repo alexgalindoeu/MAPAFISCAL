@@ -57,6 +57,7 @@ ${ORDEN_TERRITORIOS.map(linea).join("\n")}
 - [¿Cuánto me devuelve Hacienda?](${SITIO}/cuanto-me-devuelve/): hijos, alquiler, hipoteca, discapacidad y donativos.
 - [Rescate del plan de pensiones](${SITIO}/rescate-plan-pensiones/)
 - [Declaración conjunta o individual](${SITIO}/declaracion-conjunta/)
+- [Glosario del IRPF](${SITIO}/glosario/): definiciones de los términos de la renta, con su artículo de la ley.
 - [Mapa del sitio](${SITIO}/sitemap.xml)
 `;
 }

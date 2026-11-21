@@ -22,9 +22,12 @@ import { paginaDeducciones, CAMPO } from "./seo_deducciones.mjs";
 import { paginasFichasDeduccion } from "./seo_deduccion_ficha.mjs";
 import { paginasGuias, GUIAS } from "./seo_guias.mjs";
 import { paginasSueldoNeto } from "./seo_sueldo_neto.mjs";
+import { graficoBrutoNeto, serieSueldoNeto } from "./seo_grafico.mjs";
 import { paginasRescate } from "./seo_rescate.mjs";
 import { paginasConjuntaPagadores, CARPETAS_CONJUNTA } from "./seo_conjunta.mjs";
 import { paginasDevuelve } from "./seo_devuelve.mjs";
+import { paginaMetodologia } from "./seo_metodologia.mjs";
+import { paginasGlosario, enlazarGlosario, HUB_GLOSARIO } from "./seo_glosario.mjs";
 import { paginasForal, enlacesSuiteForal, enlacesVascos, escalasAhorro, ejemploPasoAPaso, normaDelTerritorio, rasgoForalDe, paramsForal, BOLETIN } from "./seo_foral.mjs";
 
 const RAIZ = join(dirname(fileURLToPath(import.meta.url)), "..");
@@ -38,6 +41,13 @@ const REGIMEN_ETIQUETA = { comun: "régimen común", foral_pais_vasco: "conciert
 // Territorios con página de deducciones (se rellena al generar).
 const conDeducciones = new Set();
 const HACIENDA_FAQ = { "ES-PV-BI": "La Hacienda Foral de Bizkaia", "ES-PV-SS": "La Hacienda Foral de Gipuzkoa", "ES-PV-VI": "La Hacienda Foral de Álava", "ES-NC": "La Hacienda Foral de Navarra" };
+
+// Curva del bruto al neto del territorio (cifras de seo_sueldo_neto.json, motor R).
+function graficoTerritorio(codigo, nombre) {
+  const serie = serieSueldoNeto(sueldoNeto, codigo);
+  return graficoBrutoNeto({ serie, titulo: `Sueldo neto e IRPF en ${nombre} según el bruto (${sueldoNeto.ejercicio})`,
+    pie: `Neto mensual en 12 pagas y tipo medio del IRPF en ${nombre} para sueldos brutos de ${euros(serie[0].bruto)} a ${euros(serie.at(-1).bruto)} al año, ejercicio ${sueldoNeto.ejercicio}: persona soltera, sin hijos, de ${sueldoNeto.supuesto.edad} años y con contrato indefinido.` });
+}
 
 // ---- página por territorio -------------------------------------------------------
 function paginaTerritorio(codigo) {
@@ -178,6 +188,7 @@ function paginaTerritorio(codigo) {
   ${cartaMinimo}
   ${cartasForal}${cartaDeducciones}${enlacesSuiteForal(codigo, nombre)}${enlacesVascos(codigo)}
   ${cartaComparativa}
+  ${graficoTerritorio(codigo, nombre)}
   ${esComun ? bloqueFaq(faq) : bloqueFaq(faq).replace('class="tarjeta faq"', 'class="tarjeta faq" id="preguntas"')}
   <p><a class="btn btn-pri" href="/index.html#calculadora">Calcula tu caso real en ${esc(nombre)}</a> <a class="btn btn-sec" href="/index.html#comparar">Compáralo con los otros 18 territorios</a></p>
   <p class="ayuda">Guías: <a href="/guias/tramos-irpf-2025-2026/">tramos del IRPF 2025 y 2026</a> · <a href="/guias/minimo-personal-familiar/">mínimo personal y familiar</a> · <a href="/guias/obligacion-declarar-renta/">¿estoy obligado a declarar?</a> · <a href="/guias/plan-pensiones-desgravar/">plan de pensiones</a> · <a href="/guias/deduccion-donativos/">donativos</a> · <a href="/guias/calendario-renta/">calendario de la renta</a></p>
@@ -332,16 +343,19 @@ export function generar({ conGit = false } = {}) {
   // Una página por deducción, colgando de la de su territorio.
   const porDeduccion = paginasFichasDeduccion(fichasDed, deducciones.generado, deducciones.ejercicio, CAMPO);
   for (const codigo of ORDEN_TERRITORIOS) {
-    pagina(`/irpf/${SLUG[codigo]}/`, paginaTerritorio(codigo));
+    pagina(`/irpf/${SLUG[codigo]}/`, enlazarGlosario(paginaTerritorio(codigo)));
     const p = ded.find(x => x.ruta === `/irpf/${SLUG[codigo]}/deducciones/`);
     if (p) pagina(p.ruta, p.html);
     for (const f of porDeduccion.filter(x => x.codigo === codigo)) pagina(f.ruta, f.html);
   }
-  pagina("/irpf/", paginaIndiceTerritorios());
+  pagina("/irpf/", enlazarGlosario(paginaIndiceTerritorios()));
   for (const s of comparativas.salarios) pagina(`/comparar-sueldo/${s}/`, paginaSalario(s));
   pagina("/comparar-sueldo/", paginaIndiceSalarios());
   const gs = paginasGuias(guias, territorios);
-  for (const g of gs) pagina(g.ruta, g.html);
+  // primera aparición de los términos clave → glosario (como mucho 3 por página)
+  for (const g of gs) pagina(g.ruta, g.ruta === "/guias/" ? g.html : enlazarGlosario(g.html));
+  const glo = paginasGlosario({ comparativas, guias, generado: territorios.generado });
+  for (const g of glo) pagina(g.ruta, g.html);
   const sn = paginasSueldoNeto(sueldoNeto);
   for (const p of sn) pagina(p.ruta, p.html);
   for (const g of paginasRescate(territorios.generado)) pagina(g.ruta, g.html);
@@ -350,6 +364,7 @@ export function generar({ conGit = false } = {}) {
   for (const p of paginasDevuelve(devuelve, conDeducciones)) p.indexable ? pagina(p.ruta, p.html) : ficheros.set(p.ruta.slice(1) + "index.html", p.html);
   for (const g of paginasForal(territorios.generado, sueldoNeto.importes_territorio)) pagina(g.ruta, g.html);
 
+  pagina("/metodologia/", paginaMetodologia(territorios.generado));
   // «Cómo comprobamos los cálculos»: la escribe tools/generar_validacion.mjs; aquí solo va al sitemap
   urls.push("/validacion/");
   // Fecha real de cambio de cada página (y de la portada, que se escribe a mano).
@@ -367,14 +382,14 @@ export function generar({ conGit = false } = {}) {
   ficheros.set("sitemap.xml", `<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
 <url><loc>${SITIO}/</loc><lastmod>${registro["index.html"].fecha}</lastmod><changefreq>weekly</changefreq><priority>1.0</priority></url>
-${urls.map(u => `<url><loc>${SITIO}${u}</loc><lastmod>${lastmod(u)}</lastmod><changefreq>monthly</changefreq><priority>${u.startsWith("/guias/") || u === "/irpf/" ? "0.8" : "0.7"}</priority></url>`).join("\n")}
+${urls.map(u => `<url><loc>${SITIO}${u}</loc><lastmod>${lastmod(u)}</lastmod><changefreq>monthly</changefreq><priority>${u.startsWith("/guias/") || u === "/irpf/" || u === HUB_GLOSARIO ? "0.8" : "0.7"}</priority></url>`).join("\n")}
 </urlset>
 `);
   ficheros.set("robots.txt", robotsTxt());
   ficheros.set("llms.txt", llmsTxt({ territorios, comparativas, guias, GUIAS, conDeducciones }));
   return {
     ficheros, avisos, urls,
-    recuento: { territorios: ORDEN_TERRITORIOS.length, sueldos: comparativas.salarios.length, deducciones: ded.length, porDeduccion: porDeduccion.length, guias: gs.length - 1, sueldoNeto: sn.length - 1, indices: 4 }
+    recuento: { territorios: ORDEN_TERRITORIOS.length, sueldos: comparativas.salarios.length, deducciones: ded.length, porDeduccion: porDeduccion.length, guias: gs.length - 1, sueldoNeto: sn.length - 1, glosario: glo.length - 1, indices: 5 }
   };
 }
 
@@ -406,6 +421,7 @@ export function huerfanas(ficheros) {
   recorrer("rescate-plan-pensiones");
   for (const c of CARPETAS_CONJUNTA) recorrer(c);
   recorrer("cuanto-me-devuelve");
+  recorrer("glosario");
   return fuera;
 }
 
@@ -435,7 +451,7 @@ if (process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.ur
       writeFileSync(p, html, "utf8");
     }
     for (const r of sobran) { rmSync(join(WEB, r)); console.log(`Borrada (ya no se genera): ${r}`); }
-    console.log(`Páginas SEO: ${recuento.territorios} territorios + ${recuento.deducciones} de deducciones (${recuento.porDeduccion} fichas) + ${recuento.sueldos} sueldos + ${recuento.guias} guías + ${recuento.sueldoNeto} de sueldo neto + ${recuento.indices} índices.`);
+    console.log(`Páginas SEO: ${recuento.territorios} territorios + ${recuento.deducciones} de deducciones (${recuento.porDeduccion} fichas) + ${recuento.sueldos} sueldos + ${recuento.guias} guías + ${recuento.sueldoNeto} de sueldo neto + ${recuento.glosario} términos del glosario + ${recuento.indices} índices.`);
     console.log(`sitemap.xml: ${urls.length + 1} URLs.`);
   }
 }

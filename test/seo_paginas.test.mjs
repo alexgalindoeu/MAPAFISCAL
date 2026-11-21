@@ -106,3 +106,39 @@ test("no hay títulos duplicados entre páginas", () => {
   }
   assert.deepEqual(dup, []);
 });
+
+// ---- glosario (tools/seo_glosario.mjs) ---------------------------------------------------
+const GLOSARIO = PAGINAS.filter(p => p.ruta.startsWith("glosario/"));
+const ldDe = html => [...html.matchAll(/<script type="application\/ld\+json">([\s\S]*?)<\/script>/g)].map(m => JSON.parse(m[1]));
+
+test("glosario: índice con DefinedTermSet y entre 25 y 35 términos", () => {
+  const ind = GLOSARIO.find(p => p.ruta === "glosario/index.html");
+  assert.ok(ind, "falta /glosario/");
+  const set = ldDe(ind.html).find(o => o["@type"] === "DefinedTermSet");
+  assert.ok(set, "sin DefinedTermSet");
+  const n = GLOSARIO.length - 1;
+  assert.ok(n >= 25 && n <= 35, String(n));
+  assert.equal(set.hasDefinedTerm.length, n);
+  const sm = readFileSync(join(WEB, "sitemap.xml"), "utf8");
+  for (const { ruta } of GLOSARIO) assert.ok(sm.includes(`<loc>${urlDeRuta(ruta)}</loc>`), `${ruta} fuera del sitemap`);
+});
+
+test("glosario: cada término lleva DefinedTerm, BreadcrumbList, norma y relacionados", () => {
+  for (const { ruta, html, cuerpo } of GLOSARIO.filter(p => p.ruta !== "glosario/index.html")) {
+    const ld = ldDe(html);
+    assert.ok(ld.some(o => o["@type"] === "DefinedTerm" && o.inDefinedTermSet), `${ruta}: sin DefinedTerm`);
+    assert.ok(ld.some(o => o["@type"] === "BreadcrumbList"), `${ruta}: sin BreadcrumbList`);
+    assert.match(cuerpo, /Dónde se regula<\/h2>\s*<p>[^<]*\S/, `${ruta}: sin norma`);
+    const rel = (cuerpo.match(/Términos relacionados<\/h2><ul[^>]*>([\s\S]*?)<\/ul>/) || [, ""])[1];
+    const n = (rel.match(/href="\/glosario\//g) || []).length;
+    assert.ok(n >= 3 && n <= 5, `${ruta}: ${n} relacionados`);
+  }
+});
+
+test("glosario: las guías y /irpf/ enlazan como mucho 4 términos", () => {
+  for (const { ruta, cuerpo } of PAGINAS.filter(p => /^(guias|irpf)\//.test(p.ruta))) {
+    const main = cuerpo.slice(cuerpo.indexOf("<main"), cuerpo.indexOf("</main>"));
+    const n = (main.match(/href="\/glosario\/[a-z-]+\/"/g) || []).length;
+    assert.ok(n <= 4, `${ruta}: ${n} enlaces al glosario`);
+  }
+});
