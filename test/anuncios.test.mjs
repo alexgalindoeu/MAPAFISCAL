@@ -303,7 +303,7 @@ import { ponerHuecos, conAnuncios, layout } from "../tools/seo_comun.mjs";
 
 test("páginas SEO: huecos entre tarjetas, nunca dentro de una tabla ni antes del <h1>", () => {
   const t = n => `<div class="tarjeta"><h2>B${n}</h2><table><tr><td><div>x</div></td></tr></table></div>`;
-  const main = `<h1>T</h1><p class="entradilla">i</p><div class="prosa">${[1, 2, 3, 4, 5, 6].map(t).join("")}<div class="tarjeta faq"><h2>FAQ</h2></div></div>`;
+  const main = `<h1>T</h1><p class="entradilla">i</p><div class="prosa">${[1, 2, 3, 4, 5, 6, 7].map(t).join("")}<div class="tarjeta faq"><h2>FAQ</h2></div></div>`;
   const r = ponerHuecos(main);
   const pos = [...r.matchAll(/data-anuncio-seo="(\w+)"/g)].map(m => m[1]);
   assert.deepEqual(pos, ["intro", "medio", "faq"]);
@@ -314,6 +314,9 @@ test("páginas SEO: huecos entre tarjetas, nunca dentro de una tabla ni antes de
   assert.equal(r.replace(/<div class="tarjeta anuncio anuncio-seo"[^]*?<\/div>\s*/g, ""), main);
   // páginas cortas: no se juntan dos anuncios
   const corta = `<h1>T</h1><div class="prosa">${t(1)}<div class="tarjeta faq"></div></div>`;
+  // páginas de 7 bloques con FAQ: solo «intro» y «faq», el contenido pesa más que los anuncios
+  const media = `<h1>T</h1><div class="prosa">${[1, 2, 3, 4, 5, 6].map(t).join("")}<div class="tarjeta faq"></div></div>`;
+  assert.deepEqual([...ponerHuecos(media).matchAll(/data-anuncio-seo="(\w+)"/g)].map(m => m[1]), ["intro", "faq"]);
   assert.equal((ponerHuecos(corta).match(/data-anuncio-seo/g) || []).length, 1);
 });
 

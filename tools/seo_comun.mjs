@@ -261,7 +261,8 @@ export function ponerHuecos(main) {
   };
   const kFaq = b.findIndex(x => x.faq);
   if (!b[1].faq) poner(1, "intro");
-  if (b.length >= 6) poner(Math.floor(b.length / 2), "medio");
+  // En páginas cortas con FAQ, dos huecos bastan: el contenido debe pesar más que los anuncios.
+  if (b.length >= (kFaq > 0 ? 8 : 6)) poner(Math.floor(b.length / 2), "medio");
   if (kFaq > 0) poner(kFaq, "faq");
   sitios.sort((x, y) => y.k - x.k).forEach(({ k, pos }) => {
     main = main.slice(0, b[k].i) + huecoSeo(pos) + "\n  " + main.slice(b[k].i);
