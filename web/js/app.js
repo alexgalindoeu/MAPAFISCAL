@@ -1577,7 +1577,7 @@
   function herramientas() {
     return Object.assign({
       calculadora: { titulo: "Calculadora de la renta", texto: `¿A pagar o a devolver? Tu IRPF ${P.ejercicio} con tu situación real, al detalle y con las casillas de Renta Web.`, href: "#calculadora", icono: "calculadora" },
-      comparar: { titulo: "Comparador de territorios", texto: "¿Cuánto ahorrarías en otra comunidad? Tu misma situación en los 19 territorios fiscales, en mapa y en ranking.", href: "#comparar", icono: "mapa" },
+      comparar: { titulo: "Comparador de territorios", texto: "¿Cuánto ahorrarías en otra comunidad? Tu misma situación en los 19 territorios fiscales, en mapa y en ranking.", href: "#comparar", icono: "comparar" },
       clientes: { titulo: "Mis clientes", texto: "Para asesores y gestorías: tu cartera de clientes guardada y siempre recalculada.", href: "#clientes", icono: "cartera", plan: true }
     }, window.MAPAFISCAL_HERRAMIENTAS || {});
   }
@@ -1645,8 +1645,9 @@
     const H = herramientas();
     const dest = (CFG.destacados && CFG.destacados[new Date().getMonth()]) || "comparar";
     const claves = Object.keys(H).sort((a, b) => (b === dest) - (a === dest));
+    const icono = (window.MapafiscalUI && window.MapafiscalUI.icono) || (() => "");
     $("herramientas").innerHTML = claves.map(k => { const h = H[k]; return `
-      <a class="herramienta" href="${esc(h.href)}">
+      <a class="herramienta" href="${esc(h.href)}">${icono(h.icono)}
         <h3>${esc(h.titulo)}${h.plan ? '<span class="plan-chip">Gestor</span>' : ""}${k === dest ? '<span class="chip tu">Te puede interesar</span>' : ""}</h3><p>${esc(h.texto)}</p></a>`; }).join("");
     // franja de rigor: cifras sacadas de los propios parámetros, nada inventado
     const terrs = Object.values(T), comun = terrs.filter(t => t.regimen === "comun").length;

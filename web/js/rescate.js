@@ -11,7 +11,7 @@
   const H = (typeof window !== "undefined" && window.irpfsim) || (typeof require === "function" ? require("./irpfsim.js") : null);
   const NAVEGADOR = typeof window !== "undefined" && typeof document !== "undefined";
   if (NAVEGADOR) window.MAPAFISCAL_HERRAMIENTAS = Object.assign(window.MAPAFISCAL_HERRAMIENTAS || {}, {
-    "rescate-plan": { titulo: "¿Cuánto tributa rescatar mi plan?", icono: "calendario", href: "#rescate-plan",
+    "rescate-plan": { titulo: "¿Cuánto tributa rescatar mi plan?", icono: "rescate", href: "#rescate-plan",
       texto: "El IRPF de rescatar tu plan de pensiones de una vez, como renta o mixto, con la reducción del 40 % de lo aportado antes de 2007." }
   });
   if (NAVEGADOR) document.dispatchEvent(new CustomEvent("mapafiscal:herramientas"));

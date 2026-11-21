@@ -14,7 +14,7 @@
   const H = (typeof window !== "undefined" && window.irpfsim) || (typeof require === "function" ? require("./irpfsim.js") : null);
   const NAVEGADOR = typeof window !== "undefined" && typeof document !== "undefined";
   if (NAVEGADOR) window.MAPAFISCAL_HERRAMIENTAS = Object.assign(window.MAPAFISCAL_HERRAMIENTAS || {}, {
-    "encuentra-deducciones": { titulo: "Encuentra tus deducciones", icono: "hucha", href: "#encuentra-deducciones",
+    "encuentra-deducciones": { titulo: "Encuentra tus deducciones", icono: "deducciones", href: "#encuentra-deducciones",
       texto: "Responde unas preguntas y te decimos qué deducciones estatales y de tu comunidad podrían corresponderte, y cuánto ahorran." }
   });
   if (NAVEGADOR) document.dispatchEvent(new CustomEvent("mapafiscal:herramientas"));

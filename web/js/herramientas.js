@@ -14,7 +14,7 @@
   if (NAVEGADOR) window.MAPAFISCAL_HERRAMIENTAS = Object.assign(window.MAPAFISCAL_HERRAMIENTAS || {}, {
     "sueldo-neto": { titulo: "Sueldo neto por territorio", icono: "nomina", href: "#sueldo-neto",
       texto: "Lo que te queda de tu sueldo bruto tras la Seguridad Social y el IRPF, en los 19 territorios." },
-    subida: { titulo: "¿Cuánto neto gano con mi subida?", icono: "calculadora", href: "#sueldo-neto?subida",
+    subida: { titulo: "¿Cuánto neto gano con mi subida?", icono: "subida", href: "#sueldo-neto?subida",
       texto: "Cuánto de tu subida llega a tu bolsillo y qué parte se llevan Hacienda y la Seguridad Social." },
     "plan-pensiones": { titulo: "Ahorra en tu IRPF antes del 31 de diciembre", icono: "hucha", href: "#plan-pensiones",
       texto: "Lo que te devuelve aportar a tu plan de pensiones o donar este año, y cuánto conviene aportar." }
