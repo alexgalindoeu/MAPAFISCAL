@@ -22,9 +22,11 @@ import { paginaDeducciones, CAMPO } from "./seo_deducciones.mjs";
 import { paginasFichasDeduccion } from "./seo_deduccion_ficha.mjs";
 import { paginasGuias, GUIAS } from "./seo_guias.mjs";
 import { paginasSueldoNeto } from "./seo_sueldo_neto.mjs";
+import { graficoBrutoNeto, serieSueldoNeto } from "./seo_grafico.mjs";
 import { paginasRescate } from "./seo_rescate.mjs";
 import { paginasConjuntaPagadores, CARPETAS_CONJUNTA } from "./seo_conjunta.mjs";
 import { paginasDevuelve } from "./seo_devuelve.mjs";
+import { paginaMetodologia } from "./seo_metodologia.mjs";
 import { paginasForal, enlacesSuiteForal, enlacesVascos, escalasAhorro, ejemploPasoAPaso, normaDelTerritorio, rasgoForalDe, paramsForal, BOLETIN } from "./seo_foral.mjs";
 
 const RAIZ = join(dirname(fileURLToPath(import.meta.url)), "..");
@@ -38,6 +40,13 @@ const REGIMEN_ETIQUETA = { comun: "régimen común", foral_pais_vasco: "conciert
 // Territorios con página de deducciones (se rellena al generar).
 const conDeducciones = new Set();
 const HACIENDA_FAQ = { "ES-PV-BI": "La Hacienda Foral de Bizkaia", "ES-PV-SS": "La Hacienda Foral de Gipuzkoa", "ES-PV-VI": "La Hacienda Foral de Álava", "ES-NC": "La Hacienda Foral de Navarra" };
+
+// Curva del bruto al neto del territorio (cifras de seo_sueldo_neto.json, motor R).
+function graficoTerritorio(codigo, nombre) {
+  const serie = serieSueldoNeto(sueldoNeto, codigo);
+  return graficoBrutoNeto({ serie, titulo: `Sueldo neto e IRPF en ${nombre} según el bruto (${sueldoNeto.ejercicio})`,
+    pie: `Neto mensual en 12 pagas y tipo medio del IRPF en ${nombre} para sueldos brutos de ${euros(serie[0].bruto)} a ${euros(serie.at(-1).bruto)} al año, ejercicio ${sueldoNeto.ejercicio}: persona soltera, sin hijos, de ${sueldoNeto.supuesto.edad} años y con contrato indefinido.` });
+}
 
 // ---- página por territorio -------------------------------------------------------
 function paginaTerritorio(codigo) {
@@ -178,6 +187,7 @@ function paginaTerritorio(codigo) {
   ${cartaMinimo}
   ${cartasForal}${cartaDeducciones}${enlacesSuiteForal(codigo, nombre)}${enlacesVascos(codigo)}
   ${cartaComparativa}
+  ${graficoTerritorio(codigo, nombre)}
   ${esComun ? bloqueFaq(faq) : bloqueFaq(faq).replace('class="tarjeta faq"', 'class="tarjeta faq" id="preguntas"')}
   <p><a class="btn btn-pri" href="/index.html#calculadora">Calcula tu caso real en ${esc(nombre)}</a> <a class="btn btn-sec" href="/index.html#comparar">Compáralo con los otros 18 territorios</a></p>
   <p class="ayuda">Guías: <a href="/guias/tramos-irpf-2025-2026/">tramos del IRPF 2025 y 2026</a> · <a href="/guias/minimo-personal-familiar/">mínimo personal y familiar</a> · <a href="/guias/obligacion-declarar-renta/">¿estoy obligado a declarar?</a> · <a href="/guias/plan-pensiones-desgravar/">plan de pensiones</a> · <a href="/guias/deduccion-donativos/">donativos</a> · <a href="/guias/calendario-renta/">calendario de la renta</a></p>
@@ -350,6 +360,7 @@ export function generar({ conGit = false } = {}) {
   for (const p of paginasDevuelve(devuelve, conDeducciones)) p.indexable ? pagina(p.ruta, p.html) : ficheros.set(p.ruta.slice(1) + "index.html", p.html);
   for (const g of paginasForal(territorios.generado, sueldoNeto.importes_territorio)) pagina(g.ruta, g.html);
 
+  pagina("/metodologia/", paginaMetodologia(territorios.generado));
   // «Cómo comprobamos los cálculos»: la escribe tools/generar_validacion.mjs; aquí solo va al sitemap
   urls.push("/validacion/");
   // Fecha real de cambio de cada página (y de la portada, que se escribe a mano).

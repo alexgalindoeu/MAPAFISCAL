@@ -1,0 +1,117 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Metodología: cómo calcula Mapafiscal el IRPF | Mapafiscal</title>
+<meta name="description" content="Cómo calcula Mapafiscal el IRPF: un motor de referencia en R, su versión web en JavaScript con paridad al céntimo en 150 casos, parámetros con norma y fuente oficial y lo que todavía no cubre.">
+<link rel="canonical" href="https://mapafiscal.es/metodologia/">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Mapafiscal">
+<meta property="og:title" content="Metodología: cómo calcula Mapafiscal el IRPF | Mapafiscal">
+<meta property="og:description" content="Cómo calcula Mapafiscal el IRPF: un motor de referencia en R, su versión web en JavaScript con paridad al céntimo en 150 casos, parámetros con norma y fuente oficial y lo que todavía no cubre.">
+<meta property="og:url" content="https://mapafiscal.es/metodologia/">
+<meta property="og:locale" content="es_ES">
+<meta property="og:image" content="https://mapafiscal.es/og.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Mapafiscal: el mismo sueldo, 19 IRPF distintos">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Metodología: cómo calcula Mapafiscal el IRPF | Mapafiscal">
+<meta name="twitter:description" content="Cómo calcula Mapafiscal el IRPF: un motor de referencia en R, su versión web en JavaScript con paridad al céntimo en 150 casos, parámetros con norma y fuente oficial y lo que todavía no cubre.">
+<meta name="twitter:image" content="https://mapafiscal.es/og.png">
+<meta name="theme-color" content="#1f3fc4">
+<meta name="color-scheme" content="light dark">
+<script>try{var t=localStorage.getItem("mf-tema");if(t==="light"||t==="dark")document.documentElement.setAttribute("data-theme",t)}catch(e){}</script>
+<link rel="preload" href="/fonts/public-sans-latin-var.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="/fonts/archivo-latin-var.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="/iconos/apple-touch-icon.png">
+<link rel="manifest" href="/manifest.webmanifest">
+<link rel="stylesheet" href="/css/mapafiscal.css">
+<link rel="stylesheet" href="/css/seo.css">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"Organization","@id":"https://mapafiscal.es/#organizacion","name":"Mapafiscal","url":"https://mapafiscal.es/","logo":"https://mapafiscal.es/iconos/icono-512.png"}</script>
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Inicio","item":"https://mapafiscal.es/"},{"@type":"ListItem","position":2,"name":"Metodología","item":"https://mapafiscal.es/metodologia/"}]}</script>
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"Article","headline":"Metodología: cómo calcula Mapafiscal el IRPF","description":"Cómo calcula Mapafiscal el IRPF: un motor de referencia en R, su versión web en JavaScript con paridad al céntimo en 150 casos, parámetros con norma y fuente oficial y lo que todavía no cubre.","inLanguage":"es","mainEntityOfPage":"https://mapafiscal.es/metodologia/","dateModified":"2026-11-21","author":{"@id":"https://mapafiscal.es/#organizacion"},"publisher":{"@id":"https://mapafiscal.es/#organizacion"}}</script>
+</head>
+<body class="pagina-seo">
+<header class="appbar">
+  <div class="appbar-in">
+    <button class="btn-icono panel-btn" id="btn-todo" type="button" aria-haspopup="dialog" aria-expanded="false" aria-controls="panel-todo" aria-label="Todo lo que ofrecemos" title="Todo lo que ofrecemos"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M4 6.5h16M4 12h16M4 17.5h10"/></svg><span class="panel-btn-txt">Todo</span></button>
+    <a class="marca" href="/index.html">
+      <svg class="marca-ico" viewBox="0 0 101 82" aria-hidden="true"><polygon class="marca-m" points="2,80 16,4 28,4 54,30 46,41 24,20 17,80"/><polygon class="marca-m" points="72,2 83,2 99,80 85,80 75,30"/><polygon class="marca-m-tu" points="31,80 46,80 87,24 79,10"/></svg>
+      <span class="marca-txt"><span class="sr-only">M</span>apafiscal</span>
+    </a>
+    <nav class="nav" aria-label="Secciones">
+      <a href="/index.html#calculadora">Calculadora</a>
+      <a href="/index.html#comparar">Comparar territorios</a>
+      <a href="/irpf/">IRPF por territorio</a>
+      <a href="/guias/">Guías</a>
+    </nav>
+    <div class="appbar-der">
+      <button class="btn-icono tema-btn" id="btn-tema" type="button" aria-label="Tema: automático (como el sistema). Cambiar a claro" title="Tema: automático"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><circle cx="12" cy="12" r="8"/><path class="relleno" d="M12 4a8 8 0 0 1 0 16z"/></svg></button>
+      <a class="btn btn-pri btn-sm" href="/index.html#calculadora">Calcula tu caso</a>
+    </div>
+  </div>
+</header>
+<main class="contenedor pagina-seo-main">
+  <p class="migas"><a href="/">Inicio</a> › Metodología</p>
+  
+  <h1>Metodología: cómo calculamos el IRPF</h1>
+  <p class="actualizado">Actualizado el <time datetime="2026-11-21">21 de noviembre de 2026</time></p>
+  <p class="entradilla">Cada cifra de Mapafiscal sale de un motor de cálculo que aplica la normativa del IRPF paso a paso, con parámetros tomados de las normas oficiales. Aquí explicamos cómo está hecho, cómo lo comprobamos y qué no cubre.</p>
+  <div class="prosa">
+  <div class="tarjeta">
+    <h2 class="rotulo">Un motor de referencia y su versión web</h2>
+    <p>El cálculo de referencia está escrito en R: liquida la declaración completa como lo hace la normativa, desde los rendimientos y las reducciones hasta la base liquidable, el mínimo personal y familiar, las escalas estatal, autonómica o foral, las deducciones y la cuota diferencial, en individual y en conjunta.</p>
+    <p>La calculadora de la web usa una traducción de ese motor a JavaScript que corre en tu navegador: tus datos no salen de tu dispositivo. Las dos versiones se escriben por separado y tienen que dar el mismo resultado al céntimo.</p>
+  </div>
+  <div class="tarjeta">
+    <h2 class="rotulo">Paridad al céntimo</h2>
+    <p>Un validador liquida 150 casos de prueba con los dos motores y exige que coincidan (±0,02 €) en las bases, los mínimos, las cuotas, la modalidad de tributación y la obligación de declarar. Además, varios casos reproducen ejemplos resueltos por la Agencia Tributaria y por las haciendas forales. Un cambio en las reglas no se publica si el validador no da todo en verde.</p>
+    <p><a href="/validacion/">Ver los casos y el resultado del validador</a></p>
+  </div>
+  <div class="tarjeta">
+    <h2 class="rotulo">Parámetros con norma, fuente y estado</h2>
+    <p>El motor no lleva cifras escritas en el código: escalas, mínimos, límites y deducciones están en ficheros de parámetros por ejercicio. Cada parámetro indica la <b>norma</b> de la que sale (artículo y ley), la <b>fuente</b> donde se ha leído (BOE, boletines autonómicos y forales o el Manual Práctico de Renta de la AEAT) y su <b>estado</b>: si está cotejado con la fuente primaria o si todavía falta comprobarlo. Cada liquidación avisa de los parámetros que use y aún no estén comprobados.</p>
+    <p>Las páginas de deducciones solo publican las que están confirmadas con fuente primaria. Si un parámetro no se puede verificar, no se inventa.</p>
+  </div>
+  <div class="tarjeta">
+    <h2 class="rotulo">Qué cubre</h2>
+    <p>Los 19 territorios fiscales: el régimen común (Estado y 15 comunidades autónomas), los tres territorios históricos del País Vasco y Navarra, en el ejercicio 2025 y, donde ya hay normativa publicada, 2026. Rendimientos del trabajo, del capital y de actividades en estimación directa, ganancias patrimoniales, reducciones por planes de pensiones, tributación individual y conjunta, mínimos personales y familiares, deducciones estatales y una selección de las autonómicas y forales de mayor incidencia.</p>
+  </div>
+  <div class="tarjeta">
+    <h2 class="rotulo">Qué no cubre (todavía)</h2>
+    <ul>
+      <li>Deducciones autonómicas: cada comunidad tiene cargadas las de mayor incidencia, no el catálogo completo (faltan sobre todo las de inversión y donativos y algunas ligadas al municipio). Si te aplica una que falta, la cuota real puede ser algo menor.</li>
+      <li>Actividades en estimación objetiva (módulos): el rendimiento se introduce ya calculado.</li>
+      <li>Navarra: faltan los donativos y la tributación conjunta foral completa.</li>
+      <li>La obligación de declarar se calcula con las reglas estatales; en los territorios forales es orientativa.</li>
+      <li>Fuera de alcance: Ceuta y Melilla, el régimen de impatriados, el IRPF de no residentes, la doble imposición internacional y algunas rentas irregulares.</li>
+    </ul>
+    <p class="ayuda">Los resultados son estimaciones informativas, no una liquidación oficial ni asesoramiento fiscal.</p>
+  </div>
+  </div>
+</main>
+<aside class="contenedor pagina-seo-confianza" aria-label="Sobre estos cálculos">
+  <ul class="confianza">
+    <li>Ejercicio 2025/2026</li>
+    <li>Revisado el <time datetime="2026-11-14">14 de noviembre de 2026</time></li>
+    <li><a href="/validacion/">Cálculos verificados con 150 casos del motor de referencia</a></li>
+    <li>Fuentes: BOE y boletines oficiales · <a href="/metodologia/">Metodología</a></li>
+  </ul>
+</aside>
+<footer class="pie">
+  <div class="contenedor pie-in">
+    <p><b>Mapafiscal</b> ofrece estimaciones con fines informativos. No es una liquidación oficial ni asesoramiento fiscal.</p>
+    <p class="pie-redes"><span class="pie-redes-txt">Síguenos</span><a class="red red-x" href="https://x.com/mapafiscal" rel="me noopener" target="_blank" aria-label="Mapafiscal en X (se abre en otra pestaña)" title="Mapafiscal en X"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path class="relleno" d="M18.9 1.15h3.68l-8.04 9.19L24 22.85h-7.4l-5.8-7.59-6.64 7.59H.47l8.6-9.83L0 1.15h7.59l5.24 6.93zm-1.29 19.5h2.04L6.49 3.24H4.3z"/></svg></a></p>
+    <p class="pie-sec"><a href="/irpf/">IRPF por territorio</a> · <a href="/guias/">Guías del IRPF</a> · <a href="/comparar-sueldo/">Dónde se paga menos IRPF</a> · <a href="/sueldo-neto/">Sueldo neto</a> · <a href="/metodologia/">Metodología</a> · <a href="/validacion/">Cómo comprobamos los cálculos</a></p>
+    <p class="pie-sec pie-fechas">Normativa revisada el <time datetime="2026-11-14">14 de noviembre de 2026</time> · Contenido actualizado el <time datetime="2026-11-21">21 de noviembre de 2026</time> · Ejercicio 2025 (renta que se declara en 2026)</p>
+    <p class="pie-sec"><a href="/legal/aviso-legal.html">Aviso legal</a> · <a href="/legal/privacidad.html">Privacidad</a> · <a href="/legal/condiciones.html">Condiciones</a> · <a href="/legal/cookies.html">Cookies</a> · <a href="/legal/aviso-legal.html#contacto">Contacto</a></p>
+  </div>
+</footer>
+<script src="/js/ui.js" defer></script>
+<script src="/config.js" defer></script>
+<script src="/js/analitica.js" defer></script>
+</body>
+</html>

@@ -285,7 +285,7 @@ function construir({ conGit = true, previa = null } = {}) {
     <div><dt>Territorios con casos</dt><dd>${terrCubiertos} de ${Object.keys(territorios).length}</dd></div>
   </dl>
   <p>Por ejercicio: ${porEjercicio.map(([a, n]) => `${a}, ${n} casos`).join("; ")}. Por tipo: ${porTipo("liquidacion")} declaraciones completas, ${porTipo("neto")} de sueldo neto y ${porTipo("rescate")} de rescate del plan de pensiones.
-  Los casos están en tools/validar_js.R y el cálculo a mano de muchos de ellos, en docs/03_casos_validacion.md.</p>
+  Los casos están en tools/validar_js.R y el cálculo a mano de muchos de ellos, en docs/03_casos_validacion.md. Cómo se calcula cada cifra, de dónde salen los parámetros y qué no cubre el motor está en la <a href="/metodologia/">metodología</a>.</p>
 
   <h2 id="muestra">Una muestra de los casos</h2>
   <p>Un caso de cada grupo (régimen común, País Vasco y Navarra en cada ejercicio, sueldo neto y rescate), con su entrada y la cifra principal de cada motor.</p>
