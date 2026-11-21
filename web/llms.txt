@@ -55,4 +55,5 @@ Datos clave (2025, actualizados el 2026-11-14):
 - [¿Cuánto me devuelve Hacienda?](https://mapafiscal.es/cuanto-me-devuelve/): hijos, alquiler, hipoteca, discapacidad y donativos.
 - [Rescate del plan de pensiones](https://mapafiscal.es/rescate-plan-pensiones/)
 - [Declaración conjunta o individual](https://mapafiscal.es/declaracion-conjunta/)
+- [Glosario del IRPF](https://mapafiscal.es/glosario/): definiciones de los términos de la renta, con su artículo de la ley.
 - [Mapa del sitio](https://mapafiscal.es/sitemap.xml)

@@ -27,6 +27,7 @@ import { paginasRescate } from "./seo_rescate.mjs";
 import { paginasConjuntaPagadores, CARPETAS_CONJUNTA } from "./seo_conjunta.mjs";
 import { paginasDevuelve } from "./seo_devuelve.mjs";
 import { paginaMetodologia } from "./seo_metodologia.mjs";
+import { paginasGlosario, enlazarGlosario, HUB_GLOSARIO } from "./seo_glosario.mjs";
 import { paginasForal, enlacesSuiteForal, enlacesVascos, escalasAhorro, ejemploPasoAPaso, normaDelTerritorio, rasgoForalDe, paramsForal, BOLETIN } from "./seo_foral.mjs";
 
 const RAIZ = join(dirname(fileURLToPath(import.meta.url)), "..");
@@ -342,16 +343,19 @@ export function generar({ conGit = false } = {}) {
   // Una página por deducción, colgando de la de su territorio.
   const porDeduccion = paginasFichasDeduccion(fichasDed, deducciones.generado, deducciones.ejercicio, CAMPO);
   for (const codigo of ORDEN_TERRITORIOS) {
-    pagina(`/irpf/${SLUG[codigo]}/`, paginaTerritorio(codigo));
+    pagina(`/irpf/${SLUG[codigo]}/`, enlazarGlosario(paginaTerritorio(codigo)));
     const p = ded.find(x => x.ruta === `/irpf/${SLUG[codigo]}/deducciones/`);
     if (p) pagina(p.ruta, p.html);
     for (const f of porDeduccion.filter(x => x.codigo === codigo)) pagina(f.ruta, f.html);
   }
-  pagina("/irpf/", paginaIndiceTerritorios());
+  pagina("/irpf/", enlazarGlosario(paginaIndiceTerritorios()));
   for (const s of comparativas.salarios) pagina(`/comparar-sueldo/${s}/`, paginaSalario(s));
   pagina("/comparar-sueldo/", paginaIndiceSalarios());
   const gs = paginasGuias(guias, territorios);
-  for (const g of gs) pagina(g.ruta, g.html);
+  // primera aparición de los términos clave → glosario (como mucho 3 por página)
+  for (const g of gs) pagina(g.ruta, g.ruta === "/guias/" ? g.html : enlazarGlosario(g.html));
+  const glo = paginasGlosario({ comparativas, guias, generado: territorios.generado });
+  for (const g of glo) pagina(g.ruta, g.html);
   const sn = paginasSueldoNeto(sueldoNeto);
   for (const p of sn) pagina(p.ruta, p.html);
   for (const g of paginasRescate(territorios.generado)) pagina(g.ruta, g.html);
@@ -378,14 +382,14 @@ export function generar({ conGit = false } = {}) {
   ficheros.set("sitemap.xml", `<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
 <url><loc>${SITIO}/</loc><lastmod>${registro["index.html"].fecha}</lastmod><changefreq>weekly</changefreq><priority>1.0</priority></url>
-${urls.map(u => `<url><loc>${SITIO}${u}</loc><lastmod>${lastmod(u)}</lastmod><changefreq>monthly</changefreq><priority>${u.startsWith("/guias/") || u === "/irpf/" ? "0.8" : "0.7"}</priority></url>`).join("\n")}
+${urls.map(u => `<url><loc>${SITIO}${u}</loc><lastmod>${lastmod(u)}</lastmod><changefreq>monthly</changefreq><priority>${u.startsWith("/guias/") || u === "/irpf/" || u === HUB_GLOSARIO ? "0.8" : "0.7"}</priority></url>`).join("\n")}
 </urlset>
 `);
   ficheros.set("robots.txt", robotsTxt());
   ficheros.set("llms.txt", llmsTxt({ territorios, comparativas, guias, GUIAS, conDeducciones }));
   return {
     ficheros, avisos, urls,
-    recuento: { territorios: ORDEN_TERRITORIOS.length, sueldos: comparativas.salarios.length, deducciones: ded.length, porDeduccion: porDeduccion.length, guias: gs.length - 1, sueldoNeto: sn.length - 1, indices: 4 }
+    recuento: { territorios: ORDEN_TERRITORIOS.length, sueldos: comparativas.salarios.length, deducciones: ded.length, porDeduccion: porDeduccion.length, guias: gs.length - 1, sueldoNeto: sn.length - 1, glosario: glo.length - 1, indices: 5 }
   };
 }
 
@@ -417,6 +421,7 @@ export function huerfanas(ficheros) {
   recorrer("rescate-plan-pensiones");
   for (const c of CARPETAS_CONJUNTA) recorrer(c);
   recorrer("cuanto-me-devuelve");
+  recorrer("glosario");
   return fuera;
 }
 
@@ -446,7 +451,7 @@ if (process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.ur
       writeFileSync(p, html, "utf8");
     }
     for (const r of sobran) { rmSync(join(WEB, r)); console.log(`Borrada (ya no se genera): ${r}`); }
-    console.log(`Páginas SEO: ${recuento.territorios} territorios + ${recuento.deducciones} de deducciones (${recuento.porDeduccion} fichas) + ${recuento.sueldos} sueldos + ${recuento.guias} guías + ${recuento.sueldoNeto} de sueldo neto + ${recuento.indices} índices.`);
+    console.log(`Páginas SEO: ${recuento.territorios} territorios + ${recuento.deducciones} de deducciones (${recuento.porDeduccion} fichas) + ${recuento.sueldos} sueldos + ${recuento.guias} guías + ${recuento.sueldoNeto} de sueldo neto + ${recuento.glosario} términos del glosario + ${recuento.indices} índices.`);
     console.log(`sitemap.xml: ${urls.length + 1} URLs.`);
   }
 }
