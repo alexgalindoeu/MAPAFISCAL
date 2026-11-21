@@ -15,7 +15,7 @@ import {
 
 const eur = eurosExactos;
 
-const CAMPO = {
+export const CAMPO = {
   alquiler_vivienda_pagos: "las cantidades pagadas por el alquiler de la vivienda habitual",
   cuotas_ss_empleada_hogar: "las cotizaciones a la Seguridad Social de la persona empleada del hogar que paga el contribuyente",
   gastos_deporte: "los gastos en ejercicio físico y práctica deportiva",
@@ -240,7 +240,7 @@ export function redactarFicha(f) {
   };
 }
 
-function htmlFicha(r) {
+export function htmlFicha(r, enlace) {
   const cuerpo = r.supuestos.map(s => `<div class="supuesto">
       <p class="supuesto-importe">${esc(s.cuanto.charAt(0).toUpperCase() + s.cuanto.slice(1))}.</p>
       ${s.requisitos.length ? `<ul>${s.requisitos.map(q => `<li>${esc(q)}.</li>`).join("")}</ul>` : ""}
@@ -258,8 +258,17 @@ function htmlFicha(r) {
     <h2 class="rotulo">${esc(r.titulo)}</h2>
     ${cuerpo}
     ${extra.map(q => `<p class="ayuda">${esc(q)}</p>`).join("")}
-    <p class="fuente">Norma: ${esc(r.normas.join("; "))}.${fuentes.length ? ` Fuente: ${fuentes.join(" · ")}.` : ""}</p>
+    <p class="fuente">Norma: ${esc(r.normas.join("; "))}.${fuentes.length ? ` Fuente: ${fuentes.join(" · ")}.` : ""}</p>${enlace ? `
+    <p><a href="${enlace}">Requisitos, ejemplo y preguntas sobre esta deducción</a></p>` : ""}
   </div>`;
+}
+
+// Slug de la página propia de cada deducción: /irpf/<territorio>/deducciones/<slug>/.
+export function slugDeduccion(texto) {
+  const s = String(texto).replace(/^deduccion_/, "").replace(/^(Por|Para) (el |la |los |las )?/i, "")
+    .normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
+  if (s.length <= 60) return s;
+  return s.slice(0, 61).replace(/-[^-]*$/, "");
 }
 
 // ---- forales ----------------------------------------------------------------------
@@ -311,7 +320,7 @@ const FORAL = {
     `Requisitos: que las rentas del contribuyente no superen ${eur(b.rentas_max)} y que el alquiler supere el ${pctCorto(b.umbral_esfuerzo)} de esas rentas.`]]
 };
 
-function fichaForal(clave, b, t, regimen) {
+export function fichaForal(clave, b, t, regimen, enlace) {
   const k = regimen === "foral_navarra" && clave === "deduccion_alquiler_vivienda" ? "deduccion_alquiler_navarra" : clave;
   if (!FORAL[k]) return { error: `${t} ${clave}: bloque sin texto` };
   let r;
@@ -319,28 +328,38 @@ function fichaForal(clave, b, t, regimen) {
   if (!r || r.some(x => x == null) || r[1].some(x => /undefined|NaN/.test(x))) return { error: `${t} ${clave}: faltan datos` };
   const url = Object.entries(URL_FUENTE_FORAL).find(([p]) => (b.fuente || "").includes(p));
   const fuentes = [...enlacesBoe(b.fuente), url ? `<a href="${url[1]}" rel="noopener">${esc(url[0])}</a>` : null].filter(Boolean);
+  const fuente = `<p class="fuente">Norma: ${esc(b.norma)}. Fuente: ${esc(b.fuente)}${fuentes.length ? ` (${fuentes.join(" · ")})` : ""}.</p>`;
   return { html: `<div class="tarjeta ficha-deduccion">
     <h2 class="rotulo">${esc(r[0])}</h2>
     <div class="supuesto"><ul>${r[1].map(q => `<li>${esc(q)}</li>`).join("")}</ul></div>
-    <p class="fuente">Norma: ${esc(b.norma)}. Fuente: ${esc(b.fuente)}${fuentes.length ? ` (${fuentes.join(" · ")})` : ""}.</p>
-  </div>`, titulo: r[0] };
+    ${fuente}${enlace ? `
+    <p><a href="${enlace}">Requisitos, ejemplo y preguntas sobre esta deducción</a></p>` : ""}
+  </div>`, titulo: r[0], lineas: r[1], fuente, norma: b.norma };
 }
 
 // ---- página ---------------------------------------------------------------------------
 export function paginaDeducciones(codigo, t, generado, avisos) {
   const slug = SLUG[codigo], nombre = t.nombre;
-  const fichas = [];
+  const fichas = [], usados = new Set();
+  const base = `/irpf/${SLUG[codigo]}/deducciones/`;
+  const slugUnico = txt => { let s = slugDeduccion(txt), n = 2; while (usados.has(s)) s = `${slugDeduccion(txt)}-${n++}`; usados.add(s); return s; };
   if (t.regimen === "comun") {
     for (const f of t.fichas) {
       const r = redactarFicha(f);
       if (r.error) { avisos.push(`${codigo}: «${f.titulo}» no se publica (${r.error})`); continue; }
-      fichas.push({ titulo: r.titulo, html: htmlFicha(r) });
+      // Página propia solo si la fuente primaria va enlazada (si no, queda solo en la lista).
+      const slug = r.boe.length || r.url_aeat ? slugUnico(f.titulo) : null;
+      if (!slug) avisos.push(`${codigo}: «${f.titulo}» sin página propia (fuente sin enlace)`);
+      fichas.push({ titulo: r.titulo, html: htmlFicha(r, slug && base + slug + "/"), slug, redaccion: r, ficha: f });
     }
   } else {
     for (const [k, b] of Object.entries(t.bloques)) {
       const r = fichaForal(k, b, codigo, t.regimen);
       if (r.error) { avisos.push(r.error); continue; }
-      fichas.push(r);
+      const slug = /href="https?:/.test(r.html) ? slugUnico(k) : null;
+      if (!slug) { avisos.push(`${codigo}: «${r.titulo}» sin página propia (fuente sin enlace)`); fichas.push(r); continue; }
+      const conEnlace = fichaForal(k, b, codigo, t.regimen, base + slug + "/");
+      fichas.push({ ...conEnlace, slug, clave: k, bloque: b });
     }
   }
   if (!fichas.length) return null;
@@ -367,14 +386,14 @@ export function paginaDeducciones(codigo, t, generado, avisos) {
   ${respuestaDirecta(`esta página recoge <b>${nf === 1 ? "1 deducción" : nf + " deducciones"}</b> ${comun ? "autonómicas" : "forales"} de ${esc(nombre)} para la renta de 2025 (${esc(ejemplos.slice(0, 2).join(" y "))}${nf > 2 ? ", entre otras" : ""}), cada una con su importe, sus requisitos y su norma oficial.`)}
   ${intro}
   <div class="prosa">
-  <div class="tarjeta indice-fichas"><h2 class="rotulo">En esta página</h2><ul>${fichas.map(f => `<li>${esc(f.titulo)}</li>`).join("")}</ul>
+  <div class="tarjeta indice-fichas"><h2 class="rotulo">En esta página</h2><ul>${fichas.map(f => `<li>${f.slug ? `<a href="${base}${f.slug}/">${esc(f.titulo)}</a>` : esc(f.titulo)}</li>`).join("")}</ul>
   <p class="ayuda">${comun ? "Cuando hablamos de hijos nos referimos a los descendientes que dan derecho al mínimo por descendientes. " : ""}Cada deducción enlaza su norma y su fuente oficial, donde están los requisitos completos.</p></div>
   ${fichas.map(f => f.html).join("\n  ")}
   <p><a class="btn btn-pri" href="${HERRAMIENTA.calculadora}">Calcula tu renta en ${esc(nombre)} con tus deducciones</a> <a class="btn btn-sec" href="/irpf/${slug}/">Tramos y mínimo en ${esc(nombre)}</a></p>
   <p class="ayuda">Más guías: <a href="/guias/minimo-personal-familiar/">mínimo personal y familiar</a> · <a href="/guias/deduccion-donativos/">deducción por donativos</a> · <a href="/guias/plan-pensiones-desgravar/">cuánto desgrava un plan de pensiones</a>.</p>
   </div>`;
   return {
-    ruta, titulos: fichas.map(f => f.titulo),
+    ruta, titulos: fichas.map(f => f.titulo), fichas,
     html: layout({
       title, description, canonical: ruta, breadcrumb: migasHtml(migas), main, generado,
       css: ["/css/guias.css"],

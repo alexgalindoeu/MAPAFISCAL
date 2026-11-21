@@ -18,7 +18,8 @@ import { join, dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { SITIO, SLUG, ORDEN_TERRITORIOS, HERRAMIENTA, NOMBRE_CORTO, esc, euros, eurosExactos, difEuros, pct, pctCorto, tablaEscala, citaFuente, layout, jsonLdMigas, jsonLdFaq, jsonLdDataset, bloqueFaq, respuestaDirecta, migasHtml, fecharContenido, hashContenido, EJERCICIO } from "./seo_comun.mjs";
 import { robotsTxt, llmsTxt } from "./seo_ia.mjs";
-import { paginaDeducciones } from "./seo_deducciones.mjs";
+import { paginaDeducciones, CAMPO } from "./seo_deducciones.mjs";
+import { paginasFichasDeduccion } from "./seo_deduccion_ficha.mjs";
 import { paginasGuias, GUIAS } from "./seo_guias.mjs";
 import { paginasSueldoNeto } from "./seo_sueldo_neto.mjs";
 import { paginasRescate } from "./seo_rescate.mjs";
@@ -321,17 +322,20 @@ export function generar({ conGit = false } = {}) {
   const pagina = (ruta, html) => { ficheros.set(ruta.replace(/^\//, "") + "index.html", html); urls.push(ruta); };
 
   // Deducciones primero: las páginas de territorio y el índice enlazan las que existan.
-  const ded = [];
+  const ded = [], fichasDed = [];
   for (const codigo of ORDEN_TERRITORIOS) {
     const t = deducciones.territorios[codigo];
     if (!t) continue;
     const p = paginaDeducciones(codigo, t, deducciones.generado, avisos);
-    if (p) { conDeducciones.add(codigo); ded.push(p); }
+    if (p) { conDeducciones.add(codigo); ded.push(p); fichasDed.push({ codigo, t, p }); }
   }
+  // Una página por deducción, colgando de la de su territorio.
+  const porDeduccion = paginasFichasDeduccion(fichasDed, deducciones.generado, deducciones.ejercicio, CAMPO);
   for (const codigo of ORDEN_TERRITORIOS) {
     pagina(`/irpf/${SLUG[codigo]}/`, paginaTerritorio(codigo));
     const p = ded.find(x => x.ruta === `/irpf/${SLUG[codigo]}/deducciones/`);
     if (p) pagina(p.ruta, p.html);
+    for (const f of porDeduccion.filter(x => x.codigo === codigo)) pagina(f.ruta, f.html);
   }
   pagina("/irpf/", paginaIndiceTerritorios());
   for (const s of comparativas.salarios) pagina(`/comparar-sueldo/${s}/`, paginaSalario(s));
@@ -370,7 +374,7 @@ ${urls.map(u => `<url><loc>${SITIO}${u}</loc><lastmod>${lastmod(u)}</lastmod><ch
   ficheros.set("llms.txt", llmsTxt({ territorios, comparativas, guias, GUIAS, conDeducciones }));
   return {
     ficheros, avisos, urls,
-    recuento: { territorios: ORDEN_TERRITORIOS.length, sueldos: comparativas.salarios.length, deducciones: ded.length, guias: gs.length - 1, sueldoNeto: sn.length - 1, indices: 4 }
+    recuento: { territorios: ORDEN_TERRITORIOS.length, sueldos: comparativas.salarios.length, deducciones: ded.length, porDeduccion: porDeduccion.length, guias: gs.length - 1, sueldoNeto: sn.length - 1, indices: 4 }
   };
 }
 
@@ -382,6 +386,11 @@ export function huerfanas(ficheros) {
   if (existsSync(irpf)) for (const d of readdirSync(irpf)) {
     const r = `irpf/${d}/deducciones/index.html`;
     if (existsSync(join(WEB, r)) && !ficheros.has(r)) fuera.push(r);
+    const dd = join(irpf, d, "deducciones");
+    if (existsSync(dd)) for (const s of readdirSync(dd, { withFileTypes: true })) {
+      const rs = `irpf/${d}/deducciones/${s.name}/index.html`;
+      if (s.isDirectory() && existsSync(join(WEB, rs)) && !ficheros.has(rs)) fuera.push(rs);
+    }
   }
   const recorrer = (rel) => {
     const abs = join(WEB, rel);
@@ -426,7 +435,7 @@ if (process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.ur
       writeFileSync(p, html, "utf8");
     }
     for (const r of sobran) { rmSync(join(WEB, r)); console.log(`Borrada (ya no se genera): ${r}`); }
-    console.log(`Páginas SEO: ${recuento.territorios} territorios + ${recuento.deducciones} de deducciones + ${recuento.sueldos} sueldos + ${recuento.guias} guías + ${recuento.sueldoNeto} de sueldo neto + ${recuento.indices} índices.`);
+    console.log(`Páginas SEO: ${recuento.territorios} territorios + ${recuento.deducciones} de deducciones (${recuento.porDeduccion} fichas) + ${recuento.sueldos} sueldos + ${recuento.guias} guías + ${recuento.sueldoNeto} de sueldo neto + ${recuento.indices} índices.`);
     console.log(`sitemap.xml: ${urls.length + 1} URLs.`);
   }
 }
