@@ -217,7 +217,8 @@ export const EJERCICIO = { valor: null };
 // Las páginas informativas llevan anuncios con el mismo sistema que la aplicación
 // (web/js/anuncios.js + web/config.js: consentimiento, carga diferida, nada para quien tiene
 // plan, espacio reservado). Aquí solo se colocan los huecos; el script decide si se llenan.
-export const RUTAS_CON_ANUNCIOS = [/^\/guias\//, /^\/irpf\//, /^\/sueldo-neto\//, /^\/comparar-sueldo\//];
+export const RUTAS_CON_ANUNCIOS = [/^\/guias\//, /^\/irpf\//, /^\/sueldo-neto\//, /^\/comparar-sueldo\//,
+  /^\/cuanto-me-devuelve\//, /^\/declaracion-conjunta\//, /^\/dos-pagadores\//, /^\/rescate-plan-pensiones\//];
 export const conAnuncios = ruta => RUTAS_CON_ANUNCIOS.some(r => r.test(ruta));
 
 const huecoSeo = pos => `<div class="tarjeta anuncio anuncio-seo" id="anuncio-seo-${pos}" data-anuncio-seo="${pos}" hidden>` +
