@@ -11,7 +11,7 @@
   const H = (typeof window !== "undefined" && window.irpfsim) || (typeof require === "function" ? require("./irpfsim.js") : null);
   const NAVEGADOR = typeof window !== "undefined" && typeof document !== "undefined";
   if (NAVEGADOR) window.MAPAFISCAL_HERRAMIENTAS = Object.assign(window.MAPAFISCAL_HERRAMIENTAS || {}, {
-    "bruto-necesario": { titulo: "¿Qué sueldo bruto pido?", icono: "nomina", href: "#bruto-necesario",
+    "bruto-necesario": { titulo: "¿Qué sueldo bruto pido?", icono: "bruto", href: "#bruto-necesario",
       texto: "El bruto anual que necesitas para cobrar el neto que quieres, en los 19 territorios, y qué oferta de trabajo te deja más." }
   });
   if (NAVEGADOR) document.dispatchEvent(new CustomEvent("mapafiscal:herramientas"));

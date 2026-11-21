@@ -17,6 +17,48 @@
 
   const esc = s => String(s).replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
 
+  // ---- pictogramas de las herramientas ------------------------------------------------------
+  // Mismo lenguaje que la M del logo: polígonos macizos de bordes rectos (nada de trazos,
+  // esquinas redondeadas ni círculos), rejilla de 24×24, verticales y una diagonal de unos
+  // 60° (avance de 0,55 por unidad de altura). Azul (var(--marca)) por defecto; como mucho una
+  // pieza amarilla (class="r", var(--resalte)) que marca lo importante. Los usan la portada
+  // (web/js/app.js, 28 px) y el panel «Todo» (20 px); el CSS está en .ico de mapafiscal.css.
+  const ICONOS = {
+    // hoja de declaración con la esquina cortada, dos renglones y la casilla del resultado
+    calculadora: '<path fill-rule="evenodd" d="M4 2h11l5 9v11H4zM7 6.5v2.5h6V6.5zM7 11.5V14h9v-2.5z"/><polygon class="r" points="10,16.5 17,16.5 17,20 10,20"/>',
+    // dos barras desiguales; la diferencia, en amarillo sobre la más baja
+    comparar: '<polygon points="3,4 10,4 10,21 3,21"/><polygon points="14,13 21,13 21,21 14,21"/><polygon class="r" points="14,4 21,4 21,11 14,11"/>',
+    // la nómina entera y el trozo que se va (impuestos), separado por la diagonal
+    nomina: '<polygon points="2,9 11,9 16.5,19 2,19"/><polygon class="r" points="13,5.5 22,5.5 22,15.5 18.5,15.5"/>',
+    // un escalón; el peldaño nuevo, en amarillo
+    subida: '<polygon points="2,22 2,15 10,15 10,22"/><polygon points="12,22 12,10 22,10 22,22"/><polygon class="r" points="12,4 22,4 22,8 12,8"/>',
+    // depósito que se llena por escalones
+    hucha: '<polygon points="2,3 5,3 5,19 19,19 19,3 22,3 22,22 2,22"/><polygon class="r" points="7,17 17,17 17,7 12.5,7 12.5,11.5 7,11.5"/>',
+    // el mismo depósito, abierto por abajo y vaciándose
+    rescate: '<polygon points="2,3 5,3 5,19 10,19 10,22 2,22"/><polygon points="14,19 19,19 19,3 22,3 22,22 14,22"/><polygon class="r" points="7,13 17,13 17,17 13.5,17 13.5,24 10.5,24 10.5,17 7,17"/>',
+    // dos bloques que encajan por la diagonal sobre una misma base
+    pareja: '<polygon points="2,4 12,4 3.5,18 2,18"/><polygon points="14.5,4 22,4 22,18 6,18"/><polygon class="r" points="2,20 22,20 22,22.5 2,22.5"/>',
+    // dos pagadores: un bloque grande y otro pequeño (el segundo, el que cambia la cuenta)
+    dospagadores: '<polygon points="2,4 14,4 14,20 2,20"/><polygon class="r" points="16,11 22,11 22,20 16,20"/>',
+    // flecha inversa: del neto que quieres al bruto que pides
+    bruto: '<polygon points="10,10 22,10 22,14 10,14"/><polygon class="r" points="2,12 7,3 11,3 6,12 11,21 7,21"/>',
+    // porción recortada y desplazada por la diagonal
+    deducciones: '<polygon points="2,2 19,2 19,6 11.5,19 2,19"/><polygon class="r" points="22,9 22,22 14.5,22"/>',
+    // tres columnas alternativas; la elegida, en amarillo
+    escenarios: '<polygon points="2,9 7,9 7,21 2,21"/><polygon class="r" points="9.5,4 14.5,4 14.5,21 9.5,21"/><polygon points="17,12 22,12 22,21 17,21"/>',
+    // archivador de tres cajones con la etiqueta de uno
+    cartera: '<path fill-rule="evenodd" d="M4 2h16v6H4zM4 9.5h16v6H4zM4 17h16v5H4zM9 4h6v1.5H9zM9 18.5h6V20H9z"/><polygon class="r" points="9,11.5 15,11.5 15,13.5 9,13.5"/>',
+    // libro de pie y otro apoyado en ángulo
+    libro: '<polygon points="3,3 8,3 8,21 3,21"/><polygon class="r" points="10,21 14.5,21 22,8 17.5,8"/><polygon points="2,22 22,22 22,23.5 2,23.5"/>',
+    // casa con el tejado a la diagonal de la M y la puerta
+    vivienda: '<polygon points="12,1.5 20,15.5 20,22 4,22 4,15.5"/><polygon class="r" points="10,15 14,15 14,22 10,22"/>',
+    // fragmento de mapa: un territorio y su vecino
+    territorio: '<polygon points="2,7 9,3 14,6 11.5,13 14.5,21 6,21 2,15"/><polygon class="r" points="16,4 22,6.5 21,15 17,19 13.5,12.5"/>',
+    // una «A» angular con el travesaño en amarillo
+    glosario: '<polygon points="2,22 9.5,2 13.5,2 6.5,22"/><polygon points="15,7 22,22 17.5,22 13,12.5"/><polygon class="r" points="5,13.5 19,13.5 19,17 5,17"/>'
+  };
+  const icono = (k, clase = "") => ICONOS[k] ? `<svg class="ico${clase ? " " + clase : ""}" viewBox="0 0 24 24" aria-hidden="true" focusable="false">${ICONOS[k]}</svg>` : "";
+
 
   // ---- catálogo del panel «Todo lo que ofrecemos» -----------------------------------------
   // href que empieza por "#": vista de la aplicación (index.html). Si no, página estática.
@@ -24,16 +66,16 @@
     { grupo: "Calcular", items: [
       { titulo: "Calculadora de la renta", texto: "¿A pagar o a devolver? Tu IRPF al detalle, con las casillas de Renta Web.", href: "#calculadora", icono: "calculadora" },
       { titulo: "Sueldo neto", texto: "De bruto a neto en 12 o 14 pagas, en tu territorio.", href: "#sueldo-neto", icono: "nomina" },
-      { titulo: "¿Qué sueldo bruto pido?", texto: "De neto a bruto, en los 19 territorios, y qué oferta de trabajo te deja más.", href: "#bruto-necesario", icono: "nomina" },
+      { titulo: "¿Qué sueldo bruto pido?", texto: "De neto a bruto, en los 19 territorios, y qué oferta de trabajo te deja más.", href: "#bruto-necesario", icono: "bruto" },
       { titulo: "¿Cuánto neto gano con mi subida?", texto: "Lo que de verdad llega al bolsillo de cada euro de subida.", href: "#sueldo-neto?subida", icono: "subida" },
       { titulo: "Dos pagadores", texto: "Si te obliga a declarar y cuánto te puede salir a pagar.", href: "#dos-pagadores", icono: "dospagadores" },
-      { titulo: "¿Cuánto me devuelve Hacienda?", texto: "Hijos, alquiler, hipoteca, discapacidad, donativos… situación a situación.", href: "/cuanto-me-devuelve/", icono: "devolucion" }
+      { titulo: "¿Cuánto me devuelve Hacienda?", texto: "Hijos, alquiler, hipoteca, discapacidad, donativos… situación a situación.", href: "/cuanto-me-devuelve/", icono: "deducciones" }
     ] },
     { grupo: "Comparar", items: [
-      { titulo: "Comparador de territorios", texto: "Tu misma situación en los 19 territorios, en mapa y en ranking.", href: "#comparar", icono: "mapa" },
+      { titulo: "Comparador de territorios", texto: "Tu misma situación en los 19 territorios, en mapa y en ranking.", href: "#comparar", icono: "comparar" },
       { titulo: "¿Conjunta o individual?", texto: "Qué declaración os conviene y cuánto os ahorráis.", href: "#conjunta", icono: "pareja" },
-      { titulo: "Escenarios «¿y si…?»", texto: "Compara a la vez varias versiones de tu renta.", href: "#escenarios", icono: "grafico" },
-      { titulo: "Dónde se paga menos IRPF", texto: "Rankings de los 19 territorios para sueldos de referencia.", href: "/comparar-sueldo/", icono: "ranking" }
+      { titulo: "Escenarios «¿y si…?»", texto: "Compara a la vez varias versiones de tu renta.", href: "#escenarios", icono: "escenarios" },
+      { titulo: "Dónde se paga menos IRPF", texto: "Rankings de los 19 territorios para sueldos de referencia.", href: "/comparar-sueldo/", icono: "comparar" }
     ] },
     { grupo: "Planificar", items: [
       { titulo: "Ahorra antes del 31 de diciembre", texto: "Plan de pensiones y donativos: cuánto te rebajan el IRPF de este año.", href: "#plan-pensiones", icono: "hucha" },
@@ -41,17 +83,18 @@
     ] },
     { grupo: "Guías y páginas", items: [
       { titulo: "Guías del IRPF", texto: "Tramos, mínimos, deducciones y calendario, con su norma.", href: "/guias/", icono: "libro" },
-      { titulo: "Vivienda", texto: "Segunda vivienda, alquiler y venta: cómo tributan en el IRPF.", href: "/vivienda/" },
+      { titulo: "Glosario del IRPF", texto: "Los términos de la renta, de la A a la Z.", href: "/glosario/", icono: "glosario" },
+      { titulo: "Vivienda", texto: "Segunda vivienda, alquiler y venta: cómo tributan en el IRPF.", href: "/vivienda/", icono: "vivienda" },
       { titulo: "IRPF por territorio", texto: "Escala, mínimo y deducciones de cada comunidad y territorio foral.", href: "/irpf/", icono: "territorio" },
       { titulo: "Sueldo neto por importe", texto: "Tablas de bruto a neto de 15.000 a 100.000 € en los 19 territorios.", href: "/sueldo-neto/", icono: "nomina" },
       { titulo: "Declaración conjunta: casos", texto: "Con hijos, un solo sueldo, pareja de hecho o separados.", href: "/declaracion-conjunta/", icono: "pareja" },
       { titulo: "Dos pagadores: casos", texto: "Cuánto sale a pagar según lo que cobres del segundo.", href: "/dos-pagadores/", icono: "dospagadores" },
       { titulo: "Rescate del plan: casos", texto: "Lo que tributa rescatar según el importe y el territorio.", href: "/rescate-plan-pensiones/", icono: "rescate" },
-      { titulo: "Cómo calculamos", texto: "El motor, las fuentes oficiales y lo que aún no cubrimos.", href: "#metodologia", icono: "lupa" }
+      { titulo: "Cómo calculamos", texto: "El motor, las fuentes oficiales y lo que aún no cubrimos.", href: "#metodologia", icono: "calculadora" }
     ] },
     { grupo: "Profesionales", items: [
       { titulo: "Mis clientes", texto: "Para asesores y gestorías: tu cartera guardada y siempre recalculada.", href: "#clientes", icono: "cartera", plan: true },
-      { titulo: "Planes", texto: "Gratis para particulares; plan Gestor para profesionales.", href: "#planes", icono: "estrella" }
+      { titulo: "Planes", texto: "Gratis para particulares; plan Gestor para profesionales.", href: "#planes", icono: "cartera" }
     ] }
   ];
 
@@ -66,7 +109,7 @@
   function htmlPanel(opc) {
     const grupos = CATALOGO.map((g, i) => `
       <section class="panel-grupo" aria-labelledby="panel-g${i}"><h3 class="rotulo" id="panel-g${i}">${esc(g.grupo)}</h3><ul>${g.items.map(it => `
-        <li><a class="panel-item" href="${esc(resolver(it.href, opc))}"><span class="panel-txt"><b>${esc(it.titulo)}${it.plan ? ' <span class="plan-chip">Gestor</span>' : ""}</b><span>${esc(it.texto)}</span></span></a></li>`).join("")}</ul></section>`).join("");
+        <li><a class="panel-item" href="${esc(resolver(it.href, opc))}">${icono(it.icono)}<span class="panel-txt"><b>${esc(it.titulo)}${it.plan ? ' <span class="plan-chip">Gestor</span>' : ""}</b><span>${esc(it.texto)}</span></span></a></li>`).join("")}</ul></section>`).join("");
     return `<div class="panel-in">
       <div class="panel-cab"><h2 id="panel-todo-t">Todo lo que ofrecemos</h2>
         <button class="panel-cerrar" type="button" data-cerrar-panel aria-label="Cerrar el panel"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M4 4l8 8M12 4l-8 8"/></svg></button></div>
@@ -196,7 +239,7 @@
     }
   }
 
-  const API = { CLAVE_TEMA, SCRIPT_TEMA, CATALOGO, REDES, HTML_BTN_TEMA, HTML_BTN_PANEL, resolver, htmlPanel, htmlRedes };
+  const API = { CLAVE_TEMA, SCRIPT_TEMA, CATALOGO, ICONOS, icono, REDES, HTML_BTN_TEMA, HTML_BTN_PANEL, resolver, htmlPanel, htmlRedes };
   if (typeof module === "object" && module.exports) module.exports = API;
   else global.MapafiscalUI = API;
   if (typeof document !== "undefined") {

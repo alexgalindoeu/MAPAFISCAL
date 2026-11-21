@@ -11,9 +11,9 @@
   const H = (typeof window !== "undefined" && window.irpfsim) || (typeof require === "function" ? require("./irpfsim.js") : null);
   const NAVEGADOR = typeof window !== "undefined" && typeof document !== "undefined";
   if (NAVEGADOR) window.MAPAFISCAL_HERRAMIENTAS = Object.assign(window.MAPAFISCAL_HERRAMIENTAS || {}, {
-    conjunta: { titulo: "¿Declaración conjunta o individual?", icono: "calculadora", href: "#conjunta",
+    conjunta: { titulo: "¿Declaración conjunta o individual?", icono: "pareja", href: "#conjunta",
       texto: "Tu pareja y tus hijos: qué modalidad os sale mejor, cuánto ahorráis y por qué, en los 19 territorios." },
-    "dos-pagadores": { titulo: "Dos pagadores: ¿me sale a pagar?", icono: "nomina", href: "#dos-pagadores",
+    "dos-pagadores": { titulo: "Dos pagadores: ¿me sale a pagar?", icono: "dospagadores", href: "#dos-pagadores",
       texto: "Si has tenido dos empresas: si estás obligado a declarar y cuánto te tocará pagar o te devolverán." }
   });
   if (NAVEGADOR) document.dispatchEvent(new CustomEvent("mapafiscal:herramientas"));

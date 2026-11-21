@@ -23,7 +23,7 @@
 
   if (NAVEGADOR) {
     window.MAPAFISCAL_HERRAMIENTAS = Object.assign(window.MAPAFISCAL_HERRAMIENTAS || {}, {
-      escenarios: { titulo: "¿Y si…? Compara tus escenarios", icono: "grafico", href: "#escenarios",
+      escenarios: { titulo: "¿Y si…? Compara tus escenarios", icono: "escenarios", href: "#escenarios",
         texto: "Una subida, un hijo, una aportación al plan de pensiones, mudarte o alquilar: cuánto cambia tu IRPF y lo que te queda." }
     });
     document.dispatchEvent(new CustomEvent("mapafiscal:herramientas"));
