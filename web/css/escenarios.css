@@ -58,6 +58,10 @@ input[type="range"]#desl-sueldo { -webkit-appearance: none; appearance: none; wi
 .desl-grafico { margin: 0; }
 .desl-svg { width: 100%; height: auto; display: block; overflow: visible; }
 .desl-reticula { stroke: var(--reticula); stroke-width: 1; }
+/* Eje X: la primera y la última etiqueta se anclan hacia dentro para que no se corten
+   en el borde ni se monten sobre la siguiente cuando el gráfico se encoge en móvil. */
+.desl-svg text.desl-eje:nth-of-type(6) { text-anchor: start; }
+.desl-svg text.desl-eje:nth-of-type(9) { text-anchor: end; }
 .desl-eje { fill: var(--tinta-3); font-size: 11px; font-family: var(--mono); }
 .desl-linea { fill: none; stroke: var(--linea-2); stroke-width: 1.4; stroke-linejoin: round; transition: stroke var(--dur), stroke-width var(--dur); }
 .desl-linea.foco { stroke: var(--tinta-2); stroke-width: 2.2; }
