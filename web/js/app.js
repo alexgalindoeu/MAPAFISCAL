@@ -188,6 +188,12 @@
   selTerr.innerHTML = ORDEN.filter(c => T[c]).map(c =>
     `<option value="${c}">${esc(T[c].nombre)}${T[c].regimen !== "comun" && !/foral/i.test(T[c].nombre) ? " (foral)" : ""}</option>`).join("");
   selTerr.value = "ES-MD";
+  // #calculadora?t=ES-PV-SS (enlaces de las páginas SEO): abre la calculadora con ese territorio
+  const territorioDeHash = () => {
+    const t = (location.hash.match(/^#calculadora\?(?:[^#]*&)?t=(ES-[A-Z]{2}(?:-[A-Z]{2})?)\b/) || [])[1];
+    return t && T[t] ? t : null;
+  };
+  if (territorioDeHash()) selTerr.value = territorioDeHash();
 
   // ---- formulario (web/js/formulario.js): estado, plantillas y validaciones ------------------
   const FORM = window.formularioIrpf;
@@ -1738,7 +1744,11 @@
     }
     document.dispatchEvent(new CustomEvent("mapafiscal:vista", { detail: { vista: v } }));
   }
-  window.addEventListener("hashchange", () => { const v = vistaDeHash(); if (v) { vistaSel = v; mostrarVista({ moverFoco: true }); } });
+  window.addEventListener("hashchange", () => {
+    const t = territorioDeHash();
+    if (t && t !== selTerr.value) { selTerr.value = t; pintarGastosTerritorio(); recalcular(); }
+    const v = vistaDeHash(); if (v) { vistaSel = v; mostrarVista({ moverFoco: true }); }
+  });
 
   // menú compacto de la barra superior (por debajo de ~1180 px la navegación se pliega en un
   // desplegable; «Entrar / Crear cuenta» o el avatar siguen siempre a la vista)

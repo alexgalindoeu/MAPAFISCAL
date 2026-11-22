@@ -3,6 +3,8 @@
 //   /irpf/<foral>/simulador-renta/   /irpf/<foral>/sueldo-neto/   /irpf/<foral>/jubilados/
 //   /irpf/<foral>/familia-numerosa/  /irpf/<foral>/discapacidad/  /irpf/<foral>/planes-pensiones/
 //   /irpf/pais-vasco/  (comparativa de los tres territorios históricos)
+// y, para la página /irpf/<foral>/ que maqueta tools/generar_paginas_seo.mjs, la sección «La renta
+// en <territorio>» con la tabla de tipo marginal y medio por sueldo (rentaForal) y los enlaces.
 // Todas las cifras salen del motor JS (web/js/irpfsim.js, con paridad al céntimo con el
 // motor R en tools/validar_js.R) y de los parámetros exportados (web/datos/params_<año>.json):
 // aquí no se escribe ningún importe a mano. Lo usa tools/generar_paginas_seo.mjs.
@@ -11,7 +13,7 @@ import { readFileSync, readdirSync } from "node:fs";
 import { createRequire } from "node:module";
 import { join, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
-import { SLUG, esc, euros, pct, pctCorto, tablaEscala, layout, jsonLdMigas, jsonLdFaq, bloqueFaq, migasHtml } from "./seo_comun.mjs";
+import { SLUG, NOMBRE_CORTO, esc, euros, pct, pctCorto, textoPlano, tablaEscala, layout, jsonLdMigas, jsonLdFaq, bloqueFaq, migasHtml } from "./seo_comun.mjs";
 
 const require = createRequire(import.meta.url);
 const WEB = join(dirname(fileURLToPath(import.meta.url)), "..", "web");
@@ -23,15 +25,24 @@ const HACIENDA = { "ES-PV-BI": "la Hacienda Foral de Bizkaia", "ES-PV-SS": "la H
   "ES-PV-VI": "la Hacienda Foral de Álava", "ES-NC": "la Hacienda Foral de Navarra" };
 const NORMA = { "ES-PV-BI": "Norma Foral 13/2013, del IRPF de Bizkaia", "ES-PV-SS": "Norma Foral 3/2014, del IRPF de Gipuzkoa",
   "ES-PV-VI": "Norma Foral 33/2013, del IRPF de Álava", "ES-NC": "Texto Refundido de la Ley Foral del IRPF de Navarra (DFL 4/2008)" };
+// Institución de la que depende cada hacienda foral, y el acuerdo con el Estado que le da el IRPF.
+const INSTITUCION = { "ES-PV-BI": "la Diputación Foral de Bizkaia", "ES-PV-SS": "la Diputación Foral de Gipuzkoa",
+  "ES-PV-VI": "la Diputación Foral de Álava", "ES-NC": "el Gobierno de Navarra" };
+const ACUERDO = t => t === "ES-NC" ? "el Convenio Económico con Navarra" : "el Concierto Económico con el País Vasco";
+// Nombre como se busca (Gipuzkoa, Álava, Navarra), para títulos, encabezados y textos de enlace.
+const corto = t => NOMBRE_CORTO[t];
+const mayus = s => s.charAt(0).toUpperCase() + s.slice(1);
+// «la Norma Foral 3/2014…» / «el Texto Refundido…»
+const conNorma = t => (/^Norma/.test(NORMA[t]) ? "la " : "el ") + NORMA[t];
 export const SECCIONES = [
   ["simulador-renta", "Simulador de la renta"], ["sueldo-neto", "Sueldo neto"], ["jubilados", "Jubilados y pensionistas"],
   ["familia-numerosa", "Familia numerosa"], ["discapacidad", "Discapacidad"], ["planes-pensiones", "Planes de pensiones y EPSV"]
 ];
 const BRUTOS = [18000, 22000, 26000, 30000, 36000, 45000, 60000, 80000];
 
-function paramsRecientes() {
-  return readdirSync(join(WEB, "datos")).filter(n => /^params(_\d{4})?\.json$/.test(n))
-    .map(n => JSON.parse(readFileSync(join(WEB, "datos", n), "utf8"))).sort((a, b) => b.ejercicio - a.ejercicio)[0];
+// Ejercicio por defecto de la web (params/ejercicios.yaml → web/datos/params.json).
+function paramsDefecto() {
+  return JSON.parse(readFileSync(join(WEB, "datos", "params.json"), "utf8"));
 }
 const esMapa = v => v && typeof v === "object" && !Array.isArray(v);
 const fusionar = (a, b) => { const r = Object.assign({}, a); for (const k of Object.keys(b || {})) r[k] = esMapa(b[k]) && esMapa(a[k]) ? fusionar(a[k], b[k]) : b[k]; return r; };
@@ -63,16 +74,28 @@ const hijos = edades => edades.map((e, i) => ({ id: "h" + (i + 1), rol: "descend
 
 // ---- piezas comunes ----------------------------------------------------------------------
 const ruta = (t, sec) => `/irpf/${SLUG[t]}/${sec ? sec + "/" : ""}`;
+// Texto del enlace a la página principal del territorio: varía con la sección para no repetir
+// siempre el mismo ancla («IRPF en Gipuzkoa», «tablas IRPF Gipuzkoa 2026», «renta Gipuzkoa 2025»…).
+function anclaPrincipal(P, t, actual) {
+  const c = corto(t), ej = P.ejercicio, i = SECCIONES.findIndex(([s]) => s === actual);
+  return [[`IRPF en ${c}`, ruta(t)], [`tablas IRPF ${c} ${ej}`, ruta(t) + "#tabla-" + ej], [`renta ${c} ${ej - 1}`, ruta(t) + "#renta"],
+    [`tipo marginal en ${c}`, ruta(t) + "#tipos-por-sueldo"]][Math.max(0, i) % 4];
+}
 function otrasSecciones(P, t, actual) {
-  const n = nombreDe(P, t);
-  return `<p class="ayuda">Más sobre el IRPF en ${esc(n)}: ` + [[null, "tramos y resumen"], ...SECCIONES].filter(([s]) => s !== actual)
+  const n = nombreDe(P, t), [txt, href] = anclaPrincipal(P, t, actual);
+  return `<p class="ayuda">Más sobre el IRPF en ${esc(n)}: <a href="${href}">${esc(txt)}</a> · ` + SECCIONES.filter(([s]) => s !== actual)
     .map(([s, tit]) => `<a href="${ruta(t, s)}">${esc(minus(tit))}</a>`).join(" · ") +
     (esPv(t) ? ` · <a href="/irpf/pais-vasco/">los tres territorios vascos, comparados</a>` : "") + `</p>`;
+}
+// Minoración general de la cuota del territorio vasco (importe por declaración).
+function minoracion(J, t) {
+  const m = J.minoracion_cuota;
+  return t === "ES-PV-BI" ? m.importe_bizkaia : t === "ES-PV-VI" ? m.importe_araba : m.importe_gipuzkoa;
 }
 function rasgoForal(P, t) {
   const n = nombreDe(P, t), J = juris(P, t);
   if (esPv(t)) {
-    const m = J.minoracion_cuota, imp = t === "ES-PV-BI" ? m.importe_bizkaia : t === "ES-PV-VI" ? m.importe_araba : m.importe_gipuzkoa;
+    const imp = minoracion(J, t);
     return `${esc(n)} no aplica la escala estatal ni el mínimo personal y familiar: tiene una tarifa foral única, una bonificación del trabajo de hasta ${esc(e2(J.bonificacion_trabajo.importe_pleno))} que reduce el rendimiento, una minoración de la cuota de ${esc(e2(imp))} por declaración y deducciones en cuota por hijos, ascendientes, edad y discapacidad.`;
   }
   return `${esc(n)} no aplica la escala estatal ni el mínimo personal y familiar en la base: tiene una tarifa foral única y convierte los mínimos en deducciones de la cuota (${esc(e2(J.minimo_personal_deduccion.importe_general))} por contribuyente, más incrementos por rentas, edad, discapacidad e hijos), junto con una deducción por rendimientos del trabajo.`;
@@ -93,29 +116,56 @@ function pagina(P, t, sec, { h1, entradilla, cuerpo, qs, title, description }, g
 }
 
 // ---- 1. simulador de la renta -----------------------------------------------------------
+// Enlace a la calculadora con el territorio ya elegido (#calculadora?t=…, lo lee web/js/app.js)
+// y, si se pide, otro ejercicio publicado (&ejercicio=…).
+export const enlaceCalculadora = (t, ej) => `/index.html#calculadora?t=${t}${ej ? `&ejercicio=${ej}` : ""}`;
+const publicados = P => ((P.ejercicios && P.ejercicios.publicados) || [P.ejercicio]).map(Number);
+const MODO = { individual: "individual", conjunta: "conjunta" };
 function pSimulador(P, t, generado) {
-  const n = nombreDe(P, t), J = juris(P, t), ej = P.ejercicio;
+  const n = nombreDe(P, t), c = corto(t), J = juris(P, t), ej = P.ejercicio;
+  const ant = publicados(P).includes(ej - 1) ? ej - 1 : null;
   const filas = BRUTOS.map(b => { const x = irpf(P, t, [asalariado(P, b)]);
-    return fila([[esc(e2(b))], [esc(e2(x.liq.baseLiquidableGeneral)), 1], [esc(e2(x.irpf)), 1], [esc(pct(x.irpf / b)), 1]]); });
+    return fila([[esc(e2(b))], [esc(e2(x.liq.baseLiquidableGeneral)), 1], [esc(e2(x.irpf)), 1], [esc(pct(x.irpf / b)), 1],
+      [esc(pct(motor.tipoMarginal(x.liq.baseLiquidableGeneral, J.escala_general_foral))), 1]]); });
   const ej30 = irpf(P, t, [asalariado(P, 30000)]).irpf;
+  // Ejemplos de hogares liquidados con el motor (la calculadora elige la tributación más barata).
+  const pareja = { id: "d2", rol: "conyuge", edad: 38 };
+  const casos = [
+    ["Persona soltera con 30.000 € de sueldo", [asalariado(P, 30000)], {}, 30000],
+    ["Persona soltera con 45.000 € de sueldo", [asalariado(P, 45000)], {}, 45000],
+    ["Pareja con un sueldo de 40.000 € y dos hijos de 8 y 4 años", [asalariado(P, 40000), pareja, ...hijos([8, 4])], { tipoUnidadFamiliar: "biparental" }, 40000],
+    ["Pareja con sueldos de 30.000 € y 25.000 € y un hijo de 5 años", [asalariado(P, 30000), asalariado(P, 25000, pareja), ...hijos([5])], { tipoUnidadFamiliar: "biparental" }, 55000],
+    ["Pensionista de 67 años con 22.000 € de pensión", [pensionista(22000, 67)], {}, 22000]
+  ].map(([txt, miembros, extra, ingresos]) => { const x = irpf(P, t, miembros, extra);
+    return { txt, irpf: x.irpf, modo: MODO[x.liq.modoTributacionElegido] || "individual", medio: x.irpf / ingresos }; });
+  const filasCasos = casos.map(k => fila([[esc(k.txt)], [esc(k.modo)], [esc(eIrpf(k.irpf)), 1], [esc(pct(Math.max(0, k.medio))), 1]]));
+  const fam = casos[2];
   const qs = [
+    [`¿Hay un simulador de la renta ${ej} de ${c}?`, `Sí. La calculadora de Mapafiscal aplica la normativa foral de ${n} de ${ej}: la tarifa, ${esPv(t) ? "la bonificación del trabajo, la minoración de la cuota" : "las deducciones por mínimo personal y familiar, la deducción por trabajo"} y las deducciones familiares y personales. El enlace de esta página la abre con ${c} ya elegido.`],
     [`¿Puedo hacer la renta de ${n} con el programa de la Agencia Tributaria?`, `No. Si resides en ${n} declaras ante ${HACIENDA[t]}, con su propia normativa, su propio programa y su propio calendario de campaña. Renta Web y el borrador de la Agencia Tributaria solo sirven para el régimen común.`],
-    [`¿Qué calcula este simulador para ${n}?`, `La cuota del IRPF de ${ej} con la tarifa foral de ${n}, sus reducciones y sus deducciones familiares y personales. Introduces tus ingresos, tu familia y tus gastos, y ves el resultado con el desglose paso a paso.`],
-    [`¿En qué se diferencia el IRPF de ${n} del resto de España?`, rasgoForal(P, t).replace(/&[a-z#0-9]+;/g, " ")],
+    ...(ant ? [[`¿Puedo simular también la renta ${ant} de ${c}?`, `Sí: la renta de ${ant} es la que se declara en ${ant + 1}. La calculadora tiene los dos ejercicios, ${ant} y ${ej}, y el segundo botón de esta página la abre en ${ant} con ${c} ya elegido.`]] : []),
+    [`¿Cuánto paga una familia en la renta ${ej} de ${c}?`, `Una pareja con un sueldo de 40.000 € y dos hijos de 8 y 4 años paga ${eIrpf(fam.irpf)} de IRPF en ${ej}, con declaración ${fam.modo}. Con tus datos, el simulador prueba la declaración individual y la conjunta y elige la más barata.`],
+    [`¿En qué se diferencia el IRPF de ${n} del resto de España?`, textoPlano(rasgoForal(P, t))],
     ["¿Puedo comparar mi resultado con otros territorios?", `Sí: el comparador calcula el mismo caso en los 19 territorios fiscales, los cuatro forales incluidos. Si asesoras a clientes, puedes comparar a cada uno con un clic.`]
   ];
+  const botones = `<p><a class="btn btn-pri" href="${enlaceCalculadora(t)}">${esc(`Simula tu renta ${ej} en ${c}`)}</a>${ant ? ` <a class="btn btn-sec" href="${enlaceCalculadora(t, ant)}">${esc(`Simula la renta ${ant} de ${c}`)}</a>` : ""}</p>
+  <p class="ayuda">La calculadora se abre con ${esc(n)} ya elegido. <a href="/index.html#comparar">Compara tu caso con los otros 18 territorios</a>.</p>`;
   const cuerpo = `
+  ${botones}
   <div class="tarjeta"><h2 class="rotulo">Cómo se calcula la renta en ${esc(n)}</h2><p>${rasgoForal(P, t)}</p>
-    <p>La declaración se presenta ante ${esc(HACIENDA[t])}, con calendario y programa propios. Aquí puedes simularla antes: el resultado sale de la misma normativa (${esc(NORMA[t])}).</p></div>
+    <p>La declaración se presenta ante ${esc(HACIENDA[t])}, de ${esc(INSTITUCION[t])}, con calendario y programa propios. Aquí puedes simularla antes: el resultado sale de la misma normativa (${esc(NORMA[t])}). <a href="${ruta(t)}#renta">Más sobre la renta en ${esc(c)}</a>.</p></div>
+  <div class="tarjeta tarjeta-tabla"><h2 class="rotulo">Ejemplos de la renta ${ej} en ${esc(c)}</h2>
+    <p class="ayuda">IRPF del año tras la declaración, calculado con el mismo motor que el simulador. Sueldos con contrato indefinido; tipo medio sobre los ingresos brutos del hogar.</p>
+    ${tabla([["Caso"], ["Declaración"], ["IRPF", 1], ["Tipo medio", 1]], filasCasos)}</div>
   <div class="tarjeta"><h2 class="rotulo">Tarifa general de ${esc(n)} (${ej})</h2>${tablaEscala(J.escala_general_foral, "Tramo de la base liquidable general")}</div>
   <div class="tarjeta tarjeta-tabla"><h2 class="rotulo">Cuánto IRPF sale con tu sueldo en ${esc(n)}</h2>
-    <p class="ayuda">Supuesto: persona soltera de 40 años, sin hijos, solo con su sueldo, contrato indefinido. IRPF del año tras la declaración.</p>
-    ${tabla([["Sueldo bruto"], ["Base liquidable", 1], ["IRPF", 1], ["Tipo medio", 1]], filas)}</div>
-  ${cta(`Simula tu renta de ${n}`, "/index.html#calculadora", ["Compárala con los otros 18 territorios", "/index.html#comparar"])}`;
-  return pagina(P, t, "simulador-renta", { h1: `Simulador de la renta en ${n} (${ej})`,
-    entradilla: `Calcula tu IRPF de ${esc(n)} con su normativa foral: tarifa, reducciones y deducciones propias. Con 30.000 € de sueldo, una persona soltera paga <b>${esc(e2(ej30))}</b> al año.`,
-    cuerpo, qs, title: `Simulador renta ${n} ${ej}: calcula tu IRPF foral`,
-    description: `Simulador gratuito de la declaración de la renta en ${n} (${ej}) con la tarifa y las deducciones forales. Tabla de IRPF por sueldo y comparador con los otros 18 territorios.` }, generado);
+    <p class="ayuda">Supuesto: persona soltera de 40 años, sin hijos, solo con su sueldo, contrato indefinido. IRPF del año tras la declaración. Tipo medio: IRPF entre sueldo bruto; tipo marginal: el de la tarifa en el último euro de la base.</p>
+    ${tabla([["Sueldo bruto"], ["Base liquidable", 1], ["IRPF", 1], ["Tipo medio", 1], ["Tipo marginal", 1]], filas)}</div>
+  ${botones}`;
+  return pagina(P, t, "simulador-renta", { h1: `Simulador renta ${ej} ${c}: tu IRPF con la normativa foral`,
+    entradilla: `Calcula tu renta ${ej} de ${esc(n)} con su normativa foral: tarifa, reducciones y deducciones propias. Con 30.000 € de sueldo, una persona soltera paga <b>${esc(e2(ej30))}</b> al año.`,
+    cuerpo, qs, title: `Simulador renta ${ej} ${c}: calcula tu IRPF foral`,
+    description: `Simulador renta ${ej} de ${c} gratis, con la normativa foral${ant ? ` (y la renta ${ant})` : ""}: ejemplos por sueldo y familia, tipo marginal y comparador de los 19 territorios.` }, generado);
 }
 
 // ---- 2. sueldo neto -----------------------------------------------------------------------
@@ -317,7 +367,11 @@ function pPaisVasco(P, generado) {
   <div class="tarjeta tarjeta-tabla"><h2 class="rotulo">En qué se diferencian los tres territorios</h2>
     <p class="ayuda">Deducciones en la cuota de ${ej}. Última columna: IRPF de una pareja con un sueldo de 40.000 € y dos hijos de 8 y 4 años.</p>
     ${tabla([["Territorio"], ["Primer hijo", 1], ["Hijo menor de 6", 1], ["Ascendiente", 1], ["Discapacidad 33 %", 1], ["Pareja, 2 hijos", 1]], difs)}</div>
-  <div class="tarjeta"><h2 class="rotulo">Por territorio</h2><ul class="lista-enlaces">${PV.map(t => `<li><b>${esc(nom(t))}</b>: ` + SECCIONES.map(([s, tit]) => `<a href="${ruta(t, s)}">${esc(minus(tit))}</a>`).join(" · ") + `</li>`).join("")}</ul></div>
+  <div class="tarjeta"><h2 class="rotulo">IRPF y renta en cada territorio</h2><ul class="lista-enlaces">${PV.map(t => `<li><b>${esc(nom(t))}</b>: ` +
+    [[`IRPF en ${corto(t)}`, ruta(t)], [`renta ${corto(t)} ${ej - 1}`, ruta(t) + "#renta"], [`tablas IRPF ${corto(t)}`, ruta(t) + `#tabla-${ej - 1}`],
+      [`simulador renta ${ej} ${corto(t)}`, ruta(t, "simulador-renta")], ...SECCIONES.slice(1).map(([s, tit]) => [minus(tit), ruta(t, s)])]
+      .map(([txt, href]) => `<a href="${href}">${esc(txt)}</a>`).join(" · ") + `</li>`).join("")}
+    <li><b>Navarra</b>: <a href="${ruta("ES-NC")}">IRPF en Navarra</a> · <a href="${ruta("ES-NC", "simulador-renta")}">simulador renta ${ej} Navarra</a></li></ul></div>
   ${cta("Calcula tu IRPF en el País Vasco", "/index.html#calculadora", ["Compara los 19 territorios", "/index.html#comparar"])}
   ${bloqueFaq(qs)}
   </div>`;
@@ -329,15 +383,16 @@ function pPaisVasco(P, generado) {
 // Bloque de enlaces para la página /irpf/<territorio>/ (vacío si no es foral)
 export function enlacesSuiteForal(codigo, nombre) {
   if (!FORALES.includes(codigo)) return "";
+  const ej = paramsDefecto().ejercicio;
   return `<div class="tarjeta"><h2 class="rotulo">${esc(nombre)}, a fondo</h2><ul class="lista-enlaces">` +
-    SECCIONES.map(([s, tit]) => `<li><a href="${ruta(codigo, s)}">${esc(tit)} en ${esc(nombre)}</a></li>`).join("") +
+    SECCIONES.map(([s, tit]) => `<li><a href="${ruta(codigo, s)}">${esc(s === "simulador-renta" ? `Simulador renta ${ej} ${corto(codigo)}` : `${tit} en ${nombre}`)}</a></li>`).join("") +
     (codigo !== "ES-NC" ? `<li><a href="/irpf/pais-vasco/">Bizkaia, Gipuzkoa y Álava, comparados</a></li>` : "") + `</ul></div>`;
 }
 
 // [{ ruta, html }]: seis páginas por territorio foral y la comparativa del País Vasco.
 // `importesSueldoNeto`: importes con página /sueldo-neto/<importe>/<territorio>/ (para enlazarlas).
 export function paginasForal(generado, importesSueldoNeto = []) {
-  const P = paramsRecientes(), con = new Set(importesSueldoNeto.map(Number));
+  const P = paramsDefecto(), con = new Set(importesSueldoNeto.map(Number));
   const out = [];
   for (const t of FORALES) out.push(pSimulador(P, t, generado), pSueldoNeto(P, t, generado, con), pJubilados(P, t, generado),
     pFamiliaNumerosa(P, t, generado), pDiscapacidad(P, t, generado), pPlanes(P, t, generado));
@@ -401,9 +456,101 @@ export { rasgoForal as rasgoForalDe, paramsDe as paramsForal };
 // Enlaces entre las páginas de tablas de los tres territorios vascos y la comparativa.
 export function enlacesVascos(codigo) {
   if (!PV.includes(codigo)) return "";
-  const N = { "ES-PV-BI": "Bizkaia", "ES-PV-SS": "Gipuzkoa", "ES-PV-VI": "Álava" };
+  const ej = paramsDefecto().ejercicio;
+  // ancla distinta según el par de territorios: «Tablas IRPF Bizkaia», «IRPF en Álava», «Renta Gipuzkoa 2025»
+  const ancla = t => [`Tablas IRPF ${corto(t)}`, `IRPF en ${corto(t)}`, `Renta ${corto(t)} ${ej - 1}`][(PV.indexOf(codigo) + PV.indexOf(t)) % 3];
   return `<div class="tarjeta"><h2 class="rotulo">Tablas del IRPF en los otros territorios vascos</h2><ul class="lista-enlaces">` +
-    PV.filter(t => t !== codigo).map(t => `<li><a href="${ruta(t)}">Tablas IRPF ${N[t]}</a></li>`).join("") +
+    PV.filter(t => t !== codigo).map(t => `<li><a href="${ruta(t)}">${esc(ancla(t))}</a></li>`).join("") +
     `<li><a href="/irpf/pais-vasco/">IRPF en el País Vasco: Bizkaia, Gipuzkoa y Álava, comparados</a></li></ul></div>`;
 }
 export { BOLETIN };
+
+// Tarjeta del índice /irpf/: los cuatro territorios forales, con anclas distintas para la página
+// principal (IRPF, renta, tablas), el simulador y las deducciones (si tienen página).
+export function enlacesIndiceForal(conDeducciones = new Set()) {
+  const ej = paramsDefecto().ejercicio;
+  return `<div class="tarjeta"><h2 class="rotulo">IRPF y renta en los territorios forales</h2><ul class="lista-enlaces">` + FORALES.map(t => { const c = corto(t);
+    return `<li><b>${esc(c)}</b>: ` + [[`IRPF en ${c}`, ruta(t)], [`renta ${c} ${ej - 1}`, ruta(t) + "#renta"], [`tablas IRPF ${c} ${ej - 1}`, ruta(t) + `#tabla-${ej - 1}`],
+      [`simulador renta ${ej} ${c}`, ruta(t, "simulador-renta")], conDeducciones.has(t) && [`deducciones forales`, ruta(t) + "deducciones/"]].filter(Boolean)
+      .map(([txt, href]) => `<a href="${href}">${esc(txt)}</a>`).join(" · ") + `</li>`; }).join("") +
+    `</ul><p><a href="/irpf/pais-vasco/">Bizkaia, Gipuzkoa y Álava, comparados</a></p></div>`;
+}
+
+// ---- «La renta en <territorio>» y tipos por sueldo (página /irpf/<foral>/) ----------------
+// Quién gestiona el impuesto, cómo se presenta y qué lo distingue, con los importes de params y
+// la norma foral que ya citan; una tabla de tipo marginal y tipo medio por sueldo calculada con
+// el motor JS para cada ejercicio publicado, y las preguntas frecuentes que responden a ambas.
+// `referencias`: { <ejercicio>: { <bruto>: cuota líquida } } de seo_comparativas.json (motor R);
+// el ejercicio cuyas cifras no cuadren al céntimo con el motor JS se deja fuera de la tabla.
+const SUELDOS_TIPOS = [20000, 30000, 40000, 60000, 100000];
+export function rentaForal(t, { referencias = {}, conDeducciones = false } = {}) {
+  if (!FORALES.includes(t)) return null;
+  const PD = paramsDefecto(), ejD = PD.ejercicio, n = nombreDe(PD, t), c = corto(t);
+  const datos = publicados(PD).sort((a, b) => a - b).map(a => {
+    const P = paramsDe(a);
+    if (!P) return null;
+    const J = juris(P, t);
+    const filas = SUELDOS_TIPOS.map(b => { const x = irpf(P, t, [asalariado(P, b)]), base = x.liq.baseLiquidableGeneral;
+      return { b, irpf: x.irpf, cuota: x.liq.cuotaLiquidaTotal, medio: x.irpf / b, marginal: motor.tipoMarginal(base, J.escala_general_foral) }; });
+    const ref = referencias[a];
+    if (ref && filas.some(f => ref[f.b] != null && Math.abs(ref[f.b] - f.cuota) > 0.005)) return null;
+    return { ej: a, P, J, filas };
+  }).filter(Boolean);
+  const D = datos.find(d => d.ej === ejD) || datos[datos.length - 1];
+  if (!D) return null;
+  const A = datos.find(d => d.ej === D.ej - 1) || null;
+  const tr = D.J.escala_general_foral, tMin = tr[0].tipo, tMax = tr[tr.length - 1].tipo;
+  const f = b => D.filas.find(x => x.b === b);
+  const ex = (b, d = D) => d.filas.find(x => x.b === b);
+
+  // Qué distingue la renta del territorio: importes de params del ejercicio por defecto y del anterior.
+  let distingue, normaDist, faqDist;
+  if (esPv(t)) {
+    const m = minoracion(D.J, t), mA = A && minoracion(A.J, t);
+    const dd = D.J.deduccion_descendientes, al = D.J.deduccion_alquiler_vivienda.general;
+    distingue = `${rasgoForal(D.P, t)} Son importes de ${D.ej}${A ? (mA === m ? `; la minoración es la misma que en ${A.ej}` : `; en ${A.ej} la minoración era de ${esc(e2(mA))}`) : ""}.`;
+    normaDist = D.J.minoracion_cuota.norma;
+    faqDist = [
+      [`¿Qué es la minoración de cuota en el IRPF de ${c}?`, `Una cantidad fija que se resta de la cuota íntegra de cada declaración: ${e2(m)} en ${D.ej}${A ? (mA === m ? `, igual que en ${A.ej}` : ` y ${e2(mA)} en ${A.ej}`) : ""}. Hace el papel del mínimo personal del régimen común: en vez de dejar sin gravar una parte de la base, rebaja directamente el impuesto. Norma: ${normaDelTerritorio(t, normaDist)}.`],
+      [`¿Qué deducciones forales tiene la renta de ${c}?`, `Entre otras, por descendientes (${e2(dd.importes["1"])} el primer hijo en ${D.ej}, más ${e2(dd.incremento_menor_6_anios)} si es menor de 6 años), por ascendientes a cargo (${e2(D.J.deduccion_ascendientes.importe)}), por edad desde los 65 años (${e2(D.J.deduccion_edad.individual.edad_65.importe)}), por discapacidad (desde ${e2(D.J.deduccion_discapacidad.grado_33_64)}) y por alquiler de la vivienda habitual (el ${pctCorto(al.porcentaje)} de lo pagado, hasta ${e2(al.limite)} al año).${conDeducciones ? ` Están todas en la página de deducciones de ${c}.` : ""}`]
+    ];
+  } else {
+    const mp = D.J.minimo_personal_deduccion, mpA = A && A.J.minimo_personal_deduccion;
+    const d1 = D.J.minimo_familiar_deduccion.descendientes.importes["1"], al = D.J.deduccion_alquiler_vivienda.general;
+    distingue = `${rasgoForal(D.P, t)} Son importes de ${D.ej}${A ? (mpA.importe_general === mp.importe_general ? `; la deducción por mínimo personal es la misma que en ${A.ej}` : `; en ${A.ej} la deducción por mínimo personal era de ${esc(e2(mpA.importe_general))}`) : ""}.`;
+    normaDist = mp.norma;
+    faqDist = [
+      [`¿Qué tiene de propio la renta de ${c}?`, `${c} no reduce la base con el mínimo personal y familiar: lo convierte en deducciones de la cuota. En ${D.ej} son ${e2(mp.importe_general)} por contribuyente y ${e2(d1)} por el primer hijo, con incrementos por rentas bajas, edad y discapacidad. Norma: ${normaDist}.`],
+      [`¿Qué deducciones forales tiene la renta de ${c}?`, `Entre otras, por mínimo personal y familiar, por rendimientos del trabajo, por pensiones de jubilación bajas y por alquiler de la vivienda habitual (el ${pctCorto(al.porcentaje)} de lo pagado, hasta ${e2(al.limite)} al año, con límite de rentas).${conDeducciones ? ` Están todas en la página de deducciones de ${c}.` : ""}`]
+    ];
+  }
+  const enlaceDed = conDeducciones ? ` <a href="${ruta(t)}deducciones/">Deducciones forales de ${esc(c)}</a>.` : "";
+  const cartaRenta = `<div class="tarjeta" id="renta">
+    <h2 class="rotulo">La renta en ${esc(c)}</h2>
+    <p><b>Quién la gestiona.</b> ${esc(mayus(INSTITUCION[t]))}, a través de su Hacienda Foral. Por ${esc(ACUERDO(t))}, ${esc(n)} regula y recauda su propio IRPF con ${esc(conNorma(t))}: quien tiene aquí su residencia habitual declara ante ${esc(HACIENDA[t])} y no ante la Agencia Tributaria.</p>
+    <p><b>Cómo se presenta.</b> Con el programa y en el calendario de campaña de ${esc(HACIENDA[t])}; el borrador y Renta Web de la Agencia Tributaria no sirven en ${esc(c)}.${A ? ` La renta de ${A.ej} es la que se declara en ${A.ej + 1};` : ""} la de ${D.ej}, en ${D.ej + 1}. Puedes calcularla antes con el <a href="${ruta(t, "simulador-renta")}">simulador de la renta ${D.ej} de ${esc(c)}</a>${A ? `, que también tiene la de ${A.ej}` : ""}.</p>
+    <p><b>Qué la distingue.</b> ${distingue}${enlaceDed}</p>
+    <p class="ayuda">Norma: ${esc(normaDelTerritorio(t, normaDist))}.</p>
+  </div>`;
+
+  const cab = [["Sueldo bruto"], ...datos.flatMap(d => [[`IRPF ${d.ej}`, 1], [`Tipo medio ${d.ej}`, 1], [`Tipo marginal ${d.ej}`, 1]])];
+  const filasT = SUELDOS_TIPOS.map(b => fila([[esc(e2(b))], ...datos.flatMap(d => { const x = ex(b, d);
+    return [[esc(e2(x.irpf)), 1], [esc(pct(x.medio)), 1], [esc(pct(x.marginal)), 1]]; })]));
+  const cartaTipos = `<div class="tarjeta tarjeta-tabla" id="tipos-por-sueldo">
+    <h2 class="rotulo">Tipo marginal y tipo medio del IRPF en ${esc(c)} por sueldo</h2>
+    <p class="ayuda">Persona soltera de 40 años, sin hijos, con un solo sueldo y contrato indefinido; IRPF del año tras la declaración, calculado con el mismo motor que la calculadora. Tipo medio: IRPF entre el sueldo bruto (la tabla comparativa de más abajo lo da sobre la base imponible). Tipo marginal: el de la tarifa foral en el último euro de la base liquidable.</p>
+    ${tabla(cab, filasT)}
+  </div>`;
+
+  const f30 = f(30000), f60 = f(60000);
+  const faq = [
+    [`¿Quién gestiona la renta y la fiscalidad de ${c}?`, `${mayus(INSTITUCION[t])}, a través de su Hacienda Foral. Por ${ACUERDO(t)}, ${n} regula y recauda su propio IRPF con ${conNorma(t)}. Quien reside en ${c} declara ante ${HACIENDA[t]}, no ante la Agencia Tributaria.`],
+    [`¿Cómo se presenta la declaración de la renta ${A ? A.ej : D.ej} en ${c}?`, `Ante ${HACIENDA[t]}, con su programa y su calendario de campaña; el borrador y Renta Web de la Agencia Tributaria no sirven en ${c}. La renta de ${A ? A.ej : D.ej} se declara en ${(A ? A.ej : D.ej) + 1}. Antes de presentarla puedes simularla en Mapafiscal con la normativa foral de ese año.`],
+    [`¿Cuál es el tipo marginal del IRPF en ${c}?`, `El de la tarifa foral, del ${pctCorto(tMin)} al ${pctCorto(tMax)} según la base liquidable. En ${D.ej}, con 30.000 € brutos el último euro tributa al ${pct(f30.marginal)} y el tipo medio es del ${pct(f30.medio)} del sueldo; con 60.000 €, al ${pct(f60.marginal)} y del ${pct(f60.medio)}.`],
+    ...faqDist
+  ];
+  return {
+    cartas: cartaRenta + cartaTipos, faq,
+    indice: [["renta", `La renta en ${c}`], ["tipos-por-sueldo", "Tipo marginal y medio por sueldo"]]
+  };
+}

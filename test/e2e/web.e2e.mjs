@@ -54,7 +54,17 @@ async function abrir(ruta, opciones = {}) {
 }
 
 try {
-  for (const ruta of ["/", "/irpf/", "/guias/calendario-renta/", "/vivienda/", "/vivienda/venta-vivienda/", "/glosario/", "/glosario/base-liquidable/", "/validacion/", "/autonomos/", "/autonomos/canarias/"]) {
+  // Enlace de las páginas forales: la calculadora se abre con el territorio (y el ejercicio) elegido.
+  await prueba("#calculadora?t=ES-PV-SS&ejercicio=2025 abre la calculadora en Gipuzkoa, ejercicio 2025", async () => {
+    const p = await abrir("/index.html#calculadora?t=ES-PV-SS&ejercicio=2025");
+    await p.waitForFunction(() => window.MapafiscalApp && window.MapafiscalApp.P().ejercicio === 2025, null, { timeout: 5000 });
+    assert.equal(await p.locator("#f-territorio").inputValue(), "ES-PV-SS");
+    assert.ok(await p.locator("#v-calculadora").isVisible(), "no se ve la calculadora");
+    assert.deepEqual(p.errores, []);
+    await p.context().close();
+  });
+
+  for (const ruta of ["/", "/irpf/", "/irpf/gipuzkoa/", "/irpf/navarra/simulador-renta/", "/guias/calendario-renta/", "/vivienda/", "/vivienda/venta-vivienda/", "/glosario/", "/glosario/base-liquidable/", "/validacion/", "/autonomos/", "/autonomos/canarias/"]) {
     await prueba(`carga sin errores de JS: ${ruta}`, async () => {
       const p = await abrir(ruta);
       await p.waitForTimeout(500);
@@ -115,7 +125,7 @@ try {
   // Accesibilidad con axe-core (devDependency): fallan las infracciones «serious» y
   // «critical» de las páginas revisadas, en modo claro y oscuro.
   const axe = readFileSync(require.resolve("axe-core/axe.min.js"), "utf8");
-  const rutasAxe = ["/#calculadora", "/#comparar", "/#planes", "/irpf/madrid/", "/irpf/bizkaia/", "/guias/calendario-renta/", "/vivienda/", "/vivienda/segunda-vivienda/", "/glosario/", "/glosario/base-liquidable/", "/validacion/", "/autonomos/", "/autonomos/canarias/"];
+  const rutasAxe = ["/#calculadora", "/#comparar", "/#planes", "/irpf/madrid/", "/irpf/bizkaia/", "/irpf/gipuzkoa/simulador-renta/", "/guias/calendario-renta/", "/vivienda/", "/vivienda/segunda-vivienda/", "/glosario/", "/glosario/base-liquidable/", "/validacion/", "/autonomos/", "/autonomos/canarias/"];
   for (const colorScheme of ["light", "dark"]) {
     for (const ruta of rutasAxe) {
       await prueba(`axe sin infracciones serious/critical (${colorScheme}): ${ruta}`, async () => {

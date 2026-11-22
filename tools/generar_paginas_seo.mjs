@@ -16,7 +16,7 @@ import { execFileSync } from "node:child_process";
 import { readFileSync, writeFileSync, mkdirSync, existsSync, readdirSync, rmSync } from "node:fs";
 import { join, dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
-import { SITIO, SLUG, ORDEN_TERRITORIOS, HERRAMIENTA, NOMBRE_CORTO, esc, euros, eurosExactos, difEuros, pct, pctCorto, tablaEscala, citaFuente, layout, jsonLdMigas, jsonLdFaq, jsonLdDataset, bloqueFaq, respuestaDirecta, migasHtml, fecharContenido, hashContenido, EJERCICIO } from "./seo_comun.mjs";
+import { SITIO, SLUG, ORDEN_TERRITORIOS, HERRAMIENTA, NOMBRE_CORTO, esc, textoPlano, euros, eurosExactos, difEuros, pct, pctCorto, tablaEscala, citaFuente, layout, jsonLdMigas, jsonLdFaq, jsonLdDataset, bloqueFaq, respuestaDirecta, migasHtml, fecharContenido, hashContenido, EJERCICIO } from "./seo_comun.mjs";
 import { robotsTxt, llmsTxt } from "./seo_ia.mjs";
 import { paginaDeducciones, CAMPO } from "./seo_deducciones.mjs";
 import { paginasFichasDeduccion } from "./seo_deduccion_ficha.mjs";
@@ -30,7 +30,7 @@ import { paginasAutonomos, HUB_AUTONOMOS } from "./seo_autonomos.mjs";
 import { paginaMetodologia } from "./seo_metodologia.mjs";
 import { paginasGlosario, enlazarGlosario, HUB_GLOSARIO } from "./seo_glosario.mjs";
 import { paginasVivienda, PAGINAS_VIVIENDA, HUB_VIVIENDA } from "./seo_vivienda.mjs";
-import { paginasForal, enlacesSuiteForal, enlacesVascos, escalasAhorro, ejemploPasoAPaso, normaDelTerritorio, rasgoForalDe, paramsForal, BOLETIN } from "./seo_foral.mjs";
+import { paginasForal, enlacesSuiteForal, enlacesVascos, escalasAhorro, ejemploPasoAPaso, normaDelTerritorio, rasgoForalDe, paramsForal, BOLETIN, rentaForal, enlaceCalculadora, enlacesIndiceForal } from "./seo_foral.mjs";
 
 const RAIZ = join(dirname(fileURLToPath(import.meta.url)), "..");
 const WEB = join(RAIZ, "web");
@@ -130,17 +130,22 @@ function paginaTerritorio(codigo) {
     <p class="ayuda">Cálculo del mismo motor que la calculadora. <a href="/irpf/${slug}/simulador-renta/">Simula tu caso</a>.</p>
   </div>`;
     }
-    cartasForal = cartaAhorro + cartaEjemplo;
-    const ind = [["tabla-2025", `Tabla IRPF ${nombre} 2025`], con26 && ["tabla-2026", `Tabla IRPF ${nombre} 2026`],
+    // «La renta en <territorio>» y tabla de tipo marginal y medio por sueldo (motor JS, cuadrado
+    // al céntimo con la comparativa del motor R para el ejercicio de seo_comparativas.json).
+    const cuotasR = Object.fromEntries(comparativas.salarios.map(s => [s, comparativas.comparativas[String(s)].find(f => f.territorio === codigo).cuota_liquida_total]));
+    const renta = rentaForal(codigo, { referencias: { [comparativas.ejercicio]: cuotasR }, conDeducciones: conDeducciones.has(codigo) });
+    cartasForal = (renta ? renta.cartas : "") + cartaAhorro + cartaEjemplo;
+    const ind = [["tabla-2025", `Tabla IRPF ${nombre} 2025`], con26 && ["tabla-2026", `Tabla IRPF ${nombre} 2026`], ...(renta ? renta.indice : []),
       cartaAhorro && ["tabla-ahorro", "Escala del ahorro"], cartaEjemplo && ["ejemplo-30000", "Ejemplo con 30.000 €"], ["preguntas", "Preguntas frecuentes"]].filter(Boolean);
     indiceForal = `<nav class="tarjeta indice" aria-label="Contenido"><h2 class="rotulo">En esta página</h2><ul class="lista-enlaces">${ind.map(([id, txt]) => `<li><a href="#${id}">${esc(txt)}</a></li>`).join("")}</ul></nav>`;
     const art = n => n.replace(/^Art\./, "art.");
     const e = guias.escalas.estatal_2025.tramos;
     const P25 = paramsForal(2025);
-    const rasgo = P25 ? rasgoForalDe(P25, codigo).replace(/&[a-z#0-9]+;/g, " ") : "";
+    const rasgo = P25 ? textoPlano(rasgoForalDe(P25, codigo)) : "";
     faqForal = [
       [`¿Qué diferencia hay entre las tablas de ${nombre} y las del régimen común?`, `En régimen común la escala tiene dos mitades, la estatal (del ${pctCorto(e[0].tipo)} al ${pctCorto(e[e.length - 1].tipo)}, ${art(guias.escalas.estatal_2025.norma)}) y la autonómica, que se suman. ${nombre} aplica una tarifa foral única de ${tr.length} tramos, del ${pctCorto(tMin)} al ${pctCorto(tMax)}. ${rasgo}`.trim()],
-      [`¿Dónde se publica la tabla oficial del IRPF de ${nombre}?`, `En el ${BOLETIN[codigo]}. La tarifa de 2025 está en el ${art(normaDelTerritorio(codigo, f25.norma))}${con26 && !igual26 ? `; la de 2026, en el ${art(normaDelTerritorio(codigo, esc26.norma))}` : ""}. ${HACIENDA_FAQ[codigo]} la recoge también en su información de la campaña de la renta.`]
+      [`¿Dónde se publica la tabla oficial del IRPF de ${nombre}?`, `En el ${BOLETIN[codigo]}. La tarifa de 2025 está en el ${art(normaDelTerritorio(codigo, f25.norma))}${con26 && !igual26 ? `; la de 2026, en el ${art(normaDelTerritorio(codigo, esc26.norma))}` : ""}. ${HACIENDA_FAQ[codigo]} la recoge también en su información de la campaña de la renta.`],
+      ...(renta ? renta.faq : [])
     ];
   }
 
@@ -181,7 +186,7 @@ function paginaTerritorio(codigo) {
     : `Sí: para 2026 se actualizan los límites de los tramos (el primero pasa de ${euros(tr[0].hasta)} a ${euros(esc26.tramos[0].hasta)}); los tipos, del ${pctCorto(tMin)} al ${pctCorto(tMax)}, no cambian.`]);
   faq.push(...faqForal);
   const main = `
-  <h1>${esComun ? `IRPF en ${esc(nombre)} ${anios}: tramos y tabla` : `Tablas IRPF ${esc(nombre)} ${anios}: escala de la tarifa foral`}</h1>
+  <h1>${esComun ? `IRPF en ${esc(nombre)} ${anios}: tramos y tabla` : `IRPF en ${esc(t.regimen === "foral_navarra" ? corto : nombre)} ${anios}: tablas, renta y tipo marginal`}</h1>
   ${esComun ? "" : `<div class="prosa">${indiceForal}${cartaEscala}</div>`}
   ${respuestaDirecta(resumen)}
   ${intro}
@@ -192,18 +197,19 @@ function paginaTerritorio(codigo) {
   ${cartaComparativa}
   ${graficoTerritorio(codigo, nombre)}
   ${esComun ? bloqueFaq(faq) : bloqueFaq(faq).replace('class="tarjeta faq"', 'class="tarjeta faq" id="preguntas"')}
-  <p><a class="btn btn-pri" href="/index.html#calculadora">Calcula tu caso real en ${esc(nombre)}</a> <a class="btn btn-sec" href="/index.html#comparar">Compáralo con los otros 18 territorios</a></p>
+  <p><a class="btn btn-pri" href="${esComun ? "/index.html#calculadora" : enlaceCalculadora(codigo)}">Calcula tu caso real en ${esc(nombre)}</a> <a class="btn btn-sec" href="/index.html#comparar">Compáralo con los otros 18 territorios</a></p>
   <p class="ayuda">Guías: <a href="/guias/tramos-irpf-2025-2026/">tramos del IRPF 2025 y 2026</a> · <a href="/guias/minimo-personal-familiar/">mínimo personal y familiar</a> · <a href="/guias/obligacion-declarar-renta/">¿estoy obligado a declarar?</a> · <a href="/guias/plan-pensiones-desgravar/">plan de pensiones</a> · <a href="/guias/deduccion-donativos/">donativos</a> · <a href="/guias/calendario-renta/">calendario de la renta</a></p>
   </div>`;
 
   return layout({
     jsonld: [jsonLdMigas([["Inicio", "/"], ["IRPF por territorio", "/irpf/"], [nombre, `/irpf/${slug}/`]]), jsonLdFaq(faq),
-      jsonLdDataset({ nombre: `Escala del IRPF en ${nombre} ${anios}`, descripcion: `Tramos de la base liquidable general y tipo marginal del IRPF en ${nombre}${esComun ? " (escala estatal más autonómica)" : " (tarifa foral)"}, del ${pctCorto(tMin)} al ${pctCorto(tMax)}.`, ruta: `/irpf/${slug}/`, generado: territorios.generado, ambito: nombre, fuentes: fuentesEscala.flatMap(f => [f.norma, f.fuente]) })],
+      jsonLdDataset({ nombre: `Escala del IRPF en ${nombre} ${anios}`, descripcion: `Tramos de la base liquidable general y tipo marginal del IRPF en ${nombre}${esComun ? " (escala estatal más autonómica)" : " (tarifa foral)"}, del ${pctCorto(tMin)} al ${pctCorto(tMax)}.`, ruta: `/irpf/${slug}/`, generado: territorios.generado, ambito: nombre, fuentes: fuentesEscala.flatMap(f => [f.norma, f.fuente]),
+        conLirpf: esComun, periodo: anios.replace(" y ", "/") })],
     title: !esComun
-      ? `Tablas IRPF ${corto} ${anios}: escala del ${pctCorto(tMin)} al ${pctCorto(tMax)}`
+      ? `IRPF ${corto} ${anios}: tablas, renta y tipo marginal`
       : con26 ? `IRPF ${corto} 2025 y 2026: tabla de tramos hasta el ${pctCorto(tMax)}` : `Tramos IRPF ${corto} 2025: tabla del ${pctCorto(tMin)} al ${pctCorto(tMax)}`,
     description: !esComun
-      ? `Tablas IRPF ${anios} de ${corto}: escala foral con ${tr.length} tramos, del ${pctCorto(tMin)} al ${pctCorto(tMax)}. Con 30.000 € brutos pagas ${euros(fila30.cuota_liquida_total)}. Calculadora gratis.`
+      ? `IRPF y renta ${anios} en ${corto}: tablas (del ${pctCorto(tMin)} al ${pctCorto(tMax)}), tipo marginal y medio por sueldo, ${t.regimen === "foral_navarra" ? "mínimos" : "minoración"} y deducciones forales. Calculadora gratis.`
       : `Tabla del IRPF en ${corto} ${anios}: tramos del ${pctCorto(tMin)} al ${pctCorto(tMax)}. Con 30.000 € brutos pagas ${euros(fila30.cuota_liquida_total)} (puesto ${fila30.puesto} de 19). Calculadora gratis.`,
     canonical: `/irpf/${slug}/`,
     breadcrumb: `<a href="/index.html">Inicio</a> › <a href="/irpf/">IRPF por territorio</a> › ${esc(nombre)}`,
@@ -248,6 +254,7 @@ function paginaIndiceTerritorios() {
   <h1>IRPF por comunidad autónoma y territorio foral (2025)</h1>
   <p class="entradilla">Tramos, mínimo personal y comparativa de cada uno de los 19 territorios fiscales de España: las 15 comunidades autónomas de régimen común, las tres diputaciones forales del País Vasco y Navarra.</p>
   <div class="prosa"><ul class="lista-enlaces">${filas}</ul>
+  ${enlacesIndiceForal(conDeducciones)}
   <div class="tarjeta"><h2 class="rotulo">Deducciones por territorio</h2><ul class="lista-enlaces">${ORDEN_TERRITORIOS.filter(c => conDeducciones.has(c)).map(c => `<li><a href="/irpf/${SLUG[c]}/deducciones/">Deducciones en ${esc(territorios.territorios[c].nombre)}</a></li>`).join("")}</ul></div>
   <div class="tarjeta"><h2 class="rotulo">Guías del IRPF</h2><ul class="lista-enlaces">${GUIAS.map(g => `<li><a href="/guias/${g.slug}/">${esc(g.enlace)}</a></li>`).join("")}</ul><p><a href="/guias/">Todas las guías</a></p></div>
   </div>`;

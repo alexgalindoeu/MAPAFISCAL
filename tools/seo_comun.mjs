@@ -69,6 +69,10 @@ export const HERRAMIENTA = {
 // la web, en vez de depender del redondeo de agrupación de Intl.NumberFormat con es-ES
 // (que en Node no agrupa los millares de 4 cifras, p. ej. "5550" en vez de "5.550").
 export const esc = s => String(s).replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+// De HTML a texto plano (para el JSON-LD de las preguntas): sin etiquetas y con las entidades de
+// esc() deshechas, de modo que el texto del FAQPage es el mismo que se lee en la página.
+export const textoPlano = s => String(s).replace(/<[^>]+>/g, "")
+  .replace(/&(amp|lt|gt|quot|#39);/g, (m, e) => ({ amp: "&", lt: "<", gt: ">", quot: '"', "#39": "'" }[e]));
 export const miles = s => s.replace(/\B(?=(\d{3})+(?!\d))/g, ".");
 export const euros = n => miles(String(Math.round(n))) + " €";
 // Diferencia entre dos cifras que se muestran redondeadas: se restan las cifras que se ven,
@@ -180,15 +184,18 @@ export function jsonLdArticulo({ titulo, descripcion, ruta, generado }) {
 }
 // Tabla de datos con su fuente oficial (escalas, importes): ayuda a que buscadores y
 // asistentes la citen como fuente. `fuentes`: textos de norma/fuente; se enlazan los BOE.
-export function jsonLdDataset({ nombre, descripcion, ruta, generado, fuentes = [], ambito = "España" }) {
+// `conLirpf: false` en las tarifas forales, que no salen de la Ley 35/2006 sino de la norma foral
+// del territorio; `periodo`: ejercicios que cubre la tabla (p. ej. «2025/2026»).
+export function jsonLdDataset({ nombre, descripcion, ruta, generado, fuentes = [], ambito = "España", conLirpf = true, periodo = null }) {
   const ids = [...new Set(fuentes.join(" ").match(/BOE-A-\d{4}-\d+/g) || [])];
-  return {
+  return Object.assign({
     "@context": "https://schema.org", "@type": "Dataset", name: nombre, description: descripcion,
     url: SITIO + ruta, inLanguage: "es", dateModified: generado, isAccessibleForFree: true,
-    license: SITIO + "/legal/condiciones.html", spatialCoverage: { "@type": "Place", name: ambito },
+    license: SITIO + "/legal/condiciones.html", spatialCoverage: { "@type": "Place", name: ambito }
+  }, periodo ? { temporalCoverage: periodo } : {}, {
     creator: { "@type": "Organization", name: "Mapafiscal", url: SITIO + "/" },
-    citation: [...new Set(fuentes.filter(Boolean))].concat(ids.map(urlBoe), [LIRPF_BOE]).filter((x, i, a) => a.indexOf(x) === i)
-  };
+    citation: [...new Set(fuentes.filter(Boolean))].concat(ids.map(urlBoe), conLirpf ? [LIRPF_BOE] : []).filter((x, i, a) => a.indexOf(x) === i)
+  });
 }
 // Respuesta directa al principio de la página (una frase con la cifra) y fecha visible.
 export function respuestaDirecta(html) {

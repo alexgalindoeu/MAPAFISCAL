@@ -62,6 +62,15 @@ export function paginasSueldoNeto(d) {
     for (const j of [i - 2, i - 1, i + 1, i + 2]) if (j >= 0 && j < lista.length) out.push(`<a href="${ruta(lista[j])}">${esc(txt(lista[j]))}</a>`);
     return out.join(" · ");
   };
+  // Enlaces a la página del territorio. En los forales el texto del enlace varía con la página
+  // («IRPF en Gipuzkoa», «tablas IRPF Gipuzkoa 2026», «renta Gipuzkoa 2025») y se suma el simulador.
+  const enlacesTerritorio = (c, v) => {
+    const r = `/irpf/${SLUG[c]}/`;
+    if (!FORAL.has(c)) return `<a href="${r}">IRPF en ${esc(nombre(c))}</a>`;
+    const k = NOMBRE_CORTO[c];
+    const [txt, href] = [[`IRPF en ${k}`, r], [`tablas IRPF ${k} ${EJ}`, `${r}#tabla-${EJ}`], [`renta ${k} ${EJ - 1}`, `${r}#renta`]][v];
+    return `<a href="${href}">${esc(txt)}</a> · <a href="${r}simulador-renta/">simulador renta ${esc(EJ)} ${esc(k)}</a>`;
+  };
   const paginas = [];
 
   // ---- detalle por territorio -------------------------------------------------------
@@ -161,7 +170,7 @@ export function paginasSueldoNeto(d) {
   </div>
   ${bloqueFaq(faq)}
   ${botones(c)}
-  <p class="ayuda">Otros sueldos en ${esc(n)}: ${vecinos(lista, b, x => rutaTer(x, c), x => euros(x))} · <a href="${rutaNac(b)}">${esc(euros(b))} en los 19 territorios</a> · <a href="/irpf/${SLUG[c]}/">IRPF en ${esc(n)}</a></p>
+  <p class="ayuda">Otros sueldos en ${esc(n)}: ${vecinos(lista, b, x => rutaTer(x, c), x => euros(x))} · <a href="${rutaNac(b)}">${esc(euros(b))} en los 19 territorios</a> · ${enlacesTerritorio(c, v)}</p>
   </div>`;
     return layout({
       jsonld: [jsonLdMigas(migas), jsonLdFaq(faq)],
