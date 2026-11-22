@@ -10,8 +10,10 @@
 // =============================================================================
 import {
   SLUG, HERRAMIENTA, esc, miles, eurosExactos, pctCorto, urlBoe, enlacesBoe,
-  layout, jsonLdMigas, jsonLdArticulo, migasHtml, NOMBRE_CORTO, MAX_TITULO, MAX_DESCRIPCION, respuestaDirecta
+  layout, jsonLdMigas, jsonLdArticulo, jsonLdFaq, bloqueFaq, migasHtml, NOMBRE_CORTO, MAX_TITULO, MAX_DESCRIPCION, respuestaDirecta, tituloQueQuepa
 } from "./seo_comun.mjs";
+import { paramsDe, ejemplos, htmlEjemplos, ejemploFamiliar, htmlEjemploFamiliar, tipoDe, conArticulo, conDe, conEn } from "./seo_deduccion_ficha.mjs";
+export { conArticulo, conDe, conEn };
 
 const eur = eurosExactos;
 
@@ -337,8 +339,147 @@ export function fichaForal(clave, b, t, regimen, enlace) {
   </div>`, titulo: r[0], lineas: r[1], fuente, norma: b.norma };
 }
 
+// ---- tabla resumen (régimen común) -------------------------------------------------------
+// Cuantía y límite en corto de cada supuesto, para la tabla de arriba; el detalle (requisitos,
+// reducciones por renta, incrementos) está en la ficha de cada deducción.
+// Base del porcentaje en corto; por defecto, «del gasto».
+const BASE_CORTA = { alquiler_vivienda_pagos: "de lo pagado", donativos_lengua_catalana: "de lo donado", donativos_investigacion: "de lo donado",
+  inversion_cooperativas_cat: "de lo aportado", rehabilitacion_vivienda_pagos: "de lo invertido" };
+const listaO = xs => xs.length > 1 ? xs.slice(0, -1).join(", ") + " o " + xs[xs.length - 1] : xs[0];
+function cuantiaCorta(d) {
+  switch (d.tipo) {
+    case "fija": return [d.importe, eur(d.importe), ""];
+    case "fija_por_hijo": return [d.importe, eur(d.importe), "por hijo"];
+    case "fija_por_hijo_nacido": {
+      const v = d.importes_por_orden ? Object.values(d.importes_por_orden) : [d.importe];
+      const a = Math.min(...v), b = Math.max(...v);
+      return [a, a === b ? eur(a) : `de ${eur(a)} a ${eur(b)}`, "por hijo nacido o adoptado"];
+    }
+    case "fija_por_ascendiente": return [d.importe, eur(d.importe), "por ascendiente"];
+    case "porcentaje_campo": return [d.porcentaje, pctCorto(d.porcentaje), BASE_CORTA[d.campo] || "del gasto"];
+    case "porcentaje_campo_hijo": return [d.porcentaje, pctCorto(d.porcentaje), "del gasto por hijo"];
+    case "porcentaje_campos_hijo": {
+      const v = [...new Set(Object.values(d.campos))].sort((a, b) => a - b);
+      return [v[0], listaO(v.map(pctCorto)), "del gasto por hijo"];
+    }
+    case "porcentaje_cuota_autonomica": return [d.porcentaje, pctCorto(d.porcentaje), `de la cuota ${d.sobre_cuota_integra ? "íntegra " : ""}autonómica`];
+    default: return null;
+  }
+}
+function limiteCorto(d) {
+  const por = /_hijo$/.test(d.tipo) ? " por hijo" : "";
+  const l = [];
+  if (d.limite != null) l.push(eur(d.limite) + por + (d.limite_conjunta != null ? ` (${eur(d.limite_conjunta)} en conjunta)` : "") +
+    (d.limite_por_hijo_adicional != null ? ` más ${eur(d.limite_por_hijo_adicional)} por hijo desde el segundo` : ""));
+  if (d.limite_pct_cuota_autonomica != null) l.push(`${pctCorto(d.limite_pct_cuota_autonomica)} de la cuota íntegra autonómica`);
+  if (d.base_maxima != null) l.push(`base máxima de ${eur(d.base_maxima)}`);
+  return l.length ? l.join("; ") : null;
+}
+// Une los supuestos de una deducción: «50 % o 100 % de la cuota íntegra autonómica».
+export function resumenFicha(f) {
+  const porUnidad = new Map(), limites = [];
+  for (const d of f.supuestos) {
+    const c = cuantiaCorta(d);
+    if (!c) return null;
+    const [orden, txt, unidad] = c;
+    if (!porUnidad.has(unidad)) porUnidad.set(unidad, new Map());
+    porUnidad.get(unidad).set(txt, orden);
+    const l = limiteCorto(d);
+    if (l && !limites.includes(l)) limites.push(l);
+  }
+  const cuantia = [...porUnidad].map(([u, m]) => listaO([...m].sort((a, b) => a[1] - b[1]).map(([t]) => t)) + (u ? " " + u : "")).join("; ");
+  return { cuantia, limite: limites.length ? listaO(limites) : null };
+}
+
+// «Las más usadas»: las de alcance más general (vivienda, hijos, estudios), en este orden.
+const TIPOS_USADAS = ["alquiler", "nacimiento", "cuidado-hijos", "material-escolar", "gastos-educativos", "familia-numerosa", "monoparental"];
+
+// ---- página de régimen común ------------------------------------------------------------
+// Arriba, la tabla con todas las deducciones (cuantía, límite y enlace a su ficha); luego «Las
+// más usadas» con un ejemplo del motor cuando cuadra al céntimo con la norma, las fichas
+// completas y las preguntas frecuentes.
+function paginaDeduccionesComun(codigo, t, fichas, generado, ejercicio) {
+  const slug = SLUG[codigo], nombre = t.nombre, de = conDe(nombre), en = conEn(nombre), el = conArticulo(nombre), corto = NOMBRE_CORTO[codigo], nf = fichas.length, ej = ejercicio;
+  const ruta = `/irpf/${slug}/deducciones/`, base = ruta;
+  const P = paramsDe(ej);
+  const title = tituloQueQuepa(`Deducciones autonómicas ${corto} renta ${ej}: lista y cuantías`,
+    `Deducciones autonómicas ${corto} renta ${ej}: cuantías`, `Deducciones autonómicas ${corto} renta ${ej}`);
+  const nombres = fichas.map(f => f.titulo.replace(/^(Por|Para) /, "").replace(/\s*\(.*?\)/g, "").toLowerCase());
+  const armar = k => `Deducciones autonómicas de ${corto} en la renta ${ej}: ${nombres.slice(0, k).join(", ")}… Cuantía, límite y requisitos de cada una.`;
+  let k = 3; while (k > 1 && armar(k).length > MAX_DESCRIPCION) k--;
+  let description = armar(k);
+  if (description.length > MAX_DESCRIPCION) description = `Lista de las deducciones autonómicas de ${corto} en la renta ${ej}, con la cuantía, el límite, los requisitos y la norma de cada una.`;
+  const migas = [["Inicio", "/"], ["IRPF por territorio", "/irpf/"], [nombre, `/irpf/${slug}/`], ["Deducciones", ruta]];
+  const enlace = (f, txt = f.titulo) => f.slug ? `<a href="${base}${f.slug}/">${esc(txt)}</a>` : esc(txt);
+
+  // tabla resumen
+  const resumen = new Map(fichas.map(f => [f, resumenFicha(f.ficha) || { cuantia: f.redaccion.supuestos.map(x => x.cuanto).join("; "), limite: null }]));
+  const filas = fichas.map(f => { const r = resumen.get(f); return `<tr><td>${enlace(f)}</td><td>${esc(r.cuantia)}</td><td>${r.limite ? esc(r.limite) : "—"}</td></tr>`; }).join("");
+  const cartaTabla = `<div class="tarjeta tarjeta-tabla" id="lista">
+    <h2 class="rotulo">Lista de deducciones autonómicas ${esc(de)} (renta ${ej})</h2>
+    <div class="envoltorio"><table class="cobertura"><thead><tr><th>Deducción</th><th>Cuantía o porcentaje</th><th>Límite</th></tr></thead><tbody>${filas}</tbody></table></div>
+    <p class="ayuda">«—»: importe fijo o sin máximo en euros. Los requisitos (renta máxima, edad, residencia en determinados municipios) y las reducciones por renta están en la ficha de cada deducción. Cuando hablamos de hijos nos referimos a los descendientes que dan derecho al mínimo por descendientes.</p>
+  </div>`;
+
+  // las más usadas, con ejemplo del motor
+  const usadas = [...new Set(TIPOS_USADAS.flatMap(tp => fichas.filter(f => f.slug && tipoDe(f.titulo) === tp)))].slice(0, 4);
+  let primerEjemplo = null;
+  const bloquesUsadas = usadas.map(f => {
+    const r = resumen.get(f);
+    const ex = ejemplos(codigo, f.ficha, P);
+    const fam = ex.length ? null : ejemploFamiliar(codigo, f.ficha, P);
+    let ejemplo = "";
+    if (ex.length) {
+      ejemplo = htmlEjemplos(ex.slice(0, 1), CAMPO[ex[0].d.campo]);
+      primerEjemplo ??= { f, txt: `Con un sueldo bruto de ${eur(ex[0].salario)} y ${eur(ex[0].gasto)} de gasto deducible (${CAMPO[ex[0].d.campo]}), la cuota del IRPF baja ${eur(ex[0].delta)}, según el motor de Mapafiscal.` };
+    } else if (fam) {
+      ejemplo = htmlEjemploFamiliar(fam, fam.campo ? CAMPO[fam.campo] : "");
+      primerEjemplo ??= { f, txt: `Una familia monoparental con ${fam.nacido ? `un hijo nacido en ${fam.ejercicio}` : `un hijo de ${fam.edadHijo} años`} y un sueldo bruto de ${eur(fam.salario)} se deduce ${eur(fam.importe)}, según el motor de Mapafiscal.` };
+    }
+    return `<h3>${enlace(f)}</h3>
+    <p>${esc(r.cuantia.charAt(0).toUpperCase() + r.cuantia.slice(1))}${r.limite ? `, con un límite de ${esc(r.limite)}` : ""}.</p>
+    ${ejemplo}`;
+  });
+  const cartaUsadas = usadas.length ? `<div class="tarjeta" id="mas-usadas">
+    <h2 class="rotulo">Las más usadas</h2>
+    <p class="ayuda">Las de alcance más general de esta lista: vivienda, hijos y estudios. Los ejemplos salen del mismo motor que la calculadora, con la normativa de ${ej}, y solo se muestran si el importe coincide al céntimo con el de la norma.</p>
+    ${bloquesUsadas.join("\n    ")}
+  </div>` : "";
+
+  const lista = fichas.map(f => `${f.titulo.charAt(0).toLowerCase() + f.titulo.slice(1)} (${resumen.get(f).cuantia})`);
+  const faq = [
+    [`¿Qué deducciones autonómicas hay ${en} en la renta ${ej}?`, `Mapafiscal recoge ${nf === 1 ? "esta deducción autonómica" : `estas ${nf} deducciones autonómicas`} ${de} para la declaración de la renta de ${ej} (la que se presenta en ${ej + 1}): ${lista.length > 1 ? lista.slice(0, -1).join("; ") + " y " + lista[lista.length - 1] : lista[0]}. Cada una tiene su ficha con los requisitos y la norma; el manual práctico de la AEAT recoge el catálogo completo.`],
+    [`¿Cómo se aplican las deducciones autonómicas ${de}?`, `Se restan de la parte autonómica de la cuota del IRPF, no de la estatal, en el apartado de deducciones autonómicas de la declaración de la renta. Solo las aplica quien tiene su residencia habitual ${en} en el año, que es la comunidad en la que pasa más días (art. 72 de la Ley del IRPF).`],
+    ...(primerEjemplo ? [[`¿Cuánto se ahorra con la ${nombreFaq(primerEjemplo.f.titulo)} ${en}?`, primerEjemplo.txt]] : []),
+    [`¿La bonificación del IBI es una deducción de la renta ${en}?`, `No. El IBI (impuesto sobre bienes inmuebles) es un impuesto municipal, no forma parte del IRPF: sus bonificaciones las regula cada ayuntamiento en su ordenanza fiscal y se piden al ayuntamiento, no en la declaración de la renta. Por eso no figuran entre las deducciones autonómicas ${de}.`]
+  ];
+
+  const main = `
+  <h1>Deducciones autonómicas ${esc(de)} en la renta ${ej}</h1>
+  ${respuestaDirecta(`${esc(el.charAt(0).toUpperCase() + el.slice(1))} tiene en la renta de ${ej} (la que se presenta en ${ej + 1}) estas <b>${nf === 1 ? "1 deducción autonómica" : nf + " deducciones autonómicas"}</b> con importe publicado en Mapafiscal (${esc(nombres.slice(0, 2).join(" y "))}${nf > 2 ? ", entre otras" : ""}). La tabla recoge la cuantía y el límite de cada una.`)}
+  <p class="entradilla">Las comunidades de régimen común pueden aprobar deducciones propias, que se restan de la parte autonómica de la cuota. Estas son deducciones ${esc(de)} para la declaración de la renta de ${ej}, con su cuantía, su límite, sus requisitos principales y la norma que las regula.</p>
+  <div class="prosa">
+  ${cartaTabla}
+  ${cartaUsadas}
+  ${fichas.map(f => f.html).join("\n  ")}
+  ${bloqueFaq(faq)}
+  <p><a class="btn btn-pri" href="${HERRAMIENTA.calculadora}">Calcula tu renta ${esc(en)} con tus deducciones</a> <a class="btn btn-sec" href="/irpf/${slug}/">IRPF ${esc(en)}: tramos y tipo medio</a></p>
+  <p class="ayuda">Más guías: <a href="/guias/cambiar-de-comunidad-irpf/">en qué comunidad haces la renta</a> · <a href="/guias/minimo-personal-familiar/">mínimo personal y familiar</a> · <a href="/guias/deduccion-donativos/">deducción por donativos</a> · <a href="/guias/plan-pensiones-desgravar/">cuánto desgrava un plan de pensiones</a>.</p>
+  </div>`;
+  return {
+    ruta, titulos: fichas.map(f => f.titulo), fichas,
+    html: layout({
+      title, description, canonical: ruta, breadcrumb: migasHtml(migas), main, generado,
+      css: ["/css/guias.css"],
+      jsonld: [jsonLdMigas(migas), jsonLdFaq(faq), jsonLdArticulo({ titulo: `Deducciones autonómicas ${de} en la renta ${ej}`, descripcion: description, ruta, generado })]
+    })
+  };
+}
+// «Por alquiler de la vivienda habitual» -> «deducción por alquiler de la vivienda habitual».
+const nombreFaq = titulo => /^(Por|Para) /.test(titulo) ? "deducción " + titulo.charAt(0).toLowerCase() + titulo.slice(1) : titulo.charAt(0).toLowerCase() + titulo.slice(1);
+
 // ---- página ---------------------------------------------------------------------------
-export function paginaDeducciones(codigo, t, generado, avisos) {
+export function paginaDeducciones(codigo, t, generado, avisos, ejercicio = 2025) {
   const slug = SLUG[codigo], nombre = t.nombre;
   const fichas = [], usados = new Set();
   const base = `/irpf/${SLUG[codigo]}/deducciones/`;
@@ -365,6 +506,7 @@ export function paginaDeducciones(codigo, t, generado, avisos) {
   if (!fichas.length) return null;
 
   const comun = t.regimen === "comun";
+  if (comun) return paginaDeduccionesComun(codigo, t, fichas, generado, ejercicio);
   const ruta = `/irpf/${slug}/deducciones/`;
   const corto = NOMBRE_CORTO[codigo], nf = fichas.length;
   const largo = `Deducciones autonómicas ${corto} 2025: importes y requisitos`;

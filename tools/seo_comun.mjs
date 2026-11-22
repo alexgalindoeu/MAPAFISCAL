@@ -69,6 +69,10 @@ export const HERRAMIENTA = {
 // la web, en vez de depender del redondeo de agrupación de Intl.NumberFormat con es-ES
 // (que en Node no agrupa los millares de 4 cifras, p. ej. "5550" en vez de "5.550").
 export const esc = s => String(s).replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+// De HTML a texto plano (para el JSON-LD de las preguntas): sin etiquetas y con las entidades de
+// esc() deshechas, de modo que el texto del FAQPage es el mismo que se lee en la página.
+export const textoPlano = s => String(s).replace(/<[^>]+>/g, "")
+  .replace(/&(amp|lt|gt|quot|#39);/g, (m, e) => ({ amp: "&", lt: "<", gt: ">", quot: '"', "#39": "'" }[e]));
 export const miles = s => s.replace(/\B(?=(\d{3})+(?!\d))/g, ".");
 export const euros = n => miles(String(Math.round(n))) + " €";
 // Diferencia entre dos cifras que se muestran redondeadas: se restan las cifras que se ven,
@@ -180,15 +184,18 @@ export function jsonLdArticulo({ titulo, descripcion, ruta, generado }) {
 }
 // Tabla de datos con su fuente oficial (escalas, importes): ayuda a que buscadores y
 // asistentes la citen como fuente. `fuentes`: textos de norma/fuente; se enlazan los BOE.
-export function jsonLdDataset({ nombre, descripcion, ruta, generado, fuentes = [], ambito = "España" }) {
+// `conLirpf: false` en las tarifas forales, que no salen de la Ley 35/2006 sino de la norma foral
+// del territorio; `periodo`: ejercicios que cubre la tabla (p. ej. «2025/2026»).
+export function jsonLdDataset({ nombre, descripcion, ruta, generado, fuentes = [], ambito = "España", conLirpf = true, periodo = null }) {
   const ids = [...new Set(fuentes.join(" ").match(/BOE-A-\d{4}-\d+/g) || [])];
-  return {
+  return Object.assign({
     "@context": "https://schema.org", "@type": "Dataset", name: nombre, description: descripcion,
     url: SITIO + ruta, inLanguage: "es", dateModified: generado, isAccessibleForFree: true,
-    license: SITIO + "/legal/condiciones.html", spatialCoverage: { "@type": "Place", name: ambito },
+    license: SITIO + "/legal/condiciones.html", spatialCoverage: { "@type": "Place", name: ambito }
+  }, periodo ? { temporalCoverage: periodo } : {}, {
     creator: { "@type": "Organization", name: "Mapafiscal", url: SITIO + "/" },
-    citation: [...new Set(fuentes.filter(Boolean))].concat(ids.map(urlBoe), [LIRPF_BOE]).filter((x, i, a) => a.indexOf(x) === i)
-  };
+    citation: [...new Set(fuentes.filter(Boolean))].concat(ids.map(urlBoe), conLirpf ? [LIRPF_BOE] : []).filter((x, i, a) => a.indexOf(x) === i)
+  });
 }
 // Respuesta directa al principio de la página (una frase con la cifra) y fecha visible.
 export function respuestaDirecta(html) {
@@ -218,7 +225,7 @@ export const EJERCICIO = { valor: null };
 // (web/js/anuncios.js + web/config.js: consentimiento, carga diferida, nada para quien tiene
 // plan, espacio reservado). Aquí solo se colocan los huecos; el script decide si se llenan.
 export const RUTAS_CON_ANUNCIOS = [/^\/guias\//, /^\/vivienda\//, /^\/irpf\//, /^\/sueldo-neto\//, /^\/comparar-sueldo\//,
-  /^\/cuanto-me-devuelve\//, /^\/declaracion-conjunta\//, /^\/dos-pagadores\//, /^\/rescate-plan-pensiones\//];
+  /^\/cuanto-me-devuelve\//, /^\/declaracion-conjunta\//, /^\/dos-pagadores\//, /^\/rescate-plan-pensiones\//, /^\/autonomos\//];
 export const conAnuncios = ruta => RUTAS_CON_ANUNCIOS.some(r => r.test(ruta));
 
 const huecoSeo = pos => `<div class="tarjeta anuncio anuncio-seo" id="anuncio-seo-${pos}" data-anuncio-seo="${pos}" hidden>` +
@@ -343,6 +350,7 @@ ${anuncios ? CARRILES_HTML + "\n" : ""}<header class="appbar">
       <a href="/irpf/">IRPF por territorio</a>
       <a href="/guias/">Guías</a>
       <a href="/vivienda/">Vivienda</a>
+      <a href="/autonomos/">Autónomos</a>
     </nav>
     <div class="appbar-der">
       ${UI.HTML_BTN_TEMA}
@@ -361,7 +369,7 @@ ${anuncios ? CARRILES_HTML + "\n" : ""}<header class="appbar">
   <div class="contenedor pie-in">
     <p><b>Mapafiscal</b> ofrece estimaciones con fines informativos. No es una liquidación oficial ni asesoramiento fiscal.</p>
     ${REDES_HTML}
-    <p class="pie-sec"><a href="/irpf/">IRPF por territorio</a> · <a href="/guias/">Guías del IRPF</a> · <a href="/vivienda/">Vivienda</a> · <a href="/glosario/">Glosario</a> · <a href="/comparar-sueldo/">Dónde se paga menos IRPF</a> · <a href="/sueldo-neto/">Sueldo neto</a> · <a href="/metodologia/">Metodología</a> · <a href="/validacion/">Cómo comprobamos los cálculos</a></p>
+    <p class="pie-sec"><a href="/irpf/">IRPF por territorio</a> · <a href="/guias/">Guías del IRPF</a> · <a href="/vivienda/">Vivienda</a> · <a href="/autonomos/">IRPF de autónomos</a> · <a href="/glosario/">Glosario</a> · <a href="/comparar-sueldo/">Dónde se paga menos IRPF</a> · <a href="/sueldo-neto/">Sueldo neto</a> · <a href="/metodologia/">Metodología</a> · <a href="/validacion/">Cómo comprobamos los cálculos</a></p>
     <p class="pie-sec pie-fechas">Normativa revisada el <time datetime="${esc(generado)}">${esc(fecha(generado))}</time> · Contenido actualizado el <time datetime="${MARCA_FECHA}">${MARCA_FECHA_LARGA}</time>${ejercicio ? ` · Ejercicio ${esc(ejercicio)} (renta que se declara en ${esc(+ejercicio + 1)})` : ""}</p>
     <p class="pie-sec"><a href="/legal/aviso-legal.html">Aviso legal</a> · <a href="/legal/privacidad.html">Privacidad</a> · <a href="/legal/condiciones.html">Condiciones</a> · <a href="/legal/cookies.html">Cookies</a> · <a href="/legal/aviso-legal.html#contacto">Contacto</a></p>
   </div>

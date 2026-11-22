@@ -13,12 +13,20 @@
 // resta: sin signo si el importe redondeado es 0 (evita «−0 €»)
 const menos = n => (Math.round(Math.abs(n)) ? "−" : "") + euros(Math.abs(n));
 import { graficoBrutoNeto, serieSueldoNeto } from "./seo_grafico.mjs";
+import { conArticulo } from "./seo_deduccion_ficha.mjs";
 import { NOMBRE_CORTO, SLUG, ORDEN_TERRITORIOS, HERRAMIENTA, esc, euros, pct, layout, jsonLdMigas, jsonLdFaq, bloqueFaq, migasHtml } from "./seo_comun.mjs";
 
 const FORAL = new Set(["ES-PV-BI", "ES-PV-SS", "ES-PV-VI", "ES-NC"]);
 const pct2 = n => (100 * n).toFixed(2).replace(".", ",") + " %";
 
-export function paginasSueldoNeto(d) {
+// Enlaces a /irpf/<territorio>/ y a sus deducciones (solo régimen común), con anclas que
+// cambian con el importe para no repetir siempre el mismo texto.
+const ANCLAS_IRPF = [n => `IRPF en ${n}`, n => `tramos del IRPF en ${n}`, n => `tipo marginal y tipo medio en ${n}`, n => `la renta en ${n} frente a la media`];
+const deN = n => n.startsWith("el ") ? "del " + n.slice(3) : "de " + n;
+const ANCLAS_DED = [(n, a) => `deducciones autonómicas ${deN(n)}`, (n, a) => `qué deducciones tiene ${n} en la renta ${a}`, (n, a) => `deducciones de la renta ${a} en ${n}, con sus cuantías`];
+
+// conDeducciones: territorios con página /irpf/<territorio>/deducciones/.
+export function paginasSueldoNeto(d, { conDeducciones = new Set(), ejercicioDeducciones = null } = {}) {
   const EJ = d.ejercicio, gen = d.generado;
   const conTerritorio = new Set(d.importes_territorio);
   const importes = Object.keys(d.sueldos).map(Number).sort((a, b) => a - b);
@@ -62,6 +70,15 @@ export function paginasSueldoNeto(d) {
     for (const j of [i - 2, i - 1, i + 1, i + 2]) if (j >= 0 && j < lista.length) out.push(`<a href="${ruta(lista[j])}">${esc(txt(lista[j]))}</a>`);
     return out.join(" · ");
   };
+  // Enlaces a la página del territorio. En los forales el texto del enlace varía con la página
+  // («IRPF en Gipuzkoa», «tablas IRPF Gipuzkoa 2026», «renta Gipuzkoa 2025») y se suma el simulador.
+  const enlacesTerritorio = (c, v) => {
+    const r = `/irpf/${SLUG[c]}/`;
+    if (!FORAL.has(c)) return `<a href="${r}">IRPF en ${esc(nombre(c))}</a>`;
+    const k = NOMBRE_CORTO[c];
+    const [txt, href] = [[`IRPF en ${k}`, r], [`tablas IRPF ${k} ${EJ}`, `${r}#tabla-${EJ}`], [`renta ${k} ${EJ - 1}`, `${r}#renta`]][v];
+    return `<a href="${href}">${esc(txt)}</a> · <a href="${r}simulador-renta/">simulador renta ${esc(EJ)} ${esc(k)}</a>`;
+  };
   const paginas = [];
 
   // ---- detalle por territorio -------------------------------------------------------
@@ -71,6 +88,7 @@ export function paginasSueldoNeto(d) {
     const media = r.reduce((a, x) => a + x.neto, 0) / r.length;
     const tipoIrpf = f.irpf / b, tipoTotal = (f.irpf + s.total) / b;
     const v = (iTer + importes.indexOf(b)) % 3;
+    const iB = d.importes_territorio.indexOf(b);
     const intro = [
       `Con un sueldo de ${euros(b)} brutos al año en ${n}, te quedan <b>${euros(f.neto)} netos</b>: ${euros(f.neto / 12)} al mes en 12 pagas o ${euros(f.neto / 14)} en 14 pagas.`,
       `${euros(b)} brutos anuales se quedan en <b>${euros(f.neto)} netos</b> en ${n} en ${EJ}. Al mes son ${euros(f.neto / 14)} si cobras 14 pagas y ${euros(f.neto / 12)} si cobras 12.`,
@@ -161,7 +179,7 @@ export function paginasSueldoNeto(d) {
   </div>
   ${bloqueFaq(faq)}
   ${botones(c)}
-  <p class="ayuda">Otros sueldos en ${esc(n)}: ${vecinos(lista, b, x => rutaTer(x, c), x => euros(x))} · <a href="${rutaNac(b)}">${esc(euros(b))} en los 19 territorios</a> · <a href="/irpf/${SLUG[c]}/">IRPF en ${esc(n)}</a></p>
+  <p class="ayuda">Otros sueldos en ${esc(n)}: ${vecinos(lista, b, x => rutaTer(x, c), x => euros(x))} · <a href="${rutaNac(b)}">${esc(euros(b))} en los 19 territorios</a> · ${FORAL.has(c) ? enlacesTerritorio(c, v) : `<a href="/irpf/${SLUG[c]}/">${esc(ANCLAS_IRPF[iB % ANCLAS_IRPF.length](conArticulo(n)))}</a>${conDeducciones.has(c) ? ` · <a href="/irpf/${SLUG[c]}/deducciones/">${esc(ANCLAS_DED[iB % ANCLAS_DED.length](conArticulo(n), ejercicioDeducciones))}</a>` : ""}`}</p>
   </div>`;
     return layout({
       jsonld: [jsonLdMigas(migas), jsonLdFaq(faq)],

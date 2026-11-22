@@ -18,7 +18,7 @@ ${BOTS_IA.map(b => `User-agent: ${b}\nAllow: /`).join("\n\n")}
 `;
 }
 
-export function llmsTxt({ territorios, comparativas, guias, GUIAS, conDeducciones, VIVIENDA = [] }) {
+export function llmsTxt({ territorios, comparativas, guias, GUIAS, conDeducciones, VIVIENDA = [], AUTONOMOS = null }) {
   const T = territorios.territorios;
   const est = guias.escalas.estatal_2025.tramos;
   const c30 = comparativas.comparativas["30000"];
@@ -53,7 +53,12 @@ ${GUIAS.map(g => `- [${g.enlace}](${SITIO}/guias/${g.slug}/): ${g.resumen}`).joi
 - [Cómo tributa la vivienda en el IRPF](${SITIO}/vivienda/): vivienda habitual, segunda vivienda, alquiler y venta.
 ${VIVIENDA.filter(v => v.slug).map(v => `- [${v.enlace}](${SITIO}/vivienda/${v.slug}/): ${v.resumen}`).join("\n")}
 
-## IRPF por territorio
+${AUTONOMOS ? `## Autónomos
+
+- [IRPF de autónomos en estimación directa](${SITIO}/autonomos/): rendimiento neto, gastos de difícil justificación, cuota de autónomo como gasto y modelo 130.
+${ORDEN_TERRITORIOS.map(c => `- [IRPF de un autónomo en ${NOMBRE_CORTO[c]}](${SITIO}/autonomos/${SLUG[c]}/): ${euros(AUTONOMOS.cifras[c][AUTONOMOS.referencia])} con ${euros(AUTONOMOS.referencia)} de rendimiento neto (${AUTONOMOS.ejercicio})`).join("\n")}
+
+` : ""}## IRPF por territorio
 
 ${ORDEN_TERRITORIOS.map(linea).join("\n")}
 
