@@ -21,7 +21,7 @@ Datos clave (2025, actualizados el 2026-11-14):
 - [Escala del IRPF 2024](https://mapafiscal.es/guias/escala-irpf-2024/): Tramos y tipos estatales de 2024, iguales que en 2025 y 2026.
 - [Mínimo personal y familiar](https://mapafiscal.es/guias/minimo-personal-familiar/): Cuánto de tu renta no paga IRPF por ti, tus hijos y tus mayores.
 - [Plan de pensiones: cuánto desgrava](https://mapafiscal.es/guias/plan-pensiones-desgravar/): Límites y ahorro real en cada territorio si aportas antes del 31 de diciembre.
-- [Deducción por donativos](https://mapafiscal.es/guias/deduccion-donativos/): El 80 % de los primeros 250 € y el resto, con ejemplos.
+- [Deducción por donativos](https://mapafiscal.es/guias/deduccion-donativos/): Porcentajes, límites y ejemplos de lo que desgravan los donativos a ONG.
 - [¿Estoy obligado a declarar?](https://mapafiscal.es/guias/obligacion-declarar-renta/): Límites de ingresos y cuándo conviene declarar aunque no sea obligatorio.
 - [Calendario de la renta](https://mapafiscal.es/guias/calendario-renta/): Fechas de la campaña, domiciliación y pago en dos plazos.
 - [12 o 14 pagas](https://mapafiscal.es/guias/12-o-14-pagas/): Neto mensual con el mismo bruto, prorrata de las extras y retención.
