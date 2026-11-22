@@ -436,8 +436,8 @@ function guiaCalendario(g) {
     ["¿Se puede pagar la renta en dos veces?", `Sí: el ${pctCorto(f.primer_plazo_pct)} al presentar y el ${pctCorto(f.segundo_plazo_pct)} hasta el ${fecha(f.segundo_plazo_hasta)}, sin intereses, si presentas la declaración dentro de plazo.`],
     ["¿Cuándo es la próxima campaña de la renta?", "Las fechas las fija cada año una orden del Ministerio de Hacienda que se publica en el BOE antes de que empiece la campaña, normalmente en primavera. En cuanto salga, la recogemos aquí."]
   ];
-  return pagina(g, { slug: "calendario-renta", h1: "Calendario de la declaración de la renta",
-    titulo: `Fechas de la declaración de la renta ${c.ejercicio}: calendario`,
+  return pagina(g, { slug: "calendario-renta", h1: "Campaña de la renta: cuándo empieza y fechas clave",
+    titulo: `Campaña de la renta: cuándo empieza y fechas (${c.ejercicio})`,
     resumen: `la campaña de la renta ${c.ejercicio} fue del <b>${fecha(c.inicio)}</b> al <b>${fecha(c.fin)}</b>; para domiciliar el pago, hasta el ${fecha(c.fin_domiciliacion)}, y el segundo plazo, hasta el ${fecha(f.segundo_plazo_hasta)}.`,
     description: `Renta ${c.ejercicio}: del ${fechaSinAnio(c.inicio)} al ${fecha(c.fin)}; domiciliación hasta el ${fechaSinAnio(c.fin_domiciliacion)} y segundo plazo el ${fechaSinAnio(f.segundo_plazo_hasta)}. Fechas con la orden del BOE.`,
     cuerpo, faq, generado: g.generado });
