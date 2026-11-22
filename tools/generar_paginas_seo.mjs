@@ -26,6 +26,7 @@ import { graficoBrutoNeto, serieSueldoNeto } from "./seo_grafico.mjs";
 import { paginasRescate } from "./seo_rescate.mjs";
 import { paginasConjuntaPagadores, CARPETAS_CONJUNTA } from "./seo_conjunta.mjs";
 import { paginasDevuelve } from "./seo_devuelve.mjs";
+import { paginasAutonomos, HUB_AUTONOMOS } from "./seo_autonomos.mjs";
 import { paginaMetodologia } from "./seo_metodologia.mjs";
 import { paginasGlosario, enlazarGlosario, HUB_GLOSARIO } from "./seo_glosario.mjs";
 import { paginasVivienda, PAGINAS_VIVIENDA, HUB_VIVIENDA } from "./seo_vivienda.mjs";
@@ -367,6 +368,9 @@ export function generar({ conGit = false } = {}) {
   // «¿Cuánto me devuelve?»: las páginas sin cifra van con noindex y fuera del sitemap.
   for (const p of paginasDevuelve(devuelve, conDeducciones)) p.indexable ? pagina(p.ruta, p.html) : ficheros.set(p.ruta.slice(1) + "index.html", p.html);
   for (const g of paginasForal(territorios.generado, sueldoNeto.importes_territorio)) pagina(g.ruta, g.html);
+  // Sección «Autónomos» (/autonomos/): IRPF de actividades económicas con el motor JS
+  const aut = paginasAutonomos(territorios.ejercicio, territorios.generado);
+  for (const a of aut) pagina(a.ruta, a.html);
 
   pagina("/metodologia/", paginaMetodologia(territorios.generado));
   // «Cómo comprobamos los cálculos»: la escribe tools/generar_validacion.mjs; aquí solo va al sitemap
@@ -386,14 +390,14 @@ export function generar({ conGit = false } = {}) {
   ficheros.set("sitemap.xml", `<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
 <url><loc>${SITIO}/</loc><lastmod>${registro["index.html"].fecha}</lastmod><changefreq>weekly</changefreq><priority>1.0</priority></url>
-${urls.map(u => `<url><loc>${SITIO}${u}</loc><lastmod>${lastmod(u)}</lastmod><changefreq>monthly</changefreq><priority>${u.startsWith("/guias/") || u.startsWith(HUB_VIVIENDA) || u === "/irpf/" || u === HUB_GLOSARIO ? "0.8" : "0.7"}</priority></url>`).join("\n")}
+${urls.map(u => `<url><loc>${SITIO}${u}</loc><lastmod>${lastmod(u)}</lastmod><changefreq>monthly</changefreq><priority>${u.startsWith("/guias/") || u.startsWith(HUB_VIVIENDA) || u === "/irpf/" || u === HUB_GLOSARIO || u === HUB_AUTONOMOS ? "0.8" : "0.7"}</priority></url>`).join("\n")}
 </urlset>
 `);
   ficheros.set("robots.txt", robotsTxt());
-  ficheros.set("llms.txt", llmsTxt({ territorios, comparativas, guias, GUIAS, conDeducciones, VIVIENDA: PAGINAS_VIVIENDA }));
+  ficheros.set("llms.txt", llmsTxt({ territorios, comparativas, guias, GUIAS, conDeducciones, VIVIENDA: PAGINAS_VIVIENDA, AUTONOMOS: aut }));
   return {
     ficheros, avisos, urls,
-    recuento: { territorios: ORDEN_TERRITORIOS.length, sueldos: comparativas.salarios.length, deducciones: ded.length, porDeduccion: porDeduccion.length, guias: gs.length - 1, sueldoNeto: sn.length - 1, glosario: glo.length - 1, vivienda: viv.length - 1, indices: 6 }
+    recuento: { territorios: ORDEN_TERRITORIOS.length, sueldos: comparativas.salarios.length, deducciones: ded.length, porDeduccion: porDeduccion.length, guias: gs.length - 1, sueldoNeto: sn.length - 1, glosario: glo.length - 1, vivienda: viv.length - 1, autonomos: aut.length - 1, indices: 7 }
   };
 }
 
@@ -427,6 +431,7 @@ export function huerfanas(ficheros) {
   recorrer("cuanto-me-devuelve");
   recorrer("glosario");
   recorrer("vivienda");
+  recorrer("autonomos");
   return fuera;
 }
 
@@ -456,7 +461,7 @@ if (process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.ur
       writeFileSync(p, html, "utf8");
     }
     for (const r of sobran) { rmSync(join(WEB, r)); console.log(`Borrada (ya no se genera): ${r}`); }
-    console.log(`Páginas SEO: ${recuento.territorios} territorios + ${recuento.deducciones} de deducciones (${recuento.porDeduccion} fichas) + ${recuento.sueldos} sueldos + ${recuento.guias} guías + ${recuento.sueldoNeto} de sueldo neto + ${recuento.glosario} términos del glosario + ${recuento.vivienda} de vivienda + ${recuento.indices} índices.`);
+    console.log(`Páginas SEO: ${recuento.territorios} territorios + ${recuento.deducciones} de deducciones (${recuento.porDeduccion} fichas) + ${recuento.sueldos} sueldos + ${recuento.guias} guías + ${recuento.sueldoNeto} de sueldo neto + ${recuento.glosario} términos del glosario + ${recuento.vivienda} de vivienda + ${recuento.autonomos} de autónomos + ${recuento.indices} índices.`);
     console.log(`sitemap.xml: ${urls.length + 1} URLs.`);
   }
 }

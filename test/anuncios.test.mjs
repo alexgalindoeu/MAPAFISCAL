@@ -321,7 +321,7 @@ test("páginas SEO: huecos entre tarjetas, nunca dentro de una tabla ni antes de
 });
 
 test("páginas SEO: las páginas informativas cargan anuncios.js; legales y /validacion/ no", () => {
-  for (const r of ["/guias/", "/irpf/madrid/", "/sueldo-neto/30000/", "/comparar-sueldo/", "/cuanto-me-devuelve/", "/declaracion-conjunta/", "/dos-pagadores/", "/rescate-plan-pensiones/madrid/"]) assert.ok(conAnuncios(r), r);
+  for (const r of ["/guias/", "/irpf/madrid/", "/sueldo-neto/30000/", "/comparar-sueldo/", "/cuanto-me-devuelve/", "/declaracion-conjunta/", "/dos-pagadores/", "/rescate-plan-pensiones/madrid/", "/autonomos/", "/autonomos/canarias/"]) assert.ok(conAnuncios(r), r);
   for (const r of ["/legal/cookies.html", "/validacion/", "/"]) assert.ok(!conAnuncios(r), r);
   const pag = ruta => layout({ title: "t", description: "d", canonical: ruta, breadcrumb: "", generado: "2026-11-18",
     main: `<h1>T</h1><div class="prosa"><div class="tarjeta">a</div><div class="tarjeta">b</div></div>` });

@@ -36,6 +36,29 @@ Datos clave (2025, actualizados el 2026-11-14):
 - [Vender una vivienda](https://mapafiscal.es/vivienda/venta-vivienda/): La ganancia patrimonial, la base del ahorro y las exenciones por reinversión y por edad.
 - [Vender un piso alquilado](https://mapafiscal.es/vivienda/vender-piso-alquilado/): Por qué la amortización de los años de alquiler aumenta la ganancia.
 
+## Autónomos
+
+- [IRPF de autónomos en estimación directa](https://mapafiscal.es/autonomos/): rendimiento neto, gastos de difícil justificación, cuota de autónomo como gasto y modelo 130.
+- [IRPF de un autónomo en Andalucía](https://mapafiscal.es/autonomos/andalucia/): 6.047 € con 30.000 € de rendimiento neto (2025)
+- [IRPF de un autónomo en Aragón](https://mapafiscal.es/autonomos/aragon/): 6.065 € con 30.000 € de rendimiento neto (2025)
+- [IRPF de un autónomo en Asturias](https://mapafiscal.es/autonomos/asturias/): 5.978 € con 30.000 € de rendimiento neto (2025)
+- [IRPF de un autónomo en Baleares](https://mapafiscal.es/autonomos/islas-baleares/): 6.066 € con 30.000 € de rendimiento neto (2025)
+- [IRPF de un autónomo en Canarias](https://mapafiscal.es/autonomos/canarias/): 5.922 € con 30.000 € de rendimiento neto (2025)
+- [IRPF de un autónomo en Cantabria](https://mapafiscal.es/autonomos/cantabria/): 5.874 € con 30.000 € de rendimiento neto (2025)
+- [IRPF de un autónomo en Castilla-La Mancha](https://mapafiscal.es/autonomos/castilla-la-mancha/): 6.111 € con 30.000 € de rendimiento neto (2025)
+- [IRPF de un autónomo en Castilla y León](https://mapafiscal.es/autonomos/castilla-y-leon/): 5.979 € con 30.000 € de rendimiento neto (2025)
+- [IRPF de un autónomo en Cataluña](https://mapafiscal.es/autonomos/cataluna/): 6.183 € con 30.000 € de rendimiento neto (2025)
+- [IRPF de un autónomo en Extremadura](https://mapafiscal.es/autonomos/extremadura/): 6.038 € con 30.000 € de rendimiento neto (2025)
+- [IRPF de un autónomo en Galicia](https://mapafiscal.es/autonomos/galicia/): 5.976 € con 30.000 € de rendimiento neto (2025)
+- [IRPF de un autónomo en Madrid](https://mapafiscal.es/autonomos/madrid/): 5.696 € con 30.000 € de rendimiento neto (2025)
+- [IRPF de un autónomo en Murcia](https://mapafiscal.es/autonomos/murcia/): 5.882 € con 30.000 € de rendimiento neto (2025)
+- [IRPF de un autónomo en La Rioja](https://mapafiscal.es/autonomos/la-rioja/): 5.762 € con 30.000 € de rendimiento neto (2025)
+- [IRPF de un autónomo en Comunidad Valenciana](https://mapafiscal.es/autonomos/comunidad-valenciana/): 5.986 € con 30.000 € de rendimiento neto (2025)
+- [IRPF de un autónomo en Bizkaia](https://mapafiscal.es/autonomos/bizkaia/): 5.931 € con 30.000 € de rendimiento neto (2025)
+- [IRPF de un autónomo en Gipuzkoa](https://mapafiscal.es/autonomos/gipuzkoa/): 5.931 € con 30.000 € de rendimiento neto (2025)
+- [IRPF de un autónomo en Álava](https://mapafiscal.es/autonomos/araba-alava/): 5.931 € con 30.000 € de rendimiento neto (2025)
+- [IRPF de un autónomo en Navarra](https://mapafiscal.es/autonomos/navarra/): 5.829 € con 30.000 € de rendimiento neto (2025)
+
 ## IRPF por territorio
 
 - [IRPF en Andalucía](https://mapafiscal.es/irpf/andalucia/): tramos del 19 % al 47 % en 2025; [deducciones](https://mapafiscal.es/irpf/andalucia/deducciones/)
