@@ -9,7 +9,7 @@
 // se explica en texto con su norma y sin cifras propias.
 // =============================================================================
 import {
-  NOMBRE_CORTO, HERRAMIENTA, LIRPF_BOE, esc, euros, eurosExactos as eur, pct, pctCorto, fecha, urlBoe,
+  NOMBRE_CORTO, HERRAMIENTA, LIRPF_BOE, esc, euros, eurosExactos as eur, pctMedio, pctTipo, fecha, urlBoe,
   tablaEscala, combinarEscalas, citaFuente, layout, jsonLdMigas, jsonLdArticulo, jsonLdFaq, bloqueFaq,
   migasHtml, respuestaDirecta
 } from "./seo_comun.mjs";
@@ -120,7 +120,7 @@ function guiaViviendaHub(g) {
   </div>
   <div class="tarjeta">
     <h2 class="rotulo">2. Una segunda vivienda que no alquilas</h2>
-    <p>Un piso en la playa, una casa en el pueblo o una vivienda vacía a tu disposición tributan aunque no te den ni un euro: Hacienda te <a href="/glosario/imputacion-rentas-inmobiliarias/">imputa una renta presunta</a> del ${pctCorto(imp.tipo_general)} de su valor catastral, o del ${pctCorto(imp.tipo_revisado_10_anios)} si ese valor se ha revisado en los últimos años (${esc(imp.norma)}). Esa renta se suma al sueldo en la base general.</p>
+    <p>Un piso en la playa, una casa en el pueblo o una vivienda vacía a tu disposición tributan aunque no te den ni un euro: Hacienda te <a href="/glosario/imputacion-rentas-inmobiliarias/">imputa una renta presunta</a> del ${pctTipo(imp.tipo_general)} de su valor catastral, o del ${pctTipo(imp.tipo_revisado_10_anios)} si ese valor se ha revisado en los últimos años (${esc(imp.norma)}). Esa renta se suma al sueldo en la base general.</p>
     <p>Con el motor: un valor catastral de ${euros(D.VC)} sumado a ${euros(VIV_BRUTO)} brutos en ${esc(NOMBRE_CORTO[VIV_T])} sube el IRPF del año ${eur(D.dif(D.rev))} si el valor está revisado y ${eur(D.dif(D.norev))} si no lo está. <a href="/vivienda/segunda-vivienda/">Guía de la segunda vivienda</a>.</p>
   </div>
   <div class="tarjeta">
@@ -130,7 +130,7 @@ function guiaViviendaHub(g) {
   </div>
   <div class="tarjeta">
     <h2 class="rotulo">4. Cuando la vendes</h2>
-    <p>Al vender, la diferencia entre el valor de transmisión y el de adquisición es una ganancia (o pérdida) patrimonial que va a la base del ahorro (${lirpf("arts. 33 a 35 y 46")}).${escAhorro ? ` Su escala va del ${pctCorto(escAhorro[0].tipo)} al ${pctCorto(escAhorro[escAhorro.length - 1].tipo)} sumando las partes estatal y autonómica.` : ""} Si la vivienda era la habitual, la ganancia puede quedar exenta si reinviertes en otra o si tienes más de 65 años; si estuvo alquilada, la amortización de esos años reduce el valor de compra y aumenta la ganancia.</p>
+    <p>Al vender, la diferencia entre el valor de transmisión y el de adquisición es una ganancia (o pérdida) patrimonial que va a la base del ahorro (${lirpf("arts. 33 a 35 y 46")}).${escAhorro ? ` Su escala va del ${pctTipo(escAhorro[0].tipo)} al ${pctTipo(escAhorro[escAhorro.length - 1].tipo)} sumando las partes estatal y autonómica.` : ""} Si la vivienda era la habitual, la ganancia puede quedar exenta si reinviertes en otra o si tienes más de 65 años; si estuvo alquilada, la amortización de esos años reduce el valor de compra y aumenta la ganancia.</p>
     <p>Con el motor: comprar a ${euros(D.venta.compra)} y vender a ${euros(D.venta.precio)} deja una ganancia de ${euros(D.venta.precio - D.venta.compra)} que sube el IRPF del año ${eur(D.dif(D.vend))}. <a href="/vivienda/venta-vivienda/">Guía de la venta</a> · <a href="/vivienda/vender-piso-alquilado/">Vender un piso alquilado</a>.</p>
   </div>
   <div class="tarjeta"><h2 class="rotulo">En esta sección</h2><ul class="lista-enlaces">${VIV_GUIAS.map(([s, t]) => `<li><a href="/vivienda/${s}/">${esc(t)}</a></li>`).join("")}</ul>
@@ -138,13 +138,13 @@ function guiaViviendaHub(g) {
   ${cta("Calcula tu IRPF con tus inmuebles", HERRAMIENTA.calculadora)}`;
   const faq = [
     ["¿Tengo que declarar mi vivienda habitual en la renta?", "Por tenerla, no: la vivienda habitual está excluida de la imputación de rentas inmobiliarias (art. 85 de la Ley del IRPF). Aparece en la declaración si aplicas la deducción transitoria por haberla comprado antes de 2013 o el año en que la vendes."],
-    ["¿Una segunda vivienda vacía paga IRPF?", `Sí. Se imputa una renta del ${pctCorto(imp.tipo_general)} del valor catastral, o del ${pctCorto(imp.tipo_revisado_10_anios)} si está revisado, que se suma a la base general. Con ${euros(D.VC)} de valor catastral revisado y ${euros(VIV_BRUTO)} de sueldo en Madrid, el IRPF sube ${eur(D.dif(D.rev))} al año.`],
+    ["¿Una segunda vivienda vacía paga IRPF?", `Sí. Se imputa una renta del ${pctTipo(imp.tipo_general)} del valor catastral, o del ${pctTipo(imp.tipo_revisado_10_anios)} si está revisado, que se suma a la base general. Con ${euros(D.VC)} de valor catastral revisado y ${euros(VIV_BRUTO)} de sueldo en Madrid, el IRPF sube ${eur(D.dif(D.rev))} al año.`],
     ["¿Dónde tributa la venta de una vivienda?", `En la base del ahorro, como ganancia patrimonial, separada del sueldo. Con una compra de ${euros(D.venta.compra)} y una venta de ${euros(D.venta.precio)}, el IRPF del año sube ${eur(D.dif(D.vend))} según el motor de Mapafiscal, sin aplicar exenciones.`],
     ["¿El alquiler turístico tiene la misma reducción que el de vivienda?", "No. La reducción del art. 23.2 de la Ley del IRPF es solo para inmuebles arrendados como vivienda. El alquiler por temporadas o turístico declara el rendimiento sin esa reducción, y si se prestan servicios propios de la hostelería pasa a ser una actividad económica."]
   ];
   return paginaViv(g, { slug: null, h1: "Cómo tributa la vivienda en el IRPF: vivir, tener, alquilar y vender",
     titulo: "Fiscalidad de la vivienda en el IRPF: guía completa",
-    resumen: `la vivienda habitual no tributa por tenerla; una segunda vivienda imputa el ${pctCorto(imp.tipo_revisado_10_anios)} o el ${pctCorto(imp.tipo_general)} del valor catastral; el alquiler es rendimiento del capital inmobiliario y la venta, ganancia patrimonial en la base del ahorro.`,
+    resumen: `la vivienda habitual no tributa por tenerla; una segunda vivienda imputa el ${pctTipo(imp.tipo_revisado_10_anios)} o el ${pctTipo(imp.tipo_general)} del valor catastral; el alquiler es rendimiento del capital inmobiliario y la venta, ganancia patrimonial en la base del ahorro.`,
     description: `Cómo tributa la vivienda en el IRPF: vivienda habitual, segunda vivienda, alquiler y venta. Normas, bases y ejemplos calculados con el motor de Mapafiscal.`,
     cuerpo, faq, generado: g.generado });
 }
@@ -154,8 +154,8 @@ function guiaSegundaVivienda(g) {
   const D = datosVivienda(), { P, imp } = D;
   const filas = [
     ["Solo el sueldo", "—", esc(eur(D.base.liq.baseImponibleGeneral)), esc(eur(D.base.irpf)), "—"],
-    [`Valor catastral revisado (${pctCorto(imp.tipo_revisado_10_anios)})`, esc(eur(D.VC * imp.tipo_revisado_10_anios)), esc(eur(D.rev.liq.baseImponibleGeneral)), esc(eur(D.rev.irpf)), esc(eur(D.dif(D.rev)))],
-    [`Valor catastral no revisado (${pctCorto(imp.tipo_general)})`, esc(eur(D.VC * imp.tipo_general)), esc(eur(D.norev.liq.baseImponibleGeneral)), esc(eur(D.norev.irpf)), esc(eur(D.dif(D.norev)))]
+    [`Valor catastral revisado (${pctTipo(imp.tipo_revisado_10_anios)})`, esc(eur(D.VC * imp.tipo_revisado_10_anios)), esc(eur(D.rev.liq.baseImponibleGeneral)), esc(eur(D.rev.irpf)), esc(eur(D.dif(D.rev)))],
+    [`Valor catastral no revisado (${pctTipo(imp.tipo_general)})`, esc(eur(D.VC * imp.tipo_general)), esc(eur(D.norev.liq.baseImponibleGeneral)), esc(eur(D.norev.irpf)), esc(eur(D.dif(D.norev)))]
   ];
   const tipoEf = x => D.dif(x) / (D.VC * (x === D.rev ? imp.tipo_revisado_10_anios : imp.tipo_general));
   const cuerpo = `
@@ -166,10 +166,10 @@ function guiaSegundaVivienda(g) {
     <p>No imputan renta la vivienda habitual, el suelo no edificado, los inmuebles en construcción ni los que por razones urbanísticas no se pueden usar.</p>
   </div>
   <div class="tarjeta">
-    <h2 class="rotulo">Cuánto se imputa: ${pctCorto(imp.tipo_general)} o ${pctCorto(imp.tipo_revisado_10_anios)} del valor catastral</h2>
+    <h2 class="rotulo">Cuánto se imputa: ${pctTipo(imp.tipo_general)} o ${pctTipo(imp.tipo_revisado_10_anios)} del valor catastral</h2>
     <ul>
-      <li><b>${pctCorto(imp.tipo_general)}</b> del valor catastral con carácter general.</li>
-      <li><b>${pctCorto(imp.tipo_revisado_10_anios)}</b> si el valor catastral se ha revisado, modificado o determinado en un procedimiento de valoración colectiva de carácter general que haya entrado en vigor en el ejercicio o en los diez anteriores. El año de la última revisión de tu municipio lo indica el recibo del IBI o la sede electrónica del Catastro.</li>
+      <li><b>${pctTipo(imp.tipo_general)}</b> del valor catastral con carácter general.</li>
+      <li><b>${pctTipo(imp.tipo_revisado_10_anios)}</b> si el valor catastral se ha revisado, modificado o determinado en un procedimiento de valoración colectiva de carácter general que haya entrado en vigor en el ejercicio o en los diez anteriores. El año de la última revisión de tu municipio lo indica el recibo del IBI o la sede electrónica del Catastro.</li>
       <li>Si el inmueble no tiene valor catastral o no se le ha notificado, el propio ${lirpf("art. 85")} fija una base alternativa a partir del valor por el que se computaría en el Impuesto sobre el Patrimonio, con el tipo reducido.</li>
     </ul>
     ${citaFuente(imp)}
@@ -179,7 +179,7 @@ function guiaSegundaVivienda(g) {
     <h2 class="rotulo">Ejemplo: ${euros(D.VC)} de valor catastral y ${euros(VIV_BRUTO)} de sueldo en ${esc(NOMBRE_CORTO[VIV_T])} (${P.ejercicio})</h2>
     <p class="ayuda">${esc(SUP_VIV(P))} Vivienda a disposición del titular todo el año y en propiedad al 100 %.</p>
     ${tablaG(["Caso", "Renta imputada", "Base imponible general", "IRPF del año", "Cuánto sube el IRPF"], filas)}
-    <p>Con el valor catastral revisado se imputan ${eur(D.VC * imp.tipo_revisado_10_anios)} y el IRPF sube ${eur(D.dif(D.rev))} al año; sin revisar, se imputan ${eur(D.VC * imp.tipo_general)} y sube ${eur(D.dif(D.norev))}. En los dos casos el aumento es la renta imputada por el tipo marginal de ese contribuyente (un ${pct(tipoEf(D.rev))} en este ejemplo).</p>
+    <p>Con el valor catastral revisado se imputan ${eur(D.VC * imp.tipo_revisado_10_anios)} y el IRPF sube ${eur(D.dif(D.rev))} al año; sin revisar, se imputan ${eur(D.VC * imp.tipo_general)} y sube ${eur(D.dif(D.norev))}. En los dos casos el aumento es la renta imputada por el tipo marginal de ese contribuyente (un ${pctMedio(tipoEf(D.rev))} en este ejemplo).</p>
   </div>
   <div class="tarjeta">
     <h2 class="rotulo">Si la tienes solo una parte del año: prorrata por días</h2>
@@ -195,15 +195,15 @@ function guiaSegundaVivienda(g) {
   ${FUENTES_VIV}
   ${cta("Calcula tu IRPF con tu segunda vivienda", HERRAMIENTA.calculadora)}`;
   const faq = [
-    ["¿Cuánto paga de IRPF una segunda vivienda vacía?", `Se imputa el ${pctCorto(imp.tipo_general)} de su valor catastral, o el ${pctCorto(imp.tipo_revisado_10_anios)} si está revisado, y eso se suma a la base general. Con ${euros(D.VC)} de valor catastral y ${euros(VIV_BRUTO)} de sueldo en Madrid, el IRPF sube ${eur(D.dif(D.rev))} (revisado) o ${eur(D.dif(D.norev))} (no revisado) según el motor de Mapafiscal.`],
+    ["¿Cuánto paga de IRPF una segunda vivienda vacía?", `Se imputa el ${pctTipo(imp.tipo_general)} de su valor catastral, o el ${pctTipo(imp.tipo_revisado_10_anios)} si está revisado, y eso se suma a la base general. Con ${euros(D.VC)} de valor catastral y ${euros(VIV_BRUTO)} de sueldo en Madrid, el IRPF sube ${eur(D.dif(D.rev))} (revisado) o ${eur(D.dif(D.norev))} (no revisado) según el motor de Mapafiscal.`],
     ["¿Se pueden restar el IBI o la comunidad de la imputación?", "No. La imputación de rentas inmobiliarias es una renta presunta y no admite gastos. Los gastos solo se deducen de los días en que la vivienda está alquilada."],
     ["¿Y si la vivienda es de dos personas?", "Cada titular declara la parte de la renta imputada que corresponde a su porcentaje de propiedad (art. 11 de la Ley del IRPF)."],
     ["¿Si la compré en julio imputo todo el año?", "No. Se imputa en proporción a los días del año en que la vivienda ha estado a tu disposición (art. 85 de la Ley del IRPF)."]
   ];
   return paginaViv(g, { slug: "segunda-vivienda", h1: "Segunda vivienda en el IRPF: la imputación de rentas inmobiliarias",
     titulo: "Segunda vivienda en el IRPF: imputación de rentas",
-    resumen: `se imputa el <b>${pctCorto(imp.tipo_general)}</b> del valor catastral, o el <b>${pctCorto(imp.tipo_revisado_10_anios)}</b> si está revisado, como renta general. Con ${euros(D.VC)} de valor catastral y ${euros(VIV_BRUTO)} de sueldo en Madrid, el IRPF sube ${eur(D.dif(D.rev))} o ${eur(D.dif(D.norev))} al año.`,
-    description: `Segunda vivienda en el IRPF: imputación del ${pctCorto(imp.tipo_general)} o ${pctCorto(imp.tipo_revisado_10_anios)} del valor catastral (art. 85). Ejemplo con ${euros(D.VC)}, prorrata por días y copropiedad.`,
+    resumen: `se imputa el <b>${pctTipo(imp.tipo_general)}</b> del valor catastral, o el <b>${pctTipo(imp.tipo_revisado_10_anios)}</b> si está revisado, como renta general. Con ${euros(D.VC)} de valor catastral y ${euros(VIV_BRUTO)} de sueldo en Madrid, el IRPF sube ${eur(D.dif(D.rev))} o ${eur(D.dif(D.norev))} al año.`,
+    description: `Segunda vivienda en el IRPF: imputación del ${pctTipo(imp.tipo_general)} o ${pctTipo(imp.tipo_revisado_10_anios)} del valor catastral (art. 85). Ejemplo con ${euros(D.VC)}, prorrata por días y copropiedad.`,
     cuerpo, faq, generado: g.generado });
 }
 
@@ -234,7 +234,7 @@ function guiaAlquilerTemporadas(g) {
   </div>
   <div class="tarjeta">
     <h2 class="rotulo">Los días sin alquilar: imputación de rentas</h2>
-    <p>Por el resto del año, si la vivienda no es tu residencia habitual, imputas renta como cualquier segunda vivienda: el ${pctCorto(imp.tipo_general)} o el ${pctCorto(imp.tipo_revisado_10_anios)} del valor catastral (${esc(imp.norma)}), en proporción a los días en que no estuvo alquilada. Esos días no admiten gastos. Más detalle en la <a href="/vivienda/segunda-vivienda/">guía de la segunda vivienda</a>.</p>
+    <p>Por el resto del año, si la vivienda no es tu residencia habitual, imputas renta como cualquier segunda vivienda: el ${pctTipo(imp.tipo_general)} o el ${pctTipo(imp.tipo_revisado_10_anios)} del valor catastral (${esc(imp.norma)}), en proporción a los días en que no estuvo alquilada. Esos días no admiten gastos. Más detalle en la <a href="/vivienda/segunda-vivienda/">guía de la segunda vivienda</a>.</p>
   </div>
   <div class="tarjeta">
     <h2 class="rotulo">Vivienda del inquilino, temporada o turístico</h2>
@@ -249,7 +249,7 @@ function guiaAlquilerTemporadas(g) {
     <h2 class="rotulo">Ejemplo con el motor: un año entero de alquiler (${P.ejercicio})</h2>
     <p class="ayuda">${esc(SUP_VIV(P))} Un inmueble alquilado los 12 meses, sin imputación por días vacíos; contrato de vivienda sin requisitos especiales (reducción general que aplica el motor).</p>
     ${tablaG(["Concepto", "Vivienda habitual del inquilino", "Temporada o turístico"], filas)}
-    <p>El mismo alquiler sube el IRPF ${eur(D.dif(D.alqViv))} si el inquilino vive en la vivienda y ${eur(D.dif(D.alqOtro))} si es de temporada o turístico: la reducción que aplica el motor en este contrato es del ${pctCorto(red)} del rendimiento neto.</p>
+    <p>El mismo alquiler sube el IRPF ${eur(D.dif(D.alqViv))} si el inquilino vive en la vivienda y ${eur(D.dif(D.alqOtro))} si es de temporada o turístico: la reducción que aplica el motor en este contrato es del ${pctTipo(red)} del rendimiento neto.</p>
   </div>
   ${aviso("El motor calcula el rendimiento de cada inmueble alquilado con sus ingresos y gastos del año y la imputación de los inmuebles a tu disposición, pero no reparte un mismo inmueble entre días alquilados y días vacíos. Si tu vivienda estuvo alquilada solo una parte del año, introduce los ingresos y gastos del periodo alquilado y calcula aparte la imputación de los días restantes.")}
   ${FUENTES_VIV}
@@ -303,7 +303,7 @@ function guiaVentaVivienda(g) {
       ["IRPF del año con el sueldo y la venta", esc(eur(vend.irpf))],
       ["IRPF que añade la venta", `<b>${esc(eur(D.dif(vend)))}</b>`]
     ])}
-    <p>La ganancia de ${eur(gan)} sube el IRPF del año ${eur(D.dif(vend))}, un ${pct(D.dif(vend) / gan)} de la ganancia. Como va a la base del ahorro, no se suma al sueldo ni cambia su tipo marginal. Los gastos de la compra y de la venta reducirían esa ganancia.</p>
+    <p>La ganancia de ${eur(gan)} sube el IRPF del año ${eur(D.dif(vend))}, un ${pctMedio(D.dif(vend) / gan)} de la ganancia. Como va a la base del ahorro, no se suma al sueldo ni cambia su tipo marginal. Los gastos de la compra y de la venta reducirían esa ganancia.</p>
   </div>
   <div class="tarjeta">
     <h2 class="rotulo">Exención por reinversión en vivienda habitual</h2>

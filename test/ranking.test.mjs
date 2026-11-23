@@ -35,7 +35,8 @@ test("tabla: los 19 territorios con cuota, tipo medio y puesto de seo_comparativ
     for (const f of lista) {
       const x = d.filas.find(r => r.territorio === f.territorio).por[s];
       assert.equal(x.cuota, f.cuota_liquida_total);
-      assert.equal(x.tipo, f.tipo_medio_efectivo);
+      assert.equal(x.tipo, Math.round(f.cuota_liquida_total / s * 10000) / 10000);
+      assert.equal(x.tipoBase, f.tipo_medio_efectivo);
       assert.equal(x.puesto, puestoEsperado(lista, f), `${f.territorio} con ${s}`);
     }
   }
@@ -92,7 +93,7 @@ test("Dataset en JSON-LD con distribution en CSV y JSON", () => {
 
 test("datos descargables: el CSV y el JSON traen las mismas cifras que seo_comparativas.json", () => {
   const csv = ficheros.get(ficheroDatos(ej, "csv")), json = JSON.parse(ficheros.get(ficheroDatos(ej, "json")));
-  assert.ok(csv.startsWith("﻿ejercicio;sueldo_bruto_anual;puesto;codigo;territorio;regimen;cuota_irpf_euros;tipo_medio_pct\n"));
+  assert.ok(csv.startsWith("﻿ejercicio;sueldo_bruto_anual;puesto;codigo;territorio;regimen;cuota_irpf_euros;tipo_medio_sobre_bruto_pct;tipo_medio_sobre_base_imponible_pct\n"));
   const filas = csv.slice(1).trim().split("\n").slice(1).map(l => l.split(";"));
   assert.equal(filas.length, 19 * C.salarios_ranking.length);
   assert.equal(json.datos.length, filas.length);
@@ -103,11 +104,14 @@ test("datos descargables: el CSV y el JSON traen las mismas cifras que seo_compa
     assert.equal(l[0], String(ej));
     assert.equal(l[4], f.nombre);
     assert.equal(l[6], f.cuota_liquida_total.toFixed(2).replace(".", ","));
-    assert.equal(l[7], (Math.round(f.tipo_medio_efectivo * 10000) / 100).toFixed(2).replace(".", ","));
+    assert.equal(l[7], (Math.round(f.cuota_liquida_total / s * 10000) / 100).toFixed(2).replace(".", ","));
+    assert.equal(l[8], (Math.round(f.tipo_medio_efectivo * 10000) / 100).toFixed(2).replace(".", ","));
     assert.equal(+l[2], puestoEsperado(C.comparativas[String(s)], f));
     const j = json.datos.find(x => x.sueldo_bruto_anual === s && x.codigo === f.territorio);
     assert.equal(j.cuota_liquida_total, f.cuota_liquida_total);
     assert.equal(j.tipo_medio_efectivo, f.tipo_medio_efectivo);
+    assert.equal(j.tipo_medio_sobre_bruto, Math.round(f.cuota_liquida_total / s * 10000) / 10000);
+    assert.ok(j.tipo_medio_sobre_bruto < j.tipo_medio_efectivo || j.tipo_medio_efectivo === 0);
   }
   // los ficheros del repo son los que genera el generador
   assert.equal(readFileSync(new URL("../web/" + ficheroDatos(ej, "csv"), import.meta.url), "utf8"), csv);

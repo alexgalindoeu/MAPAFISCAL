@@ -59,7 +59,7 @@ test("comparar dos ofertas: cifras redondeadas que cuadran", () => {
 
 test("la vista #bruto-necesario se pinta y está registrada", async () => {
   const html = readFileSync(new URL("../web/index.html", import.meta.url), "utf8");
-  assert.match(html, /<script src="js\/bruto\.js"><\/script>/);
+  assert.match(html, /<script src="js\/bruto\.js" defer><\/script>/);
   assert.match(readFileSync(new URL("../web/js/ui.js", import.meta.url), "utf8"), /href: "#bruto-necesario"/);
   const els = {};
   const valor = id => { const m = html.match(new RegExp(`id="${id}"[^>]*value="([^"]*)"`)) || html.match(new RegExp(`<select id="${id}">\\s*<option value="([^"]*)"`)); return m ? m[1] : ""; };
@@ -74,6 +74,7 @@ test("la vista #bruto-necesario se pinta y está registrada", async () => {
   ctx.window = ctx;
   vm.createContext(ctx);
   vm.runInContext(readFileSync(new URL("../web/js/irpfsim.js", import.meta.url), "utf8"), ctx);
+  vm.runInContext(readFileSync(new URL("../web/js/importe.js", import.meta.url), "utf8"), ctx);
   vm.runInContext(readFileSync(new URL("../web/js/bruto.js", import.meta.url), "utf8"), ctx);
   await new Promise(r => setTimeout(r, 100));
   assert.ok(ctx.MAPAFISCAL_HERRAMIENTAS["bruto-necesario"], "tarjeta de portada");

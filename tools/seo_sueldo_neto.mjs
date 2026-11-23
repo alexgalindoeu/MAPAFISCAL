@@ -14,10 +14,9 @@
 const menos = n => (Math.round(Math.abs(n)) ? "−" : "") + euros(Math.abs(n));
 import { graficoBrutoNeto, serieSueldoNeto } from "./seo_grafico.mjs";
 import { conArticulo } from "./seo_deduccion_ficha.mjs";
-import { NOMBRE_CORTO, SLUG, ORDEN_TERRITORIOS, HERRAMIENTA, esc, euros, pct, layout, jsonLdMigas, jsonLdFaq, bloqueFaq, migasHtml, bloqueCalculoRapido } from "./seo_comun.mjs";
+import { NOMBRE_CORTO, SLUG, ORDEN_TERRITORIOS, HERRAMIENTA, esc, euros, pctMedio, pctTipo, layout, jsonLdMigas, jsonLdFaq, bloqueFaq, migasHtml, bloqueCalculoRapido } from "./seo_comun.mjs";
 
 const FORAL = new Set(["ES-PV-BI", "ES-PV-SS", "ES-PV-VI", "ES-NC"]);
-const pct2 = n => (100 * n).toFixed(2).replace(".", ",") + " %";
 
 // Enlaces a /irpf/<territorio>/ y a sus deducciones (solo régimen común), con anclas que
 // cambian con el importe para no repetir siempre el mismo texto.
@@ -99,7 +98,7 @@ export function paginasSueldoNeto(d, { conDeducciones = new Set(), ejercicioDedu
       ["Desempleo", s.desempleo, d.cotizaciones.tipos.desempleo_indefinido],
       ["Formación profesional", s.formacion_profesional, d.cotizaciones.tipos.formacion_profesional],
       ["Mecanismo de equidad intergeneracional", s.mei, d.cotizaciones.tipos.mei]]
-      .map(([t, x, tp]) => `<tr><td>${esc(t)} (${esc(pct2(tp))})</td><td class="num">${esc(menos(x))}</td></tr>`).join("")
+      .map(([t, x, tp]) => `<tr><td>${esc(t)} (${esc(pctTipo(tp))})</td><td class="num">${esc(menos(x))}</td></tr>`).join("")
       + (s.solidaridad > 0 ? `<tr><td>Cotización adicional de solidaridad</td><td class="num">${esc(menos(s.solidaridad))}</td></tr>` : "");
     const topeSs = s.base_mensual < b / 12 - 0.005
       ? ` Tu sueldo mensual prorrateado (${euros(b / 12)}) supera la base máxima de cotización (${euros(d.cotizaciones.base_maxima_mensual)} al mes): por encima de ella solo se paga la cotización de solidaridad.` : "";
@@ -118,7 +117,7 @@ export function paginasSueldoNeto(d, { conDeducciones = new Set(), ejercicioDedu
     // misma tabla en las 19 páginas de un importe).
     const puestos = [...new Set([0, puesto - 3, puesto - 2, puesto - 1, puesto, puesto + 1, r.length - 1])].filter(i => i >= 0 && i < r.length).sort((x, y) => x - y);
     const difTxt = x => x.c === c ? "—" : (x.neto > f.neto ? "+" : x.neto < f.neto ? "−" : "") + euros(Math.abs(x.neto - f.neto));
-    const filas19 = puestos.map(i => { const x = r[i]; return `<tr${x.c === c ? ' class="destacada"' : ""}><td class="num">${i + 1}</td><td>${x.c === c ? `<b>${esc(nombre(x.c))}</b>` : `<a href="${rutaTer(b, x.c)}">${esc(nombre(x.c))}</a>`}</td><td class="num">${esc(euros(x.neto))}</td><td class="num">${esc(difTxt(x))}</td><td class="num">${esc(pct(x.irpf / b))}</td></tr>`; }).join("");
+    const filas19 = puestos.map(i => { const x = r[i]; return `<tr${x.c === c ? ' class="destacada"' : ""}><td class="num">${i + 1}</td><td>${x.c === c ? `<b>${esc(nombre(x.c))}</b>` : `<a href="${rutaTer(b, x.c)}">${esc(nombre(x.c))}</a>`}</td><td class="num">${esc(euros(x.neto))}</td><td class="num">${esc(difTxt(x))}</td><td class="num">${esc(pctMedio(x.irpf / b))}</td></tr>`; }).join("");
     const otros = r.filter(x => x.c !== c && !puestos.some(i => r[i].c === x.c)).map(x => `<a href="${rutaTer(b, x.c)}">${esc(NOMBRE_CORTO[x.c])}</a>`).join(" · ");
     const arriba = puesto > 1 ? r[puesto - 2] : null, abajo = puesto < r.length ? r[puesto] : null;
     const vecinosPuesto = [arriba && `${nombre(arriba.c)}, justo por encima, deja ${euros(arriba.neto - f.neto)} más al año`, abajo && `${nombre(abajo.c)}, justo por debajo, ${euros(f.neto - abajo.neto)} menos`].filter(Boolean).join("; ");
@@ -126,20 +125,20 @@ export function paginasSueldoNeto(d, { conDeducciones = new Set(), ejercicioDedu
     // El mismo territorio con los sueldos vecinos: cifras del motor para cada importe.
     const iImp = lista.indexOf(b);
     const ventana = lista.slice(Math.max(0, iImp - 2), iImp + 3);
-    const filasVentana = ventana.map(x => { const g = fila(x, c); return `<tr${x === b ? ' class="destacada"' : ""}><td>${x === b ? `<b>${esc(euros(x))}</b>` : `<a href="${rutaTer(x, c)}">${esc(euros(x))}</a>`}</td><td class="num">${esc(euros(g.neto))}</td><td class="num">${esc(euros(g.neto / 14))}</td><td class="num">${esc(euros(g.irpf))}</td><td class="num">${esc(pct(g.marginal_irpf))}</td></tr>`; }).join("");
+    const filasVentana = ventana.map(x => { const g = fila(x, c); return `<tr${x === b ? ' class="destacada"' : ""}><td>${x === b ? `<b>${esc(euros(x))}</b>` : `<a href="${rutaTer(x, c)}">${esc(euros(x))}</a>`}</td><td class="num">${esc(euros(g.neto))}</td><td class="num">${esc(euros(g.neto / 14))}</td><td class="num">${esc(euros(g.irpf))}</td><td class="num">${esc(pctMedio(g.marginal_irpf))}</td></tr>`; }).join("");
     const sig = lista[iImp + 1], ant = lista[iImp - 1];
     const saltoTxt = (x0, x1) => { const g0 = fila(x0, c), g1 = fila(x1, c), dn = g1.neto - g0.neto, db = x1 - x0;
       return `pasar de ${euros(x0)} a ${euros(x1)} brutos (${euros(db)} más) sube el neto en ${euros(dn)} al año: te quedas ${euros(100 * dn / db)} de cada 100 € de la subida`; };
     const salto = sig ? `En ${n}, ${saltoTxt(b, sig)}.` : `En ${n}, ${saltoTxt(ant, b)}.`;
-    const mil = `Con 1.000 € brutos más al año, a tu tipo marginal del ${pct(f.marginal)} (IRPF y Seguridad Social), el neto subiría unos ${euros(1000 * (1 - f.marginal))}.`;
+    const mil = `Con 1.000 € brutos más al año, a tu tipo marginal del ${pctMedio(f.marginal)} (IRPF y Seguridad Social), el neto subiría unos ${euros(1000 * (1 - f.marginal))}.`;
     const tramo = f.irpf === 0
       ? `Con ${euros(b)} brutos en ${n} la cuota del IRPF del año sale a cero: solo se paga Seguridad Social.`
       : f.marginal_irpf === 0
         ? `Con este sueldo el IRPF del año es pequeño (${euros(f.irpf)}) y un euro más no lo cambia: tu tipo marginal de IRPF es 0.`
-        : `Tu último euro tributa en el IRPF al ${pct(f.marginal_irpf)}, frente a un tipo medio del ${pct(tipoIrpf)}: el tipo marginal se aplica solo a lo que excede del tramo anterior, no a todo el sueldo.`;
+        : `Tu último euro tributa en el IRPF al ${pctMedio(f.marginal_irpf)}, frente a un tipo medio sobre el bruto del ${pctMedio(tipoIrpf)}: el tipo marginal se aplica solo a lo que excede del tramo anterior, no a todo el sueldo.`;
     const faq = [
       [`¿Cuánto es ${euros(b)} brutos en netos al mes en ${n}?`, `En ${EJ}, unos ${euros(f.neto / 12)} al mes en 12 pagas o ${euros(f.neto / 14)} en 14 pagas (${euros(f.neto)} netos al año), para una persona soltera, sin hijos y con contrato indefinido.`],
-      [`¿Cuánto IRPF se paga con ${euros(b)} en ${n}?`, `${euros(f.irpf)} al año, un tipo medio del ${pct(tipoIrpf)} sobre el bruto. Con la Seguridad Social (${euros(s.total)}), el total es el ${pct(tipoTotal)}.`],
+      [`¿Cuánto IRPF se paga con ${euros(b)} en ${n}?`, `${euros(f.irpf)} al año, un tipo medio del ${pctMedio(tipoIrpf)} sobre el bruto. Con la Seguridad Social (${euros(s.total)}), el total es el ${pctMedio(tipoTotal)}.`],
       [`¿Coincide con lo que veré en la nómina?`, `No exactamente: la nómina aplica una retención a cuenta, que puede ser algo mayor o menor. La diferencia se regulariza en la declaración de la renta; este neto es el que queda tras ella.`],
       [`¿Y si tengo hijos o un contrato temporal?`, `El neto cambia: los hijos elevan el mínimo familiar y el contrato temporal cotiza un poco más por desempleo. La calculadora de sueldo neto de Mapafiscal lo calcula con tu situación.`]
     ];
@@ -159,18 +158,18 @@ export function paginasSueldoNeto(d, { conDeducciones = new Set(), ejercicioDedu
     <div class="envoltorio"><table class="cobertura"><tbody>
       <tr><td>Sueldo bruto anual</td><td class="num">${esc(euros(b))}</td></tr>
       ${filasSs}
-      <tr><td><b>Seguridad Social</b> (${esc(pct(s.total / b))})</td><td class="num"><b>${esc(menos(s.total))}</b></td></tr>
-      <tr><td><b>IRPF del año</b> (tipo medio ${esc(pct(tipoIrpf))})</td><td class="num"><b>${esc(menos(f.irpf))}</b></td></tr>
+      <tr><td><b>Seguridad Social</b> (${esc(pctMedio(s.total / b))})</td><td class="num"><b>${esc(menos(s.total))}</b></td></tr>
+      <tr><td><b>IRPF del año</b> (tipo medio sobre el bruto: ${esc(pctMedio(tipoIrpf))})</td><td class="num"><b>${esc(menos(f.irpf))}</b></td></tr>
       <tr><td><b>Sueldo neto anual</b></td><td class="num"><b>${esc(euros(f.neto))}</b></td></tr>
     </tbody></table></div>
-    <p>Entre IRPF y Seguridad Social se va el ${esc(pct(tipoTotal))} del bruto. De cada 100 € más de sueldo, ${esc(euros(100 * f.marginal))} se irían en impuestos y cotizaciones (${esc(euros(100 * f.marginal_irpf))} de IRPF): es tu tipo marginal.${esc(topeSs)}</p>
+    <p>Entre IRPF y Seguridad Social se va el ${esc(pctMedio(tipoTotal))} del bruto. De cada 100 € más de sueldo, ${esc(euros(100 * f.marginal))} se irían en impuestos y cotizaciones (${esc(euros(100 * f.marginal_irpf))} de IRPF): es tu tipo marginal.${esc(topeSs)}</p>
     <p class="ayuda">${notaSs}</p>
   </div>
   ${graficoBrutoNeto({ serie: serieSueldoNeto(d, c), marca: b, titulo: `Del bruto al neto en ${n}`, pie: `Neto mensual en 12 pagas y tipo medio del IRPF en ${n} para cada sueldo bruto anual de ${euros(importes[0])} a ${euros(importes.at(-1))} (${EJ}, persona soltera sin hijos). El punto marca ${euros(b)}.` })}
   <div class="tarjeta tarjeta-tabla">
     <h2 class="rotulo">${esc(n)} frente a los otros 18 territorios</h2>
     <p>${esc(comparacion)} Son ${esc(frenteMedia)}.${vecinosPuesto ? ` ${esc(vecinosPuesto)}.` : ""} ${esc(regimen)}</p>
-    <div class="envoltorio"><table class="cobertura"><thead><tr><th class="num">Puesto</th><th>Territorio</th><th class="num">Neto anual</th><th class="num">Frente a ${esc(NOMBRE_CORTO[c])}</th><th class="num">Tipo medio IRPF</th></tr></thead><tbody>${filas19}</tbody></table></div>
+    <div class="envoltorio"><table class="cobertura"><thead><tr><th class="num">Puesto</th><th>Territorio</th><th class="num">Neto anual</th><th class="num">Frente a ${esc(NOMBRE_CORTO[c])}</th><th class="num">Tipo medio sobre el bruto</th></tr></thead><tbody>${filas19}</tbody></table></div>
     <p class="ayuda">Tabla completa: <a href="${rutaNac(b)}">${esc(euros(b))} en los 19 territorios</a>. Resto de territorios: ${otros}</p>
   </div>
   <div class="tarjeta tarjeta-tabla">
@@ -192,8 +191,8 @@ export function paginasSueldoNeto(d, { conDeducciones = new Set(), ejercicioDedu
 
   // ---- nacional por importe ------------------------------------------------------------
   function tabla19(b, mensualDe) {
-    return `<div class="envoltorio"><table class="cobertura"><thead><tr><th class="num">Puesto</th><th>Territorio</th><th class="num">Neto anual</th><th class="num">12 pagas</th><th class="num">14 pagas</th><th class="num">IRPF</th><th class="num">Tipo medio IRPF</th><th class="num">Carga total (IRPF + SS)</th><th class="num">Marginal IRPF</th></tr></thead><tbody>${ranking(b).map((x, i) =>
-      `<tr><td class="num">${i + 1}</td><td>${enlaceTer(b, x.c, nombre(x.c))}</td><td class="num">${esc(euros(x.neto))}</td><td class="num"${mensualDe === 12 ? ' style="font-weight:700"' : ""}>${esc(euros(x.neto / 12))}</td><td class="num"${mensualDe === 14 ? ' style="font-weight:700"' : ""}>${esc(euros(x.neto / 14))}</td><td class="num">${esc(euros(x.irpf))}</td><td class="num">${esc(pct(x.irpf / b))}</td><td class="num">${esc(pct((x.irpf + ss(b).total) / b))}</td><td class="num">${esc(pct(x.marginal_irpf))}</td></tr>`).join("")}</tbody></table></div>`;
+    return `<div class="envoltorio"><table class="cobertura"><thead><tr><th class="num">Puesto</th><th>Territorio</th><th class="num">Neto anual</th><th class="num">12 pagas</th><th class="num">14 pagas</th><th class="num">IRPF</th><th class="num">Tipo medio sobre el bruto</th><th class="num">Carga total (IRPF + SS)</th><th class="num">Marginal IRPF</th></tr></thead><tbody>${ranking(b).map((x, i) =>
+      `<tr><td class="num">${i + 1}</td><td>${enlaceTer(b, x.c, nombre(x.c))}</td><td class="num">${esc(euros(x.neto))}</td><td class="num"${mensualDe === 12 ? ' style="font-weight:700"' : ""}>${esc(euros(x.neto / 12))}</td><td class="num"${mensualDe === 14 ? ' style="font-weight:700"' : ""}>${esc(euros(x.neto / 14))}</td><td class="num">${esc(euros(x.irpf))}</td><td class="num">${esc(pctMedio(x.irpf / b))}</td><td class="num">${esc(pctMedio((x.irpf + ss(b).total) / b))}</td><td class="num">${esc(pctMedio(x.marginal_irpf))}</td></tr>`).join("")}</tbody></table></div>`;
   }
   function paginaNacional(b, i) {
     const r = ranking(b), s = ss(b), mejor = r[0], peor = r[r.length - 1];
@@ -207,7 +206,7 @@ export function paginasSueldoNeto(d, { conDeducciones = new Set(), ejercicioDedu
     const faq = [
       [`¿Cuánto es ${euros(b)} brutos en netos al mes?`, `En ${EJ}, en la Comunidad de Madrid, unos ${euros(md.neto / 12)} al mes en 12 pagas o ${euros(md.neto / 14)} en 14 pagas. En el resto de territorios va de ${euros(peor.neto / 14)} a ${euros(mejor.neto / 14)} en 14 pagas.`],
       [`¿Dónde queda más neto con ${euros(b)}?`, `En ${nombre(mejor.c)}: ${euros(mejor.neto)} netos al año, ${euros(mejor.neto - peor.neto)} más que en ${nombre(peor.c)}, donde menos queda.`],
-      [`¿Cuánto se paga de Seguridad Social con ${euros(b)}?`, `${euros(s.total)} al año, el ${pct(s.total / b)} del bruto, igual en los 19 territorios (contrato indefinido).`]
+      [`¿Cuánto se paga de Seguridad Social con ${euros(b)}?`, `${euros(s.total)} al año, el ${pctMedio(s.total / b)} del bruto, igual en los 19 territorios (contrato indefinido).`]
     ];
     // Sueldos vecinos: rango de neto entre territorios y Madrid, del motor.
     const iB = importes.indexOf(b), vent = importes.slice(Math.max(0, iB - 2), iB + 3);
@@ -215,7 +214,7 @@ export function paginasSueldoNeto(d, { conDeducciones = new Set(), ejercicioDedu
     const sigB = importes[iB + 1];
     const marg = r.map(x => x.marginal_irpf), mMin = Math.min(...marg), mMax = Math.max(...marg);
     const cambio = (sigB ? `De ${euros(b)} a ${euros(sigB)} brutos, el neto en Madrid sube ${euros(fila(sigB, "ES-MD").neto - md.neto)} al año y la distancia entre el territorio que más deja y el que menos pasa de ${euros(mejor.neto - peor.neto)} a ${euros(ranking(sigB)[0].neto - ranking(sigB).at(-1).neto)}.` : `Entre el territorio que más deja y el que menos hay ${euros(mejor.neto - peor.neto)} al año.`)
-      + (mMax === 0 ? ` Con ${euros(b)} el tipo marginal del IRPF es 0 en los 19 territorios: un euro más de sueldo solo paga Seguridad Social.` : ` El tipo marginal del IRPF con este sueldo va del ${pct(mMin)} al ${pct(mMax)} según el territorio; con 1.000 € brutos más, en Madrid el neto subiría unos ${euros(1000 * (1 - md.marginal))}.`);
+      + (mMax === 0 ? ` Con ${euros(b)} el tipo marginal del IRPF es 0 en los 19 territorios: un euro más de sueldo solo paga Seguridad Social.` : ` El tipo marginal del IRPF con este sueldo va del ${pctMedio(mMin)} al ${pctMedio(mMax)} según el territorio; con 1.000 € brutos más, en Madrid el neto subiría unos ${euros(1000 * (1 - md.marginal))}.`);
     const titulo = `${euros(b)} brutos a netos (${EJ}): sueldo neto en 12 y 14 pagas`;
     const migas = [["Inicio", "/"], ["Sueldo neto", "/sueldo-neto/"], [`${euros(b)} brutos`, rutaNac(b)]];
     const main = `

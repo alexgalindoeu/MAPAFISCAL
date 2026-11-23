@@ -133,7 +133,7 @@ test("index.html: diálogo de acceso completo y accesible", () => {
   assert.doesNotMatch(dlg, /checked/, "la casilla no viene marcada");
   assert.match(html, /id="dlg-bienvenida"/);
   assert.match(html, /id="btn-guardar-calculo"/);
-  assert.match(html, /<script src="js\/cuentas.js"><\/script>\s*<script src="js\/app.js">/);
+  assert.match(html, /<script src="js\/cuentas.js" defer><\/script>\s*<script src="js\/app.js" defer>/);
 });
 
 test("app.js: redirección tras el acceso y casilla solo al crear la cuenta", () => {

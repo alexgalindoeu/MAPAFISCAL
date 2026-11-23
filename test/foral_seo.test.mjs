@@ -44,7 +44,8 @@ test("las cifras salen del motor y no hay avisos de obra", () => {
 const P_DEF = JSON.parse(readFileSync(new URL("../web/datos/params.json", import.meta.url), "utf8"));
 const CORTO = { "ES-PV-BI": "Bizkaia", "ES-PV-SS": "Gipuzkoa", "ES-PV-VI": "Álava", "ES-NC": "Navarra" };
 const eur = x => String(Math.round(x)).replace(/\B(?=(\d{3})+(?!\d))/g, ".") + " €";
-const pc = x => (100 * x).toFixed(1).replace(".", ",") + " %";
+const pc = x => (100 * x).toFixed(1).replace(".", ",") + " %";   // tipo medio: un decimal
+const pcTipo = x => String(Math.round(x * 100000) / 1000).replace(".", ",") + " %";   // tipo de tarifa: decimales justos
 const titulo = h => h.match(/<title>([^<]*)<\/title>/)[1];
 const ld = h => [...h.matchAll(/<script type="application\/ld\+json">([\s\S]*?)<\/script>/g)].map(m => JSON.parse(m[1]));
 const escHtml = s => s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#39;");
@@ -63,7 +64,7 @@ test("página principal foral: renta, tipos por sueldo del motor y FAQ en el JSO
     const escala = t === "ES-NC" ? P_DEF.navarra.escala_general_foral : P_DEF.foral_pv.escala_general_foral;
     const i = h.indexOf('id="tipos-por-sueldo"'), fila = h.slice(i, h.indexOf("</table>", i)).split("<tr>").find(f => f.includes(">40.000 €<"));
     const x = motor.irpfAnual(liq);
-    for (const v of [eur(x), pc(x / 40000), pc(motor.tipoMarginal(liq.baseLiquidableGeneral, escala))]) assert.ok(fila.includes(v), `${t}: ${v}`);
+    for (const v of [eur(x), pc(x / 40000), pcTipo(motor.tipoMarginal(liq.baseLiquidableGeneral, escala))]) assert.ok(fila.includes(v), `${t}: ${v}`);
     const faq = ld(h).find(o => o["@type"] === "FAQPage").mainEntity;
     assert.ok(faq.some(q => q.name.startsWith(`¿Quién gestiona la renta y la fiscalidad de ${c}`)), t);
     assert.ok(faq.some(q => q.name.startsWith(`¿Cuál es el tipo marginal del IRPF en ${c}`)), t);

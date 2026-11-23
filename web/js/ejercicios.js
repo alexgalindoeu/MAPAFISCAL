@@ -142,7 +142,7 @@
   const $ = id => document.getElementById(id);
   const esc = s => String(s == null ? "" : s).replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
   const conSigno = n => (n > 0.5 ? "+" : "") + eur0(n);
-  const pct = n => (100 * (n || 0)).toFixed(1).replace(".", ",") + "&nbsp;%";
+  const pct = n => ((typeof window !== "undefined" && window.MapafiscalImporte) || require("./importe.js")).pctMedio(n).replace(" %", "&nbsp;%");
   const leer = id => window.MapafiscalImporte ? window.MapafiscalImporte.valor($(id)) : parseFloat($(id).value);
   async function datos(idScript, url) {
     const el = document.getElementById(idScript);
@@ -184,7 +184,7 @@
     $("ej-tabla").innerHTML = `<caption class="sr">El mismo sueldo en ${r.anterior} y en ${r.actual}</caption><thead><tr><th scope="col">Concepto</th><th scope="col" class="num">${r.anterior}</th><th scope="col" class="num">${r.actual}</th><th scope="col" class="num">Diferencia</th></tr></thead><tbody>` +
       [["Bruto anual", "bruto"], ["Cotizaciones a la Seguridad Social", "cotizaciones"], ["IRPF del año", "irpf"], ["Neto al año", "neto"], ["Neto al mes (12 pagas)", "netoMes"]]
         .map(([n, k]) => `<tr class="${k === "neto" ? "total" : ""}"><th scope="row">${n}</th><td class="num">${eur0(r.a[k])}</td><td class="num">${eur0(r.b[k])}</td><td class="num">${conSigno(r.b[k] - r.a[k])}</td></tr>`).join("") +
-      `<tr class="info"><th scope="row">Tipo medio del IRPF</th><td class="num">${pct(r.a.tipoMedio)}</td><td class="num">${pct(r.b.tipoMedio)}</td><td class="num"></td></tr></tbody>`;
+      `<tr class="info"><th scope="row">Tipo medio sobre el sueldo bruto</th><td class="num">${pct(r.a.tipoMedio)}</td><td class="num">${pct(r.b.tipoMedio)}</td><td class="num"></td></tr></tbody>`;
     // una cifra corta («19.747,50 €») no se parte por el espacio antes de «€»; un texto sí
     const cifra = v => String(v).length <= 14 ? `<span class="sin-corte">${esc(v)}</span>` : esc(v);
     $("ej-conceptos").innerHTML = `<caption class="sr">Conceptos de ${r.anterior} y de ${r.actual}</caption><thead><tr><th scope="col">Concepto</th><th scope="col">${r.anterior}</th><th scope="col">${r.actual}</th></tr></thead>` +

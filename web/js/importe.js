@@ -17,14 +17,27 @@
  * - Signo menos al principio; el rango (mínimo/máximo) lo decide cada campo.
  * - Vacío: { vacio: true, valor: null }. Nunca se convierte en 0 sin decirlo.
  *
- * En Node (test/importe.test.mjs) exporta la lógica pura.
+ * - Una sola coma seguida de exactamente 3 cifras y nada más («30,000», «1,500»): error con
+ *   sugerencia. En España los miles van con punto, y quien escribe «30,000» casi siempre quiere
+ *   decir 30.000 € (formato anglosajón), no 30 €: no se adivina en ningún sentido. Si la parte
+ *   entera es 0 («0,500»), no hay ambigüedad posible (nadie escribe «0» como grupo de miles):
+ *   es 0,5 y se acepta. «30,5», «30,50» o «30000,500» siguen siendo decimales.
+ *
+ * Formato de porcentajes (criterio único de la web y de las páginas generadas):
+ * - pctTipo(t): tipos de tarifa y de norma (escalas, deducciones, cotizaciones), con los
+ *   decimales justos (hasta tres, sin redondear un tipo de la norma): «9,5 %», «12 %», «24,5 %», «4,7 %».
+ * - pctMedio(t): tipos medios y demás cocientes calculados (IRPF entre bruto, cuota entre base,
+ *   carga total…), con un decimal siempre: «15,2 %», «18,0 %».
+ * t es la fracción (0,152 = 15,2 %).
+ *
+ * En Node (test/importe.test.mjs y tools/seo_comun.mjs) exporta la lógica pura.
  * ========================================================================== */
 (function () {
   "use strict";
 
   const ESPACIOS = /[\s   ]/g;
 
-  function error(mensaje) { return { ok: false, vacio: false, valor: null, error: mensaje }; }
+  function error(mensaje, extra) { return Object.assign({ ok: false, vacio: false, valor: null, error: mensaje }, extra); }
 
   function parsearImporte(texto, o) {
     o = o || {};
@@ -50,6 +63,10 @@
     } else if (comas) {
       if (comas > 1) return error("Hay más de una coma. Usa la coma solo para los decimales.");
       [entero, decimal] = s.split(",");
+      if (/^[0-9]{3}$/.test(decimal) && /^[1-9][0-9]{0,2}$/.test(entero)) {
+        const miles = (signo < 0 ? "−" : "") + entero + "." + decimal;
+        return error(`¿Querías decir ${miles} €? En España los miles van con punto.`, { sugerencia: signo * Number(entero + decimal) });
+      }
     } else if (puntos) {
       if (miles3(s, ".")) entero = s.split(".").join("");
       else if (puntos === 1) [entero, decimal] = s.split(".");
@@ -82,7 +99,18 @@
     return Number(v).toLocaleString("es-ES", { useGrouping: false, maximumFractionDigits: 2 });
   }
 
-  const API = { parsearImporte, formatearImporte };
+  // ---- porcentajes (ver el criterio en la cabecera) ---------------------------------------
+  const coma = x => String(x).replace(".", ",");
+  function pctTipo(t) {
+    const x = Math.round((Number(t) || 0) * 100000) / 1000;   // hasta 3 decimales: nunca redondea un tipo de norma
+    return coma(Object.is(x, -0) ? 0 : x) + " %";
+  }
+  function pctMedio(t) {
+    const x = (100 * (Number(t) || 0)).toFixed(1);
+    return coma(x === "-0.0" ? "0.0" : x) + " %";
+  }
+
+  const API = { parsearImporte, formatearImporte, pctTipo, pctMedio };
   if (typeof module !== "undefined" && module.exports) { module.exports = API; return; }
 
   // ==== navegador ==========================================================================
@@ -122,5 +150,5 @@
     const u = el.dataset.ultimoValido;
     return u ? Number(u) : 0;
   }
-  window.MapafiscalImporte = { parsearImporte, formatearImporte, valor };
+  window.MapafiscalImporte = { parsearImporte, formatearImporte, pctTipo, pctMedio, valor };
 })();

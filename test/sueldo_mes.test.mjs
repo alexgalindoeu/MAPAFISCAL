@@ -116,7 +116,7 @@ test("/sueldo-mensual/: una sola página nueva con la tabla, FAQ y enlaces a la 
 
 test("la vista #sueldo-mes se pinta, está registrada y lee el enlace", async () => {
   const html = readFileSync(new URL("../web/index.html", import.meta.url), "utf8");
-  assert.match(html, /<script src="js\/sueldo_mes\.js"><\/script>/);
+  assert.match(html, /<script src="js\/sueldo_mes\.js" defer><\/script>/);
   assert.ok(html.indexOf('id="v-sueldo-mes"') > html.indexOf("<!--CUERPO-->") && html.indexOf('id="v-sueldo-mes"') < html.indexOf("<!--/CUERPO-->"));
   assert.match(readFileSync(new URL("../web/js/ui.js", import.meta.url), "utf8"), /href: "#sueldo-mes"/);
   assert.match(readFileSync(new URL("../tools/empaquetar.mjs", import.meta.url), "utf8"), /js\/sueldo_mes\.js/);

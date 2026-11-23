@@ -31,7 +31,7 @@
   const eur0 = n => (n < -0.5 ? "−" : "") + miles(Math.abs(Math.round(n || 0)).toString()) + " €";
   const eur = n => { const v = Math.round(Math.abs(n) * 100) / 100, [e, d] = v.toFixed(2).split("."); return (n < 0 ? "−" : "") + miles(e) + (d !== "00" ? "," + d : "") + " €"; };
   const eur2 = n => (n < 0 ? "−" : "") + miles(Math.abs(n).toFixed(2).split(".")[0]) + "," + Math.abs(n).toFixed(2).split(".")[1] + " €";
-  const pc = n => String(Math.round(n * 100000) / 1000).replace(".", ",") + " %";
+  const pc = n => ((typeof window !== "undefined" && window.MapafiscalImporte) || require("./importe.js")).pctTipo(n);   // tipos de tarifa y de cotización: decimales justos
   const coef = n => String(Math.round(n * 10000) / 10000).replace(".", ",");
   const esc = s => String(s == null ? "" : s).replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
 

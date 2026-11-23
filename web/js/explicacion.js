@@ -18,7 +18,10 @@
   const fmt = new Intl.NumberFormat("es-ES", { minimumFractionDigits: 2, maximumFractionDigits: 2, useGrouping: "always" });
   const eur0 = x => Number.isInteger(num(x)) ? num(x).toLocaleString("es-ES", { useGrouping: "always" }) + " €" : eur(x);
   const eur = x => fmt.format(red2(num(x))) + " €";
-  const pct = t => (Math.round(t * 10000) / 100).toLocaleString("es-ES", { maximumFractionDigits: 2 }) + " %";
+  // porcentajes con el criterio común de js/importe.js: pctTipo para tipos de tarifa (decimales
+  // justos), pctMedio para tipos medios y demás cocientes calculados (un decimal)
+  const fmtPct = () => (typeof window !== "undefined" && window.MapafiscalImporte) || require("./importe.js");
+  const pct = t => fmtPct().pctTipo(t), pctMedio = t => fmtPct().pctMedio(t);
   const esc = s => String(s == null ? "" : s).replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
   const normaDe = o => (o && typeof o === "object" && typeof o.norma === "string" ? o.norma : "");
   const escalaFn = () => (global.irpfsim && global.irpfsim.aplicarEscala) || aplicarEscalaLocal;
@@ -216,7 +219,7 @@
       if (num(liq.retenciones)) filas.push({ concepto: "Retenciones e ingresos a cuenta", importe: -liq.retenciones, resta: true });
       filas.push({ concepto: liq.cuotaDiferencial < 0 ? "Cuota diferencial: a devolver" : "Cuota diferencial", importe: Math.abs(num(liq.cuotaDiferencial)), total: true });
       out.push({ id: "resultado", titulo: "Resultado", filas, norma: "",
-        nota: (conjunta ? "Tributación conjunta, " : "Tributación individual, ") + "la modalidad más favorable entre las posibles. Tipo medio efectivo: " + pct(num(liq.tipoMedioEfectivo)) + "." });
+        nota: (conjunta ? "Tributación conjunta, " : "Tributación individual, ") + "la modalidad más favorable entre las posibles. Tipo medio sobre la base imponible (IRPF del año entre la base imponible): " + pctMedio(num(liq.tipoMedioEfectivo)) + "." });
     }
     return out;
   }

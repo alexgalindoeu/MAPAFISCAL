@@ -13,7 +13,7 @@ import { readFileSync, readdirSync } from "node:fs";
 import { createRequire } from "node:module";
 import { join, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
-import { esc, NOMBRE_CORTO, layout, jsonLdMigas, jsonLdFaq, bloqueFaq, migasHtml, respuestaDirecta, tituloQueQuepa, MAX_TITULO_DURO } from "./seo_comun.mjs";
+import { esc, pctMedio, NOMBRE_CORTO, layout, jsonLdMigas, jsonLdFaq, bloqueFaq, migasHtml, respuestaDirecta, tituloQueQuepa, MAX_TITULO_DURO } from "./seo_comun.mjs";
 
 const require = createRequire(import.meta.url);
 const WEB = join(dirname(fileURLToPath(import.meta.url)), "..", "web");
@@ -34,7 +34,6 @@ const eur0 = n => (n < -0.5 ? "−" : "") + miles(Math.abs(Math.round(n || 0)).t
 // cifra corta de una tabla («20.048,45 €»): no se parte por el espacio antes de «€»
 const cifra = v => String(v).length <= 14 ? `<span class="sin-corte">${esc(v)}</span>` : esc(v);
 const conSigno = n => (n > 0.5 ? "+" : "") + eur0(n);
-const pct = n => (100 * (n || 0)).toFixed(1).replace(".", ",") + " %";
 const minus = t => t.charAt(0).toLowerCase() + t.slice(1);
 const app = h => "/index.html" + h;
 const boton = (txt, href, sec) => `<p><a class="btn btn-pri" href="${esc(href)}">${esc(txt)}</a>${sec ? ` <a class="btn btn-sec" href="${esc(sec[1])}">${esc(sec[0])}</a>` : ""}</p>`;
@@ -53,7 +52,7 @@ function tablaOfertas(P, ej) {
   return { r, html: `<div class="envoltorio"><table class="cobertura"><thead><tr><th scope="col">Concepto</th><th scope="col" class="num">A: ${esc(n(ej.a.territorio))}, ${ej.a.pagas} pagas</th><th scope="col" class="num">B: ${esc(n(ej.b.territorio))}, ${ej.b.pagas} pagas</th><th scope="col" class="num">A − B</th></tr></thead><tbody>` +
     filas.map(([t, k]) => `<tr><td>${t}</td><td class="num">${esc(eur0(r.a[k]))}</td><td class="num">${esc(eur0(r.b[k]))}</td><td class="num">${esc(conSigno(r.a[k] - r.b[k]))}</td></tr>`).join("") +
     `<tr><td>Neto de cada paga</td><td class="num">${esc(eur0(r.a.netoPaga))} × ${r.a.pagas}</td><td class="num">${esc(eur0(r.b.netoPaga))} × ${r.b.pagas}</td><td></td></tr>` +
-    `<tr><td>Tipo medio del IRPF</td><td class="num">${esc(pct(r.a.tipoMedio))}</td><td class="num">${esc(pct(r.b.tipoMedio))}</td><td></td></tr></tbody></table></div>` };
+    `<tr><td>Tipo medio sobre el sueldo bruto</td><td class="num">${esc(pctMedio(r.a.tipoMedio))}</td><td class="num">${esc(pctMedio(r.b.tipoMedio))}</td><td></td></tr></tbody></table></div>` };
 }
 function paginaOfertas(P, generado) {
   const [e1, e2] = EJEMPLOS_OFERTAS.map(ej => ({ ej, ...tablaOfertas(P, ej) }));

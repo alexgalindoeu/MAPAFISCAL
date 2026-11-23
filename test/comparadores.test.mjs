@@ -144,7 +144,7 @@ test("las tres vistas están en index.html, en el empaquetador, en el panel «To
   const cuerpo = html.slice(html.indexOf("<!--CUERPO-->"), html.indexOf("<!--/CUERPO-->"));
   for (const [v, js, ico] of [["ofertas", "ofertas", "ofertas"], ["ejercicios", "ejercicios", "ejercicios"], ["marginal", "marginal", "marginal"]]) {
     assert.match(cuerpo, new RegExp(`<section class="vista" id="v-${v}"`));
-    assert.match(html, new RegExp(`<script src="js/${js}\\.js"></script>`));
+    assert.match(html, new RegExp(`<script src="js/${js}\\.js" defer></script>`));
     assert.ok(emp.includes(`'<script src="js/${js}.js"></script>'`), "empaquetar.mjs");
     assert.ok(UI.ICONOS[ico], "icono " + ico);
     assert.ok(UI.CATALOGO.some(g => g.items.some(it => it.href === "#" + v && it.icono === ico)), "panel «Todo»");

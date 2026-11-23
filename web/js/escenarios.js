@@ -223,7 +223,9 @@
   const miles = s => s.replace(/\B(?=(\d{3})+(?!\d))/g, ".");
   const eur0 = n => (n < -0.5 ? "−" : "") + miles(Math.abs(Math.round(n || 0)).toString()) + " €";
   const conSigno = n => Math.abs(n) < 0.5 ? "igual" : (n < 0 ? "−" : "+") + miles(Math.abs(Math.round(n)).toString()) + " €";
-  const pct = (n, d = 2) => (100 * (n || 0)).toFixed(d).replace(".", ",") + " %";
+  // porcentajes con el criterio común de js/importe.js: pctTipo para tipos de tarifa (decimales
+  // justos), pctMedio para tipos medios y demás cocientes calculados (un decimal)
+  const pct = n => ((typeof window !== "undefined" && window.MapafiscalImporte) || require("./importe.js")).pctMedio(n);
   const ORDEN = ["ES-AN", "ES-AR", "ES-AS", "ES-IB", "ES-CN", "ES-CB", "ES-CL", "ES-CM", "ES-CT", "ES-EX", "ES-GA",
     "ES-MD", "ES-MC", "ES-RI", "ES-VC", "ES-PV-VI", "ES-PV-BI", "ES-PV-SS", "ES-NC"];
   const CORTO = { "ES-AN": "Andalucía", "ES-AR": "Aragón", "ES-AS": "Asturias", "ES-IB": "Illes Balears", "ES-CN": "Canarias",
@@ -494,7 +496,7 @@
       }
       li.classList.toggle("tu", t === terr);
       const v = datos[t][m];
-      const pos = 1 + lista.filter(x => datos[x][m] < v - (m === "cuota" ? 0.5 : 0.00005)).length;
+      const pos = 1 + lista.filter(x => datos[x][m] < v - (m === "cuota" ? 0.5 : 0.0005)).length;
       li.querySelector(".desl-pos").textContent = pos + ".º";
       li.querySelector(".desl-cifra").textContent = m === "cuota" ? eur0(v) : pct(v);
       // la barra arranca en el más barato: así se ven las diferencias entre territorios
@@ -521,7 +523,7 @@
     const yo = d[terr].cuota, barato = lista[0], caro = lista[lista.length - 1];
     const pos = 1 + lista.filter(t => d[t].cuota < yo - 0.5).length;
     $("desl-frase").innerHTML = d[caro].cuota < 0.5 ? `Con <b>${eur0(D.sueldo)}</b> brutos no se paga IRPF en ningún territorio.`
-      : `Con <b>${eur0(D.sueldo)}</b> brutos, en <b>${esc(corto(terr))}</b> pagarías <b>${eur0(yo)}</b> (tipo medio ${pct(d[terr].tipo)}), el ${pos}.º más barato de 19. ` +
+      : `Con <b>${eur0(D.sueldo)}</b> brutos, en <b>${esc(corto(terr))}</b> pagarías <b>${eur0(yo)}</b> (tipo medio sobre la base ${pct(d[terr].tipo)}), el ${pos}.º más barato de 19. ` +
         (pos === 1 ? `En ${esc(corto(caro))}, ${eur0(d[caro].cuota - yo)} más.` : `En ${esc(corto(barato))}, ${eur0(yo - d[barato].cuota)} menos; en ${esc(corto(caro))}, ${eur0(Math.max(0, d[caro].cuota - yo))} más.`);
   }
   // curvas de los 19 territorios: se calculan por tandas para no bloquear la página
@@ -560,7 +562,7 @@
     const ymax = redondoArriba(Math.max(...puntos.flatMap(p => Object.values(p.d).map(x => x[m]))));
     gy = v => G.t + (1 - v / ymax) * (G.H - G.t - G.b);
     const fmtY = v => m === "cuota" ? (v >= 1000 ? miles(String(Math.round(v / 1000))) + " mil €" : eur0(v)) : (100 * v).toFixed(0) + " %";
-    let h = `<title id="desl-svg-tit">${m === "cuota" ? "Cuota del IRPF" : "Tipo medio efectivo"} frente al sueldo bruto en los 19 territorios; ${esc(corto(terr))} resaltado</title>`;
+    let h = `<title id="desl-svg-tit">${m === "cuota" ? "Cuota del IRPF" : "Tipo medio sobre la base imponible"} frente al sueldo bruto en los 19 territorios; ${esc(corto(terr))} resaltado</title>`;
     for (let k = 0; k <= 4; k++) {
       const v = ymax * k / 4, y = gy(v).toFixed(1);
       h += `<line class="desl-reticula" x1="${G.l}" x2="${G.W - G.r}" y1="${y}" y2="${y}"/><text class="desl-eje" x="${G.l - 8}" y="${(+y + 4).toFixed(1)}" text-anchor="end">${fmtY(v)}</text>`;
@@ -686,7 +688,7 @@
     $("esc-chip").textContent = `${corto(e.territorio)} · ${P().ejercicio}`;
     const nombreFila = f => f.todos ? "Todo a la vez" : f.esc ? describir(f.esc) : "Situación actual";
     const cls = d => Math.abs(d) < 0.5 ? "" : d > 0 ? "gana" : "pierde";
-    $("esc-tabla").innerHTML = `<thead><tr><th>Escenario</th><th class="num">IRPF</th><th class="num">Tipo medio</th><th class="num">Renta disponible</th><th class="num">Frente a hoy</th></tr></thead><tbody>` +
+    $("esc-tabla").innerHTML = `<thead><tr><th>Escenario</th><th class="num">IRPF</th><th class="num">Tipo medio sobre la base</th><th class="num">Renta disponible</th><th class="num">Frente a hoy</th></tr></thead><tbody>` +
       filas.map(f => `<tr class="${f.clave === "actual" ? "tu" : ""}"><th scope="row">${esc(nombreFila(f))}</th>
         <td class="num">${eur0(f.r.irpf)}</td><td class="num">${pct(f.r.tipo)}</td><td class="num">${eur0(f.r.disponible)}</td>
         <td class="num dif ${cls(f.dDisponible)}">${f.clave === "actual" ? "—" : `${conSigno(f.dDisponible)}<small>IRPF ${conSigno(f.dIrpf)}</small>`}</td></tr>`).join("") + "</tbody>";

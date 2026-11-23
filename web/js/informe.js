@@ -28,7 +28,10 @@
     return (n < -0.004 ? "−" : "") + miles(v[0]) + (dec ? "," + v[1] : "") + " €";
   };
   const eur0 = n => eur(n, 0);
-  const pct = n => (100 * (n || 0)).toFixed(2).replace(".", ",") + " %";
+  // porcentajes con el criterio común de js/importe.js: pctTipo para tipos de tarifa (decimales
+  // justos), pctMedio para tipos medios y demás cocientes calculados (un decimal)
+  const fmtPct = () => (typeof window !== "undefined" && window.MapafiscalImporte) || require("./importe.js");
+  const pct = n => fmtPct().pctMedio(n), pctTipo = n => fmtPct().pctTipo(n);
   const num = x => (Number.isFinite(+x) ? +x : 0);
   const red2 = n => Math.round((n + 1e-9) * 100) / 100;
 
@@ -294,8 +297,8 @@
     <div class="inf-cifra ${r.estado}"><span>${esc(r.rotulo)}</span><b>${eur(r.cifra)}</b></div>
     <dl class="inf-kpis">
       <div><dt>${esc(r.nombreCuota)}</dt><dd>${eur(r.cuota)}</dd></div>
-      <div><dt>Tipo medio efectivo</dt><dd>${pct(r.tipoMedio)}</dd></div>
-      <div><dt>Tipo marginal</dt><dd>${pct(r.tipoMarginal)}</dd></div>
+      <div><dt>Tipo medio sobre la base imponible</dt><dd>${pct(r.tipoMedio)}</dd></div>
+      <div><dt>Tipo marginal</dt><dd>${pctTipo(r.tipoMarginal)}</dd></div>
       <div><dt>Modalidad</dt><dd>${r.modo === "conjunta" ? "Conjunta" : "Individual"}${r.otraModalidad ? `<small>${r.otraModalidad.modo}: ${eur0(r.otraModalidad.cuota)}</small>` : ""}</dd></div>
     </dl>
     ${c.obligado === true ? '<p class="inf-nota">Con estos datos estás obligado a presentar la declaración (art. 96 LIRPF).</p>' : c.obligado === false ? '<p class="inf-nota">Con estos datos no estás obligado a declarar (art. 96 LIRPF).</p>' : ""}
@@ -552,7 +555,7 @@
     el.setAttribute("aria-labelledby", "inf-espera-tit");
     el.innerHTML = `<h2 id="inf-espera-tit" tabindex="-1">Preparando tu PDF</h2>
       <div class="inf-cifra ${r.estado}"><span>${esc(r.rotulo)} · ${esc(t.corto)} · ${ultimoContenido.ejercicio}</span><b>${eur(r.cifra)}</b></div>
-      <p class="inf-espera-kpis">Tipo medio ${pct(r.tipoMedio)} · tipo marginal ${pct(r.tipoMarginal)} · puesto ${ultimoContenido.comparacion.puesto} de ${ultimoContenido.comparacion.total} territorios</p>
+      <p class="inf-espera-kpis">Tipo medio sobre la base ${pct(r.tipoMedio)} · tipo marginal ${pctTipo(r.tipoMarginal)} · puesto ${ultimoContenido.comparacion.puesto} de ${ultimoContenido.comparacion.total} territorios</p>
       <div class="inf-rueda" aria-hidden="true"><span class="inf-rueda-giro"></span><span>Generando tu PDF…</span></div>
       <progress id="inf-espera-barra" max="${s}" value="0" aria-hidden="true"></progress>
       <p class="sr" role="status" id="inf-espera-estado">Tu PDF se descargará en ${s} segundos.</p>

@@ -13,7 +13,7 @@ import { createRequire } from "node:module";
 import { join, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
 import {
-  SLUG, HERRAMIENTA, NOMBRE_CORTO, MAX_DESCRIPCION, esc, eurosExactos, pctCorto,
+  SLUG, HERRAMIENTA, NOMBRE_CORTO, MAX_DESCRIPCION, esc, eurosExactos, pctTipo,
   layout, jsonLdMigas, jsonLdFaq, jsonLdArticulo, bloqueFaq, migasHtml, respuestaDirecta, tituloQueQuepa
 } from "./seo_comun.mjs";
 
@@ -184,7 +184,7 @@ export function htmlEjemploFamiliar(e, campoTexto) {
 
 export function htmlEjemplos(ex, campoTexto) {
   return ex.map(e => `<p>Una persona de ${e.edad} años, sin hijos, con un sueldo bruto de ${esc(eur(e.salario))} al año y tributación individual, con ${esc(eur(e.gasto))} de gasto deducible (${esc(campoTexto)}): ` +
-    `${pctCorto(e.d.porcentaje)} de ${esc(eur(Math.min(e.gasto, e.d.base_maxima ?? Infinity)))} = ${esc(eur(red2(Math.min(e.gasto, e.d.base_maxima ?? Infinity) * e.d.porcentaje)))}` +
+    `${pctTipo(e.d.porcentaje)} de ${esc(eur(Math.min(e.gasto, e.d.base_maxima ?? Infinity)))} = ${esc(eur(red2(Math.min(e.gasto, e.d.base_maxima ?? Infinity) * e.d.porcentaje)))}` +
     `${e.tope ? `, que se queda en el máximo de ${esc(eur(e.d.limite))}` : ""}. Con el motor de Mapafiscal, su cuota del IRPF baja <b>${esc(eur(e.delta))}</b>.</p>`).join("\n    ");
 }
 

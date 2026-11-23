@@ -10,7 +10,7 @@ import { readFileSync, readdirSync } from "node:fs";
 import { createRequire } from "node:module";
 import { join, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
-import { tituloQueQuepa, SLUG, ORDEN_TERRITORIOS, NOMBRE_CORTO, esc, euros, pct, layout, jsonLdMigas, jsonLdFaq, bloqueFaq, migasHtml, LIRPF_BOE } from "./seo_comun.mjs";
+import { tituloQueQuepa, SLUG, ORDEN_TERRITORIOS, NOMBRE_CORTO, esc, euros, pctMedio, layout, jsonLdMigas, jsonLdFaq, bloqueFaq, migasHtml, LIRPF_BOE } from "./seo_comun.mjs";
 
 const require = createRequire(import.meta.url);
 const WEB = join(dirname(fileURLToPath(import.meta.url)), "..", "web");

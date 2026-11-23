@@ -65,7 +65,7 @@ export const HERRAMIENTA = {
 };
 
 // ---- formato --------------------------------------------------------------------
-// Mismo formato que web/js/app.js (miles/eur/pct): así las cifras se ven igual en toda
+// Mismo formato que web/js/app.js (miles/eur/pctMedio): así las cifras se ven igual en toda
 // la web, en vez de depender del redondeo de agrupación de Intl.NumberFormat con es-ES
 // (que en Node no agrupa los millares de 4 cifras, p. ej. "5550" en vez de "5.550").
 export const esc = s => String(s).replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
@@ -85,9 +85,21 @@ export function eurosExactos(n) {
   const [e, d] = (c / 100).toFixed(2).split(".");
   return miles(e) + "," + d + " €";
 }
-export const pct = n => (100 * n).toFixed(1).replace(".", ",") + " %";
-// Porcentaje sin decimales sobrantes: 15 %, 9,5 %, 25,5 %.
-export const pctCorto = n => String(Math.round(n * 10000) / 100).replace(".", ",") + " %";
+// Porcentajes: el mismo criterio que la web (web/js/importe.js). Tipos de tarifa y de norma
+// con los decimales justos («9,5 %», «12 %»); tipos medios y cocientes calculados con un
+// decimal siempre («15,2 %»).
+export const { pctTipo, pctMedio } = createRequire(import.meta.url)("../web/js/importe.js");
+// Las dos formas del tipo medio que salen en la web (ver /glosario/tipo-medio/):
+// - sobre el sueldo bruto: IRPF del año entre el sueldo bruto anual (guías, sueldo neto,
+//   comparativas, calculadora rápida);
+// - sobre la base imponible: lo que calcula el motor (tipoMedioEfectivo en web/js/irpfsim.js y
+//   tipo_medio_efectivo en R/ y en seo_comparativas.json): cuota resultante de la
+//   autoliquidación (cuota líquida menos la deducción por rendimientos del trabajo en régimen
+//   común; cuota líquida en los forales) entre la base imponible general más la del ahorro.
+// Donde salen las dos, notaDosTipos explica la diferencia con las cifras del propio caso.
+export function notaDosTipos({ bruto, cuota, sobreBruto, sobreBase }) {
+  return `Las dos columnas de tipo medio dividen el mismo IRPF del año entre cosas distintas. El tipo medio sobre el sueldo bruto lo divide entre el sueldo bruto anual: con ${esc(euros(bruto))}, ${esc(euros(cuota))} son el ${esc(pctMedio(sobreBruto))}. El tipo medio sobre la base imponible lo divide entre la base imponible, que es el sueldo menos las cotizaciones a la Seguridad Social y los gastos y reducciones del trabajo: como es más pequeña que el bruto, sale más alto (${esc(pctMedio(sobreBase))}). Es el que da el motor de cálculo; para saber qué parte del sueldo se va en IRPF, mira el primero. <a href="/glosario/tipo-medio/">Las dos formas de calcular el tipo medio</a>.`;
+}
 const MESES = ["enero", "febrero", "marzo", "abril", "mayo", "junio", "julio", "agosto", "septiembre", "octubre", "noviembre", "diciembre"];
 export function fecha(iso) {
   const [a, m, d] = iso.split("-").map(Number);
@@ -115,7 +127,7 @@ export function tablaEscala(tramos, cab = "Tramo de la base liquidable general")
     if (i === 0) tramo = "Hasta " + euros(t.hasta);
     else if (t.hasta == null) tramo = "Desde " + euros(tramos[i - 1].hasta);
     else tramo = "De " + euros(tramos[i - 1].hasta) + " a " + euros(t.hasta);
-    return `<tr><td>${esc(tramo)}</td><td class="num">${esc(pct(t.tipo))}</td></tr>`;
+    return `<tr><td>${esc(tramo)}</td><td class="num">${esc(pctTipo(t.tipo))}</td></tr>`;
   });
   return `<table class="cobertura"><thead><tr><th>${esc(cab)}</th><th class="num">Tipo marginal</th></tr></thead><tbody>${filas.join("")}</tbody></table>`;
 }
@@ -221,7 +233,7 @@ export function bloqueCalculoRapido({ territorio = "ES-MD", ejercicio = EJERCICI
     </form>
     <div class="cr-res" id="cr-res" aria-live="polite"><p class="cr-espera">Escribe tu sueldo bruto: el neto, la Seguridad Social y el IRPF salen al momento.</p></div>
     <p class="cr-afinar"><a id="cr-afinar" href="${esc(href)}">Afinar con tu familia y deducciones <span aria-hidden="true">→</span></a></p>
-    <p class="ayuda cr-supuesto">Estimación${ejercicio ? ` del ejercicio ${esc(ejercicio)}` : ""} para una persona de 40 años, sin hijos y con contrato indefinido: sueldo neto tras la declaración de la renta, con las cotizaciones del ejercicio. Tipo medio: IRPF entre la base imponible; tipo marginal: el del último euro.${nota ? " " + esc(nota) : ""} El cálculo se hace en tu navegador.</p>
+    <p class="ayuda cr-supuesto">Estimación${ejercicio ? ` del ejercicio ${esc(ejercicio)}` : ""} para una persona de 40 años, sin hijos y con contrato indefinido: sueldo neto tras la declaración de la renta, con las cotizaciones del ejercicio. Tipo medio sobre el sueldo bruto: IRPF del año entre el bruto; tipo marginal: el del último euro.${nota ? " " + esc(nota) : ""} El cálculo se hace en tu navegador.</p>
   </section>`;
 }
 const CALCULO_RAPIDO = /<section class="calc-rapido"[\s\S]*?<\/section>\s*/g;

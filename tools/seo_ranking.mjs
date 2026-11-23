@@ -14,7 +14,7 @@ import { readFileSync } from "node:fs";
 import { join, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
 import { conArticulo } from "./seo_deduccion_ficha.mjs";
-import { SITIO, SLUG, ORDEN_TERRITORIOS, esc, euros, eurosExactos, pct, layout, jsonLdMigas, migasHtml, respuestaDirecta, numeroCasos } from "./seo_comun.mjs";
+import { SITIO, SLUG, ORDEN_TERRITORIOS, esc, euros, eurosExactos, pctMedio, layout, jsonLdMigas, migasHtml, respuestaDirecta, numeroCasos } from "./seo_comun.mjs";
 
 const RAIZ = join(dirname(fileURLToPath(import.meta.url)), "..");
 const CSV = createRequire(import.meta.url)(join(RAIZ, "web", "js", "csv.js"));
@@ -32,6 +32,8 @@ const ordinal = n => n + ".º";
 
 // ---- datos ------------------------------------------------------------------------------
 // { ejercicio, salarios, supuesto, generado, filas: [{ territorio, nombre, regimen, por: { <s>: { cuota, tipo, puesto } } }] }
+// tipo: tipo medio sobre el sueldo bruto (cuota entre el sueldo, el que se muestra);
+// tipoBase: tipo medio sobre la base imponible (tipo_medio_efectivo del motor).
 // El puesto es compartido en los empates (1 + territorios con una cuota menor), como en el
 // comparador de la web: Bizkaia, Gipuzkoa y Álava, con la misma tarifa, son todos 1.º.
 export function datosRanking(comparativas, territorios) {
@@ -43,7 +45,7 @@ export function datosRanking(comparativas, territorios) {
     if (!lista || lista.length !== ORDEN_TERRITORIOS.length) throw new Error(`seo_comparativas.json no trae los ${ORDEN_TERRITORIOS.length} territorios con ${s} €`);
     for (const f of lista) {
       const puesto = 1 + lista.filter(x => x.cuota_liquida_total < f.cuota_liquida_total - MISMO).length;
-      (por[f.territorio] = por[f.territorio] || { nombre: f.nombre, por: {} }).por[s] = { cuota: f.cuota_liquida_total, tipo: f.tipo_medio_efectivo, puesto };
+      (por[f.territorio] = por[f.territorio] || { nombre: f.nombre, por: {} }).por[s] = { cuota: f.cuota_liquida_total, tipo: Math.round(f.cuota_liquida_total / s * 10000) / 10000, tipoBase: f.tipo_medio_efectivo, puesto };
     }
   }
   const ref = salarios.includes(30000) ? 30000 : salarios[0];
@@ -119,8 +121,8 @@ const filasLargas = d => d.salarios.flatMap(s => d.filas.slice().sort((a, b) => 
   .map(f => ({ s, f, x: f.por[s] })));
 // CSV para Excel en español (web/js/csv.js): «;», coma decimal y UTF-8 con BOM.
 export function csvRanking(d) {
-  return CSV.aCsv([["ejercicio", "sueldo_bruto_anual", "puesto", "codigo", "territorio", "regimen", "cuota_irpf_euros", "tipo_medio_pct"]]
-    .concat(filasLargas(d).map(({ s, f, x }) => [d.ejercicio, s, x.puesto, f.territorio, f.nombre, REGIMEN[f.regimen] || f.regimen, CSV.numero(x.cuota, 2), CSV.numero(100 * x.tipo, 2)])));
+  return CSV.aCsv([["ejercicio", "sueldo_bruto_anual", "puesto", "codigo", "territorio", "regimen", "cuota_irpf_euros", "tipo_medio_sobre_bruto_pct", "tipo_medio_sobre_base_imponible_pct"]]
+    .concat(filasLargas(d).map(({ s, f, x }) => [d.ejercicio, s, x.puesto, f.territorio, f.nombre, REGIMEN[f.regimen] || f.regimen, CSV.numero(x.cuota, 2), CSV.numero(100 * x.tipo, 2), CSV.numero(100 * x.tipoBase, 2)])));
 }
 export function jsonRanking(d) {
   return JSON.stringify({
@@ -129,9 +131,9 @@ export function jsonRanking(d) {
     fuente: `Mapafiscal (${SITIO}${RUTA_RANKING})`,
     licencia: { nombre: LICENCIA.nombre, url: LICENCIA.url },
     supuesto: d.supuesto,
-    campos: { cuota_liquida_total: "cuota líquida del IRPF del año, en euros", tipo_medio_efectivo: "cuota líquida entre el sueldo bruto (0,109 = 10,9 %)", puesto: "de menos a más IRPF; los empates comparten puesto" },
+    campos: { cuota_liquida_total: "cuota líquida del IRPF del año, en euros", tipo_medio_sobre_bruto: "tipo medio sobre el sueldo bruto: cuota líquida entre el sueldo bruto anual (0,109 = 10,9 %)", tipo_medio_efectivo: "tipo medio sobre la base imponible, el que calcula el motor: cuota líquida entre la base imponible general y del ahorro (sueldo menos cotizaciones y gastos y reducciones del trabajo); por eso es mayor que el tipo medio sobre el bruto", puesto: "de menos a más IRPF; los empates comparten puesto" },
     salarios: d.salarios,
-    datos: filasLargas(d).map(({ s, f, x }) => ({ sueldo_bruto_anual: s, puesto: x.puesto, codigo: f.territorio, territorio: f.nombre, regimen: f.regimen, cuota_liquida_total: x.cuota, tipo_medio_efectivo: x.tipo }))
+    datos: filasLargas(d).map(({ s, f, x }) => ({ sueldo_bruto_anual: s, puesto: x.puesto, codigo: f.territorio, territorio: f.nombre, regimen: f.regimen, cuota_liquida_total: x.cuota, tipo_medio_sobre_bruto: x.tipo, tipo_medio_efectivo: x.tipoBase }))
   }, null, 1) + "\n";
 }
 
@@ -173,9 +175,9 @@ export function paginaRanking({ comparativas, territorios, generado }) {
   const descripcion = `Ranking del IRPF ${ej} en los 19 territorios con ${listaY(S.map(s => euros(s).replace(" €", "")))} €: cuota, tipo medio, mapa y datos en CSV y JSON (CC BY 4.0).`;
   const migas = [["Inicio", "/"], ["Dónde se paga menos IRPF", "/comparar-sueldo/"], [`Ranking ${ej}`, RUTA_RANKING]];
   const cab = S.map(s => `<th scope="colgroup" colspan="3" class="num">${esc(eurosSueldo(s))}</th>`).join("");
-  const sub = S.map(() => `<th scope="col" class="num">Puesto</th><th scope="col" class="num">Cuota</th><th scope="col" class="num">Tipo medio</th>`).join("");
+  const sub = S.map(() => `<th scope="col" class="num">Puesto</th><th scope="col" class="num">Cuota</th><th scope="col" class="num">Tipo medio sobre el bruto</th>`).join("");
   const filas = d.filas.map(f => `<tr><th scope="row"><a href="/irpf/${SLUG[f.territorio]}/">${esc(f.nombre)}</a>${f.regimen !== "comun" ? ' <span class="regimen">foral</span>' : ""}</th>${S.map(s => { const x = f.por[s];
-    return `<td class="num">${ordinal(x.puesto)}</td><td class="num">${esc(eurosExactos(x.cuota))}</td><td class="num">${esc(pct(x.tipo))}</td>`; }).join("")}</tr>`).join("");
+    return `<td class="num">${ordinal(x.puesto)}</td><td class="num">${esc(eurosExactos(x.cuota))}</td><td class="num">${esc(pctMedio(x.tipo))}</td>`; }).join("")}</tr>`).join("");
   const cita = `Mapafiscal, «Ranking IRPF por comunidades ${ej}», ${SITIO}${RUTA_RANKING}`;
   const main = `
   <h1>Ranking del IRPF por comunidades ${ej}: dónde se paga menos</h1>
@@ -193,10 +195,10 @@ export function paginaRanking({ comparativas, territorios, generado }) {
   </figure>
   <div class="tarjeta tarjeta-tabla" id="tabla">
     <h2 class="rotulo">Los 19 territorios con ${esc(listaY(S.map(eurosSueldo)))}</h2>
-    <p class="ayuda ranking-tabla-tit" id="ranking-tabla-tit">IRPF ${ej} por territorio y sueldo bruto anual: puesto (de menos a más IRPF), cuota líquida y tipo medio efectivo. Ordenado por la cuota con ${esc(eurosSueldo(r))}.</p>
+    <p class="ayuda ranking-tabla-tit" id="ranking-tabla-tit">IRPF ${ej} por territorio y sueldo bruto anual: puesto (de menos a más IRPF), cuota líquida y tipo medio sobre el sueldo bruto. Ordenado por la cuota con ${esc(eurosSueldo(r))}.</p>
     <div class="envoltorio" tabindex="0" role="region" aria-labelledby="ranking-tabla-tit"><table class="cobertura ranking-tabla"><caption class="sr-only">IRPF ${ej} por territorio y sueldo bruto anual</caption>
     <thead><tr><th scope="col" rowspan="2">Territorio</th>${cab}</tr><tr>${sub}</tr></thead><tbody>${filas}</tbody></table></div>
-    <p class="ayuda">Los territorios con la misma cuota comparten puesto. Tipo medio efectivo: cuota líquida entre el sueldo bruto.</p>
+    <p class="ayuda">Los territorios con la misma cuota comparten puesto. Tipo medio sobre el bruto: cuota líquida entre el sueldo bruto. Los datos descargables traen además el tipo medio sobre la base imponible, que divide la misma cuota entre la base (sueldo menos cotizaciones y gastos y reducciones del trabajo) y por eso sale más alto. <a href="/glosario/tipo-medio/">Las dos formas del tipo medio</a>.</p>
   </div>
   <div class="tarjeta" id="metodologia">
     <h2 class="rotulo">Metodología</h2>
@@ -220,13 +222,13 @@ export function paginaRanking({ comparativas, territorios, generado }) {
   </div>`;
   const dataset = {
     "@context": "https://schema.org", "@type": "Dataset",
-    name: `Ranking IRPF por comunidades ${ej}`, description: `IRPF ${ej} de los 19 territorios fiscales de España con ${listaY(S.map(eurosSueldo))} brutos al año: puesto, cuota líquida y tipo medio efectivo. ${d.supuesto}`,
+    name: `Ranking IRPF por comunidades ${ej}`, description: `IRPF ${ej} de los 19 territorios fiscales de España con ${listaY(S.map(eurosSueldo))} brutos al año: puesto, cuota líquida, tipo medio sobre el sueldo bruto y tipo medio sobre la base imponible. ${d.supuesto}`,
     url: SITIO + RUTA_RANKING, inLanguage: "es", dateModified: d.generado, isAccessibleForFree: true,
     license: "https://creativecommons.org/licenses/by/4.0/",
     creator: { "@id": SITIO + "/#organizacion" }, publisher: { "@id": SITIO + "/#organizacion" },
     spatialCoverage: { "@type": "Place", name: "España" }, temporalCoverage: String(ej),
     keywords: ["IRPF", "comunidades autónomas", "impuestos", "ranking", String(ej)],
-    variableMeasured: ["cuota líquida del IRPF (euros)", "tipo medio efectivo (%)", "puesto"],
+    variableMeasured: ["cuota líquida del IRPF (euros)", "tipo medio sobre el sueldo bruto (%)", "tipo medio sobre la base imponible (%)", "puesto"],
     distribution: [
       { "@type": "DataDownload", encodingFormat: "text/csv", contentUrl: SITIO + csv },
       { "@type": "DataDownload", encodingFormat: "application/json", contentUrl: SITIO + json }

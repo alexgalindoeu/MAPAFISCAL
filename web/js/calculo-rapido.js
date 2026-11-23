@@ -26,7 +26,8 @@
   const esc = s => String(s == null ? "" : s).replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
   const miles = s => s.replace(/\B(?=(\d{3})+(?!\d))/g, ".");
   const eur0 = n => (n < -0.5 ? "−" : "") + miles(Math.abs(Math.round(n || 0)).toString()) + " €";
-  const pct = n => (100 * (n || 0)).toFixed(1).replace(".", ",") + " %";
+  // porcentajes con el criterio común de js/importe.js (se carga antes de pintar)
+  const pct = n => window.MapafiscalImporte.pctMedio(n), pctTipo = n => window.MapafiscalImporte.pctTipo(n);
   const nombre = t => { const o = campo.terr.querySelector(`option[value="${t}"]`); return o ? o.textContent : t; };
 
   // ---- carga bajo demanda ------------------------------------------------------------------
@@ -115,8 +116,8 @@
         <div><dt>Al mes, 14 pagas</dt><dd data-cr="mes14">${eur0(neto / 14)}</dd></div>
         <div><dt>Seguridad Social</dt><dd data-cr="ss">${eur0(ss)}</dd></div>
         <div><dt>IRPF del año</dt><dd data-cr="irpf">${eur0(irpf)}</dd></div>
-        <div><dt>Tipo medio</dt><dd data-cr="medio">${pct(liq.tipoMedioEfectivo)}</dd></div>
-        <div><dt>Tipo marginal</dt><dd data-cr="marginal">${pct(tipoMarginal(liq, terr))}</dd></div>
+        <div><dt>Tipo medio sobre el bruto</dt><dd data-cr="medio">${pct(b > 0 ? irpf / b : 0)}</dd></div>
+        <div><dt>Tipo marginal</dt><dd data-cr="marginal">${pctTipo(tipoMarginal(liq, terr))}</dd></div>
       </dl>
       <p class="cr-frase">${frase}${irpfDe(caro) === 0 ? "" : ` Puesto ${puesto} de ${n}, de menos a más IRPF.`}</p>`;
   }

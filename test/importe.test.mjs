@@ -51,3 +51,40 @@ test("lo que la web escribe en un campo se relee con el mismo valor (ida y vuelt
   }
   assert.equal(f(null), ""); assert.equal(f(""), "");
 });
+
+test("una coma con 3 cifras detrás («30,000»): error con sugerencia, nunca 30 €", () => {
+  for (const [t, miles, sug] of [["30,000", "30.000", 30000], ["1,500", "1.500", 1500], ["100,000", "100.000", 100000], ["30,000 €", "30.000", 30000], ["-1,500", "−1.500", -1500]]) {
+    const r = p(t);
+    assert.equal(r.ok, false, `${t} debería rechazarse`);
+    assert.equal(r.valor, null);
+    assert.equal(r.error, `¿Querías decir ${miles} €? En España los miles van con punto.`);
+    assert.equal(r.sugerencia, sug);
+  }
+});
+
+test("coma decimal que no es ambigua: sigue siendo válida", () => {
+  // «0,500»: un 0 no puede ser un grupo de miles, así que solo puede ser 0,5
+  assert.equal(v("0,500"), 0.5);
+  assert.equal(v(",500"), 0.5);
+  assert.equal(v("30,5"), 30.5);
+  assert.equal(v("30,50"), 30.5);
+  assert.equal(v("30000,500"), 30000.5);  // la parte entera no es un grupo de miles
+  assert.equal(v("1.500,000"), 1500);     // con punto de miles, la coma es el decimal
+  assert.equal(v("30,0000"), 30);
+});
+
+test("porcentajes: tipos de tarifa con los decimales justos y tipos medios con uno", () => {
+  const { pctTipo, pctMedio } = createRequire(import.meta.url)("../web/js/importe.js");
+  assert.equal(pctTipo(0.095), "9,5 %");
+  assert.equal(pctTipo(0.12), "12 %");
+  assert.equal(pctTipo(0.245), "24,5 %");
+  assert.equal(pctTipo(0.047), "4,7 %");
+  assert.equal(pctTipo(0.0155), "1,55 %");
+  assert.equal(pctTipo(0), "0 %");
+  assert.equal(pctMedio(0.15197), "15,2 %");
+  assert.equal(pctMedio(0.18), "18,0 %");
+  assert.equal(pctMedio(0.181), "18,1 %");
+  assert.equal(pctMedio(0), "0,0 %");
+  assert.equal(pctMedio(-0.00001), "0,0 %");
+  assert.equal(pctMedio(null), "0,0 %");
+});

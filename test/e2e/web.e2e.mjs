@@ -115,7 +115,7 @@ try {
     });
     assert.equal(await p.locator("#of-frase").innerText(), esperado);
     assert.equal(await p.locator("#of-tabla thead th[scope=col]").count(), 4);
-    assert.ok((await p.locator("#of-tabla").innerText()).includes("Tipo medio del IRPF"));
+    assert.ok((await p.locator("#of-tabla").innerText()).includes("Tipo medio sobre el sueldo bruto"));
     await p.locator("#of-a-pagas").selectOption("12");
     await p.waitForFunction(() => location.hash === "#ofertas?a=40000,ES-CT,12&b=39000,ES-MD,12,1500");
     assert.match(await p.locator("#of-enlace").inputValue(), /#ofertas\?a=40000,ES-CT,12&b=39000,ES-MD,12,1500$/);
@@ -378,7 +378,7 @@ try {
     const [d1] = await Promise.all([p.waitForEvent("download"), p.click("#ranking-csv")]);
     assert.match(d1.suggestedFilename(), /^comparar-territorios-irpf-\d{4}-es-[a-z-]+\.csv$/);
     const t1 = await leerDescarga(d1);
-    assert.ok(t1.startsWith("﻿Puesto;Código;Territorio;Régimen;Cuota IRPF (€);Tipo medio efectivo (%);Diferencia con "), t1.slice(0, 120));
+    assert.ok(t1.startsWith("﻿Puesto;Código;Territorio;Régimen;Cuota IRPF (€);Tipo medio sobre la base imponible (%);Diferencia con "), t1.slice(0, 120));
     const filas = t1.slice(1).trim().split("\n");
     assert.equal(filas.length, 20);
     for (const f of filas.slice(1)) assert.match(f, /^\d+;ES-[A-Z-]+;[^;]+;(común|foral);\d+,\d\d;\d+,\d\d;-?\d+,\d\d$/, f);
@@ -417,14 +417,14 @@ try {
     assert.equal(r.puntos, 41);
     assert.ok(r.punto, "falta el punto de tu aportación");
     assert.ok(r.filas >= 10, `${r.filas} filas en la tabla`);
-    assert.match(r.frase, /(Los primeros [\d.]+ € te ahorran un \d+ %|Cada euro que aportes hasta tu límite de [\d.]+ € te ahorra un \d+ %)/);
+    assert.match(r.frase, /(Los primeros [\d.]+ € te ahorran un \d+(,\d+)? %|Cada euro que aportes hasta tu límite de [\d.]+ € te ahorra un \d+(,\d+)? %)/);
     // la frase sale de curvaPlan con el motor de la página
     const esperado = await p.evaluate(() => {
       const P = window.MapafiscalHerramientas.paramsPlan(), imp = id => window.MapafiscalImporte.valor(document.getElementById(id));
       const c = window.MapafiscalHerramientas.curvaPlan(P, { bruto: imp("pp-bruto"), territorio: document.getElementById("pp-territorio").value,
         edad: +document.getElementById("pp-edad").value, hijos: [], aportacion: imp("pp-aportacion"), contribucionEmpresa: imp("pp-empresa"),
         donativos: imp("pp-donativo"), donativosRecurrentes: document.getElementById("pp-recurrente").checked });
-      return Math.round(100 * c.marginal.tipo) + " %";
+      return window.MapafiscalImporte.pctTipo(c.marginal.tipo);   // tipo de tarifa: decimales justos
     });
     assert.ok(r.frase.includes(esperado), `${r.frase} / ${esperado}`);
     // con otro sueldo cambia la curva: se busca uno en el que el ahorro se agote antes del límite
@@ -489,7 +489,7 @@ try {
     const miles = n => String(Math.abs(Math.round(n))).replace(/\B(?=(\d{3})+(?!\d))/g, ".") + " €";
     const b = Math.round(bruto), ss = Math.round(s.cotizaciones), neto = Math.round(s.neto);
     return { neto: miles(neto), mes12: miles(neto / 12), mes14: miles(neto / 14), ss: miles(ss), irpf: miles(b - ss - neto),
-      medio: (100 * s.liquidacion.tipoMedioEfectivo).toFixed(1).replace(".", ",") + " %" };
+      medio: (100 * (b > 0 ? (b - ss - neto) / b : 0)).toFixed(1).replace(".", ",") + " %" };   // tipo medio sobre el bruto
   }, [bruto, territorio]);
   const leerCalculo = p => p.evaluate(() => Object.fromEntries([...document.querySelectorAll("#cr-res [data-cr]")].map(e => [e.dataset.cr, e.textContent.trim()])));
   for (const [ruta, territorio, inicial, texto, bruto] of [

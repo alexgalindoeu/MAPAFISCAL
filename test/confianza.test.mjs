@@ -55,8 +55,8 @@ test("mailto: una entrada enorme se recorta para que el enlace funcione", () => 
 
 test("la web carga confianza.js antes que app.js y lo empaqueta; el único correo es contacto@", () => {
   const html = leer("web/index.html");
-  const i = html.indexOf('<script src="js/confianza.js"></script>');
-  assert.ok(i > 0 && i < html.indexOf('<script src="js/app.js"></script>'));
+  const i = html.indexOf('<script src="js/confianza.js" defer></script>');
+  assert.ok(i > 0 && i < html.indexOf('<script src="js/app.js" defer></script>'));
   assert.match(leer("tools/empaquetar.mjs"), /js\/confianza\.js/);
   const js = leer("web/js/confianza.js");
   assert.deepEqual([...new Set(js.match(/[a-z0-9.]+@[a-z0-9.]+/gi))], ["contacto@mapafiscal.es"]);
