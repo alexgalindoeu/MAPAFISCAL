@@ -28,17 +28,32 @@ porque desde la nube no se puede mandar un mensaje a la sesión local.
    - VALIDADOR OK (172), con 20 casos nuevos.
    - Pendiente menor: el JS foral no aplica los ajustes territoriales de `capital_inmobiliario`. Hoy ningún territorio los tiene.
 
-## En curso (siguiente PR)
+## También en esta PR (entregado después)
 
-- **Identidad visual** (prioridad de Alex):
-  - acercar la web a los colores del logo: azul `#1f3fc4` y amarillo `#ffd23f`, este como acento pequeño y sin saturar;
-  - detalles sacados de la M y 2-3 zonas con diseño propio;
-  - guía en `docs/diseno_identidad.md`.
-- **Revisión visual de las herramientas nuevas:** #sueldo-mes, #ofertas, #ejercicios, #marginal y la columna «Diferencia» de #comparar.
-- **Rendimiento:** scripts diferidos y empaquetador.
-- **Coherencia:** tipo medio unificado, decimales de los porcentajes y el aviso de «30,000».
-- **#66:** el informe PDF es gratis con sesión iniciada mientras los pagos estén apagados.
-- **Textos legales adaptados a AdSense.** La CMP del EEE queda en `docs/adsense.md`: hay que activar el mensaje de consentimiento de AdSense.
+4. **Identidad visual** (prioridad de Alex):
+   - neutros con el matiz frío del logo y tintes `--marca-50…900` sacados de `#1f3fc4`;
+   - gana, pierde y la rampa del mapa, menos saturados y con contraste AA;
+   - recursos de la M: `.diagonal-m`, `.cinta-m` y `.corte-m`, en la tarjeta de resultado, la mini-calculadora y la cabecera editorial;
+   - guía: `docs/diseno_identidad.md`;
+   - pendiente: la tarjeta «Tu territorio» del comparador sigue con fondo amarillo suave.
+5. **Revisión visual de las herramientas nuevas:**
+   - #comparar a 1300 px y los gráficos de #marginal y del plan de pensiones;
+   - #ofertas, #sueldo-mes y #ejercicios;
+   - el ranking, vivienda y la calculadora rápida.
+   - Pendiente de decidir: el antetítulo en mono y mayúsculas es global y solo tiene sentido cambiarlo en todas las vistas a la vez.
+6. **#66:**
+   - el informe PDF es gratis con sesión iniciada mientras `informePago` e `informeAnuncio` estén en false;
+   - privacidad y cookies adaptadas a AdSense, con un test que vigila que la tabla de cookies coincida con lo que guarda la web;
+   - lo que le queda a Alex está en `docs/adsense.md`: el mensaje RGPD en AdSense, la identidad del responsable y del prestador (RGPD art. 13, LSSI art. 10) y la clave de `pruebaCarriles` antes de activarlo.
+7. **Rendimiento:**
+   - `defer` en los scripts y herramientas en `<template id="js-herramientas">`;
+   - supabase-js ya no se carga sin sesión;
+   - la portada responde en 2,7 s en lugar de 4,4 s.
+8. **Coherencia:**
+   - «tipo medio sobre el sueldo bruto» frente a «sobre la base imponible»;
+   - `pctTipo` y `pctMedio` en `web/js/importe.js`;
+   - «30,000» se rechaza con una sugerencia;
+   - el CSV del ranking cambia de columnas: `tipo_medio_sobre_bruto_pct` y `tipo_medio_sobre_base_imponible_pct`.
 
 ## Decisiones de Alex vigentes
 
