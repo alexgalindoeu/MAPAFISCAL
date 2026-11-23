@@ -4,12 +4,12 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Cómo comprobamos los cálculos | Mapafiscal</title>
-<meta name="description" content="Cómo se verifica la calculadora del IRPF de Mapafiscal: 152 casos que el motor de referencia en R y el de la web dan iguales al céntimo, ejemplos oficiales de la AEAT y la Hacienda Foral, fechas de actualización por territorio y registro de cambios.">
+<meta name="description" content="Cómo se verifica la calculadora del IRPF de Mapafiscal: 172 casos que el motor de referencia en R y el de la web dan iguales al céntimo, ejemplos oficiales de la AEAT y la Hacienda Foral, fechas de actualización por territorio y registro de cambios.">
 <link rel="canonical" href="https://mapafiscal.es/validacion/">
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="Mapafiscal">
 <meta property="og:title" content="Cómo comprobamos los cálculos | Mapafiscal">
-<meta property="og:description" content="Cómo se verifica la calculadora del IRPF de Mapafiscal: 152 casos que el motor de referencia en R y el de la web dan iguales al céntimo, ejemplos oficiales de la AEAT y la Hacienda Foral, fechas de actualización por territorio y registro de cambios.">
+<meta property="og:description" content="Cómo se verifica la calculadora del IRPF de Mapafiscal: 172 casos que el motor de referencia en R y el de la web dan iguales al céntimo, ejemplos oficiales de la AEAT y la Hacienda Foral, fechas de actualización por territorio y registro de cambios.">
 <meta property="og:url" content="https://mapafiscal.es/validacion/">
 <meta property="og:locale" content="es_ES">
 <meta property="og:image" content="https://mapafiscal.es/og.png">
@@ -18,7 +18,7 @@
 <meta property="og:image:alt" content="Mapafiscal: el mismo sueldo, 19 IRPF distintos">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:title" content="Cómo comprobamos los cálculos | Mapafiscal">
-<meta name="twitter:description" content="Cómo se verifica la calculadora del IRPF de Mapafiscal: 152 casos que el motor de referencia en R y el de la web dan iguales al céntimo, ejemplos oficiales de la AEAT y la Hacienda Foral, fechas de actualización por territorio y registro de cambios.">
+<meta name="twitter:description" content="Cómo se verifica la calculadora del IRPF de Mapafiscal: 172 casos que el motor de referencia en R y el de la web dan iguales al céntimo, ejemplos oficiales de la AEAT y la Hacienda Foral, fechas de actualización por territorio y registro de cambios.">
 <meta name="twitter:image" content="https://mapafiscal.es/og.png">
 <meta name="theme-color" content="#1f3fc4">
 <meta name="color-scheme" content="light dark">
@@ -66,12 +66,12 @@
   <p>El IRPF se calcula con dos programas escritos por separado: el motor de referencia en R y el de la web en JavaScript, que es el que corre en tu navegador.
   Un validador liquida cada caso de prueba con los dos y exige que coincidan al céntimo (±0,02 €) en las bases liquidables, los mínimos, las cuotas íntegras, líquida, resultante y diferencial, la modalidad de tributación y la obligación de declarar.</p>
   <dl class="comprobacion-cifras">
-    <div><dt>Casos de prueba</dt><dd>152</dd></div>
-    <div><dt>Coinciden al céntimo</dt><dd>152 de 152</dd></div>
-    <div><dt>Cifras comparadas</dt><dd>1.569</dd></div>
+    <div><dt>Casos de prueba</dt><dd>172</dd></div>
+    <div><dt>Coinciden al céntimo</dt><dd>172 de 172</dd></div>
+    <div><dt>Cifras comparadas</dt><dd>1.789</dd></div>
     <div><dt>Territorios con casos</dt><dd>19 de 19</dd></div>
   </dl>
-  <p>Por ejercicio: 2025, 115 casos; 2026, 37 casos. Por tipo: 133 declaraciones completas, 8 de sueldo neto y 11 de rescate del plan de pensiones.
+  <p>Por ejercicio: 2025, 132 casos; 2026, 40 casos. Por tipo: 153 declaraciones completas, 8 de sueldo neto y 11 de rescate del plan de pensiones.
   Los casos están en tools/validar_js.R y el cálculo a mano de muchos de ellos, en docs/03_casos_validacion.md. Cómo se calcula cada cifra, de dónde salen los parámetros y qué no cubre el motor está en la <a href="/metodologia/">metodología</a>.</p>
 
   <h2 id="muestra">Una muestra de los casos</h2>
@@ -81,14 +81,14 @@
       <details><summary>Entrada completa (JSON)</summary><pre class="json">{&quot;territorio&quot;:&quot;ES-AR&quot;,&quot;ejercicio&quot;:2025,&quot;tipoUnidadFamiliar&quot;:&quot;ninguna&quot;,&quot;familiaNumerosa&quot;:&quot;no&quot;,&quot;miembros&quot;:[{&quot;id&quot;:&quot;d1&quot;,&quot;rol&quot;:&quot;declarante&quot;,&quot;edad&quot;:40,&quot;capitalMobiliario&quot;:{&quot;intereses&quot;:2800},&quot;gananciasPerdidasNoTransmision&quot;:23900}]}</pre></details></td>
       <td>Cuota líquida</td><td class="num">4.767,14 €</td>
       <td class="num">4.767,14 €</td><td>Coinciden</td></tr>
-<tr><td><code class="id-caso">bi_alquiler_joven</code><br>Bizkaia, 2025 · declarante de 33 años (trabajo 30.000 €, cotizaciones 1.950 €)
-      <details><summary>Entrada completa (JSON)</summary><pre class="json">{&quot;territorio&quot;:&quot;ES-PV-BI&quot;,&quot;ejercicio&quot;:2025,&quot;tipoUnidadFamiliar&quot;:&quot;ninguna&quot;,&quot;familiaNumerosa&quot;:&quot;no&quot;,&quot;miembros&quot;:[{&quot;id&quot;:&quot;d1&quot;,&quot;rol&quot;:&quot;declarante&quot;,&quot;edad&quot;:33,&quot;trabajo&quot;:{&quot;dinerarias&quot;:30000,&quot;cotizacionesSs&quot;:1950},&quot;alquilerViviendaPagos&quot;:9000}]}</pre></details></td>
-      <td>Cuota líquida</td><td class="num">1.745,00 €</td>
-      <td class="num">1.745,00 €</td><td>Coinciden</td></tr>
-<tr><td><code class="id-caso">formulario_completo_ES-NC</code><br>Comunidad Foral de Navarra, 2025 · declarante de 52 años (trabajo 38.000 €, cotizaciones 2.400 €, intereses 400 €, dividendos 900 €, ganancias 1.500 €, plan de pensiones 1.500 €, donativos 150 €, retenciones 9.000 €) · cónyuge de 49 años (trabajo 21.000 €, cotizaciones 1.330 €, intereses 120 €, plan de pensiones 800 €, retenciones 2.300 €) · hijo de 12 años · hijo de 2 años · ascendiente de 81 años
-      <details><summary>Entrada completa (JSON)</summary><pre class="json">{&quot;territorio&quot;:&quot;ES-NC&quot;,&quot;ejercicio&quot;:2025,&quot;tipoUnidadFamiliar&quot;:&quot;biparental&quot;,&quot;familiaNumerosa&quot;:&quot;general&quot;,&quot;miembros&quot;:[{&quot;id&quot;:&quot;d1&quot;,&quot;rol&quot;:&quot;declarante&quot;,&quot;edad&quot;:52,&quot;discapacidad&quot;:&quot;33_64&quot;,&quot;trabajo&quot;:{&quot;dinerarias&quot;:38000,&quot;especie&quot;:1200,&quot;cotizacionesSs&quot;:2400,&quot;otrosGastos&quot;:300,&quot;movilidadGeografica&quot;:true,&quot;trabajadorActivoDiscapacidad&quot;:true,&quot;rendimientoIrregular&quot;:{&quot;importe&quot;:6000,&quot;anios&quot;:3}},&quot;capitalMobiliario&quot;:{&quot;intereses&quot;:400,&quot;dividendos&quot;:900,&quot;seguros&quot;:250},&quot;capitalInmobiliario&quot;:[{&quot;ingresos&quot;:9600,&quot;gastosFinancieros&quot;:1500,&quot;gastosDeducibles&quot;:2100,&quot;arrendamientoVivienda&quot;:true,&quot;tipoArrendamiento&quot;:&quot;general&quot;},{&quot;ingresos&quot;:3000,&quot;gastosFinancieros&quot;:4200,&quot;gastosDeducibles&quot;:600,&quot;arrendamientoVivienda&quot;:false}],&quot;imputacionInmobiliaria&quot;:[{&quot;valorCatastral&quot;:80000,&quot;revisado10Anios&quot;:true},{&quot;valorCatastral&quot;:30000,&quot;revisado10Anios&quot;:false}],&quot;actividades&quot;:{&quot;metodo&quot;:&quot;directa_simplificada&quot;,&quot;rendimientoNetoPrevio&quot;:12000,&quot;inicioActividad&quot;:true},&quot;ganancias&quot;:[{&quot;valorTransmision&quot;:180000,&quot;valorAdquisicion&quot;:60000,&quot;fechaAdquisicion&quot;:&quot;1992-04-10&quot;,&quot;fechaTransmision&quot;:&quot;2025-09-15&quot;,&quot;tipoElemento&quot;:&quot;inmueble&quot;,&quot;esTransmision&quot;:true},{&quot;valorTransmision&quot;:8000,&quot;valorAdquisicion&quot;:11000,&quot;fechaAdquisicion&quot;:&quot;2021-02-01&quot;,&quot;fechaTransmision&quot;:&quot;2025-05-20&quot;,&quot;tipoElemento&quot;:&quot;fondo&quot;,&quot;esTransmision&quot;:true}],&quot;gananciasPerdidasNoTransmision&quot;:1500,&quot;previsionSocial&quot;:{&quot;aportacionIndividual&quot;:1500,&quot;contribucionEmpresarial&quot;:1000},&quot;reducciones&quot;:{&quot;pensionesCompensatorias&quot;:2400,&quot;anualidadesAlimentosHijos&quot;:3600},&quot;alquilerViviendaPagos&quot;:0,&quot;donativos&quot;:150,&quot;retenciones&quot;:9000},{&quot;id&quot;:&quot;d2&quot;,&quot;rol&quot;:&quot;conyuge&quot;,&quot;edad&quot;:49,&quot;trabajo&quot;:{&quot;dinerarias&quot;:21000,&quot;cotizacionesSs&quot;:1330},&quot;capitalMobiliario&quot;:{&quot;intereses&quot;:120},&quot;previsionSocial&quot;:{&quot;aportacionIndividual&quot;:800},&quot;retenciones&quot;:2300},{&quot;id&quot;:&quot;h1&quot;,&quot;rol&quot;:&quot;descendiente&quot;,&quot;edad&quot;:12,&quot;discapacidad&quot;:&quot;33_64&quot;,&quot;convivenciaMeses&quot;:0},{&quot;id&quot;:&quot;h2&quot;,&quot;rol&quot;:&quot;descendiente&quot;,&quot;edad&quot;:2},{&quot;id&quot;:&quot;a1&quot;,&quot;rol&quot;:&quot;ascendiente&quot;,&quot;edad&quot;:81,&quot;discapacidad&quot;:&quot;65_mas&quot;,&quot;rentasPropias&quot;:6000}]}</pre></details></td>
-      <td>Cuota líquida</td><td class="num">33.231,64 €</td>
-      <td class="num">33.231,64 €</td><td>Coinciden</td></tr>
+<tr><td><code class="id-caso">alquiler_general_ES-PV-BI</code><br>Bizkaia, 2025 · declarante de 45 años (trabajo 30.000 €, cotizaciones 1.905 €)
+      <details><summary>Entrada completa (JSON)</summary><pre class="json">{&quot;territorio&quot;:&quot;ES-PV-BI&quot;,&quot;ejercicio&quot;:2025,&quot;tipoUnidadFamiliar&quot;:&quot;ninguna&quot;,&quot;familiaNumerosa&quot;:&quot;no&quot;,&quot;miembros&quot;:[{&quot;id&quot;:&quot;d1&quot;,&quot;rol&quot;:&quot;declarante&quot;,&quot;edad&quot;:45,&quot;trabajo&quot;:{&quot;dinerarias&quot;:30000,&quot;cotizacionesSs&quot;:1905},&quot;capitalInmobiliario&quot;:[{&quot;ingresos&quot;:12000,&quot;gastosFinancieros&quot;:1500,&quot;gastosDeducibles&quot;:2500,&quot;arrendamientoVivienda&quot;:true,&quot;tipoArrendamiento&quot;:&quot;general&quot;}]}]}</pre></details></td>
+      <td>Cuota líquida</td><td class="num">6.825,60 €</td>
+      <td class="num">6.825,60 €</td><td>Coinciden</td></tr>
+<tr><td><code class="id-caso">dt9_sin_fecha_2025_ES-NC</code><br>Comunidad Foral de Navarra, 2025 · declarante de 70 años (trabajo 18.000 €)
+      <details><summary>Entrada completa (JSON)</summary><pre class="json">{&quot;territorio&quot;:&quot;ES-NC&quot;,&quot;ejercicio&quot;:2025,&quot;tipoUnidadFamiliar&quot;:&quot;ninguna&quot;,&quot;familiaNumerosa&quot;:&quot;no&quot;,&quot;miembros&quot;:[{&quot;id&quot;:&quot;d1&quot;,&quot;rol&quot;:&quot;declarante&quot;,&quot;edad&quot;:70,&quot;trabajo&quot;:{&quot;dinerarias&quot;:18000},&quot;ganancias&quot;:[{&quot;valorTransmision&quot;:50000,&quot;valorAdquisicion&quot;:10000,&quot;fechaAdquisicion&quot;:&quot;1990-06-01&quot;,&quot;tipoElemento&quot;:&quot;accion_cotizada&quot;,&quot;esTransmision&quot;:true}]}]}</pre></details></td>
+      <td>Cuota líquida</td><td class="num">6.959,23 €</td>
+      <td class="num">6.959,23 €</td><td>Coinciden</td></tr>
 <tr><td><code class="id-caso">dt12_md_capital</code><br>Comunidad de Madrid, 2026 · declarante de 66 años (trabajo 75.000 €)
       <details><summary>Entrada completa (JSON)</summary><pre class="json">{&quot;territorio&quot;:&quot;ES-MD&quot;,&quot;ejercicio&quot;:2026,&quot;tipoUnidadFamiliar&quot;:&quot;ninguna&quot;,&quot;familiaNumerosa&quot;:&quot;no&quot;,&quot;miembros&quot;:[{&quot;id&quot;:&quot;d1&quot;,&quot;rol&quot;:&quot;declarante&quot;,&quot;edad&quot;:66,&quot;trabajo&quot;:{&quot;dinerarias&quot;:75000,&quot;cotizacionesSs&quot;:0,&quot;prestacionDt12&quot;:30000}}]}</pre></details></td>
       <td>Cuota líquida</td><td class="num">16.333,44 €</td>
@@ -97,10 +97,10 @@
       <details><summary>Entrada completa (JSON)</summary><pre class="json">{&quot;territorio&quot;:&quot;ES-PV-BI&quot;,&quot;ejercicio&quot;:2026,&quot;tipoUnidadFamiliar&quot;:&quot;ninguna&quot;,&quot;familiaNumerosa&quot;:&quot;no&quot;,&quot;miembros&quot;:[{&quot;id&quot;:&quot;d1&quot;,&quot;rol&quot;:&quot;declarante&quot;,&quot;edad&quot;:45,&quot;trabajo&quot;:{&quot;dinerarias&quot;:60000,&quot;cotizacionesSs&quot;:3900},&quot;previsionSocial&quot;:{&quot;aportacionIndividual&quot;:6000,&quot;contribucionEmpresarial&quot;:9000}}]}</pre></details></td>
       <td>Cuota líquida</td><td class="num">13.184,80 €</td>
       <td class="num">13.184,80 €</td><td>Coinciden</td></tr>
-<tr><td><code class="id-caso">ej2026_nc_15000</code><br>Comunidad Foral de Navarra, 2026 · declarante de 40 años (trabajo 15.000 €, cotizaciones 953 €)
-      <details><summary>Entrada completa (JSON)</summary><pre class="json">{&quot;territorio&quot;:&quot;ES-NC&quot;,&quot;ejercicio&quot;:2026,&quot;tipoUnidadFamiliar&quot;:&quot;ninguna&quot;,&quot;familiaNumerosa&quot;:&quot;no&quot;,&quot;miembros&quot;:[{&quot;id&quot;:&quot;d1&quot;,&quot;rol&quot;:&quot;declarante&quot;,&quot;edad&quot;:40,&quot;trabajo&quot;:{&quot;dinerarias&quot;:15000,&quot;cotizacionesSs&quot;:953}}]}</pre></details></td>
-      <td>Cuota líquida</td><td class="num">0,00 €</td>
-      <td class="num">0,00 €</td><td>Coinciden</td></tr>
+<tr><td><code class="id-caso">dt9_sin_fecha_2026_ES-NC</code><br>Comunidad Foral de Navarra, 2026 · declarante de 70 años (trabajo 18.000 €)
+      <details><summary>Entrada completa (JSON)</summary><pre class="json">{&quot;territorio&quot;:&quot;ES-NC&quot;,&quot;ejercicio&quot;:2026,&quot;tipoUnidadFamiliar&quot;:&quot;ninguna&quot;,&quot;familiaNumerosa&quot;:&quot;no&quot;,&quot;miembros&quot;:[{&quot;id&quot;:&quot;d1&quot;,&quot;rol&quot;:&quot;declarante&quot;,&quot;edad&quot;:70,&quot;trabajo&quot;:{&quot;dinerarias&quot;:18000},&quot;ganancias&quot;:[{&quot;valorTransmision&quot;:50000,&quot;valorAdquisicion&quot;:10000,&quot;fechaAdquisicion&quot;:&quot;1990-06-01&quot;,&quot;tipoElemento&quot;:&quot;accion_cotizada&quot;,&quot;esTransmision&quot;:true}]}]}</pre></details></td>
+      <td>Cuota líquida</td><td class="num">7.084,08 €</td>
+      <td class="num">7.084,08 €</td><td>Coinciden</td></tr>
 <tr><td><code class="id-caso">neto25_an_100000</code><br>Andalucía, 2025 · 40 años, sueldo bruto 100.000 €
       <details><summary>Entrada completa (JSON)</summary><pre class="json">{&quot;bruto&quot;:100000,&quot;territorio&quot;:&quot;ES-AN&quot;,&quot;ejercicio&quot;:2025,&quot;edad&quot;:40,&quot;hijos&quot;:[],&quot;tipoContrato&quot;:&quot;indefinido&quot;,&quot;aportacionPlan&quot;:0,&quot;donativos&quot;:0}</pre></details></td>
       <td>Sueldo neto anual</td><td class="num">63.977,81 €</td>
@@ -207,7 +207,7 @@
   <ul class="confianza">
     <li>Ejercicio 2025/2026</li>
     <li>Revisado el <time datetime="2026-11-20">20 de noviembre de 2026</time></li>
-    <li><a href="/validacion/">Cálculos verificados con 152 casos del motor de referencia</a></li>
+    <li><a href="/validacion/">Cálculos verificados con 172 casos del motor de referencia</a></li>
     <li>Fuentes: BOE y boletines oficiales · <a href="/metodologia/">Metodología</a></li>
   </ul>
 </aside>

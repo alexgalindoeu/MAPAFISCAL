@@ -861,6 +861,29 @@ for (t in c("ES-MD", "ES-AN", "ES-CT", "ES-PV-BI", "ES-NC"))
 # el mismo declarante sin pareja (monoparental): los alquileres y la imputación en su ámbito
 add("formulario_completo_mono_MD", "ES-MD", "monoparental", "no", form_r[c(1, 3, 4)], form_js[c(1, 3, 4)])
 
+# 21. Alquiler de vivienda con los porcentajes de params (común y País Vasco) y DT 9.ª sin
+#     fecha de transmisión (31-12 del ejercicio del hogar), 2025 y 2026 (2026-11-23)
+for (ta in c("general", "zona_tensionada_bajada", "joven_o_admon", "rehabilitacion",
+             "zona_tensionada", "programas_publicos", "vivienda_habitual")) for (t in c("ES-MD", "ES-PV-BI")) {
+  add(paste0("alquiler_", ta, "_", t), t, "ninguna", "no",
+      list(persona("d1","declarante",45, trabajo=list(dinerarias=30000, cotizaciones_ss=1905),
+        capital_inmobiliario=list(list(ingresos=12000, gastos_financieros=1500, gastos_deducibles=2500,
+                                       arrendamiento_vivienda=TRUE, tipo_arrendamiento=ta)))),
+      list(list(id="d1",rol="declarante",edad=45, trabajo=list(dinerarias=30000,cotizacionesSs=1905),
+        capitalInmobiliario=list(list(ingresos=12000, gastosFinancieros=1500, gastosDeducibles=2500,
+                                      arrendamientoVivienda=TRUE, tipoArrendamiento=ta)))))
+}
+for (ej in c(2025, 2026)) for (t in c("ES-MD", "ES-PV-SS", "ES-NC")) {
+  add(paste0("dt9_sin_fecha_", ej, "_", t), t, "ninguna", "no",
+      list(persona("d1","declarante",70, trabajo=list(dinerarias=18000),
+        ganancias=list(list(valor_transmision=50000, valor_adquisicion=10000, fecha_adquisicion="1990-06-01",
+                            tipo_elemento="accion_cotizada", es_transmision=TRUE)))),
+      list(list(id="d1",rol="declarante",edad=70, trabajo=list(dinerarias=18000),
+        ganancias=list(list(valorTransmision=50000, valorAdquisicion=10000, fechaAdquisicion="1990-06-01",
+                            tipoElemento="accion_cotizada", esTransmision=TRUE)))),
+      ejercicio = ej)
+}
+
 out <- lapply(casos, function(c) list(
   js = c$js,
   ref = list(

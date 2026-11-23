@@ -131,13 +131,19 @@
       const gfin = regimen === "comun" ? Math.min(num(im.gastosFinancieros), Math.max(0, ingresos)) : num(im.gastosFinancieros);
       let neto = ingresos - (num(im.gastosDeducibles) + gfin);
       if (im.arrendamientoVivienda && neto > 0) {
+        // porcentajes de params, como rn_capital_inmobiliario() en R; un tipo desconocido
+        // toma el general
         if (regimen === "comun") {
-          const r = P.estatal.capital_inmobiliario ? P.estatal.capital_inmobiliario.reduccion_arrendamiento_vivienda : null;
-          const pct = { zona_tensionada_bajada: 0.90, joven_o_admon: 0.70, rehabilitacion: 0.60 }[im.tipoArrendamiento] || 0.50;
-          neto = neto * (1 - pct);
+          const r = P.estatal.capital_inmobiliario.reduccion_arrendamiento_vivienda;
+          const clave = { zona_tensionada_bajada: "zona_tensionada_bajada_renta", joven_o_admon: "primer_alquiler_joven_o_admon",
+                          rehabilitacion: "rehabilitacion_reciente" }[im.tipoArrendamiento || "general"] || "general";
+          neto = neto * (1 - r[clave]);
         } else if (regimen === "foral_pais_vasco") {
-          const pct = { zona_tensionada: 0.70, programas_publicos: 0.70, vivienda_habitual: 0.30 }[im.tipoArrendamiento || "vivienda_habitual"] || 0.20;
-          neto = ingresos * (1 - pct) - num(im.gastosFinancieros);
+          // modelo foral: bonificación sobre ingresos íntegros + gastos financieros reales
+          const ci = P.foral_pv.capital_inmobiliario;
+          const clave = { zona_tensionada: "bonificacion_zona_tensionada", programas_publicos: "bonificacion_programas_publicos",
+                          vivienda_habitual: "bonificacion_vivienda_habitual" }[im.tipoArrendamiento || "vivienda_habitual"] || "bonificacion_general";
+          neto = ingresos * (1 - ci[clave]) - num(im.gastosFinancieros);
         }
       }
       total += neto;
@@ -188,7 +194,8 @@
     let ganancia = ganancia0;
     const dt = regimen === "comun" ? P.estatal.dt9_abatimiento : (regimen === "foral_pais_vasco" ? P.foral_pv.dt_abatimiento_pre1994 : P.navarra.dt_abatimiento_pre1994);
     if (dt && el.fechaAdquisicion && new Date(el.fechaAdquisicion) <= new Date(dt.fecha_corte_adquisicion || "1994-12-31")) {
-      const dTot = (new Date(el.fechaTransmision || "2025-12-31") - new Date(el.fechaAdquisicion)) / 86400000;
+      // sin fecha de transmisión, el 31-12 del ejercicio de los parámetros (= el del hogar)
+      const dTot = (new Date(el.fechaTransmision || (P.ejercicio + "-12-31")) - new Date(el.fechaAdquisicion)) / 86400000;
       const dPre = (new Date("2006-01-20") - new Date(el.fechaAdquisicion)) / 86400000;
       const fracPre = dTot > 0 ? Math.min(1, Math.max(0, dPre / dTot)) : 1;
       const gananciaPre = ganancia * fracPre;

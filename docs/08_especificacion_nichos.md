@@ -80,9 +80,9 @@ Funciones (añadir a `R/00_utils.R` y a la sección de utilidades de `irpfsim.js
 | `meses_iniciados(desde, hasta)` | meses entre `desde` y `hasta + 1 día` contando como mes completo cualquier fracción (para el art. 56.1 ET, «prorrateándose por meses»): `m = 12·(a2 − a1) + (m2 − m1)`; si `d2 < d1`, `m − 1`; y si queda resto de días, `+1`. Con `hasta + 1` = `(a2, m2, d2)`. |
 | `recortar_ejercicio(desde, hasta, ejercicio)` | intersección de `[desde, hasta]` con `[ejercicio-01-01, ejercicio-12-31]`; si falta `desde`, el 1-ene; si falta `hasta`, el 31-dic. |
 
-El ejercicio de referencia es `hogar$ejercicio` (no la constante `"2025-12-31"` que hoy usa
-`ganancia_elemento()` como fecha de transmisión por defecto: conviene cambiarla de paso por
-`paste0(ejercicio, "-12-31")`, con el mismo cambio en JS).
+El ejercicio de referencia es `hogar$ejercicio`. (Hecho el 23-11-2026: `ganancia_elemento()`
+y `gananciaElemento` ya toman el 31-12 del ejercicio de los parámetros como fecha de
+transmisión por defecto, en lugar de la constante `"2025-12-31"`.)
 
 ### 1.3 Redondeo
 
@@ -485,10 +485,9 @@ capital_inmobiliario:
 ```
 
 `capital_inmobiliario.amortizacion_porcentaje: 0.03` existe y no se usa: sustituirlo por el
-sub-bloque (y actualizar cualquier lectura en `supabase/seed/` si la hubiera). Nota de paso:
-`rnCapitalInmobiliario` en JS tiene **hardcodeados** los porcentajes de reducción del
-arrendamiento (0,90 / 0,70 / 0,60 / 0,50 y los forales 0,70 / 0,30 / 0,20) en lugar de leerlos de
-`P` como hace R; aprovechar para leerlos de `P` (misma salida).
+sub-bloque (y actualizar cualquier lectura en `supabase/seed/` si la hubiera). (Hecho el 23-11-2026:
+`rnCapitalInmobiliario` en JS ya lee de `P` los porcentajes de reducción del arrendamiento,
+como R; antes estaban escritos a mano.)
 
 ### 4.3 Entradas nuevas
 
