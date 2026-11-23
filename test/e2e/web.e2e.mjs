@@ -180,7 +180,7 @@ try {
     await p.context().close();
   });
 
-  for (const ruta of ["/", "/irpf/", "/irpf/gipuzkoa/", "/irpf/navarra/simulador-renta/", "/guias/calendario-renta/", "/vivienda/", "/vivienda/venta-vivienda/", "/glosario/", "/glosario/base-liquidable/", "/validacion/", "/autonomos/", "/autonomos/canarias/", "/sueldo-mensual/", "/widget/", "/widget/sueldo-neto.html?t=ES-MD", "/comparar-ofertas/", "/irpf-2025-vs-2026/", "/tipo-marginal-real/", "/ranking-irpf-comunidades/"]) {
+  for (const ruta of ["/", "/irpf/", "/irpf/gipuzkoa/", "/irpf/navarra/simulador-renta/", "/guias/calendario-renta/", "/vivienda/", "/vivienda/venta-vivienda/", "/glosario/", "/glosario/base-liquidable/", "/validacion/", "/autonomos/", "/autonomos/canarias/", "/sueldo-mensual/", "/widget/", "/widget/sueldo-neto.html?t=ES-MD", "/comparar-ofertas/", "/irpf-2025-vs-2026/", "/tipo-marginal-real/", "/ranking-irpf-comunidades/", "/sobre-mapafiscal/", "/contacto/"]) {
     await prueba(`carga sin errores de JS: ${ruta}`, async () => {
       const p = await abrir(ruta);
       await p.waitForTimeout(500);
@@ -468,7 +468,7 @@ try {
   // Accesibilidad con axe-core (devDependency): fallan las infracciones «serious» y
   // «critical» de las páginas revisadas, en modo claro y oscuro.
   const axe = readFileSync(require.resolve("axe-core/axe.min.js"), "utf8");
-  const rutasAxe = ["/#calculadora", "/#comparar", "/#planes", "/#sueldo-mes", "/sueldo-mensual/", "/irpf/madrid/", "/irpf/bizkaia/", "/sueldo-neto/30000/madrid/", "/irpf/gipuzkoa/simulador-renta/", "/guias/calendario-renta/", "/vivienda/", "/vivienda/segunda-vivienda/", "/glosario/", "/glosario/base-liquidable/", "/validacion/", "/autonomos/", "/autonomos/canarias/", "/guias/12-o-14-pagas/", "/widget/", "/widget/sueldo-neto.html?t=ES-CT&ancho=compacto", "/#ofertas", "/#ejercicios", "/#marginal", "/comparar-ofertas/", "/irpf-2025-vs-2026/", "/tipo-marginal-real/", "/ranking-irpf-comunidades/", "/#plan-pensiones"];
+  const rutasAxe = ["/#calculadora", "/#comparar", "/#planes", "/#sueldo-mes", "/sueldo-mensual/", "/irpf/madrid/", "/irpf/bizkaia/", "/sueldo-neto/30000/madrid/", "/irpf/gipuzkoa/simulador-renta/", "/guias/calendario-renta/", "/vivienda/", "/vivienda/segunda-vivienda/", "/glosario/", "/glosario/base-liquidable/", "/validacion/", "/autonomos/", "/autonomos/canarias/", "/guias/12-o-14-pagas/", "/widget/", "/widget/sueldo-neto.html?t=ES-CT&ancho=compacto", "/#ofertas", "/#ejercicios", "/#marginal", "/comparar-ofertas/", "/irpf-2025-vs-2026/", "/tipo-marginal-real/", "/ranking-irpf-comunidades/", "/#plan-pensiones", "/sobre-mapafiscal/", "/contacto/"];
   for (const colorScheme of ["light", "dark"]) {
     for (const ruta of rutasAxe) {
       await prueba(`axe sin infracciones serious/critical (${colorScheme}): ${ruta}`, async () => {

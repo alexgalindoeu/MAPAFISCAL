@@ -32,6 +32,7 @@ import { paginasDevuelve } from "./seo_devuelve.mjs";
 import { paginasAutonomos, HUB_AUTONOMOS } from "./seo_autonomos.mjs";
 import { paginaMetodologia } from "./seo_metodologia.mjs";
 import { paginaWidget, RUTA_WIDGET } from "./seo_widget.mjs";
+import { paginaSobre, paginaContacto, RUTA_SOBRE, RUTA_CONTACTO } from "./seo_sobre.mjs";
 import { paginaRanking, RUTA_RANKING } from "./seo_ranking.mjs";
 import { paginasGlosario, enlazarGlosario, HUB_GLOSARIO } from "./seo_glosario.mjs";
 import { paginasVivienda, PAGINAS_VIVIENDA, HUB_VIVIENDA } from "./seo_vivienda.mjs";
@@ -507,6 +508,13 @@ export function generar({ conGit = false } = {}) {
   pagina(RUTA_WIDGET, paginaWidget(territorios, territorios.generado));
   // «Cómo comprobamos los cálculos»: la escribe tools/generar_validacion.mjs; aquí solo va al sitemap
   urls.push("/validacion/");
+  // «Sobre Mapafiscal» y «Contacto»: van al final para contar todas las páginas (más estas dos
+  // y la portada). Las cifras salen de los datos, no se escriben a mano.
+  const regimenes = ORDEN_TERRITORIOS.map(c => territorios.territorios[c]?.regimen);
+  pagina(RUTA_SOBRE, paginaSobre({ generado: territorios.generado, paginas: urls.length + 3, territorios: ORDEN_TERRITORIOS.length,
+    comun: regimenes.filter(r => r === "comun").length, forales: regimenes.filter(r => r && r !== "comun").length,
+    deducciones: porDeduccion.length, territoriosDeducciones: conDeducciones.size, guias: gs.length - 1, glosario: glo.length - 1 }));
+  pagina(RUTA_CONTACTO, paginaContacto({ generado: territorios.generado }));
   // Fecha real de cambio de cada página (y de la portada, que se escribe a mano).
   const generados = [territorios, comparativas, deducciones, guias, sueldoNeto, devuelve].map(d => d.generado).filter(Boolean);
   const anterior = leerRegistro();

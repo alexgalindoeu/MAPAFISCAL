@@ -396,7 +396,7 @@ ${anuncios ? CARRILES_HTML + "\n" : ""}<header class="appbar">
     ${REDES_HTML}
     <p class="pie-sec"><a href="/irpf/">IRPF por territorio</a> · <a href="/guias/">Guías del IRPF</a> · <a href="/vivienda/">Vivienda</a> · <a href="/autonomos/">IRPF de autónomos</a> · <a href="/glosario/">Glosario</a> · <a href="/comparar-sueldo/">Dónde se paga menos IRPF</a> · <a href="/sueldo-neto/">Sueldo neto</a> · <a href="/metodologia/">Metodología</a> · <a href="/validacion/">Cómo comprobamos los cálculos</a> · <a href="/widget/">Widget para tu web</a></p>
     <p class="pie-sec pie-fechas">Normativa revisada el <time datetime="${esc(generado)}">${esc(fecha(generado))}</time> · Contenido actualizado el <time datetime="${MARCA_FECHA}">${MARCA_FECHA_LARGA}</time>${ejercicio ? ` · Ejercicio ${esc(ejercicio)} (renta que se declara en ${esc(+ejercicio + 1)})` : ""}</p>
-    <p class="pie-sec"><a href="/legal/aviso-legal.html">Aviso legal</a> · <a href="/legal/privacidad.html">Privacidad</a> · <a href="/legal/condiciones.html">Condiciones</a> · <a href="/legal/cookies.html">Cookies</a> · <a href="/legal/aviso-legal.html#contacto">Contacto</a></p>
+    <p class="pie-sec"><a href="/legal/aviso-legal.html">Aviso legal</a> · <a href="/legal/privacidad.html">Privacidad</a> · <a href="/legal/condiciones.html">Condiciones</a> · <a href="/legal/cookies.html">Cookies</a> · <a href="/sobre-mapafiscal/">Sobre Mapafiscal</a> · <a href="/contacto/">Contacto</a></p>
   </div>
 </footer>
 <script src="/js/ui.js" defer></script>
