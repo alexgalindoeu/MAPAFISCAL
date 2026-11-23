@@ -26,7 +26,11 @@ body.pagina-seo { background: var(--superficie); color: var(--tinta); font: 16px
 .migas { font-size: 13px; color: var(--tinta-3); margin: 0 auto 18px; }
 .migas a { color: var(--tinta-3); text-decoration: underline; text-underline-offset: 2px; }
 .migas a:hover { color: var(--marca); }
-.actualizado { color: var(--tinta-3); font-size: 13px; margin-top: 0; margin-bottom: 22px; padding-bottom: 18px; border-bottom: 1px solid var(--linea-2); }
+/* Separador de la cabecera: el filete de siempre con la cinta M al principio (pata azul y
+   trazo amarillo en diagonal), como firma de la marca en todas las páginas editoriales. */
+.actualizado { position: relative; color: var(--tinta-3); font-size: 13px; margin-top: 0; margin-bottom: 22px; padding-bottom: 18px; border-bottom: 1px solid var(--linea-2); }
+.actualizado::after { content: ""; position: absolute; left: 0; bottom: -2px; width: 52px; height: 3px;
+  background: linear-gradient(112deg, var(--marca) 0 30px, transparent 30px 32px, var(--resalte) 32px 52px); }
 
 /* Secciones: sin caja, con filete y aire. */
 .pagina-seo .prosa { max-width: 880px; margin-top: 28px; display: flex; flex-direction: column; gap: 0; }
@@ -70,8 +74,14 @@ body.pagina-seo { background: var(--superficie); color: var(--tinta); font: 16px
 .lista-enlaces a:hover { color: var(--marca); text-decoration: underline; }
 
 /* «En resumen»: la respuesta de la página, como entradilla destacada con filete. */
-.respuesta-directa { font-size: 17px; line-height: 1.55; color: var(--tinta); border-left: 3px solid var(--marca);
-  padding: 2px 0 2px 18px; margin: 0 0 8px; }
+/* Zona con diseño propio de la marca: tinte suave de cobalto, la pata azul de la M como filete
+   izquierdo (con su remate amarillo arriba), la esquina en ángulo y la diagonal antes del texto. */
+.respuesta-directa { position: relative; font-size: 17px; line-height: 1.55; color: var(--tinta);
+  background: var(--marca-50); border-left: 3px solid var(--marca);
+  border-image: linear-gradient(to bottom, var(--resalte) 0 14px, var(--marca) 14px) 1;
+  padding: 14px 22px 14px 18px; margin: 0 0 8px;
+  clip-path: polygon(0 0, calc(100% - var(--corte)) 0, 100% var(--corte), 100% 100%, 0 100%); }
+.respuesta-directa::before { margin-right: 10px; vertical-align: 1px; }
 .pagina-seo .prosa .respuesta-directa { color: var(--tinta); }
 .respuesta-directa b { color: var(--tinta); }
 .pie-fechas { font-size: .8125rem; }

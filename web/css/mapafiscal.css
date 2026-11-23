@@ -11,12 +11,17 @@
      Superficies   --fondo --superficie --superficie-2 --linea --linea-2 --reticula
      Texto         --tinta (principal) --tinta-2 (secundario) --tinta-3 (notas, ≥4,5:1)
      Marca         --marca --marca-hover --marca-suave --marca-tinta --sobre-marca
+                   --marca-50 --marca-100 --marca-200 --marca-300 --marca-700 --marca-900
+                   (tintes para superficies, filetes y gráficos: el azul macizo, solo en
+                   acciones y detalles)
      Resalte       --resalte --resalte-suave --sobre-resalte (lo «tuyo»; nunca texto amarillo)
      Semántica     --gana --gana-suave (a devolver, pagas menos) --pierde --pierde-suave
                    --aviso --aviso-suave
      Gráficos      --g-neto --g-irpf --g-ss --g-estado --g-autonomia (barras de reparto)
      Mapa          --m-g3..--m-g1 --m-0 --m-r1..--m-r3 --m-tu --m-borde
      Forma         --radio-sm --radio --radio-lg --sombra --sombra-alta
+     Recursos M    --corte --diagonal-inclinacion; clases .cinta-m y .corte-m (ver
+                   docs/diseno_identidad.md: dónde se usan y dónde no)
      Movimiento    --dur --dur-lenta --curva (se anulan con prefers-reduced-motion)
      Foco          --anillo
      Tipos         --display (titulares, con font-stretch) --sans --mono
@@ -33,50 +38,67 @@
   font-display: swap; src: url("../fonts/public-sans-latin-var.woff2") format("woff2"); unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD; }
 @font-face { font-family: "IBM Plex Mono"; font-style: normal; font-weight: 500;
   font-display: swap; src: url("../fonts/ibm-plex-mono-latin-500.woff2") format("woff2"); unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD; }
+/* Neutros con el matiz frío del logo (tono ≈ 220°, croma muy bajo) en vez del gris verdoso
+   de antes. Marca: el cobalto y el amarillo de la M no cambian; de ellos salen unos tintes
+   (--marca-50…900) para superficies, filetes y gráficos, así el azul macizo queda para
+   acciones y detalles. Semántica (gana/pierde) y rampa del mapa, algo menos saturadas.
+   Ver docs/diseno_identidad.md. */
 :root {
-  --fondo: #edf1f0;
+  --fondo: #eef1f6;
   --superficie: #ffffff;
-  --superficie-2: #f4f7f6;
-  --tinta: #0d1b22;
-  --tinta-2: #34454d;
-  --tinta-3: #5a6b73;
-  --linea: #dbe3e1;
-  --linea-2: #c2cecb;
-  --reticula: rgba(13, 27, 34, .07);
+  --superficie-2: #f5f7fb;
+  --tinta: #0e1a2c;
+  --tinta-2: #354156;
+  --tinta-3: #586579;
+  --linea: #dce2ec;
+  --linea-2: #c3cbda;
+  --reticula: rgba(14, 26, 44, .065);
 
   --marca: #1f3fc4;
   --marca-hover: #172f9a;
   --marca-suave: #e6ebfb;
   --marca-tinta: #1a36a8;
   --sobre-marca: #ffffff;
+  /* tintes de marca (derivados de #1f3fc4) */
+  --marca-50: #f3f5fd;
+  --marca-100: #e6ebfb;
+  --marca-200: #c9d2f5;
+  --marca-300: #9eadeb;
+  --marca-700: #172f9a;
+  --marca-900: #101d5c;
 
   --resalte: #ffd23f;
-  --resalte-suave: #fff4c2;
-  --sobre-resalte: #0d1b22;
+  --resalte-suave: #fff6d6;
+  --sobre-resalte: #0e1a2c;
 
-  --gana: #0b7a55;          /* pagas menos / a devolver */
-  --gana-suave: #e1f4ec;
-  --pierde: #b3341a;        /* pagas más / a ingresar */
-  --pierde-suave: #fbe6e0;
+  --gana: #1d7456;          /* pagas menos / a devolver */
+  --gana-suave: #e6f2ec;
+  --pierde: #a63f2a;        /* pagas más / a ingresar */
+  --pierde-suave: #f8e8e3;
   --aviso: #8a5a00;
   --aviso-suave: #fbf1dc;
 
-  /* barras de reparto del resultado */
-  --g-neto: #b9c6f4;
+  /* barras de reparto del resultado: una sola familia (la de la marca) */
+  --g-neto: #c9d2f5;
   --g-irpf: #1f3fc4;
-  --g-ss: #6f8794;
-  --g-estado: #0d1b22;
-  --g-autonomia: #1f3fc4;
+  --g-ss: #7a8599;
+  --g-estado: #101d5c;
+  --g-autonomia: #9eadeb;
 
-  /* rampa divergente del mapa: más barato ← tú → más caro */
-  --m-g3: #0f7a55; --m-g2: #4fae86; --m-g1: #a9dbc4;
-  --m-0: #dfe5e4;
-  --m-r1: #f2bfae; --m-r2: #e07a5c; --m-r3: #b3341a;
+  /* rampa divergente del mapa: más barato ← tú → más caro (tonos tierra y salvia, sin
+     rojos ni verdes de semáforo: el mapa es una superficie grande) */
+  --m-g3: #2b7a5f; --m-g2: #6fb197; --m-g1: #bfdfd1;
+  --m-0: #e1e5ee;
+  --m-r1: #f0d2c7; --m-r2: #dc967f; --m-r3: #b45640;
   --m-tu: #ffd23f;
   --m-borde: #ffffff;
 
-  --sombra: 0 1px 2px rgba(13, 27, 34, .06), 0 1px 1px rgba(13, 27, 34, .03);
-  --sombra-alta: 0 14px 36px -8px rgba(13, 27, 34, .22), 0 2px 6px rgba(13, 27, 34, .06);
+  /* recursos de la M (ver docs/diseno_identidad.md) */
+  --corte: 18px;            /* esquina cortada en ángulo de las tarjetas destacadas */
+  --diagonal-inclinacion: -32deg;  /* inclinación de la diagonal amarilla («/») */
+
+  --sombra: 0 1px 2px rgba(14, 26, 44, .06), 0 1px 1px rgba(14, 26, 44, .03);
+  --sombra-alta: 0 14px 36px -8px rgba(14, 26, 44, .2), 0 2px 6px rgba(14, 26, 44, .06);
   --radio-sm: 6px;
   --radio: 10px;
   --radio-lg: 16px;
@@ -94,32 +116,34 @@
 
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme="light"]) {
-    --fondo: #0a1216; --superficie: #101c22; --superficie-2: #15242b;
-    --tinta: #e6eeee; --tinta-2: #b2c1c4; --tinta-3: #9aabb2;
-    --linea: #1f3138; --linea-2: #2e454e; --reticula: rgba(230, 238, 238, .05);
-    --marca: #8fa7ff; --marca-hover: #a9bbff; --marca-suave: #18234a; --marca-tinta: #b4c3ff; --sobre-marca: #08122e;
-    --resalte: #ffd84d; --resalte-suave: #3a3112; --sobre-resalte: #0d1b22;
-    --gana: #4cc99a; --gana-suave: #0f2b22; --pierde: #ff8a6e; --pierde-suave: #3a1a12;
+    --fondo: #0b1019; --superficie: #111827; --superficie-2: #172033;
+    --tinta: #e7ebf3; --tinta-2: #b5bdcc; --tinta-3: #9ba5b9;
+    --linea: #222c3f; --linea-2: #313d55; --reticula: rgba(231, 235, 243, .05);
+    --marca: #8fa7ff; --marca-hover: #a9bbff; --marca-suave: #1a2347; --marca-tinta: #b4c3ff; --sobre-marca: #08122e;
+    --marca-50: #131b33; --marca-100: #1a2347; --marca-200: #26346a; --marca-300: #3a4d94; --marca-700: #a9bbff; --marca-900: #d5deff;
+    --resalte: #ffd84d; --resalte-suave: #2e2a18; --sobre-resalte: #0e1a2c;
+    --gana: #5bbf98; --gana-suave: #13261f; --pierde: #f2917a; --pierde-suave: #33201b;
     --aviso: #e4b45a; --aviso-suave: #2e2410;
-    --g-neto: #2b3a6e; --g-irpf: #8fa7ff; --g-ss: #5f7681; --g-estado: #e6eeee; --g-autonomia: #8fa7ff;
-    --m-g3: #3fb487; --m-g2: #2a7d5f; --m-g1: #1c4a3b; --m-0: #1e2c33;
-    --m-r1: #5a2a1e; --m-r2: #a5452a; --m-r3: #ec7a58; --m-tu: #ffd84d; --m-borde: #0a1216;
+    --g-neto: #26346a; --g-irpf: #8fa7ff; --g-ss: #5f6b80; --g-estado: #d5deff; --g-autonomia: #5a70c4;
+    --m-g3: #4fa888; --m-g2: #2f6b57; --m-g1: #21403a; --m-0: #1f2838;
+    --m-r1: #4a2c27; --m-r2: #8c4a3a; --m-r3: #d9826a; --m-tu: #ffd84d; --m-borde: #0b1019;
     --sombra: 0 1px 2px rgba(0, 0, 0, .45); --sombra-alta: 0 14px 36px -8px rgba(0, 0, 0, .7);
     --anillo: #8fa7ff;
     color-scheme: dark;
   }
 }
 :root[data-theme="dark"] {
-  --fondo: #0a1216; --superficie: #101c22; --superficie-2: #15242b;
-  --tinta: #e6eeee; --tinta-2: #b2c1c4; --tinta-3: #9aabb2;
-  --linea: #1f3138; --linea-2: #2e454e; --reticula: rgba(230, 238, 238, .05);
-  --marca: #8fa7ff; --marca-hover: #a9bbff; --marca-suave: #18234a; --marca-tinta: #b4c3ff; --sobre-marca: #08122e;
-  --resalte: #ffd84d; --resalte-suave: #3a3112; --sobre-resalte: #0d1b22;
-  --gana: #4cc99a; --gana-suave: #0f2b22; --pierde: #ff8a6e; --pierde-suave: #3a1a12;
+  --fondo: #0b1019; --superficie: #111827; --superficie-2: #172033;
+  --tinta: #e7ebf3; --tinta-2: #b5bdcc; --tinta-3: #9ba5b9;
+  --linea: #222c3f; --linea-2: #313d55; --reticula: rgba(231, 235, 243, .05);
+  --marca: #8fa7ff; --marca-hover: #a9bbff; --marca-suave: #1a2347; --marca-tinta: #b4c3ff; --sobre-marca: #08122e;
+  --marca-50: #131b33; --marca-100: #1a2347; --marca-200: #26346a; --marca-300: #3a4d94; --marca-700: #a9bbff; --marca-900: #d5deff;
+  --resalte: #ffd84d; --resalte-suave: #2e2a18; --sobre-resalte: #0e1a2c;
+  --gana: #5bbf98; --gana-suave: #13261f; --pierde: #f2917a; --pierde-suave: #33201b;
   --aviso: #e4b45a; --aviso-suave: #2e2410;
-  --g-neto: #2b3a6e; --g-irpf: #8fa7ff; --g-ss: #5f7681; --g-estado: #e6eeee; --g-autonomia: #8fa7ff;
-  --m-g3: #3fb487; --m-g2: #2a7d5f; --m-g1: #1c4a3b; --m-0: #1e2c33;
-  --m-r1: #5a2a1e; --m-r2: #a5452a; --m-r3: #ec7a58; --m-tu: #ffd84d; --m-borde: #0a1216;
+  --g-neto: #26346a; --g-irpf: #8fa7ff; --g-ss: #5f6b80; --g-estado: #d5deff; --g-autonomia: #5a70c4;
+  --m-g3: #4fa888; --m-g2: #2f6b57; --m-g1: #21403a; --m-0: #1f2838;
+  --m-r1: #4a2c27; --m-r2: #8c4a3a; --m-r3: #d9826a; --m-tu: #ffd84d; --m-borde: #0b1019;
   --sombra: 0 1px 2px rgba(0, 0, 0, .45); --sombra-alta: 0 14px 36px -8px rgba(0, 0, 0, .7);
   --anillo: #8fa7ff;
   color-scheme: dark;
@@ -235,7 +259,6 @@ main:focus { outline: none; }
 .cabecera-vista :is(h1, .titulo-vista) { font-size: clamp(26px, 3.4vw, 36px); font-weight: 800; letter-spacing: -.025em; line-height: 1.1; }
 .antetitulo { display: inline-flex; align-items: center; gap: 8px; font-family: var(--mono); font-size: 12px; font-weight: 500;
   letter-spacing: .04em; text-transform: uppercase; color: var(--tinta-3); margin: 0 0 10px; }
-.antetitulo::before { content: ""; width: 18px; height: 2px; background: var(--resalte); box-shadow: 0 0 0 1px color-mix(in srgb, var(--tinta) 15%, transparent); }
 .entradilla { color: var(--tinta-2); margin: 8px 0 0; max-width: 68ch; }
 .cabecera-acciones { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
 .cabecera-centrada { justify-content: center; text-align: center; }
@@ -247,6 +270,27 @@ main:focus { outline: none; }
 .selector-ejercicio[aria-busy="true"] { opacity: .6; }
 .cifra-xl { font-family: var(--display); font-stretch: 110%; font-weight: 800; letter-spacing: -.035em; line-height: 1;
   font-variant-numeric: tabular-nums; }
+
+/* ---- recursos de la M -------------------------------------------------------
+   Tres detalles sacados del logo, siempre pequeños (ver docs/diseno_identidad.md):
+   1. La diagonal: el trazo amarillo de la M («/») como marcador de un rótulo o de lo tuyo.
+   2. La cinta M: un filete superior azul con un tramo amarillo en diagonal, como las dos
+      patas y el trazo de la M. Solo en las zonas con diseño propio.
+   3. El corte M: la esquina superior derecha cortada en ángulo, como el remate de las patas.
+   El amarillo nunca pasa de un acento: ni fondos grandes ni texto amarillo. */
+.diagonal-m::before, .antetitulo::before, .herramienta .chip.tu::before,
+.tarjeta-resultado .res-cab .rotulo::before, .respuesta-directa::before {
+  content: ""; display: inline-block; flex: none; width: 11px; height: 9px; border-radius: 1px;
+  background: var(--resalte); transform: skewX(var(--diagonal-inclinacion));
+  box-shadow: 0 0 0 1px color-mix(in srgb, var(--tinta) 14%, transparent); }
+.cinta-m, .tarjeta-resultado, .minicalc { position: relative; }
+.cinta-m::after, .tarjeta-resultado::after, .minicalc::after {
+  content: ""; position: absolute; left: 0; right: 0; top: 0; height: 4px; pointer-events: none;
+  --cinta-color: var(--marca);
+  background: linear-gradient(112deg, var(--cinta-color) 0 22px, transparent 22px 24px, var(--resalte) 24px 40px,
+    transparent 40px 42px, var(--cinta-color) 42px); }
+.corte-m, .tarjeta-resultado, .minicalc {
+  clip-path: polygon(0 0, calc(100% - var(--corte)) 0, 100% var(--corte), 100% 100%, 0 100%); }
 
 /* ---- portada (inicio) ------------------------------------------------------ */
 .portada { position: relative; display: grid; grid-template-columns: minmax(0, 1fr); gap: 28px; align-items: start; padding: 8px 0 8px; }
@@ -265,7 +309,7 @@ main:focus { outline: none; }
      «19 IRPF distintos» (sin cortes) se salía unos píxeles entre 960 y ~1200 px. */
   .portada-texto h1 { font-size: clamp(34px, 4.5vw, 62px); }
 }
-.portada-texto h1 .subrayado { background: linear-gradient(transparent 62%, var(--resalte) 62%, var(--resalte) 92%, transparent 92%);
+.portada-texto h1 .subrayado { background: linear-gradient(transparent 66%, var(--resalte) 66%, var(--resalte) 90%, transparent 90%);
   padding: 0 .06em; -webkit-box-decoration-break: clone; box-decoration-break: clone; }
 .portada-texto .entradilla { font-size: 17px; margin-top: 16px; max-width: 54ch; }
 .portada-acciones { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 22px; }
@@ -335,7 +379,6 @@ main:focus { outline: none; }
 .herramienta p { color: var(--tinta-2); font-size: 14px; line-height: 1.5; margin: 6px 0 0; max-width: 44ch; }
 .herramienta .chip.tu { order: -1; flex-basis: 100%; padding: 0; background: none; border-radius: 0; font-family: var(--sans);
   font-size: 12px; font-weight: 600; letter-spacing: 0; color: var(--tinta-2); }
-.herramienta .chip.tu::before { content: ""; width: 14px; height: 3px; background: var(--resalte); box-shadow: 0 0 0 1px color-mix(in srgb, var(--tinta) 20%, transparent); }
 .herramienta .plan-chip { font-family: var(--sans); }
 .garantias { list-style: none; margin: 0 0 24px; padding: 0; display: grid; grid-template-columns: minmax(0, 1fr); gap: 10px;
   color: var(--tinta-2); font-size: 14px; }
@@ -438,9 +481,12 @@ details.mas:not([open]) summary { margin-bottom: 0; }
 /* ---- calculadora: resultado ------------------------------------------------- */
 .resultado { min-width: 0; }
 
-.tarjeta-resultado { position: relative; overflow: hidden; border-top: 4px solid var(--tinta); }
-.tarjeta-resultado.gana { border-top-color: var(--gana); }
-.tarjeta-resultado.pierde { border-top-color: var(--pierde); }
+/* Cabecera del resultado: zona con diseño propio (cinta M arriba, esquina en ángulo y la
+   diagonal junto al rótulo). La cinta toma el color del resultado: a devolver o a pagar. */
+.tarjeta-resultado { overflow: hidden; padding-top: 24px; }
+.tarjeta-resultado.gana::after { --cinta-color: var(--gana); }
+.tarjeta-resultado.pierde::after { --cinta-color: var(--pierde); }
+.tarjeta-resultado .res-cab .rotulo { display: inline-flex; align-items: center; gap: 9px; }
 .res-cab { display: flex; justify-content: space-between; align-items: center; gap: 8px; flex-wrap: wrap; margin-bottom: 14px; }
 .res-cab .rotulo { margin: 0; }
 .res-etq { font-size: 14px; color: var(--tinta-2); font-weight: 600; display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
@@ -681,7 +727,7 @@ details.mas:not([open]) summary { margin-bottom: 0; }
 .dialogo { border: 0; border-radius: var(--radio-lg); padding: 0; box-shadow: var(--sombra-alta); background: var(--superficie); color: var(--tinta); width: min(440px, calc(100vw - 32px)); }
 .dialogo[open] { animation: dialogo-entra var(--dur-lenta) var(--curva); }
 @keyframes dialogo-entra { from { opacity: 0; transform: translateY(10px) scale(.98); } to { opacity: 1; transform: none; } }
-.dialogo::backdrop { background: rgba(13, 27, 34, .5); }
+.dialogo::backdrop { background: rgba(14, 26, 44, .5); }
 .dialogo-in { padding: 24px; }
 .dialogo h2 { font-family: var(--display); font-stretch: 110%; font-size: 20px; font-weight: 800; margin-bottom: 6px; }
 .dialogo p { color: var(--tinta-2); margin: 0 0 16px; font-size: 14px; }
@@ -1051,7 +1097,7 @@ body.con-informe .anuncio-carril { z-index: 101; }
 .panel-todo { margin: 0 auto 0 0; padding: 0; border: 0; height: 100dvh; max-height: 100dvh; width: min(400px, 92vw);
   background: var(--superficie); color: var(--tinta); box-shadow: var(--sombra-alta); border-right: 1px solid var(--linea); overflow: hidden; }
 .panel-todo[open] { display: flex; animation: panel-entra var(--dur-lenta) var(--curva); }
-.panel-todo::backdrop { background: color-mix(in srgb, #0d1b22 45%, transparent); }
+.panel-todo::backdrop { background: color-mix(in srgb, #0e1a2c 45%, transparent); }
 @keyframes panel-entra { from { transform: translateX(-24px); opacity: 0; } to { transform: none; opacity: 1; } }
 html.panel-abierto { overflow: hidden; }
 .panel-in { display: flex; flex-direction: column; width: 100%; min-height: 0; }
@@ -1088,15 +1134,16 @@ html.panel-abierto { overflow: hidden; }
   .panel-btn, .tema-btn, .panel-todo, .pie-redes { display: none !important; }
   /* Se imprime siempre en claro (también el informe en PDF), sea cual sea el tema. */
   :root:root:root {
-    --fondo: #ffffff; --superficie: #ffffff; --superficie-2: #f4f7f6;
-    --tinta: #0d1b22; --tinta-2: #34454d; --tinta-3: #5a6b73;
-    --linea: #dbe3e1; --linea-2: #c2cecb; --reticula: rgba(13, 27, 34, .07);
+    --fondo: #ffffff; --superficie: #ffffff; --superficie-2: #f5f7fb;
+    --tinta: #0e1a2c; --tinta-2: #354156; --tinta-3: #586579;
+    --linea: #dce2ec; --linea-2: #c3cbda; --reticula: rgba(14, 26, 44, .065);
     --marca: #1f3fc4; --marca-hover: #172f9a; --marca-suave: #e6ebfb; --marca-tinta: #1a36a8; --sobre-marca: #ffffff;
-    --resalte: #ffd23f; --resalte-suave: #fff4c2; --sobre-resalte: #0d1b22;
-    --gana: #0b7a55; --gana-suave: #e1f4ec; --pierde: #b3341a; --pierde-suave: #fbe6e0; --aviso: #8a5a00; --aviso-suave: #fbf1dc;
-    --g-neto: #b9c6f4; --g-irpf: #1f3fc4; --g-ss: #6f8794; --g-estado: #0d1b22; --g-autonomia: #1f3fc4;
-    --m-g3: #0f7a55; --m-g2: #4fae86; --m-g1: #a9dbc4; --m-0: #dfe5e4;
-    --m-r1: #f2bfae; --m-r2: #e07a5c; --m-r3: #b3341a; --m-tu: #ffd23f; --m-borde: #ffffff;
+    --marca-50: #f3f5fd; --marca-100: #e6ebfb; --marca-200: #c9d2f5; --marca-300: #9eadeb; --marca-700: #172f9a; --marca-900: #101d5c;
+    --resalte: #ffd23f; --resalte-suave: #fff6d6; --sobre-resalte: #0e1a2c;
+    --gana: #1d7456; --gana-suave: #e6f2ec; --pierde: #a63f2a; --pierde-suave: #f8e8e3; --aviso: #8a5a00; --aviso-suave: #fbf1dc;
+    --g-neto: #c9d2f5; --g-irpf: #1f3fc4; --g-ss: #7a8599; --g-estado: #101d5c; --g-autonomia: #9eadeb;
+    --m-g3: #2b7a5f; --m-g2: #6fb197; --m-g1: #bfdfd1; --m-0: #e1e5ee;
+    --m-r1: #f0d2c7; --m-r2: #dc967f; --m-r3: #b45640; --m-tu: #ffd23f; --m-borde: #ffffff;
     --sombra: none; --sombra-alta: none; --anillo: #1f3fc4;
     color-scheme: light;
   }
