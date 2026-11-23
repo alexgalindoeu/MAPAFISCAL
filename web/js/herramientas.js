@@ -168,7 +168,7 @@
       const n = parseInt($(selId).value, 10) || 0;
       while (edades.length < n) edades.push(edades.length ? Math.min(25, edades[edades.length - 1] + 3) : 4);
       edades = edades.slice(0, n);
-      $(contId).innerHTML = edades.map((e, i) => `<label>Edad del hijo ${i + 1} <input type="number" min="0" max="30" step="1" value="${e}" data-edad="${i}" aria-label="Edad del hijo ${i + 1}"></label>`).join("");
+      $(contId).innerHTML = edades.map((e, i) => `<label>Edad del hijo ${i + 1} <input type="number" min="0" max="30" step="1" value="${e}" data-edad="${i}" inputmode="numeric" aria-label="Edad del hijo ${i + 1}"></label>`).join("");
       $(contId).hidden = n === 0;
     };
     $(contId).addEventListener("input", e => {

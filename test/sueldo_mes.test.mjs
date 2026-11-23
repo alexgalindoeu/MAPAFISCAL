@@ -132,7 +132,7 @@ test("la vista #sueldo-mes se pinta, está registrada y lee el enlace", async ()
   const location = { hash: "#sueldo-mes?b=31000&p=12&t=ES-AN&j=60" };
   const ctx = { document, location, console, setTimeout, clearTimeout, Date, history: { replaceState: (a, b, h) => { location.hash = h; } },
     CustomEvent: class { constructor(t) { this.type = t; } }, addEventListener() {},
-    fetch: async url => ({ ok: true, json: async () => JSON.parse(readFileSync(new URL("../web/" + url, import.meta.url), "utf8")) }) };
+    fetch: async url => ({ ok: true, text: async () => readFileSync(new URL("../web/" + url, import.meta.url), "utf8") }) };
   ctx.window = ctx;
   vm.createContext(ctx);
   vm.runInContext(readFileSync(new URL("../web/js/irpfsim.js", import.meta.url), "utf8"), ctx);

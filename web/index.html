@@ -412,7 +412,7 @@
         <div class="campo"><label for="neto-territorio">Territorio donde resides</label><select id="neto-territorio"></select></div>
         <div class="rejilla2">
           <div class="campo"><label for="neto-ejercicio">Ejercicio</label><select id="neto-ejercicio"></select></div>
-          <div class="campo"><label for="neto-edad">Tu edad</label><input type="number" id="neto-edad" min="16" max="110" step="1" value="35"></div>
+          <div class="campo"><label for="neto-edad">Tu edad</label><input type="number" id="neto-edad" min="16" max="110" step="1" value="35" inputmode="numeric"></div>
         </div>
         <div class="campo"><label for="neto-hijos">Hijos que conviven contigo</label><p class="ayuda">Se calcula como familia monoparental (sin pareja): con pareja, el mínimo por hijos se reparte y el resultado cambia. Para ese caso usa la calculadora.</p>
           <select id="neto-hijos"><option value="0">Ninguno</option><option>1</option><option>2</option><option>3</option><option>4</option><option>5</option></select></div>
@@ -469,7 +469,7 @@
           <div class="con-sufijo"><input type="text" data-importe id="pp-bruto" min="0" step="500" value="40000" inputmode="decimal"><span>€</span></div></div>
         <div class="campo"><label for="pp-territorio">Territorio donde resides</label><select id="pp-territorio"></select></div>
         <div class="rejilla2">
-          <div class="campo"><label for="pp-edad">Tu edad</label><input type="number" id="pp-edad" min="16" max="110" step="1" value="45"></div>
+          <div class="campo"><label for="pp-edad">Tu edad</label><input type="number" id="pp-edad" min="16" max="110" step="1" value="45" inputmode="numeric"></div>
           <div class="campo"><label for="pp-hijos" title="Se calcula como familia monoparental (sin pareja)">Hijos (sin pareja)</label>
             <select id="pp-hijos"><option value="0">Ninguno</option><option>1</option><option>2</option><option>3</option><option>4</option></select></div>
         </div>
@@ -542,7 +542,7 @@
         <div class="campo"><label for="rp-despues" id="rp-l-despues">Lo que corresponde a aportaciones desde 2007</label>
           <div class="con-sufijo"><input type="text" data-importe id="rp-despues" min="0" step="1000" value="30000" inputmode="decimal"><span>€</span></div></div>
         <div class="rejilla2">
-          <div class="campo"><label for="rp-contingencia">Año de tu jubilación</label><input type="number" id="rp-contingencia" min="1980" max="2100" step="1" value="2026"></div>
+          <div class="campo"><label for="rp-contingencia">Año de tu jubilación</label><input type="number" id="rp-contingencia" min="1980" max="2100" step="1" value="2026" inputmode="numeric"></div>
           <div class="campo" id="rp-forma-anios"><label for="rp-anios">Repartido en</label>
             <select id="rp-anios"><option value="2">2 años</option><option value="3">3 años</option><option value="4">4 años</option><option value="5" selected>5 años</option><option value="10">10 años</option><option value="15">15 años</option><option value="20">20 años</option></select></div>
         </div>
@@ -554,7 +554,7 @@
         <div class="rejilla2">
           <div class="campo"><label for="rp-tipo-otros">Son</label>
             <select id="rp-tipo-otros"><option value="pension">Una pensión pública</option><option value="sueldo">Un sueldo</option></select></div>
-          <div class="campo"><label for="rp-edad">Tu edad</label><input type="number" id="rp-edad" min="18" max="110" step="1" value="65"></div>
+          <div class="campo"><label for="rp-edad">Tu edad</label><input type="number" id="rp-edad" min="18" max="110" step="1" value="65" inputmode="numeric"></div>
         </div>
         <div class="campo"><label for="rp-territorio">Territorio donde resides</label><select id="rp-territorio"></select></div>
       </fieldset>
@@ -638,7 +638,7 @@
         <div class="rejilla2">
           <div class="campo"><label for="bn-contrato">Contrato</label>
             <select id="bn-contrato"><option value="indefinido">Indefinido</option><option value="temporal">Temporal</option></select></div>
-          <div class="campo"><label for="bn-edad">Tu edad</label><input type="number" id="bn-edad" min="16" max="110" step="1" value="35"></div>
+          <div class="campo"><label for="bn-edad">Tu edad</label><input type="number" id="bn-edad" min="16" max="110" step="1" value="35" inputmode="numeric"></div>
         </div>
         <div class="campo"><label for="bn-hijos">Hijos que conviven contigo</label><p class="ayuda">Se calcula como familia monoparental (sin pareja), igual que el sueldo neto.</p>
           <select id="bn-hijos"><option value="0">Ninguno</option><option>1</option><option>2</option><option>3</option><option>4</option><option>5</option></select></div>
@@ -698,9 +698,9 @@
           </div></div>
         <label class="casilla"><input type="checkbox" id="sm-prorrateo"> Las pagas extra van prorrateadas (12 nóminas iguales)</label>
         <div class="rejilla2">
-          <div class="campo"><label for="sm-horas">Horas semanales a jornada completa</label><input type="number" id="sm-horas" min="1" max="80" step="0.5" value="40"></div>
+          <div class="campo"><label for="sm-horas">Horas semanales a jornada completa</label><input type="number" id="sm-horas" min="1" max="80" step="0.5" value="40" inputmode="decimal"></div>
           <div class="campo"><label for="sm-jornada">Jornada</label>
-            <div class="con-sufijo"><input type="number" id="sm-jornada" min="1" max="100" step="1" value="100"><span>%</span></div></div>
+            <div class="con-sufijo"><input type="number" id="sm-jornada" min="1" max="100" step="1" value="100" inputmode="numeric"><span>%</span></div></div>
         </div>
         <p class="ayuda">Con jornada parcial, pon el sueldo a jornada completa y el porcentaje: el neto se calcula con el bruto prorrateado.</p>
       </fieldset>
@@ -708,7 +708,7 @@
         <legend><span class="paso">2</span>Tu situación</legend>
         <div class="rejilla2">
           <div class="campo"><label for="sm-territorio">Territorio donde resides</label><select id="sm-territorio"></select></div>
-          <div class="campo"><label for="sm-edad">Tu edad</label><input type="number" id="sm-edad" min="16" max="110" step="1" value="40"></div>
+          <div class="campo"><label for="sm-edad">Tu edad</label><input type="number" id="sm-edad" min="16" max="110" step="1" value="40" inputmode="numeric"></div>
         </div>
       </fieldset>
     </form>
@@ -759,11 +759,11 @@
         <legend><span class="paso">2</span>Ingresos</legend>
         <div class="rejilla2">
           <div class="campo"><label for="cj-a-bruto">Sueldo bruto anual (tú)</label><div class="con-sufijo"><input type="text" data-importe id="cj-a-bruto" min="0" step="500" value="30000" inputmode="decimal"><span>€</span></div></div>
-          <div class="campo"><label for="cj-a-edad">Tu edad</label><input type="number" id="cj-a-edad" min="16" max="110" value="40"></div>
+          <div class="campo"><label for="cj-a-edad">Tu edad</label><input type="number" id="cj-a-edad" min="16" max="110" value="40" inputmode="numeric"></div>
         </div>
         <div class="rejilla2" id="cj-b-bloque">
           <div class="campo"><label for="cj-b-bruto">Sueldo bruto anual (tu pareja)</label><div class="con-sufijo"><input type="text" data-importe id="cj-b-bruto" min="0" step="500" value="6000" inputmode="decimal"><span>€</span></div></div>
-          <div class="campo"><label for="cj-b-edad">Su edad</label><input type="number" id="cj-b-edad" min="16" max="110" value="40"></div>
+          <div class="campo"><label for="cj-b-edad">Su edad</label><input type="number" id="cj-b-edad" min="16" max="110" value="40" inputmode="numeric"></div>
         </div>
         <p class="ayuda">Sueldo o pensión. Pon 0 si no tiene ingresos.</p>
       </fieldset>
@@ -815,7 +815,7 @@
         <div class="campo"><label for="dp-territorio">Territorio donde resides</label><select id="dp-territorio"></select></div>
         <div class="rejilla2">
           <div class="campo"><label for="dp-ejercicio">Ejercicio</label><select id="dp-ejercicio"></select></div>
-          <div class="campo"><label for="dp-edad">Tu edad</label><input type="number" id="dp-edad" min="16" max="110" value="35"></div>
+          <div class="campo"><label for="dp-edad">Tu edad</label><input type="number" id="dp-edad" min="16" max="110" value="35" inputmode="numeric"></div>
         </div>
         <div class="campo"><label for="dp-hijos">Hijos que conviven contigo</label>
           <select id="dp-hijos"><option value="0">Ninguno</option><option>1</option><option>2</option><option>3</option></select></div>
@@ -969,7 +969,7 @@
             <div class="con-sufijo"><input type="text" data-importe id="esc-b-sueldo" min="0" step="500" value="30000" inputmode="decimal"><span>€</span></div></div>
           <div class="rejilla2">
             <div class="campo"><label for="esc-b-territorio">Territorio</label><select id="esc-b-territorio"></select></div>
-            <div class="campo"><label for="esc-b-edad">Tu edad</label><input type="number" id="esc-b-edad" min="16" max="110" step="1" value="35"></div>
+            <div class="campo"><label for="esc-b-edad">Tu edad</label><input type="number" id="esc-b-edad" min="16" max="110" step="1" value="35" inputmode="numeric"></div>
           </div>
         </div>
         <p class="ayuda" id="esc-base-resumen"></p>

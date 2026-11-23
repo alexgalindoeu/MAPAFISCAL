@@ -259,8 +259,8 @@ function paginaTerritorio(codigo) {
   }
   const main = `
   <h1>${esComun ? `IRPF y renta ${esc(en)} ${anios}: tramos, tipos y comparativa` : `IRPF en ${esc(t.regimen === "foral_navarra" ? corto : nombre)} ${anios}: tablas, renta y tipo marginal`}</h1>
-  ${esComun ? "" : `<div class="prosa">${indiceForal}${cartaEscala}</div>`}
-  ${respuestaDirecta(resumen)}
+  ${esComun ? "" : `${respuestaDirecta(resumen)}\n  <div class="prosa">${indiceForal}${cartaEscala}</div>`}
+  ${esComun ? respuestaDirecta(resumen) : ""}
   ${bloqueCalculoRapido({ territorio: codigo, ejercicio: comparativas.ejercicio, titulo: `Calcula tu sueldo neto y tu IRPF ${en}` })}
   ${intro}
   <div class="prosa">

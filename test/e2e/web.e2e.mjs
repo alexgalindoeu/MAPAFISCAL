@@ -214,8 +214,10 @@ try {
     await prueba(`móvil 390 px sin desbordamiento horizontal: ${ruta}`, async () => {
       const p = await abrir(ruta, { viewport: { width: 390, height: 844 }, isMobile: true, hasTouch: true });
       await p.waitForTimeout(500);
-      const { sw, cw } = await p.evaluate(() => ({ sw: document.documentElement.scrollWidth, cw: document.documentElement.clientWidth }));
+      // con isMobile, lo que desborda no da scroll: aleja la página entera (innerWidth > 390)
+      const { sw, cw, iw } = await p.evaluate(() => ({ sw: document.documentElement.scrollWidth, cw: document.documentElement.clientWidth, iw: window.innerWidth }));
       assert.ok(sw <= cw, `scrollWidth ${sw} > clientWidth ${cw}`);
+      assert.equal(iw, 390, `la página se ve alejada: ${iw} px de ancho`);
       assert.deepEqual(p.errores, []);
       await p.context().close();
     });
@@ -272,6 +274,29 @@ try {
       await p.context().close();
     });
   }
+  // El botón (o el gesto) «atrás» del navegador respeta las vistas y cierra el panel «Todo».
+  await prueba("atrás: vuelve a la vista anterior y cierra el panel «Todo» sin salir de la web", async () => {
+    const p = await abrir("/", { viewport: { width: 390, height: 844 }, isMobile: true, hasTouch: true });
+    await p.waitForFunction(() => window.MapafiscalApp);
+    const vista = () => p.evaluate(() => [...document.querySelectorAll("main section.vista")].find(s => !s.hidden).id);
+    await p.locator("#v-inicio a[href='#calculadora']").first().click();
+    assert.equal(await vista(), "v-calculadora");
+    await p.locator(".nav a[data-vista=comparar]").click();
+    assert.equal(await vista(), "v-comparar");
+    await p.goBack(); await p.waitForTimeout(200);
+    assert.equal(await vista(), "v-calculadora");
+    await p.goBack(); await p.waitForTimeout(200);
+    assert.equal(await vista(), "v-inicio");
+    assert.equal(new URL(p.url()).origin, base);
+    await p.locator("#btn-todo").click();
+    assert.ok(await p.evaluate(() => document.getElementById("panel-todo").open));
+    await p.goBack(); await p.waitForTimeout(200);
+    assert.ok(!(await p.evaluate(() => document.getElementById("panel-todo").open)), "el panel sigue abierto");
+    assert.equal(new URL(p.url()).origin, base);
+    assert.equal(await vista(), "v-inicio");
+    assert.deepEqual(p.errores, []);
+    await p.context().close();
+  });
 
   // Accesibilidad con axe-core (devDependency): fallan las infracciones «serious» y
   // «critical» de las páginas revisadas, en modo claro y oscuro.

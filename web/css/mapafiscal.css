@@ -1170,3 +1170,55 @@ input[aria-invalid="true"] { border-color: var(--rojo, #b42318); box-shadow: 0 0
   .tema-btn svg, .panel-btn svg path, .faq summary::before { transition: none; }
   .tema-btn:is(:hover, :focus-visible) svg { transform: none; }
 }
+
+/* ---- Revisión en móvil (iPhone, 23-11-2026) ------------------------------------------------
+   Con el dedo, todo lo que se pulsa mide al menos 44 × 44 px (guía de Apple y WCAG 2.5.5). Solo
+   con puntero grueso o pantalla estrecha: en escritorio la barra y los botones se quedan como estaban. */
+@media (pointer: coarse), (max-width: 760px) {
+  .btn-icono { min-width: 44px; height: 44px; }
+  .btn, .btn-sm, .btn-txt, .btn-peligro { min-height: 44px; }
+  .marca { min-height: 44px; min-width: 44px; align-items: center; justify-content: center; }
+  .panel-cerrar, .dialogo-cerrar, .aviso-cuenta-cerrar, .pie-redes .red { width: 44px; height: 44px; }
+  .segmentado span { padding: 11px 16px; font-size: 14px; }
+  .casilla { min-height: 44px; align-items: center; }
+  .casilla input { width: 20px; height: 20px; margin-top: 0; }
+  details.mas summary, .faq summary, .grafico-datos summary, #res-explicacion > summary, .muestra-casos details summary { min-height: 44px; }
+  .grafico-datos summary, #res-explicacion > summary { display: flex; align-items: center; }
+  .enlace-error { min-height: 44px; }
+  .pie a { display: inline-flex; align-items: center; min-height: 44px; }
+  .indice a, .lista-enlaces a, .cobertura td a { display: inline-flex; align-items: center; min-height: 44px; }
+  html input[type="range"]#desl-sueldo { height: 44px; }
+  html #desl-sueldo::-webkit-slider-thumb { width: 28px; height: 28px; margin-top: -11px; }
+}
+/* Un texto solo para lectores de pantalla (position: absolute) dentro de una tabla con
+   desplazamiento lateral se escapaba del recorte y ensanchaba la página: en el iPhone la
+   página entera se veía alejada (481 px de ancho en una pantalla de 390). */
+.envoltorio, table.cobertura, .tarjeta-ranking { position: relative; }
+.cobertura td a { white-space: nowrap; }
+/* El antetítulo largo («Declaración de la renta · Simulación 2026 (la que…)») partía en dos
+   columnas en móvil: que fluya como texto. */
+@media (max-width: 600px) { .antetitulo { display: block; } .antetitulo::before { display: inline-block; vertical-align: middle; margin-right: 8px; } }
+/* La barra superior se aparta al bajar y vuelve al subir (ui.js): 105 px menos de pantalla
+   tapada mientras se lee o se rellena un formulario. */
+@media (max-width: 760px) {
+  .appbar { transition: transform var(--dur-lenta) var(--curva); }
+  .appbar.recogida { transform: translateY(-100%); }
+  html.panel-abierto .appbar.recogida { transform: none; }
+}
+/* Con el teclado abierto, la barra del resultado (fija abajo) quedaría encima de él tapando el
+   campo que se escribe: se oculta mientras hay un campo con el foco (app.js). */
+body.escribiendo .barra-movil, body.escribiendo .ir-resultado { display: none !important; }
+/* «Ver el resultado» de las herramientas en móvil: aparece mientras el resultado queda fuera de
+   la pantalla (app.js). */
+.ir-resultado { display: none; }
+@media (max-width: 1039px) {
+  .ir-resultado { display: inline-flex; position: fixed; z-index: 14; left: 50%; bottom: calc(16px + env(safe-area-inset-bottom));
+    transform: translateX(-50%); box-shadow: var(--sombra-alta); border-radius: 999px; padding-left: 20px; padding-right: 20px; }
+  .ir-resultado[hidden] { display: none; }
+}
+@media print { .ir-resultado { display: none !important; } }
+.mapa-tip-pista { display: block; margin-top: 6px; font-size: 12px; color: var(--marca-tinta); font-weight: 600; }
+@media (max-width: 1039px) {
+  .barra-movil { transition: transform var(--dur-lenta) var(--curva); }
+  body.resultado-a-la-vista .barra-movil { transform: translateY(110%); }
+}
