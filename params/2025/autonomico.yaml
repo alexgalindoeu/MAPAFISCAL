@@ -246,75 +246,107 @@ territorios:
       estado: cargado
       fuente: "TR tributos cedidos de Aragón (DL 1/2005), art. 110 (arts. 110-2/3/4/5/14/17); AEAT Manual Práctico Renta 2025, Parte 2 — Deducciones autonómicas / Aragón"
       lista:
+        # Cotejado (11-2026) con el Manual Práctico de Renta 2025 de la AEAT, parte 2, Aragón.
+        # Tercer hijo, dependientes y guardería siguen `provisional` SOLO porque tienen una
+        # cuantía mayor en el régimen de fiscalidad diferenciada (asentamientos rurales de rangos
+        # VIII a X con ISDT < 100; arts. 160-1 y 160-2), que el motor no modela: el régimen
+        # general que sigue está cotejado.
+        # Límite de renta de los arts. 110-2 y 110-5: bases imponibles (0435 + 0460) − mínimo del
+        # contribuyente − mínimo por descendientes (0511 + 0513) <= 21.000 € / 35.000 €.
         - id: nacimiento_adopcion_tercer_hijo_renta_baja
           norma: "Art. 110-2 DL 1/2005 Aragón"
+          estado: provisional   # fiscalidad diferenciada (600 / 720 €) no modelada
+          fuente: "Arts. 110-2, 160-1 y 160-2.1 TR de tributos cedidos de Aragón (DL 1/2005); AEAT Manual Práctico Renta 2025, Parte 2, Aragón, «Por nacimiento o adopción del tercer hijo o sucesivos» (https://sede.agenciatributaria.gob.es/Sede/ayuda/manuales-videos-folletos/manuales-practicos/irpf-2025-deducciones-autonomicas/comunidad-autonoma-aragon/nacimiento-adopcion-tercer-hijo-sucesivos.html)"
           tipo: fija_por_hijo_nacido
           anios_ventana: 1
           importes_por_orden: { "1": 0, "2": 0, "3+": 600 }   # solo 3.er hijo o sucesivos
-          base_gate: menos_minimo
+          base_gate: menos_minimo_contribuyente_descendientes
           base_max_individual: 21000
           base_max_conjunta: 35000
           prorratea_progenitores: true
         - id: nacimiento_adopcion_tercer_hijo_general
           norma: "Art. 110-2 DL 1/2005 Aragón"
+          estado: provisional   # fiscalidad diferenciada (600 / 720 €) no modelada
+          fuente: "Arts. 110-2, 160-1 y 160-2.1 TR de tributos cedidos de Aragón (DL 1/2005); AEAT Manual Práctico Renta 2025, Parte 2, Aragón, «Por nacimiento o adopción del tercer hijo o sucesivos» (https://sede.agenciatributaria.gob.es/Sede/ayuda/manuales-videos-folletos/manuales-practicos/irpf-2025-deducciones-autonomicas/comunidad-autonoma-aragon/nacimiento-adopcion-tercer-hijo-sucesivos.html)"
           tipo: fija_por_hijo_nacido
           anios_ventana: 1
           importes_por_orden: { "1": 0, "2": 0, "3+": 500 }
-          base_gate: menos_minimo
+          base_gate: menos_minimo_contribuyente_descendientes
           base_min_individual: 21000.01
           base_min_conjunta: 35000.01
           prorratea_progenitores: true
         - id: cuidado_personas_dependientes
           norma: "Art. 110-5 DL 1/2005 Aragón"
-          estado: provisional   # el límite de renta usa base − (mínimo contrib. + mínimo desc.); aquí se resta el MPF total
+          estado: provisional   # fiscalidad diferenciada (300 €) no modelada; tampoco las rentas del dependiente (<= 8.000 €)
+          fuente: "Arts. 110-5, 160-1 y 160-2.4 TR de tributos cedidos de Aragón (DL 1/2005); AEAT Manual Práctico Renta 2025, Parte 2, Aragón, «Por el cuidado de personas dependientes» (https://sede.agenciatributaria.gob.es/Sede/ayuda/manuales-videos-folletos/manuales-practicos/irpf-2025-deducciones-autonomicas/comunidad-autonoma-aragon/cuidado-personas-dependientes.html)"
           tipo: fija
           importe: 150
           requiere_dependiente_a_cargo: true   # ascendiente >= 75, o asc./desc. con discapacidad >= 65 %
-          base_gate: menos_minimo
+          base_gate: menos_minimo_contribuyente_descendientes
           base_max_individual: 21000
           base_max_conjunta: 35000
           prorratea_progenitores: true
+        # Mayores de 70 (art. 110-14): 75 € por contribuyente de 70 años o más con rendimientos
+        # del trabajo (también pensiones) o de actividades; bases imponibles <= 23.000 / 35.000 €.
         - id: mayores_70_anos
           norma: "Art. 110-14 DL 1/2005 Aragón"
-          estado: provisional   # exige además obtener rendimientos del trabajo y/o de actividades (no comprobado; las pensiones cuentan como trabajo)
+          estado: confirmado
+          fuente: "Art. 110-14 TR de tributos cedidos de Aragón (DL 1/2005, de 26 de septiembre), vigente en 2025; AEAT Manual Práctico Renta 2025, Parte 2, Aragón, «Para mayores de 70 años» (https://sede.agenciatributaria.gob.es/Sede/ayuda/manuales-videos-folletos/manuales-practicos/irpf-2025-deducciones-autonomicas/comunidad-autonoma-aragon/mayores-70-anos.html)"
           tipo: fija
           importe: 75
           edad_min: 70
+          requiere_trabajo_o_actividad: true
+          por_declarante_en_conjunta: true
+          suma_bases: imponibles
           base_max_individual: 23000
           base_max_conjunta: 35000
         - id: gastos_guarderia_menores_3
           norma: "Art. 110-17 DL 1/2005 Aragón"
-          estado: provisional   # 250 €/hijo < 3; 125 € el año en que cumple 3 (no modelado); base del ahorro <= 4.000 no comprobada
+          estado: provisional   # fiscalidad diferenciada (300 / 150 €) no modelada; tampoco los 125 € del año en que el hijo cumple 3
+          fuente: "Arts. 110-17, 160-1 y 160-2.7 TR de tributos cedidos de Aragón (DL 1/2005); AEAT Manual Práctico Renta 2025, Parte 2, Aragón, «Por gastos de guardería de hijos menores de 3 años» (https://sede.agenciatributaria.gob.es/Sede/ayuda/manuales-videos-folletos/manuales-practicos/irpf-2025-deducciones-autonomicas/comunidad-autonoma-aragon/gastos-guarderia-hijos-menores-3-anos.html)"
           tipo: porcentaje_campo_hijo
           campo: gastos_guarderia
           porcentaje: 0.15
           limite: 250
           edad_hijo_max: 2
-          base_max_individual: 35000
-          base_max_conjunta: 50000
+          base_max_individual: 34999.99   # suma de bases liquidables INFERIOR a 35.000 / 50.000 €
+          base_max_conjunta: 49999.99
+          base_ahorro_max: 4000
           prorratea_progenitores: true
         # --- condicionadas al municipio de residencia ---
+        # Residencia en asentamientos rurales en riesgo extremo de despoblación (Rango X): 600 €
+        # por contribuyente; bases liquidables < 35.000 / 50.000 € y base imponible del ahorro
+        # <= 4.000 €. Exige mantener la residencia el año de devengo y los cuatro siguientes.
         - id: residencia_municipios_despoblacion
           norma: "Arts. 160-1 y 160-2.8 DL 1/2005 Aragón"
-          estado: provisional   # no se modelan el requisito de base del ahorro <= 4.000 € ni el de residir allí los 4 años siguientes; en conjunta la ley la da a cada contribuyente que cumpla (aquí una vez)
+          estado: confirmado
+          fuente: "Arts. 160-1 y 160-2.8 TR de tributos cedidos de Aragón (DL 1/2005, de 26 de septiembre), vigente en 2025; AEAT Manual Práctico Renta 2025, Parte 2, Aragón, «Por residencia en determinados municipios» (https://sede.agenciatributaria.gob.es/Sede/ayuda/manuales-videos-folletos/manuales-practicos/irpf-2025-deducciones-autonomicas/comunidad-autonoma-aragon/residencia-determinados-municipios.html)"
           tipo: fija
           importe: 600
           requiere_zona_despoblada: true   # asentamientos rurales en riesgo extremo de despoblación (Rango X)
+          por_declarante_en_conjunta: true
           base_max_individual: 34999.99
           base_max_conjunta: 49999.99
+          base_ahorro_max: 4000
+        # Primer o segundo hijo en municipios de menos de 10.000 habitantes (art. 110-16): 100 /
+        # 150 €, o 200 / 300 € si las bases imponibles no superan 23.000 / 35.000 €. Se exige
+        # haber residido allí también el año anterior (no modelado).
         - id: nacimiento_municipios_pequenos_renta_baja
           norma: "Art. 110-16 DL 1/2005 Aragón"
-          estado: provisional   # el límite legal es sobre base imponible (aquí liquidable) y se exige residir también el año anterior en municipio < 10.000 hab.
+          estado: confirmado
+          fuente: "Art. 110-16 TR de tributos cedidos de Aragón (DL 1/2005, de 26 de septiembre), vigente en 2025; AEAT Manual Práctico Renta 2025, Parte 2, Aragón, «Por nacimiento o adopción del primer y/o segundo hijo en poblaciones de menos de 10.000 habitantes» (https://sede.agenciatributaria.gob.es/Sede/ayuda/manuales-videos-folletos/manuales-practicos/irpf-2025-deducciones-autonomicas/comunidad-autonoma-aragon/nacimiento-adopcion-primer-segundo-hijo-10_000.html)"
           tipo: fija_por_hijo_nacido
           anios_ventana: 1
           importes_por_orden: { "1": 200, "2": 300, "3+": 0 }
           municipio_hab_max: 9999
+          suma_bases: imponibles
           base_max_individual: 23000
           base_max_conjunta: 35000
           grupo: nacimiento_rural_ar
         - id: nacimiento_municipios_pequenos
           norma: "Art. 110-16 DL 1/2005 Aragón"
-          estado: provisional
+          estado: confirmado
+          fuente: "Art. 110-16 TR de tributos cedidos de Aragón (DL 1/2005, de 26 de septiembre), vigente en 2025; AEAT Manual Práctico Renta 2025, Parte 2, Aragón, «Por nacimiento o adopción del primer y/o segundo hijo en poblaciones de menos de 10.000 habitantes» (https://sede.agenciatributaria.gob.es/Sede/ayuda/manuales-videos-folletos/manuales-practicos/irpf-2025-deducciones-autonomicas/comunidad-autonoma-aragon/nacimiento-adopcion-primer-segundo-hijo-10_000.html)"
           tipo: fija_por_hijo_nacido
           anios_ventana: 1
           importes_por_orden: { "1": 100, "2": 150, "3+": 0 }
