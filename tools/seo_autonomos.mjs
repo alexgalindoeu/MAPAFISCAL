@@ -19,7 +19,7 @@ import { join, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
 import {
   SLUG, ORDEN_TERRITORIOS, NOMBRE_CORTO, LIRPF_BOE, esc, euros, eurosExactos as eur, pct, pctCorto, urlBoe,
-  layout, jsonLdMigas, jsonLdArticulo, jsonLdFaq, bloqueFaq, migasHtml, respuestaDirecta, tituloQueQuepa
+  layout, jsonLdMigas, jsonLdArticulo, jsonLdFaq, bloqueFaq, migasHtml, respuestaDirecta, tituloQueQuepa, bloqueCalculoRapido
 } from "./seo_comun.mjs";
 
 const WEB = join(dirname(fileURLToPath(import.meta.url)), "..", "web");
@@ -147,6 +147,8 @@ function paginaTerritorio(P, t, rk, generado) {
   const main = `
   <h1>IRPF de un autónomo ${esc(en(nombre))} (${P.ejercicio}): cuánto pagas</h1>
   ${respuestaDirecta(`con ${esc(euros(REFERENCIA))} de rendimiento neto, un autónomo ${esc(en(nombre))} paga <b>${esc(eur(x.irpf))}</b> de IRPF en ${P.ejercicio}, un ${esc(pct(x.irpf / REFERENCIA))} de lo que gana. Es el puesto ${esc(x.puesto)} de los 19 territorios fiscales.`)}
+  ${bloqueCalculoRapido({ territorio: t, ejercicio: P.ejercicio, titulo: `Si cobras una nómina: tu sueldo neto ${en(nombre)}`,
+    nota: "Es el cálculo de un sueldo por cuenta ajena; el IRPF de tu actividad como autónomo, con tus ingresos y gastos, está en la calculadora completa." })}
   <div class="prosa">
   <div class="tarjeta tarjeta-tabla">
     <h2 class="rotulo">IRPF de un autónomo ${esc(en(nombre))} según el rendimiento</h2>

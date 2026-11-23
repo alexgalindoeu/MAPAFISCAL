@@ -17,7 +17,7 @@ import { createRequire } from "node:module";
 import { readFileSync, writeFileSync, mkdirSync, existsSync, readdirSync, rmSync } from "node:fs";
 import { join, dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
-import { SITIO, SLUG, ORDEN_TERRITORIOS, HERRAMIENTA, NOMBRE_CORTO, esc, textoPlano, euros, eurosExactos, difEuros, pct, pctCorto, tablaEscala, citaFuente, layout, jsonLdMigas, jsonLdFaq, jsonLdDataset, bloqueFaq, respuestaDirecta, migasHtml, tituloQueQuepa, fecharContenido, hashContenido, EJERCICIO } from "./seo_comun.mjs";
+import { SITIO, SLUG, ORDEN_TERRITORIOS, HERRAMIENTA, NOMBRE_CORTO, esc, textoPlano, euros, eurosExactos, difEuros, pct, pctCorto, tablaEscala, citaFuente, layout, jsonLdMigas, jsonLdFaq, jsonLdDataset, bloqueFaq, respuestaDirecta, bloqueCalculoRapido, migasHtml, tituloQueQuepa, fecharContenido, hashContenido, EJERCICIO } from "./seo_comun.mjs";
 import { robotsTxt, llmsTxt } from "./seo_ia.mjs";
 import { paginaDeducciones, CAMPO, conDe, conEn, conArticulo } from "./seo_deducciones.mjs";
 import { paginasFichasDeduccion, paramsDe } from "./seo_deduccion_ficha.mjs";
@@ -260,6 +260,7 @@ function paginaTerritorio(codigo) {
   <h1>${esComun ? `IRPF y renta ${esc(en)} ${anios}: tramos, tipos y comparativa` : `IRPF en ${esc(t.regimen === "foral_navarra" ? corto : nombre)} ${anios}: tablas, renta y tipo marginal`}</h1>
   ${esComun ? "" : `<div class="prosa">${indiceForal}${cartaEscala}</div>`}
   ${respuestaDirecta(resumen)}
+  ${bloqueCalculoRapido({ territorio: codigo, ejercicio: comparativas.ejercicio, titulo: `Calcula tu sueldo neto y tu IRPF ${en}` })}
   ${intro}
   <div class="prosa">
   ${esComun ? cartaEscala + cartaMedia + cartaTipos : ""}

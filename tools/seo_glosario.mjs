@@ -315,7 +315,7 @@ export function enlazarGlosario(html, max = 3) {
       const nom = m[2].toLowerCase();
       if (/^(br|img|meta|link|input|hr|source|wbr)$/.test(nom) || m[3].endsWith("/")) return tok;
       if (m[1]) { const i = pila.findLastIndex(x => x === nom || x === nom + "!"); if (i >= 0) pila.length = i; }
-      else pila.push(nom + (/class="(migas|actualizado|ayuda|cita)"/.test(m[3]) ? "!" : ""));
+      else pila.push(nom + (/class="(migas|actualizado|ayuda|cita|calc-rapido)"/.test(m[3]) ? "!" : ""));
       return tok;
     }
     if (n >= max || !pila.length || pila.some(x => BLOQUEO.has(x) || x.endsWith("!"))) return tok;

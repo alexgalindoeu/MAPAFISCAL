@@ -194,6 +194,11 @@
     return t && T[t] ? t : null;
   };
   if (territorioDeHash()) selTerr.value = territorioDeHash();
+  // …&bruto=30000 (cálculo rápido de las páginas SEO, web/js/calculo-rapido.js): el sueldo bruto anual
+  const brutoDeHash = () => {
+    const m = location.hash.match(/^#calculadora\?(?:[^#]*&)?bruto=(\d{1,8}(?:\.\d{1,2})?)(?:&|$)/);
+    return m ? Math.min(1e7, Number(m[1])) : null;
+  };
 
   // ---- formulario (web/js/formulario.js): estado, plantillas y validaciones ------------------
   const FORM = window.formularioIrpf;
@@ -1746,7 +1751,9 @@
   }
   window.addEventListener("hashchange", () => {
     const t = territorioDeHash();
-    if (t && t !== selTerr.value) { selTerr.value = t; pintarGastosTerritorio(); recalcular(); }
+    const bruto = brutoDeHash();
+    if (bruto != null) formulario.estado.personas.d1.salario = bruto;
+    if ((t && t !== selTerr.value) || bruto != null) { if (t) selTerr.value = t; pintarGastosTerritorio(); recalcular(); }
     const v = vistaDeHash(); if (v) { vistaSel = v; mostrarVista({ moverFoco: true }); }
   });
 
@@ -1783,6 +1790,7 @@
   document.querySelectorAll("[data-ejercicios]").forEach(el => { el.textContent = textoEjercicios(); });
   pintarSelectoresEjercicio(false);
   pintarRotulosEjercicio();
+  if (brutoDeHash() != null) formulario.estado.personas.d1.salario = brutoDeHash();
   pintarHijos(); pintarGastosTerritorio(); recalcular(); marcarPestanaClientes(); mostrarVista({ moverFoco: Boolean(vistaDeHash()) });
   // «Comunicar un error» de la calculadora: el hogar entero, no solo los campos visibles
   if (MCF && MCF.registrar) MCF.registrar("tarjeta-resultado", () => {

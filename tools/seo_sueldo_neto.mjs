@@ -14,7 +14,7 @@
 const menos = n => (Math.round(Math.abs(n)) ? "−" : "") + euros(Math.abs(n));
 import { graficoBrutoNeto, serieSueldoNeto } from "./seo_grafico.mjs";
 import { conArticulo } from "./seo_deduccion_ficha.mjs";
-import { NOMBRE_CORTO, SLUG, ORDEN_TERRITORIOS, HERRAMIENTA, esc, euros, pct, layout, jsonLdMigas, jsonLdFaq, bloqueFaq, migasHtml } from "./seo_comun.mjs";
+import { NOMBRE_CORTO, SLUG, ORDEN_TERRITORIOS, HERRAMIENTA, esc, euros, pct, layout, jsonLdMigas, jsonLdFaq, bloqueFaq, migasHtml, bloqueCalculoRapido } from "./seo_comun.mjs";
 
 const FORAL = new Set(["ES-PV-BI", "ES-PV-SS", "ES-PV-VI", "ES-NC"]);
 const pct2 = n => (100 * n).toFixed(2).replace(".", ",") + " %";
@@ -148,6 +148,7 @@ export function paginasSueldoNeto(d, { conDeducciones = new Set(), ejercicioDedu
     const main = `
   <h1>${esc(titulo)}</h1>
   <p class="entradilla">${intro}${eq.length ? ` Es lo que cobra quien gana ${esc(eq.join(" o "))}.` : ""}</p>
+  ${bloqueCalculoRapido({ territorio: c, ejercicio: EJ, bruto: b, titulo: "Calcula el neto de tu sueldo" })}
   <div class="prosa">
   <div class="tarjeta">
     <dl class="kpis"><div><dt>Neto anual</dt><dd>${esc(euros(f.neto))}</dd></div><div><dt>Al mes, 12 pagas</dt><dd>${esc(euros(f.neto / 12))}</dd></div><div><dt>Al mes, 14 pagas</dt><dd>${esc(euros(f.neto / 14))}</dd></div></dl>

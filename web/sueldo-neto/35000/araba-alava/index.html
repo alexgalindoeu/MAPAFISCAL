@@ -68,6 +68,17 @@
   <h1>Sueldo neto de 35.000 € brutos en Araba/Álava (2026)</h1>
   <p class="actualizado">Actualizado el <time datetime="2026-11-22">22 de noviembre de 2026</time></p>
   <p class="entradilla">En Araba/Álava, de 35.000 € brutos al año la Seguridad Social se lleva 2.275 € y el IRPF 5.804 €: quedan <b>26.921 € netos</b>, es decir, 2.243 € al mes en 12 pagas o 1.923 € en 14. Es lo que cobra quien gana 2.500 € brutos al mes en 14 pagas.</p>
+  <section class="calc-rapido" id="calculo-rapido" aria-labelledby="cr-titulo" data-calculo-rapido data-territorio="ES-PV-VI" data-ejercicio="2026">
+    <h2 class="rotulo" id="cr-titulo">Calcula el neto de tu sueldo</h2>
+    <form class="cr-form" autocomplete="off" novalidate aria-label="Cálculo rápido del sueldo neto">
+      <div class="campo cr-bruto"><label for="cr-bruto">Sueldo bruto anual</label><div class="con-sufijo"><input type="text" id="cr-bruto" data-importe data-max="10000000" inputmode="decimal" value="35000"><span>€</span></div></div>
+      <div class="campo cr-terr"><label for="cr-territorio">Dónde vives</label><select id="cr-territorio"><option value="ES-AN">Andalucía</option><option value="ES-AR">Aragón</option><option value="ES-AS">Asturias</option><option value="ES-IB">Baleares</option><option value="ES-CN">Canarias</option><option value="ES-CB">Cantabria</option><option value="ES-CM">Castilla-La Mancha</option><option value="ES-CL">Castilla y León</option><option value="ES-CT">Cataluña</option><option value="ES-EX">Extremadura</option><option value="ES-GA">Galicia</option><option value="ES-MD">Madrid</option><option value="ES-MC">Murcia</option><option value="ES-RI">La Rioja</option><option value="ES-VC">Comunidad Valenciana</option><option value="ES-PV-BI">Bizkaia</option><option value="ES-PV-SS">Gipuzkoa</option><option value="ES-PV-VI" selected>Álava</option><option value="ES-NC">Navarra</option></select></div>
+      <fieldset class="cr-pagas"><legend>Pagas al año</legend><label><input type="radio" name="cr-pagas" value="12"> 12</label><label><input type="radio" name="cr-pagas" value="14" checked> 14</label></fieldset>
+    </form>
+    <div class="cr-res" id="cr-res" aria-live="polite"><p class="cr-espera">Escribe tu sueldo bruto: el neto, la Seguridad Social y el IRPF salen al momento.</p></div>
+    <p class="cr-afinar"><a id="cr-afinar" href="/index.html#calculadora?t=ES-PV-VI&amp;bruto=35000&amp;ejercicio=2026">Afinar con tu familia y deducciones <span aria-hidden="true">→</span></a></p>
+    <p class="ayuda cr-supuesto">Estimación del ejercicio 2026 para una persona de 40 años, sin hijos y con contrato indefinido: sueldo neto tras la declaración de la renta, con las cotizaciones del ejercicio. Tipo medio: IRPF entre la base imponible; tipo marginal: el del último euro. El cálculo se hace en tu navegador.</p>
+  </section>
   <div class="prosa">
   <div class="tarjeta">
     <dl class="kpis"><div><dt>Neto anual</dt><dd>26.921 €</dd></div><div><dt>Al mes, 12 pagas</dt><dd>2.243 €</dd></div><div><dt>Al mes, 14 pagas</dt><dd>1.923 €</dd></div></dl>
@@ -147,5 +158,6 @@
 <script src="/config.js" defer></script>
 <script src="/js/analitica.js" defer></script>
 <script src="/js/anuncios.js" defer></script>
+<script src="/js/calculo-rapido.js" defer></script>
 </body>
 </html>

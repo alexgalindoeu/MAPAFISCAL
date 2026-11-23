@@ -70,6 +70,17 @@
   <h1>Campaña de la renta: cuándo empieza y fechas clave</h1>
   <p class="actualizado">Actualizado el <time datetime="2026-11-22">22 de noviembre de 2026</time></p>
   <p class="respuesta-directa"><b>En resumen:</b> la declaración de la renta 2025 fue <b>del 8 de abril al 30 de junio de 2026</b>; para domiciliar el pago, hasta el 25 de junio de 2026, y el segundo plazo, hasta el 5 de noviembre de 2026. La próxima campaña, la de la renta 2026, se presenta en 2027; sus fechas aún no se han publicado en el BOE.</p>
+  <section class="calc-rapido" id="calculo-rapido" aria-labelledby="cr-titulo" data-calculo-rapido data-territorio="ES-MD" data-ejercicio="2025">
+    <h2 class="rotulo" id="cr-titulo">Calcula tu sueldo neto y tu IRPF</h2>
+    <form class="cr-form" autocomplete="off" novalidate aria-label="Cálculo rápido del sueldo neto">
+      <div class="campo cr-bruto"><label for="cr-bruto">Sueldo bruto anual</label><div class="con-sufijo"><input type="text" id="cr-bruto" data-importe data-max="10000000" inputmode="decimal" value="30000"><span>€</span></div></div>
+      <div class="campo cr-terr"><label for="cr-territorio">Dónde vives</label><select id="cr-territorio"><option value="ES-AN">Andalucía</option><option value="ES-AR">Aragón</option><option value="ES-AS">Asturias</option><option value="ES-IB">Baleares</option><option value="ES-CN">Canarias</option><option value="ES-CB">Cantabria</option><option value="ES-CM">Castilla-La Mancha</option><option value="ES-CL">Castilla y León</option><option value="ES-CT">Cataluña</option><option value="ES-EX">Extremadura</option><option value="ES-GA">Galicia</option><option value="ES-MD" selected>Madrid</option><option value="ES-MC">Murcia</option><option value="ES-RI">La Rioja</option><option value="ES-VC">Comunidad Valenciana</option><option value="ES-PV-BI">Bizkaia</option><option value="ES-PV-SS">Gipuzkoa</option><option value="ES-PV-VI">Álava</option><option value="ES-NC">Navarra</option></select></div>
+      <fieldset class="cr-pagas"><legend>Pagas al año</legend><label><input type="radio" name="cr-pagas" value="12"> 12</label><label><input type="radio" name="cr-pagas" value="14" checked> 14</label></fieldset>
+    </form>
+    <div class="cr-res" id="cr-res" aria-live="polite"><p class="cr-espera">Escribe tu sueldo bruto: el neto, la Seguridad Social y el IRPF salen al momento.</p></div>
+    <p class="cr-afinar"><a id="cr-afinar" href="/index.html#calculadora?t=ES-MD&amp;bruto=30000&amp;ejercicio=2025">Afinar con tu familia y deducciones <span aria-hidden="true">→</span></a></p>
+    <p class="ayuda cr-supuesto">Estimación del ejercicio 2025 para una persona de 40 años, sin hijos y con contrato indefinido: sueldo neto tras la declaración de la renta, con las cotizaciones del ejercicio. Tipo medio: IRPF entre la base imponible; tipo marginal: el del último euro. El cálculo se hace en tu navegador.</p>
+  </section>
   <div class="prosa">
   
   <p class="entradilla">La declaración de la renta de un año se presenta en la primavera del año siguiente. Cada campaña, una orden del Ministerio de Hacienda publicada en el BOE fija las fechas. Estas son las de la última campaña publicada, la de la renta 2025.</p>
@@ -133,5 +144,6 @@
 <script src="/config.js" defer></script>
 <script src="/js/analitica.js" defer></script>
 <script src="/js/anuncios.js" defer></script>
+<script src="/js/calculo-rapido.js" defer></script>
 </body>
 </html>
