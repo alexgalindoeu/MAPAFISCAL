@@ -30,6 +30,7 @@ import { paginasConjuntaPagadores, CARPETAS_CONJUNTA } from "./seo_conjunta.mjs"
 import { paginasDevuelve } from "./seo_devuelve.mjs";
 import { paginasAutonomos, HUB_AUTONOMOS } from "./seo_autonomos.mjs";
 import { paginaMetodologia } from "./seo_metodologia.mjs";
+import { paginaWidget, RUTA_WIDGET } from "./seo_widget.mjs";
 import { paginasGlosario, enlazarGlosario, HUB_GLOSARIO } from "./seo_glosario.mjs";
 import { paginasVivienda, PAGINAS_VIVIENDA, HUB_VIVIENDA } from "./seo_vivienda.mjs";
 import { paginasForal, enlacesSuiteForal, enlacesVascos, escalasAhorro, ejemploPasoAPaso, normaDelTerritorio, rasgoForalDe, paramsForal, BOLETIN, rentaForal, enlaceCalculadora, enlacesIndiceForal } from "./seo_foral.mjs";
@@ -493,6 +494,8 @@ export function generar({ conGit = false } = {}) {
   for (const a of aut) pagina(a.ruta, a.html);
 
   pagina("/metodologia/", paginaMetodologia(territorios.generado));
+  // Widget incrustable: /widget/ entra en el sitemap; el widget (widget/sueldo-neto.html, a mano) no.
+  pagina(RUTA_WIDGET, paginaWidget(territorios, territorios.generado));
   // «Cómo comprobamos los cálculos»: la escribe tools/generar_validacion.mjs; aquí solo va al sitemap
   urls.push("/validacion/");
   // Fecha real de cambio de cada página (y de la portada, que se escribe a mano).

@@ -1,0 +1,134 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Calculadora de sueldo neto gratis para tu web | Mapafiscal</title>
+<meta name="description" content="Incrusta gratis en tu web la calculadora de sueldo neto de Mapafiscal: neto al mes y al año, IRPF y tipo medio en los 19 territorios. Sin anuncios ni cookies.">
+<link rel="canonical" href="https://mapafiscal.es/widget/">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Mapafiscal">
+<meta property="og:title" content="Calculadora de sueldo neto gratis para tu web | Mapafiscal">
+<meta property="og:description" content="Incrusta gratis en tu web la calculadora de sueldo neto de Mapafiscal: neto al mes y al año, IRPF y tipo medio en los 19 territorios. Sin anuncios ni cookies.">
+<meta property="og:url" content="https://mapafiscal.es/widget/">
+<meta property="og:locale" content="es_ES">
+<meta property="og:image" content="https://mapafiscal.es/og.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Mapafiscal: el mismo sueldo, 19 IRPF distintos">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Calculadora de sueldo neto gratis para tu web | Mapafiscal">
+<meta name="twitter:description" content="Incrusta gratis en tu web la calculadora de sueldo neto de Mapafiscal: neto al mes y al año, IRPF y tipo medio en los 19 territorios. Sin anuncios ni cookies.">
+<meta name="twitter:image" content="https://mapafiscal.es/og.png">
+<meta name="theme-color" content="#1f3fc4">
+<meta name="color-scheme" content="light dark">
+<script>try{var t=localStorage.getItem("mf-tema");if(t==="light"||t==="dark")document.documentElement.setAttribute("data-theme",t)}catch(e){}</script>
+<link rel="preload" href="/fonts/public-sans-latin-var.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="/fonts/archivo-latin-var.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="/iconos/apple-touch-icon.png">
+<link rel="manifest" href="/manifest.webmanifest">
+<link rel="stylesheet" href="/css/mapafiscal.css">
+<link rel="stylesheet" href="/css/seo.css">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"Organization","@id":"https://mapafiscal.es/#organizacion","name":"Mapafiscal","url":"https://mapafiscal.es/","logo":"https://mapafiscal.es/iconos/icono-512.png"}</script>
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Inicio","item":"https://mapafiscal.es/"},{"@type":"ListItem","position":2,"name":"Widget de sueldo neto","item":"https://mapafiscal.es/widget/"}]}</script>
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"¿Cuánto cuesta el widget?","acceptedAnswer":{"@type":"Answer","text":"Nada. Es gratis para cualquier web, también las comerciales, y no hace falta registrarse: copia el código y pégalo en tu página."}},{"@type":"Question","name":"¿Qué calcula?","acceptedAnswer":{"@type":"Answer","text":"El sueldo neto al mes (en 12 o 14 pagas) y al año, el IRPF del año y el tipo medio a partir del sueldo bruto anual y del territorio, con el mismo motor que la calculadora de Mapafiscal. Supone una persona soltera de 35 años, sin hijos y con contrato indefinido, una vez hecha la declaración de la renta."}},{"@type":"Question","name":"¿Lleva anuncios, cookies o analítica?","acceptedAnswer":{"@type":"Answer","text":"No. El widget no muestra anuncios, no instala cookies, no guarda nada en el navegador y no carga analítica de terceros. Tampoco lee nada de tu web: solo le comunica su altura, para que el marco se ajuste."}},{"@type":"Question","name":"¿Se actualiza solo cuando cambia la normativa?","acceptedAnswer":{"@type":"Answer","text":"Sí. El widget carga los parámetros vigentes de Mapafiscal cada vez que se abre, así que, cuando se actualizan las escalas o las cuotas, tu web muestra los cálculos nuevos sin que tengas que cambiar el código."}},{"@type":"Question","name":"¿Puedo cambiar el aspecto?","acceptedAnswer":{"@type":"Answer","text":"Puedes elegir el territorio por defecto, el tema (claro, oscuro o el del sistema de cada visitante) y el tamaño normal o compacto. El ancho se adapta al de tu página y el alto, al contenido."}},{"@type":"Question","name":"¿Puedo quitar el enlace a Mapafiscal?","acceptedAnswer":{"@type":"Answer","text":"No. El uso es gratuito a cambio de mantener visibles la línea «Calculado con Mapafiscal» del propio widget y el enlace que va debajo del marco, tal y como salen en el código."}},{"@type":"Question","name":"¿Es una liquidación oficial?","acceptedAnswer":{"@type":"Answer","text":"No. Es una estimación informativa con los datos que se introducen; no sustituye a la declaración de la renta ni al asesoramiento fiscal."}}]}</script>
+</head>
+<body class="pagina-seo">
+<header class="appbar">
+  <div class="appbar-in">
+    <button class="btn-icono panel-btn" id="btn-todo" type="button" aria-haspopup="dialog" aria-expanded="false" aria-controls="panel-todo" aria-label="Todo lo que ofrecemos" title="Todo lo que ofrecemos"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M4 6.5h16M4 12h16M4 17.5h10"/></svg><span class="panel-btn-txt">Todo</span></button>
+    <a class="marca" href="/index.html">
+      <svg class="marca-ico" viewBox="0 0 101 82" aria-hidden="true"><polygon class="marca-m" points="2,80 16,4 28,4 54,30 46,41 24,20 17,80"/><polygon class="marca-m" points="72,2 83,2 99,80 85,80 75,30"/><polygon class="marca-m-tu" points="31,80 46,80 87,24 79,10"/></svg>
+      <span class="marca-txt"><span class="sr-only">M</span>apafiscal</span>
+    </a>
+    <nav class="nav" aria-label="Secciones">
+      <a href="/index.html#calculadora">Calculadora</a>
+      <a href="/index.html#comparar">Comparar territorios</a>
+      <a href="/irpf/">IRPF por territorio</a>
+      <a href="/guias/">Guías</a>
+      <a href="/vivienda/">Vivienda</a>
+      <a href="/autonomos/">Autónomos</a>
+    </nav>
+    <div class="appbar-der">
+      <button class="btn-icono tema-btn" id="btn-tema" type="button" aria-label="Tema: automático (como el sistema). Cambiar a claro" title="Tema: automático"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><circle cx="12" cy="12" r="8"/><path class="relleno" d="M12 4a8 8 0 0 1 0 16z"/></svg></button>
+      <a class="btn btn-pri btn-sm" href="/index.html#calculadora">Calcula tu caso</a>
+    </div>
+  </div>
+</header>
+<main class="contenedor pagina-seo-main">
+  <p class="migas"><a href="/">Inicio</a> › Widget de sueldo neto</p>
+  
+  <h1>Calculadora de sueldo neto gratis para tu web</h1>
+  <p class="actualizado">Actualizado el <time datetime="2026-11-23">23 de noviembre de 2026</time></p>
+  <p class="entradilla">Pon en tu web la calculadora de sueldo neto de Mapafiscal: tus visitantes escriben su sueldo bruto, eligen dónde viven y ven su neto al mes y al año, el IRPF y el tipo medio en los 19 territorios fiscales. Gratis, sin anuncios y sin cookies.</p>
+  <div class="prosa">
+  <div class="tarjeta">
+    <h2 class="rotulo">Configura el widget</h2>
+    <form id="widget-config" class="widget-config">
+      <div class="campo"><label for="widget-territorio">Territorio por defecto</label><select id="widget-territorio"><option value="ES-AN">Andalucía</option><option value="ES-AR">Aragón</option><option value="ES-AS">Principado de Asturias</option><option value="ES-IB">Illes Balears</option><option value="ES-CN">Canarias</option><option value="ES-CB">Cantabria</option><option value="ES-CM">Castilla-La Mancha</option><option value="ES-CL">Castilla y León</option><option value="ES-CT">Cataluña</option><option value="ES-EX">Extremadura</option><option value="ES-GA">Galicia</option><option value="ES-MD" selected>Comunidad de Madrid</option><option value="ES-MC">Región de Murcia</option><option value="ES-RI">La Rioja</option><option value="ES-VC">Comunitat Valenciana</option><option value="ES-PV-BI">Bizkaia</option><option value="ES-PV-SS">Gipuzkoa</option><option value="ES-PV-VI">Araba/Álava</option><option value="ES-NC">Comunidad Foral de Navarra</option></select></div>
+      <div class="campo"><span class="etiqueta" id="widget-tema-etq">Tema</span><div class="segmentado" role="radiogroup" aria-labelledby="widget-tema-etq"><label><input type="radio" name="widget-tema" value="auto" checked><span>Automático</span></label><label><input type="radio" name="widget-tema" value="claro"><span>Claro</span></label><label><input type="radio" name="widget-tema" value="oscuro"><span>Oscuro</span></label></div></div>
+      <div class="campo"><span class="etiqueta" id="widget-ancho-etq">Tamaño</span><div class="segmentado" role="radiogroup" aria-labelledby="widget-ancho-etq"><label><input type="radio" name="widget-ancho" value="normal" checked><span>Normal</span></label><label><input type="radio" name="widget-ancho" value="compacto"><span>Compacto</span></label></div></div>
+    </form>
+    <h3>Vista previa</h3>
+    <div class="widget-previa-marco">
+      <iframe id="widget-previa" src="/widget/sueldo-neto.html?t=ES-MD" title="Vista previa de la calculadora de sueldo neto de Mapafiscal" width="100%" height="420" style="border:0;max-width:480px;display:block"></iframe>
+      <p class="widget-atribucion">Calculado con <a href="/">Mapafiscal</a></p>
+    </div>
+  </div>
+  <div class="tarjeta">
+    <h2 class="rotulo">Código para copiar</h2>
+    <p>Pega este código en tu página donde quieras que aparezca la calculadora. El enlace de debajo del marco forma parte del código y tiene que quedarse.</p>
+    <label class="etiqueta" for="widget-codigo">Código HTML del widget</label>
+    <textarea id="widget-codigo" class="widget-codigo" rows="5" readonly spellcheck="false">&lt;iframe src=&quot;https://mapafiscal.es/widget/sueldo-neto.html?t=ES-MD&quot; title=&quot;Calculadora de sueldo neto de Mapafiscal&quot; width=&quot;100%&quot; height=&quot;420&quot; style=&quot;border:0;max-width:480px;display:block&quot; loading=&quot;lazy&quot;&gt;&lt;/iframe&gt;
+&lt;p style=&quot;font-size:13px;margin:4px 0 0&quot;&gt;Calculado con &lt;a href=&quot;https://mapafiscal.es/&quot;&gt;Mapafiscal&lt;/a&gt;&lt;/p&gt;</textarea>
+    <p><button type="button" class="btn btn-pri" id="widget-copiar">Copiar el código</button> <span id="widget-copiado" class="ayuda" role="status"></span></p>
+    <details>
+      <summary>Opcional: que el marco ajuste su alto solo</summary>
+      <p>El widget comunica su altura a la página que lo incrusta (solo ese número). Si añades este script una vez en la página, el marco se ajusta al contenido; sin él, se usa el alto del código.</p>
+      <pre class="widget-codigo"><code>&lt;script&gt;
+addEventListener(&quot;message&quot;, function (e) {
+  if (e.origin !== &quot;https://mapafiscal.es&quot; || !e.data || e.data.tipo !== &quot;mapafiscal:altura&quot;) return;
+  document.querySelectorAll(&#39;iframe[src^=&quot;https://mapafiscal.es/widget/sueldo-neto.html&quot;]&#39;).forEach(function (f) {
+    if (f.contentWindow === e.source) f.style.height = Math.min(Math.max(+e.data.altura || 0, 200), 1200) + &quot;px&quot;;
+  });
+});
+&lt;/script&gt;</code></pre>
+    </details>
+  </div>
+  <div class="tarjeta">
+    <h2 class="rotulo">Condiciones de uso</h2>
+    <ul>
+      <li><b>Gratis</b> para cualquier web, personal o comercial, sin registro.</li>
+      <li><b>Sin quitar la atribución</b>: la línea «Calculado con Mapafiscal» del widget y el enlace de debajo del marco tienen que verse, sin ocultarlos ni cambiarlos.</li>
+      <li><b>Sin páginas puerta</b>: incrusta el widget en páginas con contenido propio para tus lectores, no en páginas creadas solo para alojarlo o para posicionar búsquedas.</li>
+      <li>No lo presentes como una herramienta oficial ni como asesoramiento fiscal: es una estimación informativa.</li>
+    </ul>
+    <p class="ayuda">Mapafiscal puede cambiar el aspecto del widget o dejar de ofrecerlo. Más detalles en las <a href="/legal/condiciones.html">condiciones de uso de la web</a>; el cálculo se explica en la <a href="/metodologia/">metodología</a>.</p>
+  </div>
+  <div class="tarjeta faq"><h2 class="rotulo">Preguntas frecuentes</h2><details><summary>¿Cuánto cuesta el widget?</summary><p>Nada. Es gratis para cualquier web, también las comerciales, y no hace falta registrarse: copia el código y pégalo en tu página.</p></details><details><summary>¿Qué calcula?</summary><p>El sueldo neto al mes (en 12 o 14 pagas) y al año, el IRPF del año y el tipo medio a partir del sueldo bruto anual y del territorio, con el mismo motor que la calculadora de Mapafiscal. Supone una persona soltera de 35 años, sin hijos y con contrato indefinido, una vez hecha la declaración de la renta.</p></details><details><summary>¿Lleva anuncios, cookies o analítica?</summary><p>No. El widget no muestra anuncios, no instala cookies, no guarda nada en el navegador y no carga analítica de terceros. Tampoco lee nada de tu web: solo le comunica su altura, para que el marco se ajuste.</p></details><details><summary>¿Se actualiza solo cuando cambia la normativa?</summary><p>Sí. El widget carga los parámetros vigentes de Mapafiscal cada vez que se abre, así que, cuando se actualizan las escalas o las cuotas, tu web muestra los cálculos nuevos sin que tengas que cambiar el código.</p></details><details><summary>¿Puedo cambiar el aspecto?</summary><p>Puedes elegir el territorio por defecto, el tema (claro, oscuro o el del sistema de cada visitante) y el tamaño normal o compacto. El ancho se adapta al de tu página y el alto, al contenido.</p></details><details><summary>¿Puedo quitar el enlace a Mapafiscal?</summary><p>No. El uso es gratuito a cambio de mantener visibles la línea «Calculado con Mapafiscal» del propio widget y el enlace que va debajo del marco, tal y como salen en el código.</p></details><details><summary>¿Es una liquidación oficial?</summary><p>No. Es una estimación informativa con los datos que se introducen; no sustituye a la declaración de la renta ni al asesoramiento fiscal.</p></details></div>
+  </div>
+</main>
+<aside class="contenedor pagina-seo-confianza" aria-label="Sobre estos cálculos">
+  <ul class="confianza">
+    <li>Ejercicio 2025/2026</li>
+    <li>Revisado el <time datetime="2026-11-23">23 de noviembre de 2026</time></li>
+    <li><a href="/validacion/">Cálculos verificados con 152 casos del motor de referencia</a></li>
+    <li>Fuentes: BOE y boletines oficiales · <a href="/metodologia/">Metodología</a></li>
+  </ul>
+</aside>
+<footer class="pie">
+  <div class="contenedor pie-in">
+    <p><b>Mapafiscal</b> ofrece estimaciones con fines informativos. No es una liquidación oficial ni asesoramiento fiscal.</p>
+    <p class="pie-redes"><span class="pie-redes-txt">Síguenos</span><a class="red red-x" href="https://x.com/mapafiscal" rel="me noopener" target="_blank" aria-label="Mapafiscal en X (se abre en otra pestaña)" title="Mapafiscal en X"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path class="relleno" d="M18.9 1.15h3.68l-8.04 9.19L24 22.85h-7.4l-5.8-7.59-6.64 7.59H.47l8.6-9.83L0 1.15h7.59l5.24 6.93zm-1.29 19.5h2.04L6.49 3.24H4.3z"/></svg></a></p>
+    <p class="pie-sec"><a href="/irpf/">IRPF por territorio</a> · <a href="/guias/">Guías del IRPF</a> · <a href="/vivienda/">Vivienda</a> · <a href="/autonomos/">IRPF de autónomos</a> · <a href="/glosario/">Glosario</a> · <a href="/comparar-sueldo/">Dónde se paga menos IRPF</a> · <a href="/sueldo-neto/">Sueldo neto</a> · <a href="/metodologia/">Metodología</a> · <a href="/validacion/">Cómo comprobamos los cálculos</a> · <a href="/widget/">Widget para tu web</a></p>
+    <p class="pie-sec pie-fechas">Normativa revisada el <time datetime="2026-11-23">23 de noviembre de 2026</time> · Contenido actualizado el <time datetime="2026-11-23">23 de noviembre de 2026</time> · Ejercicio 2025 (renta que se declara en 2026)</p>
+    <p class="pie-sec"><a href="/legal/aviso-legal.html">Aviso legal</a> · <a href="/legal/privacidad.html">Privacidad</a> · <a href="/legal/condiciones.html">Condiciones</a> · <a href="/legal/cookies.html">Cookies</a> · <a href="/legal/aviso-legal.html#contacto">Contacto</a></p>
+  </div>
+</footer>
+<script src="/js/ui.js" defer></script>
+<script src="/config.js" defer></script>
+<script src="/js/analitica.js" defer></script>
+<script src="/js/widget.js" defer></script>
+</body>
+</html>

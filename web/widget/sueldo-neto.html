@@ -1,0 +1,176 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<!-- Widget incrustable de sueldo neto (se ofrece en /widget/). Página mínima: sin anuncios,
+     sin analítica, sin cookies ni almacenamiento, y sin leer nada de la web que lo incrusta.
+     El cálculo es el de la portada (irpfsim.sueldoNeto sobre datos/params.json); aquí no hay
+     lógica fiscal. Parámetros: ?t=ES-MD&tema=claro|oscuro&ancho=compacto. Al padre solo le
+     manda su altura: { tipo: "mapafiscal:altura", altura }. -->
+<meta name="robots" content="noindex">
+<meta name="referrer" content="no-referrer">
+<title>Widget de sueldo neto de Mapafiscal</title>
+<meta name="description" content="Calculadora de sueldo neto de Mapafiscal para incrustar en otras webs: bruto anual, territorio y pagas; neto al mes y al año, IRPF y tipo medio.">
+<meta name="color-scheme" content="light dark">
+<style>
+  :root {
+    --fondo: #ffffff; --superficie: #f4f7f6; --tinta: #0d1b22; --tinta-2: #34454d; --tinta-3: #5a6b73;
+    --linea: #dbe3e1; --linea-2: #8a9a9f; --marca: #1f3fc4; --marca-tinta: #1a36a8; --sobre-marca: #ffffff; --pierde: #b3341a;
+    color-scheme: light;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-tema="claro"]) {
+      --fondo: #101c22; --superficie: #15242b; --tinta: #e6eeee; --tinta-2: #b2c1c4; --tinta-3: #9aabb2;
+      --linea: #1f3138; --linea-2: #5f7681; --marca: #8fa7ff; --marca-tinta: #b4c3ff; --sobre-marca: #08122e; --pierde: #ff8a6e;
+      color-scheme: dark;
+    }
+  }
+  :root[data-tema="oscuro"] {
+    --fondo: #101c22; --superficie: #15242b; --tinta: #e6eeee; --tinta-2: #b2c1c4; --tinta-3: #9aabb2;
+    --linea: #1f3138; --linea-2: #5f7681; --marca: #8fa7ff; --marca-tinta: #b4c3ff; --sobre-marca: #08122e; --pierde: #ff8a6e;
+    color-scheme: dark;
+  }
+  * { box-sizing: border-box; }
+  html, body { height: 100%; margin: 0; }
+  body { display: flex; flex-direction: column; background: var(--fondo); color: var(--tinta);
+    font: 15px/1.4 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; }
+  .zona { flex: 1 1 auto; overflow: auto; min-height: 0; }
+  .dentro { padding: 14px 16px 12px; }
+  h1 { font-size: 16px; margin: 0 0 10px; }
+  .campos { display: grid; grid-template-columns: 1fr 1fr; gap: 10px 12px; }
+  .campo { display: flex; flex-direction: column; gap: 4px; min-width: 0; }
+  .campo-ancho { grid-column: 1 / -1; }
+  label, legend { font-size: 13px; font-weight: 600; color: var(--tinta-2); }
+  input[type="text"], select { font: inherit; color: var(--tinta); background: var(--fondo); border: 1px solid var(--linea-2);
+    border-radius: 8px; padding: 7px 10px; width: 100%; min-height: 40px; }
+  input:focus-visible, select:focus-visible { outline: 2px solid var(--marca); outline-offset: 1px; }
+  .con-sufijo { position: relative; }
+  .con-sufijo input { padding-right: 28px; text-align: right; font-variant-numeric: tabular-nums; }
+  .con-sufijo span { position: absolute; right: 10px; top: 50%; transform: translateY(-50%); color: var(--tinta-3); pointer-events: none; }
+  .error-importe { color: var(--pierde); font-size: 12px; margin: 2px 0 0; }
+  fieldset { border: 0; margin: 0; padding: 0; min-width: 0; }
+  .pagas { display: flex; gap: 6px; margin-top: 4px; }
+  .pagas label { display: flex; align-items: center; gap: 6px; font-weight: 500; color: var(--tinta); min-height: 40px;
+    border: 1px solid var(--linea-2); border-radius: 8px; padding: 0 10px; cursor: pointer; flex: 1; justify-content: center; }
+  .pagas input { accent-color: var(--marca); margin: 0; }
+  .resultado { margin-top: 12px; background: var(--superficie); border: 1px solid var(--linea); border-radius: 10px; padding: 12px 14px; }
+  .etq { font-size: 13px; color: var(--tinta-2); margin: 0; }
+  .cifra { font-size: 30px; font-weight: 700; margin: 2px 0 8px; font-variant-numeric: tabular-nums; line-height: 1.1; }
+  dl { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin: 0; }
+  dt { font-size: 12px; color: var(--tinta-2); }
+  dd { margin: 0; font-weight: 600; font-variant-numeric: tabular-nums; }
+  .nota { font-size: 12px; color: var(--tinta-3); margin: 8px 0 0; }
+  .pie { flex: none; border-top: 1px solid var(--linea); padding: 8px 16px; font-size: 13px; color: var(--tinta-2); background: var(--fondo); }
+  .pie a { color: var(--marca-tinta); font-weight: 600; }
+  /* ancho=compacto, o un contenedor estrecho: una sola columna y cifras más pequeñas */
+  :root[data-ancho="compacto"] .dentro { padding: 10px 12px 10px; }
+  :root[data-ancho="compacto"] .campos { grid-template-columns: 1fr; gap: 8px; }
+  :root[data-ancho="compacto"] dl { grid-template-columns: 1fr; gap: 4px; }
+  :root[data-ancho="compacto"] dl > div { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; }
+  :root[data-ancho="compacto"] dt { font-size: 13px; }
+  :root[data-ancho="compacto"] .cifra { font-size: 26px; }
+  :root[data-ancho="compacto"] .pie { padding: 6px 12px; }
+  @media (max-width: 340px) { .campos, dl { grid-template-columns: 1fr; } }
+</style>
+</head>
+<body>
+<div class="zona" id="zona">
+  <div class="dentro" id="dentro">
+    <h1>Calculadora de sueldo neto</h1>
+    <form class="campos" id="form" autocomplete="off" novalidate>
+      <div class="campo campo-ancho">
+        <label for="w-bruto">Sueldo bruto anual</label>
+        <div class="con-sufijo"><input type="text" data-importe id="w-bruto" inputmode="decimal" value="30000"><span>€</span></div>
+      </div>
+      <div class="campo">
+        <label for="w-territorio">Dónde vives</label>
+        <select id="w-territorio"></select>
+      </div>
+      <fieldset class="campo">
+        <legend>Pagas</legend>
+        <div class="pagas">
+          <label><input type="radio" name="pagas" value="12" checked> 12</label>
+          <label><input type="radio" name="pagas" value="14"> 14</label>
+        </div>
+      </fieldset>
+    </form>
+    <section class="resultado" aria-live="polite" id="resultado">
+      <p class="etq" id="w-etq">Neto al mes</p>
+      <p class="cifra" id="w-mes">…</p>
+      <dl>
+        <div><dt>Neto al año</dt><dd id="w-anual">…</dd></div>
+        <div><dt>IRPF al año</dt><dd id="w-irpf">…</dd></div>
+        <div><dt>Tipo medio de IRPF</dt><dd id="w-tipo">…</dd></div>
+      </dl>
+      <p class="nota" id="w-nota"></p>
+    </section>
+  </div>
+</div>
+<footer class="pie" id="pie">Calculado con <a href="https://mapafiscal.es/" target="_blank" rel="noopener">Mapafiscal</a></footer>
+<script src="/js/importe.js"></script>
+<script src="/js/irpfsim.js"></script>
+<script>
+(function () {
+  "use strict";
+  const $ = id => document.getElementById(id);
+  const raiz = document.documentElement;
+  // Parámetros de la URL del propio widget (nunca de la web anfitriona).
+  const q = new URLSearchParams(location.search);
+  if (q.get("tema") === "claro" || q.get("tema") === "oscuro") raiz.dataset.tema = q.get("tema");
+  if (q.get("ancho") === "compacto") raiz.dataset.ancho = "compacto";
+
+  // Mismo formato que la portada (web/js/herramientas.js).
+  const miles = s => s.replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+  const eur0 = n => (n < -0.004 ? "−" : "") + miles(Math.abs(n || 0).toFixed(0)) + " €";
+  const pct = n => (100 * (n || 0)).toFixed(1).replace(".", ",") + " %";
+
+  // Altura al padre: solo un número, y solo si está incrustado.
+  let ultima = 0;
+  function avisarAltura() {
+    if (window.parent === window) return;
+    const altura = Math.ceil($("dentro").offsetHeight + $("pie").offsetHeight);
+    if (altura === ultima) return;
+    ultima = altura;
+    window.parent.postMessage({ tipo: "mapafiscal:altura", altura }, "*");
+  }
+  if (typeof ResizeObserver === "function") {
+    const ro = new ResizeObserver(avisarAltura);
+    ro.observe($("dentro")); ro.observe($("pie"));
+  }
+  window.addEventListener("load", avisarAltura);
+
+  let P = null;
+  function pintar() {
+    if (!P) return;
+    const bruto = Math.max(0, window.MapafiscalImporte.valor($("w-bruto")));
+    const territorio = $("w-territorio").value;
+    const pagas = document.querySelector('input[name="pagas"]:checked').value === "14" ? 14 : 12;
+    let s;
+    // Los mismos datos por defecto que «Sueldo neto por territorio» en la portada.
+    try { s = window.irpfsim.sueldoNeto({ bruto, territorio, edad: 35, hijos: [], tipoContrato: "indefinido" }, P); }
+    catch (e) { $("w-mes").textContent = "—"; $("w-nota").textContent = "Revisa los datos introducidos."; return; }
+    $("w-etq").textContent = `Neto al mes, en ${pagas} pagas`;
+    $("w-mes").textContent = eur0(s.neto / pagas);
+    $("w-anual").textContent = eur0(s.neto);
+    $("w-irpf").textContent = eur0(s.irpf);
+    $("w-tipo").textContent = pct(bruto > 0 ? s.irpf / bruto : 0);
+    $("w-nota").textContent = `Ejercicio ${P.ejercicio}, tras la declaración de la renta. Soltero/a de 35 años, sin hijos y con contrato indefinido.`;
+    avisarAltura();
+  }
+
+  fetch("/datos/params.json").then(r => { if (!r.ok) throw new Error(r.status); return r.json(); }).then(datos => {
+    P = datos;
+    const sel = $("w-territorio");
+    for (const [codigo, t] of Object.entries(P.territorios)) sel.add(new Option(t.nombre, codigo));
+    sel.value = P.territorios[q.get("t")] ? q.get("t") : "ES-MD";
+    pintar();
+  }).catch(() => { $("w-mes").textContent = "—"; $("w-nota").textContent = "No se han podido cargar los datos. Vuelve a intentarlo más tarde."; avisarAltura(); });
+
+  $("form").addEventListener("input", pintar);
+  $("form").addEventListener("change", pintar);
+  $("form").addEventListener("submit", e => { e.preventDefault(); pintar(); });
+})();
+</script>
+</body>
+</html>

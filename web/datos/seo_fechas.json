@@ -373,7 +373,7 @@
  "irpf/navarra/simulador-renta/index.html": {"hash":"d4455bad0b3ef3e1","fecha":"2026-11-22"},
  "irpf/navarra/sueldo-neto/index.html": {"hash":"d5b33376d0311c0b","fecha":"2026-11-22"},
  "irpf/pais-vasco/index.html": {"hash":"1e844e276601f8a8","fecha":"2026-11-22"},
- "metodologia/index.html": {"hash":"f158b08626717745","fecha":"2026-11-23"},
+ "metodologia/index.html": {"hash":"ca697760e43f5ff9","fecha":"2026-11-23"},
  "rescate-plan-pensiones/andalucia/index.html": {"hash":"ae4a4deeaea3fc45","fecha":"2026-11-17"},
  "rescate-plan-pensiones/aragon/index.html": {"hash":"cbe07d4b1f6dba95","fecha":"2026-11-17"},
  "rescate-plan-pensiones/asturias/index.html": {"hash":"b1eea6a27bb14c0d","fecha":"2026-11-17"},
@@ -909,5 +909,6 @@
  "vivienda/index.html": {"hash":"ec5217e7b77465b3","fecha":"2026-11-21"},
  "vivienda/segunda-vivienda/index.html": {"hash":"1f77f8a3b1b0fe52","fecha":"2026-11-21"},
  "vivienda/vender-piso-alquilado/index.html": {"hash":"c8395014851d3342","fecha":"2026-11-21"},
- "vivienda/venta-vivienda/index.html": {"hash":"580d89b9ca604d3e","fecha":"2026-11-21"}
+ "vivienda/venta-vivienda/index.html": {"hash":"580d89b9ca604d3e","fecha":"2026-11-21"},
+ "widget/index.html": {"hash":"d983024945fbc769","fecha":"2026-11-23"}
 }

@@ -45,6 +45,11 @@ export function paginaMetodologia(generado) {
     </ul>
     <p class="ayuda">Los resultados son estimaciones informativas, no una liquidación oficial ni asesoramiento fiscal.</p>
   </div>
+  <div class="tarjeta">
+    <h2 class="rotulo">El mismo cálculo, en tu web</h2>
+    <p>La calculadora de sueldo neto se puede incrustar gratis en otras webs: usa este mismo motor y los mismos parámetros, y se actualiza sola cuando cambia la normativa.</p>
+    <p><a href="/widget/">Calculadora de sueldo neto para tu web</a></p>
+  </div>
   </div>`;
   return layout({
     title: titulo, description: descripcion, canonical: ruta, breadcrumb: migasHtml(migas), main, generado,

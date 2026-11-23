@@ -162,3 +162,12 @@ body.pagina-seo { background: var(--superficie); color: var(--tinta); font: 16px
   .calc-rapido .cr-datos { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0 16px; }
   .calc-rapido .cr-datos div { flex-direction: column; align-items: flex-start; gap: 1px; padding: 6px 0; }
 }
+/* Widget de sueldo neto (/widget/): configurador, vista previa y código para copiar. */
+.widget-config { display: flex; flex-wrap: wrap; gap: 4px 20px; align-items: flex-end; margin-bottom: 12px; }
+.widget-config .campo { margin-bottom: 8px; }
+.widget-config select { min-width: 220px; }
+.widget-previa-marco { background: var(--superficie-2); border: 1px dashed var(--linea-2); border-radius: var(--radio); padding: 16px; }
+.widget-previa-marco iframe { background: transparent; }
+.widget-atribucion { font-size: 13px; margin: 4px 0 0; }
+.widget-codigo { font-family: var(--mono); font-size: 13px; line-height: 1.5; width: 100%; white-space: pre-wrap; word-break: break-all; }
+pre.widget-codigo { background: var(--superficie-2); border: 1px solid var(--linea); border-radius: 8px; padding: 10px 12px; overflow-x: auto; }

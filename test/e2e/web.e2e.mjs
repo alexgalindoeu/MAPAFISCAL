@@ -9,6 +9,7 @@ import { readFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import path from "node:path";
 import net from "node:net";
+import http from "node:http";
 import assert from "node:assert/strict";
 
 const raiz = path.join(path.dirname(fileURLToPath(import.meta.url)), "..", "..");
@@ -108,7 +109,7 @@ try {
     await p.context().close();
   });
 
-  for (const ruta of ["/", "/irpf/", "/irpf/gipuzkoa/", "/irpf/navarra/simulador-renta/", "/guias/calendario-renta/", "/vivienda/", "/vivienda/venta-vivienda/", "/glosario/", "/glosario/base-liquidable/", "/validacion/", "/autonomos/", "/autonomos/canarias/", "/sueldo-mensual/"]) {
+  for (const ruta of ["/", "/irpf/", "/irpf/gipuzkoa/", "/irpf/navarra/simulador-renta/", "/guias/calendario-renta/", "/vivienda/", "/vivienda/venta-vivienda/", "/glosario/", "/glosario/base-liquidable/", "/validacion/", "/autonomos/", "/autonomos/canarias/", "/sueldo-mensual/", "/widget/", "/widget/sueldo-neto.html?t=ES-MD"]) {
     await prueba(`carga sin errores de JS: ${ruta}`, async () => {
       const p = await abrir(ruta);
       await p.waitForTimeout(500);
@@ -137,6 +138,60 @@ try {
     assert.ok(await p.locator(".error-importe").first().isVisible(), "no aparece .error-importe");
     assert.deepEqual(p.errores, []);
     await p.context().close();
+  });
+
+  // Widget de sueldo neto incrustado en otra web (otro origen): calcula con el motor de la
+  // portada, manda su altura al padre (solo eso) y muestra la atribución.
+  await prueba("widget incrustado en una página de prueba de otro origen: calcula y manda su altura", async () => {
+    const motor = require(path.join(raiz, "web/js/irpfsim.js"));
+    const P = JSON.parse(readFileSync(path.join(raiz, "web/datos/params.json"), "utf8"));
+    const W = require(path.join(raiz, "web/js/widget.js"));
+    const esperado = motor.sueldoNeto({ bruto: 42000, territorio: "ES-PV-BI", edad: 35, hijos: [], tipoContrato: "indefinido" }, P);
+    // el código para copiar, apuntando al servidor local en vez de a mapafiscal.es
+    const codigo = W.codigoWidget({ territorio: "ES-AN", tema: "oscuro" }).replace(W.SITIO + W.RUTA, base + W.RUTA);
+    const html = `<!doctype html><html lang="es"><head><meta charset="utf-8"><title>Prueba</title></head><body>
+      <h1>Blog de prueba</h1>${codigo}
+      <script>window.mensajes = []; addEventListener("message", e => { window.mensajes.push({ origen: e.origin, datos: e.data });
+        const f = document.querySelector("iframe"); if (e.source === f.contentWindow) f.style.height = e.data.altura + "px"; });</script></body></html>`;
+    // La página anfitriona la sirve otro servidor local (127.0.0.1 y otro puerto: otro origen).
+    // Tiene que ser un servidor de verdad: Chromium bloquea un iframe a localhost desde una
+    // respuesta simulada con route() (comprobaciones de acceso a la red local).
+    const anfitrionSrv = http.createServer((req, res) => res.writeHead(200, { "content-type": "text/html; charset=utf-8" }).end(html));
+    await new Promise(ok => anfitrionSrv.listen(0, "127.0.0.1", ok));
+    const anfitrion = `http://127.0.0.1:${anfitrionSrv.address().port}`;
+    const ctx = await navegador.newContext();
+    await ctx.route(u => !u.href.startsWith(base) && !u.href.startsWith(anfitrion), r => r.abort());
+    const p = await ctx.newPage();
+    const errores = [];
+    p.on("pageerror", e => errores.push(e.message));
+    await p.goto(anfitrion + "/blog.html");
+    const marco = p.frameLocator("iframe");
+    await marco.locator("#w-anual").filter({ hasNotText: "…" }).waitFor({ timeout: 5000 });
+    assert.equal(await marco.locator("#w-territorio").inputValue(), "ES-AN");
+    assert.equal(await marco.locator("html").getAttribute("data-tema"), "oscuro");
+    await marco.locator("#w-bruto").fill("42.000");
+    await marco.locator("#w-territorio").selectOption("ES-PV-BI");
+    await marco.locator('input[name="pagas"][value="14"]').check();
+    const eur0 = n => Math.round(n).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".") + " €";
+    assert.equal(await marco.locator("#w-anual").innerText(), eur0(esperado.neto));
+    assert.equal(await marco.locator("#w-mes").innerText(), eur0(esperado.neto / 14));
+    assert.equal(await marco.locator("#w-irpf").innerText(), eur0(esperado.irpf));
+    assert.equal(await marco.locator("#w-tipo").innerText(), (100 * esperado.irpf / 42000).toFixed(1).replace(".", ",") + " %");
+    assert.ok(await marco.locator("#pie a[href='https://mapafiscal.es/']").isVisible(), "no se ve la atribución del widget");
+    assert.ok(await p.locator("iframe + p a[href='https://mapafiscal.es/']").isVisible(), "no se ve el enlace fuera del iframe");
+    // solo mensajes de altura, desde el origen del widget, y el marco se ajusta a ella
+    const mensajes = await p.evaluate(() => window.mensajes);
+    assert.ok(mensajes.length > 0, "el widget no ha mandado su altura");
+    for (const m of mensajes) {
+      assert.equal(m.origen, base);
+      assert.deepEqual(Object.keys(m.datos).sort(), ["altura", "tipo"]);
+      assert.equal(m.datos.tipo, "mapafiscal:altura");
+    }
+    const alto = await p.locator("iframe").evaluate(f => f.getBoundingClientRect().height);
+    assert.equal(Math.round(alto), mensajes.at(-1).datos.altura);
+    assert.deepEqual(errores, []);
+    await ctx.close();
+    anfitrionSrv.close();
   });
 
   // El formulario completo se genera dinámicamente: se liquida el caso con el motor
@@ -221,7 +276,7 @@ try {
   // Accesibilidad con axe-core (devDependency): fallan las infracciones «serious» y
   // «critical» de las páginas revisadas, en modo claro y oscuro.
   const axe = readFileSync(require.resolve("axe-core/axe.min.js"), "utf8");
-  const rutasAxe = ["/#calculadora", "/#comparar", "/#planes", "/#sueldo-mes", "/sueldo-mensual/", "/irpf/madrid/", "/irpf/bizkaia/", "/sueldo-neto/30000/madrid/", "/irpf/gipuzkoa/simulador-renta/", "/guias/calendario-renta/", "/vivienda/", "/vivienda/segunda-vivienda/", "/glosario/", "/glosario/base-liquidable/", "/validacion/", "/autonomos/", "/autonomos/canarias/", "/guias/12-o-14-pagas/"];
+  const rutasAxe = ["/#calculadora", "/#comparar", "/#planes", "/#sueldo-mes", "/sueldo-mensual/", "/irpf/madrid/", "/irpf/bizkaia/", "/sueldo-neto/30000/madrid/", "/irpf/gipuzkoa/simulador-renta/", "/guias/calendario-renta/", "/vivienda/", "/vivienda/segunda-vivienda/", "/glosario/", "/glosario/base-liquidable/", "/validacion/", "/autonomos/", "/autonomos/canarias/", "/guias/12-o-14-pagas/", "/widget/", "/widget/sueldo-neto.html?t=ES-CT&ancho=compacto"];
   for (const colorScheme of ["light", "dark"]) {
     for (const ruta of rutasAxe) {
       await prueba(`axe sin infracciones serious/critical (${colorScheme}): ${ruta}`, async () => {
