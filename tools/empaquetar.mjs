@@ -82,10 +82,11 @@ export function empaquetar() {
   sustituir('<script src="js/rescate.js"></script>', "<script>\n" + leer("js/rescate.js") + "</script>");
   sustituir('<script src="js/conjunta.js"></script>', "<script>\n" + leer("js/conjunta.js") + "</script>");
   sustituir('<script src="js/bruto.js"></script>', "<script>\n" + leer("js/bruto.js") + "</script>");
+  sustituir('<script src="js/sueldo_mes.js"></script>', "<script>\n" + leer("js/sueldo_mes.js") + "</script>");
   sustituir('<script src="js/deducciones.js"></script>', "<script>\n" + leer("js/deducciones.js") + "</script>");
   sustituir('<script src="js/escenarios.js"></script>', "<script>\n" + leer("js/escenarios.js") + "</script>");
   // Las páginas legales, las de territorio y sueldo y las guías no van dentro: apuntan a la web publicada.
-  html = html.replace(/href="(legal|irpf|guias|vivienda|comparar-sueldo|declaracion-conjunta|dos-pagadores|validacion)\//g, (m, dir) => `href="${WEB_PUBLICA}${dir}/`);
+  html = html.replace(/href="(legal|irpf|guias|vivienda|comparar-sueldo|sueldo-mensual|declaracion-conjunta|dos-pagadores|validacion)\//g, (m, dir) => `href="${WEB_PUBLICA}${dir}/`);
   return html;
 }
 

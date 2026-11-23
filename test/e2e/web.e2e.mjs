@@ -64,7 +64,51 @@ try {
     await p.context().close();
   });
 
-  for (const ruta of ["/", "/irpf/", "/irpf/gipuzkoa/", "/irpf/navarra/simulador-renta/", "/guias/calendario-renta/", "/vivienda/", "/vivienda/venta-vivienda/", "/glosario/", "/glosario/base-liquidable/", "/validacion/", "/autonomos/", "/autonomos/canarias/"]) {
+  // «Sueldo al mes»: el enlace directo prellena la vista y el neto sale del motor de la página.
+  await prueba("#sueldo-mes?b=31000&p=14&t=ES-MD: bruto y neto al mes, meses con extra, tabla 12/14/15", async () => {
+    const p = await abrir("/index.html#sueldo-mes?b=31000&p=14&t=ES-MD");
+    await p.waitForFunction(() => document.querySelector("#sm-principal .res-cifra"), null, { timeout: 5000 });
+    assert.ok(await p.locator("#v-sueldo-mes").isVisible(), "no se ve la vista");
+    assert.equal(await p.locator("#sm-territorio").inputValue(), "ES-MD");
+    assert.ok(await p.locator('input[name="sm-pagas"][value="14"]').isChecked());
+    const esperado = await p.evaluate(async () => {
+      const P = await (await fetch("datos/params.json")).json();
+      const y = new Date().getFullYear();
+      const Py = P.ejercicio === y ? P : await fetch(`datos/params_${y}.json`).then(r => r.ok ? r.json() : P);
+      return window.irpfsim.sueldoNeto({ bruto: 31000, territorio: "ES-MD", edad: 40, hijos: [], tipoContrato: "indefinido" }, Py).neto;
+    });
+    const fmt = n => (Math.round(n * 100) / 100).toFixed(2).replace(".", ",").replace(/\B(?=(\d{3})+(?!\d))/g, ".") + " €";
+    const texto = await p.locator("#sm-principal").innerText();
+    assert.ok(texto.includes("2.214,29 € brutos al mes"), texto);
+    assert.ok(texto.includes(fmt(esperado / 14)), `neto al mes ${fmt(esperado / 14)}`);
+    assert.ok(texto.includes(fmt(2 * esperado / 14)), "neto del mes con paga extra");
+    assert.ok(texto.includes("El neto anual es el mismo; cambia cómo se reparte"));
+    assert.equal(await p.locator("#sm-tabla thead th[scope=col]").count(), 3);
+    // 12 pagas: cambia el reparto, no el neto anual
+    await p.locator('label:has(input[name="sm-pagas"][value="12"])').click();
+    await p.waitForFunction(() => document.querySelector("#sm-principal").innerText.includes("2.583,33 € brutos al mes"));
+    assert.ok((await p.locator("#sm-principal").innerText()).includes(fmt(esperado)), "mismo neto anual");
+    // jornada del 60 %: el bruto prorrateado
+    await p.locator("#sm-jornada").fill("60");
+    await p.locator("#sm-jornada").dispatchEvent("change");
+    await p.waitForFunction(() => document.querySelector("#sm-principal").innerText.includes("18.600,00 € brutos al año"));
+    assert.match(await p.evaluate(() => location.hash), /^#sueldo-mes\?b=31000&p=12&t=ES-MD&j=60$/);
+    assert.deepEqual(p.errores, []);
+    await p.context().close();
+  });
+
+  // La portada y el panel «Todo» enlazan la herramienta.
+  await prueba("portada y panel «Todo» enlazan #sueldo-mes", async () => {
+    const p = await abrir("/");
+    await p.waitForFunction(() => document.querySelector('#herramientas a[href="#sueldo-mes"]'), null, { timeout: 5000 });
+    assert.ok(await p.locator('#herramientas a[href="#sueldo-mes"] svg.ico').count());
+    await p.locator("#btn-todo").click();
+    await p.waitForSelector('a.panel-item[href="#sueldo-mes"]', { timeout: 3000 });
+    assert.deepEqual(p.errores, []);
+    await p.context().close();
+  });
+
+  for (const ruta of ["/", "/irpf/", "/irpf/gipuzkoa/", "/irpf/navarra/simulador-renta/", "/guias/calendario-renta/", "/vivienda/", "/vivienda/venta-vivienda/", "/glosario/", "/glosario/base-liquidable/", "/validacion/", "/autonomos/", "/autonomos/canarias/", "/sueldo-mensual/"]) {
     await prueba(`carga sin errores de JS: ${ruta}`, async () => {
       const p = await abrir(ruta);
       await p.waitForTimeout(500);
@@ -111,7 +155,7 @@ try {
     await p.context().close();
   });
 
-  for (const ruta of ["/", "/irpf/", "/validacion/"]) {
+  for (const ruta of ["/", "/irpf/", "/validacion/", "/sueldo-mensual/", "/#sueldo-mes"]) {
     await prueba(`móvil 390 px sin desbordamiento horizontal: ${ruta}`, async () => {
       const p = await abrir(ruta, { viewport: { width: 390, height: 844 }, isMobile: true, hasTouch: true });
       await p.waitForTimeout(500);
@@ -125,7 +169,7 @@ try {
   // Accesibilidad con axe-core (devDependency): fallan las infracciones «serious» y
   // «critical» de las páginas revisadas, en modo claro y oscuro.
   const axe = readFileSync(require.resolve("axe-core/axe.min.js"), "utf8");
-  const rutasAxe = ["/#calculadora", "/#comparar", "/#planes", "/irpf/madrid/", "/irpf/bizkaia/", "/irpf/gipuzkoa/simulador-renta/", "/guias/calendario-renta/", "/vivienda/", "/vivienda/segunda-vivienda/", "/glosario/", "/glosario/base-liquidable/", "/validacion/", "/autonomos/", "/autonomos/canarias/"];
+  const rutasAxe = ["/#calculadora", "/#comparar", "/#planes", "/#sueldo-mes", "/sueldo-mensual/", "/irpf/madrid/", "/irpf/bizkaia/", "/irpf/gipuzkoa/simulador-renta/", "/guias/calendario-renta/", "/vivienda/", "/vivienda/segunda-vivienda/", "/glosario/", "/glosario/base-liquidable/", "/validacion/", "/autonomos/", "/autonomos/canarias/"];
   for (const colorScheme of ["light", "dark"]) {
     for (const ruta of rutasAxe) {
       await prueba(`axe sin infracciones serious/critical (${colorScheme}): ${ruta}`, async () => {

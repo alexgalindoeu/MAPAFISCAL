@@ -23,6 +23,7 @@ import { paginaDeducciones, CAMPO, conDe, conEn, conArticulo } from "./seo_deduc
 import { paginasFichasDeduccion, paramsDe } from "./seo_deduccion_ficha.mjs";
 import { paginasGuias, GUIAS } from "./seo_guias.mjs";
 import { paginasSueldoNeto } from "./seo_sueldo_neto.mjs";
+import { paginaSueldoMensual, RUTA_SUELDO_MENSUAL } from "./seo_sueldo_mensual.mjs";
 import { graficoBrutoNeto, serieSueldoNeto } from "./seo_grafico.mjs";
 import { paginasRescate } from "./seo_rescate.mjs";
 import { paginasConjuntaPagadores, CARPETAS_CONJUNTA } from "./seo_conjunta.mjs";
@@ -479,6 +480,8 @@ export function generar({ conGit = false } = {}) {
   for (const g of glo) pagina(g.ruta, g.html);
   const sn = paginasSueldoNeto(sueldoNeto, { conDeducciones, ejercicioDeducciones: deducciones.ejercicio });
   for (const p of sn) pagina(p.ruta, p.html);
+  // «Sueldo al mes»: una sola página con la tabla de brutos entre 12 y 14 (motor JS)
+  pagina(RUTA_SUELDO_MENSUAL, paginaSueldoMensual({ ejercicio: sueldoNeto.ejercicio, generado: sueldoNeto.generado }));
   for (const g of paginasRescate(territorios.generado)) pagina(g.ruta, g.html);
   for (const g of paginasConjuntaPagadores(territorios.generado)) pagina(g.ruta, g.html);
   // «¿Cuánto me devuelve?»: las páginas sin cifra van con noindex y fuera del sitemap.

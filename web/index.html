@@ -671,6 +671,69 @@
   </div>
 </section>
 
+<!-- =========================== SUELDO AL MES (web/js/sueldo_mes.js) =========================== -->
+<section class="vista" id="v-sueldo-mes" aria-labelledby="t-sm" hidden>
+  <div class="cabecera-vista">
+    <div>
+      <p class="antetitulo">Nómina · 12, 14 o 15 pagas</p>
+      <h2 class="titulo-vista" id="t-sm">Sueldo al mes</h2>
+      <p class="entradilla">Tu bruto anual entre 12, 14 o 15 pagas: cuánto cobras cada mes, en bruto y en neto, y cuánto en los meses con paga extra. También de precio por hora a mensual y anual, y con jornada parcial.</p>
+    </div>
+  </div>
+  <div class="calc">
+    <form class="formulario" id="sm-form" autocomplete="off" novalidate>
+      <fieldset class="bloque">
+        <legend><span class="paso">1</span>Tu sueldo</legend>
+        <div class="rejilla2">
+          <div class="campo"><label for="sm-bruto">Sueldo bruto</label>
+            <div class="con-sufijo"><input type="text" data-importe id="sm-bruto" min="0" step="500" value="31000" inputmode="decimal"><span>€</span></div></div>
+          <div class="campo"><label for="sm-unidad">Cada</label>
+            <select id="sm-unidad"><option value="anio">Año</option><option value="mes">Mes (por paga)</option><option value="hora">Hora</option></select></div>
+        </div>
+        <div class="campo"><p class="rotulo" id="sm-l-pagas">Número de pagas</p>
+          <div class="segmentado" role="radiogroup" aria-labelledby="sm-l-pagas">
+            <label><input type="radio" name="sm-pagas" value="12"><span>12</span></label>
+            <label><input type="radio" name="sm-pagas" value="14" checked><span>14</span></label>
+            <label><input type="radio" name="sm-pagas" value="15"><span>15</span></label>
+          </div></div>
+        <label class="casilla"><input type="checkbox" id="sm-prorrateo"> Las pagas extra van prorrateadas (12 nóminas iguales)</label>
+        <div class="rejilla2">
+          <div class="campo"><label for="sm-horas">Horas semanales a jornada completa</label><input type="number" id="sm-horas" min="1" max="80" step="0.5" value="40"></div>
+          <div class="campo"><label for="sm-jornada">Jornada</label>
+            <div class="con-sufijo"><input type="number" id="sm-jornada" min="1" max="100" step="1" value="100"><span>%</span></div></div>
+        </div>
+        <p class="ayuda">Con jornada parcial, pon el sueldo a jornada completa y el porcentaje: el neto se calcula con el bruto prorrateado.</p>
+      </fieldset>
+      <fieldset class="bloque">
+        <legend><span class="paso">2</span>Tu situación</legend>
+        <div class="rejilla2">
+          <div class="campo"><label for="sm-territorio">Territorio donde resides</label><select id="sm-territorio"></select></div>
+          <div class="campo"><label for="sm-edad">Tu edad</label><input type="number" id="sm-edad" min="16" max="110" step="1" value="40"></div>
+        </div>
+      </fieldset>
+    </form>
+    <div class="resultado" aria-live="polite">
+      <div class="tarjeta tarjeta-resultado" id="sm-tarjeta">
+        <div class="res-cab"><h2 class="rotulo">Resultado</h2><span class="chip" id="sm-chip"></span></div>
+        <div id="sm-principal"></div>
+        <div class="acciones-res">
+          <a class="btn btn-pri" href="#sueldo-neto">Sueldo neto en los 19 territorios</a>
+          <a class="btn btn-sec" href="sueldo-mensual/">Tabla de sueldos al mes</a>
+        </div>
+      </div>
+      <div class="tarjeta tarjeta-ranking" tabindex="0">
+        <h2 class="rotulo">El mismo bruto en 12, 14 y 15 pagas</h2>
+        <table class="ranking sm-tabla" id="sm-tabla"></table>
+      </div>
+      <div class="tarjeta">
+        <h2 class="rotulo">Del bruto al neto del año</h2>
+        <table class="desglose" id="sm-desglose"></table>
+      </div>
+      <p class="nota" id="sm-nota"></p>
+    </div>
+  </div>
+</section>
+
 <!-- =========================== CONJUNTA O INDIVIDUAL (web/js/conjunta.js) =========================== -->
 <section class="vista" id="v-conjunta" aria-labelledby="t-cj" hidden>
   <div class="cabecera-vista">
@@ -954,7 +1017,7 @@
 <footer class="pie">
   <div class="contenedor pie-in">
     <p><b>Mapafiscal</b> ofrece estimaciones con fines informativos. No es una liquidación oficial ni asesoramiento fiscal.</p>
-    <p class="pie-sec"><a href="irpf/">IRPF por territorio</a> · <a href="guias/">Guías del IRPF</a> · <a href="vivienda/">Vivienda</a> · <a href="comparar-sueldo/">Dónde se paga menos IRPF</a> · <a href="sueldo-neto/">Sueldo neto por importe</a></p>
+    <p class="pie-sec"><a href="irpf/">IRPF por territorio</a> · <a href="guias/">Guías del IRPF</a> · <a href="vivienda/">Vivienda</a> · <a href="comparar-sueldo/">Dónde se paga menos IRPF</a> · <a href="sueldo-neto/">Sueldo neto por importe</a> · <a href="sueldo-mensual/">Sueldo al mes</a></p>
     <p class="pie-sec"><a href="#metodologia">Cómo calculamos</a> · Normativa del ejercicio <span data-ejercicio>2025</span> · <a href="validacion/">Motor validado R ↔ JavaScript</a> · Cartografía: <span title="es-atlas (MIT) sobre datos del Instituto Geográfico Nacional, CC BY 4.0">© Instituto Geográfico Nacional (CC BY 4.0)</span></p>
     <p class="pie-sec"><a href="legal/aviso-legal.html">Aviso legal</a> · <a href="legal/privacidad.html">Privacidad</a> · <a href="legal/condiciones.html">Condiciones</a> · <a href="legal/cookies.html">Cookies</a><span id="pie-configurar-cookies" hidden> · <a href="legal/cookies.html#publicidad">Configurar cookies</a></span> · <a href="legal/aviso-legal.html#contacto">Contacto</a></p>
   </div>
@@ -1086,6 +1149,7 @@
 <script src="js/rescate.js"></script>
 <script src="js/conjunta.js"></script>
 <script src="js/bruto.js"></script>
+<script src="js/sueldo_mes.js"></script>
 <script src="js/deducciones.js"></script>
 <script src="js/escenarios.js"></script>
 <script src="js/anuncios.js"></script>
