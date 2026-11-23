@@ -1400,8 +1400,31 @@
     if (!await irAFuncion("crear-checkout", pago) && vistaActual() === "planes") pintarPlanes();
   }
 
+  // Informe completo en PDF (js/informe.js): con el pago único y el anuncio bonificado apagados
+  // es gratis con la cuenta gratuita (issue #66); si se enciende alguno, vuelven sus textos de pago.
+  // Misma regla que desbloqueo() de informe.js (test/informe.test.mjs lo comprueba).
+  function textosInforme() {
+    const precio = eur(Number(CFG.informePrecio) || 1.99), vias = [];
+    if (CFG.informeAnuncio) vias.push("viendo un anuncio");
+    if (CFG.informePago) vias.push(`con un pago único de ${precio}`);
+    // versión autónoma (sin cuentas): el informe se descarga sin más (desbloqueo «demo»)
+    if (!sb) return { gratis: false, lista: "", tabla: "✓", nota: "Sin cuenta.",
+      faq: "Sí. En esta versión de Mapafiscal el informe completo en PDF se descarga directamente desde la calculadora, sin cuenta." };
+    if (!vias.length) return {
+      gratis: true, lista: "Informe completo en PDF, con tu cuenta gratuita", tabla: "Con cuenta gratuita",
+      nota: "Sin cuenta. Con la cuenta gratuita, también el informe completo en PDF.",
+      faq: "Sí. Con una cuenta gratuita (se crea con tu correo o con Google, sin tarjeta) descargas el informe completo de tu declaración en PDF: desglose línea a línea, deducciones aplicadas con su norma, comparación en los 19 territorios y cómo pagar menos. Sin cuenta, la web te ofrece iniciar sesión al pedirlo. El resultado de la calculadora sigue siendo gratis y sin cuenta."
+    };
+    const como = vias.join(" o ");
+    return {
+      gratis: false, lista: `Informe completo en PDF, ${como}`, tabla: vias.map(v => v[0].toUpperCase() + v.slice(1)).join(" o "),
+      nota: "Sin cuenta.",
+      faq: `El informe completo en PDF se desbloquea ${como}${CFG.informePago ? " (IVA incluido; para pagar hace falta una cuenta, que es gratis)" : ""}, y va incluido en el plan Gestor. El resultado de la calculadora sigue siendo gratis y sin cuenta.`
+    };
+  }
+
   function pintarPlanes() {
-    const pr = CFG.precios || {};
+    const pr = CFG.precios || {}, inf = textosInforme();
     const plan = sesion.perfil ? sesion.perfil.plan : "gratis";
     const [cifra, unidad] = precioPeriodo(periodo);
     const precioGestor = `${importe(cifra)}<small> / ${unidad}</small>`;
@@ -1413,17 +1436,20 @@
     $("planes").innerHTML = `
       <div class="plan">
         <h2>Gratis</h2><p class="plan-para">Para calcular tu propia declaración.</p>
-        <div class="plan-precio">0 €</div><p class="plan-precio-nota">Sin cuenta.</p>
-        <ul><li>IRPF ${textoEjercicios()} con tu situación real</li><li>Comparación en los 19 territorios</li><li>Desglose con casillas y deducciones aplicadas</li><li>Palancas de ahorro para tu caso</li></ul>
+        <div class="plan-precio">0 €</div><p class="plan-precio-nota">${inf.nota}</p>
+        <ul><li>IRPF ${textoEjercicios()} con tu situación real</li><li>Comparación en los 19 territorios</li><li>Desglose con casillas y deducciones aplicadas</li><li>Palancas de ahorro para tu caso</li>${sb ? `<li>${inf.lista}</li>` : ""}</ul>
         <a class="btn btn-sec" href="#calculadora">Usar la calculadora</a>
       </div>
       <div class="plan destacado">
         <span class="plan-cinta">Para asesores y gestorías</span>
         <h2>Gestor</h2><p class="plan-para">Tu cartera de clientes, siempre calculada.</p>
         <div class="plan-precio">${precioGestor}</div><p class="plan-precio-nota">${notaGestor}</p>
-        <ul><li>Todo lo del plan Gratis</li><li>Mis clientes: tu cartera, sin límite y guardada en la nube (UE)</li><li>Optimización por cliente: pensiones, conjunta, deducciones</li><li>Informe de cada cliente listo para imprimir</li><li>Recalcular la cartera cuando cambia la normativa</li><li>Sin anuncios</li></ul>
+        <ul><li>Todo lo del plan Gratis</li><li>Mis clientes: tu cartera, sin límite y guardada en la nube (UE)</li><li>Optimización por cliente: pensiones, conjunta, deducciones</li><li>Informe completo en PDF incluido, sin esperas</li><li>Informe de cada cliente listo para imprimir</li><li>Recalcular la cartera cuando cambia la normativa</li><li>Sin anuncios</li></ul>
         ${ctaGestor}
       </div>`;
+    const celda = $("planes-informe-gratis"), faq = $("faq-informe");
+    if (celda) celda.textContent = inf.tabla;
+    if (faq) faq.textContent = inf.faq;
     $("nota-precios").textContent = "Pago seguro con Stripe. Puedes cambiar de periodo o darte de baja cuando quieras desde tu perfil.";
     const cta = $("cta-gestor");
     if (cta) cta.addEventListener("click", iniciarPago);
@@ -1469,7 +1495,8 @@
     const nota = s && s.estado === "past_due" ? "No se ha podido cobrar la última cuota y Stripe lo está reintentando. Revisa tu tarjeta en «Gestionar suscripción»."
       : s && VIGENTES.has(s.estado) && s.termina_en ? "Has cancelado la renovación: mantienes el plan hasta esa fecha. Puedes reactivarla en «Gestionar suscripción»."
       : conPlan ? "Cambia de periodo o de tarjeta, descarga tus facturas o date de baja en «Gestionar suscripción»."
-      : "Con el plan Gestor desbloqueas «Mis clientes»: tu cartera guardada, la optimización por cliente y los informes.";
+      : (textosInforme().gratis ? "Con tu cuenta gratuita ya puedes descargar el informe completo en PDF desde la calculadora. " : "")
+        + "Con el plan Gestor desbloqueas «Mis clientes»: tu cartera guardada, la optimización por cliente y los informes.";
     const tSus = `<div class="tarjeta"><h2>Plan ${esc(PLAN_TXT[p.plan] || p.plan)}${s ? ` <span class="chip-estado ${estCls}">${esc(estTxt)}</span>` : ""}</h2>
       ${datos.length ? `<dl class="datos">${datos.map(([a, b]) => `<dt>${a}</dt><dd>${esc(b)}</dd>`).join("")}</dl>` : ""}
       <p>${nota}</p>

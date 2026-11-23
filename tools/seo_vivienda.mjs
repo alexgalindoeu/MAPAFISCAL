@@ -24,7 +24,9 @@ const PARAMS = () => JSON.parse(readFileSync(join(WEB_V, "datos", "params.json")
 const RIRPF_BOE = urlBoe("BOE-A-2007-6820");
 const lirpf = art => `<a href="${LIRPF_BOE}" rel="noopener">${esc(art)} de la Ley 35/2006 del IRPF</a>`;
 const cta = (txt, href, sec) => `<p><a class="btn btn-pri" href="${href}">${esc(txt)}</a>${sec ? ` <a class="btn btn-sec" href="${sec[1]}">${esc(sec[0])}</a>` : ""}</p>`;
-const tablaG = (cab, filas) => `<div class="envoltorio"><table class="cobertura"><thead><tr>${cab.map((c, i) => `<th${i ? ' class="num"' : ""}>${esc(c)}</th>`).join("")}</tr></thead><tbody>${filas.map(f => `<tr>${f.map((c, i) => `<td${i ? ' class="num"' : ""}>${c}</td>`).join("")}</tr>`).join("")}</tbody></table></div>`;
+// Las columnas después de la primera son cifras (a la derecha, sin partir) salvo con texto: false.
+const tablaG = (cab, filas, { cifras = true } = {}) => { const n = i => i && cifras ? ' class="num"' : "";
+  return `<div class="envoltorio"><table class="cobertura${cifras ? "" : " tabla-texto"}"><thead><tr>${cab.map((c, i) => `<th scope="col"${n(i)}>${esc(c)}</th>`).join("")}</tr></thead><tbody>${filas.map(f => `<tr>${f.map((c, i) => `<td${n(i)}>${c}</td>`).join("")}</tr>`).join("")}</tbody></table></div>`; };
 export const HUB_VIVIENDA = "/vivienda/";
 
 // slug null: la portada de la sección.
@@ -109,7 +111,7 @@ function guiaViviendaHub(g) {
   <p class="entradilla">Una vivienda puede aparecer en la declaración de la renta de cuatro maneras distintas según lo que hagas con ella: vivir en ella, tenerla a tu disposición sin alquilarla, alquilarla o venderla. Cada situación tiene su propia regla en la Ley del IRPF, va a una base distinta y se calcula de otra forma. Esta página reúne las cuatro y enlaza a una guía para cada una.</p>
   <div class="tarjeta tarjeta-tabla">
     <h2 class="rotulo">Qué declara cada vivienda</h2>
-    ${tablaG(["Situación", "Cómo tributa", "Base", "Norma", "Guía"], filas)}
+    ${tablaG(["Situación", "Cómo tributa", "Base", "Norma", "Guía"], filas, { cifras: false })}
     <p class="ayuda">La base general se suma al sueldo y paga la escala progresiva estatal y autonómica; la base del ahorro tiene su propia escala, igual en todas las comunidades de régimen común.</p>
   </div>
   <div class="tarjeta">

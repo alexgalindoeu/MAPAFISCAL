@@ -320,7 +320,8 @@
     if (rk && !document.querySelector('.compartir[data-vista="comparar"]')) rk.parentElement.insertBefore(barraCompartir("comparar"), rk.nextSibling);
     for (const s of document.querySelectorAll("main section.vista[id^='v-']")) {
       const v = s.id.slice(2);
-      if (VISTAS_HOGAR.includes(v) || s.querySelector(".compartir")) continue;
+      // las vistas con su propio enlace para compartir (#ofertas) no llevan un segundo botón
+      if (VISTAS_HOGAR.includes(v) || s.querySelector(".compartir, .mf-compartir")) continue;
       const t = s.querySelector(".tarjeta-resultado");
       if (t && s.querySelector("form")) t.parentElement.insertBefore(barraCompartir(v), t.nextSibling);
     }

@@ -31,6 +31,8 @@ function ejercicios() {
 }
 const miles = s => s.replace(/\B(?=(\d{3})+(?!\d))/g, ".");
 const eur0 = n => (n < -0.5 ? "−" : "") + miles(Math.abs(Math.round(n || 0)).toString()) + " €";
+// cifra corta de una tabla («20.048,45 €»): no se parte por el espacio antes de «€»
+const cifra = v => String(v).length <= 14 ? `<span class="sin-corte">${esc(v)}</span>` : esc(v);
 const conSigno = n => (n > 0.5 ? "+" : "") + eur0(n);
 const pct = n => (100 * (n || 0)).toFixed(1).replace(".", ",") + " %";
 const minus = t => t.charAt(0).toLowerCase() + t.slice(1);
@@ -96,8 +98,8 @@ function bloqueEjercicio(Pa, Pb, o, t) {
     <div class="envoltorio"><table class="cobertura"><thead><tr><th scope="col">${eur0(o.bruto)} brutos</th><th scope="col" class="num">${r.anterior}</th><th scope="col" class="num">${r.actual}</th><th scope="col" class="num">Diferencia</th></tr></thead><tbody>` +
     filas.map(([n, k]) => `<tr><td>${n}</td><td class="num">${esc(eur0(r.a[k]))}</td><td class="num">${esc(eur0(r.b[k]))}</td><td class="num">${esc(conSigno(r.b[k] - r.a[k]))}</td></tr>`).join("") + `</tbody></table></div>
     <p class="ayuda">${esc(E.frase(r))}</p>
-    <div class="envoltorio"><table class="cobertura"><thead><tr><th scope="col">Qué cambia</th><th scope="col">${r.anterior}</th><th scope="col">${r.actual}</th></tr></thead><tbody>` +
-    cambian.map(c => c.filas.filter(f => f.a !== f.b).map((f, i) => `<tr><td>${i ? "" : `<b>${esc(c.titulo)}</b><br>`}${esc(f.etq)}</td><td>${esc(f.a)}</td><td>${esc(f.b)}</td></tr>`).join("")).join("") + `</tbody></table></div>
+    <div class="envoltorio"><table class="cobertura tabla-cambios"><thead><tr><th scope="col">Qué cambia</th><th scope="col">${r.anterior}</th><th scope="col">${r.actual}</th></tr></thead><tbody>` +
+    cambian.map(c => c.filas.filter(f => f.a !== f.b).map((f, i) => `<tr><td>${i ? "" : `<b>${esc(c.titulo)}</b><br>`}${esc(f.etq)}</td><td>${cifra(f.a)}</td><td>${cifra(f.b)}</td></tr>`).join("")).join("") + `</tbody></table></div>
     ${cambian.filter(c => c.nota).map(c => `<p class="ayuda">${esc(c.nota)}</p>`).join("")}
     ${boton("Abrir este ejemplo en la herramienta", app(E.enlace(o)))}</div>` };
 }
@@ -140,9 +142,9 @@ function bloqueMarginal(P, t, i) {
   const filas = M.filasTabla(s, 4000).map(p => `<tr><td class="num">${esc(eur0(p.bruto))}</td><td class="num">${esc(M.eur2(p.queda))}</td><td class="num">${esc(M.eur2(p.irpf))}</td><td class="num">${esc(M.eur2(p.ss))}</td></tr>`).join("");
   return { r, hs, nombre, html: `<div class="tarjeta">
     <figure class="grafico"><h2 class="rotulo">Ejemplo ${i}: ${esc(nombre)}</h2>
-      ${M.grafico(s, hs)}
+      <div class="mg-ancho">${M.grafico(s, hs)}</div><div class="mg-estrecho">${M.grafico(s, hs, { ancho: 340 })}</div>
       <figcaption class="ayuda">Lo que queda neto de cada 100 € brutos más, de ${esc(eur0(M.RANGO.desde))} a ${esc(eur0(M.RANGO.hasta))}. Lo menos: ${esc(eur0(r.peor.queda))}, con ${esc(eur0(r.peor.bruto))} brutos. Los números marcan los saltos.</figcaption></figure>
-    <ol class="mg-saltos">${hs.map(h => `<li><b>Hacia ${esc(eur0(h.bruto))}:</b> ${esc(h.texto)} <span class="mg-antes">De cada 100 € te quedaban ${esc(eur0(h.antes))}; después, ${esc(eur0(h.despues))}.</span></li>`).join("")}</ol>
+    <ol class="mg-saltos">${hs.map(h => `<li><b>Hacia ${esc(eur0(h.bruto))}:</b> ${esc(h.texto)} <span class="mg-antes">De cada 100 € te quedaban <span class="sin-corte">${esc(eur0(h.antes))};</span> después, <span class="sin-corte">${esc(eur0(h.despues))}.</span></span></li>`).join("")}</ol>
     <details class="grafico-datos"><summary>Ver los datos del gráfico</summary>
       <div class="envoltorio"><table class="cobertura"><thead><tr><th scope="col" class="num">Bruto anual</th><th scope="col" class="num">Te quedan</th><th scope="col" class="num">IRPF</th><th scope="col" class="num">Seguridad Social</th></tr></thead><tbody>${filas}</tbody></table></div></details>
     ${boton(`Ver ${nombre} en la herramienta`, app(M.enlace(t)))}</div>` };

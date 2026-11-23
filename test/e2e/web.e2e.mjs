@@ -36,12 +36,15 @@ async function prueba(nombre, fn) {
   catch (e) { fallos++; console.log(`FALLO ${nombre}\n      ${e.message.split("\n").join("\n      ")}`); }
 }
 // página nueva que acumula errores de JS (excepciones y console.error)
+// `preparar(ctx)` (opcional) se ejecuta antes de cargar la página: scripts de arranque y rutas.
 async function abrir(ruta, opciones = {}) {
-  const ctx = await navegador.newContext(opciones);
+  const { preparar, ...opcionesCtx } = opciones;
+  const ctx = await navegador.newContext(opcionesCtx);
   const pagina = await ctx.newPage();
   pagina.errores = [];
   // terceros (analítica, anuncios, Supabase, CDN) fuera: la prueba no depende de la red
   await ctx.route(u => !u.href.startsWith(base), r => r.abort());
+  if (preparar) await preparar(ctx);
   pagina.on("pageerror", e => pagina.errores.push(`pageerror: ${e.message}`));
   // los fallos de carga se informan con su URL (abajo); el mensaje genérico no la trae
   pagina.on("console", m => {
@@ -155,6 +158,92 @@ try {
     assert.ok(await p.locator("#mg-grafico svg[role=img][aria-label]").count());
     await p.locator("#mg-territorio").selectOption("ES-NC");
     await p.waitForFunction(() => location.hash === "#marginal?t=ES-NC" && document.querySelector("#mg-chip").textContent.includes("Navarra"));
+    assert.deepEqual(p.errores, []);
+    await p.context().close();
+  });
+
+  // Informe completo en PDF (issue #66): con el pago único y el anuncio bonificado apagados es
+  // gratis con sesión iniciada. La sesión se simula con un supabase-js falso (window.supabase:
+  // app.js no descarga el de la CDN si ya existe) y una sesión guardada en localStorage.
+  const conSesion = ({ plan = "gratis", config = null } = {}) => async ctx => {
+    await ctx.addInitScript(plan => {
+      const id = "u-e2e";
+      localStorage.setItem("sb-pqiqrcvuztxrwrwizppj-auth-token", "{}");
+      localStorage.setItem("mapafiscal.bienvenida." + id, "1");
+      window.print = () => { window.__impreso = (window.__impreso || 0) + 1; };
+      const usuario = { id, email: "e2e@example.test", created_at: "2026-01-01T00:00:00Z", app_metadata: { provider: "email", providers: ["email"] } };
+      const respuesta = tabla => ({ data: tabla === "perfiles" ? { nombre: "", despacho: "", plan, creado_en: "2026-01-01T00:00:00Z",
+        condiciones_version: (window.MAPAFISCAL_CONFIG || {}).condicionesVersion } : tabla === "suscripciones" ? null : [], error: null, status: 200 });
+      const consulta = tabla => {
+        const q = new Proxy({}, { get: (_, k) => k === "then" ? (ok, mal) => Promise.resolve(respuesta(tabla)).then(ok, mal) : () => q });
+        return q;
+      };
+      const cliente = {
+        auth: { getSession: async () => ({ data: { session: { user: usuario } }, error: null }),
+          onAuthStateChange: () => ({ data: { subscription: { unsubscribe() {} } } }), signOut: async () => ({ error: null }) },
+        from: consulta, rpc: async () => ({ data: 0, error: null }),
+        functions: { invoke: async () => ({ data: null, error: new Error("sin red en el e2e") }) }
+      };
+      window.supabase = { createClient: () => cliente };
+    }, plan);
+    if (config) await ctx.route(base + "/config.js", async r => {
+      const res = await r.fetch();
+      await r.fulfill({ response: res, body: config(await res.text()) });
+    });
+  };
+  const abrirInforme = async p => {
+    await p.waitForFunction(() => window.MapafiscalApp && window.MapafiscalApp.sesionCargada() && window.MapafiscalApp.ultimo(), null, { timeout: 8000 });
+    await p.locator("#btn-informe").click();
+    await p.waitForFunction(() => { const c = document.querySelector("#inf-cuerpo"); return c && !c.querySelector(".inf-cargando") && c.children.length; }, null, { timeout: 5000 });
+  };
+
+  await prueba("informe con sesión iniciada y pagos apagados: se genera sin pedir pago", async () => {
+    const p = await abrir("/index.html#calculadora", { preparar: conSesion() });
+    await abrirInforme(p);
+    assert.equal(await p.evaluate(() => window.MapafiscalApp.sesion().usuario), true, "la sesión simulada no ha cargado");
+    assert.equal(await p.locator(".inf-candado").count(), 0, "no debería pedir nada");
+    const texto = await p.locator("#inf-cuerpo").innerText();
+    assert.ok(texto.includes("Desglose de la liquidación") && texto.includes("Cómo pagar menos"), texto.slice(0, 300));
+    assert.ok(await p.locator("#inf-pdf").isVisible(), "falta «Descargar PDF»");
+    await p.locator("#inf-pdf").click();
+    await p.waitForSelector("#inf-espera", { timeout: 3000 });        // espera con el banner propio, sin pago
+    assert.deepEqual(p.errores, []);
+    await p.context().close();
+  });
+
+  await prueba("informe sin sesión y pagos apagados: ofrece iniciar sesión para descargarlo", async () => {
+    const p = await abrir("/index.html#calculadora");
+    await abrirInforme(p);
+    assert.ok((await p.locator(".inf-candado h2").innerText()).includes("Inicia sesión"));
+    assert.equal(await p.locator('[data-inf="pago"], [data-inf="anuncio"]').count(), 0, "no se ofrece ningún pago");
+    assert.equal(await p.locator("#inf-pdf").isVisible(), false);
+    await p.locator('[data-inf="acceso"]').click();
+    await p.waitForFunction(() => document.querySelector("#dlg-acceso").open, null, { timeout: 3000 });
+    assert.match(await p.locator("#dlg-acceso").innerText(), /descargar el informe completo/);
+    assert.deepEqual(p.errores, []);
+    await p.context().close();
+  });
+
+  await prueba("informe con sesión y el pago único encendido: vuelve a pedir el pago", async () => {
+    const p = await abrir("/index.html#calculadora", { preparar: conSesion({ config: t => t.replace("informePago: false", "informePago: true") }) });
+    await abrirInforme(p);
+    assert.equal(await p.locator('.inf-candado [data-inf="pago"]').count(), 1);
+    assert.ok((await p.locator(".inf-candado").innerText()).includes("1,99 €"));
+    assert.equal(await p.locator("#inf-pdf").isVisible(), false);
+    await p.locator("#inf-cerrar").click();
+    await p.evaluate(() => { location.hash = "#planes"; });
+    await p.waitForSelector("#planes .plan");
+    assert.equal(await p.locator("#planes-informe-gratis").innerText(), "Con un pago único de 1,99 €");
+    assert.deepEqual(p.errores, []);
+    await p.context().close();
+  });
+
+  await prueba("#planes con los pagos del informe apagados: el informe sale gratis con cuenta", async () => {
+    const p = await abrir("/index.html#planes");
+    await p.waitForSelector("#planes .plan");
+    assert.ok((await p.locator("#planes .plan").first().innerText()).includes("Informe completo en PDF, con tu cuenta gratuita"));
+    assert.equal(await p.locator("#planes-informe-gratis").innerText(), "Con cuenta gratuita");
+    assert.match(await p.locator("#faq-informe").textContent(), /^Sí\. Con una cuenta gratuita/);
     assert.deepEqual(p.errores, []);
     await p.context().close();
   });

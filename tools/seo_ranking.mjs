@@ -193,7 +193,8 @@ export function paginaRanking({ comparativas, territorios, generado }) {
   </figure>
   <div class="tarjeta tarjeta-tabla" id="tabla">
     <h2 class="rotulo">Los 19 territorios con ${esc(listaY(S.map(eurosSueldo)))}</h2>
-    <div class="envoltorio" tabindex="0" role="region" aria-labelledby="ranking-tabla-tit"><table class="cobertura ranking-tabla"><caption id="ranking-tabla-tit">IRPF ${ej} por territorio y sueldo bruto anual: puesto (de menos a más IRPF), cuota líquida y tipo medio efectivo. Ordenado por la cuota con ${esc(eurosSueldo(r))}.</caption>
+    <p class="ayuda ranking-tabla-tit" id="ranking-tabla-tit">IRPF ${ej} por territorio y sueldo bruto anual: puesto (de menos a más IRPF), cuota líquida y tipo medio efectivo. Ordenado por la cuota con ${esc(eurosSueldo(r))}.</p>
+    <div class="envoltorio" tabindex="0" role="region" aria-labelledby="ranking-tabla-tit"><table class="cobertura ranking-tabla"><caption class="sr-only">IRPF ${ej} por territorio y sueldo bruto anual</caption>
     <thead><tr><th scope="col" rowspan="2">Territorio</th>${cab}</tr><tr>${sub}</tr></thead><tbody>${filas}</tbody></table></div>
     <p class="ayuda">Los territorios con la misma cuota comparten puesto. Tipo medio efectivo: cuota líquida entre el sueldo bruto.</p>
   </div>

@@ -86,3 +86,36 @@ test("con el correo puesto, ninguna página publicable queda con huecos", () => 
   assert.ok(lista.includes("index.html"));
   for (const p of lista) assert.deepEqual(rellenar(leer(p.replace(/\\/g, "/")), datos).quedan, [], p);
 });
+
+// Lo que la web guarda en el navegador (claves de localStorage/sessionStorage de web/js/) tiene
+// que estar en la tabla de legal/cookies.html, y al revés: nada en la tabla que la web no use.
+test("cookies.html lista exactamente lo que web/js guarda en el navegador", () => {
+  const dir = new URL("js/", WEB);
+  const codigo = readdirSync(dir).filter(f => f.endsWith(".js")).map(f => readFileSync(new URL(f, dir), "utf8")).join("\n");
+  const claves = new Set([...codigo.matchAll(/\b[A-Z_]+\s*=\s*"((?:mapafiscal\.|mf-)[A-Za-z.-]+)"/g)].map(m => m[1].replace(/\.$/, ".<id>")));
+  assert.ok(claves.size >= 10, "no se han encontrado las claves");
+  const ref = new URL(/supabaseUrl:\s*"([^"]+)"/.exec(leer("config.js"))[1]).hostname.split(".")[0];
+  claves.add(`sb-${ref}-auth-token`);
+  const html = leer("legal/cookies.html");
+  const tabla = new Set([...html.matchAll(/<tr[^>]*><td><code>([^<]+)<\/code>/g)].map(m => m[1].replace("&lt;id&gt;", "<id>")));
+  for (const k of claves) assert.ok(tabla.has(k), `cookies.html no explica «${k}»`);
+  const deGoogle = new Set(["FCCDCF", "__gads", "__eoi", "IDE"]);
+  for (const k of tabla) assert.ok(claves.has(k) || deGoogle.has(k), `cookies.html explica «${k}», que la web ya no usa`);
+});
+
+test("política de privacidad y de cookies: lo que exige AdSense a los editores", () => {
+  const priv = leer("legal/privacidad.html"), cook = leer("legal/cookies.html");
+  for (const [p, html] of [["privacidad", priv], ["cookies", cook]]) {
+    assert.match(html, /[Tt]erceros proveedores, incluido Google, usan cookies para mostrar anuncios basados en las visitas anteriores/, p);
+    assert.match(html, /DoubleClick/, p);
+    assert.match(html, /href="https:\/\/adssettings\.google\.com"/, p);
+    assert.match(html, /href="https:\/\/www\.aboutads\.info\/choices\/"/, p);
+    assert.match(html, /href="https:\/\/youronlinechoices\.eu"/, p);
+    assert.match(html, /href="https:\/\/policies\.google\.com\/technologies\/partner-sites/, p);
+    assert.match(html, /certificada por Google[\s\S]*TCF/, p);
+  }
+  // la sección de publicidad solo se ve con anuncios encendidos
+  assert.match(priv, /<section data-con-anuncios hidden>\s*<h3 id="publicidad">/);
+  // las tipografías ya no vienen de Google Fonts (web/css/mapafiscal.css las sirve desde /fonts/)
+  assert.doesNotMatch(priv + cook, /Google Fonts/);
+});

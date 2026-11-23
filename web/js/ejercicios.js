@@ -185,9 +185,11 @@
       [["Bruto anual", "bruto"], ["Cotizaciones a la Seguridad Social", "cotizaciones"], ["IRPF del año", "irpf"], ["Neto al año", "neto"], ["Neto al mes (12 pagas)", "netoMes"]]
         .map(([n, k]) => `<tr class="${k === "neto" ? "total" : ""}"><th scope="row">${n}</th><td class="num">${eur0(r.a[k])}</td><td class="num">${eur0(r.b[k])}</td><td class="num">${conSigno(r.b[k] - r.a[k])}</td></tr>`).join("") +
       `<tr class="info"><th scope="row">Tipo medio del IRPF</th><td class="num">${pct(r.a.tipoMedio)}</td><td class="num">${pct(r.b.tipoMedio)}</td><td class="num"></td></tr></tbody>`;
+    // una cifra corta («19.747,50 €») no se parte por el espacio antes de «€»; un texto sí
+    const cifra = v => String(v).length <= 14 ? `<span class="sin-corte">${esc(v)}</span>` : esc(v);
     $("ej-conceptos").innerHTML = `<caption class="sr">Conceptos de ${r.anterior} y de ${r.actual}</caption><thead><tr><th scope="col">Concepto</th><th scope="col">${r.anterior}</th><th scope="col">${r.actual}</th></tr></thead>` +
       r.conceptos.map(c => `<tbody class="${c.cambia ? "cambia" : ""}"><tr class="ej-grupo"><th scope="rowgroup" colspan="3">${esc(c.titulo)} <span class="chip ${c.cambia ? "tu" : ""}">${c.cambia ? "Cambia" : "Igual"}</span></th></tr>` +
-        c.filas.map(f => `<tr><th scope="row">${esc(f.etq)}</th><td>${esc(f.a)}</td><td>${esc(f.b)}</td></tr>`).join("") +
+        c.filas.map(f => `<tr><th scope="row">${esc(f.etq)}</th><td>${cifra(f.a)}</td><td>${cifra(f.b)}</td></tr>`).join("") +
         (c.nota || c.norma ? `<tr class="info"><td colspan="3">${c.nota ? esc(c.nota) + " " : ""}${c.norma ? `<span class="ej-norma">${esc(c.norma)}</span>` : ""}</td></tr>` : "") + "</tbody>").join("");
     try { if (/^#ejercicios/.test(location.hash)) history.replaceState(null, "", enlace({ bruto, territorio: t })); } catch (e) { /* sin historial */ }
     $("ej-nota").textContent = `Persona de ${SITUACION.edad} años sin hijos, contrato indefinido y tributación individual, con la normativa de cada ejercicio: el IRPF del año tras la declaración y las cotizaciones del trabajador. ` +

@@ -1287,17 +1287,17 @@ body.escribiendo .barra-movil, body.escribiendo .ir-resultado { display: none !i
 .mf-compartir-fila input { flex: 1 1 auto; min-width: 0; }
 .mg-figura { margin: 12px 0; }
 .mg-svg { display: block; width: 100%; height: auto; max-width: 100%; overflow: visible; }
-.mg-svg .mg-reticula { stroke: var(--linea); stroke-width: 1; }
-.mg-svg .mg-eje { fill: var(--tinta-2); font: 12px var(--sans); }
+.mg-svg .mg-reticula { stroke: var(--linea-2); stroke-width: 1; }
+.mg-svg .mg-eje { fill: var(--tinta-2); font: 12px var(--sans); font-variant-numeric: tabular-nums; }
 .mg-svg .mg-area { fill: var(--marca-suave); }
 .mg-svg .mg-linea { fill: none; stroke: var(--marca); stroke-width: 2.5; stroke-linejoin: round; }
 .mg-svg .mg-salto line { stroke: var(--tinta-3); stroke-width: 1; stroke-dasharray: 3 3; }
 .mg-svg .mg-salto text { fill: var(--tinta); font: 600 11px var(--sans); }
 .mg-svg .mg-punto { fill: var(--resalte); stroke: var(--tinta); stroke-width: 1.5; }
-.mg-saltos { margin: 0; padding-left: 22px; display: grid; gap: 10px; font-size: 14px; }
+.mg-saltos { margin: 0; padding-left: 22px; display: grid; gap: 10px; font-size: 14px; max-width: 46em; }
 .mg-saltos .mg-antes { display: block; color: var(--tinta-2); }
 .mg-saltos .mg-detalle { display: block; margin-top: 2px; }
-@media (max-width: 520px) { .mf-tabla { font-size: 12.5px; } .mf-tabla td, .mf-tabla th { padding-left: 4px; padding-right: 4px; } .mg-svg .mg-eje { font-size: 15px; } }
+@media (max-width: 520px) { .mf-tabla { font-size: 12.5px; } .mf-tabla td, .mf-tabla th { padding-left: 4px; padding-right: 4px; } }
 /* ---- «Descargar CSV» sobre las tablas de comparación (js/csv.js) ---------------------- */
 .tabla-acciones { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 8px; }
 .cabecera-acciones .tabla-acciones { flex-basis: 100%; }
@@ -1306,8 +1306,8 @@ body.escribiendo .barra-movil, body.escribiendo .ir-resultado { display: none !i
 .pp-curva-frase { margin: 0 0 10px; }
 .pp-curva-figura { margin: 0; }
 .ppc-svg { width: 100%; height: auto; display: block; overflow: visible; }
-.ppc-reticula { stroke: var(--reticula); stroke-width: 1; }
-.ppc-eje { fill: var(--tinta-3); font-size: 12px; font-family: var(--mono); }
+.ppc-reticula { stroke: var(--linea-2); stroke-width: 1; }
+.ppc-eje { fill: var(--tinta-2); font: 12px var(--sans); font-variant-numeric: tabular-nums; }
 .ppc-area { fill: var(--gana-suave); }
 .ppc-linea { fill: none; stroke: var(--gana); stroke-width: 2; stroke-linejoin: round; }
 .ppc-marca { stroke: var(--tinta-3); stroke-width: 1; stroke-dasharray: 3 3; }
@@ -1318,3 +1318,29 @@ body.escribiendo .barra-movil, body.escribiendo .ir-resultado { display: none !i
 .pp-curva-datos summary { cursor: pointer; color: var(--marca-tinta); }
 .pp-curva-datos th { text-align: left; font-size: 13px; color: var(--tinta-2); padding: 6px 0; border-bottom: 1px solid var(--linea-2); }
 .pp-curva-datos th.num { text-align: right; }
+
+/* ---- Revisión de diseño de las herramientas nuevas (23-11-2026) ------------------------------ */
+/* Cifras que no se parten por el espacio antes de «€» (saltos de #marginal y /tipo-marginal-real/). */
+.sin-corte { white-space: nowrap; }
+/* #comparar con los carriles de anuncios (≥ 1280 px): la columna del ranking mide ~370 px y la
+   «Diferencia» se salía por la derecha. Por debajo de 420 px de columna, como en el móvil, se
+   oculta la segunda métrica (el tipo medio o la cuota, que sigue en el conmutador de arriba). */
+#v-comparar .tarjeta-ranking { container-type: inline-size; }
+@container (max-width: 420px) { #v-comparar .ranking .ocultable { display: none; } }
+/* «Descargar CSV»: enlaces de texto bajo los conmutadores, no dos botones con caja. */
+.tabla-acciones { gap: 2px 18px; }
+/* En bloque y no en flex: así el espacio entre «CSV» y «del ranking» se queda y el subrayado sigue. */
+.btn.btn-csv { display: inline-block; background: none; border-color: transparent; color: var(--marca-tinta); padding: 8px 0; line-height: 18px;
+  min-height: 0; text-decoration: underline; text-decoration-thickness: 1px; text-underline-offset: 3px; }
+.btn.btn-csv:hover:not([disabled]) { background: none; color: var(--marca-hover); text-decoration-thickness: 2px; }
+@media (pointer: coarse), (max-width: 760px) { .btn.btn-csv { padding: 13px 0; min-height: 44px; } }
+@media (max-width: 760px) { .cabecera-acciones .tabla-acciones { justify-content: flex-start; } }
+/* Cuatro cifras en .kpis (#sueldo-mes): 2 × 2 en lugar de 3 + 1 con un hueco gris. */
+@media (min-width: 481px) { .kpis:has(> div:nth-child(4):last-child) { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+/* «El mismo bruto en 12, 14 y 15 pagas»: el concepto parte línea para que quepan las tres columnas. */
+.sm-tabla td:first-child { white-space: normal; min-width: 8em; }
+.sm-tabla td, .sm-tabla th { padding-left: 6px; padding-right: 6px; }
+/* «Qué cambia» de #ejercicios y de /irpf-2025-vs-2026/: las cifras no se parten («20.048,45 / €»). */
+/* «Igual» / «Cambia»: sin pastilla; lo que cambia, subrayado con el rotulador amarillo. */
+.ej-grupo .chip { background: none; border: 0; padding: 0 2px; margin-left: 6px; border-radius: 0; font-weight: 600; color: var(--tinta-3); }
+.ej-grupo .chip.tu { color: var(--tinta); text-decoration: underline 3px var(--resalte); text-underline-offset: 3px; }

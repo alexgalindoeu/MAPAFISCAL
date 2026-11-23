@@ -77,7 +77,8 @@ window.MAPAFISCAL_CONFIG = {
   // Informe completo en PDF (js/informe.js). Vías de desbloqueo (negocio/otros-ingresos.md §1):
   // plan de pago (siempre), pago único y anuncio bonificado. Aceptar cookies NO desbloquea.
   // Con los dos interruptores en false, el informe es gratis para quien tenga sesión iniciada
-  // (decisión provisional, pendiente de que Alex la confirme).
+  // (decisión de Alex, issue #66). Al encender cualquiera de ellos vuelve el desbloqueo de pago
+  // y los textos de Planes, preguntas frecuentes y aviso legal cambian solos.
   informePago: false,      // true cuando exista en Stripe el precio con lookup_key informe_unico (supabase/README.md)
   informePrecio: 1.99,     // IVA incluido; tiene que coincidir con el precio de Stripe
   informeAnuncio: false,   // true cuando la red apruebe el formato bonificado (ver negocio/otros-ingresos.md)

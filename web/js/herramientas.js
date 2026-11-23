@@ -395,7 +395,7 @@
   // Una sola serie: el ahorro de IRPF de 0 € hasta tu límite. Marcas: tu aportación, el final del
   // tramo con el mismo tipo marginal y, si la hay, la aportación que agota el ahorro. La tabla
   // de debajo da las mismas cifras sin gráfico.
-  const GC = { W: 420, H: 230, l: 54, r: 12, t: 12, b: 28 };
+  const GC0 = { W: 420, H: 230, l: 54, r: 12, t: 12, b: 28 };
   function escalaRedonda(v) {
     if (v <= 0) return 1;
     const e = Math.pow(10, Math.floor(Math.log10(v))), k = v / e;
@@ -415,11 +415,15 @@
       (c.agota != null ? ` A partir de <b>${eur0(c.agota)}</b> aportar más ya no te ahorra IRPF este año: con ${eur0(c.agota)} el ahorro llega a su máximo, ${eur0(c.ahorroMax)}.`
         : ` El ahorro no se agota antes del límite: con ${eur0(lim)}, ${eur0(c.ahorroMax)}.`);
     const ymax = escalaRedonda(c.ahorroMax * 1.05);
+    // viewBox al ancho real de la tarjeta (1 unidad = 1 px): los rótulos de los ejes se leen a
+    // 12 px también en el móvil, en lugar de encogerse con el dibujo
+    const GC = Object.assign({}, GC0, { W: Math.max(280, Math.round(cont.clientWidth || GC0.W)) });
+    const ticksX = GC.W < 400 ? [0, 2, 4] : [0, 1, 2, 3, 4];
     const x = a => GC.l + a / lim * (GC.W - GC.l - GC.r), y = v => GC.t + (1 - v / ymax) * (GC.H - GC.t - GC.b);
     const f1 = n => n.toFixed(1);
     let h = `<title id="pp-curva-tit">Ahorro de IRPF según lo que aportes al plan de pensiones, de 0 € a ${esc(eur0(lim))}</title>`;
     for (let k = 0; k <= 4; k++) { const v = ymax * k / 4; h += `<line class="ppc-reticula" x1="${GC.l}" x2="${GC.W - GC.r}" y1="${f1(y(v))}" y2="${f1(y(v))}"/><text class="ppc-eje" x="${GC.l - 8}" y="${f1(y(v) + 4)}" text-anchor="end">${esc(eur0(v))}</text>`; }
-    for (let k = 0; k <= 4; k++) { const a = lim * k / 4; h += `<text class="ppc-eje" x="${f1(x(a))}" y="${GC.H - 9}" text-anchor="${k === 0 ? "start" : k === 4 ? "end" : "middle"}">${esc(eur0(a))}</text>`; }
+    for (const k of ticksX) { const a = lim * k / 4; h += `<text class="ppc-eje" x="${f1(x(a))}" y="${GC.H - 9}" text-anchor="${k === 0 ? "start" : k === 4 ? "end" : "middle"}">${esc(eur0(a))}</text>`; }
     const linea = c.puntos.map(p => f1(x(p.aportacion)) + "," + f1(y(p.ahorro))).join("L");
     h += `<path class="ppc-area" d="M${f1(x(0))},${f1(y(0))}L${linea}L${f1(x(lim))},${f1(y(0))}Z"/><path class="ppc-linea" d="M${linea}"/>`;
     const marca = (a, cls, txt) => `<line class="ppc-marca ${cls}" x1="${f1(x(a))}" x2="${f1(x(a))}" y1="${GC.t}" y2="${GC.H - GC.b}"><title>${esc(txt)}</title></line>`;

@@ -9,7 +9,8 @@
  * Desbloqueo (decisión de Alex, negocio/otros-ingresos.md §1): plan de pago, pago único de
  * 1,99 € (interruptor `informePago`) o anuncio bonificado (interruptor `informeAnuncio`).
  * Aceptar cookies NO desbloquea. Con los dos interruptores apagados, basta con tener sesión
- * iniciada (decisión provisional para incentivar el registro). El PDF que no se ha pagado
+ * iniciada (decisión de Alex, issue #66): el informe es gratis con la cuenta gratuita; al
+ * encender cualquiera de los dos, vuelve el desbloqueo de pago. El PDF que no se ha pagado
  * (ni va incluido en un plan) lleva un banner propio: AdSense no funciona dentro de un PDF.
  *
  * app.js expone lo justo en window.MapafiscalApp y avisa con «mapafiscal:sesion».
@@ -62,6 +63,10 @@
     opciones.push("plan");
     return { desbloqueado: false, via: null, banner: true, opciones };
   }
+
+  // ¿Basta la cuenta gratuita para el informe? Con el pago único y el anuncio bonificado
+  // apagados, sí. Lo usan los textos de Planes y de las preguntas frecuentes (app.js).
+  const gratisConCuenta = cfg => desbloqueo({ cfg, usuario: true, plan: "gratis" }).via === "registro";
 
   // ---- 2. contenido (todo sale del motor) -----------------------------------------------
   const NOMBRES_DED = {
@@ -366,7 +371,7 @@
     });
   }
 
-  const API = { desbloqueo, contenido, planOptimo, html, segundosEspera, crearEspera, conLimite, PRECIO: 1.99 };
+  const API = { desbloqueo, gratisConCuenta, contenido, planOptimo, html, segundosEspera, crearEspera, conLimite, PRECIO: 1.99 };
   if (typeof module !== "undefined" && module.exports) { module.exports = API; return; }
   window.MapafiscalInforme = API;
 
@@ -437,12 +442,13 @@
   function candado(e) {
     const s = app().sesion();
     const OP = {
-      acceso: `<button class="btn btn-pri" type="button" data-inf="acceso">Crear cuenta gratis o entrar</button><p class="ayuda">Con la cuenta gratuita, el informe es gratis (por ahora).</p>`,
+      acceso: `<button class="btn btn-pri" type="button" data-inf="acceso">Crear cuenta gratis o entrar</button><p class="ayuda">Con tu cuenta gratuita, el informe completo es gratis.</p>`,
       anuncio: `<button class="btn btn-pri" type="button" data-inf="anuncio">Ver un anuncio (~1 minuto)</button>`,
       pago: `<button class="btn btn-sec" type="button" data-inf="pago">Pago único de ${precioTxt()}</button>${s.usuario ? "" : '<p class="ayuda">Para pagar hace falta una cuenta (gratis).</p>'}`,
       plan: `<a class="btn btn-txt" href="#planes" data-inf="planes">Incluido en el plan Gestor</a>`
     };
-    return `<div class="inf-candado tarjeta"><h2>Desbloquea tu informe completo</h2>
+    const titulo = e.opciones.includes("acceso") ? "Inicia sesión para descargar tu informe completo" : "Desbloquea tu informe completo";
+    return `<div class="inf-candado tarjeta"><h2>${titulo}</h2>
       <p>Desglose línea a línea, deducciones aplicadas con su norma y cómo pagar menos, en un PDF para guardar.</p>
       <div class="inf-opciones">${e.opciones.map(o => OP[o]).join("")}</div>
       <p class="ayuda">El resultado básico de la calculadora sigue siendo gratis y sin condiciones.</p>
