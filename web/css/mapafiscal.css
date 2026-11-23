@@ -1119,6 +1119,11 @@ input[aria-invalid="true"] { border-color: var(--rojo, #b42318); box-shadow: 0 0
 @media (max-width: 520px) { .bn-ofertas { grid-template-columns: 1fr; } }
 #bn-campo-territorio[hidden] + .rejilla2 { clear: both; }
 @media (max-width: 520px) { .bn-tabla { font-size: 12.5px; } .bn-tabla td, .bn-tabla th { padding-left: 4px; padding-right: 4px; } }
+/* ---- #sueldo-mes (web/js/sueldo_mes.js) ---- */
+.sm-tabla td.num, .sm-tabla th.num { font-variant-numeric: tabular-nums; text-align: right; }
+.sm-tabla td.tu, .sm-tabla th.tu { background: var(--resalte-suave); font-weight: 700; }
+.sm-frase { margin: 12px 0 0; }
+@media (max-width: 520px) { .sm-tabla { font-size: 12.5px; } .sm-tabla td, .sm-tabla th { padding-left: 4px; padding-right: 4px; } }
 /* ---- Encuentra tus deducciones (web/js/deducciones.js) ---- */
 .dd-lista { list-style: none; margin: 0; padding: 0; display: grid; gap: 12px; }
 .dd-ficha { border: 1px solid var(--linea); border-radius: var(--radio); padding: 14px 16px; background: var(--superficie); }

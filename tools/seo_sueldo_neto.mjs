@@ -282,7 +282,8 @@ export function paginasSueldoNeto(d, { conDeducciones = new Set(), ejercicioDedu
   <h1>Sueldo neto en ${EJ}: de bruto a neto en los 19 territorios</h1>
   <p class="entradilla">Cuánto queda en neto de cada sueldo bruto, en 12 y en 14 pagas, tras el IRPF y la Seguridad Social del ejercicio ${EJ}, en las 15 comunidades de régimen común, las tres diputaciones forales vascas y Navarra. ${esc(supuesto)}</p>
   <div class="prosa">
-  <div class="tarjeta"><h2 class="rotulo">Sueldos al mes</h2><ul class="lista-enlaces">${d.mensuales.map(m => `<li><a href="${rutaMes(m)}">${esc(euros(m))} brutos al mes a netos</a></li>`).join("")}</ul></div>
+  <div class="tarjeta"><h2 class="rotulo">Sueldos al mes</h2><ul class="lista-enlaces">${d.mensuales.map(m => `<li><a href="${rutaMes(m)}">${esc(euros(m))} brutos al mes a netos</a></li>`).join("")}</ul>
+    <p>¿Tienes el bruto anual y quieres saber cuánto es al mes? <a href="/sueldo-mensual/">Sueldo bruto entre 12 y 14 pagas: tabla de 15.000 a 60.000 €</a>.</p></div>
   <div class="tarjeta"><h2 class="rotulo">Sueldos al año</h2><ul class="lista-enlaces">${importes.map(b => `<li><a href="${rutaNac(b)}">${esc(euros(b))} brutos a netos</a></li>`).join("")}</ul></div>
   <div class="tarjeta"><h2 class="rotulo">Por territorio</h2><p>Cada importe enlaza el detalle de los 19 territorios para ${d.importes_territorio.length} sueldos, de ${esc(euros(d.importes_territorio[0]))} a ${esc(euros(d.importes_territorio[d.importes_territorio.length - 1]))}. Por ejemplo, 30.000 € en ${ORDEN_TERRITORIOS.map(c => `<a href="${rutaTer(30000, c)}">${esc(nombre(c))}</a>`).join(", ")}.</p></div>
   ${botones()}
