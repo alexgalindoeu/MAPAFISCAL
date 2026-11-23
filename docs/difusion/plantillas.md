@@ -96,7 +96,7 @@ del sueldo que elijas (tabla de arriba o la página `/comparar-sueldo/<sueldo>/`
 >
 > Mapafiscal (https://mapafiscal.es/autonomos/) estima el IRPF de un autónomo en cualquiera de
 > los 19 territorios fiscales de España, forales incluidos. Es gratuita, calcula en el navegador
-> y no pide registro. El motor está validado al céntimo con 150 casos.
+> y no pide registro. El motor está validado al céntimo con 152 casos.
 >
 > Puede servir para resolver dudas rápidas de sus lectores o clientes, por ejemplo cuánto cambia
 > la cuota al mudarse de comunidad. Para asesorías y gestorías con cartera de clientes hay un
