@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Cookies · Mapafiscal</title>
-<meta name="description" content="Qué guarda Mapafiscal en tu navegador y por qué no necesita pedirte consentimiento.">
+<meta name="description" content="Qué guarda Mapafiscal en tu navegador, qué cookies usan Google y sus socios para los anuncios y cómo aceptarlas, rechazarlas o desactivar la publicidad personalizada.">
 <link rel="canonical" href="https://mapafiscal.es/legal/cookies.html">
 <link rel="preload" href="../fonts/public-sans-latin-var.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="preload" href="../fonts/archivo-latin-var.woff2" as="font" type="font/woff2" crossorigin>
@@ -33,13 +33,13 @@
 <main class="contenedor legal">
 <article class="tarjeta legal-texto">
   <h1>Política de cookies</h1>
-  <p class="legal-fecha">Versión de 27 de septiembre de 2026</p>
+  <p class="legal-fecha">Versión de 23 de noviembre de 2026</p>
 
   <div class="legal-resumen" data-sin-anuncios>
     <p><b>En resumen</b></p>
     <ul>
-      <li>Mapafiscal <b>no usa cookies</b> ni herramientas de analítica o de publicidad.</li>
-      <li>Solo guarda en tu navegador lo imprescindible para que funcione lo que pides: tu sesión, si inicias sesión, y a qué pantalla volver después.</li>
+      <li>Mapafiscal <b>no usa cookies</b> ni herramientas de publicidad. Sus estadísticas de visitas (GoatCounter) no guardan nada en tu navegador.</li>
+      <li>Solo guarda en tu navegador lo imprescindible para que funcione lo que pides (tu sesión, si inicias sesión, y a qué pantalla volver después) y las preferencias que eliges, como el tema claro u oscuro.</li>
       <li>Por eso no te mostramos ningún aviso ni te pedimos consentimiento.</li>
     </ul>
   </div>
@@ -48,31 +48,39 @@
     <ul>
       <li>Mapafiscal es gratis gracias a los <b>anuncios de Google</b>. Con un plan de pago no hay anuncios ni cookies de publicidad.</li>
       <li>Google y sus socios solo usan cookies de publicidad <b>si lo aceptas</b> en el aviso de Google que aparece al entrar en la web. Rechazar es igual de fácil y la web funciona exactamente igual.</li>
-      <li>Puedes cambiar de opinión cuando quieras con «Configurar cookies», en el pie de la calculadora.</li>
-      <li>Aparte, Mapafiscal solo guarda en tu navegador lo imprescindible para que funcione lo que pides.</li>
+      <li>Puedes cambiar de opinión cuando quieras con «Configurar cookies», en el pie de la calculadora, y desactivar los anuncios personalizados en la <a href="https://adssettings.google.com" rel="noopener">Configuración de anuncios de Google</a>.</li>
+      <li>Aparte, Mapafiscal solo guarda en tu navegador lo imprescindible para que funcione lo que pides y las preferencias que eliges. Sus estadísticas de visitas (GoatCounter) no usan cookies.</li>
     </ul>
   </div>
 
   <h2 id="que-son">1. Qué son las cookies y el almacenamiento local</h2>
-  <p>Las cookies y otras técnicas parecidas, como el almacenamiento local del navegador (<code>localStorage</code>), permiten a una web guardar información en tu dispositivo y leerla después. El artículo 22.2 de la Ley 34/2002 (LSSI) exige tu consentimiento para usarlas, <b>salvo</b> cuando sirven solo para transmitir una comunicación o son estrictamente necesarias para prestar un servicio que has pedido expresamente.</p>
+  <p>Las cookies y otras técnicas parecidas, como el almacenamiento local del navegador (<code>localStorage</code> y <code>sessionStorage</code>), permiten a una web guardar información en tu dispositivo y leerla después. El artículo 22.2 de la Ley 34/2002 (LSSI) exige tu consentimiento para usarlas, <b>salvo</b> cuando sirven solo para transmitir una comunicación o son estrictamente necesarias para prestar un servicio que has pedido expresamente.</p>
 
   <h2 id="que-guardamos">2. Qué guarda Mapafiscal en tu navegador</h2>
-  <p data-sin-anuncios>Mapafiscal no instala cookies. Solo usa el almacenamiento local, y únicamente cuando inicias sesión o vas a contratar un plan:</p>
-  <p data-con-anuncios hidden>Mapafiscal no instala cookies propias. Solo usa el almacenamiento local, para lo siguiente:</p>
+  <p>Mapafiscal no instala cookies propias. Solo usa el almacenamiento local del navegador, y cada dato solo cuando haces lo que se indica:</p>
   <div class="legal-tabla"><table>
     <thead><tr><th scope="col">Nombre</th><th scope="col">Para qué</th><th scope="col">Cuánto dura</th></tr></thead>
     <tbody>
       <tr><td><code>sb-pqiqrcvuztxrwrwizppj-auth-token</code></td><td>Mantener tu sesión iniciada para acceder a tu cuenta. La crea la librería de nuestra base de datos (Supabase) al entrar.</td><td>Hasta que cierras sesión o borras los datos del navegador</td></tr>
       <tr><td><code>mapafiscal.trasAcceso</code></td><td>Recordar a qué pantalla volver después de iniciar sesión con el enlace del correo o con Google.</td><td>Se borra al volver</td></tr>
+      <tr><td><code>mapafiscal.aceptoPendiente</code></td><td>Al crear la cuenta: recordar que has marcado la casilla de las condiciones, para apuntarlo en tu cuenta al volver del enlace del correo o de Google.</td><td>Se borra al volver</td></tr>
       <tr><td><code>mapafiscal.pagoPendiente</code></td><td>Seguir con el pago del plan que elegiste si antes tenías que iniciar sesión.</td><td>Se borra al volver; caduca a las 2 horas</td></tr>
+      <tr><td><code>mapafiscal.calculoPendiente</code></td><td>Si pulsas «Guarda este cálculo» sin haber iniciado sesión: el cálculo que quieres guardar, para guardarlo en tu cuenta al volver.</td><td>Se borra al volver; caduca a las 2 horas</td></tr>
+      <tr><td><code>mapafiscal.informePendiente</code></td><td>Si pides el informe completo en PDF sin haber iniciado sesión: los datos del cálculo, para abrirte el informe al volver.</td><td>Se borra al volver; caduca a las 2 horas</td></tr>
+      <tr><td><code>mapafiscal.bienvenida.&lt;id&gt;</code></td><td>Recordar que ya has visto el mensaje de bienvenida de tu cuenta, para no repetirlo.</td><td>Hasta que borras los datos del navegador</td></tr>
+      <tr><td><code>mapafiscal.avisoCuentaCerrado</code></td><td>Recordar que has pulsado «No mostrar más» en el aviso para crear una cuenta.</td><td>Hasta que borras los datos del navegador</td></tr>
+      <tr><td><code>mf-tema</code></td><td>El tema claro u oscuro que eliges con el botón del tema.</td><td>Hasta que vuelves a «Automático» o borras los datos del navegador</td></tr>
       <tr data-con-anuncios hidden><td><code>mapafiscal.sinAnuncios</code></td><td>Solo si tu cuenta tiene un plan de pago: recordar que no hay que dejar sitio para anuncios.</td><td>Se borra cuando la cuenta ya no tiene plan</td></tr>
+      <tr data-consentimiento-propio hidden><td><code>mapafiscal.consentimiento</code></td><td>Guardar tu respuesta al aviso de cookies de publicidad (aceptar o rechazar).</td><td>24 meses como máximo; después te lo volvemos a preguntar</td></tr>
+      <tr data-prueba-carriles hidden><td><code>mapafiscal.pruebaCarriles</code></td><td>Mientras probamos dos diseños de la página (uno o dos espacios laterales para anuncios): recordar cuál te ha tocado, para que no cambie en cada visita.</td><td>Hasta que borras los datos del navegador</td></tr>
+      <tr data-informe-anuncio hidden><td><code>mapafiscal.informeRecompensa</code> (<code>sessionStorage</code>)</td><td>Recordar que has visto el anuncio que desbloquea el informe completo.</td><td>Se borra al cerrar la pestaña</td></tr>
     </tbody>
   </table></div>
-  <p>Son propios de Mapafiscal, no se comparten con terceros y son estrictamente necesarios para los servicios que pides (iniciar sesión y contratar), por lo que están exentos de consentimiento (art. 22.2 LSSI). Los datos que escribes en la calculadora no se guardan en tu navegador ni se envían a ningún servidor.</p>
+  <p>Son propios de Mapafiscal y no se comparten con terceros. Unos son estrictamente necesarios para los servicios que pides (iniciar sesión, contratar, guardar un cálculo o descargar el informe) y otros guardan preferencias que eliges tú (el tema o no volver a ver un aviso), por lo que están exentos de consentimiento (art. 22.2 LSSI). Fuera de los dos casos marcados de la tabla, que caducan a las 2 horas, los datos que escribes en la calculadora no se guardan en tu navegador ni se envían a ningún servidor.</p>
 
   <h2 id="terceros">3. Servicios de terceros</h2>
   <ul>
-    <li><b>Al cargar la web</b>, tu navegador descarga las tipografías de Google Fonts y una librería de jsDelivr. Estas descargas no instalan cookies, aunque esos servicios reciben tu dirección IP para poder enviarte los ficheros (ver la <a href="privacidad.html#visita">política de privacidad</a>).</li>
+    <li><b>Al cargar la calculadora</b>, tu navegador descarga la librería de la base de datos de jsDelivr y pregunta a la base de datos (Supabase) si tienes la sesión iniciada. No instalan cookies, aunque reciben tu dirección IP para poder responderte (ver la <a href="privacidad.html#visita">política de privacidad</a>). Las tipografías se sirven desde la propia web.</li>
     <li><b>Estadísticas de visitas:</b> contamos las páginas vistas y algunos pasos de uso (por ejemplo, «cálculo completado» o «PDF descargado») con <b>GoatCounter</b>, un servicio de analítica que no instala cookies ni guarda nada en tu navegador, no conserva tu dirección IP y no recibe los datos ni los importes que escribes en la calculadora. Por eso no necesita tu consentimiento (ver la <a href="privacidad.html#visita">política de privacidad</a>).</li>
     <li><b>Si pagas o gestionas tu suscripción</b>, lo haces en páginas de Stripe (<code>checkout.stripe.com</code> y <code>billing.stripe.com</code>), que usan sus propias cookies, necesarias para el pago y la prevención del fraude. Las explica la <a href="https://stripe.com/es/legal/cookies-policy" rel="noopener">política de cookies de Stripe</a>.</li>
     <li><b>Si entras con Google</b>, lo haces en páginas de Google, con sus propias cookies. Las explica la <a href="https://policies.google.com/technologies/cookies?hl=es" rel="noopener">política de Google</a>.</li>
@@ -80,24 +88,26 @@
 
   <section data-con-anuncios hidden>
   <h2 id="publicidad">Publicidad: cookies de Google y sus socios</h2>
-  <p>A quien no tiene un plan de pago, Mapafiscal le muestra anuncios de <b>Google AdSense</b> (Google Ireland Limited, Gordon House, Barrow Street, Dublín 4, Irlanda). Al entrar se carga el script de Google que muestra el aviso de consentimiento; los anuncios se piden cuando va a verse el primero, y sus cookies solo se usan si lo aceptas.</p>
+  <p>A quien no tiene un plan de pago, Mapafiscal le muestra anuncios de <b>Google AdSense</b> (Google Ireland Limited, Gordon House, Barrow Street, Dublín 4, Irlanda). Al entrar se carga el script de Google que muestra el aviso de consentimiento; los anuncios se piden cuando va a verse el primero.</p>
+  <p><b>Terceros proveedores, incluido Google, usan cookies para mostrar anuncios basados en las visitas anteriores que hayas hecho a esta web o a otras webs.</b> Las cookies de publicidad de Google (las de AdSense y las del dominio <code>doubleclick.net</code>, de DoubleClick) permiten a Google y a sus socios mostrarte anuncios según tus visitas a Mapafiscal y a otros sitios de Internet. En el Espacio Económico Europeo, el Reino Unido y Suiza, solo se usan para eso si lo aceptas.</p>
   <ul>
-    <li><b>Tu consentimiento lo gestiona la herramienta de Google</b> («Privacidad y mensajes»), certificada según el marco de transparencia y consentimiento de IAB Europe (TCF). El aviso tiene «Consentir» y «No consentir» al mismo nivel, y «Gestionar opciones» para elegir por finalidad y por socio. En «Gestionar opciones» verás la lista completa y actualizada de socios publicitarios, con sus finalidades y duraciones.</li>
+    <li><b>Tu consentimiento lo gestiona la herramienta de Google</b> («Privacidad y mensajes»), una plataforma de gestión del consentimiento certificada por Google e integrada en el marco de transparencia y consentimiento de IAB Europe (TCF). El aviso tiene «Consentir» y «No consentir» al mismo nivel, y «Gestionar opciones» para elegir por finalidad y por socio. En «Gestionar opciones» verás la lista completa y actualizada de socios publicitarios, con sus finalidades y duraciones.</li>
     <li><b>Si consientes</b>, Google y sus socios pueden guardar y leer cookies en tu dispositivo para mostrar y medir anuncios, limitar cuántas veces ves el mismo, prevenir el fraude y, si lo aceptas, personalizarlos.</li>
-    <li><b>Si no consientes</b>, no se usan cookies de publicidad. Puede que veas anuncios no personalizados o ninguno; la calculadora funciona igual.</li>
+    <li><b>Si no consientes</b>, no se usan cookies de publicidad. Puede que veas anuncios no personalizados o limitados, o ninguno; la calculadora funciona igual.</li>
     <li><b>Cambiar de opinión:</b> «Configurar cookies», en el pie de la calculadora, vuelve a abrir el aviso. Tu elección se guarda como máximo 13 meses; pasado ese tiempo, te lo volvemos a preguntar.</li>
+    <li><b>Desactivar la publicidad personalizada:</b> además, puedes desactivarla en la <a href="https://adssettings.google.com" rel="noopener">Configuración de anuncios de Google</a> y, para los anuncios de otros proveedores que usan cookies con este fin, en <a href="https://www.aboutads.info/choices/" rel="noopener">www.aboutads.info</a> o en <a href="https://youronlinechoices.eu" rel="noopener">youronlinechoices.eu</a>.</li>
   </ul>
   <p>Cookies habituales de Google en este servicio (la lista completa está en el aviso):</p>
   <div class="legal-tabla"><table>
     <thead><tr><th scope="col">Nombre</th><th scope="col">De quién</th><th scope="col">Para qué</th><th scope="col">Cuánto dura</th></tr></thead>
     <tbody>
       <tr><td><code>FCCDCF</code>, <code>FCNEC</code></td><td>Google (herramienta de consentimiento)</td><td>Guardar tu elección sobre las cookies</td><td>Hasta 13 meses</td></tr>
-      <tr><td><code>__gads</code>, <code>__gpi</code></td><td>Google</td><td>Mostrar y medir anuncios, limitar su repetición</td><td>13 meses</td></tr>
-      <tr><td><code>__eoi</code></td><td>Google</td><td>Seguridad y prevención del fraude</td><td>6 meses</td></tr>
-      <tr><td><code>IDE</code> (doubleclick.net)</td><td>Google</td><td>Anuncios personalizados, si los aceptas</td><td>13 meses</td></tr>
+      <tr><td><code>__gads</code>, <code>__gpi</code></td><td>Google (AdSense)</td><td>Mostrar y medir anuncios, limitar su repetición</td><td>13 meses</td></tr>
+      <tr><td><code>__eoi</code></td><td>Google (AdSense)</td><td>Seguridad y prevención del fraude</td><td>6 meses</td></tr>
+      <tr><td><code>IDE</code> (doubleclick.net)</td><td>Google (DoubleClick)</td><td>Anuncios personalizados, si los aceptas</td><td>13 meses</td></tr>
     </tbody>
   </table></div>
-  <p>Google puede tratar datos fuera del Espacio Económico Europeo, con las garantías que describe su <a href="https://business.safety.google/privacy/?hl=es" rel="noopener">información para empresas</a>. Cómo usa Google la información de las webs que usan sus servicios: <a href="https://policies.google.com/technologies/partner-sites?hl=es" rel="noopener">policies.google.com/technologies/partner-sites</a>.</p>
+  <p>Google puede tratar datos fuera del Espacio Económico Europeo, con las garantías que describe su <a href="https://business.safety.google/privacy/?hl=es" rel="noopener">información para empresas</a>. Cómo usa Google la información de las webs que usan sus servicios: <a href="https://policies.google.com/technologies/partner-sites?hl=es" rel="noopener">«Cómo usa Google la información de sitios web o aplicaciones que utilizan sus servicios»</a>. Más detalle en la <a href="privacidad.html#publicidad">política de privacidad</a>.</p>
   </section>
 
   <h2 id="borrar">4. Cómo borrarlo</h2>
@@ -112,16 +122,21 @@
 <footer class="pie">
   <div class="contenedor pie-in">
     <p><b>Mapafiscal</b> ofrece estimaciones con fines informativos. No es una liquidación oficial ni asesoramiento fiscal.</p>
-    <p class="pie-sec"><a href="aviso-legal.html">Aviso legal</a> · <a href="privacidad.html">Privacidad</a> · <a href="condiciones.html">Condiciones</a> · <a href="cookies.html">Cookies</a> · <a href="aviso-legal.html#contacto">Contacto</a> · <a href="../">Volver a la calculadora</a></p>
+    <p class="pie-sec"><a href="aviso-legal.html">Aviso legal</a> · <a href="privacidad.html">Privacidad</a> · <a href="condiciones.html">Condiciones</a> · <a href="cookies.html">Cookies</a> · <a href="../contacto/">Contacto</a> · <a href="../">Volver a la calculadora</a></p>
   </div>
 </footer>
 <script src="../config.js"></script>
 <script>
-// Con anuncios encendidos (config.js), muestra las partes de publicidad y oculta las otras.
+// Muestra solo lo que la web hace con la configuración actual (config.js): con anuncios, las
+// partes de publicidad; y las filas que dependen de un interruptor, solo con él encendido.
 (function () {
-  var con = !!(window.MAPAFISCAL_CONFIG && window.MAPAFISCAL_CONFIG.anuncios);
-  document.querySelectorAll("[data-con-anuncios]").forEach(function (el) { el.hidden = !con; });
-  document.querySelectorAll("[data-sin-anuncios]").forEach(function (el) { el.hidden = con; });
+  var cfg = window.MAPAFISCAL_CONFIG || {}, con = !!cfg.anuncios;
+  var ver = function (sel, si) { document.querySelectorAll(sel).forEach(function (el) { el.hidden = !si; }); };
+  ver("[data-con-anuncios]", con);
+  ver("[data-sin-anuncios]", !con);
+  ver("[data-consentimiento-propio]", con && cfg.consentimiento === "propio");
+  ver("[data-prueba-carriles]", con && Number(cfg.pruebaCarriles) > 0);
+  ver("[data-informe-anuncio]", !!cfg.informeAnuncio);
 })();
 </script>
 <script src="../js/ui.js"></script>

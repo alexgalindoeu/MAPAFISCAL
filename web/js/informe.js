@@ -9,7 +9,8 @@
  * Desbloqueo (decisión de Alex, negocio/otros-ingresos.md §1): plan de pago, pago único de
  * 1,99 € (interruptor `informePago`) o anuncio bonificado (interruptor `informeAnuncio`).
  * Aceptar cookies NO desbloquea. Con los dos interruptores apagados, basta con tener sesión
- * iniciada (decisión provisional para incentivar el registro). El PDF que no se ha pagado
+ * iniciada (decisión de Alex, issue #66): el informe es gratis con la cuenta gratuita; al
+ * encender cualquiera de los dos, vuelve el desbloqueo de pago. El PDF que no se ha pagado
  * (ni va incluido en un plan) lleva un banner propio: AdSense no funciona dentro de un PDF.
  *
  * app.js expone lo justo en window.MapafiscalApp y avisa con «mapafiscal:sesion».
@@ -27,7 +28,10 @@
     return (n < -0.004 ? "−" : "") + miles(v[0]) + (dec ? "," + v[1] : "") + " €";
   };
   const eur0 = n => eur(n, 0);
-  const pct = n => (100 * (n || 0)).toFixed(2).replace(".", ",") + " %";
+  // porcentajes con el criterio común de js/importe.js: pctTipo para tipos de tarifa (decimales
+  // justos), pctMedio para tipos medios y demás cocientes calculados (un decimal)
+  const fmtPct = () => (typeof window !== "undefined" && window.MapafiscalImporte) || require("./importe.js");
+  const pct = n => fmtPct().pctMedio(n), pctTipo = n => fmtPct().pctTipo(n);
   const num = x => (Number.isFinite(+x) ? +x : 0);
   const red2 = n => Math.round((n + 1e-9) * 100) / 100;
 
@@ -62,6 +66,10 @@
     opciones.push("plan");
     return { desbloqueado: false, via: null, banner: true, opciones };
   }
+
+  // ¿Basta la cuenta gratuita para el informe? Con el pago único y el anuncio bonificado
+  // apagados, sí. Lo usan los textos de Planes y de las preguntas frecuentes (app.js).
+  const gratisConCuenta = cfg => desbloqueo({ cfg, usuario: true, plan: "gratis" }).via === "registro";
 
   // ---- 2. contenido (todo sale del motor) -----------------------------------------------
   const NOMBRES_DED = {
@@ -289,8 +297,8 @@
     <div class="inf-cifra ${r.estado}"><span>${esc(r.rotulo)}</span><b>${eur(r.cifra)}</b></div>
     <dl class="inf-kpis">
       <div><dt>${esc(r.nombreCuota)}</dt><dd>${eur(r.cuota)}</dd></div>
-      <div><dt>Tipo medio efectivo</dt><dd>${pct(r.tipoMedio)}</dd></div>
-      <div><dt>Tipo marginal</dt><dd>${pct(r.tipoMarginal)}</dd></div>
+      <div><dt>Tipo medio sobre la base imponible</dt><dd>${pct(r.tipoMedio)}</dd></div>
+      <div><dt>Tipo marginal</dt><dd>${pctTipo(r.tipoMarginal)}</dd></div>
       <div><dt>Modalidad</dt><dd>${r.modo === "conjunta" ? "Conjunta" : "Individual"}${r.otraModalidad ? `<small>${r.otraModalidad.modo}: ${eur0(r.otraModalidad.cuota)}</small>` : ""}</dd></div>
     </dl>
     ${c.obligado === true ? '<p class="inf-nota">Con estos datos estás obligado a presentar la declaración (art. 96 LIRPF).</p>' : c.obligado === false ? '<p class="inf-nota">Con estos datos no estás obligado a declarar (art. 96 LIRPF).</p>' : ""}
@@ -366,7 +374,7 @@
     });
   }
 
-  const API = { desbloqueo, contenido, planOptimo, html, segundosEspera, crearEspera, conLimite, PRECIO: 1.99 };
+  const API = { desbloqueo, gratisConCuenta, contenido, planOptimo, html, segundosEspera, crearEspera, conLimite, PRECIO: 1.99 };
   if (typeof module !== "undefined" && module.exports) { module.exports = API; return; }
   window.MapafiscalInforme = API;
 
@@ -379,12 +387,14 @@
   const app = () => window.MapafiscalApp;
   const precioTxt = () => eur(num(CFG.informePrecio) || API.PRECIO);
 
-  let comprado = {};          // ejercicio -> true (informes_comprados)
+  let comprado = {};          // ejercicio -> true (informes_comprados sin reembolsar)
   async function comprobarCompra(ej) {
     const a = app(), s = a && a.sesion();
     if (!CFG.informePago || !a || !a.sb || !s.usuario) return false;
     if (comprado[ej]) return true;
-    const { data } = await a.sb.from("informes_comprados").select("id").eq("ejercicio", ej).limit(1);
+    // Un informe reembolsado (reembolsado_en, lo pone stripe-webhook) ya no cuenta como comprado.
+    const { data } = await a.sb.from("informes_comprados").select("id").eq("ejercicio", ej)
+      .is("reembolsado_en", null).limit(1);
     comprado[ej] = !!(data && data.length);
     return comprado[ej];
   }
@@ -435,12 +445,13 @@
   function candado(e) {
     const s = app().sesion();
     const OP = {
-      acceso: `<button class="btn btn-pri" type="button" data-inf="acceso">Crear cuenta gratis o entrar</button><p class="ayuda">Con la cuenta gratuita, el informe es gratis (por ahora).</p>`,
+      acceso: `<button class="btn btn-pri" type="button" data-inf="acceso">Crear cuenta gratis o entrar</button><p class="ayuda">Con tu cuenta gratuita, el informe completo es gratis.</p>`,
       anuncio: `<button class="btn btn-pri" type="button" data-inf="anuncio">Ver un anuncio (~1 minuto)</button>`,
       pago: `<button class="btn btn-sec" type="button" data-inf="pago">Pago único de ${precioTxt()}</button>${s.usuario ? "" : '<p class="ayuda">Para pagar hace falta una cuenta (gratis).</p>'}`,
       plan: `<a class="btn btn-txt" href="#planes" data-inf="planes">Incluido en el plan Gestor</a>`
     };
-    return `<div class="inf-candado tarjeta"><h2>Desbloquea tu informe completo</h2>
+    const titulo = e.opciones.includes("acceso") ? "Inicia sesión para descargar tu informe completo" : "Desbloquea tu informe completo";
+    return `<div class="inf-candado tarjeta"><h2>${titulo}</h2>
       <p>Desglose línea a línea, deducciones aplicadas con su norma y cómo pagar menos, en un PDF para guardar.</p>
       <div class="inf-opciones">${e.opciones.map(o => OP[o]).join("")}</div>
       <p class="ayuda">El resultado básico de la calculadora sigue siendo gratis y sin condiciones.</p>
@@ -544,7 +555,7 @@
     el.setAttribute("aria-labelledby", "inf-espera-tit");
     el.innerHTML = `<h2 id="inf-espera-tit" tabindex="-1">Preparando tu PDF</h2>
       <div class="inf-cifra ${r.estado}"><span>${esc(r.rotulo)} · ${esc(t.corto)} · ${ultimoContenido.ejercicio}</span><b>${eur(r.cifra)}</b></div>
-      <p class="inf-espera-kpis">Tipo medio ${pct(r.tipoMedio)} · tipo marginal ${pct(r.tipoMarginal)} · puesto ${ultimoContenido.comparacion.puesto} de ${ultimoContenido.comparacion.total} territorios</p>
+      <p class="inf-espera-kpis">Tipo medio sobre la base ${pct(r.tipoMedio)} · tipo marginal ${pctTipo(r.tipoMarginal)} · puesto ${ultimoContenido.comparacion.puesto} de ${ultimoContenido.comparacion.total} territorios</p>
       <div class="inf-rueda" aria-hidden="true"><span class="inf-rueda-giro"></span><span>Generando tu PDF…</span></div>
       <progress id="inf-espera-barra" max="${s}" value="0" aria-hidden="true"></progress>
       <p class="sr" role="status" id="inf-espera-estado">Tu PDF se descargará en ${s} segundos.</p>

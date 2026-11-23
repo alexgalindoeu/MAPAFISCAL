@@ -36,6 +36,11 @@ export const WEB_PUBLICA = "https://mapafiscal.es/";
 
 export function empaquetar() {
   let html = leer("index.html");
+  // En index.html los scripts van con `defer`; incrustados no lo admiten (defer solo vale con
+  // src), pero ya están al final del <body>, después de todo el cuerpo, y se ejecutan en el mismo
+  // orden. Los de <template id="js-herramientas"> quedan en línea dentro de la plantilla y los
+  // ejecuta app.js (cargarHerramientas), igual que en la web.
+  html = html.replace(/<script src="([^"]+)" defer><\/script>/g, '<script src="$1"></script>');
   const sustituir = (buscado, nuevo) => {
     if (!html.includes(buscado)) throw new Error("No se encuentra en index.html: " + buscado);
     html = html.replace(buscado, () => nuevo);

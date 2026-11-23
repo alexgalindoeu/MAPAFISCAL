@@ -101,7 +101,7 @@
       <dl>
         <div><dt>Neto al año</dt><dd id="w-anual">…</dd></div>
         <div><dt>IRPF al año</dt><dd id="w-irpf">…</dd></div>
-        <div><dt>Tipo medio de IRPF</dt><dd id="w-tipo">…</dd></div>
+        <div><dt>Tipo medio sobre el bruto</dt><dd id="w-tipo">…</dd></div>
       </dl>
       <p class="nota" id="w-nota"></p>
     </section>
@@ -123,7 +123,7 @@
   // Mismo formato que la portada (web/js/herramientas.js).
   const miles = s => s.replace(/\B(?=(\d{3})+(?!\d))/g, ".");
   const eur0 = n => (n < -0.004 ? "−" : "") + miles(Math.abs(n || 0).toFixed(0)) + " €";
-  const pct = n => (100 * (n || 0)).toFixed(1).replace(".", ",") + " %";
+  const pct = window.MapafiscalImporte.pctMedio;
 
   // Altura al padre: solo un número, y solo si está incrustado.
   let ultima = 0;

@@ -87,7 +87,7 @@ test("territorios forales: se remite a sus páginas y a la calculadora", () => {
 test("la vista existe en index.html, se empaqueta y se registra como herramienta", async () => {
   const html = readFileSync(new URL("../web/index.html", import.meta.url), "utf8");
   assert.match(html, /<section class="vista" id="v-encuentra-deducciones"/);
-  assert.match(html, /<script src="js\/deducciones.js"><\/script>/);
+  assert.match(html, /<script src="js\/deducciones.js" defer><\/script>/);
   assert.match(html, /id="anuncio-col-deducciones"/);
   const { empaquetar } = await import("../tools/empaquetar.mjs");
   const dist = empaquetar();

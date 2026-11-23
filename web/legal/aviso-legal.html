@@ -33,7 +33,7 @@
 <main class="contenedor legal">
 <article class="tarjeta legal-texto">
   <h1>Aviso legal</h1>
-  <p class="legal-fecha">Versión de 27 de septiembre de 2026</p>
+  <p class="legal-fecha">Versión de 23 de noviembre de 2026</p>
 
   <h2 id="titular">1. Quién está detrás de Mapafiscal</h2>
   <p>Mapafiscal es el nombre comercial de esta web y de sus servicios. Para cualquier comunicación, estos son sus datos de contacto:</p>
@@ -49,6 +49,7 @@
   <h2 id="objeto">3. Qué ofrece Mapafiscal</h2>
   <ul>
     <li><b>Una calculadora gratuita</b> del impuesto sobre la renta de las personas físicas (IRPF) del ejercicio 2025, que compara el resultado en los 19 territorios fiscales de España. No necesita registro y los datos que escribes se procesan en tu navegador.</li>
+    <li><b>El informe completo de la declaración en PDF</b>, que se pide desde la calculadora. <span data-informe-gratis>Es gratuito para quien inicia sesión con una cuenta, que también es gratuita.</span><span data-informe-pago hidden>Se desbloquea como se indica al pedirlo, con el precio y el IVA a la vista antes de pagar, y va incluido en el plan Gestor.</span></li>
     <li><b>El plan Gestor</b>, un servicio de pago para profesionales de la asesoría fiscal que permite guardar y recalcular la situación de sus clientes. Se rige por sus <a href="condiciones.html">condiciones</a>. Los precios se muestran en «Planes», con el IVA incluido.</li>
   </ul>
 
@@ -78,7 +79,7 @@
   </ul>
 
   <h2 id="datos">8. Datos personales y cookies</h2>
-  <p>Cómo tratamos los datos personales se explica en la <a href="privacidad.html">política de privacidad</a>. Lo que la web guarda en tu navegador se explica en la <a href="cookies.html">política de cookies</a>.</p>
+  <p>Cómo tratamos los datos personales se explica en la <a href="privacidad.html">política de privacidad</a>. Lo que la web guarda en tu navegador se explica en la <a href="cookies.html">política de cookies</a>.<span data-con-anuncios hidden> La web muestra anuncios de Google a quien no tiene un plan de pago: Google y sus socios solo usan cookies de publicidad si lo aceptas en su aviso, y cómo hacerlo o desactivar los anuncios personalizados se explica en la <a href="cookies.html#publicidad">política de cookies</a>.</span></p>
 
   <h2 id="ley">9. Ley aplicable</h2>
   <p>Este aviso se rige por la legislación española. Cualquier controversia se resolverá en los juzgados y tribunales que correspondan según la ley. Si eres consumidor, serán los de tu domicilio.</p>
@@ -88,10 +89,20 @@
 <footer class="pie">
   <div class="contenedor pie-in">
     <p><b>Mapafiscal</b> ofrece estimaciones con fines informativos. No es una liquidación oficial ni asesoramiento fiscal.</p>
-    <p class="pie-sec"><a href="aviso-legal.html">Aviso legal</a> · <a href="privacidad.html">Privacidad</a> · <a href="condiciones.html">Condiciones</a> · <a href="cookies.html">Cookies</a> · <a href="aviso-legal.html#contacto">Contacto</a> · <a href="../">Volver a la calculadora</a></p>
+    <p class="pie-sec"><a href="aviso-legal.html">Aviso legal</a> · <a href="privacidad.html">Privacidad</a> · <a href="condiciones.html">Condiciones</a> · <a href="cookies.html">Cookies</a> · <a href="../contacto/">Contacto</a> · <a href="../">Volver a la calculadora</a></p>
   </div>
 </footer>
 <script src="../config.js"></script>
+<script>
+// Partes que dependen de config.js: anuncios y vía de desbloqueo del informe (js/informe.js).
+(function () {
+  var cfg = window.MAPAFISCAL_CONFIG || {}, gratis = !cfg.informePago && !cfg.informeAnuncio;
+  var ver = function (sel, si) { document.querySelectorAll(sel).forEach(function (el) { el.hidden = !si; }); };
+  ver("[data-con-anuncios]", !!cfg.anuncios);
+  ver("[data-informe-gratis]", gratis);
+  ver("[data-informe-pago]", !gratis);
+})();
+</script>
 <script src="../js/ui.js"></script>
 </body>
 </html>

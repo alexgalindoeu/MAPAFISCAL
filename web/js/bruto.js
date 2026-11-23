@@ -64,7 +64,7 @@
   const miles = s => s.replace(/\B(?=(\d{3})+(?!\d))/g, ".");
   const eur0 = n => (n < -0.5 ? "−" : "") + miles(Math.abs(Math.round(n || 0)).toString()) + " €";
   const conSigno = n => (n > 0.5 ? "+" : "") + eur0(n);
-  const pct = n => (100 * (n || 0)).toFixed(1).replace(".", ",") + " %";
+  const pct = n => ((typeof window !== "undefined" && window.MapafiscalImporte) || require("./importe.js")).pctMedio(n);
   // importes en formato español (js/importe.js); sin el módulo (tests), como antes
   const leer = id => window.MapafiscalImporte ? window.MapafiscalImporte.valor($(id)) : parseFloat($(id).value);
   const num = id => { const v = leer(id); return Number.isFinite(v) ? Math.max(0, Math.min(TOPE / 2, v)) : 0; };

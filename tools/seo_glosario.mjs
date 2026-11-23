@@ -12,7 +12,7 @@ import { readFileSync, readdirSync } from "node:fs";
 import { createRequire } from "node:module";
 import { join, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
-import { SITIO, HERRAMIENTA, esc, euros, eurosExactos, pct, pctCorto, layout, jsonLdMigas, migasHtml, tituloQueQuepa, combinarEscalas, LIRPF_BOE, urlBoe } from "./seo_comun.mjs";
+import { SITIO, HERRAMIENTA, esc, euros, eurosExactos, pctMedio, pctTipo, layout, jsonLdMigas, migasHtml, tituloQueQuepa, combinarEscalas, LIRPF_BOE, urlBoe } from "./seo_comun.mjs";
 import { ejemploPasoAPaso } from "./seo_foral.mjs";
 
 const require = createRequire(import.meta.url);
@@ -127,22 +127,26 @@ export const TERMINOS = [
     rel: ["tipo-medio", "escala-gravamen", "base-liquidable", "cuota-integra"],
     usa: [["Tramos del IRPF 2025 y 2026", "/guias/tramos-irpf-2025-2026/"], ["IRPF en Madrid", "/irpf/madrid/"],
       ["Tipo marginal en Bizkaia por sueldo", "/irpf/bizkaia/#tipos-por-sueldo"], ["Tipo marginal en Navarra por sueldo", "/irpf/navarra/#tipos-por-sueldo"]],
-    ejemplo: d => `<p>Con una base liquidable de ${esc(ex(d.liq.baseLiquidableGeneral))}, el tipo marginal estatal es del ${esc(pctCorto(d.marg.estatal))} y el autonómico de Madrid, del ${esc(pctCorto(d.marg.autonomico))}: en total, <b>${esc(pctCorto(Math.round((d.marg.estatal + d.marg.autonomico) * 10000) / 10000))}</b> sobre el siguiente euro de base.</p>${pie(d)}` },
+    ejemplo: d => `<p>Con una base liquidable de ${esc(ex(d.liq.baseLiquidableGeneral))}, el tipo marginal estatal es del ${esc(pctTipo(d.marg.estatal))} y el autonómico de Madrid, del ${esc(pctTipo(d.marg.autonomico))}: en total, <b>${esc(pctTipo(Math.round((d.marg.estatal + d.marg.autonomico) * 10000) / 10000))}</b> sobre el siguiente euro de base.</p>${pie(d)}` },
   { slug: "tipo-medio", nombre: "Tipo medio", titulo: "Tipo medio del IRPF: qué es y cómo se calcula",
     patron: "tipos? medios?(?: efectivos?)?",
-    def: ["El tipo medio es el porcentaje que representa el IRPF sobre tu renta. La ley define el tipo medio de gravamen como la cuota que sale de la escala dividida entre la base liquidable; en Mapafiscal mostramos el tipo medio efectivo, que divide la cuota líquida entre el sueldo bruto, para comparar territorios con una cifra fácil de entender.",
-      "Siempre es más bajo que el tipo marginal, porque los primeros euros tributan a tipos menores y el mínimo personal no paga impuesto."],
+    def: ["El tipo medio es el porcentaje que representa el IRPF del año sobre tu renta. Hay dos formas de calcularlo, según se divida entre el sueldo bruto o entre la base imponible, y dan cifras distintas.",
+      "Tipo medio sobre el sueldo bruto: el IRPF del año dividido entre el sueldo bruto anual. Dice qué parte de lo que ganas se va en IRPF y es el que usan las guías, las páginas de sueldo neto, las comparativas de territorios y la calculadora rápida.",
+      "Tipo medio sobre la base imponible: el IRPF del año dividido entre la base imponible (general más ahorro), que es el sueldo menos las cotizaciones a la Seguridad Social y los gastos y reducciones del trabajo. Es el que da el motor de cálculo en la calculadora completa. Como la base es menor que el bruto, este porcentaje es más alto que el otro para el mismo IRPF.",
+      "La ley usa además el tipo medio de gravamen, que es otra cosa: la cuota que sale de la escala dividida entre la base liquidable, y sirve para calcular algunas deducciones.",
+      "Tanto sobre el bruto como sobre la base, el tipo medio es siempre más bajo que el tipo marginal, porque los primeros euros tributan a tipos menores y el mínimo personal no paga impuesto."],
     norma: art("Arts. 63.2 y 74.2 de la Ley 35/2006"),
     rel: ["tipo-marginal", "cuota-liquida", "escala-gravamen", "base-liquidable"],
     usa: [["Comparar territorios", HERRAMIENTA.comparar], ["Dónde se paga menos IRPF", "/comparar-sueldo/"]],
-    ejemplo: d => `<p>${esc(ex(d.fila.cuota_liquida_total))} de cuota líquida sobre 30.000 € brutos: tipo medio efectivo del <b>${esc(pct(d.fila.tipo_medio_efectivo))}</b>, frente a un tipo marginal del ${esc(pctCorto(Math.round((d.marg.estatal + d.marg.autonomico) * 10000) / 10000))}.</p>${pie(d)}` },
+    ejemplo: d => { const bi = d.liq.baseImponibleGeneral + d.liq.baseImponibleAhorro, marg = pctTipo(Math.round((d.marg.estatal + d.marg.autonomico) * 10000) / 10000);
+      return `<p>${esc(ex(d.fila.cuota_liquida_total))} de cuota líquida con 30.000 € brutos en Madrid:</p><ul><li>tipo medio sobre el sueldo bruto: ${esc(ex(d.fila.cuota_liquida_total))} entre 30.000 € = <b>${esc(pctMedio(d.fila.cuota_liquida_total / 30000))}</b>;</li><li>tipo medio sobre la base imponible: ${esc(ex(d.fila.cuota_liquida_total))} entre ${esc(ex(bi))} de base = <b>${esc(pctMedio(d.fila.tipo_medio_efectivo))}</b>.</li></ul><p>Los dos, muy por debajo del tipo marginal, del ${esc(marg)}.</p>${pie(d)}`; } },
   { slug: "escala-gravamen", nombre: "Escala de gravamen (tramos)", titulo: "Tramos del IRPF (escala de gravamen): qué son",
     def: ["La escala de gravamen es la tabla de tramos y tipos que convierte la base liquidable en cuota. Es progresiva: cada tramo de base paga su propio porcentaje, que sube a medida que sube la renta.",
       "En régimen común hay una escala estatal y otra autonómica, que se suman; la base del ahorro tiene escalas propias. Las haciendas forales del País Vasco y Navarra aplican una tarifa única y completa."],
     norma: art("Arts. 63, 66, 74 y 76 de la Ley 35/2006"),
     rel: ["tipo-marginal", "tipo-medio", "cuota-integra", "base-ahorro", "regimen-foral"],
     usa: [["Tramos del IRPF 2025 y 2026", "/guias/tramos-irpf-2025-2026/"], ["IRPF por territorio", "/irpf/"]],
-    ejemplo: d => { const e = d.P.estatal.escala_general_estatal; return `<p>La escala estatal de ${esc(d.ej)} tiene ${e.length} tramos, del ${esc(pctCorto(e[0].tipo))} al ${esc(pctCorto(e[e.length - 1].tipo))}. Con 30.000 € en Madrid, la base cae en el tramo estatal del ${esc(pctCorto(d.marg.estatal))}.</p>${pie(d)}`; } },
+    ejemplo: d => { const e = d.P.estatal.escala_general_estatal; return `<p>La escala estatal de ${esc(d.ej)} tiene ${e.length} tramos, del ${esc(pctTipo(e[0].tipo))} al ${esc(pctTipo(e[e.length - 1].tipo))}. Con 30.000 € en Madrid, la base cae en el tramo estatal del ${esc(pctTipo(d.marg.estatal))}.</p>${pie(d)}`; } },
   { slug: "retencion", nombre: "Retención", titulo: "Retención del IRPF: qué es y cómo funciona",
     patron: "retenci(?:ón|ones)",
     def: ["La retención es la parte del sueldo, la pensión u otras rentas que el pagador (tu empresa, el banco, el inquilino que es empresa) se queda y entrega a Hacienda a cuenta de tu IRPF. Es un adelanto: no es el impuesto definitivo.",
@@ -204,7 +208,7 @@ export const TERMINOS = [
     rel: ["base-imponible", "rendimientos-capital-mobiliario", "ganancia-patrimonial", "escala-gravamen"],
     usa: [["Tramos del IRPF 2025 y 2026", "/guias/tramos-irpf-2025-2026/"], ["Calculadora del IRPF", HERRAMIENTA.calculadora]],
     ejemplo: d => { const E = d.P.estatal, s = combinarEscalas(E.escala_ahorro_estatal, E.escala_ahorro_autonomica);
-      return `<p>En ${esc(d.ej)}, en régimen común, la escala del ahorro (estatal más autonómica) va del ${esc(pctCorto(s[0].tipo))} hasta ${esc(euros(s[0].hasta))} al ${esc(pctCorto(s[s.length - 1].tipo))} a partir de ${esc(euros(s[s.length - 2].hasta))}, en ${s.length} tramos. Es la que aplica la calculadora.</p>`; } },
+      return `<p>En ${esc(d.ej)}, en régimen común, la escala del ahorro (estatal más autonómica) va del ${esc(pctTipo(s[0].tipo))} hasta ${esc(euros(s[0].hasta))} al ${esc(pctTipo(s[s.length - 1].tipo))} a partir de ${esc(euros(s[s.length - 2].hasta))}, en ${s.length} tramos. Es la que aplica la calculadora.</p>`; } },
   { slug: "tributacion-conjunta", nombre: "Tributación conjunta", titulo: "Tributación conjunta en el IRPF: qué es y cuándo conviene",
     patron: "(?:tributación|declaración|declaraciones) conjuntas?",
     def: ["La tributación conjunta es la opción de presentar una sola declaración para toda la unidad familiar: el matrimonio con sus hijos menores, o el padre o la madre con los hijos que conviven con él o ella. Las rentas de todos se suman y, a cambio, se aplica una reducción en la base.",
@@ -266,14 +270,14 @@ export const TERMINOS = [
     norma: art("Arts. 51 y 52 de la Ley 35/2006"),
     rel: ["base-liquidable", "tipo-marginal", "rendimientos-trabajo"],
     usa: [["Plan de pensiones: cuánto desgrava", "/guias/plan-pensiones-desgravar/"], ["Calculadora del plan de pensiones", HERRAMIENTA.planPensiones], ["Rescate del plan de pensiones", "/rescate-plan-pensiones/"]],
-    ejemploG: g => { const r = g.prevision_social.reduccion; return `<p>Límite general de aportación propia en ${esc(g.ejercicio)}: <b>${esc(euros(r.limite_general_abs))}</b> al año y no más del ${esc(pctCorto(r.limite_general_pct_rend))} de los rendimientos netos del trabajo y de actividades (${esc(r.norma)}).</p>`; } },
+    ejemploG: g => { const r = g.prevision_social.reduccion; return `<p>Límite general de aportación propia en ${esc(g.ejercicio)}: <b>${esc(euros(r.limite_general_abs))}</b> al año y no más del ${esc(pctTipo(r.limite_general_pct_rend))} de los rendimientos netos del trabajo y de actividades (${esc(r.norma)}).</p>`; } },
   { slug: "deduccion-donativos", nombre: "Deducción por donativos", titulo: "Deducción por donativos en el IRPF: qué es",
     def: ["La deducción por donativos permite restar de la cuota un porcentaje de lo donado a ONG, fundaciones y otras entidades acogidas a la Ley 49/2002, y a otras entidades con un porcentaje menor. Los primeros euros donados deducen más que el resto, y la donación recurrente a la misma entidad eleva el porcentaje.",
       "La base de la deducción tiene un límite en proporción a la base liquidable. Muchas comunidades autónomas añaden deducciones propias por donativos."],
     norma: art("Art. 68.3 de la Ley 35/2006 y art. 19 de la Ley 49/2002"),
     rel: ["cuota-liquida", "deduccion-autonomica", "base-liquidable"],
     usa: [["Guía de la deducción por donativos", "/guias/deduccion-donativos/"], ["¿Cuánto me devuelve un donativo?", "/cuanto-me-devuelve/donativo/"]],
-    ejemploG: g => { const l = g.donativos.estatal.ley49_2002; return `<p>En ${esc(g.ejercicio)}: el ${esc(pctCorto(l.tramo1_porcentaje))} de los primeros ${esc(euros(l.tramo1_limite))} y el ${esc(pctCorto(l.resto_porcentaje))} del resto (${esc(pctCorto(l.resto_porcentaje_recurrente))} si es recurrente), con una base máxima del ${esc(pctCorto(l.limite_base_liquidable_pct))} de la base liquidable (${esc(g.donativos.estatal.norma)}).</p>`; } },
+    ejemploG: g => { const l = g.donativos.estatal.ley49_2002; return `<p>En ${esc(g.ejercicio)}: el ${esc(pctTipo(l.tramo1_porcentaje))} de los primeros ${esc(euros(l.tramo1_limite))} y el ${esc(pctTipo(l.resto_porcentaje))} del resto (${esc(pctTipo(l.resto_porcentaje_recurrente))} si es recurrente), con una base máxima del ${esc(pctTipo(l.limite_base_liquidable_pct))} de la base liquidable (${esc(g.donativos.estatal.norma)}).</p>`; } },
   { slug: "rentas-exentas", nombre: "Rentas exentas", titulo: "Rentas exentas del IRPF: qué son",
     def: ["Las rentas exentas son ingresos que la ley deja fuera del IRPF aunque se cobren: entre otros, algunas indemnizaciones por despido dentro de límites, las prestaciones por incapacidad permanente absoluta o gran invalidez, ciertas becas, determinados premios y las ayudas públicas por nacimiento o adopción.",
       "No se declaran ni cuentan para la base imponible. Ojo: que una renta esté exenta no significa que no cuente para otras cosas, como los límites de renta de algunas deducciones autonómicas."],

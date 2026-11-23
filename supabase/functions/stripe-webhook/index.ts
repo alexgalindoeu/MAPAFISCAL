@@ -1,8 +1,10 @@
 // POST /functions/v1/stripe-webhook  (lo llama Stripe; sin JWT, verificado por firma)
 // Mantiene `suscripciones` y `perfiles.plan` sincronizados con Stripe, y apunta en
-// `informes_comprados` los pagos únicos del informe completo (crear-checkout, producto "informe").
+// `informes_comprados` los pagos únicos del informe completo (crear-checkout, producto "informe"):
+// solo si cuadran con el precio (importe, moneda, modo) y los revoca si se reembolsan.
 import Stripe from "npm:stripe@17.7.0";
-import { ACTIVOS, admin, stripe } from "../_shared/comun.ts";
+import { ACTIVOS, admin, precio, stripe } from "../_shared/comun.ts";
+import { esSesionInforme, registrarInforme, revocarInforme } from "./informe.mjs";
 
 const respuesta = (body: unknown, status = 200) =>
   new Response(JSON.stringify(body), { status, headers: { "Content-Type": "application/json; charset=utf-8" } });
@@ -68,18 +70,46 @@ async function sincronizar(s: Stripe, id: string) {
   if (e2) throw e2;
 }
 
-// Pago único del informe completo: una fila por sesión de Checkout pagada (repetir el evento no duplica).
-async function registrarInforme(ses: Stripe.Checkout.Session) {
-  if (ses.mode !== "payment" || ses.metadata?.producto !== "informe" || ses.payment_status !== "paid") return;
-  const usuarioId = ses.metadata?.gestor_id ?? ses.client_reference_id;
-  const ejercicio = Number(ses.metadata?.ejercicio);
-  if (!usuarioId || !Number.isInteger(ejercicio)) return;
-  const { error } = await admin().from("informes_comprados").upsert({
-    usuario_id: usuarioId, ejercicio, sesion_proveedor_id: ses.id,
-    importe_centimos: ses.amount_total ?? null, moneda: ses.currency ?? null,
-  }, { onConflict: "sesion_proveedor_id", ignoreDuplicates: true });
-  if (error?.code === "23503") { console.warn("webhook: cuenta inexistente", usuarioId); return; }
-  if (error) throw error;
+// Pago único del informe completo (lógica en informe.mjs, probada en test/stripe_webhook.test.mjs).
+// Como con las suscripciones, no se fía del objeto del evento: relee la sesión y el cargo de
+// Stripe, y escribe de forma idempotente (repetir un evento no duplica ni cambia nada).
+function depsInforme(s: Stripe) {
+  const db = admin();
+  return {
+    leerSesion: (id: string) =>
+      s.checkout.sessions.retrieve(id, { expand: ["line_items", "payment_intent.latest_charge"] }),
+    // El mismo precio que cobra crear-checkout: STRIPE_PRICE_INFORME_UNICO o lookup_key informe_unico.
+    precioEsperado: async () => {
+      const id = await precio(s, "informe", "unico");
+      if (!id) return null;
+      const p = await s.prices.retrieve(id);
+      return { precio: p.id, importe: p.unit_amount, moneda: p.currency };
+    },
+    guardarInforme: async (fila: Record<string, unknown>) => {
+      const { error } = await db.from("informes_comprados")
+        .upsert(fila, { onConflict: "sesion_proveedor_id", ignoreDuplicates: true });
+      if (error?.code === "23503") { console.warn("webhook: cuenta inexistente", fila.usuario_id); return; }
+      if (error) throw error;
+    },
+    leerCargo: (id: string) => s.charges.retrieve(id, { expand: ["refunds"] }),
+    sesionDePago: async (pi: string) =>
+      (await s.checkout.sessions.list({ payment_intent: pi, limit: 1 })).data[0]?.id ?? null,
+    // Por payment_intent y, para las filas apuntadas antes de guardarlo, por la sesión.
+    marcarReembolsado: async ({ pago, sesion, fecha }: { pago: string; sesion: string | null; fecha: string }) => {
+      let n = 0;
+      for (const [col, val] of [["pago_proveedor_id", pago], ["sesion_proveedor_id", sesion]] as const) {
+        if (!val) continue;
+        const { error, count } = await db.from("informes_comprados")
+          .update({ reembolsado_en: fecha, pago_proveedor_id: pago }, { count: "exact" })
+          .eq(col, val).is("reembolsado_en", null);
+        if (error) throw error;
+        n += count ?? 0;
+      }
+      return n;
+    },
+    log: (nivel: "info" | "warn" | "error", mensaje: string, datos: unknown) =>
+      console[nivel](mensaje, JSON.stringify(datos)),
+  };
 }
 
 Deno.serve(async (req) => {
@@ -105,11 +135,16 @@ Deno.serve(async (req) => {
         if (ses.subscription) {
           await sincronizar(s, typeof ses.subscription === "string" ? ses.subscription : ses.subscription.id);
         }
-        await registrarInforme(ses);
+        if (esSesionInforme(ses)) await registrarInforme(ses.id, depsInforme(s));
         break;
       }
-      case "checkout.session.async_payment_succeeded":   // métodos de pago diferido
-        await registrarInforme(evento.data.object as Stripe.Checkout.Session);
+      case "checkout.session.async_payment_succeeded": {  // métodos de pago diferido
+        const ses = evento.data.object as Stripe.Checkout.Session;
+        if (esSesionInforme(ses)) await registrarInforme(ses.id, depsInforme(s));
+        break;
+      }
+      case "charge.refunded":                              // reembolso: revoca el informe
+        await revocarInforme((evento.data.object as Stripe.Charge).id, depsInforme(s));
         break;
       case "customer.subscription.created":
       case "customer.subscription.updated":

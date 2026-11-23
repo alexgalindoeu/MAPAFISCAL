@@ -13,7 +13,7 @@ import { readFileSync, readdirSync } from "node:fs";
 import { createRequire } from "node:module";
 import { join, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
-import { SLUG, NOMBRE_CORTO, esc, euros, pct, pctCorto, textoPlano, tablaEscala, layout, jsonLdMigas, jsonLdFaq, bloqueFaq, migasHtml } from "./seo_comun.mjs";
+import { SLUG, NOMBRE_CORTO, esc, euros, pctMedio, pctTipo, textoPlano, tablaEscala, layout, jsonLdMigas, jsonLdFaq, bloqueFaq, migasHtml } from "./seo_comun.mjs";
 
 const require = createRequire(import.meta.url);
 const WEB = join(dirname(fileURLToPath(import.meta.url)), "..", "web");
@@ -55,7 +55,8 @@ const minus = s => s.toLowerCase().replace("epsv", "EPSV");
 const eIrpf = v => v < 0 ? `0 € (y te devuelven ${euros(-v)})` : euros(v);
 const e2 = n => euros(n);
 const cta = (txt, href, sec) => `<p><a class="btn btn-pri" href="${href}">${esc(txt)}</a>${sec ? ` <a class="btn btn-sec" href="${sec[1]}">${esc(sec[0])}</a>` : ""}</p>`;
-const tabla = (cab, filas) => `<div class="envoltorio"><table class="cobertura"><thead><tr>${cab.map(([c, n]) => `<th${n ? ' class="num"' : ""}>${esc(c)}</th>`).join("")}</tr></thead><tbody>${filas.join("")}</tbody></table></div>`;
+// Con `etiqueta`, la envoltura se puede enfocar para desplazarla con el teclado (tablas anchas).
+const tabla = (cab, filas, etiqueta) => `<div class="envoltorio"${etiqueta ? ` tabindex="0" role="region" aria-label="${esc(etiqueta)}"` : ""}><table class="cobertura"><thead><tr>${cab.map(([c, n]) => `<th${n ? ' class="num"' : ""}>${esc(c)}</th>`).join("")}</tr></thead><tbody>${filas.join("")}</tbody></table></div>`;
 const fila = celdas => `<tr>${celdas.map(([v, n]) => `<td${n ? ' class="num"' : ""}>${v}</td>`).join("")}</tr>`;
 const norma = x => x && x.norma ? `<p class="cita">Norma: ${esc(x.norma)}.</p>` : "";
 
@@ -125,8 +126,8 @@ function pSimulador(P, t, generado) {
   const n = nombreDe(P, t), c = corto(t), J = juris(P, t), ej = P.ejercicio;
   const ant = publicados(P).includes(ej - 1) ? ej - 1 : null;
   const filas = BRUTOS.map(b => { const x = irpf(P, t, [asalariado(P, b)]);
-    return fila([[esc(e2(b))], [esc(e2(x.liq.baseLiquidableGeneral)), 1], [esc(e2(x.irpf)), 1], [esc(pct(x.irpf / b)), 1],
-      [esc(pct(motor.tipoMarginal(x.liq.baseLiquidableGeneral, J.escala_general_foral))), 1]]); });
+    return fila([[esc(e2(b))], [esc(e2(x.liq.baseLiquidableGeneral)), 1], [esc(e2(x.irpf)), 1], [esc(pctMedio(x.irpf / b)), 1],
+      [esc(pctTipo(motor.tipoMarginal(x.liq.baseLiquidableGeneral, J.escala_general_foral))), 1]]); });
   const ej30 = irpf(P, t, [asalariado(P, 30000)]).irpf;
   // Ejemplos de hogares liquidados con el motor (la calculadora elige la tributación más barata).
   const pareja = { id: "d2", rol: "conyuge", edad: 38 };
@@ -138,7 +139,7 @@ function pSimulador(P, t, generado) {
     ["Pensionista de 67 años con 22.000 € de pensión", [pensionista(22000, 67)], {}, 22000]
   ].map(([txt, miembros, extra, ingresos]) => { const x = irpf(P, t, miembros, extra);
     return { txt, irpf: x.irpf, modo: MODO[x.liq.modoTributacionElegido] || "individual", medio: x.irpf / ingresos }; });
-  const filasCasos = casos.map(k => fila([[esc(k.txt)], [esc(k.modo)], [esc(eIrpf(k.irpf)), 1], [esc(pct(Math.max(0, k.medio))), 1]]));
+  const filasCasos = casos.map(k => fila([[esc(k.txt)], [esc(k.modo)], [esc(eIrpf(k.irpf)), 1], [esc(pctMedio(Math.max(0, k.medio))), 1]]));
   const fam = casos[2];
   const qs = [
     [`¿Hay un simulador de la renta ${ej} de ${c}?`, `Sí. La calculadora de Mapafiscal aplica la normativa foral de ${n} de ${ej}: la tarifa, ${esPv(t) ? "la bonificación del trabajo, la minoración de la cuota" : "las deducciones por mínimo personal y familiar, la deducción por trabajo"} y las deducciones familiares y personales. El enlace de esta página la abre con ${c} ya elegido.`],
@@ -155,12 +156,12 @@ function pSimulador(P, t, generado) {
   <div class="tarjeta"><h2 class="rotulo">Cómo se calcula la renta en ${esc(n)}</h2><p>${rasgoForal(P, t)}</p>
     <p>La declaración se presenta ante ${esc(HACIENDA[t])}, de ${esc(INSTITUCION[t])}, con calendario y programa propios. Aquí puedes simularla antes: el resultado sale de la misma normativa (${esc(NORMA[t])}). <a href="${ruta(t)}#renta">Más sobre la renta en ${esc(c)}</a>.</p></div>
   <div class="tarjeta tarjeta-tabla"><h2 class="rotulo">Ejemplos de la renta ${ej} en ${esc(c)}</h2>
-    <p class="ayuda">IRPF del año tras la declaración, calculado con el mismo motor que el simulador. Sueldos con contrato indefinido; tipo medio sobre los ingresos brutos del hogar.</p>
-    ${tabla([["Caso"], ["Declaración"], ["IRPF", 1], ["Tipo medio", 1]], filasCasos)}</div>
+    <p class="ayuda">IRPF del año tras la declaración, calculado con el mismo motor que el simulador. Sueldos con contrato indefinido; tipo medio sobre el bruto: IRPF entre los ingresos brutos del hogar.</p>
+    ${tabla([["Caso"], ["Declaración"], ["IRPF", 1], ["Tipo medio sobre el bruto", 1]], filasCasos)}</div>
   <div class="tarjeta"><h2 class="rotulo">Tarifa general de ${esc(n)} (${ej})</h2>${tablaEscala(J.escala_general_foral, "Tramo de la base liquidable general")}</div>
   <div class="tarjeta tarjeta-tabla"><h2 class="rotulo">Cuánto IRPF sale con tu sueldo en ${esc(n)}</h2>
-    <p class="ayuda">Supuesto: persona soltera de 40 años, sin hijos, solo con su sueldo, contrato indefinido. IRPF del año tras la declaración. Tipo medio: IRPF entre sueldo bruto; tipo marginal: el de la tarifa en el último euro de la base.</p>
-    ${tabla([["Sueldo bruto"], ["Base liquidable", 1], ["IRPF", 1], ["Tipo medio", 1], ["Tipo marginal", 1]], filas)}</div>
+    <p class="ayuda">Supuesto: persona soltera de 40 años, sin hijos, solo con su sueldo, contrato indefinido. IRPF del año tras la declaración. Tipo medio sobre el sueldo bruto: IRPF entre sueldo bruto; tipo marginal: el de la tarifa en el último euro de la base.</p>
+    ${tabla([["Sueldo bruto"], ["Base liquidable", 1], ["IRPF", 1], ["Tipo medio sobre el bruto", 1], ["Tipo marginal", 1]], filas)}</div>
   ${botones}`;
   return pagina(P, t, "simulador-renta", { h1: `Simulador renta ${ej} ${c}: tu IRPF con la normativa foral`,
     entradilla: `Calcula tu renta ${ej} de ${esc(n)} con su normativa foral: tarifa, reducciones y deducciones propias. Con 30.000 € de sueldo, una persona soltera paga <b>${esc(e2(ej30))}</b> al año.`,
@@ -241,7 +242,7 @@ function pFamiliaNumerosa(P, t, generado) {
   if (esPv(t)) {
     const d = J.deduccion_descendientes, a = J.deduccion_alquiler_vivienda, q = J.deduccion_adquisicion_vivienda;
     importes = `<p>Deducción por descendientes, por cada hijo: ${["1", "2", "3", "4", "5+"].map((k, i) => `${esc(e2(d.importes[k]))} el ${["primero", "segundo", "tercero", "cuarto", "quinto y siguientes"][i]}`).join(", ")}. Se suman ${esc(e2(d.incremento_menor_6_anios))} por cada hijo menor de 6 años${d.incremento_6_a_15_anios ? ` y ${esc(e2(d.incremento_6_a_15_anios))} por cada uno de 6 a 15` : ""}.</p>${norma(d)}
-    <p>Las familias numerosas tienen además el porcentaje incrementado en vivienda: alquiler, ${esc(pctCorto(a.colectivo_especial.porcentaje))} con un máximo de ${esc(e2(a.colectivo_especial.limite))} (frente al ${esc(pctCorto(a.general.porcentaje))} y ${esc(e2(a.general.limite))}); compra, ${esc(pctCorto(q.colectivo_especial.porcentaje))} con ${esc(e2(q.colectivo_especial.limite_anual))} al año (frente al ${esc(pctCorto(q.general.porcentaje))} y ${esc(e2(q.general.limite_anual))}).</p>${norma(a)}`;
+    <p>Las familias numerosas tienen además el porcentaje incrementado en vivienda: alquiler, ${esc(pctTipo(a.colectivo_especial.porcentaje))} con un máximo de ${esc(e2(a.colectivo_especial.limite))} (frente al ${esc(pctTipo(a.general.porcentaje))} y ${esc(e2(a.general.limite))}); compra, ${esc(pctTipo(q.colectivo_especial.porcentaje))} con ${esc(e2(q.colectivo_especial.limite_anual))} al año (frente al ${esc(pctTipo(q.general.porcentaje))} y ${esc(e2(q.general.limite_anual))}).</p>${norma(a)}`;
   } else {
     const d = J.minimo_familiar_deduccion.descendientes, r = J.minimo_familiar_deduccion.incremento_rentas_descendientes;
     importes = `<p>Deducción por mínimo familiar, por cada hijo: ${["1", "2", "3", "4", "5", "6+"].map((k, i) => `${esc(e2(d.importes[k]))} el ${["primero", "segundo", "tercero", "cuarto", "quinto", "sexto y siguientes"][i]}`).join(", ")}. Se suman ${esc(e2(d.incremento_menor_3_anios))} por cada hijo menor de 3 años.</p>
@@ -512,7 +513,7 @@ export function rentaForal(t, { referencias = {}, conDeducciones = false } = {})
     normaDist = D.J.minoracion_cuota.norma;
     faqDist = [
       [`¿Qué es la minoración de cuota en el IRPF de ${c}?`, `Una cantidad fija que se resta de la cuota íntegra de cada declaración: ${e2(m)} en ${D.ej}${A ? (mA === m ? `, igual que en ${A.ej}` : ` y ${e2(mA)} en ${A.ej}`) : ""}. Hace el papel del mínimo personal del régimen común: en vez de dejar sin gravar una parte de la base, rebaja directamente el impuesto. Norma: ${normaDelTerritorio(t, normaDist)}.`],
-      [`¿Qué deducciones forales tiene la renta de ${c}?`, `Entre otras, por descendientes (${e2(dd.importes["1"])} el primer hijo en ${D.ej}, más ${e2(dd.incremento_menor_6_anios)} si es menor de 6 años), por ascendientes a cargo (${e2(D.J.deduccion_ascendientes.importe)}), por edad desde los 65 años (${e2(D.J.deduccion_edad.individual.edad_65.importe)}), por discapacidad (desde ${e2(D.J.deduccion_discapacidad.grado_33_64)}) y por alquiler de la vivienda habitual (el ${pctCorto(al.porcentaje)} de lo pagado, hasta ${e2(al.limite)} al año).${conDeducciones ? ` Están todas en la página de deducciones de ${c}.` : ""}`]
+      [`¿Qué deducciones forales tiene la renta de ${c}?`, `Entre otras, por descendientes (${e2(dd.importes["1"])} el primer hijo en ${D.ej}, más ${e2(dd.incremento_menor_6_anios)} si es menor de 6 años), por ascendientes a cargo (${e2(D.J.deduccion_ascendientes.importe)}), por edad desde los 65 años (${e2(D.J.deduccion_edad.individual.edad_65.importe)}), por discapacidad (desde ${e2(D.J.deduccion_discapacidad.grado_33_64)}) y por alquiler de la vivienda habitual (el ${pctTipo(al.porcentaje)} de lo pagado, hasta ${e2(al.limite)} al año).${conDeducciones ? ` Están todas en la página de deducciones de ${c}.` : ""}`]
     ];
   } else {
     const mp = D.J.minimo_personal_deduccion, mpA = A && A.J.minimo_personal_deduccion;
@@ -521,7 +522,7 @@ export function rentaForal(t, { referencias = {}, conDeducciones = false } = {})
     normaDist = mp.norma;
     faqDist = [
       [`¿Qué tiene de propio la renta de ${c}?`, `${c} no reduce la base con el mínimo personal y familiar: lo convierte en deducciones de la cuota. En ${D.ej} son ${e2(mp.importe_general)} por contribuyente y ${e2(d1)} por el primer hijo, con incrementos por rentas bajas, edad y discapacidad. Norma: ${normaDist}.`],
-      [`¿Qué deducciones forales tiene la renta de ${c}?`, `Entre otras, por mínimo personal y familiar, por rendimientos del trabajo, por pensiones de jubilación bajas y por alquiler de la vivienda habitual (el ${pctCorto(al.porcentaje)} de lo pagado, hasta ${e2(al.limite)} al año, con límite de rentas).${conDeducciones ? ` Están todas en la página de deducciones de ${c}.` : ""}`]
+      [`¿Qué deducciones forales tiene la renta de ${c}?`, `Entre otras, por mínimo personal y familiar, por rendimientos del trabajo, por pensiones de jubilación bajas y por alquiler de la vivienda habitual (el ${pctTipo(al.porcentaje)} de lo pagado, hasta ${e2(al.limite)} al año, con límite de rentas).${conDeducciones ? ` Están todas en la página de deducciones de ${c}.` : ""}`]
     ];
   }
   const enlaceDed = conDeducciones ? ` <a href="${ruta(t)}deducciones/">Deducciones forales de ${esc(c)}</a>.` : "";
@@ -533,20 +534,20 @@ export function rentaForal(t, { referencias = {}, conDeducciones = false } = {})
     <p class="ayuda">Norma: ${esc(normaDelTerritorio(t, normaDist))}.</p>
   </div>`;
 
-  const cab = [["Sueldo bruto"], ...datos.flatMap(d => [[`IRPF ${d.ej}`, 1], [`Tipo medio ${d.ej}`, 1], [`Tipo marginal ${d.ej}`, 1]])];
+  const cab = [["Sueldo bruto"], ...datos.flatMap(d => [[`IRPF ${d.ej}`, 1], [`Tipo medio sobre el bruto ${d.ej}`, 1], [`Tipo marginal ${d.ej}`, 1]])];
   const filasT = SUELDOS_TIPOS.map(b => fila([[esc(e2(b))], ...datos.flatMap(d => { const x = ex(b, d);
-    return [[esc(e2(x.irpf)), 1], [esc(pct(x.medio)), 1], [esc(pct(x.marginal)), 1]]; })]));
+    return [[esc(e2(x.irpf)), 1], [esc(pctMedio(x.medio)), 1], [esc(pctTipo(x.marginal)), 1]]; })]));
   const cartaTipos = `<div class="tarjeta tarjeta-tabla" id="tipos-por-sueldo">
     <h2 class="rotulo">Tipo marginal y tipo medio del IRPF en ${esc(c)} por sueldo</h2>
-    <p class="ayuda">Persona soltera de 40 años, sin hijos, con un solo sueldo y contrato indefinido; IRPF del año tras la declaración, calculado con el mismo motor que la calculadora. Tipo medio: IRPF entre el sueldo bruto (la tabla comparativa de más abajo lo da sobre la base imponible). Tipo marginal: el de la tarifa foral en el último euro de la base liquidable.</p>
-    ${tabla(cab, filasT)}
+    <p class="ayuda">Persona soltera de 40 años, sin hijos, con un solo sueldo y contrato indefinido; IRPF del año tras la declaración, calculado con el mismo motor que la calculadora. Tipo medio sobre el sueldo bruto: IRPF entre el sueldo bruto, la misma medida que la comparativa con los otros territorios de más abajo. Tipo marginal: el de la tarifa foral en el último euro de la base liquidable.</p>
+    ${tabla(cab, filasT, `Tipo marginal y tipo medio del IRPF en ${c} por sueldo`)}
   </div>`;
 
   const f30 = f(30000), f60 = f(60000);
   const faq = [
     [`¿Quién gestiona la renta y la fiscalidad de ${c}?`, `${mayus(INSTITUCION[t])}, a través de su Hacienda Foral. Por ${ACUERDO(t)}, ${n} regula y recauda su propio IRPF con ${conNorma(t)}. Quien reside en ${c} declara ante ${HACIENDA[t]}, no ante la Agencia Tributaria.`],
     [`¿Cómo se presenta la declaración de la renta ${A ? A.ej : D.ej} en ${c}?`, `Ante ${HACIENDA[t]}, con su programa y su calendario de campaña; el borrador y Renta Web de la Agencia Tributaria no sirven en ${c}. La renta de ${A ? A.ej : D.ej} se declara en ${(A ? A.ej : D.ej) + 1}. Antes de presentarla puedes simularla en Mapafiscal con la normativa foral de ese año.`],
-    [`¿Cuál es el tipo marginal del IRPF en ${c}?`, `El de la tarifa foral, del ${pctCorto(tMin)} al ${pctCorto(tMax)} según la base liquidable. En ${D.ej}, con 30.000 € brutos el último euro tributa al ${pct(f30.marginal)} y el tipo medio es del ${pct(f30.medio)} del sueldo; con 60.000 €, al ${pct(f60.marginal)} y del ${pct(f60.medio)}.`],
+    [`¿Cuál es el tipo marginal del IRPF en ${c}?`, `El de la tarifa foral, del ${pctTipo(tMin)} al ${pctTipo(tMax)} según la base liquidable. En ${D.ej}, con 30.000 € brutos el último euro tributa al ${pctTipo(f30.marginal)} y el tipo medio es del ${pctMedio(f30.medio)} del sueldo; con 60.000 €, al ${pctTipo(f60.marginal)} y del ${pctMedio(f60.medio)}.`],
     ...faqDist
   ];
   return {

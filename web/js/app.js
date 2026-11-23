@@ -16,7 +16,9 @@
     return (n < -0.004 ? "−" : "") + miles(v[0]) + (dec ? "," + v[1] : "") + " €";
   };
   const eur0 = n => eur(n, 0);
-  const pct = n => (100 * (n || 0)).toFixed(2).replace(".", ",") + " %";
+  // porcentajes (js/importe.js): tipos de tarifa con los decimales justos, tipos medios con uno
+  const pct = n => window.MapafiscalImporte.pctMedio(n);
+  const pctTipo = n => window.MapafiscalImporte.pctTipo(n);
   const num = id => window.MapafiscalImporte.valor($(id));   // js/importe.js: formato español, con error visible
   const camel = s => s.replace(/_([a-z])/g, (_, c) => c.toUpperCase());
 
@@ -437,8 +439,8 @@
     const otra = liq.modoTributacionElegido === "conjunta" ? liq.comparativa.individual : liq.comparativa.conjunta;
     const ahorroModo = otra != null ? otra - cuota : 0;
     $("res-kpis").innerHTML = `
-      <div><dt>Tipo medio efectivo</dt><dd>${pct(liq.tipoMedioEfectivo)}</dd></div>
-      <div><dt>Tipo marginal</dt><dd>${pct(tipoMarginal(liq, terr))}</dd></div>
+      <div><dt title="IRPF del año entre la base imponible (lo que ganas menos cotizaciones y gastos y reducciones). Sale más alto que el tipo medio sobre el sueldo bruto de las guías.">Tipo medio sobre la base imponible</dt><dd>${pct(liq.tipoMedioEfectivo)}</dd></div>
+      <div><dt>Tipo marginal</dt><dd>${pctTipo(tipoMarginal(liq, terr))}</dd></div>
       <div><dt>Mejor modalidad</dt><dd>${liq.modoTributacionElegido === "conjunta" ? "Conjunta" : "Individual"}</dd></div>`;
     $("btn-guardar-cliente").textContent = clienteAbierto ? "Guardar cambios del cliente" : "Guardar como cliente";
     pintarObligacion(liq, reg);
@@ -580,7 +582,7 @@
     const fmt = v => metrica === "cuota" ? eur0(v) : pct(v);
     const yo = cmp.find(c => c.territorio === terr);
     const base = yo ? val(yo) : 0;
-    const umbralIgual = metrica === "cuota" ? 0.5 : 0.00005;
+    const umbralIgual = metrica === "cuota" ? 0.5 : 0.0005;   // tipo: por debajo de 0,05 p.p. se muestra igual (1 decimal)
     const clase = rampa(cmp.map(c => val(c) - base), umbralIgual);
     const porT = Object.fromEntries(cmp.map(c => [c.territorio, c]));
     cmpCache = porT;
@@ -591,10 +593,10 @@
     // ranking con una barra proporcional a la cifra
     const orden = cmp.slice().sort((a, b) => val(a) - val(b));
     const min = val(orden[0]), max = val(orden[orden.length - 1]), rango = max - min || 1;
-    $("ranking").innerHTML = `<thead><tr><th>#</th><th>Territorio</th><th class="num">${metrica === "cuota" ? "Cuota" : "Tipo medio"}</th><th class="num ocultable">${metrica === "cuota" ? "Tipo medio" : "Cuota"}</th><th class="num">Diferencia</th></tr></thead><tbody>` +
+    $("ranking").innerHTML = `<thead><tr><th>#</th><th>Territorio</th><th class="num">${metrica === "cuota" ? "Cuota" : "Tipo medio sobre la base"}</th><th class="num ocultable">${metrica === "cuota" ? "Tipo medio sobre la base" : "Cuota"}</th><th class="num">Diferencia</th></tr></thead><tbody>` +
       orden.map(c => {
         const d = val(c) - base, tu = c.territorio === terr;
-        const dtxt = tu ? "Tú" : (Math.abs(d) < umbralIgual ? "igual" : (d < 0 ? "−" : "+") + (metrica === "cuota" ? eur0(Math.abs(d)) : (100 * Math.abs(d)).toFixed(2).replace(".", ",") + " p.p."));
+        const dtxt = tu ? "Tú" : (Math.abs(d) < umbralIgual ? "igual" : (d < 0 ? "−" : "+") + (metrica === "cuota" ? eur0(Math.abs(d)) : pct(Math.abs(d)).replace(" %", " p.p.")));
         const cls = tu ? "tu" : d < -umbralIgual ? "barato" : d > umbralIgual ? "caro" : "";
         const ancho = Math.round(8 + 92 * (val(c) - min) / rango);
         return `<tr class="${cls}" data-t="${c.territorio}"><td class="pos">${puesto(cmp, val, c, umbralIgual)}</td><td class="rk-terr">${esc(corto(c.territorio))}${c.regimen !== "comun" ? '<span class="regimen">foral</span>' : ""}<span class="rk-barra" aria-hidden="true"><i style="width:${ancho}%"></i></span></td>
@@ -603,7 +605,7 @@
       }).join("") + "</tbody>";
 
     // la misma tabla, para «Descargar CSV» (js/csv.js): cifras sin redondear al euro
-    rankingCsv = { nombre: `comparar-territorios-irpf-${P.ejercicio}-${terr}.csv`, filas: [["Puesto", "Código", "Territorio", "Régimen", "Cuota IRPF (€)", "Tipo medio efectivo (%)", `Diferencia con ${corto(terr)} (€)`]]
+    rankingCsv = { nombre: `comparar-territorios-irpf-${P.ejercicio}-${terr}.csv`, filas: [["Puesto", "Código", "Territorio", "Régimen", "Cuota IRPF (€)", "Tipo medio sobre la base imponible (%)", `Diferencia con ${corto(terr)} (€)`]]
       .concat(orden.map(c => [puesto(cmp, val, c, umbralIgual), c.territorio, T[c.territorio].nombre, c.regimen === "comun" ? "común" : "foral",
         window.MapafiscalCSV.numero(c.cuotaResultanteAutoliquidacion, 2), window.MapafiscalCSV.numero(100 * c.tipoMedioEfectivo, 2),
         window.MapafiscalCSV.numero(c.cuotaResultanteAutoliquidacion - (yo ? yo.cuotaResultanteAutoliquidacion : 0), 2)])) };
@@ -646,7 +648,7 @@
   }
   const textoTip = (t, c, yo, terrYo) => {
     const d = c.cuotaResultanteAutoliquidacion - yo;
-    return `<b>${esc(T[t].nombre)}</b>Cuota ${eur0(c.cuotaResultanteAutoliquidacion)} · ${pct(c.tipoMedioEfectivo)}<br>${t === terrYo ? "Tu territorio"
+    return `<b>${esc(T[t].nombre)}</b>Cuota ${eur0(c.cuotaResultanteAutoliquidacion)} · tipo medio sobre la base ${pct(c.tipoMedioEfectivo)}<br>${t === terrYo ? "Tu territorio"
       : Math.abs(d) < 0.5 ? `Lo mismo que en ${esc(corto(terrYo))}` : d < 0 ? `${eur0(-d)} menos que en ${esc(corto(terrYo))}` : `${eur0(d)} más que en ${esc(corto(terrYo))}`}`;
   };
   tooltipMapa($("mapa"), $("mapa-tip"), t => ultima && cmpCache[t] ? textoTip(t, cmpCache[t], cmpCache[selTerr.value].cuotaResultanteAutoliquidacion, selTerr.value) : null);
@@ -750,7 +752,15 @@
   let calculosOk = null;
   function comprobarCalculos() {
     if (!sb) return Promise.resolve(false);
-    if (!calculosOk) calculosOk = sb.from("calculos").select("id").limit(1)
+    if (calculosOk) return calculosOk;
+    // Sin indicios de sesión se pregunta con un fetch directo a PostgREST (la misma petición
+    // que haría supabase-js), para no descargar supabase-js en cada visita a la portada.
+    const consulta = sbReal || hayIndicioSesion() ? sb.from("calculos").select("id").limit(1)
+      : fetch(CFG.supabaseUrl.replace(/\/$/, "") + "/rest/v1/calculos?select=id&limit=1",
+        { headers: { apikey: CFG.supabaseKey, Authorization: "Bearer " + CFG.supabaseKey } })
+        .then(async r => ({ status: r.status, error: r.ok ? null : await r.json().catch(() => ({})) }),
+          error => ({ status: 0, error }));
+    calculosOk = consulta
       .then(({ error, status }) => !error || !(status === 404 || error.code === "PGRST205" || error.code === "42P01"))
       .catch(() => false);
     return calculosOk;
@@ -1400,8 +1410,31 @@
     if (!await irAFuncion("crear-checkout", pago) && vistaActual() === "planes") pintarPlanes();
   }
 
+  // Informe completo en PDF (js/informe.js): con el pago único y el anuncio bonificado apagados
+  // es gratis con la cuenta gratuita (issue #66); si se enciende alguno, vuelven sus textos de pago.
+  // Misma regla que desbloqueo() de informe.js (test/informe.test.mjs lo comprueba).
+  function textosInforme() {
+    const precio = eur(Number(CFG.informePrecio) || 1.99), vias = [];
+    if (CFG.informeAnuncio) vias.push("viendo un anuncio");
+    if (CFG.informePago) vias.push(`con un pago único de ${precio}`);
+    // versión autónoma (sin cuentas): el informe se descarga sin más (desbloqueo «demo»)
+    if (!sb) return { gratis: false, lista: "", tabla: "✓", nota: "Sin cuenta.",
+      faq: "Sí. En esta versión de Mapafiscal el informe completo en PDF se descarga directamente desde la calculadora, sin cuenta." };
+    if (!vias.length) return {
+      gratis: true, lista: "Informe completo en PDF, con tu cuenta gratuita", tabla: "Con cuenta gratuita",
+      nota: "Sin cuenta. Con la cuenta gratuita, también el informe completo en PDF.",
+      faq: "Sí. Con una cuenta gratuita (se crea con tu correo o con Google, sin tarjeta) descargas el informe completo de tu declaración en PDF: desglose línea a línea, deducciones aplicadas con su norma, comparación en los 19 territorios y cómo pagar menos. Sin cuenta, la web te ofrece iniciar sesión al pedirlo. El resultado de la calculadora sigue siendo gratis y sin cuenta."
+    };
+    const como = vias.join(" o ");
+    return {
+      gratis: false, lista: `Informe completo en PDF, ${como}`, tabla: vias.map(v => v[0].toUpperCase() + v.slice(1)).join(" o "),
+      nota: "Sin cuenta.",
+      faq: `El informe completo en PDF se desbloquea ${como}${CFG.informePago ? " (IVA incluido; para pagar hace falta una cuenta, que es gratis)" : ""}, y va incluido en el plan Gestor. El resultado de la calculadora sigue siendo gratis y sin cuenta.`
+    };
+  }
+
   function pintarPlanes() {
-    const pr = CFG.precios || {};
+    const pr = CFG.precios || {}, inf = textosInforme();
     const plan = sesion.perfil ? sesion.perfil.plan : "gratis";
     const [cifra, unidad] = precioPeriodo(periodo);
     const precioGestor = `${importe(cifra)}<small> / ${unidad}</small>`;
@@ -1413,17 +1446,20 @@
     $("planes").innerHTML = `
       <div class="plan">
         <h2>Gratis</h2><p class="plan-para">Para calcular tu propia declaración.</p>
-        <div class="plan-precio">0 €</div><p class="plan-precio-nota">Sin cuenta.</p>
-        <ul><li>IRPF ${textoEjercicios()} con tu situación real</li><li>Comparación en los 19 territorios</li><li>Desglose con casillas y deducciones aplicadas</li><li>Palancas de ahorro para tu caso</li></ul>
+        <div class="plan-precio">0 €</div><p class="plan-precio-nota">${inf.nota}</p>
+        <ul><li>IRPF ${textoEjercicios()} con tu situación real</li><li>Comparación en los 19 territorios</li><li>Desglose con casillas y deducciones aplicadas</li><li>Palancas de ahorro para tu caso</li>${sb ? `<li>${inf.lista}</li>` : ""}</ul>
         <a class="btn btn-sec" href="#calculadora">Usar la calculadora</a>
       </div>
       <div class="plan destacado">
         <span class="plan-cinta">Para asesores y gestorías</span>
         <h2>Gestor</h2><p class="plan-para">Tu cartera de clientes, siempre calculada.</p>
         <div class="plan-precio">${precioGestor}</div><p class="plan-precio-nota">${notaGestor}</p>
-        <ul><li>Todo lo del plan Gratis</li><li>Mis clientes: tu cartera, sin límite y guardada en la nube (UE)</li><li>Optimización por cliente: pensiones, conjunta, deducciones</li><li>Informe de cada cliente listo para imprimir</li><li>Recalcular la cartera cuando cambia la normativa</li><li>Sin anuncios</li></ul>
+        <ul><li>Todo lo del plan Gratis</li><li>Mis clientes: tu cartera, sin límite y guardada en la nube (UE)</li><li>Optimización por cliente: pensiones, conjunta, deducciones</li><li>Informe completo en PDF incluido, sin esperas</li><li>Informe de cada cliente listo para imprimir</li><li>Recalcular la cartera cuando cambia la normativa</li><li>Sin anuncios</li></ul>
         ${ctaGestor}
       </div>`;
+    const celda = $("planes-informe-gratis"), faq = $("faq-informe");
+    if (celda) celda.textContent = inf.tabla;
+    if (faq) faq.textContent = inf.faq;
     $("nota-precios").textContent = "Pago seguro con Stripe. Puedes cambiar de periodo o darte de baja cuando quieras desde tu perfil.";
     const cta = $("cta-gestor");
     if (cta) cta.addEventListener("click", iniciarPago);
@@ -1469,7 +1505,8 @@
     const nota = s && s.estado === "past_due" ? "No se ha podido cobrar la última cuota y Stripe lo está reintentando. Revisa tu tarjeta en «Gestionar suscripción»."
       : s && VIGENTES.has(s.estado) && s.termina_en ? "Has cancelado la renovación: mantienes el plan hasta esa fecha. Puedes reactivarla en «Gestionar suscripción»."
       : conPlan ? "Cambia de periodo o de tarjeta, descarga tus facturas o date de baja en «Gestionar suscripción»."
-      : "Con el plan Gestor desbloqueas «Mis clientes»: tu cartera guardada, la optimización por cliente y los informes.";
+      : (textosInforme().gratis ? "Con tu cuenta gratuita ya puedes descargar el informe completo en PDF desde la calculadora. " : "")
+        + "Con el plan Gestor desbloqueas «Mis clientes»: tu cartera guardada, la optimización por cliente y los informes.";
     const tSus = `<div class="tarjeta"><h2>Plan ${esc(PLAN_TXT[p.plan] || p.plan)}${s ? ` <span class="chip-estado ${estCls}">${esc(estTxt)}</span>` : ""}</h2>
       ${datos.length ? `<dl class="datos">${datos.map(([a, b]) => `<dt>${a}</dt><dd>${esc(b)}</dd>`).join("")}</dl>` : ""}
       <p>${nota}</p>
@@ -1652,7 +1689,7 @@
     if (sinIrpf) frase = "Con este sueldo no pagarías IRPF en ningún territorio.";
     else if (pos === 1) frase = `<b>${esc(corto(terr))}</b> es el territorio más barato para este sueldo: en ${esc(corto(caro.territorio))} pagarías <b>${eur0(val(caro) - val(yo))} más</b>.`;
     else frase = `${esc(corto(terr))} es el <b>${ordinal(pos)}</b> más barato de 19. En ${esc(corto(barato.territorio))} pagarías <b>${eur0(val(yo) - val(barato))} menos</b>${val(caro) - val(yo) >= 0.5 ? `; en ${esc(corto(caro.territorio))}, ${eur0(val(caro) - val(yo))} más` : ""}.`;
-    $("mc-res").innerHTML = `<div class="minicalc-cifra"><span class="cifra-xl">${eur0(val(yo))}</span><span class="etq-cifra">de IRPF al año · tipo medio ${pct(yo.tipoMedioEfectivo)}</span></div>
+    $("mc-res").innerHTML = `<div class="minicalc-cifra"><span class="cifra-xl">${eur0(val(yo))}</span><span class="etq-cifra">de IRPF al año · tipo medio sobre el bruto ${pct(salario > 0 ? val(yo) / salario : 0)}</span></div>
       ${regla}<p class="minicalc-frase">${frase}</p>
       <div class="minicalc-acciones"><a class="btn btn-pri" href="#calculadora" data-mc-ir>Calcular mi declaración <span class="flecha" aria-hidden="true">→</span></a>
         <a class="btn btn-txt" href="#comparar" data-mc-ir>Ver los 19 territorios</a></div>
@@ -1679,7 +1716,7 @@
     pintarGastosTerritorio(); recalcular();
   });
 
-  function pintarInicio() {
+  function pintarTarjetas() {
     const H = herramientas();
     const dest = (CFG.destacados && CFG.destacados[new Date().getMonth()]) || "comparar";
     const claves = Object.keys(H).sort((a, b) => (b === dest) - (a === dest));
@@ -1687,6 +1724,9 @@
     $("herramientas").innerHTML = claves.map(k => { const h = H[k]; return `
       <a class="herramienta" href="${esc(h.href)}">${icono(h.icono)}
         <h3>${esc(h.titulo)}${h.plan ? '<span class="plan-chip">Gestor</span>' : ""}${k === dest ? '<span class="chip tu">Te puede interesar</span>' : ""}</h3><p>${esc(h.texto)}</p></a>`; }).join("");
+  }
+  function pintarInicio() {
+    pintarTarjetas();
     // franja de rigor: cifras sacadas de los propios parámetros, nada inventado
     const terrs = Object.values(T), comun = terrs.filter(t => t.regimen === "comun").length;
     const nDed = terrs.reduce((s, t) => s + (((t.deducciones_autonomicas && t.deducciones_autonomicas.lista) || []).length), 0);
@@ -1875,7 +1915,14 @@
 
   // ---- arranque --------------------------------------------------------------------------
   // cotizaciones estimadas con la orden de cotización del ejercicio (no con un tipo fijo)
-  document.addEventListener("mapafiscal:herramientas", () => { if (vistaActual() === "inicio") pintarInicio(); });
+  // Cada herramienta que se carga después (cargarHerramientas) avisa con «mapafiscal:herramientas»:
+  // basta con repintar las tarjetas, y una vez para todas las que lleguen en el mismo turno.
+  let tarjetasPendientes = false;
+  document.addEventListener("mapafiscal:herramientas", () => {
+    if (tarjetasPendientes) return;
+    tarjetasPendientes = true;
+    setTimeout(() => { tarjetasPendientes = false; if (vistaActual() === "inicio") pintarTarjetas(); }, 0);
+  });
   document.querySelectorAll("[data-ejercicio]").forEach(el => { el.textContent = P.ejercicio; });
   document.querySelectorAll("[data-ejercicio-ant]").forEach(el => { el.textContent = P.ejercicio - Number(el.dataset.ejercicioAnt); });
   document.querySelectorAll("[data-ejercicios]").forEach(el => { el.textContent = textoEjercicios(); });
@@ -1902,4 +1949,25 @@
   if (ejInicial && ejInicial !== P.ejercicio && EJERCICIOS.includes(ejInicial)) cambiarEjercicio(ejInicial);
   if (avisoPago) esperarPlan(15); else cargarSesion();
   if (errorVuelta) abrirAcceso(null, null, "entrar", errorVuelta.texto);
+  cargarHerramientas();
+
+  // Las herramientas que no salen en la primera vista (sueldo neto, ofertas, informe…) esperan en
+  // <template id="js-herramientas"> de index.html y se cargan aquí, ya pintada la vista de la
+  // dirección: así no compiten con el motor, app.js y los datos por la red ni por la CPU. Se
+  // ejecutan en el orden de la plantilla (async = false). Cada una ya sabe arrancar tarde: pinta
+  // su vista si está a la vista, lee su enlace y registra su tarjeta con «mapafiscal:herramientas».
+  // En la versión autónoma (tools/empaquetar.mjs) la plantilla trae el código en línea y app.js
+  // corre antes de que se lea la plantilla: allí se espera a DOMContentLoaded.
+  function cargarHerramientas() {
+    if (document.readyState === "loading") { document.addEventListener("DOMContentLoaded", cargarHerramientas, { once: true }); return; }
+    const plantilla = document.getElementById("js-herramientas");
+    if (!plantilla) return;
+    plantilla.remove();
+    for (const viejo of plantilla.content.querySelectorAll("script")) {
+      const s = document.createElement("script");
+      const src = viejo.getAttribute("src");
+      if (src) { s.src = src; s.async = false; } else s.textContent = viejo.textContent;
+      document.body.appendChild(s);
+    }
+  }
 })();

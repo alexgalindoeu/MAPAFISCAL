@@ -31,7 +31,10 @@
     return (n < -0.004 ? "−" : "") + miles(v[0]) + (dec ? "," + v[1] : "") + " €";
   };
   const eur0 = n => eur(n, 0);
-  const pct = (n, dec = 1) => (100 * (n || 0)).toFixed(dec).replace(".", ",") + " %";
+  // porcentajes con el criterio común de js/importe.js: pctTipo para tipos de la norma (cotizaciones,
+  // tramos, donativos), con los decimales justos; pct para cocientes calculados, con un decimal
+  const fmtPct = () => (typeof window !== "undefined" && window.MapafiscalImporte) || require("./importe.js");
+  const pct = n => fmtPct().pctMedio(n), pctTipo = n => fmtPct().pctTipo(n);
   const num = id => Math.max(0, window.MapafiscalImporte.valor($(id)));   // js/importe.js
   const red2 = n => Math.round((n + 1e-9) * 100) / 100;
 
@@ -262,10 +265,10 @@
     const drt = (liq.deduccionRendimientosTrabajo && liq.deduccionRendimientosTrabajo.total) || 0;
     const impr = (liq.deduccionesCuotaDiferencial && liq.deduccionesCuotaDiferencial.total) || 0;
     const filas = [fila("Sueldo bruto anual", eur(o.bruto)),
-      fila(`Contingencias comunes (${pct(t.contingencias_comunes, 2)})`, "−" + eur(ct.contingenciasComunes), "hr-resta"),
-      fila(`Desempleo (${pct(desemp, 2)})`, "−" + eur(ct.desempleo), "hr-resta"),
-      fila(`Formación profesional (${pct(t.formacion_profesional, 2)})`, "−" + eur(ct.formacionProfesional), "hr-resta"),
-      fila(`Mecanismo de equidad intergeneracional (${pct(t.mei, 2)})`, "−" + eur(ct.mei), "hr-resta")];
+      fila(`Contingencias comunes (${pctTipo(t.contingencias_comunes)})`, "−" + eur(ct.contingenciasComunes), "hr-resta"),
+      fila(`Desempleo (${pctTipo(desemp)})`, "−" + eur(ct.desempleo), "hr-resta"),
+      fila(`Formación profesional (${pctTipo(t.formacion_profesional)})`, "−" + eur(ct.formacionProfesional), "hr-resta"),
+      fila(`Mecanismo de equidad intergeneracional (${pctTipo(t.mei)})`, "−" + eur(ct.mei), "hr-resta")];
     if (ct.solidaridad > 0) filas.push(fila("Cotización adicional de solidaridad (sueldo por encima de la base máxima)", "−" + eur(ct.solidaridad), "hr-resta"));
     filas.push(fila(`Cotizaciones a la Seguridad Social${ct.baseMensual < o.bruto / 12 - 0.005 ? ` · base máxima ${eur(P.estatal.cotizaciones_trabajador.base_maxima_mensual)}/mes` : ""}`, "−" + eur(s.cotizaciones), "sub"));
     filas.push(fila("Cuota líquida del IRPF", eur(liq.cuotaLiquidaTotal)));
@@ -395,7 +398,7 @@
   // Una sola serie: el ahorro de IRPF de 0 € hasta tu límite. Marcas: tu aportación, el final del
   // tramo con el mismo tipo marginal y, si la hay, la aportación que agota el ahorro. La tabla
   // de debajo da las mismas cifras sin gráfico.
-  const GC = { W: 420, H: 230, l: 54, r: 12, t: 12, b: 28 };
+  const GC0 = { W: 420, H: 230, l: 54, r: 12, t: 12, b: 28 };
   function escalaRedonda(v) {
     if (v <= 0) return 1;
     const e = Math.pow(10, Math.floor(Math.log10(v))), k = v / e;
@@ -410,20 +413,24 @@
     }
     const m = c.marginal;
     frase.innerHTML = (m.todo
-      ? `Cada euro que aportes hasta tu límite de <b>${eur0(lim)}</b> te ahorra un <b>${pct(m.tipo, 0)}</b> de IRPF.`
-      : `Los primeros <b>${eur0(m.hasta)}</b> te ahorran un <b>${pct(m.tipo, 0)}</b>; a partir de ahí, cada euro ahorra menos, porque tu base baja a un tramo con un tipo menor o cambian otras reglas.`) +
+      ? `Cada euro que aportes hasta tu límite de <b>${eur0(lim)}</b> te ahorra un <b>${pctTipo(m.tipo)}</b> de IRPF.`
+      : `Los primeros <b>${eur0(m.hasta)}</b> te ahorran un <b>${pctTipo(m.tipo)}</b>; a partir de ahí, cada euro ahorra menos, porque tu base baja a un tramo con un tipo menor o cambian otras reglas.`) +
       (c.agota != null ? ` A partir de <b>${eur0(c.agota)}</b> aportar más ya no te ahorra IRPF este año: con ${eur0(c.agota)} el ahorro llega a su máximo, ${eur0(c.ahorroMax)}.`
         : ` El ahorro no se agota antes del límite: con ${eur0(lim)}, ${eur0(c.ahorroMax)}.`);
     const ymax = escalaRedonda(c.ahorroMax * 1.05);
+    // viewBox al ancho real de la tarjeta (1 unidad = 1 px): los rótulos de los ejes se leen a
+    // 12 px también en el móvil, en lugar de encogerse con el dibujo
+    const GC = Object.assign({}, GC0, { W: Math.max(280, Math.round(cont.clientWidth || GC0.W)) });
+    const ticksX = GC.W < 400 ? [0, 2, 4] : [0, 1, 2, 3, 4];
     const x = a => GC.l + a / lim * (GC.W - GC.l - GC.r), y = v => GC.t + (1 - v / ymax) * (GC.H - GC.t - GC.b);
     const f1 = n => n.toFixed(1);
     let h = `<title id="pp-curva-tit">Ahorro de IRPF según lo que aportes al plan de pensiones, de 0 € a ${esc(eur0(lim))}</title>`;
     for (let k = 0; k <= 4; k++) { const v = ymax * k / 4; h += `<line class="ppc-reticula" x1="${GC.l}" x2="${GC.W - GC.r}" y1="${f1(y(v))}" y2="${f1(y(v))}"/><text class="ppc-eje" x="${GC.l - 8}" y="${f1(y(v) + 4)}" text-anchor="end">${esc(eur0(v))}</text>`; }
-    for (let k = 0; k <= 4; k++) { const a = lim * k / 4; h += `<text class="ppc-eje" x="${f1(x(a))}" y="${GC.H - 9}" text-anchor="${k === 0 ? "start" : k === 4 ? "end" : "middle"}">${esc(eur0(a))}</text>`; }
+    for (const k of ticksX) { const a = lim * k / 4; h += `<text class="ppc-eje" x="${f1(x(a))}" y="${GC.H - 9}" text-anchor="${k === 0 ? "start" : k === 4 ? "end" : "middle"}">${esc(eur0(a))}</text>`; }
     const linea = c.puntos.map(p => f1(x(p.aportacion)) + "," + f1(y(p.ahorro))).join("L");
     h += `<path class="ppc-area" d="M${f1(x(0))},${f1(y(0))}L${linea}L${f1(x(lim))},${f1(y(0))}Z"/><path class="ppc-linea" d="M${linea}"/>`;
     const marca = (a, cls, txt) => `<line class="ppc-marca ${cls}" x1="${f1(x(a))}" x2="${f1(x(a))}" y1="${GC.t}" y2="${GC.H - GC.b}"><title>${esc(txt)}</title></line>`;
-    if (!m.todo) h += marca(m.hasta, "ppc-tramo", `Hasta ${eur0(m.hasta)}: ${pct(m.tipo, 0)} de ahorro por euro`);
+    if (!m.todo) h += marca(m.hasta, "ppc-tramo", `Hasta ${eur0(m.hasta)}: ${pctTipo(m.tipo)} de ahorro por euro`);
     if (c.agota != null) h += marca(c.agota, "ppc-agota", `Con ${eur0(c.agota)} el ahorro llega a su máximo`);
     // zonas de ratón: el ahorro de cada punto, con un objetivo más ancho que la línea
     const ancho = (GC.W - GC.l - GC.r) / (c.puntos.length - 1);
@@ -442,7 +449,7 @@
     const filas = [...claves].sort((a, b) => a - b).map(a => {
       const v = a === 0 ? 0 : red2(c.puntos.find(p => Math.abs(p.aportacion - a) < 0.005)?.ahorro ?? (plan(P, Object.assign({}, o, { aportacion: a })).ahorro));
       const nota = a === ap && ap > 0 ? " (tu aportación)" : !m.todo && a === m.hasta ? " (fin del primer tramo)" : c.agota != null && a === red2(c.agota) ? " (ahorro máximo)" : "";
-      return `<tr><td>${esc(eur0(a))}${nota}</td><td class="num">${esc(eur0(v))}</td><td class="num">${a > 0 ? esc(pct(v / a, 0)) : "—"}</td></tr>`;
+      return `<tr><td>${esc(eur0(a))}${nota}</td><td class="num">${esc(eur0(v))}</td><td class="num">${a > 0 ? esc(pct(v / a)) : "—"}</td></tr>`;
     });
     tabla.innerHTML = `<caption class="sr-only">Ahorro de IRPF según lo aportado al plan de pensiones</caption><thead><tr><th scope="col">Aportas</th><th scope="col" class="num">Ahorras en el IRPF</th><th scope="col" class="num">Por euro aportado</th></tr></thead><tbody>${filas.join("")}</tbody>`;
   }
@@ -452,17 +459,17 @@
     $("pp-principal").innerHTML = `<div class="res-etq">Ahorro en el IRPF de ${P.ejercicio} por tus donativos · ${esc(nombre(P, terr))}</div>
       <div class="res-cifra ${r.ahorro > 0.5 ? "gana" : ""}">${eur0(r.ahorro)}</div>
       <p class="res-sub">${o.donativos > 0 ? `Donar ${eur0(o.donativos)} te cuesta en realidad <b>${eur0(r.coste)}</b>.` : "Indica cuánto piensas donar."}
-        Los primeros ${eur0(d.tramo1_limite)} deducen el ${pct(d.tramo1_porcentaje, 0)}: donar ${eur0(d.tramo1_limite)} te cuesta ${eur0(d.tramo1_limite * (1 - d.tramo1_porcentaje))}.</p>
-      <dl class="kpis"><div><dt>Primeros ${eur0(d.tramo1_limite)}</dt><dd>${pct(d.tramo1_porcentaje, 0)}</dd></div>
-      <div><dt>Resto</dt><dd>${pct(o.donativosRecurrentes ? d.resto_porcentaje_recurrente : d.resto_porcentaje, 0)}</dd></div>
+        Los primeros ${eur0(d.tramo1_limite)} deducen el ${pctTipo(d.tramo1_porcentaje)}: donar ${eur0(d.tramo1_limite)} te cuesta ${eur0(d.tramo1_limite * (1 - d.tramo1_porcentaje))}.</p>
+      <dl class="kpis"><div><dt>Primeros ${eur0(d.tramo1_limite)}</dt><dd>${pctTipo(d.tramo1_porcentaje)}</dd></div>
+      <div><dt>Resto</dt><dd>${pctTipo(o.donativosRecurrentes ? d.resto_porcentaje_recurrente : d.resto_porcentaje)}</dd></div>
       <div><dt>Donativo máximo con deducción</dt><dd>${eur0(r.baseMax)}</dd></div></dl>`;
     cabecera("pp", P, terr, r.ahorro > 0.5 ? "gana" : "");
     $("pp-graficos").innerHTML = o.donativos > 0 ? reparto(`De tu donativo de ${eur0(o.donativos)}`, `Hacienda pone el ${(100 * r.ahorro / o.donativos).toFixed(0)} %`, [
       { n: "Te devuelve Hacienda", v: r.ahorro, c: "sobra", color: "--gana" }, Object.assign({ n: "Pones tú", v: Math.max(0, r.coste) }, PARA_TI)]) : "";
     const base = Math.min(o.donativos, r.baseMax), resto = Math.max(0, base - d.tramo1_limite);
     const rp = o.donativosRecurrentes ? d.resto_porcentaje_recurrente : d.resto_porcentaje;
-    const filas = [fila(`${pct(d.tramo1_porcentaje, 0)} de los primeros ${eur0(Math.min(base, d.tramo1_limite))}`, eur(Math.min(base, d.tramo1_limite) * d.tramo1_porcentaje))];
-    if (resto > 0) filas.push(fila(`${pct(rp, 0)} del resto (${eur0(resto)})${o.donativosRecurrentes ? ", por donar 3 años seguidos a la misma entidad" : ""}`, eur(resto * rp)));
+    const filas = [fila(`${pctTipo(d.tramo1_porcentaje)} de los primeros ${eur0(Math.min(base, d.tramo1_limite))}`, eur(Math.min(base, d.tramo1_limite) * d.tramo1_porcentaje))];
+    if (resto > 0) filas.push(fila(`${pctTipo(rp)} del resto (${eur0(resto)})${o.donativosRecurrentes ? ", por donar 3 años seguidos a la misma entidad" : ""}`, eur(resto * rp)));
     if (o.donativos > r.baseMax + 0.5) filas.push(fila(`Lo que pasa del 10 % de tu base liquidable no deduce (${eur0(o.donativos - r.baseMax)})`, "—", "info"));
     filas.push(fila("Deducción por donativos", eur(r.deduccion), "sub"));
     filas.push(fila("IRPF del año sin donar", eur(r.irpfSin)));

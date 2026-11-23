@@ -36,12 +36,15 @@ async function prueba(nombre, fn) {
   catch (e) { fallos++; console.log(`FALLO ${nombre}\n      ${e.message.split("\n").join("\n      ")}`); }
 }
 // página nueva que acumula errores de JS (excepciones y console.error)
+// `preparar(ctx)` (opcional) se ejecuta antes de cargar la página: scripts de arranque y rutas.
 async function abrir(ruta, opciones = {}) {
-  const ctx = await navegador.newContext(opciones);
+  const { preparar, ...opcionesCtx } = opciones;
+  const ctx = await navegador.newContext(opcionesCtx);
   const pagina = await ctx.newPage();
   pagina.errores = [];
   // terceros (analítica, anuncios, Supabase, CDN) fuera: la prueba no depende de la red
   await ctx.route(u => !u.href.startsWith(base), r => r.abort());
+  if (preparar) await preparar(ctx);
   pagina.on("pageerror", e => pagina.errores.push(`pageerror: ${e.message}`));
   // los fallos de carga se informan con su URL (abajo); el mensaje genérico no la trae
   pagina.on("console", m => {
@@ -112,7 +115,7 @@ try {
     });
     assert.equal(await p.locator("#of-frase").innerText(), esperado);
     assert.equal(await p.locator("#of-tabla thead th[scope=col]").count(), 4);
-    assert.ok((await p.locator("#of-tabla").innerText()).includes("Tipo medio del IRPF"));
+    assert.ok((await p.locator("#of-tabla").innerText()).includes("Tipo medio sobre el sueldo bruto"));
     await p.locator("#of-a-pagas").selectOption("12");
     await p.waitForFunction(() => location.hash === "#ofertas?a=40000,ES-CT,12&b=39000,ES-MD,12,1500");
     assert.match(await p.locator("#of-enlace").inputValue(), /#ofertas\?a=40000,ES-CT,12&b=39000,ES-MD,12,1500$/);
@@ -159,6 +162,92 @@ try {
     await p.context().close();
   });
 
+  // Informe completo en PDF (issue #66): con el pago único y el anuncio bonificado apagados es
+  // gratis con sesión iniciada. La sesión se simula con un supabase-js falso (window.supabase:
+  // app.js no descarga el de la CDN si ya existe) y una sesión guardada en localStorage.
+  const conSesion = ({ plan = "gratis", config = null } = {}) => async ctx => {
+    await ctx.addInitScript(plan => {
+      const id = "u-e2e";
+      localStorage.setItem("sb-pqiqrcvuztxrwrwizppj-auth-token", "{}");
+      localStorage.setItem("mapafiscal.bienvenida." + id, "1");
+      window.print = () => { window.__impreso = (window.__impreso || 0) + 1; };
+      const usuario = { id, email: "e2e@example.test", created_at: "2026-01-01T00:00:00Z", app_metadata: { provider: "email", providers: ["email"] } };
+      const respuesta = tabla => ({ data: tabla === "perfiles" ? { nombre: "", despacho: "", plan, creado_en: "2026-01-01T00:00:00Z",
+        condiciones_version: (window.MAPAFISCAL_CONFIG || {}).condicionesVersion } : tabla === "suscripciones" ? null : [], error: null, status: 200 });
+      const consulta = tabla => {
+        const q = new Proxy({}, { get: (_, k) => k === "then" ? (ok, mal) => Promise.resolve(respuesta(tabla)).then(ok, mal) : () => q });
+        return q;
+      };
+      const cliente = {
+        auth: { getSession: async () => ({ data: { session: { user: usuario } }, error: null }),
+          onAuthStateChange: () => ({ data: { subscription: { unsubscribe() {} } } }), signOut: async () => ({ error: null }) },
+        from: consulta, rpc: async () => ({ data: 0, error: null }),
+        functions: { invoke: async () => ({ data: null, error: new Error("sin red en el e2e") }) }
+      };
+      window.supabase = { createClient: () => cliente };
+    }, plan);
+    if (config) await ctx.route(base + "/config.js", async r => {
+      const res = await r.fetch();
+      await r.fulfill({ response: res, body: config(await res.text()) });
+    });
+  };
+  const abrirInforme = async p => {
+    await p.waitForFunction(() => window.MapafiscalApp && window.MapafiscalApp.sesionCargada() && window.MapafiscalApp.ultimo(), null, { timeout: 8000 });
+    await p.locator("#btn-informe").click();
+    await p.waitForFunction(() => { const c = document.querySelector("#inf-cuerpo"); return c && !c.querySelector(".inf-cargando") && c.children.length; }, null, { timeout: 5000 });
+  };
+
+  await prueba("informe con sesión iniciada y pagos apagados: se genera sin pedir pago", async () => {
+    const p = await abrir("/index.html#calculadora", { preparar: conSesion() });
+    await abrirInforme(p);
+    assert.equal(await p.evaluate(() => window.MapafiscalApp.sesion().usuario), true, "la sesión simulada no ha cargado");
+    assert.equal(await p.locator(".inf-candado").count(), 0, "no debería pedir nada");
+    const texto = await p.locator("#inf-cuerpo").innerText();
+    assert.ok(texto.includes("Desglose de la liquidación") && texto.includes("Cómo pagar menos"), texto.slice(0, 300));
+    assert.ok(await p.locator("#inf-pdf").isVisible(), "falta «Descargar PDF»");
+    await p.locator("#inf-pdf").click();
+    await p.waitForSelector("#inf-espera", { timeout: 3000 });        // espera con el banner propio, sin pago
+    assert.deepEqual(p.errores, []);
+    await p.context().close();
+  });
+
+  await prueba("informe sin sesión y pagos apagados: ofrece iniciar sesión para descargarlo", async () => {
+    const p = await abrir("/index.html#calculadora");
+    await abrirInforme(p);
+    assert.ok((await p.locator(".inf-candado h2").innerText()).includes("Inicia sesión"));
+    assert.equal(await p.locator('[data-inf="pago"], [data-inf="anuncio"]').count(), 0, "no se ofrece ningún pago");
+    assert.equal(await p.locator("#inf-pdf").isVisible(), false);
+    await p.locator('[data-inf="acceso"]').click();
+    await p.waitForFunction(() => document.querySelector("#dlg-acceso").open, null, { timeout: 3000 });
+    assert.match(await p.locator("#dlg-acceso").innerText(), /descargar el informe completo/);
+    assert.deepEqual(p.errores, []);
+    await p.context().close();
+  });
+
+  await prueba("informe con sesión y el pago único encendido: vuelve a pedir el pago", async () => {
+    const p = await abrir("/index.html#calculadora", { preparar: conSesion({ config: t => t.replace("informePago: false", "informePago: true") }) });
+    await abrirInforme(p);
+    assert.equal(await p.locator('.inf-candado [data-inf="pago"]').count(), 1);
+    assert.ok((await p.locator(".inf-candado").innerText()).includes("1,99 €"));
+    assert.equal(await p.locator("#inf-pdf").isVisible(), false);
+    await p.locator("#inf-cerrar").click();
+    await p.evaluate(() => { location.hash = "#planes"; });
+    await p.waitForSelector("#planes .plan");
+    assert.equal(await p.locator("#planes-informe-gratis").innerText(), "Con un pago único de 1,99 €");
+    assert.deepEqual(p.errores, []);
+    await p.context().close();
+  });
+
+  await prueba("#planes con los pagos del informe apagados: el informe sale gratis con cuenta", async () => {
+    const p = await abrir("/index.html#planes");
+    await p.waitForSelector("#planes .plan");
+    assert.ok((await p.locator("#planes .plan").first().innerText()).includes("Informe completo en PDF, con tu cuenta gratuita"));
+    assert.equal(await p.locator("#planes-informe-gratis").innerText(), "Con cuenta gratuita");
+    assert.match(await p.locator("#faq-informe").textContent(), /^Sí\. Con una cuenta gratuita/);
+    assert.deepEqual(p.errores, []);
+    await p.context().close();
+  });
+
   await prueba("portada y panel «Todo» enlazan #ofertas, #ejercicios y #marginal", async () => {
     const p = await abrir("/");
     for (const v of ["ofertas", "ejercicios", "marginal"])
@@ -180,7 +269,7 @@ try {
     await p.context().close();
   });
 
-  for (const ruta of ["/", "/irpf/", "/irpf/gipuzkoa/", "/irpf/navarra/simulador-renta/", "/guias/calendario-renta/", "/vivienda/", "/vivienda/venta-vivienda/", "/glosario/", "/glosario/base-liquidable/", "/validacion/", "/autonomos/", "/autonomos/canarias/", "/sueldo-mensual/", "/widget/", "/widget/sueldo-neto.html?t=ES-MD", "/comparar-ofertas/", "/irpf-2025-vs-2026/", "/tipo-marginal-real/", "/ranking-irpf-comunidades/"]) {
+  for (const ruta of ["/", "/irpf/", "/irpf/gipuzkoa/", "/irpf/navarra/simulador-renta/", "/guias/calendario-renta/", "/vivienda/", "/vivienda/venta-vivienda/", "/glosario/", "/glosario/base-liquidable/", "/validacion/", "/autonomos/", "/autonomos/canarias/", "/sueldo-mensual/", "/widget/", "/widget/sueldo-neto.html?t=ES-MD", "/comparar-ofertas/", "/irpf-2025-vs-2026/", "/tipo-marginal-real/", "/ranking-irpf-comunidades/", "/sobre-mapafiscal/", "/contacto/"]) {
     await prueba(`carga sin errores de JS: ${ruta}`, async () => {
       const p = await abrir(ruta);
       await p.waitForTimeout(500);
@@ -289,7 +378,7 @@ try {
     const [d1] = await Promise.all([p.waitForEvent("download"), p.click("#ranking-csv")]);
     assert.match(d1.suggestedFilename(), /^comparar-territorios-irpf-\d{4}-es-[a-z-]+\.csv$/);
     const t1 = await leerDescarga(d1);
-    assert.ok(t1.startsWith("﻿Puesto;Código;Territorio;Régimen;Cuota IRPF (€);Tipo medio efectivo (%);Diferencia con "), t1.slice(0, 120));
+    assert.ok(t1.startsWith("﻿Puesto;Código;Territorio;Régimen;Cuota IRPF (€);Tipo medio sobre la base imponible (%);Diferencia con "), t1.slice(0, 120));
     const filas = t1.slice(1).trim().split("\n");
     assert.equal(filas.length, 20);
     for (const f of filas.slice(1)) assert.match(f, /^\d+;ES-[A-Z-]+;[^;]+;(común|foral);\d+,\d\d;\d+,\d\d;-?\d+,\d\d$/, f);
@@ -328,14 +417,14 @@ try {
     assert.equal(r.puntos, 41);
     assert.ok(r.punto, "falta el punto de tu aportación");
     assert.ok(r.filas >= 10, `${r.filas} filas en la tabla`);
-    assert.match(r.frase, /(Los primeros [\d.]+ € te ahorran un \d+ %|Cada euro que aportes hasta tu límite de [\d.]+ € te ahorra un \d+ %)/);
+    assert.match(r.frase, /(Los primeros [\d.]+ € te ahorran un \d+(,\d+)? %|Cada euro que aportes hasta tu límite de [\d.]+ € te ahorra un \d+(,\d+)? %)/);
     // la frase sale de curvaPlan con el motor de la página
     const esperado = await p.evaluate(() => {
       const P = window.MapafiscalHerramientas.paramsPlan(), imp = id => window.MapafiscalImporte.valor(document.getElementById(id));
       const c = window.MapafiscalHerramientas.curvaPlan(P, { bruto: imp("pp-bruto"), territorio: document.getElementById("pp-territorio").value,
         edad: +document.getElementById("pp-edad").value, hijos: [], aportacion: imp("pp-aportacion"), contribucionEmpresa: imp("pp-empresa"),
         donativos: imp("pp-donativo"), donativosRecurrentes: document.getElementById("pp-recurrente").checked });
-      return Math.round(100 * c.marginal.tipo) + " %";
+      return window.MapafiscalImporte.pctTipo(c.marginal.tipo);   // tipo de tarifa: decimales justos
     });
     assert.ok(r.frase.includes(esperado), `${r.frase} / ${esperado}`);
     // con otro sueldo cambia la curva: se busca uno en el que el ahorro se agote antes del límite
@@ -400,7 +489,7 @@ try {
     const miles = n => String(Math.abs(Math.round(n))).replace(/\B(?=(\d{3})+(?!\d))/g, ".") + " €";
     const b = Math.round(bruto), ss = Math.round(s.cotizaciones), neto = Math.round(s.neto);
     return { neto: miles(neto), mes12: miles(neto / 12), mes14: miles(neto / 14), ss: miles(ss), irpf: miles(b - ss - neto),
-      medio: (100 * s.liquidacion.tipoMedioEfectivo).toFixed(1).replace(".", ",") + " %" };
+      medio: (100 * (b > 0 ? (b - ss - neto) / b : 0)).toFixed(1).replace(".", ",") + " %" };   // tipo medio sobre el bruto
   }, [bruto, territorio]);
   const leerCalculo = p => p.evaluate(() => Object.fromEntries([...document.querySelectorAll("#cr-res [data-cr]")].map(e => [e.dataset.cr, e.textContent.trim()])));
   for (const [ruta, territorio, inicial, texto, bruto] of [
@@ -468,7 +557,7 @@ try {
   // Accesibilidad con axe-core (devDependency): fallan las infracciones «serious» y
   // «critical» de las páginas revisadas, en modo claro y oscuro.
   const axe = readFileSync(require.resolve("axe-core/axe.min.js"), "utf8");
-  const rutasAxe = ["/#calculadora", "/#comparar", "/#planes", "/#sueldo-mes", "/sueldo-mensual/", "/irpf/madrid/", "/irpf/bizkaia/", "/sueldo-neto/30000/madrid/", "/irpf/gipuzkoa/simulador-renta/", "/guias/calendario-renta/", "/vivienda/", "/vivienda/segunda-vivienda/", "/glosario/", "/glosario/base-liquidable/", "/validacion/", "/autonomos/", "/autonomos/canarias/", "/guias/12-o-14-pagas/", "/widget/", "/widget/sueldo-neto.html?t=ES-CT&ancho=compacto", "/#ofertas", "/#ejercicios", "/#marginal", "/comparar-ofertas/", "/irpf-2025-vs-2026/", "/tipo-marginal-real/", "/ranking-irpf-comunidades/", "/#plan-pensiones"];
+  const rutasAxe = ["/#calculadora", "/#comparar", "/#planes", "/#sueldo-mes", "/sueldo-mensual/", "/irpf/madrid/", "/irpf/bizkaia/", "/sueldo-neto/30000/madrid/", "/irpf/gipuzkoa/simulador-renta/", "/guias/calendario-renta/", "/vivienda/", "/vivienda/segunda-vivienda/", "/glosario/", "/glosario/base-liquidable/", "/validacion/", "/autonomos/", "/autonomos/canarias/", "/guias/12-o-14-pagas/", "/widget/", "/widget/sueldo-neto.html?t=ES-CT&ancho=compacto", "/#ofertas", "/#ejercicios", "/#marginal", "/comparar-ofertas/", "/irpf-2025-vs-2026/", "/tipo-marginal-real/", "/ranking-irpf-comunidades/", "/#plan-pensiones", "/sobre-mapafiscal/", "/contacto/"];
   for (const colorScheme of ["light", "dark"]) {
     for (const ruta of rutasAxe) {
       await prueba(`axe sin infracciones serious/critical (${colorScheme}): ${ruta}`, async () => {

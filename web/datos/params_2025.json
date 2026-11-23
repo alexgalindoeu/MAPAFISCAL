@@ -143,6 +143,22 @@
    "base_tramo2": 2364.34,
    "limite_otras_rentas": 6500
   },
+  "capital_inmobiliario": {
+   "norma": "Arts. 23–24 LIRPF; Ley 12/2023",
+   "fuente": "AEAT Manual Renta 2025",
+   "estado": "provisional",
+   "reduccion_arrendamiento_vivienda": {
+    "general": 0.5,
+    "zona_tensionada_bajada_renta": 0.9,
+    "primer_alquiler_joven_o_admon": 0.7,
+    "rehabilitacion_reciente": 0.6
+   },
+   "amortizacion_porcentaje": 0.03,
+   "reduccion_irregular": {
+    "porcentaje": 0.3,
+    "base_maxima": 300000
+   }
+  },
   "capital_mobiliario": {
    "norma": "Arts. 25–26 LIRPF",
    "estado": "confirmado",
@@ -427,6 +443,16 @@
    "fuente": "NF 13/2013 art. 9.24",
    "estado": "confirmado",
    "importe": 1500
+  },
+  "capital_inmobiliario": {
+   "norma": "Art. 32 NF 13/2013 y equivalentes; NF 2/2025, 3/2025, 1/2025 (efectos 2025)",
+   "fuente": "Cuatrecasas (mayo 2025)",
+   "estado": "confirmado",
+   "bonificacion_general": 0.2,
+   "bonificacion_vivienda_habitual": 0.3,
+   "bonificacion_zona_tensionada": 0.7,
+   "bonificacion_programas_publicos": 0.7,
+   "deduce_gastos_financieros": true
   },
   "deduccion_descendientes": {
    "norma": "Art. 79 NF 3/2014 Gipuzkoa (y equivalentes)",

@@ -17,7 +17,7 @@ import { createRequire } from "node:module";
 import { readFileSync, writeFileSync, mkdirSync, existsSync, readdirSync, rmSync } from "node:fs";
 import { join, dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
-import { SITIO, SLUG, ORDEN_TERRITORIOS, HERRAMIENTA, NOMBRE_CORTO, esc, textoPlano, euros, eurosExactos, difEuros, pct, pctCorto, tablaEscala, citaFuente, layout, jsonLdMigas, jsonLdFaq, jsonLdDataset, bloqueFaq, respuestaDirecta, bloqueCalculoRapido, migasHtml, tituloQueQuepa, fecharContenido, hashContenido, EJERCICIO } from "./seo_comun.mjs";
+import { SITIO, SLUG, ORDEN_TERRITORIOS, HERRAMIENTA, NOMBRE_CORTO, esc, textoPlano, euros, eurosExactos, difEuros, pctMedio, pctTipo, notaDosTipos, tablaEscala, citaFuente, layout, jsonLdMigas, jsonLdFaq, jsonLdDataset, bloqueFaq, respuestaDirecta, bloqueCalculoRapido, migasHtml, tituloQueQuepa, fecharContenido, hashContenido, EJERCICIO } from "./seo_comun.mjs";
 import { robotsTxt, llmsTxt } from "./seo_ia.mjs";
 import { paginaDeducciones, CAMPO, conDe, conEn, conArticulo } from "./seo_deducciones.mjs";
 import { paginasFichasDeduccion, paramsDe } from "./seo_deduccion_ficha.mjs";
@@ -32,6 +32,7 @@ import { paginasDevuelve } from "./seo_devuelve.mjs";
 import { paginasAutonomos, HUB_AUTONOMOS } from "./seo_autonomos.mjs";
 import { paginaMetodologia } from "./seo_metodologia.mjs";
 import { paginaWidget, RUTA_WIDGET } from "./seo_widget.mjs";
+import { paginaSobre, paginaContacto, RUTA_SOBRE, RUTA_CONTACTO } from "./seo_sobre.mjs";
 import { paginaRanking, RUTA_RANKING } from "./seo_ranking.mjs";
 import { paginasGlosario, enlazarGlosario, HUB_GLOSARIO } from "./seo_glosario.mjs";
 import { paginasVivienda, PAGINAS_VIVIENDA, HUB_VIVIENDA } from "./seo_vivienda.mjs";
@@ -86,7 +87,7 @@ const listaY = xs => xs.length > 1 ? xs.slice(0, -1).join(", ") + " y " + xs[xs.
 const media = xs => xs.reduce((a, x) => a + x, 0) / xs.length;
 function mediaDe(salario) {
   const f = comparativas.comparativas[String(salario)];
-  return { cuota: media(f.map(x => x.cuota_liquida_total)), tipo: media(f.map(x => x.tipo_medio_efectivo)), n: f.length, primero: f[0], ultimo: f[f.length - 1] };
+  return { cuota: media(f.map(x => x.cuota_liquida_total)), tipo: media(f.map(x => x.cuota_liquida_total / salario)), n: f.length, primero: f[0], ultimo: f[f.length - 1] };
 }
 // Anclas de los enlaces a sueldo neto: cambian con el importe.
 const ANCLA_NETO = [(n, b) => `Sueldo neto de ${b} en ${n}`, (n, b) => `${b} brutos en netos en ${n}`, (n, b) => `Cuánto se cobra con ${b} en ${n}`, (n, b) => `Nómina neta con ${b} en ${n}`, (n, b) => `${b} brutos al año en ${n}: neto al mes`];
@@ -157,7 +158,7 @@ function paginaTerritorio(codigo) {
     let cartaEjemplo = "";
     if (ej && Math.abs(ej.cuotaLiquida - fila30.cuota_liquida_total) < 0.005) {
       const ex = eurosExactos;
-      const filasTr = ej.tramos.map(x => `<tr><td>${esc(ex(x.desde))} a ${esc(ex(x.hasta))}</td><td class="num">${esc(ex(x.parte))}</td><td class="num">${esc(pct(x.tipo))}</td><td class="num">${esc(ex(x.cuota))}</td></tr>`).join("");
+      const filasTr = ej.tramos.map(x => `<tr><td>${esc(ex(x.desde))} a ${esc(ex(x.hasta))}</td><td class="num">${esc(ex(x.parte))}</td><td class="num">${esc(pctTipo(x.tipo))}</td><td class="num">${esc(ex(x.cuota))}</td></tr>`).join("");
       cartaEjemplo = `<div class="tarjeta tarjeta-tabla" id="ejemplo-30000">
     <h2 class="rotulo">Ejemplo paso a paso: 30.000 € brutos ${esc(en)} (2025)</h2>
     <p class="ayuda">${esc(comparativas.supuesto)}</p>
@@ -186,7 +187,7 @@ function paginaTerritorio(codigo) {
     const P25 = paramsForal(2025);
     const rasgo = P25 ? textoPlano(rasgoForalDe(P25, codigo)) : "";
     faqForal = [
-      [`¿Qué diferencia hay entre las tablas ${de} y las del régimen común?`, `En régimen común la escala tiene dos mitades, la estatal (del ${pctCorto(e[0].tipo)} al ${pctCorto(e[e.length - 1].tipo)}, ${art(guias.escalas.estatal_2025.norma)}) y la autonómica, que se suman. ${nombre} aplica una tarifa foral única de ${tr.length} tramos, del ${pctCorto(tMin)} al ${pctCorto(tMax)}. ${rasgo}`.trim()],
+      [`¿Qué diferencia hay entre las tablas ${de} y las del régimen común?`, `En régimen común la escala tiene dos mitades, la estatal (del ${pctTipo(e[0].tipo)} al ${pctTipo(e[e.length - 1].tipo)}, ${art(guias.escalas.estatal_2025.norma)}) y la autonómica, que se suman. ${nombre} aplica una tarifa foral única de ${tr.length} tramos, del ${pctTipo(tMin)} al ${pctTipo(tMax)}. ${rasgo}`.trim()],
       [`¿Dónde se publica la tabla oficial del IRPF ${de}?`, `En el ${BOLETIN[codigo]}. La tarifa de 2025 está en el ${art(normaDelTerritorio(codigo, f25.norma))}${con26 && !igual26 ? `; la de 2026, en el ${art(normaDelTerritorio(codigo, esc26.norma))}` : ""}. ${HACIENDA_FAQ[codigo]} la recoge también en su información de la campaña de la renta.`],
       ...(renta ? renta.faq : [])
     ];
@@ -214,13 +215,13 @@ function paginaTerritorio(codigo) {
 
   const filasComparativa = comparativas.salarios.map(s => {
     const fila = comparativas.comparativas[String(s)].find(f => f.territorio === codigo);
-    return `<tr><td>${esc(eurosSalario(s))}</td><td class="num">${fila.puesto} de 19</td><td class="num">${esc(euros(fila.cuota_liquida_total))}</td><td class="num">${esc(pct(fila.tipo_medio_efectivo))}</td><td><a href="/comparar-sueldo/${s}/">Ver los 19</a></td></tr>`;
+    return `<tr><td>${esc(eurosSalario(s))}</td><td class="num">${fila.puesto} de 19</td><td class="num">${esc(euros(fila.cuota_liquida_total))}</td><td class="num">${esc(pctMedio(fila.cuota_liquida_total / s))}</td><td><a href="/comparar-sueldo/${s}/">Ver los 19</a></td></tr>`;
   }).join("");
 
   const cartaComparativa = `<div class="tarjeta tarjeta-tabla">
     <h2 class="rotulo">¿Cómo queda ${esc(el)} frente a los otros 18 territorios?</h2>
     <p class="ayuda">Caso de referencia: ${esc(comparativas.supuesto)}</p>
-    <div class="envoltorio"><table class="cobertura"><thead><tr><th>Sueldo bruto</th><th class="num">Puesto (de más barato a más caro)</th><th class="num">Cuota líquida</th><th class="num">Tipo medio</th><th><span class="sr-only">Acción</span></th></tr></thead><tbody>${filasComparativa}</tbody></table></div>
+    <div class="envoltorio"><table class="cobertura"><thead><tr><th>Sueldo bruto</th><th class="num">Puesto (de más barato a más caro)</th><th class="num">Cuota líquida</th><th class="num">Tipo medio sobre el bruto</th><th><span class="sr-only">Acción</span></th></tr></thead><tbody>${filasComparativa}</tbody></table></div>
   </div>`;
 
   const anios = con26 ? "2025 y 2026" : "2025";
@@ -231,31 +232,31 @@ function paginaTerritorio(codigo) {
   const cartaMedia = esComun ? `<div class="tarjeta" id="frente-a-la-media">
     <h2 class="rotulo">IRPF ${esc(en)} frente a la media de los ${m30.n} territorios</h2>
     <dl class="kpis"><div><dt>${esc(NOMBRE_CORTO[codigo])}, 30.000 €</dt><dd>${esc(euros(fila30.cuota_liquida_total))}</dd></div><div><dt>Media de los ${m30.n}</dt><dd>${esc(euros(m30.cuota))}</dd></div><div><dt>Diferencia al año</dt><dd>${esc(dif30 === 0 ? "0 €" : (dif30 < 0 ? "−" : "+") + euros(Math.abs(dif30)))}</dd></div></dl>
-    <p>Con 30.000 € brutos al año, ${esc(en)} se pagan <b>${esc(euros(fila30.cuota_liquida_total))}</b> de IRPF: ${esc(frente)} de los ${m30.n} territorios fiscales (${esc(euros(m30.cuota))}). El tipo medio es del ${esc(pct(fila30.tipo_medio_efectivo))}, frente al ${esc(pct(m30.tipo))} de media. Ocupa el puesto ${fila30.puesto} de ${m30.n}, de más barato a más caro: el más barato es ${esc(m30.primero.nombre)} (${esc(euros(m30.primero.cuota_liquida_total))}) y el más caro, ${esc(m30.ultimo.nombre)} (${esc(euros(m30.ultimo.cuota_liquida_total))}).</p>
+    <p>Con 30.000 € brutos al año, ${esc(en)} se pagan <b>${esc(euros(fila30.cuota_liquida_total))}</b> de IRPF: ${esc(frente)} de los ${m30.n} territorios fiscales (${esc(euros(m30.cuota))}). El tipo medio sobre el sueldo bruto es del ${esc(pctMedio(fila30.cuota_liquida_total / 30000))}, frente al ${esc(pctMedio(m30.tipo))} de media. Ocupa el puesto ${fila30.puesto} de ${m30.n}, de más barato a más caro: el más barato es ${esc(m30.primero.nombre)} (${esc(euros(m30.primero.cuota_liquida_total))}) y el más caro, ${esc(m30.ultimo.nombre)} (${esc(euros(m30.ultimo.cuota_liquida_total))}).</p>
     <p class="ayuda">Caso de referencia: ${esc(comparativas.supuesto)} Media simple de los ${m30.n} territorios. <a href="/comparar-sueldo/30000/">Ranking completo con 30.000 €</a>.</p>
   </div>` : "";
   const cartaTipos = tipos ? `<div class="tarjeta tarjeta-tabla" id="tipos-por-sueldo">
     <h2 class="rotulo">Tipo marginal y tipo medio del IRPF ${esc(en)} por sueldo (${comparativas.ejercicio})</h2>
-    <div class="envoltorio"><table class="cobertura"><thead><tr><th>Sueldo bruto</th><th class="num">Tipo marginal</th><th class="num">IRPF del año</th><th class="num">Tipo medio efectivo</th><th class="num">IRPF sobre el bruto</th></tr></thead><tbody>${tipos.map(x =>
-      `<tr><td>${comparativas.salarios.includes(x.b) ? `<a href="/comparar-sueldo/${x.b}/">${esc(euros(x.b))}</a>` : esc(euros(x.b))}</td><td class="num">${esc(pct(x.marginal))}</td><td class="num">${esc(euros(x.irpf))}</td><td class="num">${esc(pct(x.medio))}</td><td class="num">${esc(pct(x.sobreBruto))}</td></tr>`).join("")}</tbody></table></div>
-    <p class="ayuda">Mismo caso de referencia que la comparativa. Tipo marginal: suma de los tipos estatal y autonómico del tramo en el que cae la base liquidable general, el que paga el último euro. Tipo medio efectivo: IRPF del año entre la base imponible, como en la comparativa de los 19 territorios. Calculado con el mismo motor que la calculadora. <a href="/guias/tipo-marginal-y-tipo-medio/">Qué diferencia hay entre los dos</a>.</p>
+    <div class="envoltorio"><table class="cobertura"><thead><tr><th>Sueldo bruto</th><th class="num">Tipo marginal</th><th class="num">IRPF del año</th><th class="num">Tipo medio sobre el sueldo bruto</th><th class="num">Tipo medio sobre la base imponible</th></tr></thead><tbody>${tipos.map(x =>
+      `<tr><td>${comparativas.salarios.includes(x.b) ? `<a href="/comparar-sueldo/${x.b}/">${esc(euros(x.b))}</a>` : esc(euros(x.b))}</td><td class="num">${esc(pctTipo(x.marginal))}</td><td class="num">${esc(euros(x.irpf))}</td><td class="num">${esc(pctMedio(x.sobreBruto))}</td><td class="num">${esc(pctMedio(x.medio))}</td></tr>`).join("")}</tbody></table></div>
+    <p class="ayuda">Mismo caso de referencia que la comparativa. Tipo marginal: suma de los tipos estatal y autonómico del tramo en el que cae la base liquidable general, el que paga el último euro. ${(x => notaDosTipos({ bruto: x.b, cuota: x.irpf, sobreBruto: x.sobreBruto, sobreBase: x.medio }))(tipos.find(x => x.b === 30000) || tipos[0])} Calculado con el mismo motor que la calculadora. <a href="/guias/tipo-marginal-y-tipo-medio/">Qué diferencia hay entre los dos</a>.</p>
   </div>` : "";
-  const resumen = `${esc(en)} el IRPF de 2025 va del <b>${esc(pctCorto(tMin))}</b> al <b>${esc(pctCorto(tMax))}</b>${esComun ? " (escala estatal y autonómica sumadas)" : ", con su tarifa foral"}; el tipo máximo se aplica desde ${esc(euros(desdeMax))} de base liquidable. Con 30.000 € brutos al año, una persona sin hijos paga <b>${esc(euros(fila30.cuota_liquida_total))}</b> de IRPF (tipo medio del ${esc(pct(fila30.tipo_medio_efectivo))}), el puesto ${fila30.puesto} de 19.${esComun ? ` La media de los ${m30.n} territorios es de ${esc(euros(m30.cuota))}.` : ""}`;
+  const resumen = `${esc(en)} el IRPF de 2025 va del <b>${esc(pctTipo(tMin))}</b> al <b>${esc(pctTipo(tMax))}</b>${esComun ? " (escala estatal y autonómica sumadas)" : ", con su tarifa foral"}; el tipo máximo se aplica desde ${esc(euros(desdeMax))} de base liquidable. Con 30.000 € brutos al año, una persona sin hijos paga <b>${esc(euros(fila30.cuota_liquida_total))}</b> de IRPF (tipo medio sobre el sueldo bruto del ${esc(pctMedio(fila30.cuota_liquida_total / 30000))}), el puesto ${fila30.puesto} de 19.${esComun ? ` La media de los ${m30.n} territorios es de ${esc(euros(m30.cuota))}.` : ""}`;
   const faq = [
-    [`¿Cuáles son los tramos del IRPF ${en} en 2025?`, `${tr.length} tramos, del ${pctCorto(tMin)} al ${pctCorto(tMax)}${esComun ? ", ya sumadas la escala estatal y la autonómica" : ""}. El tipo máximo se aplica a la base liquidable general que pasa de ${euros(desdeMax)}.`],
-    [`¿Cuánto IRPF se paga con 30.000 € ${en}?`, `${euros(fila30.cuota_liquida_total)} al año (tipo medio del ${pct(fila30.tipo_medio_efectivo)}) para una persona de 40 años, sin hijos y con un solo pagador, en 2025. Es el puesto ${fila30.puesto} de 19 territorios, de más barato a más caro.`],
+    [`¿Cuáles son los tramos del IRPF ${en} en 2025?`, `${tr.length} tramos, del ${pctTipo(tMin)} al ${pctTipo(tMax)}${esComun ? ", ya sumadas la escala estatal y la autonómica" : ""}. El tipo máximo se aplica a la base liquidable general que pasa de ${euros(desdeMax)}.`],
+    [`¿Cuánto IRPF se paga con 30.000 € ${en}?`, `${euros(fila30.cuota_liquida_total)} al año (tipo medio sobre el sueldo bruto del ${pctMedio(fila30.cuota_liquida_total / 30000)}) para una persona de 40 años, sin hijos y con un solo pagador, en 2025. Es el puesto ${fila30.puesto} de 19 territorios, de más barato a más caro.`],
     esComun
       ? [`¿Quién fija el IRPF ${en}?`, `El Estado fija la escala estatal y ${el} su escala autonómica, que se suma a la estatal. ${El} también aprueba sus propias deducciones autonómicas.`]
       : [`¿Se aplica la escala estatal ${en}?`, `No. ${nombre} tiene su propio IRPF foral: aplica su tarifa completa y sus deducciones, no la escala estatal ni las autonómicas.`]
   ];
   if (con26) faq.push([`¿Cambia la tabla del IRPF ${de} en 2026?`, igual26
     ? `No: en 2026 la tarifa ${de} mantiene los mismos tramos y tipos que en 2025.`
-    : `Sí: para 2026 se actualizan los límites de los tramos (el primero pasa de ${euros(tr[0].hasta)} a ${euros(esc26.tramos[0].hasta)}); los tipos, del ${pctCorto(tMin)} al ${pctCorto(tMax)}, no cambian.`]);
+    : `Sí: para 2026 se actualizan los límites de los tramos (el primero pasa de ${euros(tr[0].hasta)} a ${euros(esc26.tramos[0].hasta)}); los tipos, del ${pctTipo(tMin)} al ${pctTipo(tMax)}, no cambian.`]);
   faq.push(...faqForal);
   if (esComun) {
     faq.push([`¿Se paga más IRPF ${en} que en el resto de España?`, `Con 30.000 € brutos se pagan ${euros(fila30.cuota_liquida_total)} al año, ${frente} de los ${m30.n} territorios (${euros(m30.cuota)}), en ${comparativas.ejercicio}. ${El} ocupa el puesto ${fila30.puesto} de ${m30.n}, de más barato a más caro.`]);
     const t40 = tipos?.find(x => x.b === 40000);
-    if (t40) faq.push([`¿Cuál es el tipo marginal del IRPF ${en} con 40.000 €?`, `El ${pct(t40.marginal)} (estatal más autonómico): es lo que tributa el último euro. El tipo medio efectivo es menor, del ${pct(t40.medio)}, con ${euros(t40.irpf)} de IRPF en el año (${comparativas.ejercicio}, persona sin hijos y con un solo pagador).`]);
+    if (t40) faq.push([`¿Cuál es el tipo marginal del IRPF ${en} con 40.000 €?`, `El ${pctTipo(t40.marginal)} (estatal más autonómico): es lo que tributa el último euro. El tipo medio es mucho menor: el ${pctMedio(t40.sobreBruto)} del sueldo bruto, con ${euros(t40.irpf)} de IRPF en el año (${comparativas.ejercicio}, persona sin hijos y con un solo pagador).`]);
     faq.push([`¿Cómo se hace la declaración de la renta ${en}?`, `Como en todo el régimen común, se presenta ante la Agencia Tributaria (AEAT). La declaración aplica la escala estatal, la escala autonómica ${de} y, si cumples los requisitos, sus deducciones autonómicas. Las fechas de la campaña están en el calendario de la renta de Mapafiscal.`]);
     if (conDeducciones.has(codigo)) faq.push([`¿Qué deducciones tiene la renta ${en}?`, `Además de las estatales, ${el} tiene deducciones autonómicas propias que se restan de la parte autonómica de la cuota, como ${listaY((fichasDe.get(codigo) || []).slice(0, 3).map(f => f.titulo.charAt(0).toLowerCase() + f.titulo.slice(1)))}. La página de deducciones ${de} las recoge con su cuantía y su límite.`]);
   }
@@ -279,21 +280,21 @@ function paginaTerritorio(codigo) {
   // Descripción de régimen común: la cifra frente a la media, recortada si no cabe.
   function descripcionComun() {
     const vs = [
-      `IRPF y renta en ${corto} ${anios}: tramos del ${pctCorto(tMin)} al ${pctCorto(tMax)}. Con 30.000 € pagas ${euros(fila30.cuota_liquida_total)}; la media de los ${m30.n} es ${euros(m30.cuota)}. Tipos y deducciones.`,
-      `IRPF en ${corto} ${anios}: tramos del ${pctCorto(tMin)} al ${pctCorto(tMax)}. Con 30.000 € pagas ${euros(fila30.cuota_liquida_total)} (media de los ${m30.n}: ${euros(m30.cuota)}). Tipos y deducciones.`,
+      `IRPF y renta en ${corto} ${anios}: tramos del ${pctTipo(tMin)} al ${pctTipo(tMax)}. Con 30.000 € pagas ${euros(fila30.cuota_liquida_total)}; la media de los ${m30.n} es ${euros(m30.cuota)}. Tipos y deducciones.`,
+      `IRPF en ${corto} ${anios}: tramos del ${pctTipo(tMin)} al ${pctTipo(tMax)}. Con 30.000 € pagas ${euros(fila30.cuota_liquida_total)} (media de los ${m30.n}: ${euros(m30.cuota)}). Tipos y deducciones.`,
       `IRPF en ${corto} ${anios}: con 30.000 € pagas ${euros(fila30.cuota_liquida_total)} (media de los ${m30.n}: ${euros(m30.cuota)}). Tramos, tipos y deducciones.`
     ];
     return vs.find(v => v.length <= MAX_DESC) || vs[vs.length - 1];
   }
   return layout({
     jsonld: [jsonLdMigas([["Inicio", "/"], ["IRPF por territorio", "/irpf/"], [nombre, `/irpf/${slug}/`]]), jsonLdFaq(faq),
-      jsonLdDataset({ nombre: `Escala del IRPF en ${nombre} ${anios}`, descripcion: `Tramos de la base liquidable general y tipo marginal del IRPF en ${nombre}${esComun ? " (escala estatal más autonómica)" : " (tarifa foral)"}, del ${pctCorto(tMin)} al ${pctCorto(tMax)}.`, ruta: `/irpf/${slug}/`, generado: territorios.generado, ambito: nombre, fuentes: fuentesEscala.flatMap(f => [f.norma, f.fuente]),
+      jsonLdDataset({ nombre: `Escala del IRPF en ${nombre} ${anios}`, descripcion: `Tramos de la base liquidable general y tipo marginal del IRPF en ${nombre}${esComun ? " (escala estatal más autonómica)" : " (tarifa foral)"}, del ${pctTipo(tMin)} al ${pctTipo(tMax)}.`, ruta: `/irpf/${slug}/`, generado: territorios.generado, ambito: nombre, fuentes: fuentesEscala.flatMap(f => [f.norma, f.fuente]),
         conLirpf: esComun, periodo: anios.replace(" y ", "/") })],
     title: !esComun
       ? `IRPF ${corto} ${anios}: tablas, renta y tipo marginal`
-      : con26 ? `IRPF ${corto} 2025 y 2026: tabla de tramos hasta el ${pctCorto(tMax)}` : tituloQueQuepa(`IRPF en ${corto} 2025: tramos, tipos y cuánto se paga`, `IRPF en ${corto} 2025: tramos y tipos`),
+      : con26 ? `IRPF ${corto} 2025 y 2026: tabla de tramos hasta el ${pctTipo(tMax)}` : tituloQueQuepa(`IRPF en ${corto} 2025: tramos, tipos y cuánto se paga`, `IRPF en ${corto} 2025: tramos y tipos`),
     description: !esComun
-      ? `IRPF y renta ${anios} en ${corto}: tablas (del ${pctCorto(tMin)} al ${pctCorto(tMax)}), tipo marginal y medio por sueldo, ${t.regimen === "foral_navarra" ? "mínimos" : "minoración"} y deducciones forales. Calculadora gratis.`
+      ? `IRPF y renta ${anios} en ${corto}: tablas (del ${pctTipo(tMin)} al ${pctTipo(tMax)}), tipo marginal y medio por sueldo, ${t.regimen === "foral_navarra" ? "mínimos" : "minoración"} y deducciones forales. Calculadora gratis.`
       : descripcionComun(),
     canonical: `/irpf/${slug}/`,
     breadcrumb: `<a href="/index.html">Inicio</a> › <a href="/irpf/">IRPF por territorio</a> › ${esc(nombre)}`,
@@ -305,7 +306,7 @@ function paginaTerritorio(codigo) {
 function paginaSalario(salario) {
   const filas = comparativas.comparativas[String(salario)];
   const masBarato = filas[0], masCaro = filas[filas.length - 1];
-  const filasHtml = filas.map(f => `<tr><td class="num">${f.puesto}</td><td><a href="/irpf/${SLUG[f.territorio]}/">${esc(f.nombre)}</a></td><td class="num">${esc(euros(f.cuota_liquida_total))}</td><td class="num">${esc(pct(f.tipo_medio_efectivo))}</td></tr>`).join("");
+  const filasHtml = filas.map(f => `<tr><td class="num">${f.puesto}</td><td><a href="/irpf/${SLUG[f.territorio]}/">${esc(f.nombre)}</a></td><td class="num">${esc(euros(f.cuota_liquida_total))}</td><td class="num">${esc(pctMedio(f.cuota_liquida_total / salario))}</td></tr>`).join("");
 
   const main = `
   <h1>¿Dónde se paga menos IRPF con ${esc(eurosSalario(salario))} de sueldo? (2025)</h1>
@@ -317,7 +318,8 @@ function paginaSalario(salario) {
   </div>
   <div class="tarjeta tarjeta-tabla">
     <h2 class="rotulo">Los 19 territorios, de menos a más IRPF</h2>
-    <div class="envoltorio"><table class="cobertura"><thead><tr><th class="num">Puesto</th><th>Territorio</th><th class="num">Cuota líquida</th><th class="num">Tipo medio efectivo</th></tr></thead><tbody>${filasHtml}</tbody></table></div>
+    <div class="envoltorio"><table class="cobertura"><thead><tr><th class="num">Puesto</th><th>Territorio</th><th class="num">Cuota líquida</th><th class="num">Tipo medio sobre el bruto</th></tr></thead><tbody>${filasHtml}</tbody></table></div>
+    <p class="ayuda">Tipo medio sobre el bruto: cuota líquida entre los ${esc(eurosSalario(salario))} de sueldo bruto. <a href="/glosario/tipo-medio/">Qué es el tipo medio y por qué hay dos formas de calcularlo</a>.</p>
   </div>
   <p><a class="btn btn-pri" href="/index.html#calculadora">Calcula tu caso real, con tu sueldo y tu situación</a> <a class="btn btn-sec" href="/sueldo-neto/${salario}/">Sueldo neto de ${esc(eurosSalario(salario))} en 12 y 14 pagas</a></p>
   </div>`;
@@ -339,23 +341,23 @@ function paginaIndiceTerritorios() {
   const c30 = comparativas.comparativas["30000"], m30 = mediaDe(30000);
   const tipoMax = c => { const tr = territorios.territorios[c].escala_combinada.tramos; return tr[tr.length - 1].tipo; };
   const filas19 = c30.map(f => { const t = territorios.territorios[f.territorio];
-    return `<tr><td class="num">${f.puesto}</td><td><a href="/irpf/${SLUG[f.territorio]}/">${esc(t.nombre)}</a></td><td>${t.regimen === "comun" ? "Común" : "Foral"}</td><td class="num">${esc(pctCorto(tipoMax(f.territorio)))}</td><td class="num">${esc(euros(f.cuota_liquida_total))}</td><td class="num">${esc(pct(f.tipo_medio_efectivo))}</td></tr>`; }).join("");
+    return `<tr><td class="num">${f.puesto}</td><td><a href="/irpf/${SLUG[f.territorio]}/">${esc(t.nombre)}</a></td><td>${t.regimen === "comun" ? "Común" : "Foral"}</td><td class="num">${esc(pctTipo(tipoMax(f.territorio)))}</td><td class="num">${esc(euros(f.cuota_liquida_total))}</td><td class="num">${esc(pctMedio(f.cuota_liquida_total / 30000))}</td></tr>`; }).join("");
   const comunes = ORDEN_TERRITORIOS.filter(c => territorios.territorios[c].regimen === "comun");
   const maxComun = comunes.map(tipoMax), est = guias.escalas.estatal_2025, et = est.tramos;
   const nEst = { norma: est.norma, fuente: est.fuente };
   const main = `
   <h1>IRPF por comunidades autónomas (${comparativas.ejercicio}): estatal y autonómico en los 19 territorios</h1>
-  ${respuestaDirecta(`con 30.000 € brutos al año, el IRPF de ${comparativas.ejercicio} va de <b>${esc(euros(m30.primero.cuota_liquida_total))}</b> en ${esc(m30.primero.nombre)} a <b>${esc(euros(m30.ultimo.cuota_liquida_total))}</b> en ${esc(m30.ultimo.nombre)}; la media de los ${m30.n} territorios es de ${esc(euros(m30.cuota))}. En las comunidades de régimen común el tipo máximo, sumadas la escala estatal y la autonómica, va del ${esc(pctCorto(Math.min(...maxComun)))} al ${esc(pctCorto(Math.max(...maxComun)))}.`)}
+  ${respuestaDirecta(`con 30.000 € brutos al año, el IRPF de ${comparativas.ejercicio} va de <b>${esc(euros(m30.primero.cuota_liquida_total))}</b> en ${esc(m30.primero.nombre)} a <b>${esc(euros(m30.ultimo.cuota_liquida_total))}</b> en ${esc(m30.ultimo.nombre)}; la media de los ${m30.n} territorios es de ${esc(euros(m30.cuota))}. En las comunidades de régimen común el tipo máximo, sumadas la escala estatal y la autonómica, va del ${esc(pctTipo(Math.min(...maxComun)))} al ${esc(pctTipo(Math.max(...maxComun)))}.`)}
   <p class="entradilla">Tramos, mínimo personal, deducciones y comparativa de cada uno de los 19 territorios fiscales de España: las 15 comunidades autónomas de régimen común, las tres diputaciones forales del País Vasco y Navarra.</p>
   <div class="prosa">
   <div class="tarjeta tarjeta-tabla" id="comparativa-19">
     <h2 class="rotulo">Impuestos por comunidades autónomas: el IRPF de los 19 territorios con 30.000 €</h2>
-    <div class="envoltorio"><table class="cobertura"><thead><tr><th class="num">Puesto</th><th>Territorio</th><th>Régimen</th><th class="num">Tipo máximo</th><th class="num">Cuota con 30.000 €</th><th class="num">Tipo medio</th></tr></thead><tbody>${filas19}</tbody></table></div>
-    <p class="ayuda">Puesto de más barato a más caro con 30.000 € brutos. Tipo máximo: el del último tramo de la base liquidable general (estatal más autonómico en régimen común; tarifa foral en el País Vasco y Navarra). Caso de referencia: ${esc(comparativas.supuesto)} <a href="/comparar-sueldo/">Comparativas con otros sueldos</a>.</p>
+    <div class="envoltorio"><table class="cobertura"><thead><tr><th class="num">Puesto</th><th>Territorio</th><th>Régimen</th><th class="num">Tipo máximo</th><th class="num">Cuota con 30.000 €</th><th class="num">Tipo medio sobre el bruto</th></tr></thead><tbody>${filas19}</tbody></table></div>
+    <p class="ayuda">Puesto de más barato a más caro con 30.000 € brutos. Tipo máximo: el del último tramo de la base liquidable general (estatal más autonómico en régimen común; tarifa foral en el País Vasco y Navarra). Tipo medio sobre el bruto: cuota entre los 30.000 € de sueldo bruto. Caso de referencia: ${esc(comparativas.supuesto)} <a href="/comparar-sueldo/">Comparativas con otros sueldos</a>.</p>
   </div>
   <div class="tarjeta" id="estatal-y-autonomico">
     <h2 class="rotulo">IRPF estatal y autonómico: cómo se reparte</h2>
-    <p>En las ${comunes.length} comunidades de régimen común el IRPF es un impuesto estatal cedido en parte a las comunidades autónomas. La cuota tiene dos partes que se calculan por separado sobre la misma base: la estatal, con la escala que fija la Ley del IRPF (del ${esc(pctCorto(et[0].tipo))} al ${esc(pctCorto(et[et.length - 1].tipo))}), y la autonómica, con la escala que aprueba cada comunidad. Lo que pagas es la suma de las dos.</p>
+    <p>En las ${comunes.length} comunidades de régimen común el IRPF es un impuesto estatal cedido en parte a las comunidades autónomas. La cuota tiene dos partes que se calculan por separado sobre la misma base: la estatal, con la escala que fija la Ley del IRPF (del ${esc(pctTipo(et[0].tipo))} al ${esc(pctTipo(et[et.length - 1].tipo))}), y la autonómica, con la escala que aprueba cada comunidad. Lo que pagas es la suma de las dos.</p>
     <p>Además de su escala, cada comunidad puede fijar sus propios mínimos personales y familiares para su parte de la cuota y aprobar deducciones autonómicas, que solo restan de la parte autonómica. Por eso, con el mismo sueldo, el IRPF cambia de una comunidad a otra. Te corresponde la comunidad de tu residencia habitual en el año (<a href="/guias/cambiar-de-comunidad-irpf/">cómo se determina</a>), y la declaración se presenta siempre ante la Agencia Tributaria.</p>
     <p>El País Vasco (Bizkaia, Gipuzkoa y Álava) y Navarra no aplican este reparto: por el concierto y el convenio económico tienen su propio IRPF foral, con su tarifa completa y sus deducciones, que gestionan sus haciendas forales.</p>
     ${citaFuente(nEst)}
@@ -507,6 +509,13 @@ export function generar({ conGit = false } = {}) {
   pagina(RUTA_WIDGET, paginaWidget(territorios, territorios.generado));
   // «Cómo comprobamos los cálculos»: la escribe tools/generar_validacion.mjs; aquí solo va al sitemap
   urls.push("/validacion/");
+  // «Sobre Mapafiscal» y «Contacto»: van al final para contar todas las páginas (más estas dos
+  // y la portada). Las cifras salen de los datos, no se escriben a mano.
+  const regimenes = ORDEN_TERRITORIOS.map(c => territorios.territorios[c]?.regimen);
+  pagina(RUTA_SOBRE, paginaSobre({ generado: territorios.generado, paginas: urls.length + 3, territorios: ORDEN_TERRITORIOS.length,
+    comun: regimenes.filter(r => r === "comun").length, forales: regimenes.filter(r => r && r !== "comun").length,
+    deducciones: porDeduccion.length, territoriosDeducciones: conDeducciones.size, guias: gs.length - 1, glosario: glo.length - 1 }));
+  pagina(RUTA_CONTACTO, paginaContacto({ generado: territorios.generado }));
   // Fecha real de cambio de cada página (y de la portada, que se escribe a mano).
   const generados = [territorios, comparativas, deducciones, guias, sueldoNeto, devuelve].map(d => d.generado).filter(Boolean);
   const anterior = leerRegistro();

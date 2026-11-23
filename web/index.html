@@ -24,8 +24,12 @@
 <meta name="twitter:description" content="Calcula gratis tu IRPF 2025 y 2026 con tu situación real y compáralo en los 19 territorios fiscales de España: 15 comunidades, las 3 diputaciones forales vascas y Navarra.">
 <meta name="twitter:image" content="https://mapafiscal.es/og.png">
 <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"Organization","@id":"https://mapafiscal.es/#organizacion","name":"Mapafiscal","url":"https://mapafiscal.es/","logo":"https://mapafiscal.es/iconos/icono-512.png","email":"contacto@mapafiscal.es","contactPoint":{"@type":"ContactPoint","contactType":"customer support","email":"contacto@mapafiscal.es","availableLanguage":"es"}},{"@type":"WebSite","@id":"https://mapafiscal.es/#web","name":"Mapafiscal","url":"https://mapafiscal.es/","inLanguage":"es","publisher":{"@id":"https://mapafiscal.es/#organizacion"}},{"@type":"WebApplication","name":"Mapafiscal: calculadora del IRPF","url":"https://mapafiscal.es/","inLanguage":"es","applicationCategory":"FinanceApplication","operatingSystem":"Cualquiera (navegador web)","isAccessibleForFree":true,"description":"Calcula gratis tu IRPF 2025 y 2026 con tu situación real y compáralo en los 19 territorios fiscales de España: 15 comunidades, las 3 diputaciones forales vascas y Navarra.","image":"https://mapafiscal.es/og.png","offers":{"@type":"Offer","price":"0","priceCurrency":"EUR"},"publisher":{"@id":"https://mapafiscal.es/#organizacion"}}]}</script>
+<!-- Precargas: la fuente del texto y los datos que app.js pide al arrancar (sin ellas, la
+descarga de los datos no empieza hasta que llega y se ejecuta app.js). La de los títulos
+(Archivo, 88 KB) no se precarga: competía con el CSS y retrasaba la primera pintura. -->
 <link rel="preload" href="fonts/public-sans-latin-var.woff2" as="font" type="font/woff2" crossorigin>
-<link rel="preload" href="fonts/archivo-latin-var.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="datos/params.json" as="fetch" type="application/json" crossorigin>
+<link rel="preload" href="datos/mapa_es.json" as="fetch" type="application/json" crossorigin>
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
 <link rel="apple-touch-icon" href="iconos/apple-touch-icon.png">
 <link rel="manifest" href="manifest.webmanifest">
@@ -225,7 +229,7 @@
       <div class="selector-ejercicio" data-selector-ejercicio="comp" hidden></div>
       <div class="segmentado" role="radiogroup" aria-label="Qué mostrar">
         <label><input type="radio" name="metrica" value="cuota" checked><span>Cuota</span></label>
-        <label><input type="radio" name="metrica" value="tipo"><span>Tipo medio</span></label>
+        <label><input type="radio" name="metrica" value="tipo"><span>Tipo medio sobre la base</span></label>
       </div>
       <div class="tabla-acciones" role="group" aria-label="Descargar las tablas en CSV">
         <button class="btn btn-sec btn-sm btn-csv" type="button" id="ranking-csv">Descargar CSV <span class="csv-de">del ranking</span></button>
@@ -324,6 +328,7 @@
         <tr><th scope="row">Desglose con casillas de Renta Web y deducciones autonómicas</th><td>✓</td><td>✓</td></tr>
         <tr><th scope="row">Mis clientes: perfiles de cliente guardados</th><td>—</td><td>Ilimitados</td></tr>
         <tr><th scope="row">Optimización por cliente (pensiones, conjunta, deducciones)</th><td>—</td><td>✓</td></tr>
+        <tr><th scope="row">Informe completo de tu declaración en PDF</th><td id="planes-informe-gratis">Con cuenta gratuita</td><td>✓</td></tr>
         <tr><th scope="row">Informe por cliente</th><td>—</td><td>✓</td></tr>
         <tr><th scope="row">Sin anuncios</th><td>—</td><td>✓</td></tr>
       </tbody>
@@ -333,6 +338,7 @@
   <div class="faq">
     <h2>Preguntas frecuentes</h2>
     <details><summary>¿La calculadora seguirá siendo gratis?</summary><p>Sí. El cálculo y la comparación entre territorios son gratuitos y no requieren cuenta.</p></details>
+    <details><summary>¿El informe completo en PDF es gratis?</summary><p id="faq-informe">Sí. Con una cuenta gratuita (se crea con tu correo o con Google, sin tarjeta) descargas el informe completo de tu declaración en PDF: desglose línea a línea, deducciones aplicadas con su norma, comparación en los 19 territorios y cómo pagar menos. Sin cuenta, la web te ofrece iniciar sesión al pedirlo. El resultado de la calculadora sigue siendo gratis y sin cuenta.</p></details>
     <details><summary>¿De dónde salen los cálculos?</summary><p>De un motor abierto que reproduce la normativa del ejercicio <span data-ejercicio>2025</span>: la Ley del IRPF, las leyes de tributos cedidos de cada comunidad, las normas forales vascas y el texto refundido navarro, contrastados con el Manual Práctico de Renta de la AEAT. Cada parámetro indica la norma de la que procede. Ver <a href="#metodologia">Metodología</a>.</p></details>
     <details><summary>¿Puedo guardar clientes sin suscribirme?</summary><p>No. «Mis clientes» forma parte del plan Gestor: con la suscripción activa guardas todos los clientes que quieras. La calculadora y el comparador siguen siendo gratuitos y sin cuenta.</p></details>
     <details><summary>¿Qué pasa con mis clientes si cancelo?</summary><p>Mantienes el acceso hasta el final del periodo pagado. Después, tus clientes quedan guardados pero ocultos, y vuelven a aparecer si reactivas el plan. Si prefieres que los borremos, puedes eliminarlos tú mismo desde «Mis clientes».</p></details>
@@ -851,7 +857,7 @@
     <div>
       <p class="antetitulo">Nómina · tipo marginal real</p>
       <h2 class="titulo-vista" id="t-mg">De cada 100 € más, ¿cuánto te queda?</h2>
-      <p class="entradilla">Lo que queda neto de cada 100 € brutos más, IRPF y Seguridad Social juntos, de 12.000 a 120.000 € al año, y por qué hay saltos.</p>
+      <p class="entradilla">Lo que queda neto de cada 100 € brutos más, IRPF y Seguridad Social juntos, de 12.000 a 120.000&nbsp;€ al año, y por qué hay saltos.</p>
     </div>
   </div>
   <div class="calc">
@@ -1169,7 +1175,7 @@
     <p><b>Mapafiscal</b> ofrece estimaciones con fines informativos. No es una liquidación oficial ni asesoramiento fiscal.</p>
     <p class="pie-sec"><a href="irpf/">IRPF por territorio</a> · <a href="guias/">Guías del IRPF</a> · <a href="vivienda/">Vivienda</a> · <a href="comparar-sueldo/">Dónde se paga menos IRPF</a> · <a href="sueldo-neto/">Sueldo neto por importe</a> · <a href="sueldo-mensual/">Sueldo al mes</a></p>
     <p class="pie-sec"><a href="#metodologia">Cómo calculamos</a> · Normativa del ejercicio <span data-ejercicio>2025</span> · <a href="validacion/">Motor validado R ↔ JavaScript</a> · Cartografía: <span title="es-atlas (MIT) sobre datos del Instituto Geográfico Nacional, CC BY 4.0">© Instituto Geográfico Nacional (CC BY 4.0)</span></p>
-    <p class="pie-sec"><a href="legal/aviso-legal.html">Aviso legal</a> · <a href="legal/privacidad.html">Privacidad</a> · <a href="legal/condiciones.html">Condiciones</a> · <a href="legal/cookies.html">Cookies</a><span id="pie-configurar-cookies" hidden> · <a href="legal/cookies.html#publicidad">Configurar cookies</a></span> · <a href="legal/aviso-legal.html#contacto">Contacto</a></p>
+    <p class="pie-sec"><a href="legal/aviso-legal.html">Aviso legal</a> · <a href="legal/privacidad.html">Privacidad</a> · <a href="legal/condiciones.html">Condiciones</a> · <a href="legal/cookies.html">Cookies</a><span id="pie-configurar-cookies" hidden> · <a href="legal/cookies.html#publicidad">Configurar cookies</a></span> · <a href="sobre-mapafiscal/">Sobre Mapafiscal</a> · <a href="contacto/">Contacto</a></p>
   </div>
 </footer>
 
@@ -1284,29 +1290,34 @@
   </form>
 </dialog>
 <!--/CUERPO-->
-<script src="config.js"></script>
-<script src="js/confianza.js"></script>
-<script src="js/ui.js"></script>
-<script src="js/irpfsim.js"></script>
-<script src="js/esquema.js"></script>
-<script src="js/importe.js"></script>
-<script src="js/csv.js"></script>
-<script src="js/explicacion.js"></script>
-<script src="js/formulario.js"></script>
-<script src="js/cuentas.js"></script>
-<script src="js/app.js"></script>
-<script src="js/herramientas.js"></script>
-<script src="js/informe.js"></script>
-<script src="js/rescate.js"></script>
-<script src="js/conjunta.js"></script>
-<script src="js/bruto.js"></script>
-<script src="js/sueldo_mes.js"></script>
-<script src="js/ofertas.js"></script>
-<script src="js/ejercicios.js"></script>
-<script src="js/marginal.js"></script>
-<script src="js/deducciones.js"></script>
-<script src="js/escenarios.js"></script>
-<script src="js/anuncios.js"></script>
-<script src="js/analitica.js"></script>
+<script src="config.js" defer></script>
+<script src="js/confianza.js" defer></script>
+<script src="js/ui.js" defer></script>
+<script src="js/irpfsim.js" defer></script>
+<script src="js/esquema.js" defer></script>
+<script src="js/importe.js" defer></script>
+<script src="js/csv.js" defer></script>
+<script src="js/explicacion.js" defer></script>
+<script src="js/formulario.js" defer></script>
+<script src="js/cuentas.js" defer></script>
+<script src="js/app.js" defer></script>
+<!-- Herramientas que no se ven en la primera vista: app.js las carga, en este orden, en
+cuanto pinta la vista de la dirección (cargarHerramientas). Dentro de <template> ni se
+descargan ni se ejecutan antes. -->
+<template id="js-herramientas">
+<script src="js/herramientas.js" defer></script>
+<script src="js/informe.js" defer></script>
+<script src="js/rescate.js" defer></script>
+<script src="js/conjunta.js" defer></script>
+<script src="js/bruto.js" defer></script>
+<script src="js/sueldo_mes.js" defer></script>
+<script src="js/ofertas.js" defer></script>
+<script src="js/ejercicios.js" defer></script>
+<script src="js/marginal.js" defer></script>
+<script src="js/deducciones.js" defer></script>
+<script src="js/escenarios.js" defer></script>
+</template>
+<script src="js/anuncios.js" defer></script>
+<script src="js/analitica.js" defer></script>
 </body>
 </html>

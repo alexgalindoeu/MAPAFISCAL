@@ -226,7 +226,9 @@ ganancia_elemento <- function(el, P, regimen) {
   if (!is.null(dt) && !is.null(el$fecha_adquisicion) &&
       as.Date(el$fecha_adquisicion) <= as.Date(dt$fecha_corte_adquisicion)) {
     # parte de la ganancia generada hasta 2006-01-20 (prorrateo lineal por días)
-    d_total <- as.numeric(as.Date(el$fecha_transmision %||% "2025-12-31") - as.Date(el$fecha_adquisicion))
+    # sin fecha de transmisión, el 31-12 del ejercicio de los parámetros (= el del hogar)
+    f_trans <- el$fecha_transmision %||% sprintf("%d-12-31", as.integer(P$meta$ejercicio))
+    d_total <- as.numeric(as.Date(f_trans) - as.Date(el$fecha_adquisicion))
     d_pre   <- as.numeric(as.Date("2006-01-20") - as.Date(el$fecha_adquisicion))
     frac_pre <- if (d_total > 0) min(1, max(0, d_pre / d_total)) else 1
     ganancia_pre <- ganancia * frac_pre

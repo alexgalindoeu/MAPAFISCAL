@@ -151,3 +151,33 @@ test("empaquetado: informe.js va dentro, sin el anuncio bonificado", () => {
   assert.doesNotMatch(informeDemo(), /googletag/);
   assert.match(html, /id="btn-informe"/);
 });
+
+// Issue #66: gratis con sesión mientras el pago único y el anuncio bonificado estén apagados.
+test("gratisConCuenta: solo con los dos interruptores apagados", () => {
+  assert.equal(I.gratisConCuenta(APAGADO), true);
+  assert.equal(I.gratisConCuenta({}), true);
+  assert.equal(I.gratisConCuenta(TODO), false);
+  assert.equal(I.gratisConCuenta({ informePago: true }), false);
+  assert.equal(I.gratisConCuenta({ informeAnuncio: true }), false);
+});
+
+test("con la config real, la cuenta gratuita desbloquea el informe y sin sesión se ofrece entrar", () => {
+  const window = {};
+  new Function("window", readFileSync(new URL("../web/config.js", import.meta.url), "utf8"))(window);
+  const cfg = window.MAPAFISCAL_CONFIG;
+  assert.equal(I.gratisConCuenta(cfg), true);
+  assert.equal(I.desbloqueo({ cfg, usuario: true, plan: "gratis" }).via, "registro");
+  assert.deepEqual(I.desbloqueo({ cfg }).opciones, ["acceso", "plan"]);
+});
+
+test("textos de Planes y preguntas frecuentes: el estático de index.html es el que pinta app.js", () => {
+  const index = readFileSync(new URL("../web/index.html", import.meta.url), "utf8");
+  const app = readFileSync(new URL("../web/js/app.js", import.meta.url), "utf8");
+  const faq = index.match(/<p id="faq-informe">([^<]+)<\/p>/);
+  assert.ok(faq, "falta la pregunta del informe en Planes");
+  assert.ok(app.includes(`faq: "${faq[1]}"`), "el texto de index.html y el de app.js (pagos apagados) difieren");
+  assert.match(index, /<td id="planes-informe-gratis">Con cuenta gratuita<\/td>/);
+  assert.match(app, /tabla: "Con cuenta gratuita"/);
+  // ya no se presenta como provisional
+  assert.doesNotMatch(readFileSync(new URL("../web/js/informe.js", import.meta.url), "utf8"), /por ahora|provisional para incentivar/);
+});

@@ -94,7 +94,7 @@
   }
 
   const eurTxt = n => (Math.round(n) < 0 ? "−" : "") + Math.abs(Math.round(n)).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".") + " €";
-  const pctTxt = p => (Math.round(p * 1000) / 10).toString().replace(".", ",") + " %";
+  const pctTxt = p => ((typeof window !== "undefined" && window.MapafiscalImporte) || require("./importe.js")).pctTipo(p);   // tipo de norma: decimales justos
   // importe en una frase corta
   function cuanto(d) {
     const lim = d.limite != null ? `, máximo ${eurTxt(d.limite)}` : "";

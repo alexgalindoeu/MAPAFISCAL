@@ -139,3 +139,19 @@ test("en todos los territorios la cuota es ≥ 0 y no baja al subir el salario",
 test("territorio desconocido lanza error", () => {
   assert.throws(() => motor.liquidar(hogarAsalariado("ES-XX", 30000, 1905), P), /territorio desconocido/);
 });
+
+test("alquiler de vivienda: la reducción y la bonificación foral salen de params", () => {
+  // rendimiento neto previo 10.000 − 1.000 − 1.000 = 8.000; reducción general 50 % -> 4.000
+  const conAlquiler = (t, tipo) => hogarAsalariado(t, 0, 0, { capitalInmobiliario: [{ ingresos: 10000, gastosFinancieros: 1000,
+    gastosDeducibles: 1000, arrendamientoVivienda: true, tipoArrendamiento: tipo }] });
+  const big = (h, p) => motor.liquidar(h, p, "individual").baseImponibleGeneral;
+  casi(big(conAlquiler("ES-CM", "general"), P), 4000, "común, general");
+  casi(big(conAlquiler("ES-CM", "zona_tensionada_bajada"), P), 800, "común, zona tensionada");
+  const Pm = structuredClone(P);
+  Pm.estatal.capital_inmobiliario.reduccion_arrendamiento_vivienda.general = 0.25;
+  Pm.foral_pv.capital_inmobiliario.bonificacion_vivienda_habitual = 0.5;
+  casi(big(conAlquiler("ES-CM", "general"), Pm), 6000, "común, general modificado");
+  // foral: 10.000 × (1 − 30 %) − 1.000 = 6.000; con la bonificación al 50 %, 4.000
+  casi(big(conAlquiler("ES-PV-BI", "vivienda_habitual"), P), 6000, "Bizkaia, vivienda habitual");
+  casi(big(conAlquiler("ES-PV-BI", "vivienda_habitual"), Pm), 4000, "Bizkaia, modificado");
+});

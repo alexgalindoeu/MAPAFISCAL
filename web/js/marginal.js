@@ -31,7 +31,7 @@
   const eur0 = n => (n < -0.5 ? "−" : "") + miles(Math.abs(Math.round(n || 0)).toString()) + " €";
   const eur = n => { const v = Math.round(Math.abs(n) * 100) / 100, [e, d] = v.toFixed(2).split("."); return (n < 0 ? "−" : "") + miles(e) + (d !== "00" ? "," + d : "") + " €"; };
   const eur2 = n => (n < 0 ? "−" : "") + miles(Math.abs(n).toFixed(2).split(".")[0]) + "," + Math.abs(n).toFixed(2).split(".")[1] + " €";
-  const pc = n => String(Math.round(n * 100000) / 1000).replace(".", ",") + " %";
+  const pc = n => ((typeof window !== "undefined" && window.MapafiscalImporte) || require("./importe.js")).pctTipo(n);   // tipos de tarifa y de cotización: decimales justos
   const coef = n => String(Math.round(n * 10000) / 10000).replace(".", ",");
   const esc = s => String(s == null ? "" : s).replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
 
@@ -172,26 +172,37 @@
   }
 
   // ---- gráfico SVG (lo usan la vista y la página SEO) ------------------------------------
-  function grafico(s, hs, { titulo = "", marca = null } = {}) {
-    const AN = 680, AL = 260, IZQ = 44, DER = 12, ARR = 26, ABA = 30;
+  // `ancho`: el ancho en píxeles al que se va a ver. Con el viewBox a esa medida, 1 unidad = 1 px
+  // y los rótulos de los ejes se leen a su tamaño (12 px) también en un móvil; con un viewBox
+  // fijo de 680 dentro de una columna de 330 px se quedaban en 6 px.
+  function grafico(s, hs, { titulo = "", marca = null, ancho = 680, clase = "" } = {}) {
+    const AN = Math.max(280, Math.round(ancho)), AL = AN < 520 ? 230 : 260, IZQ = 44, DER = 14, ARR = 26, ABA = 30;
     const x0 = s[0].bruto, x1 = s[s.length - 1].bruto;
     const X = x => IZQ + (x - x0) / (x1 - x0) * (AN - IZQ - DER), Y = y => ARR + (1 - Math.max(0, Math.min(100, y)) / 100) * (AL - ARR - ABA);
     const lineasY = [0, 25, 50, 75, 100], ticksX = [];
-    for (let v = Math.ceil(x0 / 20000) * 20000; v <= x1; v += 20000) ticksX.push(v);
+    const pasoX = (AN - IZQ - DER) / ((x1 - x0) / 20000) < 62 ? 40000 : 20000;   // «100 mil» mide unos 45 px
+    for (let v = Math.ceil(x0 / pasoX) * pasoX; v <= x1; v += pasoX) ticksX.push(v);
+    // el último rótulo va alineado a la derecha (no se sale): fuera el anterior si lo pisaría
+    if (ticksX.length > 1 && X(ticksX[ticksX.length - 1]) > AN - DER - 20 && X(ticksX[ticksX.length - 2]) + 24 > AN - DER - 52) ticksX.splice(ticksX.length - 2, 1);
     const camino = s.map((p, i) => `${i ? "L" : "M"}${X(p.bruto).toFixed(1)},${Y(p.queda).toFixed(1)}`).join("");
     const area = camino + `L${X(x1).toFixed(1)},${Y(0).toFixed(1)}L${X(x0).toFixed(1)},${Y(0).toFixed(1)}Z`;
     const r = resumen(s);
     const etiqueta = titulo || `De cada 100 € brutos más te quedan entre ${eur0(r.peor.queda)} y ${eur0(Math.max(...s.map(x => x.queda)))}; el mínimo, con ${eur0(r.peor.bruto)} brutos al año.`;
-    // saltos muy juntos: una sola marca con sus números
+    // saltos muy juntos: una sola marca con sus números («1–9» si son más de dos), sin que los
+    // rótulos se pisen (≈ 6,5 px por carácter a 11 px)
+    const rotulo = n => n.length > 2 ? `${n[0]}–${n[n.length - 1]}` : n.join(",");
+    const anchoRot = n => rotulo(n).length * 6.5;
     const grupos = [];
     hs.forEach((h, i) => { const x = X(h.bruto), u = grupos[grupos.length - 1];
-      if (u && x - u.x < 22) u.n.push(i + 1); else grupos.push({ x, n: [i + 1] }); });
+      if (u && x - u.x < (anchoRot(u.n) + anchoRot([i + 1])) / 2 + 6) { u.n.push(i + 1); } else grupos.push({ x, n: [i + 1] }); });
     const m = marca != null ? s.reduce((a, p) => Math.abs(p.bruto - marca) < Math.abs(a.bruto - marca) ? p : a, s[0]) : null;
-    return `<svg class="mg-svg" viewBox="0 0 ${AN} ${AL}" role="img" aria-label="${esc(etiqueta)}" preserveAspectRatio="xMidYMid meet">
+    // el último rótulo del eje X, alineado a la derecha para no salirse del gráfico
+    const anclaX = v => X(v) > AN - DER - 20 ? "end" : "middle";
+    return `<svg class="mg-svg${clase ? " " + clase : ""}" viewBox="0 0 ${AN} ${AL}" role="img" aria-label="${esc(etiqueta)}" preserveAspectRatio="xMidYMid meet">
   ${lineasY.map(v => `<line class="mg-reticula" x1="${IZQ}" x2="${AN - DER}" y1="${Y(v).toFixed(1)}" y2="${Y(v).toFixed(1)}"/><text class="mg-eje" x="${IZQ - 6}" y="${(Y(v) + 4).toFixed(1)}" text-anchor="end">${v} €</text>`).join("")}
-  ${ticksX.map(v => `<text class="mg-eje" x="${X(v).toFixed(1)}" y="${AL - 10}" text-anchor="middle">${Math.round(v / 1000)} mil</text>`).join("")}
+  ${ticksX.map(v => `<text class="mg-eje" x="${(anclaX(v) === "end" ? AN - DER : X(v)).toFixed(1)}" y="${AL - 10}" text-anchor="${anclaX(v)}">${Math.round(v / 1000)} mil</text>`).join("")}
   <path class="mg-area" d="${area}"/><path class="mg-linea" d="${camino}"/>
-  ${grupos.map(g => `<g class="mg-salto"><line x1="${g.x.toFixed(1)}" x2="${g.x.toFixed(1)}" y1="${ARR - 4}" y2="${Y(0).toFixed(1)}"/><text x="${g.x.toFixed(1)}" y="${ARR - 9}" text-anchor="middle">${g.n.join(",")}</text></g>`).join("")}
+  ${grupos.map(g => `<g class="mg-salto"><line x1="${g.x.toFixed(1)}" x2="${g.x.toFixed(1)}" y1="${ARR - 4}" y2="${Y(0).toFixed(1)}"/><text x="${g.x.toFixed(1)}" y="${ARR - 9}" text-anchor="middle">${rotulo(g.n)}</text></g>`).join("")}
   ${m ? `<circle class="mg-punto" cx="${X(m.bruto).toFixed(1)}" cy="${Y(m.queda).toFixed(1)}" r="5"/>` : ""}
 </svg>`;
   }
@@ -216,16 +227,28 @@
     }).catch(e => { delete cache[url]; throw e; });
     return JSON.parse(await cache[url]);
   }
-  let P = null;
+  let P = null, ultimo = null;
+  // ancho de la columna del resultado (680 si aún no se ve)
+  const anchoGrafico = () => $("mg-grafico").clientWidth || 680;
+  let anchoPintado = 0;
+  window.addEventListener("resize", () => {
+    if (!ultimo || $("v-marginal").hidden) return;
+    const a = anchoGrafico();
+    if (Math.abs(a - anchoPintado) < 24) return;
+    anchoPintado = a;
+    const svg = $("mg-grafico").querySelector("svg.mg-svg");
+    if (svg) svg.outerHTML = grafico(ultimo.s, ultimo.hs, { ancho: a });
+  });
   function pintar() {
     const t = $("mg-territorio").value, s = serie(P, t), hs = saltos(P, t, RANGO, s), r = resumen(s);
     const nombre = P.territorios[t].nombre;
     $("mg-chip").textContent = `${nombre} · ${P.ejercicio}`;
-    $("mg-principal").innerHTML = `<div class="res-etq">De cada 100 € brutos más, entre ${eur0(RANGO.desde)} y ${eur0(RANGO.hasta)}</div>
+    $("mg-principal").innerHTML = `<div class="res-etq">De cada 100 € brutos más, entre ${eur0(RANGO.desde)} y <span class="sin-corte">${eur0(RANGO.hasta)}</span></div>
       <div class="res-cifra">${eur0(r.media)} <small>de media</small></div>
-      <p class="res-sub" id="mg-frase">En ${esc(nombre)}, lo menos que te queda es <b>${eur0(r.peor.queda)}</b> de cada 100 €, con ${eur0(r.peor.bruto)} brutos al año: ahí el IRPF y la Seguridad Social se llevan ${eur0(100 - r.peor.queda)}.</p>`;
-    $("mg-grafico").innerHTML = grafico(s, hs) + `<p class="ayuda">Eje horizontal: sueldo bruto anual. Eje vertical: lo que queda neto de 100 € brutos más. Los números marcan los saltos que se explican debajo.</p>`;
-    $("mg-saltos").innerHTML = hs.length ? hs.map(h => `<li><b>Hacia ${eur0(h.bruto)} brutos:</b> ${esc(h.texto)} <span class="mg-antes">De cada 100 € te quedaban ${eur0(h.antes)}; ahora, ${eur0(h.despues)}.</span>` +
+      <p class="res-sub" id="mg-frase">En ${esc(nombre)}, lo menos que te queda es <b>${eur0(r.peor.queda)}</b> de cada 100 €, con ${eur0(r.peor.bruto)} brutos al año: ahí el IRPF y la Seguridad Social se llevan <span class="sin-corte">${eur0(100 - r.peor.queda)}.</span></p>`;
+    ultimo = { s, hs }; anchoPintado = anchoGrafico();
+    $("mg-grafico").innerHTML = grafico(s, hs, { ancho: anchoGrafico() }) + `<p class="ayuda">Eje horizontal: sueldo bruto anual. Eje vertical: lo que queda neto de 100 € brutos más. Los números marcan los saltos que se explican debajo.</p>`;
+    $("mg-saltos").innerHTML = hs.length ? hs.map(h => `<li><b>Hacia ${eur0(h.bruto)} brutos:</b> ${esc(h.texto)} <span class="mg-antes">De cada 100 € te quedaban <span class="sin-corte">${eur0(h.antes)};</span> ahora, <span class="sin-corte">${eur0(h.despues)}.</span></span>` +
       (h.detalle || h.norma ? `<span class="ayuda mg-detalle">${h.detalle ? esc(h.detalle) + " " : ""}${h.norma ? esc(h.norma) : ""}</span>` : "") + "</li>").join("") : "<li>No hay saltos en este rango.</li>";
     $("mg-tabla").innerHTML = `<caption class="sr">Lo que queda de cada 100 € brutos más en ${esc(nombre)}</caption><thead><tr><th scope="col" class="num">Sueldo bruto anual</th><th scope="col" class="num">Te quedan</th><th scope="col" class="num">IRPF</th><th scope="col" class="num">Seguridad Social</th></tr></thead><tbody>` +
       filasTabla(s).map(p => `<tr><th scope="row" class="num">${eur0(p.bruto)}</th><td class="num">${eur2(p.queda)}</td><td class="num">${eur2(p.irpf)}</td><td class="num">${eur2(p.ss)}</td></tr>`).join("") + "</tbody>";

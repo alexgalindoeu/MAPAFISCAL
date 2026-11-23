@@ -88,7 +88,7 @@
   const $ = id => document.getElementById(id);
   const esc = s => String(s == null ? "" : s).replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
   const conSigno = n => (n > 0.5 ? "+" : "") + eur0(n);
-  const pct = n => (100 * (n || 0)).toFixed(1).replace(".", ",") + "&nbsp;%";
+  const pct = n => ((typeof window !== "undefined" && window.MapafiscalImporte) || require("./importe.js")).pctMedio(n).replace(" %", "&nbsp;%");
   const leer = id => window.MapafiscalImporte ? window.MapafiscalImporte.valor($(id)) : parseFloat($(id).value);
   const escribir = (id, v) => { $(id).value = window.MapafiscalImporte ? window.MapafiscalImporte.formatearImporte(v) : String(v); };
   async function datos(idScript, url) {
@@ -132,7 +132,7 @@
     $("of-tabla").innerHTML = `<caption class="sr">Las dos ofertas, cifra a cifra</caption><thead><tr><th scope="col">Concepto</th><th scope="col" class="num">Oferta A</th><th scope="col" class="num">Oferta B</th><th scope="col" class="num">A − B</th></tr></thead><tbody>` +
       filas.map(([t, k]) => `<tr class="${k === "neto" ? "total" : ""}"><th scope="row">${t}</th><td class="num">${eur0(r.a[k])}</td><td class="num">${eur0(r.b[k])}</td><td class="num">${conSigno(r.a[k] - r.b[k])}</td></tr>`).join("") +
       `<tr class="info"><th scope="row">Neto de cada paga</th><td class="num">${eur0(r.a.netoPaga)} <small>× ${r.a.pagas}</small></td><td class="num">${eur0(r.b.netoPaga)} <small>× ${r.b.pagas}</small></td><td class="num"></td></tr>` +
-      `<tr class="info"><th scope="row">Tipo medio del IRPF</th><td class="num">${pct(r.a.tipoMedio)}</td><td class="num">${pct(r.b.tipoMedio)}</td><td class="num"></td></tr>` +
+      `<tr class="info"><th scope="row">Tipo medio sobre el sueldo bruto</th><td class="num">${pct(r.a.tipoMedio)}</td><td class="num">${pct(r.b.tipoMedio)}</td><td class="num"></td></tr>` +
       `<tr class="info"><th scope="row">IRPF + Seguridad Social sobre el bruto</th><td class="num">${pct(r.a.cargaTotal)}</td><td class="num">${pct(r.b.cargaTotal)}</td><td class="num"></td></tr>` +
       (r.a.plan || r.b.plan ? `<tr class="info"><th scope="row">IRPF que te ahorras por el plan</th><td class="num">${eur0(r.a.ahorroPlan)}</td><td class="num">${eur0(r.b.ahorroPlan)}</td><td class="num"></td></tr>` : "") + "</tbody>";
     const url = location.href.split("#")[0] + enlace(A, B);

@@ -1662,3 +1662,38 @@ deducción por cuenta vivienda en vigor (solo régimen transitorio de compras an
   contingencia o los dos siguientes (las contingencias anteriores a 2018, solo hasta 2020).
   `rescate26_nc_plazo` (contingencia 2025): reducción 16.000 €; `rescate26_nc_fuera`
   (contingencia 2022): sin reducción.
+
+## Alquiler de vivienda: porcentajes de params; fecha de transmisión por defecto (2026-11-23)
+
+Deudas de la auditoría (`auditoria/fase0-2026-11-18.md`, sección A). Tests en
+`tests/testthat/test-alquiler-params-fecha-transmision.R` y `test/motor.test.mjs`; casos
+`alquiler_*` y `dt9_sin_fecha_*` en `tools/validar_js.R`. Ningún resultado de 2025 cambia.
+
+**Porcentajes del alquiler de vivienda.** El motor JS los lee ahora de params, como el R:
+`estatal.capital_inmobiliario.reduccion_arrendamiento_vivienda` (régimen común, art. 23.2
+LIRPF) y `capital_inmobiliario` del bloque común del País Vasco (bonificación sobre ingresos
+íntegros). Ingresos 10.000 €, gastos financieros 1.000 € y otros gastos 1.000 €:
+
+| Régimen | Tipo | Porcentaje | Rendimiento neto |
+|---|---|---:|---:|
+| Común | general (o desconocido) | 50 % | 8.000 × 50 % = 4.000 |
+| Común | zona tensionada con bajada de renta | 90 % | 8.000 × 10 % = 800 |
+| Común | primer alquiler joven o Administración | 70 % | 8.000 × 30 % = 2.400 |
+| Común | rehabilitación reciente | 60 % | 8.000 × 40 % = 3.200 |
+| País Vasco | vivienda habitual (por defecto) | 30 % | 10.000 × 70 % − 1.000 = 6.000 |
+| País Vasco | zona tensionada / programas públicos | 70 % | 10.000 × 30 % − 1.000 = 2.000 |
+| País Vasco | otro | 20 % | 10.000 × 80 % − 1.000 = 7.000 |
+
+**Fecha de transmisión por defecto (DT 9.ª).** Si falta `fecha_transmision`, el prorrateo de
+la ganancia anterior al 20-01-2006 toma el 31-12 del ejercicio de los parámetros (el del
+hogar), en lugar del 31-12-2025 fijo. Acción cotizada comprada el 01-06-1990 por 10.000 € y
+vendida por 50.000 € (ganancia 40.000 €): a 31-12-1996 son 7 años (6,58 redondeado al alza),
+exceso 5 × 25 % = 100 %, así que se abate toda la parte anterior al 20-01-2006 (5.712 días
+desde la compra).
+
+| Ejercicio | Días hasta el 31-12 | Días desde el 20-01-2006 | Ganancia computable |
+|---|---:|---:|---:|
+| 2025 | 12.997 | 7.285 | 40.000 × 7.285 / 12.997 = 22.420,56 |
+| 2026 | 13.362 | 7.650 | 40.000 × 7.650 / 13.362 = 22.900,76 |
+
+En 2026 el resultado cambia: con la fecha fija salían 22.420,56 €.

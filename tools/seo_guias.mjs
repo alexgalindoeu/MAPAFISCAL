@@ -6,7 +6,7 @@
 // cita su norma con enlace a la fuente primaria (BOE o Manual práctico de la AEAT).
 // =============================================================================
 import {
-  SLUG, ORDEN_TERRITORIOS, NOMBRE_CORTO, HERRAMIENTA, LIRPF_BOE, esc, euros, eurosExactos as eur, pct, pctCorto,
+  SLUG, ORDEN_TERRITORIOS, NOMBRE_CORTO, HERRAMIENTA, LIRPF_BOE, esc, euros, eurosExactos as eur, pctMedio, pctTipo,
   fecha, urlBoe, tablaEscala, combinarEscalas, citaFuente, layout, jsonLdMigas, jsonLdArticulo,
   jsonLdFaq, jsonLdDataset, bloqueFaq, migasHtml, respuestaDirecta, difEuros, tituloQueQuepa, bloqueCalculoRapido
 } from "./seo_comun.mjs";
@@ -43,9 +43,9 @@ const neto = (P, terr, bruto, extra = {}) => MOTOR.sueldoNeto(Object.assign({ te
 const cuota = (tramos, base) => MOTOR.aplicarEscala(base, tramos);
 // «hasta 12.450 € al 9,5 %, de 12.450 a 20.200 € al 12 %… y desde 300.000 € al 24,5 %»
 function textoTramos(tr) {
-  const partes = tr.map((t, i) => i === 0 ? `hasta ${euros(t.hasta)} al ${pctCorto(t.tipo)}`
-    : t.hasta == null ? `desde ${euros(tr[i - 1].hasta)} al ${pctCorto(t.tipo)}`
-    : `de ${euros(tr[i - 1].hasta)} a ${euros(t.hasta)} al ${pctCorto(t.tipo)}`);
+  const partes = tr.map((t, i) => i === 0 ? `hasta ${euros(t.hasta)} al ${pctTipo(t.tipo)}`
+    : t.hasta == null ? `desde ${euros(tr[i - 1].hasta)} al ${pctTipo(t.tipo)}`
+    : `de ${euros(tr[i - 1].hasta)} a ${euros(t.hasta)} al ${pctTipo(t.tipo)}`);
   return listaY(partes);
 }
 
@@ -114,12 +114,12 @@ function guiaTramos(g, T) {
     const completo = t.hasta == null ? null : (t.hasta - desde) * t.tipo;
     if (completo != null) acum += completo;
     return [i === 0 ? `Hasta ${esc(euros(t.hasta))}` : t.hasta == null ? `Desde ${esc(euros(desde))}` : `De ${esc(euros(desde))} a ${esc(euros(t.hasta))}`,
-      esc(pctCorto(t.tipo)), completo == null ? `${esc(pctCorto(t.tipo))} de lo que pase de ${esc(euros(desde))}` : esc(eur(r2(completo))), completo == null ? "—" : esc(eur(r2(acum)))];
+      esc(pctTipo(t.tipo)), completo == null ? `${esc(pctTipo(t.tipo))} de lo que pase de ${esc(euros(desde))}` : esc(eur(r2(completo))), completo == null ? "—" : esc(eur(r2(acum)))];
   });
   const ejBases = BASES_TRAMOS.map(b => {
     const e0 = cuota(est, b);
-    return [esc(euros(b)), esc(pctCorto(MOTOR.tipoMarginal(b, est))), esc(eur(r2(e0))),
-      ...ejemplosT.flatMap(x => { const tot = cuota(x.comb, b); return [esc(eur(r2(tot))), esc(pct(tot / b))]; })];
+    return [esc(euros(b)), esc(pctTipo(MOTOR.tipoMarginal(b, est))), esc(eur(r2(e0))),
+      ...ejemplosT.flatMap(x => { const tot = cuota(x.comb, b); return [esc(eur(r2(tot))), esc(pctMedio(tot / b))]; })];
   });
 
   const cuerpo = `
@@ -135,12 +135,12 @@ function guiaTramos(g, T) {
     <h2 class="rotulo">Cuánto se paga en cada tramo de la escala estatal</h2>
     <p class="ayuda">Parte estatal de la cuota que corresponde a cada tramo cuando se llena entero, y lo que suma la cuota estatal al llegar al final del tramo. Antes de restar el mínimo personal y familiar y las deducciones.</p>
     ${tablaG(["Tramo de la base liquidable", "Tipo estatal", "Cuota del tramo completo", "Cuota estatal acumulada"], porTramo)}
-    <p>Ejemplo: con una base liquidable general de ${euros(ej)}, la parte estatal de la cuota es de ${eur(r2(cuotaEj))} antes de restar el mínimo personal y las deducciones: los primeros ${euros(est[0].hasta)} al ${pctCorto(est[0].tipo)} y solo lo que pasa de ${euros(desdeEj)} al ${pctCorto(est[iEj].tipo)}. A esa cifra se le suma la parte autonómica, que depende de dónde vivas.</p>
+    <p>Ejemplo: con una base liquidable general de ${euros(ej)}, la parte estatal de la cuota es de ${eur(r2(cuotaEj))} antes de restar el mínimo personal y las deducciones: los primeros ${euros(est[0].hasta)} al ${pctTipo(est[0].tipo)} y solo lo que pasa de ${euros(desdeEj)} al ${pctTipo(est[iEj].tipo)}. A esa cifra se le suma la parte autonómica, que depende de dónde vivas.</p>
   </div>
   <div class="tarjeta tarjeta-tabla">
     <h2 class="rotulo">Ejemplos: cuánto IRPF sale con cada base liquidable (${T.ejercicio})</h2>
-    <p class="ayuda">Cuota íntegra con la escala general, antes de restar el mínimo personal y familiar y las deducciones. Total = parte estatal + parte autonómica de cada comunidad. Tipo medio: cuota entre la base liquidable.</p>
-    ${tablaG(["Base liquidable", "Tipo marginal estatal", "Parte estatal", ...ejemplosT.flatMap(x => [`Total ${x.corto}`, `Tipo medio ${x.corto}`])], ejBases)}
+    <p class="ayuda">Cuota íntegra con la escala general, antes de restar el mínimo personal y familiar y las deducciones. Total = parte estatal + parte autonómica de cada comunidad. Tipo medio de gravamen: esa cuota íntegra entre la base liquidable (no es el tipo medio sobre el sueldo bruto de otras tablas, que divide el IRPF final entre el sueldo).</p>
+    ${tablaG(["Base liquidable", "Tipo marginal estatal", "Parte estatal", ...ejemplosT.flatMap(x => [`Total ${x.corto}`, `Tipo medio de gravamen ${x.corto}`])], ejBases)}
     <p>La base liquidable no es el sueldo bruto: antes se restan las cotizaciones, la reducción por rendimientos del trabajo y otras reducciones. Para tu sueldo, usa la <a href="${HERRAMIENTA.calculadora}">calculadora</a>.</p>
   </div>
   <div class="tarjeta">
@@ -148,7 +148,7 @@ function guiaTramos(g, T) {
     <p>En las 15 comunidades de régimen común la cuota del IRPF tiene dos partes que se calculan por separado sobre la misma base liquidable y se suman:</p>
     <ul>
       <li><b>Parte estatal:</b> la escala del ${lirpf("art. 63")}, igual en toda España salvo en el País Vasco y Navarra.</li>
-      <li><b>Parte autonómica:</b> la escala que aprueba cada comunidad (${lirpf("art. 74")}), con sus propios tramos y tipos. Por eso el tipo máximo total va del ${pctCorto(minT.max)} de ${esc(minT.nombre)} al ${pctCorto(maxT.max)} de ${esc(maxT.nombre)}.</li>
+      <li><b>Parte autonómica:</b> la escala que aprueba cada comunidad (${lirpf("art. 74")}), con sus propios tramos y tipos. Por eso el tipo máximo total va del ${pctTipo(minT.max)} de ${esc(minT.nombre)} al ${pctTipo(maxT.max)} de ${esc(maxT.nombre)}.</li>
       <li>El mínimo personal y familiar se resta en las dos partes, y las comunidades pueden fijar su propio importe para la autonómica.</li>
       <li>Las deducciones autonómicas solo rebajan la parte autonómica de la cuota; las estatales, la estatal.</li>
       <li>En la base del ahorro, la parte estatal (${lirpf("art. 66")}) y la autonómica (${lirpf("art. 76")}) son iguales.</li>
@@ -162,7 +162,7 @@ function guiaTramos(g, T) {
     <h2 class="rotulo">Tablas del IRPF de los ${ORDEN_TERRITORIOS.length} territorios (${T.ejercicio})</h2>
     <p class="ayuda">Escala general combinada de cada territorio (estatal + autonómica, o la tarifa foral): el tipo del primer tramo, el tipo máximo, a partir de qué base se aplica y la cuota íntegra con ${euros(ej)} de base liquidable, antes del mínimo y de las deducciones. Cada territorio enlaza su tabla completa.</p>
     <div class="envoltorio"><table class="cobertura"><thead><tr><th>Territorio</th><th class="num">Primer tramo</th><th class="num">Tipo máximo</th><th class="num">Desde</th><th class="num">Tramos</th><th class="num">Cuota con ${esc(euros(ej))}</th></tr></thead><tbody>
-    ${filas.map(f => `<tr><td><a href="${enlaceTerritorio(f.c)}">${esc(f.nombre)}</a></td><td class="num">${pct(f.min)}</td><td class="num">${pct(f.max)}</td><td class="num">${f.desde ? euros(f.desde) : "—"}</td><td class="num">${f.n}</td><td class="num">${eur(r2(f.cuota))}</td></tr>`).join("")}
+    ${filas.map(f => `<tr><td><a href="${enlaceTerritorio(f.c)}">${esc(f.nombre)}</a></td><td class="num">${pctTipo(f.min)}</td><td class="num">${pctTipo(f.max)}</td><td class="num">${f.desde ? euros(f.desde) : "—"}</td><td class="num">${f.n}</td><td class="num">${eur(r2(f.cuota))}</td></tr>`).join("")}
     </tbody></table></div>
     <p class="ayuda">En el País Vasco y Navarra las circunstancias personales y familiares no reducen la base: se descuentan después, como deducciones de la cuota.</p>
   </div>
@@ -171,7 +171,7 @@ function guiaTramos(g, T) {
     <p>Los intereses, los dividendos y las ganancias patrimoniales por vender acciones, fondos o un inmueble tributan aparte, en la base del ahorro, con una escala igual en todas las comunidades de régimen común. Ya sumadas las partes estatal y autonómica:</p>
     ${tablaEscala(ahorro25, "Tramo de la base liquidable del ahorro")}
     ${iguales(ahorro25, ahorro26) ? "<p>En 2026 no cambia.</p>" : `<h3>2026</h3>${tablaEscala(ahorro26, "Tramo de la base liquidable del ahorro")}`}
-    <p>Ejemplo: una ganancia patrimonial de ${euros(ejAhorro)} paga ${eur(r2(cuotaAhorro))} (los primeros ${euros(aho[0].hasta)} al ${pctCorto(aho[0].tipo)} y el resto al ${pctCorto(aho[1].tipo)}), sin sumarse al sueldo ni subir su tipo.</p>
+    <p>Ejemplo: una ganancia patrimonial de ${euros(ejAhorro)} paga ${eur(r2(cuotaAhorro))} (los primeros ${euros(aho[0].hasta)} al ${pctTipo(aho[0].tipo)} y el resto al ${pctTipo(aho[1].tipo)}), sin sumarse al sueldo ni subir su tipo.</p>
     ${citaFuente(e.ahorro_estatal_2025)}${citaFuente(e.ahorro_autonomica_2025)}
   </div>
   <div class="tarjeta">
@@ -190,22 +190,22 @@ function guiaTramos(g, T) {
 
   const faq = [
     ["¿Cuáles son los tramos del IRPF en 2025?", `En la escala estatal, ${est.length}: ${textoTramos(est)}.${igual26 ? " En 2026 son los mismos." : ""} A cada tramo se suma el tipo de la escala autonómica de tu comunidad.`],
-    ["¿Cuál es la escala general del IRPF 2025?", `Es la que se aplica a la base liquidable general (sueldo, pensiones, alquileres, actividades). Su mitad estatal va del ${pctCorto(est[0].tipo)} al ${pctCorto(est[est.length - 1].tipo)}; sumada a la autonómica, el tipo máximo va del ${pct(minT.max)} de ${minT.nombre} al ${pct(maxT.max)} de ${maxT.nombre}.`],
+    ["¿Cuál es la escala general del IRPF 2025?", `Es la que se aplica a la base liquidable general (sueldo, pensiones, alquileres, actividades). Su mitad estatal va del ${pctTipo(est[0].tipo)} al ${pctTipo(est[est.length - 1].tipo)}; sumada a la autonómica, el tipo máximo va del ${pctTipo(minT.max)} de ${minT.nombre} al ${pctTipo(maxT.max)} de ${maxT.nombre}.`],
     ["¿Qué diferencia hay entre el IRPF estatal y el autonómico?", `En régimen común la cuota se calcula dos veces sobre la misma base, con la escala estatal y con la de tu comunidad, y se suman. Con ${euros(ej)} de base liquidable, la parte estatal es de ${eur(r2(cuotaEj))} en toda España y la autonómica, de ${reparto.map(x => `${eur(r2(x.auto))} en ${x.nombre}`).join(" y de ")}, antes del mínimo y de las deducciones.`],
     ["¿Dónde están las tablas del IRPF de mi comunidad?", `En esta página tienes la tabla de los ${ORDEN_TERRITORIOS.length} territorios, y cada uno enlaza su escala completa (estatal + autonómica, o la tarifa foral) en la sección de IRPF por territorio.`],
     ["¿Cuántas escalas tiene el IRPF?", "Dos: la escala general, para la base liquidable general, y la del ahorro, para intereses, dividendos y ganancias patrimoniales. En régimen común cada una tiene una parte estatal y otra autonómica; el País Vasco y Navarra aplican tarifas forales propias."],
-    ["¿Qué son los escalones del IRPF? ¿Se aplican a todo el sueldo?", `Son los tramos de la escala, y no se aplican a todo: cada tipo grava solo la parte de la base que cae dentro de su tramo. Con ${euros(ej)} de base, los primeros ${euros(est[0].hasta)} pagan el ${pctCorto(est[0].tipo)} estatal y solo lo que pasa de ${euros(desdeEj)} paga el ${pctCorto(est[iEj].tipo)}. Pasar a un tramo superior no encarece lo que ya tributaba en los anteriores.`],
-    ["¿Cuál es el tipo máximo del IRPF en 2025?", `Depende del territorio. En el régimen común, sumando Estado y comunidad, el más alto es el de ${maxT.nombre} (${pct(maxT.max)}) y el más bajo, el de ${minT.nombre} (${pct(minT.max)}).`],
+    ["¿Qué son los escalones del IRPF? ¿Se aplican a todo el sueldo?", `Son los tramos de la escala, y no se aplican a todo: cada tipo grava solo la parte de la base que cae dentro de su tramo. Con ${euros(ej)} de base, los primeros ${euros(est[0].hasta)} pagan el ${pctTipo(est[0].tipo)} estatal y solo lo que pasa de ${euros(desdeEj)} paga el ${pctTipo(est[iEj].tipo)}. Pasar a un tramo superior no encarece lo que ya tributaba en los anteriores.`],
+    ["¿Cuál es el tipo máximo del IRPF en 2025?", `Depende del territorio. En el régimen común, sumando Estado y comunidad, el más alto es el de ${maxT.nombre} (${pctTipo(maxT.max)}) y el más bajo, el de ${minT.nombre} (${pctTipo(minT.max)}).`],
     ["¿Cambian los tramos del IRPF en 2026?", `${igual26 ? "La escala estatal es la misma en 2026." : "La escala estatal cambia en 2026."}${pv26 ? " En el País Vasco las normas forales de 2026 actualizan los tramos." : ""}${nv26 ? " Navarra mantiene su tarifa." : ""} Cada comunidad de régimen común puede modificar su parte autonómica en sus propias leyes.`],
     ["¿Qué es la base liquidable?", "Es lo que queda de tus ingresos después de restar los gastos deducibles (como la Seguridad Social), la reducción por rendimientos del trabajo y otras reducciones, como las aportaciones a planes de pensiones."],
-    ...(igual26 ? [["¿Cuál era la escala estatal del IRPF en 2024?", `La misma que en 2025 y 2026: ${est.length} tramos, del ${pctCorto(est[0].tipo)} al ${pctCorto(est[est.length - 1].tipo)}. El art. 63.1.1.º de la Ley del IRPF no ha cambiado desde el 1 de enero de 2021 (art. 58 de la Ley 11/2020, BOE-A-2020-17339).`]] : []),
-    ["¿Cómo tributan las ganancias patrimoniales en 2025?", `En la base del ahorro, con tramos del ${pctCorto(aho[0].tipo)} al ${pctCorto(aho[aho.length - 1].tipo)} (partes estatal y autonómica sumadas): ${aho.map((t, i) => i === 0 ? `${pctCorto(t.tipo)} hasta ${euros(t.hasta)}` : t.hasta == null ? `${pctCorto(t.tipo)} desde ${euros(aho[i - 1].hasta)}` : `${pctCorto(t.tipo)} hasta ${euros(t.hasta)}`).join(", ")}.`]
+    ...(igual26 ? [["¿Cuál era la escala estatal del IRPF en 2024?", `La misma que en 2025 y 2026: ${est.length} tramos, del ${pctTipo(est[0].tipo)} al ${pctTipo(est[est.length - 1].tipo)}. El art. 63.1.1.º de la Ley del IRPF no ha cambiado desde el 1 de enero de 2021 (art. 58 de la Ley 11/2020, BOE-A-2020-17339).`]] : []),
+    ["¿Cómo tributan las ganancias patrimoniales en 2025?", `En la base del ahorro, con tramos del ${pctTipo(aho[0].tipo)} al ${pctTipo(aho[aho.length - 1].tipo)} (partes estatal y autonómica sumadas): ${aho.map((t, i) => i === 0 ? `${pctTipo(t.tipo)} hasta ${euros(t.hasta)}` : t.hasta == null ? `${pctTipo(t.tipo)} desde ${euros(aho[i - 1].hasta)}` : `${pctTipo(t.tipo)} hasta ${euros(t.hasta)}`).join(", ")}.`]
   ];
   return pagina(g, { slug: "tramos-irpf-2025-2026", h1: `Tramos del IRPF ${anios}: escala estatal y autonómica`,
     titulo: tituloQueQuepa(`Tramos IRPF ${anios}: tablas, escala estatal y autonómica`, `Tramos IRPF ${anios}: escala estatal y autonómica`),
-    description: `Tramos del IRPF ${anios}: escala estatal del ${pctCorto(est[0].tipo)} al ${pctCorto(est[est.length - 1].tipo)}, cuánto se paga en cada tramo, escalas autonómicas y tablas de los ${ORDEN_TERRITORIOS.length} territorios.`,
-    resumen: `la escala estatal del IRPF ${igual26 ? "2025 y 2026 (la misma que en 2024)" : "2025"} tiene ${est.length} tramos: <b>${esc(textoTramos(est))}</b>. A cada tramo se suma el de la escala autonómica: con ${euros(ej)} de base liquidable pagas ${eur(r2(cuotaEj))} de parte estatal y ${eur(r2(reparto[0].total))} en total en ${esc(NOMBRE_CORTO[T_EJ[0]])}, antes del mínimo. El tipo máximo va del ${pctCorto(minT.max)} de ${esc(NOMBRE_CORTO[minT.c])} al ${pctCorto(maxT.max)} de ${esc(NOMBRE_CORTO[maxT.c])}.`,
-    hub: `La escala estatal tiene ${est.length} tramos, del ${pctCorto(est[0].tipo)} al ${pctCorto(est[est.length - 1].tipo)}; con la autonómica, el tipo máximo va del ${pctCorto(minT.max)} de ${NOMBRE_CORTO[minT.c]} al ${pctCorto(maxT.max)} de ${NOMBRE_CORTO[maxT.c]}. Con ${euros(ej)} de base, ${eur(r2(cuotaEj))} de parte estatal. Tablas de los ${ORDEN_TERRITORIOS.length} territorios.`,
+    description: `Tramos del IRPF ${anios}: escala estatal del ${pctTipo(est[0].tipo)} al ${pctTipo(est[est.length - 1].tipo)}, cuánto se paga en cada tramo, escalas autonómicas y tablas de los ${ORDEN_TERRITORIOS.length} territorios.`,
+    resumen: `la escala estatal del IRPF ${igual26 ? "2025 y 2026 (la misma que en 2024)" : "2025"} tiene ${est.length} tramos: <b>${esc(textoTramos(est))}</b>. A cada tramo se suma el de la escala autonómica: con ${euros(ej)} de base liquidable pagas ${eur(r2(cuotaEj))} de parte estatal y ${eur(r2(reparto[0].total))} en total en ${esc(NOMBRE_CORTO[T_EJ[0]])}, antes del mínimo. El tipo máximo va del ${pctTipo(minT.max)} de ${esc(NOMBRE_CORTO[minT.c])} al ${pctTipo(maxT.max)} de ${esc(NOMBRE_CORTO[maxT.c])}.`,
+    hub: `La escala estatal tiene ${est.length} tramos, del ${pctTipo(est[0].tipo)} al ${pctTipo(est[est.length - 1].tipo)}; con la autonómica, el tipo máximo va del ${pctTipo(minT.max)} de ${NOMBRE_CORTO[minT.c]} al ${pctTipo(maxT.max)} de ${NOMBRE_CORTO[maxT.c]}. Con ${euros(ej)} de base, ${eur(r2(cuotaEj))} de parte estatal. Tablas de los ${ORDEN_TERRITORIOS.length} territorios.`,
     dataset: { nombre: "Escalas del IRPF 2025 y 2026: estatal, del ahorro, autonómicas y forales", descripcion: "Tramos y tipos marginales de la escala estatal general, la escala del ahorro y las escalas combinadas de los 19 territorios fiscales de España.",
       fuentes: [e.estatal_2025.norma, e.estatal_2025.fuente, e.ahorro_estatal_2025.norma, e.ahorro_estatal_2025.fuente, e.pais_vasco_2026.norma, e.pais_vasco_2026.fuente, e.navarra_2025.norma, "Ley 11/2020, art. 58 (BOE-A-2020-17339)"] },
     cuerpo, faq, generado: g.generado });
@@ -237,16 +237,16 @@ function guiaEscala2024(g) {
   ${ahorroIgual2024 ? "" : `<div class="tarjeta"><h2 class="rotulo">¿Y la escala del ahorro de 2024?</h2><p>No la incluimos aquí: la escala del ahorro estatal (${lirpf("art. 66.1")}) que usa Mapafiscal es la redacción con un quinto tramo vigente desde 2025, así que no coincide necesariamente con la de 2024. La de 2025 y 2026 está en la <a href="/guias/tramos-irpf-2025-2026/">guía de tramos</a>.</p></div>`}
   ${cta("Calcula tu IRPF de 2025", HERRAMIENTA.calculadora, ["Tramos 2025 y 2026", "/guias/tramos-irpf-2025-2026/"])}`;
   const faq = [
-    ["¿Cuál es la escala estatal del IRPF de 2024?", `Tiene ${est.length} tramos, del ${pctCorto(est[0].tipo)} al ${pctCorto(ult.tipo)}, y es la misma que en 2025 y 2026: el art. 63.1.1.º de la Ley del IRPF no ha cambiado desde el 1 de enero de 2021 (art. 58 de la Ley 11/2020, BOE-A-2020-17339).`],
+    ["¿Cuál es la escala estatal del IRPF de 2024?", `Tiene ${est.length} tramos, del ${pctTipo(est[0].tipo)} al ${pctTipo(ult.tipo)}, y es la misma que en 2025 y 2026: el art. 63.1.1.º de la Ley del IRPF no ha cambiado desde el 1 de enero de 2021 (art. 58 de la Ley 11/2020, BOE-A-2020-17339).`],
     ["¿Cambió la escala estatal del IRPF entre 2024 y 2025?", "No. Los tramos y los tipos estatales de la base liquidable general son los mismos en 2024, 2025 y 2026."],
-    ["¿Cuánto es el tipo máximo del IRPF en 2024?", `La parte estatal llega al ${pctCorto(ult.tipo)}. El tipo máximo total depende de la escala autonómica de cada comunidad, que Mapafiscal no reproduce para 2024.`],
+    ["¿Cuánto es el tipo máximo del IRPF en 2024?", `La parte estatal llega al ${pctTipo(ult.tipo)}. El tipo máximo total depende de la escala autonómica de cada comunidad, que Mapafiscal no reproduce para 2024.`],
     ["¿Mapafiscal calcula la renta de 2024?", "No. Mapafiscal calcula los ejercicios 2025 y 2026. Las escalas autonómicas de 2024 dependen de las leyes de cada comunidad para ese año."]
   ];
   return pagina(g, { slug: "escala-irpf-2024", h1: "Escala del IRPF 2024: tramos y tipos estatales",
     titulo: "Escala IRPF 2024: tramos y tipos estatales",
-    hub: `La escala estatal de 2024 tiene ${est.length} tramos, del ${pctCorto(est[0].tipo)} al ${pctCorto(ult.tipo)}: la misma que en 2025 y 2026, sin cambios desde 2021.`,
-    description: `Escala estatal del IRPF 2024: ${est.length} tramos del ${pctCorto(est[0].tipo)} al ${pctCorto(ult.tipo)}, igual que en 2025 y 2026 (art. 63.1.1.º LIRPF, sin cambios desde 2021). La parte autonómica depende de cada comunidad.`,
-    resumen: `la escala estatal del IRPF de 2024 tiene ${est.length} tramos, del <b>${pctCorto(est[0].tipo)}</b> al <b>${pctCorto(ult.tipo)}</b>, y es la misma que en 2025 y 2026. La parte autonómica depende de cada comunidad.`,
+    hub: `La escala estatal de 2024 tiene ${est.length} tramos, del ${pctTipo(est[0].tipo)} al ${pctTipo(ult.tipo)}: la misma que en 2025 y 2026, sin cambios desde 2021.`,
+    description: `Escala estatal del IRPF 2024: ${est.length} tramos del ${pctTipo(est[0].tipo)} al ${pctTipo(ult.tipo)}, igual que en 2025 y 2026 (art. 63.1.1.º LIRPF, sin cambios desde 2021). La parte autonómica depende de cada comunidad.`,
+    resumen: `la escala estatal del IRPF de 2024 tiene ${est.length} tramos, del <b>${pctTipo(est[0].tipo)}</b> al <b>${pctTipo(ult.tipo)}</b>, y es la misma que en 2025 y 2026. La parte autonómica depende de cada comunidad.`,
     cuerpo, faq, generado: g.generado });
 }
 
@@ -272,7 +272,7 @@ function guiaMinimo(g) {
       <li>${eur(c.incremento_mayor_75)} más, adicionales, si tienes más de 75.</li>
     </ul>
     ${citaFuente(c)}
-    <p>¿Cuánto supone en dinero? En la escala estatal, los primeros ${euros(tipo1.hasta)} tributan al ${pct(tipo1.tipo)}: los ${eur(c.general)} del mínimo general equivalen a ${eur(Math.round(ahorro * 100) / 100)} menos de cuota estatal, más lo que suponga en la escala de tu comunidad.</p>
+    <p>¿Cuánto supone en dinero? En la escala estatal, los primeros ${euros(tipo1.hasta)} tributan al ${pctTipo(tipo1.tipo)}: los ${eur(c.general)} del mínimo general equivalen a ${eur(Math.round(ahorro * 100) / 100)} menos de cuota estatal, más lo que suponga en la escala de tu comunidad.</p>
   </div>
   <div class="tarjeta">
     <h2 class="rotulo">Mínimo por descendientes</h2>
@@ -350,18 +350,18 @@ function guiaPensiones(g) {
   <div class="tarjeta">
     <h2 class="rotulo">Límite de aportación con derecho a reducción</h2>
     <ul>
-      <li>Aportaciones propias: hasta <b>${eur(r.limite_general_abs)}</b> al año, sin pasar del ${pctCorto(r.limite_general_pct_rend)} de tus rendimientos netos del trabajo y de actividades económicas.</li>
+      <li>Aportaciones propias: hasta <b>${eur(r.limite_general_abs)}</b> al año, sin pasar del ${pctTipo(r.limite_general_pct_rend)} de tus rendimientos netos del trabajo y de actividades económicas.</li>
       <li>Ese límite sube hasta ${eur(r.incremento_contribucion_empresarial)} más con las contribuciones de tu empresa a un plan de empleo: en total, hasta ${eur(total)}.</li>
       <li>Al plan de tu cónyuge, hasta ${eur(r.limite_aportacion_conyuge)} al año si sus rendimientos netos del trabajo y de actividades son inferiores a ${eur(r.rentas_conyuge_maximas)}.</li>
     </ul>
     ${citaFuente(r)}
-    <p>Lo que no puedas reducir por superar el límite del ${pctCorto(r.limite_general_pct_rend)} o por no tener base suficiente se puede aplicar en los cinco ejercicios siguientes (${lirpf("art. 52.2")}).${igual26 ? " En 2026 los límites son los mismos." : ""}</p>
+    <p>Lo que no puedas reducir por superar el límite del ${pctTipo(r.limite_general_pct_rend)} o por no tener base suficiente se puede aplicar en los cinco ejercicios siguientes (${lirpf("art. 52.2")}).${igual26 ? " En 2026 los límites son los mismos." : ""}</p>
   </div>
   <div class="tarjeta tarjeta-tabla">
     <h2 class="rotulo">Cuánto desgrava según tu sueldo: aportando ${euros(A)} en ${esc(nom)} (${P.ejercicio})</h2>
     <p class="ayuda">${esc(SUP_MOTOR(P))} Ahorro = IRPF del año sin la aportación menos IRPF con ella. Tipo marginal: estatal + autonómico del tramo en el que cae la base liquidable sin la aportación.</p>
     ${tablaG(["Sueldo bruto anual", "IRPF sin aportar", `IRPF aportando ${euros(A)}`, "Ahorro de IRPF", "Tipo marginal", "Te cuesta de verdad"],
-      porSueldo.map(x => [esc(euros(x.b)), esc(eur(x.sin)), esc(eur(x.con)), `<b>${esc(eur(x.ahorro))}</b>`, esc(pctCorto(x.marginal)), esc(eur(r2(A - x.ahorro)))]))}
+      porSueldo.map(x => [esc(euros(x.b)), esc(eur(x.sin)), esc(eur(x.con)), `<b>${esc(eur(x.ahorro))}</b>`, esc(pctTipo(x.marginal)), esc(eur(r2(A - x.ahorro)))]))}
     <p>Con ${euros(x30.b)} brutos, aportar ${euros(A)} rebaja el IRPF en ${eur(x30.ahorro)}: la aportación te cuesta ${eur(r2(A - x30.ahorro))}. El ahorro se acerca a la aportación por tu tipo marginal; cuando la aportación hace que la base baje de tramo, una parte desgrava al tipo del tramo inferior.</p>
   </div>
   <div class="tarjeta tarjeta-tabla">
@@ -379,9 +379,9 @@ function guiaPensiones(g) {
   </div>
   ${cta("Simula tu aportación al plan de pensiones", HERRAMIENTA.planPensiones, ["Calcula tu renta completa", HERRAMIENTA.calculadora])}`;
   const faq = [
-    ["¿Cuánto desgrava un plan de pensiones?", `Las aportaciones propias reducen la base hasta ${eur(r.limite_general_abs)} al año (con el límite del ${pctCorto(r.limite_general_pct_rend)} de los rendimientos del trabajo y de actividades). Lo que ahorras depende de tu tipo marginal: en ${nom}, aportar ${euros(A)} ahorra ${listaY(porSueldo.map(x => `${eur(x.ahorro)} con un sueldo de ${euros(x.b)}`))} (ejercicio ${P.ejercicio}).`],
-    ["¿Cuál es el límite actual de las aportaciones al plan de pensiones?", `${eur(ps.limite_general_abs)} al año en aportaciones propias, sin pasar del ${pctCorto(ps.limite_general_pct_rend)} de los rendimientos netos del trabajo y de actividades. Con contribuciones de la empresa a un plan de empleo, el límite conjunto sube hasta ${eur(ps.limite_general_abs + ps.incremento_contribucion_empresarial)}. Al plan del cónyuge con pocos ingresos, ${eur(ps.limite_aportacion_conyuge)} más.`],
-    ["¿Cómo se calcula la desgravación por aportación a un plan de pensiones?", `No es una deducción fija: la aportación se resta de la base imponible y el ahorro es lo que dejas de pagar en tus tramos más altos. Con ${euros(x30.b)} en ${nom} el tipo marginal es del ${pctCorto(x30.marginal)} y aportar ${euros(A)} rebaja el IRPF en ${eur(x30.ahorro)}.`],
+    ["¿Cuánto desgrava un plan de pensiones?", `Las aportaciones propias reducen la base hasta ${eur(r.limite_general_abs)} al año (con el límite del ${pctTipo(r.limite_general_pct_rend)} de los rendimientos del trabajo y de actividades). Lo que ahorras depende de tu tipo marginal: en ${nom}, aportar ${euros(A)} ahorra ${listaY(porSueldo.map(x => `${eur(x.ahorro)} con un sueldo de ${euros(x.b)}`))} (ejercicio ${P.ejercicio}).`],
+    ["¿Cuál es el límite actual de las aportaciones al plan de pensiones?", `${eur(ps.limite_general_abs)} al año en aportaciones propias, sin pasar del ${pctTipo(ps.limite_general_pct_rend)} de los rendimientos netos del trabajo y de actividades. Con contribuciones de la empresa a un plan de empleo, el límite conjunto sube hasta ${eur(ps.limite_general_abs + ps.incremento_contribucion_empresarial)}. Al plan del cónyuge con pocos ingresos, ${eur(ps.limite_aportacion_conyuge)} más.`],
+    ["¿Cómo se calcula la desgravación por aportación a un plan de pensiones?", `No es una deducción fija: la aportación se resta de la base imponible y el ahorro es lo que dejas de pagar en tus tramos más altos. Con ${euros(x30.b)} en ${nom} el tipo marginal es del ${pctTipo(x30.marginal)} y aportar ${euros(A)} rebaja el IRPF en ${eur(x30.ahorro)}.`],
     ["¿Hasta cuándo puedo aportar al plan de pensiones para desgravar este año?", "Hasta el 31 de diciembre: la reducción se aplica en el ejercicio en que se hace la aportación. Conviene no apurar, porque la gestora necesita unos días para tramitarla."],
     [`¿Puedo aportar más de ${euros(r.limite_general_abs)}?`, `Puedes aportar más, pero solo reduce la base lo que esté dentro del límite. Con un plan de empleo de la empresa, el límite conjunto llega a ${eur(total)}.`]
   ];
@@ -415,10 +415,10 @@ function guiaDonativos(g) {
   <div class="tarjeta">
     <h2 class="rotulo">Porcentajes y límites de la deducción por donativos</h2>
     <ul>
-      <li><b>${pctCorto(l.tramo1_porcentaje)}</b> de los primeros ${eur(l.tramo1_limite)} donados en el año.</li>
-      <li><b>${pctCorto(l.resto_porcentaje)}</b> de lo que exceda de ${eur(l.tramo1_limite)}.</li>
-      <li><b>${pctCorto(l.resto_porcentaje_recurrente)}</b> en lugar del ${pctCorto(l.resto_porcentaje)} si en los dos años anteriores donaste a la misma entidad un importe igual o mayor (donación recurrente).</li>
-      <li>Límite: la base de la deducción (lo donado) no puede superar el ${pctCorto(l.limite_base_liquidable_pct)} de tu base liquidable.</li>
+      <li><b>${pctTipo(l.tramo1_porcentaje)}</b> de los primeros ${eur(l.tramo1_limite)} donados en el año.</li>
+      <li><b>${pctTipo(l.resto_porcentaje)}</b> de lo que exceda de ${eur(l.tramo1_limite)}.</li>
+      <li><b>${pctTipo(l.resto_porcentaje_recurrente)}</b> en lugar del ${pctTipo(l.resto_porcentaje)} si en los dos años anteriores donaste a la misma entidad un importe igual o mayor (donación recurrente).</li>
+      <li>Límite: la base de la deducción (lo donado) no puede superar el ${pctTipo(l.limite_base_liquidable_pct)} de tu base liquidable.</li>
     </ul>
     ${citaFuente(d)}
   </div>
@@ -427,7 +427,7 @@ function guiaDonativos(g) {
     <p class="ayuda">${esc(SUP_MOTOR(P).replace("sin hijos ni deducciones", "sin hijos ni otras deducciones"))} Sueldo bruto de ${esc(euros(SUELDO_DON))} en ${esc(nom)}; IRPF del año sin donar: ${esc(eur(base.irpf))}.</p>
     ${tablaG(["Donativo en el año", "Deducción", "IRPF del año", "Rebaja de IRPF", "Te cuesta de verdad"],
       motor.map(o => [`${esc(eur(o.x))}${o.rec ? " (recurrente)" : ""}`, esc(eur(o.deduccion)), esc(eur(o.irpf)), `<b>${esc(eur(o.rebaja))}</b>`, esc(eur(r2(o.x - o.rebaja)))]))}
-    <p>Donar ${eur(m150.x)} rebaja el IRPF en ${eur(m150.rebaja)}: todo cae en el tramo del ${pctCorto(l.tramo1_porcentaje)}. Con ${eur(m500.x)}, los primeros ${eur(l.tramo1_limite)} deducen ${eur(r2(l.tramo1_limite * l.tramo1_porcentaje))} y los ${eur(m500.x - l.tramo1_limite)} restantes, ${eur(r2((m500.x - l.tramo1_limite) * l.resto_porcentaje))}: ${eur(m500.rebaja)} en total (${eur(m500r.rebaja)} si es recurrente). Con este sueldo el límite del ${pctCorto(l.limite_base_liquidable_pct)} de la base liquidable está en ${eur(limite10)}${limite10 >= Math.max(...DONATIVOS_EJ) ? ", así que los dos donativos deducen enteros" : ""}.</p>
+    <p>Donar ${eur(m150.x)} rebaja el IRPF en ${eur(m150.rebaja)}: todo cae en el tramo del ${pctTipo(l.tramo1_porcentaje)}. Con ${eur(m500.x)}, los primeros ${eur(l.tramo1_limite)} deducen ${eur(r2(l.tramo1_limite * l.tramo1_porcentaje))} y los ${eur(m500.x - l.tramo1_limite)} restantes, ${eur(r2((m500.x - l.tramo1_limite) * l.resto_porcentaje))}: ${eur(m500.rebaja)} en total (${eur(m500r.rebaja)} si es recurrente). Con este sueldo el límite del ${pctTipo(l.limite_base_liquidable_pct)} de la base liquidable está en ${eur(limite10)}${limite10 >= Math.max(...DONATIVOS_EJ) ? ", así que los dos donativos deducen enteros" : ""}.</p>
     <p class="ayuda">La deducción se reparte a partes iguales entre la cuota estatal y la autonómica, y solo puede rebajar la cuota hasta cero.</p>
   </div>
   <div class="tarjeta tarjeta-tabla">
@@ -435,13 +435,13 @@ function guiaDonativos(g) {
     <table class="cobertura"><thead><tr><th class="num">Donas al año</th><th class="num">Te deduces</th><th class="num">Si es recurrente</th><th class="num">Te cuesta de verdad</th></tr></thead><tbody>
     ${ejemplos.map(x => `<tr><td class="num">${eur(x)}</td><td class="num">${eur(ded(x, false))}</td><td class="num">${eur(ded(x, true))}</td><td class="num">${eur(x - ded(x, false))}</td></tr>`).join("")}
     </tbody></table>
-    <p class="ayuda">Siempre que lo donado no pase del ${pctCorto(l.limite_base_liquidable_pct)} de tu base liquidable y tengas cuota suficiente.</p>
+    <p class="ayuda">Siempre que lo donado no pase del ${pctTipo(l.limite_base_liquidable_pct)} de tu base liquidable y tengas cuota suficiente.</p>
   </div>
   <div class="tarjeta">
     <h2 class="rotulo">Otras donaciones y aportaciones</h2>
     <ul>
-      <li>Donativos a fundaciones y asociaciones de utilidad pública no incluidas en la Ley 49/2002: ${pctCorto(d.otras_fundaciones_porcentaje)}.</li>
-      <li>Cuotas de afiliación y aportaciones a partidos políticos: ${pctCorto(d.cuotas_afiliacion_partidos.porcentaje)}, con una base máxima de ${eur(d.cuotas_afiliacion_partidos.base_maxima)} al año.</li>
+      <li>Donativos a fundaciones y asociaciones de utilidad pública no incluidas en la Ley 49/2002: ${pctTipo(d.otras_fundaciones_porcentaje)}.</li>
+      <li>Cuotas de afiliación y aportaciones a partidos políticos: ${pctTipo(d.cuotas_afiliacion_partidos.porcentaje)}, con una base máxima de ${eur(d.cuotas_afiliacion_partidos.base_maxima)} al año.</li>
       <li>Algunas comunidades añaden deducciones propias por donativos (por ejemplo, a entidades de su territorio): búscalas en las deducciones de tu comunidad, en <a href="/irpf/">IRPF por territorio</a>. En el País Vasco y Navarra rige su propia ley de mecenazgo.</li>
     </ul>
     <p class="ayuda">Norma: ${lirpf("art. 68.3")}. ${igual26 ? "En 2026 los porcentajes no cambian." : ""}</p>
@@ -452,18 +452,18 @@ function guiaDonativos(g) {
   </div>
   ${cta("Calcula tu renta con tus donativos", HERRAMIENTA.calculadora)}`;
   const faq = [
-    ["¿Cuál es la deducción por donativos en el IRPF?", `El ${pctCorto(l.tramo1_porcentaje)} de los primeros ${eur(l.tramo1_limite)} donados en el año a entidades de la Ley 49/2002 y el ${pctCorto(l.resto_porcentaje)} del resto (${pctCorto(l.resto_porcentaje_recurrente)} si la donación es recurrente), con el límite del ${pctCorto(l.limite_base_liquidable_pct)} de la base liquidable.`],
-    ["¿Cuánto se puede desgravar por donaciones?", `Con ${eur(m150.x)} donados te deduces ${eur(m150.rebaja)} y con ${eur(m500.x)}, ${eur(m500.rebaja)} (${eur(m500r.rebaja)} si es recurrente). No hay un máximo en euros: el tope es que lo donado no supere el ${pctCorto(l.limite_base_liquidable_pct)} de tu base liquidable.`],
+    ["¿Cuál es la deducción por donativos en el IRPF?", `El ${pctTipo(l.tramo1_porcentaje)} de los primeros ${eur(l.tramo1_limite)} donados en el año a entidades de la Ley 49/2002 y el ${pctTipo(l.resto_porcentaje)} del resto (${pctTipo(l.resto_porcentaje_recurrente)} si la donación es recurrente), con el límite del ${pctTipo(l.limite_base_liquidable_pct)} de la base liquidable.`],
+    ["¿Cuánto se puede desgravar por donaciones?", `Con ${eur(m150.x)} donados te deduces ${eur(m150.rebaja)} y con ${eur(m500.x)}, ${eur(m500.rebaja)} (${eur(m500r.rebaja)} si es recurrente). No hay un máximo en euros: el tope es que lo donado no supere el ${pctTipo(l.limite_base_liquidable_pct)} de tu base liquidable.`],
     ["¿Cómo se aplica la deducción por donaciones en la renta?", "Se resta de la cuota, a partes iguales en la estatal y en la autonómica. Las entidades comunican los donativos a Hacienda y suelen aparecer ya en el borrador: revisa que estén todos y guarda los certificados."],
-    ["¿Cuánto me devuelve Hacienda si dono 250 euros?", `Te deduces el ${pctCorto(l.tramo1_porcentaje)}: ${eur(ded(250, false))}. El donativo te cuesta en realidad ${eur(250 - ded(250, false))}.`],
-    ["¿Qué es una donación recurrente?", `La que haces a la misma entidad por tercer año seguido con un importe igual o mayor que en los dos años anteriores. Lo que pase de ${eur(l.tramo1_limite)} deduce el ${pctCorto(l.resto_porcentaje_recurrente)} en lugar del ${pctCorto(l.resto_porcentaje)}.`],
-    ["¿Hay un límite para deducir donativos?", `Sí: la base de la deducción no puede pasar del ${pctCorto(l.limite_base_liquidable_pct)} de tu base liquidable. Y la deducción solo puede rebajar la cuota hasta cero: no se devuelve lo que no se pueda aplicar.`]
+    ["¿Cuánto me devuelve Hacienda si dono 250 euros?", `Te deduces el ${pctTipo(l.tramo1_porcentaje)}: ${eur(ded(250, false))}. El donativo te cuesta en realidad ${eur(250 - ded(250, false))}.`],
+    ["¿Qué es una donación recurrente?", `La que haces a la misma entidad por tercer año seguido con un importe igual o mayor que en los dos años anteriores. Lo que pase de ${eur(l.tramo1_limite)} deduce el ${pctTipo(l.resto_porcentaje_recurrente)} en lugar del ${pctTipo(l.resto_porcentaje)}.`],
+    ["¿Hay un límite para deducir donativos?", `Sí: la base de la deducción no puede pasar del ${pctTipo(l.limite_base_liquidable_pct)} de tu base liquidable. Y la deducción solo puede rebajar la cuota hasta cero: no se devuelve lo que no se pueda aplicar.`]
   ];
   return pagina(g, { slug: "deduccion-donativos", h1: "Deducción por donativos y donaciones en el IRPF",
-    titulo: tituloQueQuepa(`Deducción por donativos y donaciones: ${pctCorto(l.tramo1_porcentaje)} de los primeros ${euros(l.tramo1_limite)}`, `Deducción por donativos: ${pctCorto(l.tramo1_porcentaje)} de los primeros ${euros(l.tramo1_limite)}`),
-    resumen: `la deducción por donativos a ONG y fundaciones de la Ley 49/2002 es del <b>${pctCorto(l.tramo1_porcentaje)}</b> de los primeros ${eur(l.tramo1_limite)} donados al año y del <b>${pctCorto(l.resto_porcentaje)}</b> del resto (${pctCorto(l.resto_porcentaje_recurrente)} si es recurrente), con un límite del ${pctCorto(l.limite_base_liquidable_pct)} de la base liquidable. Donar ${eur(m150.x)} te rebaja el IRPF en <b>${eur(m150.rebaja)}</b> y donar ${eur(m500.x)}, en <b>${eur(m500.rebaja)}</b>.`,
-    hub: `El ${pctCorto(l.tramo1_porcentaje)} de los primeros ${eur(l.tramo1_limite)} donados y el ${pctCorto(l.resto_porcentaje)} del resto (${pctCorto(l.resto_porcentaje_recurrente)} si es recurrente): ${eur(m150.x)} donados te deducen ${eur(m150.rebaja)} y ${eur(m500.x)}, ${eur(m500.rebaja)}.`,
-    description: `Deducción por donativos y donaciones en el IRPF: ${pctCorto(l.tramo1_porcentaje)} de los primeros ${euros(l.tramo1_limite)}, ${pctCorto(l.resto_porcentaje)} del resto (${pctCorto(l.resto_porcentaje_recurrente)} si es recurrente) y límite del ${pctCorto(l.limite_base_liquidable_pct)}. Ejemplos de ${eur(m150.x)} y ${eur(m500.x)}.`,
+    titulo: tituloQueQuepa(`Deducción por donativos y donaciones: ${pctTipo(l.tramo1_porcentaje)} de los primeros ${euros(l.tramo1_limite)}`, `Deducción por donativos: ${pctTipo(l.tramo1_porcentaje)} de los primeros ${euros(l.tramo1_limite)}`),
+    resumen: `la deducción por donativos a ONG y fundaciones de la Ley 49/2002 es del <b>${pctTipo(l.tramo1_porcentaje)}</b> de los primeros ${eur(l.tramo1_limite)} donados al año y del <b>${pctTipo(l.resto_porcentaje)}</b> del resto (${pctTipo(l.resto_porcentaje_recurrente)} si es recurrente), con un límite del ${pctTipo(l.limite_base_liquidable_pct)} de la base liquidable. Donar ${eur(m150.x)} te rebaja el IRPF en <b>${eur(m150.rebaja)}</b> y donar ${eur(m500.x)}, en <b>${eur(m500.rebaja)}</b>.`,
+    hub: `El ${pctTipo(l.tramo1_porcentaje)} de los primeros ${eur(l.tramo1_limite)} donados y el ${pctTipo(l.resto_porcentaje)} del resto (${pctTipo(l.resto_porcentaje_recurrente)} si es recurrente): ${eur(m150.x)} donados te deducen ${eur(m150.rebaja)} y ${eur(m500.x)}, ${eur(m500.rebaja)}.`,
+    description: `Deducción por donativos y donaciones en el IRPF: ${pctTipo(l.tramo1_porcentaje)} de los primeros ${euros(l.tramo1_limite)}, ${pctTipo(l.resto_porcentaje)} del resto (${pctTipo(l.resto_porcentaje_recurrente)} si es recurrente) y límite del ${pctTipo(l.limite_base_liquidable_pct)}. Ejemplos de ${eur(m150.x)} y ${eur(m500.x)}.`,
     cuerpo, faq, generado: g.generado });
 }
 
@@ -535,7 +535,7 @@ function guiaCalendario(g) {
       <tr><td>Último día para domiciliar el pago en tu banco</td><td>${fecha(c.fin_domiciliacion)}</td></tr>
       <tr><td>Último día para presentar la declaración</td><td>${fecha(c.fin)}</td></tr>
       <tr><td>Último día para domiciliar si solo domicilias el segundo plazo</td><td>${fecha(c.fin_domiciliacion_solo_segundo_plazo)}</td></tr>
-      <tr><td>Cargo del segundo plazo domiciliado (${pctCorto(f.segundo_plazo_pct)})</td><td>${fecha(f.cargo_segundo_plazo_domiciliado)}</td></tr>
+      <tr><td>Cargo del segundo plazo domiciliado (${pctTipo(f.segundo_plazo_pct)})</td><td>${fecha(f.cargo_segundo_plazo_domiciliado)}</td></tr>
       <tr><td>Último día para pagar el segundo plazo sin domiciliar</td><td>${fecha(f.segundo_plazo_hasta)}</td></tr>
     </tbody></table>
     <p class="ayuda">Norma: ${esc(c.norma)}. Fuente: <a href="${urlBoe(c.boe)}" rel="noopener">${esc(c.fuente)}</a>.</p>
@@ -547,7 +547,7 @@ function guiaCalendario(g) {
   </div>
   <div class="tarjeta">
     <h2 class="rotulo">Pagar en dos plazos</h2>
-    <p>Si te sale a pagar, puedes fraccionar el pago sin intereses ni recargo: el ${pctCorto(f.primer_plazo_pct)} al presentar la declaración y el ${pctCorto(f.segundo_plazo_pct)} restante hasta el ${fecha(f.segundo_plazo_hasta)}. Para fraccionar, tienes que presentar la declaración dentro de plazo.</p>
+    <p>Si te sale a pagar, puedes fraccionar el pago sin intereses ni recargo: el ${pctTipo(f.primer_plazo_pct)} al presentar la declaración y el ${pctTipo(f.segundo_plazo_pct)} restante hasta el ${fecha(f.segundo_plazo_hasta)}. Para fraccionar, tienes que presentar la declaración dentro de plazo.</p>
   </div>
   <div class="tarjeta">
     <h2 class="rotulo">Fechas que importan durante el año</h2>
@@ -569,7 +569,7 @@ function guiaCalendario(g) {
       ? `La próxima es la de la renta ${siguiente}, que se presenta en ${siguiente + 1}. Sus fechas aún no se han publicado: las fija cada año una orden del Ministerio de Hacienda en el BOE. En cuanto salga, la recogemos aquí.`
       : `La de la renta ${c.ejercicio}: ${rangoTxt}.`],
     ["¿Cuál es el mínimo para hacer la renta?", `Con un solo pagador no estás obligado si tus rendimientos del trabajo no pasan de ${eur(o.trabajo_un_pagador)} al año; con dos o más, el límite baja a ${eur(o.trabajo_varios_pagadores)} si el segundo y siguientes suman más de ${eur(o.segundo_pagador_umbral)}. Aunque no estés obligado, te conviene declarar si te sale a devolver.`],
-    ["¿Se puede pagar la renta en dos veces?", `Sí: el ${pctCorto(f.primer_plazo_pct)} al presentar y el ${pctCorto(f.segundo_plazo_pct)} hasta el ${fecha(f.segundo_plazo_hasta)}, sin intereses, si presentas la declaración dentro de plazo.`]
+    ["¿Se puede pagar la renta en dos veces?", `Sí: el ${pctTipo(f.primer_plazo_pct)} al presentar y el ${pctTipo(f.segundo_plazo_pct)} hasta el ${fecha(f.segundo_plazo_hasta)}, sin intereses, si presentas la declaración dentro de plazo.`]
   ];
   return pagina(g, { slug: "calendario-renta", h1: "Campaña de la renta: cuándo empieza y fechas clave",
     titulo: `Campaña de la renta: cuándo empieza y fechas (${c.ejercicio})`,
@@ -641,10 +641,10 @@ function guiaMarginal(g) {
   <p class="entradilla">El tipo marginal es el porcentaje que pagas por el último euro que ganas: el del tramo de la escala en el que cae tu base. El tipo medio es el IRPF que pagas en total dividido entre lo que ganas. El marginal sirve para saber cuánto te queda de un euro más; el medio, cuánto pagas en conjunto. El medio siempre es bastante más bajo, porque los primeros euros tributan a tipos menores y una parte de la renta queda cubierta por el mínimo personal.</p>
   <div class="tarjeta tarjeta-tabla">
     <h2 class="rotulo">Ejemplos con el motor (${P.ejercicio})</h2>
-    <p class="ayuda">${esc(SUP_MOTOR(P))} Tipo marginal: suma de los tipos estatal y autonómico del tramo en el que cae la base liquidable general. Tipo medio: IRPF del año entre el sueldo bruto.</p>
+    <p class="ayuda">${esc(SUP_MOTOR(P))} Tipo marginal: suma de los tipos estatal y autonómico del tramo en el que cae la base liquidable general. Tipo medio sobre el sueldo bruto: IRPF del año entre el sueldo bruto.</p>
     ${tablaG(["Territorio y sueldo", "Base liquidable", "Tipo marginal", "IRPF del año", "Tipo medio sobre el bruto", "IRPF por 1.000 € más"],
-      casos.map(c => [`${esc(c.nombre)}, ${esc(euros(c.bruto))}`, esc(eur(c.r.liquidacion.baseLiquidableGeneral)), esc(pctCorto(c.escala)), esc(eur(c.r.irpf)), esc(pct(c.medio)), esc(eur(c.irpfMas))]))}
-    <p>Con ${euros(m30.bruto)} en ${esc(m30.nombre)} el tipo marginal es del ${pctCorto(m30.escala)}, pero el IRPF del año es el ${pct(m30.medio)} del sueldo. Con ${euros(m60.bruto)}, el marginal sube al ${pctCorto(m60.escala)} y el medio al ${pct(m60.medio)}. En ${esc(o30.nombre)}, con los mismos sueldos, el marginal es del ${pctCorto(o30.escala)} y del ${pctCorto(o60.escala)}.</p>
+      casos.map(c => [`${esc(c.nombre)}, ${esc(euros(c.bruto))}`, esc(eur(c.r.liquidacion.baseLiquidableGeneral)), esc(pctTipo(c.escala)), esc(eur(c.r.irpf)), esc(pctMedio(c.medio)), esc(eur(c.irpfMas))]))}
+    <p>Con ${euros(m30.bruto)} en ${esc(m30.nombre)} el tipo marginal es del ${pctTipo(m30.escala)}, pero el IRPF del año es el ${pctMedio(m30.medio)} del sueldo. Con ${euros(m60.bruto)}, el marginal sube al ${pctTipo(m60.escala)} y el medio al ${pctMedio(m60.medio)}. En ${esc(o30.nombre)}, con los mismos sueldos, el marginal es del ${pctTipo(o30.escala)} y del ${pctTipo(o60.escala)}.</p>
   </div>
   <div class="tarjeta">
     <h2 class="rotulo">El mito: «si me suben el sueldo y cambio de tramo, cobro menos»</h2>
@@ -662,15 +662,15 @@ function guiaMarginal(g) {
   </div>
   ${cta("Calcula tu IRPF", HERRAMIENTA.calculadora, ["Compara territorios", HERRAMIENTA.comparar])}`;
   const faq = [
-    ["¿Qué diferencia hay entre tipo marginal y tipo medio?", `El marginal es el tipo del tramo en el que cae tu último euro; el medio es el IRPF total dividido entre lo que ganas. Con ${euros(m30.bruto)} en ${m30.nombre} el marginal es del ${pctCorto(m30.escala)} y el medio sobre el bruto, del ${pct(m30.medio)}.`],
+    ["¿Qué diferencia hay entre tipo marginal y tipo medio?", `El marginal es el tipo del tramo en el que cae tu último euro; el medio es el IRPF total dividido entre lo que ganas. Con ${euros(m30.bruto)} en ${m30.nombre} el marginal es del ${pctTipo(m30.escala)} y el medio sobre el bruto, del ${pctMedio(m30.medio)}.`],
     ["¿Puedo cobrar menos por cambiar de tramo?", `No. El tipo más alto solo se aplica a los euros que pasan del límite del tramo. En ${m30.nombre}, pasar de ${euros(m30.bruto)} a ${euros(m30.bruto + 1000)} brutos deja ${eur(m30.netoMas)} netos más al año.`],
     ["¿Qué tipo uso para saber cuánto desgrava un plan de pensiones?", "El marginal: la aportación reduce la base, y lo que te ahorras sale de los tramos más altos que dejas de pagar."],
-    ["¿El tipo marginal es el mismo en toda España?", `No. En régimen común la mitad estatal es igual, pero cada comunidad fija su escala autonómica. Con ${euros(m60.bruto)} el marginal es del ${pctCorto(m60.escala)} en ${m60.nombre} y del ${pctCorto(o60.escala)} en ${o60.nombre}.`]
+    ["¿El tipo marginal es el mismo en toda España?", `No. En régimen común la mitad estatal es igual, pero cada comunidad fija su escala autonómica. Con ${euros(m60.bruto)} el marginal es del ${pctTipo(m60.escala)} en ${m60.nombre} y del ${pctTipo(o60.escala)} en ${o60.nombre}.`]
   ];
   return pagina(g, { slug: "tipo-marginal-y-tipo-medio", h1: "Tipo marginal y tipo medio del IRPF: en qué se diferencian",
     titulo: "Tipo marginal y tipo medio del IRPF, con ejemplos",
-    hub: `Con ${euros(m30.bruto)} en ${m30.nombre}, el tipo marginal es del ${pctCorto(m30.escala)} y el medio sobre el bruto, del ${pct(m30.medio)}. Cambiar de tramo nunca reduce el neto.`,
-    resumen: `el tipo marginal es lo que pagas por el último euro; el medio, el IRPF total entre lo que ganas. Con ${euros(m30.bruto)} en ${esc(m30.nombre)}: marginal del <b>${pctCorto(m30.escala)}</b> y medio del <b>${pct(m30.medio)}</b>. Cambiar de tramo nunca reduce el neto.`,
+    hub: `Con ${euros(m30.bruto)} en ${m30.nombre}, el tipo marginal es del ${pctTipo(m30.escala)} y el medio sobre el bruto, del ${pctMedio(m30.medio)}. Cambiar de tramo nunca reduce el neto.`,
+    resumen: `el tipo marginal es lo que pagas por el último euro; el medio, el IRPF total entre lo que ganas. Con ${euros(m30.bruto)} en ${esc(m30.nombre)}: marginal del <b>${pctTipo(m30.escala)}</b> y medio del <b>${pctMedio(m30.medio)}</b>. Cambiar de tramo nunca reduce el neto.`,
     description: `Tipo marginal y tipo medio del IRPF con ejemplos de 30.000 y 60.000 € en Madrid y Cataluña. Por qué cambiar de tramo no hace que cobres menos.`,
     cuerpo, faq, generado: g.generado });
 }
@@ -681,7 +681,7 @@ function guiaCambioComunidad(g) {
   const pri = lista[0], ult = lista[lista.length - 1], mad = lista.find(x => x.territorio === "ES-MD");
   const comun = lista.filter(x => !/^ES-(PV|NC)/.test(x.territorio));
   const cPri = comun[0], cUlt = comun[comun.length - 1];
-  const filas = lista.map(x => [`<a href="${enlaceTerritorio(x.territorio)}">${esc(x.nombre)}</a>`, esc(eur(x.cuota_liquida_total)), esc(pct(x.tipo_medio_efectivo)), esc(difEuros(x.cuota_liquida_total, pri.cuota_liquida_total))]);
+  const filas = lista.map(x => [`<a href="${enlaceTerritorio(x.territorio)}">${esc(x.nombre)}</a>`, esc(eur(x.cuota_liquida_total)), esc(pctMedio(x.cuota_liquida_total / Number(S))), esc(difEuros(x.cuota_liquida_total, pri.cuota_liquida_total))]);
   const cuerpo = `
   <p class="entradilla">En el IRPF no eliges comunidad: te corresponde la de tu residencia habitual en el año. Y como cada comunidad tiene su propia escala autonómica y sus deducciones, mudarte puede cambiar lo que pagas.</p>
   <div class="tarjeta">
@@ -702,7 +702,7 @@ function guiaCambioComunidad(g) {
   <div class="tarjeta tarjeta-tabla">
     <h2 class="rotulo">Cuánto cambia el IRPF con ${euros(Number(S))} brutos (${C.ejercicio})</h2>
     <p class="ayuda">${esc(C.supuesto)}</p>
-    ${tablaG(["Territorio", "Cuota líquida", "Tipo medio efectivo", "Diferencia con el más bajo"], filas)}
+    ${tablaG(["Territorio", "Cuota líquida", "Tipo medio sobre el bruto", "Diferencia con el más bajo"], filas)}
     <p>Con ${euros(Number(S))} brutos, la cuota va de ${eur(pri.cuota_liquida_total)} en ${esc(pri.nombre)} a ${eur(ult.cuota_liquida_total)} en ${esc(ult.nombre)}: ${difEuros(ult.cuota_liquida_total, pri.cuota_liquida_total)} al año. Solo entre comunidades de régimen común, de ${eur(cPri.cuota_liquida_total)} en ${esc(cPri.nombre)} a ${eur(cUlt.cuota_liquida_total)} en ${esc(cUlt.nombre)} (${difEuros(cUlt.cuota_liquida_total, cPri.cuota_liquida_total)}). En ${esc(mad.nombre)}, ${eur(mad.cuota_liquida_total)}.</p>
     <p>Estas cifras no incluyen deducciones autonómicas (alquiler, hijos, etc.), que pueden pesar más que la diferencia de escala. Compara con tus datos en la calculadora.</p>
   </div>

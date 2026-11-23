@@ -26,7 +26,11 @@ body.pagina-seo { background: var(--superficie); color: var(--tinta); font: 16px
 .migas { font-size: 13px; color: var(--tinta-3); margin: 0 auto 18px; }
 .migas a { color: var(--tinta-3); text-decoration: underline; text-underline-offset: 2px; }
 .migas a:hover { color: var(--marca); }
-.actualizado { color: var(--tinta-3); font-size: 13px; margin-top: 0; margin-bottom: 22px; padding-bottom: 18px; border-bottom: 1px solid var(--linea-2); }
+/* Separador de la cabecera: el filete de siempre con la cinta M al principio (pata azul y
+   trazo amarillo en diagonal), como firma de la marca en todas las páginas editoriales. */
+.actualizado { position: relative; color: var(--tinta-3); font-size: 13px; margin-top: 0; margin-bottom: 22px; padding-bottom: 18px; border-bottom: 1px solid var(--linea-2); }
+.actualizado::after { content: ""; position: absolute; left: 0; bottom: -2px; width: 52px; height: 3px;
+  background: linear-gradient(112deg, var(--marca) 0 30px, transparent 30px 32px, var(--resalte) 32px 52px); }
 
 /* Secciones: sin caja, con filete y aire. */
 .pagina-seo .prosa { max-width: 880px; margin-top: 28px; display: flex; flex-direction: column; gap: 0; }
@@ -70,8 +74,14 @@ body.pagina-seo { background: var(--superficie); color: var(--tinta); font: 16px
 .lista-enlaces a:hover { color: var(--marca); text-decoration: underline; }
 
 /* «En resumen»: la respuesta de la página, como entradilla destacada con filete. */
-.respuesta-directa { font-size: 17px; line-height: 1.55; color: var(--tinta); border-left: 3px solid var(--marca);
-  padding: 2px 0 2px 18px; margin: 0 0 8px; }
+/* Zona con diseño propio de la marca: tinte suave de cobalto, la pata azul de la M como filete
+   izquierdo (con su remate amarillo arriba), la esquina en ángulo y la diagonal antes del texto. */
+.respuesta-directa { position: relative; font-size: 17px; line-height: 1.55; color: var(--tinta);
+  background: var(--marca-50); border-left: 3px solid var(--marca);
+  border-image: linear-gradient(to bottom, var(--resalte) 0 14px, var(--marca) 14px) 1;
+  padding: 14px 22px 14px 18px; margin: 0 0 8px;
+  clip-path: polygon(0 0, calc(100% - var(--corte)) 0, 100% var(--corte), 100% 100%, 0 100%); }
+.respuesta-directa::before { margin-right: 10px; vertical-align: 1px; }
 .pagina-seo .prosa .respuesta-directa { color: var(--tinta); }
 .respuesta-directa b { color: var(--tinta); }
 .pie-fechas { font-size: .8125rem; }
@@ -134,7 +144,7 @@ body.pagina-seo { background: var(--superficie); color: var(--tinta); font: 16px
 .calc-rapido #cr-bruto { font-family: var(--display); font-stretch: 108%; font-weight: 700; font-size: 18px; }
 .calc-rapido .cr-pagas { border: 0; margin: 0; padding: 0; min-width: 0; display: flex; gap: 0; }
 .calc-rapido .cr-pagas legend { font-size: 13px; font-weight: 600; color: var(--tinta-2); padding: 0; margin-bottom: 6px; }
-.calc-rapido .cr-pagas label { display: inline-flex; align-items: center; gap: 6px; min-height: 42px; padding: 0 14px; border: 1px solid var(--linea-2);
+.calc-rapido .cr-pagas label { display: inline-flex; align-items: center; gap: 6px; min-height: 46px; padding: 0 14px; border: 1px solid var(--linea-2);
   font-weight: 600; color: var(--tinta); cursor: pointer; }
 .calc-rapido .cr-pagas label + label { border-left: 0; }
 .calc-rapido .cr-pagas label:first-of-type { border-radius: 8px 0 0 8px; }
@@ -147,12 +157,17 @@ body.pagina-seo { background: var(--superficie); color: var(--tinta); font: 16px
 .calc-rapido .cr-xl { font-family: var(--display); font-stretch: 110%; font-weight: 800; letter-spacing: -.035em; line-height: 1;
   font-size: clamp(34px, 5vw, 46px); color: var(--tinta); font-variant-numeric: tabular-nums; }
 .calc-rapido .cr-etq { font-size: 14px; color: var(--tinta-2); }
-.calc-rapido .cr-datos { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 0 24px; margin: 14px 0 0; }
-.calc-rapido .cr-datos div { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; padding: 7px 0; border-bottom: 1px solid var(--linea); }
+.calc-rapido .cr-datos { display: grid; grid-template-columns: repeat(auto-fit, minmax(100px, 1fr)); gap: 0 16px; margin: 14px 0 0; }
+.calc-rapido .cr-datos div { display: flex; flex-direction: column; align-items: flex-start; gap: 1px; padding: 7px 0; border-bottom: 1px solid var(--linea); }
 .calc-rapido .cr-datos dt { font-size: 13px; color: var(--tinta-2); }
 .calc-rapido .cr-datos dd { margin: 0; font-weight: 700; font-variant-numeric: tabular-nums; color: var(--tinta); white-space: nowrap; }
 .calc-rapido .cr-frase { margin: 12px 0 0; font-size: 15px; color: var(--tinta-2); max-width: 40em; }
-.calc-rapido .cr-frase b { color: var(--tinta); }
+.calc-rapido .cr-frase b { color: var(--tinta); white-space: nowrap; }
+.calc-rapido .cr-form :is(input, select) { min-height: 46px; }
+/* Rótulos de los tres campos a la misma altura: el margen inferior de un <legend> no cuenta, así
+   que lleva el mismo espacio como relleno. */
+.calc-rapido .cr-form .campo > label, .calc-rapido .cr-pagas legend { display: block; font-size: 13px; font-weight: 600; color: var(--tinta-2); line-height: 1.3; margin: 0 0 6px; }
+.calc-rapido .cr-pagas legend { margin-bottom: 0; padding-bottom: 6px; }
 .calc-rapido .cr-afinar { margin: 12px 0 0; font-weight: 700; }
 .calc-rapido .cr-afinar a { color: var(--marca-tinta); text-underline-offset: 3px; }
 .calc-rapido .cr-supuesto { margin-top: 8px; font-size: 12.5px; color: var(--tinta-3); max-width: 72ch; }
@@ -166,7 +181,7 @@ body.pagina-seo { background: var(--superficie); color: var(--tinta); font: 16px
 .widget-config { display: flex; flex-wrap: wrap; gap: 4px 20px; align-items: flex-end; margin-bottom: 12px; }
 .widget-config .campo { margin-bottom: 8px; }
 .widget-config select { min-width: 220px; }
-.widget-previa-marco { background: var(--superficie-2); border: 1px dashed var(--linea-2); border-radius: var(--radio); padding: 16px; }
+.widget-previa-marco { background: var(--fondo); border-top: 1px solid var(--linea-2); border-bottom: 1px solid var(--linea-2); padding: 20px 16px; }
 .widget-previa-marco iframe { background: transparent; }
 .widget-atribucion { font-size: 13px; margin: 4px 0 0; }
 .widget-codigo { font-family: var(--mono); font-size: 13px; line-height: 1.5; width: 100%; white-space: pre-wrap; word-break: break-all; }
@@ -177,9 +192,44 @@ pre.widget-codigo { background: var(--superficie-2); border: 1px solid var(--lin
 .ranking-figura { margin-left: 0; margin-right: 0; }
 .ranking-mapa { max-width: 640px; margin: 0 auto; }
 .ranking-mapa a:focus-visible .terr { stroke: var(--anillo); stroke-width: 3; }
-.ranking-tabla caption { caption-side: top; text-align: left; font-size: .8125rem; color: var(--tinta-2); padding: 0 0 8px; }
-.ranking-tabla th[scope="row"] { text-align: left; font-weight: 500; white-space: nowrap; }
+.pagina-seo-main .tarjeta-tabla > .ranking-tabla-tit { margin: 0 0 10px; }
+/* La cabecera de cada fila (el territorio) es un <th>: filete fino como el resto de la fila, no
+   el filete fuerte de las cabeceras de columna. */
+.pagina-seo-main .ranking-tabla tbody th[scope="row"] { text-align: left; font-size: 14.5px; font-weight: 500; color: var(--tinta);
+  white-space: nowrap; padding: 9px 12px 9px 0; border-bottom: 1px solid var(--linea); vertical-align: middle; }
+.pagina-seo-main .ranking-tabla tbody tr:last-child th { border-bottom-color: var(--linea-2); }
+.pagina-seo-main .ranking-tabla td { padding-left: 6px; padding-right: 6px; }
+/* Escritorio: la tabla (19 × 12 cifras) se sale de la columna de 880 px; desde 1240 px usa el
+   ancho del contenedor y el título y la nota se quedan alineados con la columna. */
+@media (min-width: 1240px) {
+  .pagina-seo-main .prosa > #tabla { max-width: none; width: min(1176px, calc(100vw - 64px)); margin-left: 50%; transform: translateX(-50%); }
+  .pagina-seo-main .prosa > #tabla > :not(.envoltorio) { margin-left: calc((100% - 880px) / 2); }
+}
+/* Móvil y tableta: la columna del territorio se queda fija al desplazar la tabla a los lados. */
+@media (max-width: 1239px) {
+  .pagina-seo-main .ranking-tabla :is(tbody th[scope="row"], thead th[rowspan]) { position: sticky; left: 0; z-index: 1; background: var(--superficie);
+    white-space: normal; min-width: 8.5em; max-width: 10.5em; }
+}
 .ranking-tabla thead th[colspan] { text-align: center; border-bottom: 1px solid var(--linea-2); }
 .ranking-tabla tbody td:nth-child(3n+2) { border-left: 1px solid var(--linea-2); }
-.ranking-cita { margin: 8px 0 12px; padding: 10px 14px; border-left: 3px solid var(--marca); background: var(--superficie-2); }
-.ranking-cita p { margin: 0; font-family: var(--mono); font-size: .875rem; overflow-wrap: anywhere; }
+.ranking-cita { margin: 8px 0 14px; padding: 2px 0 2px 18px; border-left: 3px solid var(--marca); }
+.ranking-cita p { margin: 0; font-size: 1rem; color: var(--tinta); overflow-wrap: anywhere; max-width: 40em; }
+
+/* ---- Revisión de diseño (23-11-2026) ------------------------------------------------------- */
+/* «En resumen» justo después de la entradilla: aire entre los dos. */
+.pagina-seo-main > .entradilla + .respuesta-directa { margin-top: 22px; }
+/* Un hueco de anuncio vacío entre dos secciones dejaba dos filetes seguidos. */
+.pagina-seo-main .tarjeta.anuncio + .tarjeta { border-top: 0; margin-top: 28px; }
+/* Tablas de texto (/vivienda/): columnas que parten línea, alineadas arriba. */
+.pagina-seo-main .tabla-texto td { vertical-align: top; }
+.pagina-seo-main .tabla-texto td:first-child { min-width: 9em; font-weight: 500; color: var(--tinta); }
+@media (max-width: 640px) { .pagina-seo-main .tabla-texto { min-width: 640px; } }
+/* /tipo-marginal-real/: el gráfico ancho en escritorio y uno dibujado a 340 px en el móvil (los
+   rótulos de los ejes se leen a 12 px en los dos); la lista de saltos, a medida de lectura. */
+.mg-estrecho { display: none; }
+@media (max-width: 560px) { .mg-ancho { display: none; } .mg-estrecho { display: block; } }
+.pagina-seo .mg-ancho { max-width: 760px; }
+.pagina-seo .grafico figcaption { margin-bottom: 18px; }
+.pagina-seo .mg-saltos { max-width: 44em; font-size: 15px; }
+.pagina-seo .mg-saltos li { color: var(--tinta-2); }
+.pagina-seo .mg-saltos .mg-antes { color: var(--tinta-3); }

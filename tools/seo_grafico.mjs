@@ -5,7 +5,7 @@
 // aquí no se calcula ningún impuesto. Colores con las variables CSS del tema (claro y
 // oscuro); el ancho lo da el contenedor (viewBox), así que se adapta al móvil.
 // =============================================================================
-import { esc, euros, pct } from "./seo_comun.mjs";
+import { esc, euros, pctMedio } from "./seo_comun.mjs";
 
 const AN = 640, AL = 190, IZQ = 64, DER = 16, ARR = 14, ABA = 30;
 
@@ -36,18 +36,18 @@ export function graficoBrutoNeto({ serie, titulo, pie, marca = null }) {
   const neto = s.map(p => ({ bruto: p.bruto, valor: p.neto / 12 }));
   const tipo = s.map(p => ({ bruto: p.bruto, valor: p.irpf / p.bruto }));
   const eurCorto = n => euros(n);
-  const filas = s.map(p => `<tr${p.bruto === marca ? ' class="destacada"' : ""}><td class="num">${esc(euros(p.bruto))}</td><td class="num">${esc(euros(p.neto / 12))}</td><td class="num">${esc(pct(p.irpf / p.bruto))}</td></tr>`).join("");
+  const filas = s.map(p => `<tr${p.bruto === marca ? ' class="destacada"' : ""}><td class="num">${esc(euros(p.bruto))}</td><td class="num">${esc(euros(p.neto / 12))}</td><td class="num">${esc(pctMedio(p.irpf / p.bruto))}</td></tr>`).join("");
   return `<div class="tarjeta">
     <figure class="grafico">
       <h2 class="rotulo">${esc(titulo)}</h2>
       <p class="grafico-leyenda">Neto al mes (12 pagas)</p>
       ${panel({ puntos: neto, titulo: `Neto mensual en 12 pagas según el sueldo bruto anual, de ${euros(neto[0].valor)} a ${euros(neto[neto.length - 1].valor)} al mes`, formato: eurCorto, marca, pasoY: 1000 })}
       <p class="grafico-leyenda">Tipo medio del IRPF sobre el bruto</p>
-      ${panel({ puntos: tipo, titulo: `Tipo medio del IRPF según el sueldo bruto anual, del ${pct(tipo[0].valor)} al ${pct(tipo[tipo.length - 1].valor)}`, formato: v => pct(v), marca, pasoY: 0.05 })}
+      ${panel({ puntos: tipo, titulo: `Tipo medio del IRPF según el sueldo bruto anual, del ${pctMedio(tipo[0].valor)} al ${pctMedio(tipo[tipo.length - 1].valor)}`, formato: v => pctMedio(v), marca, pasoY: 0.05 })}
       <figcaption class="ayuda">${esc(pie)} Eje horizontal: sueldo bruto anual, en miles de euros.</figcaption>
     </figure>
     <details class="grafico-datos"><summary>Ver los datos del gráfico</summary>
-      <div class="envoltorio"><table class="cobertura"><thead><tr><th class="num">Bruto anual</th><th class="num">Neto al mes (12 pagas)</th><th class="num">Tipo medio IRPF</th></tr></thead><tbody>${filas}</tbody></table></div>
+      <div class="envoltorio"><table class="cobertura"><thead><tr><th class="num">Bruto anual</th><th class="num">Neto al mes (12 pagas)</th><th class="num">Tipo medio sobre el bruto</th></tr></thead><tbody>${filas}</tbody></table></div>
     </details>
   </div>`;
 }

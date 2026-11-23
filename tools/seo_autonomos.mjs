@@ -18,7 +18,7 @@ import { createRequire } from "node:module";
 import { join, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
 import {
-  SLUG, ORDEN_TERRITORIOS, NOMBRE_CORTO, LIRPF_BOE, esc, euros, eurosExactos as eur, pct, pctCorto, urlBoe,
+  SLUG, ORDEN_TERRITORIOS, NOMBRE_CORTO, LIRPF_BOE, esc, euros, eurosExactos as eur, pctMedio, pctTipo, urlBoe,
   layout, jsonLdMigas, jsonLdArticulo, jsonLdFaq, bloqueFaq, migasHtml, respuestaDirecta, tituloQueQuepa, bloqueCalculoRapido
 } from "./seo_comun.mjs";
 
@@ -122,7 +122,7 @@ function preguntasTerritorio(P, t, rk) {
   const nombre = P.territorios[t].nombre, comun = P.territorios[t].regimen === "comun";
   const x = rk[REFERENCIA].find(y => y.t === t);
   return [
-    [`¿Cuánto IRPF paga un autónomo ${en(nombre)}?`, `Con ${euros(REFERENCIA)} de rendimiento neto al año, una persona sola sin hijos paga ${euros(x.irpf)} de IRPF en ${P.ejercicio} ${en(nombre)}: un tipo medio del ${pct(x.irpf / REFERENCIA)}. Con ${euros(RENDIMIENTOS[0])} paga ${euros(rk[RENDIMIENTOS[0]].find(y => y.t === t).irpf)} y con ${euros(RENDIMIENTOS[2])}, ${euros(rk[RENDIMIENTOS[2]].find(y => y.t === t).irpf)}.`],
+    [`¿Cuánto IRPF paga un autónomo ${en(nombre)}?`, `Con ${euros(REFERENCIA)} de rendimiento neto al año, una persona sola sin hijos paga ${euros(x.irpf)} de IRPF en ${P.ejercicio} ${en(nombre)}: un tipo medio del ${pctMedio(x.irpf / REFERENCIA)} sobre el rendimiento neto. Con ${euros(RENDIMIENTOS[0])} paga ${euros(rk[RENDIMIENTOS[0]].find(y => y.t === t).irpf)} y con ${euros(RENDIMIENTOS[2])}, ${euros(rk[RENDIMIENTOS[2]].find(y => y.t === t).irpf)}.`],
     [`¿El IRPF de un autónomo cambia según el municipio ${de(nombre)}?`, `No. La escala del IRPF y el mínimo personal son los mismos en toda ${comun ? "la comunidad" : "el territorio"}; solo algunas deducciones pueden depender del municipio.`],
     ["¿La cuota de autónomos se resta en el IRPF?", "Sí. La cuota a la Seguridad Social de los autónomos (RETA) es un gasto deducible de la actividad: se resta de los ingresos para llegar al rendimiento neto. Esta página no calcula esa cuota."],
     ["¿Qué es el modelo 130?", "Es la declaración trimestral de los pagos fraccionados del IRPF de los autónomos en estimación directa: un adelanto del impuesto sobre el rendimiento acumulado del año (art. 110 del Reglamento del IRPF). No se presenta si la mayor parte de los ingresos llevan retención."],
@@ -138,7 +138,7 @@ function paginaTerritorio(P, t, rk, generado) {
   const puestoTxt = y => `${y.puesto} de 19${empatados(rk[y.r], y) > 1 ? " (empate)" : ""}`;
   const filas = RENDIMIENTOS.map(r => {
     const y = Object.assign({ r }, fila(r)), min = rk[r][0];
-    return [esc(euros(r)), `<b>${esc(eur(y.irpf))}</b>`, esc(pct(y.irpf / r)), esc(puestoTxt(y)), esc(difEurosTxt(y.irpf, min.irpf))];
+    return [esc(euros(r)), `<b>${esc(eur(y.irpf))}</b>`, esc(pctMedio(y.irpf / r)), esc(puestoTxt(y)), esc(difEurosTxt(y.irpf, min.irpf))];
   });
   const qs = preguntasTerritorio(P, t, rk);
   const migas = [["Inicio", "/"], ["Autónomos", HUB_AUTONOMOS], [nombre, null]];
@@ -146,14 +146,14 @@ function paginaTerritorio(P, t, rk, generado) {
   const canarias = t === "ES-CN" ? `<p>En Canarias no hay IVA: los autónomos repercuten el IGIC. Es otro impuesto, que esta página no calcula; el IRPF canario sigue la escala estatal y la autonómica de Canarias como en el resto de comunidades de régimen común.</p>` : "";
   const main = `
   <h1>IRPF de un autónomo ${esc(en(nombre))} (${P.ejercicio}): cuánto pagas</h1>
-  ${respuestaDirecta(`con ${esc(euros(REFERENCIA))} de rendimiento neto, un autónomo ${esc(en(nombre))} paga <b>${esc(eur(x.irpf))}</b> de IRPF en ${P.ejercicio}, un ${esc(pct(x.irpf / REFERENCIA))} de lo que gana. Es el puesto ${esc(x.puesto)} de los 19 territorios fiscales.`)}
+  ${respuestaDirecta(`con ${esc(euros(REFERENCIA))} de rendimiento neto, un autónomo ${esc(en(nombre))} paga <b>${esc(eur(x.irpf))}</b> de IRPF en ${P.ejercicio}, un ${esc(pctMedio(x.irpf / REFERENCIA))} de lo que gana. Es el puesto ${esc(x.puesto)} de los 19 territorios fiscales.`)}
   ${bloqueCalculoRapido({ territorio: t, ejercicio: P.ejercicio, titulo: `Si cobras una nómina: tu sueldo neto ${en(nombre)}`,
     nota: "Es el cálculo de un sueldo por cuenta ajena; el IRPF de tu actividad como autónomo, con tus ingresos y gastos, está en la calculadora completa." })}
   <div class="prosa">
   <div class="tarjeta tarjeta-tabla">
     <h2 class="rotulo">IRPF de un autónomo ${esc(en(nombre))} según el rendimiento</h2>
     <p class="ayuda">${esc(RENDIMIENTO_EXPLICADO)} ${esc(SUPUESTO(P))} Puesto: 1 = el territorio donde menos IRPF se paga con ese rendimiento.</p>
-    ${tabla(["Rendimiento neto", "IRPF del año", "Tipo medio", "Puesto", "Más que el más barato"], filas)}
+    ${tabla(["Rendimiento neto", "IRPF del año", "Tipo medio sobre el rendimiento neto", "Puesto", "Más que el más barato"], filas)}
     <p class="ayuda">Con ${esc(euros(REFERENCIA))}, donde menos se paga es en <a href="${HUB_AUTONOMOS}${SLUG[primero.t]}/">${esc(P.territorios[primero.t].nombre)}</a> (${esc(eur(primero.irpf))}). <a href="${HUB_AUTONOMOS}#ranking">Ver los 19 territorios</a>.</p>
   </div>
   <div class="tarjeta"><h2 class="rotulo">Cómo se llega a esa cifra</h2>
@@ -191,7 +191,7 @@ function preguntasHub(P, ej, rk) {
   const { s } = ej, c = rk[REFERENCIA];
   return [
     ["¿Cuánto IRPF paga un autónomo?", `Depende del rendimiento neto (ingresos menos gastos) y del territorio. Con ${euros(ej.ingresos)} de ingresos y ${euros(ej.gastos)} de gastos ${en(P.territorios[ej.territorio].nombre)}, una persona sola sin hijos paga ${euros(ej.irpf)} de IRPF en ${P.ejercicio}. Con ${euros(REFERENCIA)} de rendimiento neto, va de ${euros(c[0].irpf)} ${en(P.territorios[c[0].t].nombre)} a ${euros(c[c.length - 1].irpf)} ${en(P.territorios[c[c.length - 1].t].nombre)}.`],
-    ["¿Qué son los gastos de difícil justificación?", `En estimación directa simplificada puedes restar, sin justificarlos, un ${pctCorto(s.gastos_dificil_justificacion_pct)} del rendimiento neto previo, con un máximo de ${euros(s.gastos_dificil_justificacion_max)} al año (${s.norma}).`],
+    ["¿Qué son los gastos de difícil justificación?", `En estimación directa simplificada puedes restar, sin justificarlos, un ${pctTipo(s.gastos_dificil_justificacion_pct)} del rendimiento neto previo, con un máximo de ${euros(s.gastos_dificil_justificacion_max)} al año (${s.norma}).`],
     ["¿La cuota de autónomos desgrava en la renta?", "Sí: la cuota del RETA es un gasto deducible de la actividad y se resta de los ingresos. No es una deducción de la cuota del IRPF, sino un gasto que baja el rendimiento neto."],
     ["¿Qué es el modelo 130 y cuánto se paga?", "Es el pago fraccionado trimestral del IRPF de los autónomos en estimación directa: un adelanto calculado sobre el rendimiento neto acumulado del año, según el art. 110 del Reglamento del IRPF. Mapafiscal no calcula su importe. En la renta se resta todo lo adelantado."],
     ["¿Paga menos IRPF un autónomo que un asalariado?", `No hay una respuesta única. El asalariado resta sus cotizaciones, ${euros(P.estatal.trabajo_otros_gastos.generico)} de otros gastos (${P.estatal.trabajo_otros_gastos.norma}) y, con sueldos bajos, la reducción por rendimientos del trabajo; el autónomo resta su cuota de autónomo y los gastos reales de su actividad y, en estimación directa simplificada, los gastos de difícil justificación. Compara tu caso en la calculadora.`]
@@ -206,14 +206,14 @@ function paginaHub(P, rk, generado) {
     ["Ingresos de la actividad (sin IVA)", esc(eur(ej.ingresos))],
     ["− Gastos deducibles (incluida, si la pagas, la cuota de autónomo)", esc("−" + eur(ej.gastos))],
     ["= Rendimiento neto previo", esc(eur(ej.previo))],
-    [`− Gastos de difícil justificación (${esc(pctCorto(s.gastos_dificil_justificacion_pct))}, máximo ${esc(euros(s.gastos_dificil_justificacion_max))})`, esc("−" + eur(ej.dificil))],
+    [`− Gastos de difícil justificación (${esc(pctTipo(s.gastos_dificil_justificacion_pct))}, máximo ${esc(euros(s.gastos_dificil_justificacion_max))})`, esc("−" + eur(ej.dificil))],
     ["= Rendimiento neto de la actividad", `<b>${esc(eur(ej.rn))}</b>`],
     ["Base liquidable general", esc(eur(liq.baseLiquidableGeneral))],
     ["Mínimo personal (no tributa)", esc(eur(mpf))],
     ["Cuota estatal (escala estatal)", esc(eur(liq.cuotaIntegraEstatal))],
     [`Cuota autonómica (escala ${esc(de(nombreEj))})`, esc(eur(liq.cuotaIntegraAutonomica))],
     ["= IRPF del año", `<b>${esc(eur(ej.irpf))}</b>`],
-    ["Tipo medio sobre el rendimiento neto", esc(pct(ej.irpf / ej.rn))]
+    ["Tipo medio sobre el rendimiento neto", esc(pctMedio(ej.irpf / ej.rn))]
   ];
   const c = rk[REFERENCIA];
   const fila = (r, t) => rk[r].find(y => y.t === t);

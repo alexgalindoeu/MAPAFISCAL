@@ -24,6 +24,24 @@ test("el HTML empaquetado es autónomo", () => {
   assert.doesNotMatch(html, /href="favicon\.svg"/);
 });
 
+test("index.html: scripts con defer y las herramientas fuera de la primera carga", () => {
+  const html = readFileSync(new URL("../web/index.html", import.meta.url), "utf8");
+  const fin = html.slice(html.indexOf("<!--/CUERPO-->"));
+  const scripts = [...fin.matchAll(/<script\b[^>]*>/g)].map(m => m[0]);
+  assert.ok(scripts.length > 10);
+  for (const s of scripts) assert.match(s, /^<script src="[^"]+" defer>$/, s);
+  // las herramientas esperan en la plantilla, después de app.js, que las carga al arrancar
+  const plantilla = fin.match(/<template id="js-herramientas">([\s\S]*?)<\/template>/);
+  assert.ok(plantilla, "falta <template id=\"js-herramientas\">");
+  assert.ok(fin.indexOf('<script src="js/app.js" defer>') < fin.indexOf("<template"));
+  for (const js of ["herramientas", "informe", "ofertas", "escenarios"]) assert.match(plantilla[1], new RegExp(`src="js/${js}\\.js"`));
+  for (const js of ["irpfsim", "formulario", "app"]) assert.doesNotMatch(plantilla[1], new RegExp(`src="js/${js}\\.js"`));
+  assert.match(readFileSync(new URL("../web/js/app.js", import.meta.url), "utf8"), /getElementById\("js-herramientas"\)/);
+  // en la versión autónoma, la plantilla lleva el código en línea
+  const emp = empaquetar().match(/<template id="js-herramientas">([\s\S]*?)<\/template>/);
+  assert.ok(emp && /window\.MapafiscalOfertas = CALCULOS/.test(emp[1]));
+});
+
 test("el HTML empaquetado queda en modo demo aunque la web esté en producción", () => {
   const html = empaquetar();
   assert.doesNotMatch(html, /<script[^>]+supabase-js/, "no debe cargar supabase-js");

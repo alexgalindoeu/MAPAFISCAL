@@ -9,7 +9,7 @@
 // mejor no publicarla que explicarla a medias.
 // =============================================================================
 import {
-  SLUG, HERRAMIENTA, esc, miles, eurosExactos, pctCorto, urlBoe, enlacesBoe,
+  SLUG, HERRAMIENTA, esc, miles, eurosExactos, pctTipo, urlBoe, enlacesBoe,
   layout, jsonLdMigas, jsonLdArticulo, jsonLdFaq, bloqueFaq, migasHtml, NOMBRE_CORTO, MAX_TITULO, MAX_DESCRIPCION, respuestaDirecta, tituloQueQuepa
 } from "./seo_comun.mjs";
 import { paramsDe, ejemplos, htmlEjemplos, ejemploFamiliar, htmlEjemploFamiliar, tipoDe, conArticulo, conDe, conEn } from "./seo_deduccion_ficha.mjs";
@@ -120,12 +120,12 @@ function cuanto(d) {
     }
     case "porcentaje_campo":
       if (!CAMPO[d.campo]) return null;
-      return `${pctCorto(d.porcentaje)} de ${CAMPO[d.campo]}${d.base_maxima != null ? ` (con una base máxima de ${eur(d.base_maxima)})` : ""}${lim}${d.limite_por_hijo_adicional != null ? ` más ${eur(d.limite_por_hijo_adicional)} por cada hijo a partir del segundo` : ""}${d.limite_pct_cuota_autonomica != null ? `, sin superar el ${pctCorto(d.limite_pct_cuota_autonomica)} de la cuota íntegra autonómica` : ""}`;
+      return `${pctTipo(d.porcentaje)} de ${CAMPO[d.campo]}${d.base_maxima != null ? ` (con una base máxima de ${eur(d.base_maxima)})` : ""}${lim}${d.limite_por_hijo_adicional != null ? ` más ${eur(d.limite_por_hijo_adicional)} por cada hijo a partir del segundo` : ""}${d.limite_pct_cuota_autonomica != null ? `, sin superar el ${pctTipo(d.limite_pct_cuota_autonomica)} de la cuota íntegra autonómica` : ""}`;
     case "porcentaje_campo_hijo":
       if (!CAMPO[d.campo]) return null;
-      return `${pctCorto(d.porcentaje)} de ${CAMPO[d.campo]} de cada hijo${d.edad_hijo_max != null ? ` de ${d.edad_hijo_max} años o menos` : ""}${d.limite != null ? `, con un máximo de ${eur(d.limite)} por hijo` : ""}`;
+      return `${pctTipo(d.porcentaje)} de ${CAMPO[d.campo]} de cada hijo${d.edad_hijo_max != null ? ` de ${d.edad_hijo_max} años o menos` : ""}${d.limite != null ? `, con un máximo de ${eur(d.limite)} por hijo` : ""}`;
     case "porcentaje_campos_hijo": {
-      const partes = Object.entries(d.campos).map(([k, p]) => CAMPO[k] ? `${pctCorto(p)} de ${CAMPO[k]}` : null);
+      const partes = Object.entries(d.campos).map(([k, p]) => CAMPO[k] ? `${pctTipo(p)} de ${CAMPO[k]}` : null);
       if (partes.includes(null)) return null;
       const lista = partes.slice(0, -1).join(", ") + " y " + partes[partes.length - 1];
       let s = `${lista} de cada hijo, con un máximo de ${eur(d.limite)} por hijo`;
@@ -138,7 +138,7 @@ function cuanto(d) {
       return s;
     }
     case "porcentaje_cuota_autonomica":
-      return `${pctCorto(d.porcentaje)} de la cuota ${d.sobre_cuota_integra ? "íntegra " : ""}autonómica${lim}`;
+      return `${pctTipo(d.porcentaje)} de la cuota ${d.sobre_cuota_integra ? "íntegra " : ""}autonómica${lim}`;
     default: return null;
   }
 }
@@ -205,7 +205,7 @@ function notas(d) {
     if (d.taper_conjunta) s += ` (entre ${eur(d.taper_conjunta[0])} y ${eur(d.taper_conjunta[1])} en conjunta)`;
     n.push(s + ".");
   }
-  if (d.incremento_municipio) n.push(`Es un ${pctCorto(d.incremento_municipio.factor - 1)} mayor si se reside en un municipio de menos de ${miles(String(d.incremento_municipio.hab_max + 1))} habitantes.`);
+  if (d.incremento_municipio) n.push(`Es un ${pctTipo(d.incremento_municipio.factor - 1)} mayor si se reside en un municipio de menos de ${miles(String(d.incremento_municipio.hab_max + 1))} habitantes.`);
   if (d.factor_discapacidad) {
     const f = d.factor_discapacidad, q = conQuien(f.de);
     if (!q) return null;
@@ -291,7 +291,7 @@ const FORAL = {
   deduccion_descendientes: b => ["Por descendientes",
     [`${ordenHijos(b.importes)}.`, `${eur(b.incremento_menor_6_anios)} más por cada descendiente menor de 6 años.`]],
   deduccion_anualidades_alimentos_hijos: b => ["Por anualidades por alimentos a los hijos",
-    [`${pctCorto(b.porcentaje)} de las anualidades pagadas por decisión judicial, con un límite por hijo de ${ordenHijos(b.limites).replace(/ por el /g, " para el ")}.`]],
+    [`${pctTipo(b.porcentaje)} de las anualidades pagadas por decisión judicial, con un límite por hijo de ${ordenHijos(b.limites).replace(/ por el /g, " para el ")}.`]],
   deduccion_ascendientes: b => ["Por ascendientes", [`${eur(b.importe)} por cada ascendiente que conviva con el contribuyente y le dé derecho a la deducción.`]],
   deduccion_discapacidad: b => ["Por discapacidad o dependencia", [
     `${eur(b.grado_33_64)} con un grado de discapacidad de entre el 33 % y el 64 %.`,
@@ -306,14 +306,14 @@ const FORAL = {
     `${eur(b.importe)}, entera si la base imponible no pasa de ${eur(b.base_plena)}; se reduce de forma lineal hasta desaparecer en ${eur(b.base_cero)}.`,
     "No se puede sumar a la deducción por edad."]],
   deduccion_alquiler_vivienda: b => ["Por alquiler de la vivienda habitual", [
-    `${pctCorto(b.general.porcentaje)} de lo pagado, con un máximo de ${eur(b.general.limite)} al año.`,
-    `${pctCorto(b.colectivo_especial.porcentaje)}, con un máximo de ${eur(b.colectivo_especial.limite)}, para los menores de 36 años, las familias numerosas, las familias monoparentales y los demás colectivos que fija la norma foral.`]],
+    `${pctTipo(b.general.porcentaje)} de lo pagado, con un máximo de ${eur(b.general.limite)} al año.`,
+    `${pctTipo(b.colectivo_especial.porcentaje)}, con un máximo de ${eur(b.colectivo_especial.limite)}, para los menores de 36 años, las familias numerosas, las familias monoparentales y los demás colectivos que fija la norma foral.`]],
   deduccion_adquisicion_vivienda: b => ["Por adquisición de vivienda habitual", [
-    `${pctCorto(b.general.porcentaje)} de lo invertido, con un máximo de ${eur(b.general.limite_anual)} al año.`,
-    `${pctCorto(b.menor_36.porcentaje)}, con un máximo de ${eur(b.menor_36.limite_anual)} al año, para los menores de 36 años, las familias numerosas, las familias monoparentales y los demás colectivos que fija la norma foral.`,
+    `${pctTipo(b.general.porcentaje)} de lo invertido, con un máximo de ${eur(b.general.limite_anual)} al año.`,
+    `${pctTipo(b.menor_36.porcentaje)}, con un máximo de ${eur(b.menor_36.limite_anual)} al año, para los menores de 36 años, las familias numerosas, las familias monoparentales y los demás colectivos que fija la norma foral.`,
     `En toda la vida del contribuyente se pueden deducir como máximo ${eur(b.credito_fiscal_vital)}.`]],
   deduccion_patrimonio_protegido: b => ["Por aportaciones a patrimonios protegidos de personas con discapacidad",
-    [`${pctCorto(b.porcentaje)} de las aportaciones, con un máximo de ${eur(b.limite_anual)} al año.`]],
+    [`${pctTipo(b.porcentaje)} de las aportaciones, con un máximo de ${eur(b.limite_anual)} al año.`]],
   // Navarra
   minimo_personal_deduccion: b => ["Por mínimo personal", [
     `${eur(b.importe_general)} por contribuyente, que se restan de la cuota: en Navarra el mínimo personal es una deducción, no una reducción de la base.`,
@@ -321,9 +321,9 @@ const FORAL = {
     `${eur(b.incremento_65)} más desde los 65 años, o ${eur(b.incremento_75)} desde los 75 (no se suman).`,
     `${eur(b.incremento_discapacidad_33_64)} más con un grado de discapacidad de entre el 33 % y el 64 %, o ${eur(b.incremento_discapacidad_65_mas)} con un grado igual o superior al 65 %.`]],
   deduccion_alquiler_navarra: b => ["Por alquiler de la vivienda habitual", [
-    `${pctCorto(b.general.porcentaje)} de lo pagado, con un máximo de ${eur(b.general.limite)} al año.`,
-    `${pctCorto(b.joven_o_monoparental.porcentaje)}, con un máximo de ${eur(b.joven_o_monoparental.limite)}, para los menores de ${b.joven_o_monoparental.edad_max} años y las familias monoparentales.`,
-    `Requisitos: que las rentas del contribuyente no superen ${eur(b.rentas_max)} y que el alquiler supere el ${pctCorto(b.umbral_esfuerzo)} de esas rentas.`]]
+    `${pctTipo(b.general.porcentaje)} de lo pagado, con un máximo de ${eur(b.general.limite)} al año.`,
+    `${pctTipo(b.joven_o_monoparental.porcentaje)}, con un máximo de ${eur(b.joven_o_monoparental.limite)}, para los menores de ${b.joven_o_monoparental.edad_max} años y las familias monoparentales.`,
+    `Requisitos: que las rentas del contribuyente no superen ${eur(b.rentas_max)} y que el alquiler supere el ${pctTipo(b.umbral_esfuerzo)} de esas rentas.`]]
 };
 
 export function fichaForal(clave, b, t, regimen, enlace) {
@@ -360,13 +360,13 @@ function cuantiaCorta(d) {
       return [a, a === b ? eur(a) : `de ${eur(a)} a ${eur(b)}`, "por hijo nacido o adoptado"];
     }
     case "fija_por_ascendiente": return [d.importe, eur(d.importe), "por ascendiente"];
-    case "porcentaje_campo": return [d.porcentaje, pctCorto(d.porcentaje), BASE_CORTA[d.campo] || "del gasto"];
-    case "porcentaje_campo_hijo": return [d.porcentaje, pctCorto(d.porcentaje), "del gasto por hijo"];
+    case "porcentaje_campo": return [d.porcentaje, pctTipo(d.porcentaje), BASE_CORTA[d.campo] || "del gasto"];
+    case "porcentaje_campo_hijo": return [d.porcentaje, pctTipo(d.porcentaje), "del gasto por hijo"];
     case "porcentaje_campos_hijo": {
       const v = [...new Set(Object.values(d.campos))].sort((a, b) => a - b);
-      return [v[0], listaO(v.map(pctCorto)), "del gasto por hijo"];
+      return [v[0], listaO(v.map(pctTipo)), "del gasto por hijo"];
     }
-    case "porcentaje_cuota_autonomica": return [d.porcentaje, pctCorto(d.porcentaje), `de la cuota ${d.sobre_cuota_integra ? "íntegra " : ""}autonómica`];
+    case "porcentaje_cuota_autonomica": return [d.porcentaje, pctTipo(d.porcentaje), `de la cuota ${d.sobre_cuota_integra ? "íntegra " : ""}autonómica`];
     default: return null;
   }
 }
@@ -375,7 +375,7 @@ function limiteCorto(d) {
   const l = [];
   if (d.limite != null) l.push(eur(d.limite) + por + (d.limite_conjunta != null ? ` (${eur(d.limite_conjunta)} en conjunta)` : "") +
     (d.limite_por_hijo_adicional != null ? ` más ${eur(d.limite_por_hijo_adicional)} por hijo desde el segundo` : ""));
-  if (d.limite_pct_cuota_autonomica != null) l.push(`${pctCorto(d.limite_pct_cuota_autonomica)} de la cuota íntegra autonómica`);
+  if (d.limite_pct_cuota_autonomica != null) l.push(`${pctTipo(d.limite_pct_cuota_autonomica)} de la cuota íntegra autonómica`);
   if (d.base_maxima != null) l.push(`base máxima de ${eur(d.base_maxima)}`);
   return l.length ? l.join("; ") : null;
 }
