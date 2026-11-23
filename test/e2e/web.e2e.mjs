@@ -155,7 +155,7 @@ try {
     await p.context().close();
   });
 
-  for (const ruta of ["/", "/irpf/", "/validacion/", "/sueldo-mensual/", "/#sueldo-mes", "/sueldo-neto/30000/madrid/", "/autonomos/madrid/", "/guias/12-o-14-pagas/"]) {
+  for (const ruta of ["/", "/irpf/", "/validacion/", "/sueldo-mensual/", "/#sueldo-mes", "/sueldo-neto/30000/madrid/", "/autonomos/madrid/", "/guias/12-o-14-pagas/", "/irpf/madrid/", "/irpf/bizkaia/", "/irpf/gipuzkoa/"]) {
     await prueba(`móvil 390 px sin desbordamiento horizontal: ${ruta}`, async () => {
       const p = await abrir(ruta, { viewport: { width: 390, height: 844 }, isMobile: true, hasTouch: true });
       await p.waitForTimeout(500);
