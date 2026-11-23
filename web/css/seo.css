@@ -171,3 +171,15 @@ body.pagina-seo { background: var(--superficie); color: var(--tinta); font: 16px
 .widget-atribucion { font-size: 13px; margin: 4px 0 0; }
 .widget-codigo { font-family: var(--mono); font-size: 13px; line-height: 1.5; width: 100%; white-space: pre-wrap; word-break: break-all; }
 pre.widget-codigo { background: var(--superficie-2); border: 1px solid var(--linea); border-radius: 8px; padding: 10px 12px; overflow-x: auto; }
+/* Ranking anual (/ranking-irpf-comunidades/): conclusiones, mapa, tabla ancha y cita. */
+.ranking-conclusiones { margin: 0; padding-left: 1.4em; }
+.ranking-conclusiones li { margin: 0 0 10px; }
+.ranking-figura { margin-left: 0; margin-right: 0; }
+.ranking-mapa { max-width: 640px; margin: 0 auto; }
+.ranking-mapa a:focus-visible .terr { stroke: var(--anillo); stroke-width: 3; }
+.ranking-tabla caption { caption-side: top; text-align: left; font-size: .8125rem; color: var(--tinta-2); padding: 0 0 8px; }
+.ranking-tabla th[scope="row"] { text-align: left; font-weight: 500; white-space: nowrap; }
+.ranking-tabla thead th[colspan] { text-align: center; border-bottom: 1px solid var(--linea-2); }
+.ranking-tabla tbody td:nth-child(3n+2) { border-left: 1px solid var(--linea-2); }
+.ranking-cita { margin: 8px 0 12px; padding: 10px 14px; border-left: 3px solid var(--marca); background: var(--superficie-2); }
+.ranking-cita p { margin: 0; font-family: var(--mono); font-size: .875rem; overflow-wrap: anywhere; }

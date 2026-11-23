@@ -5,7 +5,7 @@ import { dirname, extname, join, normalize, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
 const WEB = resolve(dirname(fileURLToPath(import.meta.url)), "..", "web");
-const TIPOS = { ".html": "text/html; charset=utf-8", ".css": "text/css; charset=utf-8", ".js": "text/javascript; charset=utf-8", ".json": "application/json; charset=utf-8", ".svg": "image/svg+xml", ".xml": "application/xml; charset=utf-8", ".txt": "text/plain; charset=utf-8", ".png": "image/png", ".woff2": "font/woff2", ".webmanifest": "application/manifest+json" };
+const TIPOS = { ".html": "text/html; charset=utf-8", ".css": "text/css; charset=utf-8", ".js": "text/javascript; charset=utf-8", ".json": "application/json; charset=utf-8", ".svg": "image/svg+xml", ".xml": "application/xml; charset=utf-8", ".txt": "text/plain; charset=utf-8", ".png": "image/png", ".woff2": "font/woff2", ".webmanifest": "application/manifest+json", ".csv": "text/csv; charset=utf-8" };
 const puerto = Number(process.argv[2] || 8080);
 
 createServer(async (req, res) => {

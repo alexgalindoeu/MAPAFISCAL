@@ -76,6 +76,7 @@ export function empaquetar() {
   sustituir('<script src="js/formulario.js"></script>', "<script>\n" + leer("js/formulario.js") + "</script>");
   sustituir('<script src="js/cuentas.js"></script>', "<script>\n" + leer("js/cuentas.js") + "</script>");
   sustituir('<script src="js/explicacion.js"></script>', "<script>\n" + leer("js/explicacion.js") + "</script>");
+  sustituir('<script src="js/csv.js"></script>', "<script>\n" + leer("js/csv.js") + "</script>");
   sustituir('<script src="js/app.js"></script>', "<script>\n" + leer("js/app.js") + "</script>");
   sustituir('<script src="js/herramientas.js"></script>', "<script>\n" + leer("js/herramientas.js") + "</script>");
   sustituir('<script src="js/informe.js"></script>', "<script>\n" + informeDemo() + "</script>");
@@ -83,10 +84,13 @@ export function empaquetar() {
   sustituir('<script src="js/conjunta.js"></script>', "<script>\n" + leer("js/conjunta.js") + "</script>");
   sustituir('<script src="js/bruto.js"></script>', "<script>\n" + leer("js/bruto.js") + "</script>");
   sustituir('<script src="js/sueldo_mes.js"></script>', "<script>\n" + leer("js/sueldo_mes.js") + "</script>");
+  sustituir('<script src="js/ofertas.js"></script>', "<script>\n" + leer("js/ofertas.js") + "</script>");
+  sustituir('<script src="js/ejercicios.js"></script>', "<script>\n" + leer("js/ejercicios.js") + "</script>");
+  sustituir('<script src="js/marginal.js"></script>', "<script>\n" + leer("js/marginal.js") + "</script>");
   sustituir('<script src="js/deducciones.js"></script>', "<script>\n" + leer("js/deducciones.js") + "</script>");
   sustituir('<script src="js/escenarios.js"></script>', "<script>\n" + leer("js/escenarios.js") + "</script>");
   // Las páginas legales, las de territorio y sueldo y las guías no van dentro: apuntan a la web publicada.
-  html = html.replace(/href="(legal|irpf|guias|vivienda|comparar-sueldo|sueldo-mensual|declaracion-conjunta|dos-pagadores|validacion)\//g, (m, dir) => `href="${WEB_PUBLICA}${dir}/`);
+  html = html.replace(/href="(legal|irpf|guias|vivienda|comparar-sueldo|sueldo-mensual|comparar-ofertas|irpf-\d{4}-vs-\d{4}|tipo-marginal-real|declaracion-conjunta|dos-pagadores|validacion)\//g, (m, dir) => `href="${WEB_PUBLICA}${dir}/`);
   return html;
 }
 

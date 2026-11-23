@@ -7,8 +7,9 @@
 #   Rscript tools/generar_datos_seo.R --comprobar  # falla si no coinciden con el motor
 #
 # Genera:
-#   web/datos/seo_comparativas.json  — comparativa de los 19 territorios en 5 sueldos
-#                                       de referencia (liquidación real del motor).
+#   web/datos/seo_comparativas.json  — comparativa de los 19 territorios en los sueldos
+#                                       de referencia y los del ranking anual (liquidación
+#                                       real del motor).
 #   web/datos/seo_territorios.json   — escala combinada, mínimo y deducciones de cada
 #                                       territorio, con su norma y su fuente.
 #   web/datos/seo_deducciones.json   — deducciones publicables (confirmadas y con fuente
@@ -23,6 +24,10 @@ source("R/cargar.R"); irpfsim_cargar(".")
 
 EJERCICIO <- 2025
 SALARIOS <- c(20000, 30000, 40000, 60000, 100000)
+# Sueldos del ranking anual para la prensa (/ranking-irpf-comunidades/): se liquidan también
+# en la comparativa, pero solo los de SALARIOS tienen página en /comparar-sueldo/.
+SALARIOS_RANKING <- c(20000, 30000, 50000, 80000)
+SALARIOS_COMPARATIVA <- sort(unique(c(SALARIOS, SALARIOS_RANKING)))
 # Cotización del trabajador a la Seguridad Social: la de la orden de cotización del
 # ejercicio (cotizaciones_trabajador() de R/15, contrato indefinido), igual que la web.
 cotizacion_ss <- function(salario) cotizaciones_trabajador(salario, cargar_parametros("ES-MD", EJERCICIO))
@@ -84,7 +89,9 @@ seo_comparativas <- list(
     "No es una liquidación oficial ni tiene en cuenta tu situación real."
   ),
   salarios = as.list(SALARIOS),
-  comparativas = setNames(lapply(SALARIOS, comparativa_salario), format(SALARIOS, scientific = FALSE, trim = TRUE))
+  salarios_ranking = as.list(SALARIOS_RANKING),
+  comparativas = setNames(lapply(SALARIOS_COMPARATIVA, comparativa_salario),
+                          format(SALARIOS_COMPARATIVA, scientific = FALSE, trim = TRUE))
 )
 
 # -----------------------------------------------------------------------------

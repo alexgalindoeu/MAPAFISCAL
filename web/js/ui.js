@@ -54,6 +54,12 @@
     vivienda: '<polygon points="12,1.5 20,15.5 20,22 4,22 4,15.5"/><polygon class="r" points="10,15 14,15 14,22 10,22"/>',
     // fragmento de mapa: un territorio y su vecino
     territorio: '<polygon points="2,7 9,3 14,6 11.5,13 14.5,21 6,21 2,15"/><polygon class="r" points="16,4 22,6.5 21,15 17,19 13.5,12.5"/>',
+    // dos ofertas con la esquina cortada a la diagonal; la que gana, subrayada en amarillo
+    ofertas: '<polygon points="2,3 8,3 10.75,8 10.75,19 2,19"/><polygon points="13.25,3 19.25,3 22,8 22,19 13.25,19"/><polygon class="r" points="13.25,21 22,21 22,23.5 13.25,23.5"/>',
+    // hoja de calendario con dos anillas; la casilla del año nuevo, en amarillo
+    ejercicios: '<path fill-rule="evenodd" d="M2 5h20v17H2zM5 10v3h4v-3zM10.5 10v3h4v-3zM5 15v3h4v-3z"/><polygon points="6,2 8.5,2 8.5,6 6,6"/><polygon points="15.5,2 18,2 18,6 15.5,6"/><polygon class="r" points="16,15 19,15 19,18 16,18"/>',
+    // tres columnas de lo que queda; el hueco que se lleva el salto, en amarillo
+    marginal: '<polygon points="2,4 7,4 7,22 2,22"/><polygon points="9.5,11 14.5,11 14.5,22 9.5,22"/><polygon points="17,7 22,7 22,22 17,22"/><polygon class="r" points="9.5,4 14.5,4 14.5,9 9.5,9"/>',
     // una «A» angular con el travesaño en amarillo
     glosario: '<polygon points="2,22 9.5,2 13.5,2 6.5,22"/><polygon points="15,7 22,22 17.5,22 13,12.5"/><polygon class="r" points="5,13.5 19,13.5 19,17 5,17"/>'
   };
@@ -69,11 +75,14 @@
       { titulo: "Sueldo al mes", texto: "Tu bruto anual entre 12, 14 o 15 pagas, en bruto y en neto.", href: "#sueldo-mes", icono: "nomina" },
       { titulo: "¿Qué sueldo bruto pido?", texto: "De neto a bruto, en los 19 territorios, y qué oferta de trabajo te deja más.", href: "#bruto-necesario", icono: "bruto" },
       { titulo: "¿Cuánto neto gano con mi subida?", texto: "Lo que de verdad llega al bolsillo de cada euro de subida.", href: "#sueldo-neto?subida", icono: "subida" },
+      { titulo: "De cada 100 € más, ¿cuánto te queda?", texto: "Tu tipo marginal real de 12.000 a 120.000 €, con los saltos explicados.", href: "#marginal", icono: "marginal" },
       { titulo: "Dos pagadores", texto: "Si te obliga a declarar y cuánto te puede salir a pagar.", href: "#dos-pagadores", icono: "dospagadores" },
       { titulo: "¿Cuánto me devuelve Hacienda?", texto: "Hijos, alquiler, hipoteca, discapacidad, donativos… situación a situación.", href: "/cuanto-me-devuelve/", icono: "deducciones" }
     ] },
     { grupo: "Comparar", items: [
       { titulo: "Comparador de territorios", texto: "Tu misma situación en los 19 territorios, en mapa y en ranking.", href: "#comparar", icono: "comparar" },
+      { titulo: "Comparar dos ofertas de trabajo", texto: "Dos sueldos lado a lado, cada uno con su territorio y sus pagas.", href: "#ofertas", icono: "ofertas" },
+      { titulo: "El mismo sueldo en dos ejercicios", texto: "Tu IRPF y tu neto de un año frente al siguiente, y qué cambia.", href: "#ejercicios", icono: "ejercicios" },
       { titulo: "¿Conjunta o individual?", texto: "Qué declaración os conviene y cuánto os ahorráis.", href: "#conjunta", icono: "pareja" },
       { titulo: "Escenarios «¿y si…?»", texto: "Compara a la vez varias versiones de tu renta.", href: "#escenarios", icono: "escenarios" },
       { titulo: "Dónde se paga menos IRPF", texto: "Rankings de los 19 territorios para sueldos de referencia.", href: "/comparar-sueldo/", icono: "comparar" }

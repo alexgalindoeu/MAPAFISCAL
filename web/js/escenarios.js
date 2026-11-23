@@ -199,11 +199,18 @@
     for (const c of H.compararTerritorios(hogar, P)) o[c.territorio] = { cuota: c.cuotaResultanteAutoliquidacion, tipo: c.tipoMedioEfectivo };
     return o;
   }
+  // Tabla de las curvas del deslizador para el CSV: sueldo bruto y, por territorio (orden de
+  // params.json), la cuota en euros y el tipo medio en %. `numero` da el formato (coma decimal).
+  function filasCurvas(puntos, P, numero) {
+    const ts = Object.keys(P.territorios).filter(t => puntos.length && puntos[0].d[t]);
+    const cab = ["Sueldo bruto anual (€)"].concat(...ts.map(t => [`${P.territorios[t].nombre}: cuota IRPF (€)`, `${P.territorios[t].nombre}: tipo medio (%)`]));
+    return [cab].concat(puntos.map(p => [p.s].concat(...ts.map(t => p.d[t] ? [numero(p.d[t].cuota, 2), numero(100 * p.d[t].tipo, 2)] : ["", ""]))));
+  }
   const SUELDO_MIN = 15000, SUELDO_MAX = 150000;
   const PUNTOS = (() => { const l = []; for (let s = SUELDO_MIN; s <= SUELDO_MAX; s += 5000) l.push(s); return l; })();
 
   const CALCULOS = { codificar, decodificar, leerCompartido, podar, podarHogar, estadoDesdeCompartido, hogarDesdeCompartido, aplicar,
-    resultado, calcularEscenarios, hogarTipo, hogarConSueldo, porTerritorio, TIPOS, PUNTOS, SUELDO_MIN, SUELDO_MAX };
+    resultado, calcularEscenarios, hogarTipo, hogarConSueldo, porTerritorio, filasCurvas, TIPOS, PUNTOS, SUELDO_MIN, SUELDO_MAX };
   if (typeof module !== "undefined" && module.exports) { module.exports = CALCULOS; return; }
   window.MapafiscalEscenarios = CALCULOS;
   if (!H || !F) return;
@@ -426,6 +433,14 @@
     document.querySelectorAll('input[name="metrica"]').forEach(x => x.addEventListener("change", () => { if (vistaVisible("comparar")) pintarDeslizador(); }));
     $("desl-ranking").addEventListener("mouseover", e => { const li = e.target.closest("li[data-t]"); enfocarLinea(li && li.dataset.t); });
     $("desl-ranking").addEventListener("mouseleave", () => enfocarLinea(null));
+    if ($("desl-csv")) $("desl-csv").addEventListener("click", descargarCurvas);
+  }
+  // «Descargar CSV» de las curvas (js/csv.js): una fila por sueldo y, por territorio, su cuota y
+  // su tipo medio, con las cifras sin redondear al euro.
+  function descargarCurvas() {
+    const c = D.curvas[claveCurva()], CSV = window.MapafiscalCSV;
+    if (!c || !c.listo || !CSV) return;
+    CSV.descargar(`curvas-irpf-${P().ejercicio}-${D.quien === "tuya" ? "tu-situacion" : "persona-sola"}.csv`, filasCurvas(c.puntos, P(), CSV.numero));
   }
   function enfocarLinea(t) {
     document.querySelectorAll("#desl-svg .desl-linea.foco").forEach(x => x.classList.remove("foco"));
@@ -512,6 +527,7 @@
   function pintarCurvas() {
     const clave = claveCurva();
     const c = D.curvas[clave];
+    if ($("desl-csv")) $("desl-csv").disabled = !(c && c.listo);
     if (c && c.listo) { dibujar(c.puntos); return; }
     if (c) return;      // en marcha
     const cur = D.curvas[clave] = { puntos: [], listo: false };
@@ -524,7 +540,7 @@
         try { cur.puntos.push({ s: PUNTOS[i], d: porTerritorio(P(), hogarDeslizador(PUNTOS[i])) }); } catch (e) { /* punto sin cálculo */ }
       }
       if (i < PUNTOS.length) setTimeout(paso, 0);
-      else { cur.listo = true; if (vistaVisible("comparar")) dibujar(cur.puntos); }
+      else { cur.listo = true; if (clave === claveCurva() && $("desl-csv")) $("desl-csv").disabled = false; if (vistaVisible("comparar")) dibujar(cur.puntos); }
     };
     paso();
   }

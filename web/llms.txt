@@ -15,6 +15,17 @@ Datos clave (2025, actualizados el 2026-11-23):
 - [Sueldo neto](https://mapafiscal.es/sueldo-neto/): de bruto a neto en 12 y 14 pagas.
 - [Dónde se paga menos IRPF](https://mapafiscal.es/comparar-sueldo/): ranking de los 19 territorios por sueldo.
 
+## Datos abiertos
+
+- [Ranking IRPF por comunidades 2025](https://mapafiscal.es/ranking-irpf-comunidades/): estudio anual con 20.000 €, 30.000 €, 50.000 € y 80.000 € brutos; tabla, mapa, metodología y cinco conclusiones.
+- [ranking-irpf-2025.csv](https://mapafiscal.es/datos/ranking-irpf-2025.csv): CSV (separador «;», coma decimal, UTF-8), licencia CC BY 4.0.
+- [ranking-irpf-2025.json](https://mapafiscal.es/datos/ranking-irpf-2025.json): JSON, licencia CC BY 4.0.
+- Bizkaia, Gipuzkoa y Araba/Álava son los territorios donde menos IRPF se paga con los cuatro sueldos, con la misma cuota: de 1.426,47 € con 20.000 € a 21.651,28 € con 80.000 €.
+- Con 30.000 € brutos hay 413,93 € de diferencia al año entre Bizkaia, Gipuzkoa y Araba/Álava (4.546,68 €) y Cataluña (4.960,61 €), el territorio más caro.
+- La distancia entre el territorio más barato y el más caro es de 633,81 € con 20.000 €, 413,93 € con 30.000 €, 1.137,50 € con 50.000 € y 2.380,16 € con 80.000 €. La mayor, con 80.000 €: en Extremadura se pagan 2.380,16 € más al año que en Bizkaia, Gipuzkoa y Araba/Álava.
+- Entre las 15 comunidades de régimen común, la más barata es Extremadura con 20.000 € (1.881,67 €) y la Comunidad de Madrid con 30.000 € (4.599,69 €), 50.000 € (10.563,38 €) y 80.000 € (22.201,12 €).
+- Extremadura es el territorio que más puestos cambia con el sueldo: es el 4.º más barato con 20.000 € y el 19.º de 19 (el más caro) con 50.000 € y 80.000 €, 15 puestos de diferencia.
+
 ## Guías
 
 - [Tramos del IRPF 2025 y 2026](https://mapafiscal.es/guias/tramos-irpf-2025-2026/): Escala estatal, del ahorro y de cada territorio.
