@@ -379,12 +379,14 @@
   const app = () => window.MapafiscalApp;
   const precioTxt = () => eur(num(CFG.informePrecio) || API.PRECIO);
 
-  let comprado = {};          // ejercicio -> true (informes_comprados)
+  let comprado = {};          // ejercicio -> true (informes_comprados sin reembolsar)
   async function comprobarCompra(ej) {
     const a = app(), s = a && a.sesion();
     if (!CFG.informePago || !a || !a.sb || !s.usuario) return false;
     if (comprado[ej]) return true;
-    const { data } = await a.sb.from("informes_comprados").select("id").eq("ejercicio", ej).limit(1);
+    // Un informe reembolsado (reembolsado_en, lo pone stripe-webhook) ya no cuenta como comprado.
+    const { data } = await a.sb.from("informes_comprados").select("id").eq("ejercicio", ej)
+      .is("reembolsado_en", null).limit(1);
     comprado[ej] = !!(data && data.length);
     return comprado[ej];
   }

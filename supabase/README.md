@@ -104,14 +104,17 @@ y sin guardar la tarjeta, con factura) del precio con `lookup_key` **`informe_un
 secreto `STRIPE_PRICE_INFORME_UNICO` con un `price_…`). Al pagar, el webhook
 (`checkout.session.completed` o `checkout.session.async_payment_succeeded`) apunta una fila
 en `informes_comprados` (migración `20261112100000_informes_comprados.sql`; RLS: cada usuario
-lee las suyas, solo el webhook escribe) y la web desbloquea el informe de ese ejercicio. Para
-activarlo:
+lee las suyas, solo el webhook escribe) y la web desbloquea el informe de ese ejercicio. El
+webhook solo la apunta si el importe, la moneda (`eur`) y el precio cuadran con el de
+`informe_unico`, y con `charge.refunded` la revoca (`reembolsado_en`, migración
+`20261123100000_informes_reembolsos.sql`; ver `docs/despliegue_stripe_webhook_reembolsos.md`).
+Para activarlo:
 
-1. Aplicar la migración `20261112100000_informes_comprados.sql`.
+1. Aplicar las migraciones `20261112100000_informes_comprados.sql` y `20261123100000_informes_reembolsos.sql`.
 2. En Stripe (modo test primero): producto **Mapafiscal · Informe completo**, precio **único**
    (no recurrente) de **1,99 EUR**, IVA incluido (`tax_behavior: inclusive`), con `lookup_key`
    `informe_unico`.
-3. Añadir `checkout.session.async_payment_succeeded` a los eventos del webhook (opcional:
+3. Añadir `charge.refunded` y `checkout.session.async_payment_succeeded` (este, opcional:
    solo para métodos de pago diferido) y redesplegar `crear-checkout` y `stripe-webhook`.
 4. Probar con la tarjeta de prueba y poner `informePago: true` en `web/config.js`.
 
