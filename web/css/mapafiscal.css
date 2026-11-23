@@ -1222,3 +1222,52 @@ body.escribiendo .barra-movil, body.escribiendo .ir-resultado { display: none !i
   .barra-movil { transition: transform var(--dur-lenta) var(--curva); }
   body.resultado-a-la-vista .barra-movil { transform: translateY(110%); }
 }
+/* ---- #ofertas, #ejercicios y #marginal (web/js/ofertas.js, ejercicios.js, marginal.js) ---- */
+.mf-tabla tr { cursor: default; }
+.mf-tabla tbody th { text-align: left; font-size: 14px; font-weight: 500; color: var(--tinta); padding: 7px 8px; border-bottom: 1px solid var(--linea); white-space: normal; vertical-align: baseline; }
+.mf-tabla tbody th.num { text-align: right; font-variant-numeric: tabular-nums; }
+.mf-tabla tbody tr:hover td { background: none; }
+.mf-tabla tr.total th, .mf-tabla tr.total td { font-weight: 700; }
+.mf-tabla tr.info th, .mf-tabla tr.info td { color: var(--tinta-3); font-size: 13px; }
+.mf-tabla small { color: var(--tinta-3); }
+.ej-conceptos td { white-space: normal; }
+.ej-conceptos tr.ej-grupo th { font-weight: 700; padding-top: 14px; border-bottom: 1px solid var(--linea-2); }
+.ej-conceptos tbody.cambia tr.ej-grupo th { box-shadow: inset 4px 0 0 var(--resalte); }
+.ej-norma { display: block; font-size: 12px; color: var(--tinta-3); }
+.mf-compartir { margin: 14px 0; }
+.mf-compartir label { display: block; font-size: 13px; color: var(--tinta-2); margin-bottom: 4px; }
+.mf-compartir-fila { display: flex; gap: 8px; }
+.mf-compartir-fila input { flex: 1 1 auto; min-width: 0; }
+.mg-figura { margin: 12px 0; }
+.mg-svg { display: block; width: 100%; height: auto; max-width: 100%; overflow: visible; }
+.mg-svg .mg-reticula { stroke: var(--linea); stroke-width: 1; }
+.mg-svg .mg-eje { fill: var(--tinta-2); font: 12px var(--sans); }
+.mg-svg .mg-area { fill: var(--marca-suave); }
+.mg-svg .mg-linea { fill: none; stroke: var(--marca); stroke-width: 2.5; stroke-linejoin: round; }
+.mg-svg .mg-salto line { stroke: var(--tinta-3); stroke-width: 1; stroke-dasharray: 3 3; }
+.mg-svg .mg-salto text { fill: var(--tinta); font: 600 11px var(--sans); }
+.mg-svg .mg-punto { fill: var(--resalte); stroke: var(--tinta); stroke-width: 1.5; }
+.mg-saltos { margin: 0; padding-left: 22px; display: grid; gap: 10px; font-size: 14px; }
+.mg-saltos .mg-antes { display: block; color: var(--tinta-2); }
+.mg-saltos .mg-detalle { display: block; margin-top: 2px; }
+@media (max-width: 520px) { .mf-tabla { font-size: 12.5px; } .mf-tabla td, .mf-tabla th { padding-left: 4px; padding-right: 4px; } .mg-svg .mg-eje { font-size: 15px; } }
+/* ---- «Descargar CSV» sobre las tablas de comparación (js/csv.js) ---------------------- */
+.tabla-acciones { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 8px; }
+.cabecera-acciones .tabla-acciones { flex-basis: 100%; }
+
+/* ---- curva del ahorro del plan de pensiones (#plan-pensiones, herramientas.js) -------- */
+.pp-curva-frase { margin: 0 0 10px; }
+.pp-curva-figura { margin: 0; }
+.ppc-svg { width: 100%; height: auto; display: block; overflow: visible; }
+.ppc-reticula { stroke: var(--reticula); stroke-width: 1; }
+.ppc-eje { fill: var(--tinta-3); font-size: 12px; font-family: var(--mono); }
+.ppc-area { fill: var(--gana-suave); }
+.ppc-linea { fill: none; stroke: var(--gana); stroke-width: 2; stroke-linejoin: round; }
+.ppc-marca { stroke: var(--tinta-3); stroke-width: 1; stroke-dasharray: 3 3; }
+.ppc-zona { fill: transparent; }
+.ppc-zona:hover { fill: var(--reticula); }
+.ppc-punto { fill: var(--resalte); stroke: var(--tinta); stroke-width: 2; }
+.pp-curva-datos { margin-top: 10px; }
+.pp-curva-datos summary { cursor: pointer; color: var(--marca-tinta); }
+.pp-curva-datos th { text-align: left; font-size: 13px; color: var(--tinta-2); padding: 6px 0; border-bottom: 1px solid var(--linea-2); }
+.pp-curva-datos th.num { text-align: right; }

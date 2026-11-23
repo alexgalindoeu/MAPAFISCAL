@@ -533,6 +533,8 @@
   // ---- comparación entre territorios ---------------------------------------------------
   let metrica = "cuota";
   let cmpCache = {};
+  let rankingCsv = null;   // { nombre, filas } del último ranking pintado
+  if ($("ranking-csv")) $("ranking-csv").addEventListener("click", () => { if (rankingCsv && window.MapafiscalCSV) window.MapafiscalCSV.descargar(rankingCsv.nombre, rankingCsv.filas); });
   document.querySelectorAll('input[name="metrica"]').forEach(r => r.addEventListener("change", () => { metrica = r.value; pintarComparacion(); }));
 
   // colores de la rampa: verde si pagas menos que en tu territorio, rojo si pagas más
@@ -599,6 +601,12 @@
           <td class="num">${fmt(val(c))}</td><td class="num ocultable">${metrica === "cuota" ? pct(c.tipoMedioEfectivo) : eur0(c.cuotaResultanteAutoliquidacion)}</td>
           <td class="num dif ${d < -umbralIgual ? "gana" : d > umbralIgual ? "pierde" : ""}">${dtxt}</td></tr>`;
       }).join("") + "</tbody>";
+
+    // la misma tabla, para «Descargar CSV» (js/csv.js): cifras sin redondear al euro
+    rankingCsv = { nombre: `comparar-territorios-irpf-${P.ejercicio}-${terr}.csv`, filas: [["Puesto", "Código", "Territorio", "Régimen", "Cuota IRPF (€)", "Tipo medio efectivo (%)", `Diferencia con ${corto(terr)} (€)`]]
+      .concat(orden.map(c => [puesto(cmp, val, c, umbralIgual), c.territorio, T[c.territorio].nombre, c.regimen === "comun" ? "común" : "foral",
+        window.MapafiscalCSV.numero(c.cuotaResultanteAutoliquidacion, 2), window.MapafiscalCSV.numero(100 * c.tipoMedioEfectivo, 2),
+        window.MapafiscalCSV.numero(c.cuotaResultanteAutoliquidacion - (yo ? yo.cuotaResultanteAutoliquidacion : 0), 2)])) };
 
     // resumen: tu puesto, el más barato, el más caro y la distancia entre los extremos
     const cuotaDe = c => c.cuotaResultanteAutoliquidacion;

@@ -26,11 +26,13 @@ import { paginasSueldoNeto } from "./seo_sueldo_neto.mjs";
 import { paginaSueldoMensual, RUTA_SUELDO_MENSUAL } from "./seo_sueldo_mensual.mjs";
 import { graficoBrutoNeto, serieSueldoNeto } from "./seo_grafico.mjs";
 import { paginasRescate } from "./seo_rescate.mjs";
+import { paginasComparadores } from "./seo_comparadores.mjs";
 import { paginasConjuntaPagadores, CARPETAS_CONJUNTA } from "./seo_conjunta.mjs";
 import { paginasDevuelve } from "./seo_devuelve.mjs";
 import { paginasAutonomos, HUB_AUTONOMOS } from "./seo_autonomos.mjs";
 import { paginaMetodologia } from "./seo_metodologia.mjs";
 import { paginaWidget, RUTA_WIDGET } from "./seo_widget.mjs";
+import { paginaRanking, RUTA_RANKING } from "./seo_ranking.mjs";
 import { paginasGlosario, enlazarGlosario, HUB_GLOSARIO } from "./seo_glosario.mjs";
 import { paginasVivienda, PAGINAS_VIVIENDA, HUB_VIVIENDA } from "./seo_vivienda.mjs";
 import { paginasForal, enlacesSuiteForal, enlacesVascos, escalasAhorro, ejemploPasoAPaso, normaDelTerritorio, rasgoForalDe, paramsForal, BOLETIN, rentaForal, enlaceCalculadora, enlacesIndiceForal } from "./seo_foral.mjs";
@@ -382,7 +384,8 @@ function paginaIndiceSalarios() {
   const main = `
   <h1>¿Dónde se paga menos IRPF en España? (2025)</h1>
   <p class="entradilla">Comparativas del IRPF en los 19 territorios fiscales de España para varios sueldos de referencia. ${esc(comparativas.supuesto)}</p>
-  <div class="prosa"><ul class="lista-enlaces">${filas}</ul>
+  <div class="prosa"><p><a class="btn btn-pri" href="${RUTA_RANKING}">Ranking IRPF por comunidades ${comparativas.ejercicio}: tabla, mapa y datos descargables</a></p>
+  <ul class="lista-enlaces">${filas}</ul>
   <p><a href="/sueldo-neto/">Sueldo neto por importe y territorio, en 12 y 14 pagas</a></p></div>`;
   return layout({
     title: "Dónde se paga menos IRPF en España 2025: ranking de 19",
@@ -472,6 +475,10 @@ export function generar({ conGit = false } = {}) {
   pagina("/irpf/", enlazarGlosario(paginaIndiceTerritorios()));
   for (const s of comparativas.salarios) pagina(`/comparar-sueldo/${s}/`, paginaSalario(s));
   pagina("/comparar-sueldo/", paginaIndiceSalarios());
+  // Ranking anual para la prensa, con sus datos descargables (CSV y JSON, CC BY 4.0).
+  const ranking = paginaRanking({ comparativas, territorios, generado: territorios.generado });
+  pagina(RUTA_RANKING, ranking.html);
+  for (const [r, txt] of Object.entries(ranking.ficheros)) ficheros.set(r, txt);
   const gs = paginasGuias(guias, territorios);
   // primera aparición de los términos clave → glosario (como mucho 3 por página)
   for (const g of gs) pagina(g.ruta, g.ruta === "/guias/" ? g.html : enlazarGlosario(g.html));
@@ -485,6 +492,8 @@ export function generar({ conGit = false } = {}) {
   // «Sueldo al mes»: una sola página con la tabla de brutos entre 12 y 14 (motor JS)
   pagina(RUTA_SUELDO_MENSUAL, paginaSueldoMensual({ ejercicio: sueldoNeto.ejercicio, generado: sueldoNeto.generado }));
   for (const g of paginasRescate(territorios.generado)) pagina(g.ruta, g.html);
+  // Comparar dos ofertas, el mismo sueldo en dos ejercicios y el tipo marginal real (motor JS)
+  for (const g of paginasComparadores(territorios.generado)) pagina(g.ruta, g.html);
   for (const g of paginasConjuntaPagadores(territorios.generado)) pagina(g.ruta, g.html);
   // «¿Cuánto me devuelve?»: las páginas sin cifra van con noindex y fuera del sitemap.
   for (const p of paginasDevuelve(devuelve, conDeducciones)) p.indexable ? pagina(p.ruta, p.html) : ficheros.set(p.ruta.slice(1) + "index.html", p.html);
@@ -517,7 +526,7 @@ ${urls.map(u => `<url><loc>${SITIO}${u}</loc><lastmod>${lastmod(u)}</lastmod><ch
 </urlset>
 `);
   ficheros.set("robots.txt", robotsTxt());
-  ficheros.set("llms.txt", llmsTxt({ territorios, comparativas, guias, GUIAS, conDeducciones, VIVIENDA: PAGINAS_VIVIENDA, AUTONOMOS: aut }));
+  ficheros.set("llms.txt", llmsTxt({ territorios, comparativas, guias, GUIAS, conDeducciones, VIVIENDA: PAGINAS_VIVIENDA, AUTONOMOS: aut, RANKING: ranking }));
   return {
     ficheros, avisos, urls,
     recuento: { territorios: ORDEN_TERRITORIOS.length, sueldos: comparativas.salarios.length, deducciones: ded.length, porDeduccion: porDeduccion.length, guias: gs.length - 1, sueldoNeto: sn.length - 1, glosario: glo.length - 1, vivienda: viv.length - 1, autonomos: aut.length - 1, indices: 7 }
@@ -584,7 +593,7 @@ if (process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.ur
       writeFileSync(p, html, "utf8");
     }
     for (const r of sobran) { rmSync(join(WEB, r)); console.log(`Borrada (ya no se genera): ${r}`); }
-    console.log(`Páginas SEO: ${recuento.territorios} territorios + ${recuento.deducciones} de deducciones (${recuento.porDeduccion} fichas) + ${recuento.sueldos} sueldos + ${recuento.guias} guías + ${recuento.sueldoNeto} de sueldo neto + ${recuento.glosario} términos del glosario + ${recuento.vivienda} de vivienda + ${recuento.autonomos} de autónomos + ${recuento.indices} índices.`);
+    console.log(`Páginas SEO: ${recuento.territorios} territorios + ${recuento.deducciones} de deducciones (${recuento.porDeduccion} fichas) + ${recuento.sueldos} sueldos + ${recuento.guias} guías + ${recuento.sueldoNeto} de sueldo neto + ${recuento.glosario} términos del glosario + ${recuento.vivienda} de vivienda + ${recuento.autonomos} de autónomos + ${recuento.indices} índices + el ranking anual (${RUTA_RANKING}).`);
     console.log(`sitemap.xml: ${urls.length + 1} URLs.`);
   }
 }

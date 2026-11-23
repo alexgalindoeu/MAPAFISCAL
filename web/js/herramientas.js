@@ -125,6 +125,32 @@
     return { limite, aportacionComputable: aport, exceso: red2(Math.max(0, o.aportacion - limite)), irpfSin: sin, irpfCon: red2(sin - ahorro),
       ahorro, ahorroMax, optima: Math.min(optima, limite), porEuro: aport > 0 ? ahorro / aport : 0 };
   }
+  // Curva del ahorro de IRPF según lo aportado, de 0 a tu límite, liquidando con el motor en cada
+  // punto (`n` tramos iguales). Además:
+  // - marginal: los primeros `hasta` € ahorran el `tipo` de cada euro (el tipo del primer euro
+  //   aportado, que se mantiene mientras la base no baje de tramo ni cambie otra regla). El ahorro
+  //   es cóncavo (cada euro más reduce una base más baja), así que basta una búsqueda binaria.
+  // - agota: la aportación a partir de la cual aportar más ya no ahorra IRPF (si llega antes del
+  //   límite; p. ej., cuando la cuota ya es cero), o null.
+  function curvaPlan(P, o, n) {
+    n = n || 40;
+    const limite = limitePlan(P, o);
+    const irpf = a => H.irpfAnual(liqPlan(P, o, Math.min(a, limite)));
+    const sin = irpf(0), ahorroDe = a => red2(sin - irpf(a));
+    const puntos = [];
+    for (let i = 0; i <= n; i++) { const a = limite > 0 ? red2(limite * i / n) : 0; puntos.push({ aportacion: a, ahorro: ahorroDe(a) }); if (!(limite > 0)) break; }
+    const ahorroMax = puntos[puntos.length - 1].ahorro;
+    if (!(limite > 0) || ahorroMax < 0.5) return { limite, puntos, ahorroMax, marginal: null, agota: null };
+    const paso = Math.min(10, limite);
+    const tipo = ahorroDe(paso) / paso;
+    let lo = paso, hi = limite;
+    if (ahorroDe(limite) >= tipo * limite - 0.5) lo = hi = limite;
+    else for (let k = 0; k < 40 && hi - lo > 1; k++) { const m = (lo + hi) / 2; if (ahorroDe(m) >= tipo * m - 0.5) lo = m; else hi = m; }
+    const hasta = lo >= limite - 0.5 ? limite : Math.max(paso, Math.floor(lo / 10) * 10);
+    const optima = plan(P, Object.assign({}, o, { aportacion: limite })).optima;
+    return { limite, puntos, ahorroMax, marginal: { hasta, tipo: Math.round(tipo * 10000) / 10000, todo: hasta >= limite },
+      agota: optima < limite - 0.5 ? optima : null };
+  }
   function planPorTerritorio(P, o) {
     return territorios(P, (x) => x.regimen !== "foral_navarra").map(t => {
       const r = plan(P, Object.assign({}, o, { territorio: t }));
@@ -147,7 +173,7 @@
       return { territorio: t, ahorro: r.ahorro, coste: r.coste };
     }).sort((a, b) => b.ahorro - a.ahorro);
   }
-  const CALCULOS = { netoPorTerritorio, subida, plan, limitePlan, planPorTerritorio, donativos, donativosPorTerritorio };
+  const CALCULOS = { netoPorTerritorio, subida, plan, limitePlan, curvaPlan, planPorTerritorio, donativos, donativosPorTerritorio };
   if (typeof module !== "undefined" && module.exports) { module.exports = CALCULOS; return; }
   window.MapafiscalHerramientas = CALCULOS;
 
@@ -304,6 +330,7 @@
   let modoPp = "plan";
   let edadesPp;
   const P_pp = () => PS[ejercicioActual()];
+  CALCULOS.paramsPlan = P_pp;   // los parámetros con los que calcula la vista (para las pruebas E2E)
   const datosPp = () => ({ bruto: num("pp-bruto"), territorio: $("pp-territorio").value, edad: num("pp-edad") || 45, hijos: edadesPp(),
     aportacion: num("pp-aportacion"), contribucionEmpresa: num("pp-empresa"), donativos: num("pp-donativo"), donativosRecurrentes: $("pp-recurrente").checked });
 
@@ -311,6 +338,7 @@
     const P = P_pp();
     $("pp-bloque-plan").hidden = modoPp !== "plan";
     $("pp-bloque-donativos").hidden = modoPp !== "donativos";
+    $("pp-curva-tarjeta").hidden = modoPp !== "plan";
     // territorios donde se puede calcular cada herramienta
     const filtro = modoPp === "plan" ? (x => x.regimen !== "foral_navarra") : (x => x.regimen === "comun");
     const antes = $("pp-territorio").value || "ES-MD";
@@ -335,6 +363,7 @@
       { n: "Te devuelve Hacienda", v: r.ahorro, c: "sobra", color: "--gana" }, Object.assign({ n: "Pones tú", v: Math.max(0, ap - r.ahorro) }, PARA_TI)]) : "") +
       (r.limite > 0 ? reparto(`Tu límite de ${eur0(r.limite)}`, ap >= r.limite - 0.5 ? "lo agotas" : `te quedan ${eur0(r.limite - ap)}`, [
         Object.assign({ n: "Aportas", v: ap }, IRPF), Object.assign({ n: "Margen hasta el límite", v: Math.max(0, r.limite - ap) }, PARA_TI)]) : "");
+    pintarCurvaPlan(P, o);
     const rs = P.estatal.reduccion_prevision_social, ct = H.cotizacionesTrabajador(o.bruto, P);
     const filas = [];
     if (reg === "comun") {
@@ -360,6 +389,62 @@
         <td class="num">${eur0(x.ahorro)}</td><td class="num ocultable">${eur0(x.ahorroMax)}</td><td class="num">${eur0(x.optima)}</td></tr>`).join("") + "</tbody>";
     $("pp-nota").textContent = `${notaEjercicio(P)} Cuenta lo aportado hasta el 31 de diciembre de ${anio}. La reducción aplaza el impuesto: al rescatar el plan, lo cobrado tributa como rendimiento del trabajo. ` +
       "Límites del art. 52 LIRPF (1.500 € más hasta 8.500 € de contribuciones empresariales, y el 30 % de los rendimientos netos del trabajo); en el País Vasco, los de su norma foral. Navarra tiene límites propios (art. 55 de su TR del IRPF) y no se incluye.";
+  }
+
+  // ---- curva del ahorro según lo aportado (curvaPlan) -------------------------------------
+  // Una sola serie: el ahorro de IRPF de 0 € hasta tu límite. Marcas: tu aportación, el final del
+  // tramo con el mismo tipo marginal y, si la hay, la aportación que agota el ahorro. La tabla
+  // de debajo da las mismas cifras sin gráfico.
+  const GC = { W: 420, H: 230, l: 54, r: 12, t: 12, b: 28 };
+  function escalaRedonda(v) {
+    if (v <= 0) return 1;
+    const e = Math.pow(10, Math.floor(Math.log10(v))), k = v / e;
+    return (k <= 1 ? 1 : k <= 2 ? 2 : k <= 2.5 ? 2.5 : k <= 5 ? 5 : 10) * e;
+  }
+  function pintarCurvaPlan(P, o) {
+    const c = curvaPlan(P, o), lim = c.limite;
+    const cont = $("pp-curva"), frase = $("pp-curva-frase"), tabla = $("pp-curva-tabla");
+    if (!(lim > 0) || c.ahorroMax < 0.5) {
+      frase.innerHTML = lim > 0 ? "Con estos datos no pagas IRPF que reducir: aportar al plan este año no te ahorra impuestos." : "No tienes margen para reducir tu base con aportaciones este año.";
+      cont.innerHTML = ""; tabla.innerHTML = ""; $("pp-curva-pie").textContent = ""; return;
+    }
+    const m = c.marginal;
+    frase.innerHTML = (m.todo
+      ? `Cada euro que aportes hasta tu límite de <b>${eur0(lim)}</b> te ahorra un <b>${pct(m.tipo, 0)}</b> de IRPF.`
+      : `Los primeros <b>${eur0(m.hasta)}</b> te ahorran un <b>${pct(m.tipo, 0)}</b>; a partir de ahí, cada euro ahorra menos, porque tu base baja a un tramo con un tipo menor o cambian otras reglas.`) +
+      (c.agota != null ? ` A partir de <b>${eur0(c.agota)}</b> aportar más ya no te ahorra IRPF este año: con ${eur0(c.agota)} el ahorro llega a su máximo, ${eur0(c.ahorroMax)}.`
+        : ` El ahorro no se agota antes del límite: con ${eur0(lim)}, ${eur0(c.ahorroMax)}.`);
+    const ymax = escalaRedonda(c.ahorroMax * 1.05);
+    const x = a => GC.l + a / lim * (GC.W - GC.l - GC.r), y = v => GC.t + (1 - v / ymax) * (GC.H - GC.t - GC.b);
+    const f1 = n => n.toFixed(1);
+    let h = `<title id="pp-curva-tit">Ahorro de IRPF según lo que aportes al plan de pensiones, de 0 € a ${esc(eur0(lim))}</title>`;
+    for (let k = 0; k <= 4; k++) { const v = ymax * k / 4; h += `<line class="ppc-reticula" x1="${GC.l}" x2="${GC.W - GC.r}" y1="${f1(y(v))}" y2="${f1(y(v))}"/><text class="ppc-eje" x="${GC.l - 8}" y="${f1(y(v) + 4)}" text-anchor="end">${esc(eur0(v))}</text>`; }
+    for (let k = 0; k <= 4; k++) { const a = lim * k / 4; h += `<text class="ppc-eje" x="${f1(x(a))}" y="${GC.H - 9}" text-anchor="${k === 0 ? "start" : k === 4 ? "end" : "middle"}">${esc(eur0(a))}</text>`; }
+    const linea = c.puntos.map(p => f1(x(p.aportacion)) + "," + f1(y(p.ahorro))).join("L");
+    h += `<path class="ppc-area" d="M${f1(x(0))},${f1(y(0))}L${linea}L${f1(x(lim))},${f1(y(0))}Z"/><path class="ppc-linea" d="M${linea}"/>`;
+    const marca = (a, cls, txt) => `<line class="ppc-marca ${cls}" x1="${f1(x(a))}" x2="${f1(x(a))}" y1="${GC.t}" y2="${GC.H - GC.b}"><title>${esc(txt)}</title></line>`;
+    if (!m.todo) h += marca(m.hasta, "ppc-tramo", `Hasta ${eur0(m.hasta)}: ${pct(m.tipo, 0)} de ahorro por euro`);
+    if (c.agota != null) h += marca(c.agota, "ppc-agota", `Con ${eur0(c.agota)} el ahorro llega a su máximo`);
+    // zonas de ratón: el ahorro de cada punto, con un objetivo más ancho que la línea
+    const ancho = (GC.W - GC.l - GC.r) / (c.puntos.length - 1);
+    h += c.puntos.map(p => `<rect class="ppc-zona" x="${f1(x(p.aportacion) - ancho / 2)}" y="${GC.t}" width="${f1(ancho)}" height="${GC.H - GC.t - GC.b}"><title>Aportando ${esc(eur0(p.aportacion))}: ahorras ${esc(eur0(p.ahorro))}</title></rect>`).join("");
+    const ap = Math.min(o.aportacion, lim);
+    if (ap > 0) {
+      const r = plan(P, o);
+      h += `<circle class="ppc-punto" cx="${f1(x(ap))}" cy="${f1(y(r.ahorro))}" r="6"><title>Tu aportación, ${esc(eur0(ap))}: ahorras ${esc(eur0(r.ahorro))}</title></circle>`;
+    }
+    cont.innerHTML = `<svg class="ppc-svg" viewBox="0 0 ${GC.W} ${GC.H}" role="img" aria-labelledby="pp-curva-tit">${h}</svg>`;
+    $("pp-curva-pie").textContent = `Ahorro en el IRPF de ${P.ejercicio} según lo que aportes (eje horizontal), calculado con el motor en ${c.puntos.length} puntos de 0 € a tu límite.` +
+      (ap > 0 ? " El punto amarillo es tu aportación." : "") + (!m.todo || c.agota != null ? " Las líneas discontinuas marcan dónde cambia el ahorro por euro." : "");
+    // tabla accesible: los puntos clave y una fila cada décimo del límite
+    const claves = new Set([0, m.hasta, c.agota, ap].filter(v => v != null && v <= lim).map(v => red2(v)));
+    for (let k = 1; k <= 10; k++) claves.add(red2(lim * k / 10));
+    const filas = [...claves].sort((a, b) => a - b).map(a => {
+      const v = a === 0 ? 0 : red2(c.puntos.find(p => Math.abs(p.aportacion - a) < 0.005)?.ahorro ?? (plan(P, Object.assign({}, o, { aportacion: a })).ahorro));
+      const nota = a === ap && ap > 0 ? " (tu aportación)" : !m.todo && a === m.hasta ? " (fin del primer tramo)" : c.agota != null && a === red2(c.agota) ? " (ahorro máximo)" : "";
+      return `<tr><td>${esc(eur0(a))}${nota}</td><td class="num">${esc(eur0(v))}</td><td class="num">${a > 0 ? esc(pct(v / a, 0)) : "—"}</td></tr>`;
+    });
+    tabla.innerHTML = `<caption class="sr-only">Ahorro de IRPF según lo aportado al plan de pensiones</caption><thead><tr><th scope="col">Aportas</th><th scope="col" class="num">Ahorras en el IRPF</th><th scope="col" class="num">Por euro aportado</th></tr></thead><tbody>${filas.join("")}</tbody>`;
   }
 
   function pintarDonativos(P, o) {

@@ -1,0 +1,708 @@
+{
+ "titulo": "Ranking IRPF por comunidades 2025",
+ "ejercicio": 2025,
+ "generado": "2026-11-23",
+ "fuente": "Mapafiscal (https://mapafiscal.es/ranking-irpf-comunidades/)",
+ "licencia": {
+  "nombre": "Creative Commons Atribución 4.0 Internacional (CC BY 4.0)",
+  "url": "https://creativecommons.org/licenses/by/4.0/deed.es"
+ },
+ "supuesto": "Una persona declarante, 40 años, un único rendimiento del trabajo de 12 pagas, sin cónyuge ni hijos, sin vivienda ni deducciones autonómicas. Cotización a la Seguridad Social del trabajador según la orden de cotización del ejercicio (contrato indefinido, con la base máxima y la cotización de solidaridad). No es una liquidación oficial ni tiene en cuenta tu situación real.",
+ "campos": {
+  "cuota_liquida_total": "cuota líquida del IRPF del año, en euros",
+  "tipo_medio_efectivo": "cuota líquida entre el sueldo bruto (0,109 = 10,9 %)",
+  "puesto": "de menos a más IRPF; los empates comparten puesto"
+ },
+ "salarios": [
+  20000,
+  30000,
+  50000,
+  80000
+ ],
+ "datos": [
+  {
+   "sueldo_bruto_anual": 20000,
+   "puesto": 1,
+   "codigo": "ES-PV-BI",
+   "territorio": "Bizkaia",
+   "regimen": "foral_pais_vasco",
+   "cuota_liquida_total": 1426.47,
+   "tipo_medio_efectivo": 0.109
+  },
+  {
+   "sueldo_bruto_anual": 20000,
+   "puesto": 1,
+   "codigo": "ES-PV-SS",
+   "territorio": "Gipuzkoa",
+   "regimen": "foral_pais_vasco",
+   "cuota_liquida_total": 1426.47,
+   "tipo_medio_efectivo": 0.109
+  },
+  {
+   "sueldo_bruto_anual": 20000,
+   "puesto": 1,
+   "codigo": "ES-PV-VI",
+   "territorio": "Araba/Álava",
+   "regimen": "foral_pais_vasco",
+   "cuota_liquida_total": 1426.47,
+   "tipo_medio_efectivo": 0.109
+  },
+  {
+   "sueldo_bruto_anual": 20000,
+   "puesto": 4,
+   "codigo": "ES-EX",
+   "territorio": "Extremadura",
+   "regimen": "comun",
+   "cuota_liquida_total": 1881.67,
+   "tipo_medio_efectivo": 0.1213
+  },
+  {
+   "sueldo_bruto_anual": 20000,
+   "puesto": 5,
+   "codigo": "ES-MD",
+   "territorio": "Comunidad de Madrid",
+   "regimen": "comun",
+   "cuota_liquida_total": 1882.99,
+   "tipo_medio_efectivo": 0.1214
+  },
+  {
+   "sueldo_bruto_anual": 20000,
+   "puesto": 6,
+   "codigo": "ES-RI",
+   "territorio": "La Rioja",
+   "regimen": "comun",
+   "cuota_liquida_total": 1900.06,
+   "tipo_medio_efectivo": 0.1225
+  },
+  {
+   "sueldo_bruto_anual": 20000,
+   "puesto": 7,
+   "codigo": "ES-CB",
+   "territorio": "Cantabria",
+   "regimen": "comun",
+   "cuota_liquida_total": 1933.06,
+   "tipo_medio_efectivo": 0.1246
+  },
+  {
+   "sueldo_bruto_anual": 20000,
+   "puesto": 8,
+   "codigo": "ES-CN",
+   "territorio": "Canarias",
+   "regimen": "comun",
+   "cuota_liquida_total": 1959.15,
+   "tipo_medio_efectivo": 0.1263
+  },
+  {
+   "sueldo_bruto_anual": 20000,
+   "puesto": 9,
+   "codigo": "ES-AS",
+   "territorio": "Principado de Asturias",
+   "regimen": "comun",
+   "cuota_liquida_total": 1962.01,
+   "tipo_medio_efectivo": 0.1265
+  },
+  {
+   "sueldo_bruto_anual": 20000,
+   "puesto": 10,
+   "codigo": "ES-GA",
+   "territorio": "Galicia",
+   "regimen": "comun",
+   "cuota_liquida_total": 1965.54,
+   "tipo_medio_efectivo": 0.1267
+  },
+  {
+   "sueldo_bruto_anual": 20000,
+   "puesto": 11,
+   "codigo": "ES-VC",
+   "territorio": "Comunitat Valenciana",
+   "regimen": "comun",
+   "cuota_liquida_total": 1975.51,
+   "tipo_medio_efectivo": 0.1273
+  },
+  {
+   "sueldo_bruto_anual": 20000,
+   "puesto": 12,
+   "codigo": "ES-AN",
+   "territorio": "Andalucía",
+   "regimen": "comun",
+   "cuota_liquida_total": 2009.91,
+   "tipo_medio_efectivo": 0.1296
+  },
+  {
+   "sueldo_bruto_anual": 20000,
+   "puesto": 13,
+   "codigo": "ES-CL",
+   "territorio": "Castilla y León",
+   "regimen": "comun",
+   "cuota_liquida_total": 2011.96,
+   "tipo_medio_efectivo": 0.1297
+  },
+  {
+   "sueldo_bruto_anual": 20000,
+   "puesto": 14,
+   "codigo": "ES-MC",
+   "territorio": "Región de Murcia",
+   "regimen": "comun",
+   "cuota_liquida_total": 2021.94,
+   "tipo_medio_efectivo": 0.1303
+  },
+  {
+   "sueldo_bruto_anual": 20000,
+   "puesto": 15,
+   "codigo": "ES-AR",
+   "territorio": "Aragón",
+   "regimen": "comun",
+   "cuota_liquida_total": 2030.9,
+   "tipo_medio_efectivo": 0.1309
+  },
+  {
+   "sueldo_bruto_anual": 20000,
+   "puesto": 16,
+   "codigo": "ES-NC",
+   "territorio": "Comunidad Foral de Navarra",
+   "regimen": "foral_navarra",
+   "cuota_liquida_total": 2039.88,
+   "tipo_medio_efectivo": 0.1091
+  },
+  {
+   "sueldo_bruto_anual": 20000,
+   "puesto": 17,
+   "codigo": "ES-IB",
+   "territorio": "Illes Balears",
+   "regimen": "comun",
+   "cuota_liquida_total": 2044.1,
+   "tipo_medio_efectivo": 0.1318
+  },
+  {
+   "sueldo_bruto_anual": 20000,
+   "puesto": 18,
+   "codigo": "ES-CM",
+   "territorio": "Castilla-La Mancha",
+   "regimen": "comun",
+   "cuota_liquida_total": 2046.46,
+   "tipo_medio_efectivo": 0.1319
+  },
+  {
+   "sueldo_bruto_anual": 20000,
+   "puesto": 19,
+   "codigo": "ES-CT",
+   "territorio": "Cataluña",
+   "regimen": "comun",
+   "cuota_liquida_total": 2060.28,
+   "tipo_medio_efectivo": 0.1328
+  },
+  {
+   "sueldo_bruto_anual": 30000,
+   "puesto": 1,
+   "codigo": "ES-PV-BI",
+   "territorio": "Bizkaia",
+   "regimen": "foral_pais_vasco",
+   "cuota_liquida_total": 4546.68,
+   "tipo_medio_efectivo": 0.1815
+  },
+  {
+   "sueldo_bruto_anual": 30000,
+   "puesto": 1,
+   "codigo": "ES-PV-SS",
+   "territorio": "Gipuzkoa",
+   "regimen": "foral_pais_vasco",
+   "cuota_liquida_total": 4546.68,
+   "tipo_medio_efectivo": 0.1815
+  },
+  {
+   "sueldo_bruto_anual": 30000,
+   "puesto": 1,
+   "codigo": "ES-PV-VI",
+   "territorio": "Araba/Álava",
+   "regimen": "foral_pais_vasco",
+   "cuota_liquida_total": 4546.68,
+   "tipo_medio_efectivo": 0.1815
+  },
+  {
+   "sueldo_bruto_anual": 30000,
+   "puesto": 4,
+   "codigo": "ES-NC",
+   "territorio": "Comunidad Foral de Navarra",
+   "regimen": "foral_navarra",
+   "cuota_liquida_total": 4584.31,
+   "tipo_medio_efectivo": 0.1634
+  },
+  {
+   "sueldo_bruto_anual": 30000,
+   "puesto": 5,
+   "codigo": "ES-MD",
+   "territorio": "Comunidad de Madrid",
+   "regimen": "comun",
+   "cuota_liquida_total": 4599.69,
+   "tipo_medio_efectivo": 0.1765
+  },
+  {
+   "sueldo_bruto_anual": 30000,
+   "puesto": 6,
+   "codigo": "ES-RI",
+   "territorio": "La Rioja",
+   "regimen": "comun",
+   "cuota_liquida_total": 4633.82,
+   "tipo_medio_efectivo": 0.1778
+  },
+  {
+   "sueldo_bruto_anual": 30000,
+   "puesto": 7,
+   "codigo": "ES-CB",
+   "territorio": "Cantabria",
+   "regimen": "comun",
+   "cuota_liquida_total": 4710.27,
+   "tipo_medio_efectivo": 0.1808
+  },
+  {
+   "sueldo_bruto_anual": 30000,
+   "puesto": 8,
+   "codigo": "ES-EX",
+   "territorio": "Extremadura",
+   "regimen": "comun",
+   "cuota_liquida_total": 4755.7,
+   "tipo_medio_efectivo": 0.1825
+  },
+  {
+   "sueldo_bruto_anual": 30000,
+   "puesto": 9,
+   "codigo": "ES-MC",
+   "territorio": "Región de Murcia",
+   "regimen": "comun",
+   "cuota_liquida_total": 4766.25,
+   "tipo_medio_efectivo": 0.1829
+  },
+  {
+   "sueldo_bruto_anual": 30000,
+   "puesto": 10,
+   "codigo": "ES-CN",
+   "territorio": "Canarias",
+   "regimen": "comun",
+   "cuota_liquida_total": 4777.95,
+   "tipo_medio_efectivo": 0.1834
+  },
+  {
+   "sueldo_bruto_anual": 30000,
+   "puesto": 11,
+   "codigo": "ES-GA",
+   "territorio": "Galicia",
+   "regimen": "comun",
+   "cuota_liquida_total": 4796.39,
+   "tipo_medio_efectivo": 0.1841
+  },
+  {
+   "sueldo_bruto_anual": 30000,
+   "puesto": 12,
+   "codigo": "ES-VC",
+   "territorio": "Comunitat Valenciana",
+   "regimen": "comun",
+   "cuota_liquida_total": 4802.85,
+   "tipo_medio_efectivo": 0.1843
+  },
+  {
+   "sueldo_bruto_anual": 30000,
+   "puesto": 13,
+   "codigo": "ES-AS",
+   "territorio": "Principado de Asturias",
+   "regimen": "comun",
+   "cuota_liquida_total": 4834.65,
+   "tipo_medio_efectivo": 0.1855
+  },
+  {
+   "sueldo_bruto_anual": 30000,
+   "puesto": 14,
+   "codigo": "ES-CL",
+   "territorio": "Castilla y León",
+   "regimen": "comun",
+   "cuota_liquida_total": 4834.74,
+   "tipo_medio_efectivo": 0.1856
+  },
+  {
+   "sueldo_bruto_anual": 30000,
+   "puesto": 15,
+   "codigo": "ES-AN",
+   "territorio": "Andalucía",
+   "regimen": "comun",
+   "cuota_liquida_total": 4864.25,
+   "tipo_medio_efectivo": 0.1867
+  },
+  {
+   "sueldo_bruto_anual": 30000,
+   "puesto": 16,
+   "codigo": "ES-AR",
+   "territorio": "Aragón",
+   "regimen": "comun",
+   "cuota_liquida_total": 4881.94,
+   "tipo_medio_efectivo": 0.1874
+  },
+  {
+   "sueldo_bruto_anual": 30000,
+   "puesto": 17,
+   "codigo": "ES-IB",
+   "territorio": "Illes Balears",
+   "regimen": "comun",
+   "cuota_liquida_total": 4912.38,
+   "tipo_medio_efectivo": 0.1885
+  },
+  {
+   "sueldo_bruto_anual": 30000,
+   "puesto": 18,
+   "codigo": "ES-CM",
+   "territorio": "Castilla-La Mancha",
+   "regimen": "comun",
+   "cuota_liquida_total": 4927.8,
+   "tipo_medio_efectivo": 0.1891
+  },
+  {
+   "sueldo_bruto_anual": 30000,
+   "puesto": 19,
+   "codigo": "ES-CT",
+   "territorio": "Cataluña",
+   "regimen": "comun",
+   "cuota_liquida_total": 4960.61,
+   "tipo_medio_efectivo": 0.1904
+  },
+  {
+   "sueldo_bruto_anual": 50000,
+   "puesto": 1,
+   "codigo": "ES-PV-BI",
+   "territorio": "Bizkaia",
+   "regimen": "foral_pais_vasco",
+   "cuota_liquida_total": 10366.2,
+   "tipo_medio_efectivo": 0.2369
+  },
+  {
+   "sueldo_bruto_anual": 50000,
+   "puesto": 1,
+   "codigo": "ES-PV-SS",
+   "territorio": "Gipuzkoa",
+   "regimen": "foral_pais_vasco",
+   "cuota_liquida_total": 10366.2,
+   "tipo_medio_efectivo": 0.2369
+  },
+  {
+   "sueldo_bruto_anual": 50000,
+   "puesto": 1,
+   "codigo": "ES-PV-VI",
+   "territorio": "Araba/Álava",
+   "regimen": "foral_pais_vasco",
+   "cuota_liquida_total": 10366.2,
+   "tipo_medio_efectivo": 0.2369
+  },
+  {
+   "sueldo_bruto_anual": 50000,
+   "puesto": 4,
+   "codigo": "ES-MD",
+   "territorio": "Comunidad de Madrid",
+   "regimen": "comun",
+   "cuota_liquida_total": 10563.38,
+   "tipo_medio_efectivo": 0.236
+  },
+  {
+   "sueldo_bruto_anual": 50000,
+   "puesto": 5,
+   "codigo": "ES-RI",
+   "territorio": "La Rioja",
+   "regimen": "comun",
+   "cuota_liquida_total": 10743.08,
+   "tipo_medio_efectivo": 0.24
+  },
+  {
+   "sueldo_bruto_anual": 50000,
+   "puesto": 6,
+   "codigo": "ES-MC",
+   "territorio": "Región de Murcia",
+   "regimen": "comun",
+   "cuota_liquida_total": 10889.04,
+   "tipo_medio_efectivo": 0.2433
+  },
+  {
+   "sueldo_bruto_anual": 50000,
+   "puesto": 7,
+   "codigo": "ES-CB",
+   "territorio": "Cantabria",
+   "regimen": "comun",
+   "cuota_liquida_total": 10897.15,
+   "tipo_medio_efectivo": 0.2435
+  },
+  {
+   "sueldo_bruto_anual": 50000,
+   "puesto": 8,
+   "codigo": "ES-CN",
+   "territorio": "Canarias",
+   "regimen": "comun",
+   "cuota_liquida_total": 10934.33,
+   "tipo_medio_efectivo": 0.2443
+  },
+  {
+   "sueldo_bruto_anual": 50000,
+   "puesto": 9,
+   "codigo": "ES-CL",
+   "territorio": "Castilla y León",
+   "regimen": "comun",
+   "cuota_liquida_total": 11023.7,
+   "tipo_medio_efectivo": 0.2463
+  },
+  {
+   "sueldo_bruto_anual": 50000,
+   "puesto": 10,
+   "codigo": "ES-GA",
+   "territorio": "Galicia",
+   "regimen": "comun",
+   "cuota_liquida_total": 11058.09,
+   "tipo_medio_efectivo": 0.2471
+  },
+  {
+   "sueldo_bruto_anual": 50000,
+   "puesto": 11,
+   "codigo": "ES-AR",
+   "territorio": "Aragón",
+   "regimen": "comun",
+   "cuota_liquida_total": 11100.74,
+   "tipo_medio_efectivo": 0.248
+  },
+  {
+   "sueldo_bruto_anual": 50000,
+   "puesto": 12,
+   "codigo": "ES-VC",
+   "territorio": "Comunitat Valenciana",
+   "regimen": "comun",
+   "cuota_liquida_total": 11136.65,
+   "tipo_medio_efectivo": 0.2488
+  },
+  {
+   "sueldo_bruto_anual": 50000,
+   "puesto": 13,
+   "codigo": "ES-AN",
+   "territorio": "Andalucía",
+   "regimen": "comun",
+   "cuota_liquida_total": 11144.65,
+   "tipo_medio_efectivo": 0.249
+  },
+  {
+   "sueldo_bruto_anual": 50000,
+   "puesto": 14,
+   "codigo": "ES-NC",
+   "territorio": "Comunidad Foral de Navarra",
+   "regimen": "foral_navarra",
+   "cuota_liquida_total": 11149.88,
+   "tipo_medio_efectivo": 0.2384
+  },
+  {
+   "sueldo_bruto_anual": 50000,
+   "puesto": 15,
+   "codigo": "ES-IB",
+   "territorio": "Illes Balears",
+   "regimen": "comun",
+   "cuota_liquida_total": 11197.6,
+   "tipo_medio_efectivo": 0.2502
+  },
+  {
+   "sueldo_bruto_anual": 50000,
+   "puesto": 16,
+   "codigo": "ES-AS",
+   "territorio": "Principado de Asturias",
+   "regimen": "comun",
+   "cuota_liquida_total": 11204.55,
+   "tipo_medio_efectivo": 0.2503
+  },
+  {
+   "sueldo_bruto_anual": 50000,
+   "puesto": 17,
+   "codigo": "ES-CM",
+   "territorio": "Castilla-La Mancha",
+   "regimen": "comun",
+   "cuota_liquida_total": 11208.2,
+   "tipo_medio_efectivo": 0.2504
+  },
+  {
+   "sueldo_bruto_anual": 50000,
+   "puesto": 18,
+   "codigo": "ES-CT",
+   "territorio": "Cataluña",
+   "regimen": "comun",
+   "cuota_liquida_total": 11446.25,
+   "tipo_medio_efectivo": 0.2557
+  },
+  {
+   "sueldo_bruto_anual": 50000,
+   "puesto": 19,
+   "codigo": "ES-EX",
+   "territorio": "Extremadura",
+   "regimen": "comun",
+   "cuota_liquida_total": 11503.7,
+   "tipo_medio_efectivo": 0.257
+  },
+  {
+   "sueldo_bruto_anual": 80000,
+   "puesto": 1,
+   "codigo": "ES-PV-BI",
+   "territorio": "Bizkaia",
+   "regimen": "foral_pais_vasco",
+   "cuota_liquida_total": 21651.28,
+   "tipo_medio_efectivo": 0.296
+  },
+  {
+   "sueldo_bruto_anual": 80000,
+   "puesto": 1,
+   "codigo": "ES-PV-SS",
+   "territorio": "Gipuzkoa",
+   "regimen": "foral_pais_vasco",
+   "cuota_liquida_total": 21651.28,
+   "tipo_medio_efectivo": 0.296
+  },
+  {
+   "sueldo_bruto_anual": 80000,
+   "puesto": 1,
+   "codigo": "ES-PV-VI",
+   "territorio": "Araba/Álava",
+   "regimen": "foral_pais_vasco",
+   "cuota_liquida_total": 21651.28,
+   "tipo_medio_efectivo": 0.296
+  },
+  {
+   "sueldo_bruto_anual": 80000,
+   "puesto": 4,
+   "codigo": "ES-MD",
+   "territorio": "Comunidad de Madrid",
+   "regimen": "comun",
+   "cuota_liquida_total": 22201.12,
+   "tipo_medio_efectivo": 0.2994
+  },
+  {
+   "sueldo_bruto_anual": 80000,
+   "puesto": 5,
+   "codigo": "ES-MC",
+   "territorio": "Región de Murcia",
+   "regimen": "comun",
+   "cuota_liquida_total": 22802.87,
+   "tipo_medio_efectivo": 0.3075
+  },
+  {
+   "sueldo_bruto_anual": 80000,
+   "puesto": 6,
+   "codigo": "ES-CB",
+   "territorio": "Cantabria",
+   "regimen": "comun",
+   "cuota_liquida_total": 22826.22,
+   "tipo_medio_efectivo": 0.3078
+  },
+  {
+   "sueldo_bruto_anual": 80000,
+   "puesto": 7,
+   "codigo": "ES-IB",
+   "territorio": "Illes Balears",
+   "regimen": "comun",
+   "cuota_liquida_total": 22849.36,
+   "tipo_medio_efectivo": 0.3082
+  },
+  {
+   "sueldo_bruto_anual": 80000,
+   "puesto": 8,
+   "codigo": "ES-GA",
+   "territorio": "Galicia",
+   "regimen": "comun",
+   "cuota_liquida_total": 23048.11,
+   "tipo_medio_efectivo": 0.3108
+  },
+  {
+   "sueldo_bruto_anual": 80000,
+   "puesto": 9,
+   "codigo": "ES-RI",
+   "territorio": "La Rioja",
+   "regimen": "comun",
+   "cuota_liquida_total": 23070.82,
+   "tipo_medio_efectivo": 0.3111
+  },
+  {
+   "sueldo_bruto_anual": 80000,
+   "puesto": 10,
+   "codigo": "ES-CL",
+   "territorio": "Castilla y León",
+   "regimen": "comun",
+   "cuota_liquida_total": 23085.27,
+   "tipo_medio_efectivo": 0.3113
+  },
+  {
+   "sueldo_bruto_anual": 80000,
+   "puesto": 11,
+   "codigo": "ES-AN",
+   "territorio": "Andalucía",
+   "regimen": "comun",
+   "cuota_liquida_total": 23149.92,
+   "tipo_medio_efectivo": 0.3122
+  },
+  {
+   "sueldo_bruto_anual": 80000,
+   "puesto": 12,
+   "codigo": "ES-CN",
+   "territorio": "Canarias",
+   "regimen": "comun",
+   "cuota_liquida_total": 23202.77,
+   "tipo_medio_efectivo": 0.3129
+  },
+  {
+   "sueldo_bruto_anual": 80000,
+   "puesto": 13,
+   "codigo": "ES-CM",
+   "territorio": "Castilla-La Mancha",
+   "regimen": "comun",
+   "cuota_liquida_total": 23213.47,
+   "tipo_medio_efectivo": 0.3131
+  },
+  {
+   "sueldo_bruto_anual": 80000,
+   "puesto": 14,
+   "codigo": "ES-AR",
+   "territorio": "Aragón",
+   "regimen": "comun",
+   "cuota_liquida_total": 23326.74,
+   "tipo_medio_efectivo": 0.3146
+  },
+  {
+   "sueldo_bruto_anual": 80000,
+   "puesto": 15,
+   "codigo": "ES-AS",
+   "territorio": "Principado de Asturias",
+   "regimen": "comun",
+   "cuota_liquida_total": 23368.13,
+   "tipo_medio_efectivo": 0.3152
+  },
+  {
+   "sueldo_bruto_anual": 80000,
+   "puesto": 16,
+   "codigo": "ES-NC",
+   "territorio": "Comunidad Foral de Navarra",
+   "regimen": "foral_navarra",
+   "cuota_liquida_total": 23417.24,
+   "tipo_medio_efectivo": 0.3075
+  },
+  {
+   "sueldo_bruto_anual": 80000,
+   "puesto": 17,
+   "codigo": "ES-CT",
+   "territorio": "Cataluña",
+   "regimen": "comun",
+   "cuota_liquida_total": 23561.24,
+   "tipo_medio_efectivo": 0.3178
+  },
+  {
+   "sueldo_bruto_anual": 80000,
+   "puesto": 18,
+   "codigo": "ES-VC",
+   "territorio": "Comunitat Valenciana",
+   "regimen": "comun",
+   "cuota_liquida_total": 23906.42,
+   "tipo_medio_efectivo": 0.3224
+  },
+  {
+   "sueldo_bruto_anual": 80000,
+   "puesto": 19,
+   "codigo": "ES-EX",
+   "territorio": "Extremadura",
+   "regimen": "comun",
+   "cuota_liquida_total": 24031.44,
+   "tipo_medio_efectivo": 0.3241
+  }
+ ]
+}

@@ -1,0 +1,77 @@
+﻿ejercicio;sueldo_bruto_anual;puesto;codigo;territorio;regimen;cuota_irpf_euros;tipo_medio_pct
+2025;20000;1;ES-PV-BI;Bizkaia;foral (País Vasco);1426,47;10,90
+2025;20000;1;ES-PV-SS;Gipuzkoa;foral (País Vasco);1426,47;10,90
+2025;20000;1;ES-PV-VI;Araba/Álava;foral (País Vasco);1426,47;10,90
+2025;20000;4;ES-EX;Extremadura;común;1881,67;12,13
+2025;20000;5;ES-MD;Comunidad de Madrid;común;1882,99;12,14
+2025;20000;6;ES-RI;La Rioja;común;1900,06;12,25
+2025;20000;7;ES-CB;Cantabria;común;1933,06;12,46
+2025;20000;8;ES-CN;Canarias;común;1959,15;12,63
+2025;20000;9;ES-AS;Principado de Asturias;común;1962,01;12,65
+2025;20000;10;ES-GA;Galicia;común;1965,54;12,67
+2025;20000;11;ES-VC;Comunitat Valenciana;común;1975,51;12,73
+2025;20000;12;ES-AN;Andalucía;común;2009,91;12,96
+2025;20000;13;ES-CL;Castilla y León;común;2011,96;12,97
+2025;20000;14;ES-MC;Región de Murcia;común;2021,94;13,03
+2025;20000;15;ES-AR;Aragón;común;2030,90;13,09
+2025;20000;16;ES-NC;Comunidad Foral de Navarra;foral (Navarra);2039,88;10,91
+2025;20000;17;ES-IB;Illes Balears;común;2044,10;13,18
+2025;20000;18;ES-CM;Castilla-La Mancha;común;2046,46;13,19
+2025;20000;19;ES-CT;Cataluña;común;2060,28;13,28
+2025;30000;1;ES-PV-BI;Bizkaia;foral (País Vasco);4546,68;18,15
+2025;30000;1;ES-PV-SS;Gipuzkoa;foral (País Vasco);4546,68;18,15
+2025;30000;1;ES-PV-VI;Araba/Álava;foral (País Vasco);4546,68;18,15
+2025;30000;4;ES-NC;Comunidad Foral de Navarra;foral (Navarra);4584,31;16,34
+2025;30000;5;ES-MD;Comunidad de Madrid;común;4599,69;17,65
+2025;30000;6;ES-RI;La Rioja;común;4633,82;17,78
+2025;30000;7;ES-CB;Cantabria;común;4710,27;18,08
+2025;30000;8;ES-EX;Extremadura;común;4755,70;18,25
+2025;30000;9;ES-MC;Región de Murcia;común;4766,25;18,29
+2025;30000;10;ES-CN;Canarias;común;4777,95;18,34
+2025;30000;11;ES-GA;Galicia;común;4796,39;18,41
+2025;30000;12;ES-VC;Comunitat Valenciana;común;4802,85;18,43
+2025;30000;13;ES-AS;Principado de Asturias;común;4834,65;18,55
+2025;30000;14;ES-CL;Castilla y León;común;4834,74;18,56
+2025;30000;15;ES-AN;Andalucía;común;4864,25;18,67
+2025;30000;16;ES-AR;Aragón;común;4881,94;18,74
+2025;30000;17;ES-IB;Illes Balears;común;4912,38;18,85
+2025;30000;18;ES-CM;Castilla-La Mancha;común;4927,80;18,91
+2025;30000;19;ES-CT;Cataluña;común;4960,61;19,04
+2025;50000;1;ES-PV-BI;Bizkaia;foral (País Vasco);10366,20;23,69
+2025;50000;1;ES-PV-SS;Gipuzkoa;foral (País Vasco);10366,20;23,69
+2025;50000;1;ES-PV-VI;Araba/Álava;foral (País Vasco);10366,20;23,69
+2025;50000;4;ES-MD;Comunidad de Madrid;común;10563,38;23,60
+2025;50000;5;ES-RI;La Rioja;común;10743,08;24,00
+2025;50000;6;ES-MC;Región de Murcia;común;10889,04;24,33
+2025;50000;7;ES-CB;Cantabria;común;10897,15;24,35
+2025;50000;8;ES-CN;Canarias;común;10934,33;24,43
+2025;50000;9;ES-CL;Castilla y León;común;11023,70;24,63
+2025;50000;10;ES-GA;Galicia;común;11058,09;24,71
+2025;50000;11;ES-AR;Aragón;común;11100,74;24,80
+2025;50000;12;ES-VC;Comunitat Valenciana;común;11136,65;24,88
+2025;50000;13;ES-AN;Andalucía;común;11144,65;24,90
+2025;50000;14;ES-NC;Comunidad Foral de Navarra;foral (Navarra);11149,88;23,84
+2025;50000;15;ES-IB;Illes Balears;común;11197,60;25,02
+2025;50000;16;ES-AS;Principado de Asturias;común;11204,55;25,03
+2025;50000;17;ES-CM;Castilla-La Mancha;común;11208,20;25,04
+2025;50000;18;ES-CT;Cataluña;común;11446,25;25,57
+2025;50000;19;ES-EX;Extremadura;común;11503,70;25,70
+2025;80000;1;ES-PV-BI;Bizkaia;foral (País Vasco);21651,28;29,60
+2025;80000;1;ES-PV-SS;Gipuzkoa;foral (País Vasco);21651,28;29,60
+2025;80000;1;ES-PV-VI;Araba/Álava;foral (País Vasco);21651,28;29,60
+2025;80000;4;ES-MD;Comunidad de Madrid;común;22201,12;29,94
+2025;80000;5;ES-MC;Región de Murcia;común;22802,87;30,75
+2025;80000;6;ES-CB;Cantabria;común;22826,22;30,78
+2025;80000;7;ES-IB;Illes Balears;común;22849,36;30,82
+2025;80000;8;ES-GA;Galicia;común;23048,11;31,08
+2025;80000;9;ES-RI;La Rioja;común;23070,82;31,11
+2025;80000;10;ES-CL;Castilla y León;común;23085,27;31,13
+2025;80000;11;ES-AN;Andalucía;común;23149,92;31,22
+2025;80000;12;ES-CN;Canarias;común;23202,77;31,29
+2025;80000;13;ES-CM;Castilla-La Mancha;común;23213,47;31,31
+2025;80000;14;ES-AR;Aragón;común;23326,74;31,46
+2025;80000;15;ES-AS;Principado de Asturias;común;23368,13;31,52
+2025;80000;16;ES-NC;Comunidad Foral de Navarra;foral (Navarra);23417,24;30,75
+2025;80000;17;ES-CT;Cataluña;común;23561,24;31,78
+2025;80000;18;ES-VC;Comunitat Valenciana;común;23906,42;32,24
+2025;80000;19;ES-EX;Extremadura;común;24031,44;32,41

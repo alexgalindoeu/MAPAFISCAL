@@ -227,6 +227,10 @@
         <label><input type="radio" name="metrica" value="cuota" checked><span>Cuota</span></label>
         <label><input type="radio" name="metrica" value="tipo"><span>Tipo medio</span></label>
       </div>
+      <div class="tabla-acciones" role="group" aria-label="Descargar las tablas en CSV">
+        <button class="btn btn-sec btn-sm btn-csv" type="button" id="ranking-csv">Descargar CSV <span class="csv-de">del ranking</span></button>
+        <button class="btn btn-sec btn-sm btn-csv" type="button" id="desl-csv" disabled>Descargar CSV <span class="csv-de">de las curvas</span></button>
+      </div>
     </div>
   </div>
   <dl class="comp-resumen" id="comp-resumen"></dl>
@@ -501,6 +505,12 @@
           <a class="btn btn-sec" href="#sueldo-neto">Ver mi sueldo neto</a>
         </div>
       </div>
+      <div class="tarjeta pp-curva" id="pp-curva-tarjeta">
+        <h2 class="rotulo" id="pp-t-curva">Cuánto te ahorra aportar al plan de pensiones</h2>
+        <p class="pp-curva-frase" id="pp-curva-frase"></p>
+        <figure class="pp-curva-figura"><div id="pp-curva"></div><figcaption class="nota" id="pp-curva-pie"></figcaption></figure>
+        <details class="pp-curva-datos"><summary>Ver la curva como tabla</summary><div class="envoltorio"><table class="desglose" id="pp-curva-tabla"></table></div></details>
+      </div>
       <div class="tarjeta">
         <h2 class="rotulo">Detalle</h2>
         <table class="desglose" id="pp-desglose"></table>
@@ -730,6 +740,146 @@
         <table class="desglose" id="sm-desglose"></table>
       </div>
       <p class="nota" id="sm-nota"></p>
+    </div>
+  </div>
+</section>
+
+<!-- =========================== COMPARAR DOS OFERTAS (web/js/ofertas.js) =========================== -->
+<section class="vista" id="v-ofertas" aria-labelledby="t-of" hidden>
+  <div class="cabecera-vista">
+    <div>
+      <p class="antetitulo">Nómina · dos ofertas de trabajo</p>
+      <h2 class="titulo-vista" id="t-of">Comparar dos ofertas de trabajo</h2>
+      <p class="entradilla">Dos sueldos lado a lado, cada uno en su territorio, con sus pagas y, si quieres, tu aportación a un plan de empleo: qué te deja de verdad cada uno al mes y al año.</p>
+    </div>
+  </div>
+  <div class="calc">
+    <form class="formulario" id="of-form" autocomplete="off" novalidate>
+      <fieldset class="bloque">
+        <legend><span class="paso">A</span>Oferta A</legend>
+        <div class="campo"><label for="of-a-bruto">Bruto anual</label>
+          <div class="con-sufijo"><input type="text" data-importe id="of-a-bruto" min="0" step="500" value="32000" inputmode="decimal"><span>€</span></div></div>
+        <div class="rejilla2">
+          <div class="campo"><label for="of-a-territorio">Territorio</label><select id="of-a-territorio"></select></div>
+          <div class="campo"><label for="of-a-pagas">Pagas</label><select id="of-a-pagas"><option value="14">14</option><option value="12">12</option></select></div>
+        </div>
+        <div class="campo"><label for="of-a-plan">Tu aportación anual a un plan de empleo (opcional)</label>
+          <div class="con-sufijo"><input type="text" data-importe id="of-a-plan" min="0" step="100" value="0" inputmode="decimal"><span>€</span></div></div>
+      </fieldset>
+      <fieldset class="bloque">
+        <legend><span class="paso">B</span>Oferta B</legend>
+        <div class="campo"><label for="of-b-bruto">Bruto anual</label>
+          <div class="con-sufijo"><input type="text" data-importe id="of-b-bruto" min="0" step="500" value="31000" inputmode="decimal"><span>€</span></div></div>
+        <div class="rejilla2">
+          <div class="campo"><label for="of-b-territorio">Territorio</label><select id="of-b-territorio"></select></div>
+          <div class="campo"><label for="of-b-pagas">Pagas</label><select id="of-b-pagas"><option value="12">12</option><option value="14">14</option></select></div>
+        </div>
+        <div class="campo"><label for="of-b-plan">Tu aportación anual a un plan de empleo (opcional)</label>
+          <div class="con-sufijo"><input type="text" data-importe id="of-b-plan" min="0" step="100" value="0" inputmode="decimal"><span>€</span></div></div>
+      </fieldset>
+    </form>
+    <div class="resultado" aria-live="polite">
+      <div class="tarjeta tarjeta-resultado" id="of-tarjeta">
+        <div class="res-cab"><h2 class="rotulo">Resultado</h2><span class="chip" id="of-chip"></span></div>
+        <div id="of-principal"></div>
+        <div class="mf-compartir">
+          <label for="of-enlace">Enlace para compartir estas dos ofertas</label>
+          <div class="mf-compartir-fila"><input type="text" id="of-enlace" readonly><button class="btn btn-sec" type="button" id="of-copiar">Copiar enlace</button></div>
+          <p class="ayuda" id="of-copiado" role="status"></p>
+        </div>
+        <div class="acciones-res">
+          <a class="btn btn-pri" href="#bruto-necesario">¿Qué bruto pido?</a>
+          <a class="btn btn-sec" href="#marginal">De cada 100 € más…</a>
+        </div>
+      </div>
+      <div class="tarjeta tarjeta-ranking" tabindex="0">
+        <h2 class="rotulo">Las dos ofertas, cifra a cifra</h2>
+        <table class="ranking mf-tabla" id="of-tabla"></table>
+      </div>
+      <p class="nota" id="of-nota"></p>
+    </div>
+  </div>
+</section>
+
+<!-- =========================== EL MISMO CASO EN DOS EJERCICIOS (web/js/ejercicios.js) =========================== -->
+<section class="vista" id="v-ejercicios" aria-labelledby="t-ej" hidden>
+  <div class="cabecera-vista">
+    <div>
+      <p class="antetitulo">IRPF · de un año al siguiente</p>
+      <h2 class="titulo-vista" id="t-ej">El mismo sueldo en dos ejercicios</h2>
+      <p class="entradilla">Tu sueldo con la normativa de dos años: cuánto cambian el neto y el IRPF, y qué conceptos cambian, con la cifra de cada año.</p>
+    </div>
+  </div>
+  <div class="calc">
+    <form class="formulario" id="ej-form" autocomplete="off" novalidate>
+      <fieldset class="bloque">
+        <legend><span class="paso">1</span>Tu caso</legend>
+        <div class="campo"><label for="ej-bruto">Bruto anual</label>
+          <div class="con-sufijo"><input type="text" data-importe id="ej-bruto" min="0" step="500" value="18000" inputmode="decimal"><span>€</span></div></div>
+        <div class="campo"><label for="ej-territorio">Territorio donde resides</label><select id="ej-territorio"></select></div>
+        <div class="rejilla2">
+          <div class="campo"><label for="ej-anterior">Ejercicio</label><select id="ej-anterior"></select></div>
+          <div class="campo"><label for="ej-actual">Frente a</label><select id="ej-actual"></select></div>
+        </div>
+      </fieldset>
+    </form>
+    <div class="resultado" aria-live="polite">
+      <div class="tarjeta tarjeta-resultado" id="ej-tarjeta">
+        <div class="res-cab"><h2 class="rotulo">Resultado</h2><span class="chip" id="ej-chip"></span></div>
+        <div id="ej-principal"></div>
+        <div class="acciones-res">
+          <a class="btn btn-pri" href="#calculadora">Calcular mi declaración</a>
+          <a class="btn btn-sec" href="#sueldo-neto">Sueldo neto</a>
+        </div>
+      </div>
+      <div class="tarjeta tarjeta-ranking" tabindex="0">
+        <h2 class="rotulo">Neto e IRPF de cada año</h2>
+        <table class="ranking mf-tabla" id="ej-tabla"></table>
+      </div>
+      <div class="tarjeta tarjeta-ranking" tabindex="0">
+        <h2 class="rotulo">Qué cambia de un año a otro</h2>
+        <table class="ranking mf-tabla ej-conceptos" id="ej-conceptos"></table>
+      </div>
+      <p class="nota" id="ej-nota"></p>
+    </div>
+  </div>
+</section>
+
+<!-- =========================== DE CADA 100 € MÁS (web/js/marginal.js) =========================== -->
+<section class="vista" id="v-marginal" aria-labelledby="t-mg" hidden>
+  <div class="cabecera-vista">
+    <div>
+      <p class="antetitulo">Nómina · tipo marginal real</p>
+      <h2 class="titulo-vista" id="t-mg">De cada 100 € más, ¿cuánto te queda?</h2>
+      <p class="entradilla">Lo que queda neto de cada 100 € brutos más, IRPF y Seguridad Social juntos, de 12.000 a 120.000 € al año, y por qué hay saltos.</p>
+    </div>
+  </div>
+  <div class="calc">
+    <form class="formulario" id="mg-form" autocomplete="off" novalidate>
+      <fieldset class="bloque">
+        <legend><span class="paso">1</span>Dónde vives</legend>
+        <div class="campo"><label for="mg-territorio">Territorio donde resides</label><select id="mg-territorio"></select></div>
+      </fieldset>
+    </form>
+    <div class="resultado" aria-live="polite">
+      <div class="tarjeta tarjeta-resultado" id="mg-tarjeta">
+        <div class="res-cab"><h2 class="rotulo">Resultado</h2><span class="chip" id="mg-chip"></span></div>
+        <div id="mg-principal"></div>
+        <figure class="mg-figura" id="mg-grafico"></figure>
+        <div class="acciones-res">
+          <a class="btn btn-pri" href="#sueldo-neto?subida">¿Cuánto neto gano con mi subida?</a>
+          <a class="btn btn-sec" href="#ofertas">Comparar dos ofertas</a>
+        </div>
+      </div>
+      <div class="tarjeta">
+        <h2 class="rotulo">Los saltos, uno a uno</h2>
+        <ol class="mg-saltos" id="mg-saltos"></ol>
+      </div>
+      <div class="tarjeta tarjeta-ranking" tabindex="0">
+        <h2 class="rotulo">Los datos del gráfico, cada 2.000 €</h2>
+        <table class="ranking mf-tabla" id="mg-tabla"></table>
+      </div>
+      <p class="nota" id="mg-nota"></p>
     </div>
   </div>
 </section>
@@ -1140,6 +1290,7 @@
 <script src="js/irpfsim.js"></script>
 <script src="js/esquema.js"></script>
 <script src="js/importe.js"></script>
+<script src="js/csv.js"></script>
 <script src="js/explicacion.js"></script>
 <script src="js/formulario.js"></script>
 <script src="js/cuentas.js"></script>
@@ -1150,6 +1301,9 @@
 <script src="js/conjunta.js"></script>
 <script src="js/bruto.js"></script>
 <script src="js/sueldo_mes.js"></script>
+<script src="js/ofertas.js"></script>
+<script src="js/ejercicios.js"></script>
+<script src="js/marginal.js"></script>
 <script src="js/deducciones.js"></script>
 <script src="js/escenarios.js"></script>
 <script src="js/anuncios.js"></script>

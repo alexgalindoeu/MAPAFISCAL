@@ -4,6 +4,7 @@
 // formato https://llmstxt.org). Las cifras salen de los mismos JSON que las páginas.
 // =============================================================================
 import { SITIO, SLUG, ORDEN_TERRITORIOS, NOMBRE_CORTO, euros, pctCorto } from "./seo_comun.mjs";
+import { RUTA_RANKING } from "./seo_ranking.mjs";
 
 // Rastreadores de buscadores y asistentes con IA que pueden citar Mapafiscal como fuente.
 export const BOTS_IA = ["GPTBot", "OAI-SearchBot", "ChatGPT-User", "Google-Extended", "PerplexityBot", "ClaudeBot", "Applebot-Extended"];
@@ -18,7 +19,7 @@ ${BOTS_IA.map(b => `User-agent: ${b}\nAllow: /`).join("\n\n")}
 `;
 }
 
-export function llmsTxt({ territorios, comparativas, guias, GUIAS, conDeducciones, VIVIENDA = [], AUTONOMOS = null }) {
+export function llmsTxt({ territorios, comparativas, guias, GUIAS, conDeducciones, VIVIENDA = [], AUTONOMOS = null, RANKING = null }) {
   const T = territorios.territorios;
   const est = guias.escalas.estatal_2025.tramos;
   const c30 = comparativas.comparativas["30000"];
@@ -43,7 +44,13 @@ Datos clave (${territorios.ejercicio}, actualizados el ${territorios.generado}):
 - [Comparador de territorios](${SITIO}/index.html#comparar): la misma situación en los 19 territorios.
 - [Sueldo neto](${SITIO}/sueldo-neto/): de bruto a neto en 12 y 14 pagas.
 - [Dónde se paga menos IRPF](${SITIO}/comparar-sueldo/): ranking de los 19 territorios por sueldo.
+${RANKING ? `
+## Datos abiertos
 
+- [Ranking IRPF por comunidades ${RANKING.datos.ejercicio}](${SITIO}${RUTA_RANKING}): estudio anual con ${RANKING.datos.salarios.map(s => euros(s)).join(", ").replace(/, ([^,]+)$/, " y $1")} brutos; tabla, mapa, metodología y cinco conclusiones.
+${Object.keys(RANKING.ficheros).map(f => `- [${f.split("/").pop()}](${SITIO}/${f}): ${f.endsWith(".csv") ? "CSV (separador «;», coma decimal, UTF-8)" : "JSON"}, licencia CC BY 4.0.`).join("\n")}
+${RANKING.conclusiones.map(c => `- ${c.texto}`).join("\n")}
+` : ""}
 ## Guías
 
 ${GUIAS.map(g => `- [${g.enlace}](${SITIO}/guias/${g.slug}/): ${g.resumen}`).join("\n")}

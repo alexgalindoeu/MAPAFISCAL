@@ -98,6 +98,77 @@ try {
     await p.context().close();
   });
 
+  // Comparar dos ofertas (#ofertas): el enlace prellena las dos ofertas y la frase sale del motor.
+  await prueba("#ofertas?a=40000,ES-CT,14&b=39000,ES-MD,12: lado a lado, frase del neto y enlace para compartir", async () => {
+    const p = await abrir("/index.html#ofertas?a=40000,ES-CT,14&b=39000,ES-MD,12,1500");
+    await p.waitForFunction(() => document.querySelector("#of-principal .res-cifra"), null, { timeout: 5000 });
+    assert.ok(await p.locator("#v-ofertas").isVisible(), "no se ve la vista");
+    assert.equal(await p.locator("#of-a-territorio").inputValue(), "ES-CT");
+    assert.equal(await p.locator("#of-b-pagas").inputValue(), "12");
+    assert.equal(await p.locator("#of-b-plan").inputValue(), "1500");
+    const esperado = await p.evaluate(async () => {
+      const P = await (await fetch("datos/params.json")).json(), O = window.MapafiscalOfertas;
+      return O.frase(O.compararOfertas(P, { bruto: 40000, territorio: "ES-CT", pagas: 14, plan: 0 }, { bruto: 39000, territorio: "ES-MD", pagas: 12, plan: 1500 }));
+    });
+    assert.equal(await p.locator("#of-frase").innerText(), esperado);
+    assert.equal(await p.locator("#of-tabla thead th[scope=col]").count(), 4);
+    assert.ok((await p.locator("#of-tabla").innerText()).includes("Tipo medio del IRPF"));
+    await p.locator("#of-a-pagas").selectOption("12");
+    await p.waitForFunction(() => location.hash === "#ofertas?a=40000,ES-CT,12&b=39000,ES-MD,12,1500");
+    assert.match(await p.locator("#of-enlace").inputValue(), /#ofertas\?a=40000,ES-CT,12&b=39000,ES-MD,12,1500$/);
+    assert.deepEqual(p.errores, []);
+    await p.context().close();
+  });
+
+  // El mismo sueldo en dos ejercicios (#ejercicios): 2025 frente a 2026, con la deducción del SMI de cada año.
+  await prueba("#ejercicios?b=18000&t=ES-MD: neto e IRPF de 2025 y 2026 y conceptos que cambian", async () => {
+    const p = await abrir("/index.html#ejercicios?b=18000&t=ES-MD");
+    await p.waitForFunction(() => document.querySelector("#ej-principal .res-cifra"), null, { timeout: 5000 });
+    assert.equal(await p.locator("#ej-territorio").inputValue(), "ES-MD");
+    const esperado = await p.evaluate(async () => {
+      const Pb = await (await fetch("datos/params.json")).json(), Pa = await (await fetch("datos/params_2025.json")).json();
+      return window.MapafiscalEjercicios.frase(window.MapafiscalEjercicios.compararEjercicios(Pa, Pb, { bruto: 18000, territorio: "ES-MD" }));
+    });
+    assert.equal(await p.locator("#ej-frase").innerText(), esperado);
+    const conceptos = await p.locator("#ej-conceptos").innerText();
+    assert.ok(conceptos.includes("340 €") && conceptos.includes("590,89 €"), "deducción del SMI de cada año");
+    assert.ok(conceptos.includes("te afecta"));
+    await p.locator("#ej-territorio").selectOption("ES-VC");
+    await p.waitForFunction(() => location.hash === "#ejercicios?b=18000&t=ES-VC");
+    assert.ok((await p.locator("#ej-conceptos").innerText()).includes("8,8 %"), "escala valenciana de 2026");
+    assert.deepEqual(p.errores, []);
+    await p.context().close();
+  });
+
+  // «De cada 100 € más» (#marginal): gráfico SVG, saltos explicados y tabla alternativa.
+  await prueba("#marginal?t=ES-MD: gráfico, saltos con su explicación y tabla accesible", async () => {
+    const p = await abrir("/index.html#marginal?t=ES-MD");
+    await p.waitForFunction(() => document.querySelector("#mg-grafico svg.mg-svg"), null, { timeout: 5000 });
+    const n = await p.evaluate(async () => {
+      const P = await (await fetch("datos/params.json")).json();
+      return window.MapafiscalMarginal.saltos(P, "ES-MD").length;
+    });
+    assert.ok(n > 3);
+    assert.equal(await p.locator("#mg-saltos li").count(), n);
+    assert.ok((await p.locator("#mg-saltos").innerText()).includes("Se acaba la reducción por rendimientos del trabajo"));
+    assert.equal(await p.locator("#mg-tabla tbody tr").count(), 55);
+    assert.ok(await p.locator("#mg-grafico svg[role=img][aria-label]").count());
+    await p.locator("#mg-territorio").selectOption("ES-NC");
+    await p.waitForFunction(() => location.hash === "#marginal?t=ES-NC" && document.querySelector("#mg-chip").textContent.includes("Navarra"));
+    assert.deepEqual(p.errores, []);
+    await p.context().close();
+  });
+
+  await prueba("portada y panel «Todo» enlazan #ofertas, #ejercicios y #marginal", async () => {
+    const p = await abrir("/");
+    for (const v of ["ofertas", "ejercicios", "marginal"])
+      await p.waitForFunction(h => document.querySelector(`#herramientas a[href="${h}"] svg.ico`), "#" + v, { timeout: 5000 });
+    await p.locator("#btn-todo").click();
+    for (const v of ["ofertas", "ejercicios", "marginal"]) await p.waitForSelector(`a.panel-item[href="#${v}"]`, { timeout: 3000 });
+    assert.deepEqual(p.errores, []);
+    await p.context().close();
+  });
+
   // La portada y el panel «Todo» enlazan la herramienta.
   await prueba("portada y panel «Todo» enlazan #sueldo-mes", async () => {
     const p = await abrir("/");
@@ -109,7 +180,7 @@ try {
     await p.context().close();
   });
 
-  for (const ruta of ["/", "/irpf/", "/irpf/gipuzkoa/", "/irpf/navarra/simulador-renta/", "/guias/calendario-renta/", "/vivienda/", "/vivienda/venta-vivienda/", "/glosario/", "/glosario/base-liquidable/", "/validacion/", "/autonomos/", "/autonomos/canarias/", "/sueldo-mensual/", "/widget/", "/widget/sueldo-neto.html?t=ES-MD"]) {
+  for (const ruta of ["/", "/irpf/", "/irpf/gipuzkoa/", "/irpf/navarra/simulador-renta/", "/guias/calendario-renta/", "/vivienda/", "/vivienda/venta-vivienda/", "/glosario/", "/glosario/base-liquidable/", "/validacion/", "/autonomos/", "/autonomos/canarias/", "/sueldo-mensual/", "/widget/", "/widget/sueldo-neto.html?t=ES-MD", "/comparar-ofertas/", "/irpf-2025-vs-2026/", "/tipo-marginal-real/", "/ranking-irpf-comunidades/"]) {
     await prueba(`carga sin errores de JS: ${ruta}`, async () => {
       const p = await abrir(ruta);
       await p.waitForTimeout(500);
@@ -210,7 +281,103 @@ try {
     await p.context().close();
   });
 
-  for (const ruta of ["/", "/irpf/", "/validacion/", "/sueldo-mensual/", "/#sueldo-mes", "/sueldo-neto/30000/madrid/", "/autonomos/madrid/", "/guias/12-o-14-pagas/", "/irpf/madrid/", "/irpf/bizkaia/", "/irpf/gipuzkoa/"]) {
+  // «Descargar CSV» del comparador (js/csv.js): ranking de los 19 y curvas del deslizador.
+  const leerDescarga = async d => readFileSync(await d.path(), "utf8");
+  await prueba("#comparar: «Descargar CSV» del ranking y de las curvas, con BOM, «;» y coma decimal", async () => {
+    const p = await abrir("/#comparar", { acceptDownloads: true });
+    await p.waitForFunction(() => document.querySelectorAll("#ranking tbody tr").length === 19, null, { timeout: 10000 });
+    const [d1] = await Promise.all([p.waitForEvent("download"), p.click("#ranking-csv")]);
+    assert.match(d1.suggestedFilename(), /^comparar-territorios-irpf-\d{4}-es-[a-z-]+\.csv$/);
+    const t1 = await leerDescarga(d1);
+    assert.ok(t1.startsWith("﻿Puesto;Código;Territorio;Régimen;Cuota IRPF (€);Tipo medio efectivo (%);Diferencia con "), t1.slice(0, 120));
+    const filas = t1.slice(1).trim().split("\n");
+    assert.equal(filas.length, 20);
+    for (const f of filas.slice(1)) assert.match(f, /^\d+;ES-[A-Z-]+;[^;]+;(común|foral);\d+,\d\d;\d+,\d\d;-?\d+,\d\d$/, f);
+    // las cifras son las del motor en la página, sin redondear al euro
+    const motor = await p.evaluate(() => {
+      const a = window.MapafiscalApp, u = a.ultimo();
+      return window.irpfsim.compararTerritorios(u.hogar, a.P()).map(c => [c.territorio, c.cuotaResultanteAutoliquidacion.toFixed(2).replace(".", ",")]);
+    });
+    for (const [t, c] of motor) assert.ok(filas.some(f => f.split(";")[1] === t && f.split(";")[4] === c), `${t}: ${c}`);
+    await p.waitForFunction(() => !document.getElementById("desl-csv").disabled, null, { timeout: 15000 });
+    const [d2] = await Promise.all([p.waitForEvent("download"), p.click("#desl-csv")]);
+    assert.match(d2.suggestedFilename(), /^curvas-irpf-\d{4}-(persona-sola|tu-situacion)\.csv$/);
+    const t2 = await leerDescarga(d2);
+    assert.ok(t2.startsWith("﻿Sueldo bruto anual (€);"));
+    const l2 = t2.slice(1).trim().split("\n");
+    assert.equal(l2.length, 1 + 28, "28 sueldos de 15.000 a 150.000 €");
+    assert.equal(l2[0].split(";").length, 1 + 2 * 19);
+    assert.match(l2[1], /^15000;/);
+    assert.match(l2.at(-1), /^150000;(\d+,\d\d;?)+$/);
+    assert.deepEqual(p.errores, []);
+    await p.context().close();
+  });
+
+  // Curva del ahorro del plan de pensiones (#plan-pensiones, curvaPlan de herramientas.js).
+  await prueba("#plan-pensiones: curva del ahorro, euro marginal y tabla alternativa", async () => {
+    const p = await abrir("/#plan-pensiones");
+    await p.waitForSelector("#pp-curva svg.ppc-svg", { timeout: 10000 });
+    const leer = () => p.evaluate(() => ({
+      frase: document.getElementById("pp-curva-frase").textContent,
+      puntos: document.querySelectorAll("#pp-curva .ppc-zona").length,
+      punto: !!document.querySelector("#pp-curva .ppc-punto"),
+      filas: document.querySelectorAll("#pp-curva-tabla tbody tr").length,
+      linea: document.querySelector("#pp-curva .ppc-linea")?.getAttribute("d") || ""
+    }));
+    const r = await leer();
+    assert.equal(r.puntos, 41);
+    assert.ok(r.punto, "falta el punto de tu aportación");
+    assert.ok(r.filas >= 10, `${r.filas} filas en la tabla`);
+    assert.match(r.frase, /(Los primeros [\d.]+ € te ahorran un \d+ %|Cada euro que aportes hasta tu límite de [\d.]+ € te ahorra un \d+ %)/);
+    // la frase sale de curvaPlan con el motor de la página
+    const esperado = await p.evaluate(() => {
+      const P = window.MapafiscalHerramientas.paramsPlan(), imp = id => window.MapafiscalImporte.valor(document.getElementById(id));
+      const c = window.MapafiscalHerramientas.curvaPlan(P, { bruto: imp("pp-bruto"), territorio: document.getElementById("pp-territorio").value,
+        edad: +document.getElementById("pp-edad").value, hijos: [], aportacion: imp("pp-aportacion"), contribucionEmpresa: imp("pp-empresa"),
+        donativos: imp("pp-donativo"), donativosRecurrentes: document.getElementById("pp-recurrente").checked });
+      return Math.round(100 * c.marginal.tipo) + " %";
+    });
+    assert.ok(r.frase.includes(esperado), `${r.frase} / ${esperado}`);
+    // con otro sueldo cambia la curva: se busca uno en el que el ahorro se agote antes del límite
+    // (la cuota llega a cero), con el ejercicio y el territorio que muestra la herramienta
+    const bajo = await p.evaluate(() => {
+      const H = window.MapafiscalHerramientas, P = H.paramsPlan(), t = document.getElementById("pp-territorio").value;
+      const imp = id => window.MapafiscalImporte.valor(document.getElementById(id));
+      for (let b = 14000; b <= 30000; b += 100) {
+        // los mismos datos que lee la vista (datosPp), donativos incluidos
+        const c = H.curvaPlan(P, { bruto: b, territorio: t, edad: +document.getElementById("pp-edad").value, hijos: [], aportacion: imp("pp-aportacion"),
+          contribucionEmpresa: imp("pp-empresa"), donativos: imp("pp-donativo"), donativosRecurrentes: document.getElementById("pp-recurrente").checked });
+        if (c.agota != null && c.ahorroMax > 20) return b;
+      }
+      return null;
+    });
+    assert.ok(bajo, "ningún sueldo agota el ahorro");
+    await p.fill("#pp-bruto", String(bajo));
+    await p.dispatchEvent("#pp-bruto", "change");
+    await p.waitForTimeout(400);
+    const r2 = await leer();
+    assert.notEqual(r2.linea, r.linea, "la curva no reacciona al sueldo");
+    assert.match(r2.frase, /aportar más ya no te ahorra IRPF/);
+    assert.deepEqual(p.errores, []);
+    await p.context().close();
+  });
+
+  await prueba("/ranking-irpf-comunidades/: mapa, tabla y datos descargables servidos", async () => {
+    const p = await abrir("/ranking-irpf-comunidades/");
+    assert.equal(await p.locator("svg.ranking-mapa path.terr").count(), 19);
+    assert.equal(await p.locator("table.ranking-tabla tbody tr").count(), 19);
+    const hrefs = await p.locator("#datos a[download]").evaluateAll(as => as.map(a => a.getAttribute("href")));
+    assert.equal(hrefs.length, 2);
+    for (const href of hrefs) {
+      const r = await p.request.get(base + href);
+      assert.equal(r.status(), 200, href);
+      if (href.endsWith(".csv")) { assert.match(r.headers()["content-type"], /text\/csv/); assert.ok((await r.text()).startsWith("﻿ejercicio;")); }
+      else assert.ok(Array.isArray((await r.json()).datos));
+    }
+    assert.deepEqual(p.errores, []);
+    await p.context().close();
+  });
+  for (const ruta of ["/", "/irpf/", "/validacion/", "/sueldo-mensual/", "/#sueldo-mes", "/sueldo-neto/30000/madrid/", "/autonomos/madrid/", "/guias/12-o-14-pagas/", "/irpf/madrid/", "/irpf/bizkaia/", "/irpf/gipuzkoa/", "/#ofertas", "/#ejercicios", "/#marginal", "/tipo-marginal-real/", "/ranking-irpf-comunidades/"]) {
     await prueba(`móvil 390 px sin desbordamiento horizontal: ${ruta}`, async () => {
       const p = await abrir(ruta, { viewport: { width: 390, height: 844 }, isMobile: true, hasTouch: true });
       await p.waitForTimeout(500);
@@ -301,7 +468,7 @@ try {
   // Accesibilidad con axe-core (devDependency): fallan las infracciones «serious» y
   // «critical» de las páginas revisadas, en modo claro y oscuro.
   const axe = readFileSync(require.resolve("axe-core/axe.min.js"), "utf8");
-  const rutasAxe = ["/#calculadora", "/#comparar", "/#planes", "/#sueldo-mes", "/sueldo-mensual/", "/irpf/madrid/", "/irpf/bizkaia/", "/sueldo-neto/30000/madrid/", "/irpf/gipuzkoa/simulador-renta/", "/guias/calendario-renta/", "/vivienda/", "/vivienda/segunda-vivienda/", "/glosario/", "/glosario/base-liquidable/", "/validacion/", "/autonomos/", "/autonomos/canarias/", "/guias/12-o-14-pagas/", "/widget/", "/widget/sueldo-neto.html?t=ES-CT&ancho=compacto"];
+  const rutasAxe = ["/#calculadora", "/#comparar", "/#planes", "/#sueldo-mes", "/sueldo-mensual/", "/irpf/madrid/", "/irpf/bizkaia/", "/sueldo-neto/30000/madrid/", "/irpf/gipuzkoa/simulador-renta/", "/guias/calendario-renta/", "/vivienda/", "/vivienda/segunda-vivienda/", "/glosario/", "/glosario/base-liquidable/", "/validacion/", "/autonomos/", "/autonomos/canarias/", "/guias/12-o-14-pagas/", "/widget/", "/widget/sueldo-neto.html?t=ES-CT&ancho=compacto", "/#ofertas", "/#ejercicios", "/#marginal", "/comparar-ofertas/", "/irpf-2025-vs-2026/", "/tipo-marginal-real/", "/ranking-irpf-comunidades/", "/#plan-pensiones"];
   for (const colorScheme of ["light", "dark"]) {
     for (const ruta of rutasAxe) {
       await prueba(`axe sin infracciones serious/critical (${colorScheme}): ${ruta}`, async () => {
