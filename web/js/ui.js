@@ -189,7 +189,15 @@
 
     // Panel lateral
     const bPanel = doc.getElementById("btn-todo");
-    let panel = null, origen = null;
+    // El panel abierto es una entrada del historial (misma dirección): «atrás» (botón o gesto
+    // del móvil) lo cierra en vez de salir de la página. Al cerrarlo de otra forma se quita esa
+    // entrada; si se cierra por un enlace, se navega después de quitarla.
+    let panel = null, origen = null, enHistorial = false, porHistorial = false, destino = null;
+    const irDestino = () => { if (destino) { const u = destino; destino = null; location.assign(u); } };
+    global.addEventListener("popstate", () => {
+      if (panel && panel.open) { porHistorial = true; cerrar(); }
+      else irDestino();
+    });
     function crearPanel() {
       panel = doc.createElement("dialog");
       panel.className = "panel-todo";
@@ -203,12 +211,25 @@
         if ((enApp && h === aqui) || (!enApp && !h.includes("#") && h.replace(base, "") !== "/" && aqui.startsWith(h.replace(base, "")))) a.setAttribute("aria-current", "page");
       }
       panel.addEventListener("click", e => {
-        if (e.target === panel || e.target.closest("[data-cerrar-panel]") || e.target.closest("a")) cerrar();
+        const a = e.target.closest("a");
+        if (a && enHistorial && !(e.button > 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) && a.target !== "_blank") {
+          // primero se quita la entrada del panel; luego se sigue el enlace (popstate → irDestino)
+          e.preventDefault(); e.stopPropagation();
+          destino = a.href; cerrar();
+          setTimeout(irDestino, 600);      // por si el navegador no avisa de la vuelta
+          return;
+        }
+        if (e.target === panel || e.target.closest("[data-cerrar-panel]") || a) cerrar();
       });
       panel.addEventListener("close", () => {
         doc.documentElement.classList.remove("panel-abierto");
         if (bPanel) bPanel.setAttribute("aria-expanded", "false");
-        if (origen && origen.focus) origen.focus();
+        if (origen && origen.focus && !destino) origen.focus({ preventScroll: true });
+        if (enHistorial) {
+          enHistorial = false;
+          if (!porHistorial) { try { history.back(); } catch (e) { irDestino(); } }
+        }
+        porHistorial = false;
       });
       doc.body.appendChild(panel);
     }
@@ -218,6 +239,7 @@
       if (typeof panel.showModal === "function") panel.showModal(); else panel.setAttribute("open", "");
       doc.documentElement.classList.add("panel-abierto");
       if (bPanel) bPanel.setAttribute("aria-expanded", "true");
+      try { history.pushState(Object.assign({}, history.state, { panel: true }), ""); enHistorial = true; } catch (e) { /* sin historial */ }
       const actual = panel.querySelector('[aria-current="page"]') || panel.querySelector(".panel-item");
       if (actual) actual.focus();
     }
@@ -228,6 +250,25 @@
     }
     if (bPanel) bPanel.addEventListener("click", abrir);
     doc.addEventListener("keydown", e => { if (e.key === "Escape" && panel && panel.open) { e.preventDefault(); cerrar(); } });
+
+    // Barra superior en el móvil: se aparta al bajar y vuelve al subir (CSS: .appbar.recogida).
+    const appbar = doc.querySelector(".appbar");
+    if (appbar && global.matchMedia) {
+      const estrecha = global.matchMedia("(max-width: 760px)");
+      let yAnt = global.scrollY, pendiente = false;
+      global.addEventListener("scroll", () => {
+        if (pendiente) return;
+        pendiente = true;
+        global.requestAnimationFrame(() => {
+          pendiente = false;
+          const y = global.scrollY, d = y - yAnt;
+          if (!estrecha.matches || y < 120 || appbar.contains(doc.activeElement)) appbar.classList.remove("recogida");
+          else if (d > 6) appbar.classList.add("recogida");
+          else if (d < -6) appbar.classList.remove("recogida");
+          if (Math.abs(d) > 6 || y < 120) yAnt = y;
+        });
+      }, { passive: true });
+    }
 
     // Redes del pie (las páginas generadas ya las llevan en el HTML)
     const pie = doc.querySelector(".pie-in");

@@ -17,7 +17,7 @@ import { createRequire } from "node:module";
 import { readFileSync, writeFileSync, mkdirSync, existsSync, readdirSync, rmSync } from "node:fs";
 import { join, dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
-import { SITIO, SLUG, ORDEN_TERRITORIOS, HERRAMIENTA, NOMBRE_CORTO, esc, textoPlano, euros, eurosExactos, difEuros, pct, pctCorto, tablaEscala, citaFuente, layout, jsonLdMigas, jsonLdFaq, jsonLdDataset, bloqueFaq, respuestaDirecta, migasHtml, tituloQueQuepa, fecharContenido, hashContenido, EJERCICIO } from "./seo_comun.mjs";
+import { SITIO, SLUG, ORDEN_TERRITORIOS, HERRAMIENTA, NOMBRE_CORTO, esc, textoPlano, euros, eurosExactos, difEuros, pct, pctCorto, tablaEscala, citaFuente, layout, jsonLdMigas, jsonLdFaq, jsonLdDataset, bloqueFaq, respuestaDirecta, bloqueCalculoRapido, migasHtml, tituloQueQuepa, fecharContenido, hashContenido, EJERCICIO } from "./seo_comun.mjs";
 import { robotsTxt, llmsTxt } from "./seo_ia.mjs";
 import { paginaDeducciones, CAMPO, conDe, conEn, conArticulo } from "./seo_deducciones.mjs";
 import { paginasFichasDeduccion, paramsDe } from "./seo_deduccion_ficha.mjs";
@@ -30,6 +30,7 @@ import { paginasConjuntaPagadores, CARPETAS_CONJUNTA } from "./seo_conjunta.mjs"
 import { paginasDevuelve } from "./seo_devuelve.mjs";
 import { paginasAutonomos, HUB_AUTONOMOS } from "./seo_autonomos.mjs";
 import { paginaMetodologia } from "./seo_metodologia.mjs";
+import { paginaWidget, RUTA_WIDGET } from "./seo_widget.mjs";
 import { paginasGlosario, enlazarGlosario, HUB_GLOSARIO } from "./seo_glosario.mjs";
 import { paginasVivienda, PAGINAS_VIVIENDA, HUB_VIVIENDA } from "./seo_vivienda.mjs";
 import { paginasForal, enlacesSuiteForal, enlacesVascos, escalasAhorro, ejemploPasoAPaso, normaDelTerritorio, rasgoForalDe, paramsForal, BOLETIN, rentaForal, enlaceCalculadora, enlacesIndiceForal } from "./seo_foral.mjs";
@@ -258,8 +259,9 @@ function paginaTerritorio(codigo) {
   }
   const main = `
   <h1>${esComun ? `IRPF y renta ${esc(en)} ${anios}: tramos, tipos y comparativa` : `IRPF en ${esc(t.regimen === "foral_navarra" ? corto : nombre)} ${anios}: tablas, renta y tipo marginal`}</h1>
-  ${esComun ? "" : `<div class="prosa">${indiceForal}${cartaEscala}</div>`}
-  ${respuestaDirecta(resumen)}
+  ${esComun ? "" : `${respuestaDirecta(resumen)}\n  <div class="prosa">${indiceForal}${cartaEscala}</div>`}
+  ${esComun ? respuestaDirecta(resumen) : ""}
+  ${bloqueCalculoRapido({ territorio: codigo, ejercicio: comparativas.ejercicio, titulo: `Calcula tu sueldo neto y tu IRPF ${en}` })}
   ${intro}
   <div class="prosa">
   ${esComun ? cartaEscala + cartaMedia + cartaTipos : ""}
@@ -492,6 +494,8 @@ export function generar({ conGit = false } = {}) {
   for (const a of aut) pagina(a.ruta, a.html);
 
   pagina("/metodologia/", paginaMetodologia(territorios.generado));
+  // Widget incrustable: /widget/ entra en el sitemap; el widget (widget/sueldo-neto.html, a mano) no.
+  pagina(RUTA_WIDGET, paginaWidget(territorios, territorios.generado));
   // «Cómo comprobamos los cálculos»: la escribe tools/generar_validacion.mjs; aquí solo va al sitemap
   urls.push("/validacion/");
   // Fecha real de cambio de cada página (y de la portada, que se escribe a mano).

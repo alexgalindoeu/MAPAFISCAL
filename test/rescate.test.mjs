@@ -70,7 +70,7 @@ test("la vista #rescate-plan se pinta con los datos de 2026", async () => {
     addEventListener: (t, f) => { (oyentes[t] = oyentes[t] || []).push(f); }, dispatchEvent() {} };
   const ctx = { document, location: { hash: "#rescate-plan?t=ES-AN" }, console, setTimeout, clearTimeout, Date,
     CustomEvent: class { constructor(t) { this.type = t; } }, addEventListener() {},
-    fetch: async url => ({ ok: true, json: async () => JSON.parse(readFileSync(new URL("../web/" + url, import.meta.url), "utf8")) }) };
+    fetch: async url => ({ ok: true, text: async () => readFileSync(new URL("../web/" + url, import.meta.url), "utf8") }) };
   ctx.window = ctx;
   vm.createContext(ctx);
   vm.runInContext(readFileSync(new URL("../web/js/irpfsim.js", import.meta.url), "utf8"), ctx);

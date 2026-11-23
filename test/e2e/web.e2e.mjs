@@ -9,6 +9,7 @@ import { readFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import path from "node:path";
 import net from "node:net";
+import http from "node:http";
 import assert from "node:assert/strict";
 
 const raiz = path.join(path.dirname(fileURLToPath(import.meta.url)), "..", "..");
@@ -108,7 +109,7 @@ try {
     await p.context().close();
   });
 
-  for (const ruta of ["/", "/irpf/", "/irpf/gipuzkoa/", "/irpf/navarra/simulador-renta/", "/guias/calendario-renta/", "/vivienda/", "/vivienda/venta-vivienda/", "/glosario/", "/glosario/base-liquidable/", "/validacion/", "/autonomos/", "/autonomos/canarias/", "/sueldo-mensual/"]) {
+  for (const ruta of ["/", "/irpf/", "/irpf/gipuzkoa/", "/irpf/navarra/simulador-renta/", "/guias/calendario-renta/", "/vivienda/", "/vivienda/venta-vivienda/", "/glosario/", "/glosario/base-liquidable/", "/validacion/", "/autonomos/", "/autonomos/canarias/", "/sueldo-mensual/", "/widget/", "/widget/sueldo-neto.html?t=ES-MD"]) {
     await prueba(`carga sin errores de JS: ${ruta}`, async () => {
       const p = await abrir(ruta);
       await p.waitForTimeout(500);
@@ -139,6 +140,60 @@ try {
     await p.context().close();
   });
 
+  // Widget de sueldo neto incrustado en otra web (otro origen): calcula con el motor de la
+  // portada, manda su altura al padre (solo eso) y muestra la atribución.
+  await prueba("widget incrustado en una página de prueba de otro origen: calcula y manda su altura", async () => {
+    const motor = require(path.join(raiz, "web/js/irpfsim.js"));
+    const P = JSON.parse(readFileSync(path.join(raiz, "web/datos/params.json"), "utf8"));
+    const W = require(path.join(raiz, "web/js/widget.js"));
+    const esperado = motor.sueldoNeto({ bruto: 42000, territorio: "ES-PV-BI", edad: 35, hijos: [], tipoContrato: "indefinido" }, P);
+    // el código para copiar, apuntando al servidor local en vez de a mapafiscal.es
+    const codigo = W.codigoWidget({ territorio: "ES-AN", tema: "oscuro" }).replace(W.SITIO + W.RUTA, base + W.RUTA);
+    const html = `<!doctype html><html lang="es"><head><meta charset="utf-8"><title>Prueba</title></head><body>
+      <h1>Blog de prueba</h1>${codigo}
+      <script>window.mensajes = []; addEventListener("message", e => { window.mensajes.push({ origen: e.origin, datos: e.data });
+        const f = document.querySelector("iframe"); if (e.source === f.contentWindow) f.style.height = e.data.altura + "px"; });</script></body></html>`;
+    // La página anfitriona la sirve otro servidor local (127.0.0.1 y otro puerto: otro origen).
+    // Tiene que ser un servidor de verdad: Chromium bloquea un iframe a localhost desde una
+    // respuesta simulada con route() (comprobaciones de acceso a la red local).
+    const anfitrionSrv = http.createServer((req, res) => res.writeHead(200, { "content-type": "text/html; charset=utf-8" }).end(html));
+    await new Promise(ok => anfitrionSrv.listen(0, "127.0.0.1", ok));
+    const anfitrion = `http://127.0.0.1:${anfitrionSrv.address().port}`;
+    const ctx = await navegador.newContext();
+    await ctx.route(u => !u.href.startsWith(base) && !u.href.startsWith(anfitrion), r => r.abort());
+    const p = await ctx.newPage();
+    const errores = [];
+    p.on("pageerror", e => errores.push(e.message));
+    await p.goto(anfitrion + "/blog.html");
+    const marco = p.frameLocator("iframe");
+    await marco.locator("#w-anual").filter({ hasNotText: "…" }).waitFor({ timeout: 5000 });
+    assert.equal(await marco.locator("#w-territorio").inputValue(), "ES-AN");
+    assert.equal(await marco.locator("html").getAttribute("data-tema"), "oscuro");
+    await marco.locator("#w-bruto").fill("42.000");
+    await marco.locator("#w-territorio").selectOption("ES-PV-BI");
+    await marco.locator('input[name="pagas"][value="14"]').check();
+    const eur0 = n => Math.round(n).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".") + " €";
+    assert.equal(await marco.locator("#w-anual").innerText(), eur0(esperado.neto));
+    assert.equal(await marco.locator("#w-mes").innerText(), eur0(esperado.neto / 14));
+    assert.equal(await marco.locator("#w-irpf").innerText(), eur0(esperado.irpf));
+    assert.equal(await marco.locator("#w-tipo").innerText(), (100 * esperado.irpf / 42000).toFixed(1).replace(".", ",") + " %");
+    assert.ok(await marco.locator("#pie a[href='https://mapafiscal.es/']").isVisible(), "no se ve la atribución del widget");
+    assert.ok(await p.locator("iframe + p a[href='https://mapafiscal.es/']").isVisible(), "no se ve el enlace fuera del iframe");
+    // solo mensajes de altura, desde el origen del widget, y el marco se ajusta a ella
+    const mensajes = await p.evaluate(() => window.mensajes);
+    assert.ok(mensajes.length > 0, "el widget no ha mandado su altura");
+    for (const m of mensajes) {
+      assert.equal(m.origen, base);
+      assert.deepEqual(Object.keys(m.datos).sort(), ["altura", "tipo"]);
+      assert.equal(m.datos.tipo, "mapafiscal:altura");
+    }
+    const alto = await p.locator("iframe").evaluate(f => f.getBoundingClientRect().height);
+    assert.equal(Math.round(alto), mensajes.at(-1).datos.altura);
+    assert.deepEqual(errores, []);
+    await ctx.close();
+    anfitrionSrv.close();
+  });
+
   // El formulario completo se genera dinámicamente: se liquida el caso con el motor
   // cargado en la página (window.irpfsim) y los parámetros que sirve la web.
   await prueba("caso soltero30_ES-MD de tools/casos.json al céntimo (motor en la página)", async () => {
@@ -155,26 +210,108 @@ try {
     await p.context().close();
   });
 
-  for (const ruta of ["/", "/irpf/", "/validacion/", "/sueldo-mensual/", "/#sueldo-mes"]) {
+  for (const ruta of ["/", "/irpf/", "/validacion/", "/sueldo-mensual/", "/#sueldo-mes", "/sueldo-neto/30000/madrid/", "/autonomos/madrid/", "/guias/12-o-14-pagas/", "/irpf/madrid/", "/irpf/bizkaia/", "/irpf/gipuzkoa/"]) {
     await prueba(`móvil 390 px sin desbordamiento horizontal: ${ruta}`, async () => {
       const p = await abrir(ruta, { viewport: { width: 390, height: 844 }, isMobile: true, hasTouch: true });
       await p.waitForTimeout(500);
-      const { sw, cw } = await p.evaluate(() => ({ sw: document.documentElement.scrollWidth, cw: document.documentElement.clientWidth }));
+      // con isMobile, lo que desborda no da scroll: aleja la página entera (innerWidth > 390)
+      const { sw, cw, iw } = await p.evaluate(() => ({ sw: document.documentElement.scrollWidth, cw: document.documentElement.clientWidth, iw: window.innerWidth }));
       assert.ok(sw <= cw, `scrollWidth ${sw} > clientWidth ${cw}`);
+      assert.equal(iw, 390, `la página se ve alejada: ${iw} px de ancho`);
       assert.deepEqual(p.errores, []);
       await p.context().close();
     });
   }
 
+  // Cálculo rápido de las páginas SEO (web/js/calculo-rapido.js): el resultado tiene que ser el
+  // del motor (irpfsim.sueldoNeto) con los parámetros del ejercicio de la página.
+  const cuentaMotor = (p, bruto, territorio) => p.evaluate(async ([bruto, territorio]) => {
+    const ej = Number(document.querySelector("[data-calculo-rapido]").dataset.ejercicio);
+    const P0 = await (await fetch("/datos/params.json")).json();
+    const P = P0.ejercicio === ej ? P0 : await (await fetch(`/datos/params_${ej}.json`)).json();
+    const s = window.irpfsim.sueldoNeto({ bruto, territorio, edad: 40, hijos: [], tipoContrato: "indefinido" }, P);
+    const miles = n => String(Math.abs(Math.round(n))).replace(/\B(?=(\d{3})+(?!\d))/g, ".") + " €";
+    const b = Math.round(bruto), ss = Math.round(s.cotizaciones), neto = Math.round(s.neto);
+    return { neto: miles(neto), mes12: miles(neto / 12), mes14: miles(neto / 14), ss: miles(ss), irpf: miles(b - ss - neto),
+      medio: (100 * s.liquidacion.tipoMedioEfectivo).toFixed(1).replace(".", ",") + " %" };
+  }, [bruto, territorio]);
+  const leerCalculo = p => p.evaluate(() => Object.fromEntries([...document.querySelectorAll("#cr-res [data-cr]")].map(e => [e.dataset.cr, e.textContent.trim()])));
+  for (const [ruta, territorio, inicial, texto, bruto] of [
+    ["/sueldo-neto/30000/madrid/", "ES-MD", "30000", "42.500", 42500],
+    ["/irpf/bizkaia/", "ES-PV-BI", "30000", "55000", 55000]
+  ]) {
+    await prueba(`cálculo rápido de ${ruta}: ${texto} € coincide con irpfsim.sueldoNeto`, async () => {
+      const p = await abrir(ruta, { viewport: { width: 390, height: 844 }, isMobile: true, hasTouch: true });
+      assert.equal(await p.locator("#cr-territorio").inputValue(), territorio);
+      assert.equal(await p.locator("#cr-bruto").inputValue(), inicial);
+      // el motor se carga al acercarse el bloque a la pantalla
+      assert.equal(await p.evaluate(() => document.querySelector("#calculo-rapido").getBoundingClientRect().top > innerHeight + 200 ? !!window.irpfsim : false), false, "el motor se ha cargado antes de tiempo");
+      await p.locator("#calculo-rapido").scrollIntoViewIfNeeded();
+      await p.waitForFunction(() => document.querySelector("#cr-res [data-cr=neto]"), null, { timeout: 5000 });
+      // el bruto prellenado ya da el resultado del motor
+      assert.deepEqual(Object.fromEntries(Object.entries(await leerCalculo(p)).filter(([k]) => k !== "marginal" && k !== "neto-paga")), await cuentaMotor(p, Number(inicial), territorio));
+      await p.locator("#cr-bruto").fill(texto);
+      await p.waitForFunction(t => document.querySelector("#cr-afinar").href.includes("bruto=" + t), bruto);
+      const r = await leerCalculo(p), m = await cuentaMotor(p, bruto, territorio);
+      for (const k of Object.keys(m)) assert.equal(r[k], m[k], k);
+      assert.equal(r["neto-paga"], r.mes14, "con 14 pagas la cifra grande es el neto de cada paga");
+      await p.locator('label:has(input[name="cr-pagas"][value="12"])').click();
+      await p.waitForFunction(() => document.querySelector("[data-cr=neto-paga]").textContent === document.querySelector("[data-cr=mes12]").textContent);
+      assert.match(await p.locator("#cr-res .cr-frase").innerText(), /pagarías .*€ (menos|más)/);
+      assert.match(await p.locator("#cr-res .cr-frase").innerText(), /Puesto \d+ de 19/);
+      const href = await p.locator("#cr-afinar").getAttribute("href");
+      assert.match(href, new RegExp(`^/index\\.html#calculadora\\?t=${territorio}&bruto=${bruto}&ejercicio=20\\d\\d$`));
+      // a 390 px el bloque cabe entero (el resto de la página se comprueba aparte)
+      const { der, cw } = await p.evaluate(() => ({ der: Math.max(...[...document.querySelectorAll("#calculo-rapido, #calculo-rapido *")].map(e => e.getBoundingClientRect().right)), cw: document.documentElement.clientWidth }));
+      assert.ok(der <= cw, `el cálculo rápido llega a ${der} px (ancho ${cw})`);
+      assert.deepEqual(p.errores, []);
+      // «Afinar con tu familia y deducciones»: la calculadora se abre con el territorio y el bruto
+      await p.locator("#cr-afinar").click();
+      await p.waitForFunction(() => window.MapafiscalApp && document.querySelector("#v-calculadora") && !document.querySelector("#v-calculadora").hidden, null, { timeout: 5000 });
+      await p.waitForTimeout(300);
+      assert.equal(await p.locator("#f-territorio").inputValue(), territorio);
+      assert.equal(await p.evaluate(() => window.MapafiscalApp.formulario().estado.personas.d1.salario), bruto);
+      await p.context().close();
+    });
+  }
+  // El botón (o el gesto) «atrás» del navegador respeta las vistas y cierra el panel «Todo».
+  await prueba("atrás: vuelve a la vista anterior y cierra el panel «Todo» sin salir de la web", async () => {
+    const p = await abrir("/", { viewport: { width: 390, height: 844 }, isMobile: true, hasTouch: true });
+    await p.waitForFunction(() => window.MapafiscalApp);
+    const vista = () => p.evaluate(() => [...document.querySelectorAll("main section.vista")].find(s => !s.hidden).id);
+    await p.locator("#v-inicio a[href='#calculadora']").first().click();
+    assert.equal(await vista(), "v-calculadora");
+    await p.locator(".nav a[data-vista=comparar]").click();
+    assert.equal(await vista(), "v-comparar");
+    await p.goBack(); await p.waitForTimeout(200);
+    assert.equal(await vista(), "v-calculadora");
+    await p.goBack(); await p.waitForTimeout(200);
+    assert.equal(await vista(), "v-inicio");
+    assert.equal(new URL(p.url()).origin, base);
+    await p.locator("#btn-todo").click();
+    assert.ok(await p.evaluate(() => document.getElementById("panel-todo").open));
+    await p.goBack(); await p.waitForTimeout(200);
+    assert.ok(!(await p.evaluate(() => document.getElementById("panel-todo").open)), "el panel sigue abierto");
+    assert.equal(new URL(p.url()).origin, base);
+    assert.equal(await vista(), "v-inicio");
+    assert.deepEqual(p.errores, []);
+    await p.context().close();
+  });
+
   // Accesibilidad con axe-core (devDependency): fallan las infracciones «serious» y
   // «critical» de las páginas revisadas, en modo claro y oscuro.
   const axe = readFileSync(require.resolve("axe-core/axe.min.js"), "utf8");
-  const rutasAxe = ["/#calculadora", "/#comparar", "/#planes", "/#sueldo-mes", "/sueldo-mensual/", "/irpf/madrid/", "/irpf/bizkaia/", "/irpf/gipuzkoa/simulador-renta/", "/guias/calendario-renta/", "/vivienda/", "/vivienda/segunda-vivienda/", "/glosario/", "/glosario/base-liquidable/", "/validacion/", "/autonomos/", "/autonomos/canarias/"];
+  const rutasAxe = ["/#calculadora", "/#comparar", "/#planes", "/#sueldo-mes", "/sueldo-mensual/", "/irpf/madrid/", "/irpf/bizkaia/", "/sueldo-neto/30000/madrid/", "/irpf/gipuzkoa/simulador-renta/", "/guias/calendario-renta/", "/vivienda/", "/vivienda/segunda-vivienda/", "/glosario/", "/glosario/base-liquidable/", "/validacion/", "/autonomos/", "/autonomos/canarias/", "/guias/12-o-14-pagas/", "/widget/", "/widget/sueldo-neto.html?t=ES-CT&ancho=compacto"];
   for (const colorScheme of ["light", "dark"]) {
     for (const ruta of rutasAxe) {
       await prueba(`axe sin infracciones serious/critical (${colorScheme}): ${ruta}`, async () => {
         const p = await abrir(ruta, { colorScheme });
         await p.waitForTimeout(500);
+        // con el cálculo rápido ya pintado (se carga al acercarse a la pantalla)
+        if (await p.locator("#calculo-rapido").count()) {
+          await p.locator("#calculo-rapido").scrollIntoViewIfNeeded();
+          await p.waitForFunction(() => document.querySelector("#cr-res [data-cr=neto]"), null, { timeout: 5000 });
+        }
         await p.addScriptTag({ content: axe });
         const graves = await p.evaluate(async () => (await window.axe.run(document, { resultTypes: ["violations"] })).violations
           .filter(v => v.impact === "serious" || v.impact === "critical")

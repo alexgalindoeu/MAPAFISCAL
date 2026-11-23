@@ -70,7 +70,7 @@ test("la vista #bruto-necesario se pinta y está registrada", async () => {
     addEventListener() {}, dispatchEvent() {} };
   const ctx = { document, location: { hash: "#bruto-necesario?t=ES-AN" }, console, setTimeout, clearTimeout, Date,
     CustomEvent: class { constructor(t) { this.type = t; } }, addEventListener() {},
-    fetch: async url => ({ ok: true, json: async () => JSON.parse(readFileSync(new URL("../web/" + url, import.meta.url), "utf8")) }) };
+    fetch: async url => ({ ok: true, text: async () => readFileSync(new URL("../web/" + url, import.meta.url), "utf8") }) };
   ctx.window = ctx;
   vm.createContext(ctx);
   vm.runInContext(readFileSync(new URL("../web/js/irpfsim.js", import.meta.url), "utf8"), ctx);

@@ -147,9 +147,14 @@
   async function datos(idScript, url) {
     const el = document.getElementById(idScript);
     if (el) return JSON.parse(el.textContent);
-    const r = await fetch(url, { cache: "no-cache" });
-    if (!r.ok) throw new Error("No se pudo cargar " + url);
-    return r.json();
+    // una sola descarga por fichero para toda la página (la caché la comparten app.js,
+    // herramientas.js y las demás herramientas); se guarda el texto, no el objeto
+    const cache = window.__mapafiscalJson = window.__mapafiscalJson || {};
+    if (!cache[url]) cache[url] = fetch(url, { cache: "no-cache" }).then(r => {
+      if (!r.ok) throw new Error("No se pudo cargar " + url);
+      return r.text();
+    }).catch(e => { delete cache[url]; throw e; });
+    return JSON.parse(await cache[url]);
   }
   async function cargarDatos() {
     const P0 = await datos("datos-params", "datos/params.json");
@@ -167,7 +172,7 @@
       const n = parseInt($(selId).value, 10) || 0;
       while (edades.length < n) edades.push(edades.length ? Math.min(25, edades[edades.length - 1] + 3) : 4);
       edades = edades.slice(0, n);
-      $(contId).innerHTML = edades.map((e, i) => `<label>Edad del hijo ${i + 1} <input type="number" min="0" max="30" step="1" value="${e}" data-edad="${i}"></label>`).join("");
+      $(contId).innerHTML = edades.map((e, i) => `<label>Edad del hijo ${i + 1} <input type="number" min="0" max="30" step="1" value="${e}" data-edad="${i}" inputmode="numeric"></label>`).join("");
       $(contId).hidden = n === 0;
     };
     $(contId).addEventListener("input", e => { const i = e.target.dataset.edad; if (i != null) edades[+i] = Math.max(0, Math.min(30, parseInt(e.target.value, 10) || 0)); });

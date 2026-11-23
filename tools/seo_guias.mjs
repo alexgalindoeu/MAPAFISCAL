@@ -8,7 +8,7 @@
 import {
   SLUG, ORDEN_TERRITORIOS, NOMBRE_CORTO, HERRAMIENTA, LIRPF_BOE, esc, euros, eurosExactos as eur, pct, pctCorto,
   fecha, urlBoe, tablaEscala, combinarEscalas, citaFuente, layout, jsonLdMigas, jsonLdArticulo,
-  jsonLdFaq, jsonLdDataset, bloqueFaq, migasHtml, respuestaDirecta, difEuros, tituloQueQuepa
+  jsonLdFaq, jsonLdDataset, bloqueFaq, migasHtml, respuestaDirecta, difEuros, tituloQueQuepa, bloqueCalculoRapido
 } from "./seo_comun.mjs";
 import { readFileSync } from "node:fs";
 import { createRequire } from "node:module";
@@ -57,6 +57,7 @@ function pagina(g, { slug, titulo, h1, description, cuerpo, faq, generado, resum
   const main = `
   <h1>${esc(h1)}</h1>
   ${resumen ? respuestaDirecta(resumen) : ""}
+  ${bloqueCalculoRapido()}
   <div class="prosa">
   ${cuerpo}
   ${faq.length ? bloqueFaq(faq) : ""}

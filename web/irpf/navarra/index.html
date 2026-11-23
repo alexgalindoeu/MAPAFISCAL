@@ -67,7 +67,8 @@
   <p class="migas"><a href="/index.html">Inicio</a> › <a href="/irpf/">IRPF por territorio</a> › Comunidad Foral de Navarra</p>
   
   <h1>IRPF en Navarra 2025 y 2026: tablas, renta y tipo marginal</h1>
-  <p class="actualizado">Actualizado el <time datetime="2026-11-22">22 de noviembre de 2026</time></p>
+  <p class="actualizado">Actualizado el <time datetime="2026-11-23">23 de noviembre de 2026</time></p>
+  <p class="respuesta-directa"><b>En resumen:</b> en Comunidad Foral de Navarra el IRPF de 2025 va del <b>13 %</b> al <b>52 %</b>, con su tarifa foral; el tipo máximo se aplica desde 334.344 € de <a href="/glosario/base-liquidable/">base liquidable</a>. Con 30.000 € brutos al año, una persona sin hijos paga <b>4.584 €</b> de IRPF (<a href="/glosario/tipo-medio/">tipo medio</a> del 16,3 %), el puesto 4 de 19.</p>
   <div class="prosa"><nav class="tarjeta indice" aria-label="Contenido"><h2 class="rotulo">En esta página</h2><ul class="lista-enlaces"><li><a href="#tabla-2025">Tabla IRPF Comunidad Foral de Navarra 2025</a></li><li><a href="#tabla-2026">Tabla IRPF Comunidad Foral de Navarra 2026</a></li><li><a href="#renta">La renta en Navarra</a></li><li><a href="#tipos-por-sueldo">Tipo marginal y medio por sueldo</a></li><li><a href="#tabla-ahorro">Escala del ahorro</a></li><li><a href="#ejemplo-30000">Ejemplo con 30.000 €</a></li><li><a href="#preguntas">Preguntas frecuentes</a></li></ul></nav><div class="tarjeta" id="tabla-2025">
     <h2 class="rotulo">Tabla de tramos del IRPF en Comunidad Foral de Navarra 2025</h2>
     
@@ -80,7 +81,18 @@
     <table class="cobertura"><thead><tr><th>Tramo de la base liquidable general</th><th class="num">Tipo marginal</th></tr></thead><tbody><tr><td>Hasta 4.458 €</td><td class="num">13,0 %</td></tr><tr><td>De 4.458 € a 10.030 €</td><td class="num">22,0 %</td></tr><tr><td>De 10.030 € a 21.175 €</td><td class="num">25,0 %</td></tr><tr><td>De 21.175 € a 35.663 €</td><td class="num">28,0 %</td></tr><tr><td>De 35.663 € a 51.266 €</td><td class="num">36,5 %</td></tr><tr><td>De 51.266 € a 66.869 €</td><td class="num">41,5 %</td></tr><tr><td>De 66.869 € a 89.159 €</td><td class="num">44,0 %</td></tr><tr><td>De 89.159 € a 139.310 €</td><td class="num">47,0 %</td></tr><tr><td>De 139.310 € a 195.034 €</td><td class="num">49,0 %</td></tr><tr><td>De 195.034 € a 334.344 €</td><td class="num">50,5 %</td></tr><tr><td>Desde 334.344 €</td><td class="num">52,0 %</td></tr></tbody></table>
     <p class="ayuda">Norma: Art. 59.1 TR IRPF Navarra (DFL 4/2008), redacción LF 22/2023. Fuente: BON; guiafiscal.es/irpf/navarra (tabla literal); Iberley Escala IRPF Navarra.</p>
   </div></div>
-  <p class="respuesta-directa"><b>En resumen:</b> en Comunidad Foral de Navarra el IRPF de 2025 va del <b>13 %</b> al <b>52 %</b>, con su tarifa foral; el tipo máximo se aplica desde 334.344 € de <a href="/glosario/base-liquidable/">base liquidable</a>. Con 30.000 € brutos al año, una persona sin hijos paga <b>4.584 €</b> de IRPF (<a href="/glosario/tipo-medio/">tipo medio</a> del 16,3 %), el puesto 4 de 19.</p>
+  
+  <section class="calc-rapido" id="calculo-rapido" aria-labelledby="cr-titulo" data-calculo-rapido data-territorio="ES-NC" data-ejercicio="2025">
+    <h2 class="rotulo" id="cr-titulo">Calcula tu sueldo neto y tu IRPF en Comunidad Foral de Navarra</h2>
+    <form class="cr-form" autocomplete="off" novalidate aria-label="Cálculo rápido del sueldo neto">
+      <div class="campo cr-bruto"><label for="cr-bruto">Sueldo bruto anual</label><div class="con-sufijo"><input type="text" id="cr-bruto" data-importe data-max="10000000" inputmode="decimal" value="30000"><span>€</span></div></div>
+      <div class="campo cr-terr"><label for="cr-territorio">Dónde vives</label><select id="cr-territorio"><option value="ES-AN">Andalucía</option><option value="ES-AR">Aragón</option><option value="ES-AS">Asturias</option><option value="ES-IB">Baleares</option><option value="ES-CN">Canarias</option><option value="ES-CB">Cantabria</option><option value="ES-CM">Castilla-La Mancha</option><option value="ES-CL">Castilla y León</option><option value="ES-CT">Cataluña</option><option value="ES-EX">Extremadura</option><option value="ES-GA">Galicia</option><option value="ES-MD">Madrid</option><option value="ES-MC">Murcia</option><option value="ES-RI">La Rioja</option><option value="ES-VC">Comunidad Valenciana</option><option value="ES-PV-BI">Bizkaia</option><option value="ES-PV-SS">Gipuzkoa</option><option value="ES-PV-VI">Álava</option><option value="ES-NC" selected>Navarra</option></select></div>
+      <fieldset class="cr-pagas"><legend>Pagas al año</legend><label><input type="radio" name="cr-pagas" value="12"> 12</label><label><input type="radio" name="cr-pagas" value="14" checked> 14</label></fieldset>
+    </form>
+    <div class="cr-res" id="cr-res" aria-live="polite"><p class="cr-espera">Escribe tu sueldo bruto: el neto, la Seguridad Social y el IRPF salen al momento.</p></div>
+    <p class="cr-afinar"><a id="cr-afinar" href="/index.html#calculadora?t=ES-NC&amp;bruto=30000&amp;ejercicio=2025">Afinar con tu familia y deducciones <span aria-hidden="true">→</span></a></p>
+    <p class="ayuda cr-supuesto">Estimación del ejercicio 2025 para una persona de 40 años, sin hijos y con contrato indefinido: sueldo neto tras la declaración de la renta, con las cotizaciones del ejercicio. Tipo medio: IRPF entre la base imponible; tipo marginal: el del último euro. El cálculo se hace en tu navegador.</p>
+  </section>
   <p class="entradilla">Comunidad Foral de Navarra tributa por el convenio económico de Navarra: no aplica la escala estatal del IRPF, sino su propia tarifa foral completa.</p>
   <div class="prosa">
   
@@ -159,8 +171,8 @@
   <div class="contenedor pie-in">
     <p><b>Mapafiscal</b> ofrece estimaciones con fines informativos. No es una liquidación oficial ni asesoramiento fiscal.</p>
     <p class="pie-redes"><span class="pie-redes-txt">Síguenos</span><a class="red red-x" href="https://x.com/mapafiscal" rel="me noopener" target="_blank" aria-label="Mapafiscal en X (se abre en otra pestaña)" title="Mapafiscal en X"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path class="relleno" d="M18.9 1.15h3.68l-8.04 9.19L24 22.85h-7.4l-5.8-7.59-6.64 7.59H.47l8.6-9.83L0 1.15h7.59l5.24 6.93zm-1.29 19.5h2.04L6.49 3.24H4.3z"/></svg></a></p>
-    <p class="pie-sec"><a href="/irpf/">IRPF por territorio</a> · <a href="/guias/">Guías del IRPF</a> · <a href="/vivienda/">Vivienda</a> · <a href="/autonomos/">IRPF de autónomos</a> · <a href="/glosario/">Glosario</a> · <a href="/comparar-sueldo/">Dónde se paga menos IRPF</a> · <a href="/sueldo-neto/">Sueldo neto</a> · <a href="/metodologia/">Metodología</a> · <a href="/validacion/">Cómo comprobamos los cálculos</a></p>
-    <p class="pie-sec pie-fechas">Normativa revisada el <time datetime="2026-11-23">23 de noviembre de 2026</time> · Contenido actualizado el <time datetime="2026-11-22">22 de noviembre de 2026</time> · Ejercicio 2025 (renta que se declara en 2026)</p>
+    <p class="pie-sec"><a href="/irpf/">IRPF por territorio</a> · <a href="/guias/">Guías del IRPF</a> · <a href="/vivienda/">Vivienda</a> · <a href="/autonomos/">IRPF de autónomos</a> · <a href="/glosario/">Glosario</a> · <a href="/comparar-sueldo/">Dónde se paga menos IRPF</a> · <a href="/sueldo-neto/">Sueldo neto</a> · <a href="/metodologia/">Metodología</a> · <a href="/validacion/">Cómo comprobamos los cálculos</a> · <a href="/widget/">Widget para tu web</a></p>
+    <p class="pie-sec pie-fechas">Normativa revisada el <time datetime="2026-11-23">23 de noviembre de 2026</time> · Contenido actualizado el <time datetime="2026-11-23">23 de noviembre de 2026</time> · Ejercicio 2025 (renta que se declara en 2026)</p>
     <p class="pie-sec"><a href="/legal/aviso-legal.html">Aviso legal</a> · <a href="/legal/privacidad.html">Privacidad</a> · <a href="/legal/condiciones.html">Condiciones</a> · <a href="/legal/cookies.html">Cookies</a> · <a href="/legal/aviso-legal.html#contacto">Contacto</a></p>
   </div>
 </footer>
@@ -168,5 +180,6 @@
 <script src="/config.js" defer></script>
 <script src="/js/analitica.js" defer></script>
 <script src="/js/anuncios.js" defer></script>
+<script src="/js/calculo-rapido.js" defer></script>
 </body>
 </html>

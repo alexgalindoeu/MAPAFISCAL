@@ -194,6 +194,11 @@
     return t && T[t] ? t : null;
   };
   if (territorioDeHash()) selTerr.value = territorioDeHash();
+  // …&bruto=30000 (cálculo rápido de las páginas SEO, web/js/calculo-rapido.js): el sueldo bruto anual
+  const brutoDeHash = () => {
+    const m = location.hash.match(/^#calculadora\?(?:[^#]*&)?bruto=(\d{1,8}(?:\.\d{1,2})?)(?:&|$)/);
+    return m ? Math.min(1e7, Number(m[1])) : null;
+  };
 
   // ---- formulario (web/js/formulario.js): estado, plantillas y validaciones ------------------
   const FORM = window.formularioIrpf;
@@ -638,7 +643,26 @@
   };
   tooltipMapa($("mapa"), $("mapa-tip"), t => ultima && cmpCache[t] ? textoTip(t, cmpCache[t], cmpCache[selTerr.value].cuotaResultanteAutoliquidacion, selTerr.value) : null);
   const elegirTerritorio = t => { if (!t || !T[t]) return; selTerr.value = t; pintarHijos(); pintarGastosTerritorio(); recalcular(); irA("calculadora"); };
-  $("mapa").addEventListener("click", e => { const p = e.target.closest(".terr"); if (p) elegirTerritorio(p.dataset.t); });
+  // Con el dedo no hay «pasar por encima»: el primer toque en un territorio enseña su cifra (y
+  // lo marca en el ranking) y el segundo, en el mismo, calcula con esa residencia.
+  let punteroMapa = "mouse", armadoMapa = null;
+  $("mapa").addEventListener("pointerdown", e => { punteroMapa = e.pointerType; });
+  $("mapa").addEventListener("click", e => {
+    const p = e.target.closest(".terr");
+    if (!p) { armadoMapa = null; $("mapa-tip").hidden = true; enfocar(null); return; }
+    const t = p.dataset.t;
+    if (punteroMapa === "touch" && armadoMapa !== t && ultima && cmpCache[t]) {
+      armadoMapa = t; enfocar(t);
+      const tip = $("mapa-tip"), r = $("mapa").parentElement.getBoundingClientRect();
+      tip.innerHTML = textoTip(t, cmpCache[t], cmpCache[selTerr.value].cuotaResultanteAutoliquidacion, selTerr.value) + '<span class="mapa-tip-pista">Toca otra vez para calcular con esta residencia</span>';
+      tip.hidden = false;
+      tip.style.left = Math.max(0, Math.min(e.clientX - r.left - 95, r.width - 200)) + "px";
+      tip.style.top = Math.max(0, e.clientY - r.top + 18) + "px";
+      return;
+    }
+    armadoMapa = null; $("mapa-tip").hidden = true;
+    elegirTerritorio(t);
+  });
   $("mapa").addEventListener("keydown", e => { if ((e.key === "Enter" || e.key === " ") && e.target.dataset.t) { e.preventDefault(); elegirTerritorio(e.target.dataset.t); } });
   $("ranking").addEventListener("click", e => { const tr = e.target.closest("tr[data-t]"); if (tr) elegirTerritorio(tr.dataset.t); });
   // pasar por una fila resalta su territorio en el mapa, y al revés
@@ -1709,20 +1733,35 @@
     return VISTAS.includes(h) ? h : null;
   }
   function vistaActual() { return vistaSel || vistaDeHash() || "inicio"; }
+  // Historial: cada cambio de vista es una entrada, para que el botón (o el gesto) «atrás» del
+  // navegador vuelva a la vista anterior en vez de salir de la web. Cada entrada recuerda por
+  // dónde iba la página (state.y) y al volver se recupera.
+  let vistaMostrada = null;
+  try { if ("scrollRestoration" in history) history.scrollRestoration = "manual"; } catch (e) { /* sin historial */ }
+  const guardarScroll = () => { try { history.replaceState(Object.assign({}, history.state, { y: Math.round(window.scrollY) }), ""); } catch (e) { /* vista previa */ } };
   function irA(v) {
     vistaSel = v;
-    try { history.replaceState(null, "", "#" + v); } catch (e) { /* entorno sin historial (vista previa) */ }
+    try {
+      if (vistaMostrada && vistaMostrada !== v) { guardarScroll(); history.pushState(null, "", "#" + v); }
+      else history.replaceState(history.state, "", "#" + v);
+    } catch (e) { /* entorno sin historial (vista previa) */ }
     mostrarVista({ moverFoco: true });
   }
-  // enlaces internos (#vista): cambian de vista sin navegar
+  // enlaces internos (#vista): cambian de vista sin recargar. Los que llevan parámetros
+  // (#sueldo-neto?subida, #calculadora?t=…) navegan de verdad: el hash nuevo crea su entrada
+  // en el historial y «hashchange» muestra la vista (y cada herramienta lee sus parámetros).
   document.addEventListener("click", e => {
+    if (e.defaultPrevented || e.button > 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
     const a = e.target.closest('a[href^="#"]');
     if (!a) return;
-    const v = a.getAttribute("href").slice(1).split("?")[0];
-    if (VISTAS.includes(v)) { e.preventDefault(); irA(v); }
+    const href = a.getAttribute("href"), v = href.slice(1).split("?")[0];
+    if (!VISTAS.includes(v)) return;
+    if (href.includes("?") && href !== location.hash) { guardarScroll(); return; }
+    e.preventDefault(); irA(v);
   });
   function mostrarVista({ moverFoco = false } = {}) {
     const v = vistaActual();
+    vistaMostrada = v;
     document.title = tituloVista(v);
     for (const x of VISTAS) $("v-" + x).hidden = x !== v;
     $("barra-movil").hidden = v !== "calculadora";
@@ -1744,10 +1783,24 @@
     }
     document.dispatchEvent(new CustomEvent("mapafiscal:vista", { detail: { vista: v } }));
   }
-  window.addEventListener("hashchange", () => {
+  // Vista que pide la dirección: la del hash o, al volver por el historial a la dirección sin
+  // hash, la portada (un hash que no es una vista, como el de la vuelta del acceso, no cambia nada).
+  function seguirUrl({ desdeHistorial = false } = {}) {
     const t = territorioDeHash();
-    if (t && t !== selTerr.value) { selTerr.value = t; pintarGastosTerritorio(); recalcular(); }
-    const v = vistaDeHash(); if (v) { vistaSel = v; mostrarVista({ moverFoco: true }); }
+    const bruto = brutoDeHash();
+    if (bruto != null) formulario.estado.personas.d1.salario = bruto;
+    if ((t && t !== selTerr.value) || bruto != null) { if (t) selTerr.value = t; pintarGastosTerritorio(); recalcular(); }
+    const v = vistaDeHash() || (desdeHistorial && location.hash.length <= 1 ? "inicio" : null);
+    if (!v || (desdeHistorial && v === vistaMostrada)) return;   // p. ej. al cerrar el panel «Todo» con «atrás»
+    vistaSel = v; mostrarVista({ moverFoco: true });
+    if (desdeHistorial) { const y = history.state && history.state.y; if (y) window.scrollTo(0, y); }
+  }
+  // «atrás» y «adelante» dan popstate y, si cambia el hash, también hashchange: se atiende una vez
+  let ultimaPop = { url: null, t: 0 };
+  window.addEventListener("popstate", () => { ultimaPop = { url: location.href, t: Date.now() }; seguirUrl({ desdeHistorial: true }); });
+  window.addEventListener("hashchange", () => {
+    if (ultimaPop.url === location.href && Date.now() - ultimaPop.t < 1000) return;
+    seguirUrl();
   });
 
   // menú compacto de la barra superior (por debajo de ~1180 px la navegación se pliega en un
@@ -1764,6 +1817,43 @@
     if (e.key === "Escape" && $("appbar").classList.contains("abierta")) { menu(false); $("btn-menu").focus(); }
   });
   $("bm-ver").addEventListener("click", e => { e.preventDefault(); $("t-res").scrollIntoView({ behavior: movimientoReducido() ? "auto" : "smooth", block: "start" }); });
+
+  // ---- móvil: teclado, barra del resultado y «Ver el resultado» ----------------------------
+  // Con un campo enfocado (teclado abierto) se ocultan las barras fijas de abajo, que si no
+  // quedan encima del teclado tapando lo que se escribe (CSS: body.escribiendo).
+  const esCampo = el => !!(el && el.matches && el.matches('input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="button"]):not([type="submit"]), select, textarea'));
+  document.addEventListener("focusin", e => { if (esCampo(e.target)) document.body.classList.add("escribiendo"); });
+  document.addEventListener("focusout", () => setTimeout(() => { if (!esCampo(document.activeElement)) document.body.classList.remove("escribiendo"); }, 0));
+  const dedo = () => window.matchMedia && window.matchMedia("(pointer: coarse), (max-width: 760px)").matches;
+  const resultadoDe = v => v === "calculadora" ? $("t-res") : document.querySelector(`#v-${v} .calc > .resultado`);
+  const irAlResultado = v => { const r = resultadoDe(v); if (r) r.scrollIntoView({ behavior: movimientoReducido() ? "auto" : "smooth", block: "start" }); };
+  // Intro («Ir» del teclado del móvil) en un campo: cierra el teclado y lleva al resultado, que en
+  // el móvil queda debajo del formulario.
+  document.addEventListener("keydown", e => {
+    if (e.key !== "Enter" || e.isComposing || !dedo() || !e.target.matches || !e.target.matches("main .calc input:not([type='checkbox']):not([type='radio'])")) return;
+    e.preventDefault(); e.target.blur(); irAlResultado(vistaActual());
+  });
+  // Calculadora: la barra fija del resultado sobra mientras se ve la cifra grande.
+  if ("IntersectionObserver" in window) {
+    new IntersectionObserver(([en]) => document.body.classList.toggle("resultado-a-la-vista", en.isIntersecting))
+      .observe($("res-principal"));
+  }
+  // Herramientas: botón flotante «Ver el resultado» mientras el resultado queda más abajo.
+  const btnIrRes = document.createElement("button");
+  btnIrRes.type = "button"; btnIrRes.className = "btn btn-pri ir-resultado"; btnIrRes.hidden = true;
+  btnIrRes.innerHTML = 'Ver el resultado <span aria-hidden="true">↓</span>';
+  btnIrRes.addEventListener("click", () => irAlResultado(vistaActual()));
+  document.body.appendChild(btnIrRes);
+  let obsRes = null;
+  document.addEventListener("mapafiscal:vista", e => {
+    const v = e.detail && e.detail.vista;
+    if (obsRes) { obsRes.disconnect(); obsRes = null; }
+    btnIrRes.hidden = true;
+    const r = v !== "calculadora" && resultadoDe(v);
+    if (!r || !("IntersectionObserver" in window)) return;
+    obsRes = new IntersectionObserver(([en]) => { btnIrRes.hidden = en.isIntersecting || en.boundingClientRect.top < 0; });
+    obsRes.observe(r);
+  });
 
   // Lo justo para js/informe.js (informe completo en PDF): último cálculo, sesión y acceso.
   window.MapafiscalApp = {
@@ -1783,7 +1873,14 @@
   document.querySelectorAll("[data-ejercicios]").forEach(el => { el.textContent = textoEjercicios(); });
   pintarSelectoresEjercicio(false);
   pintarRotulosEjercicio();
+  if (brutoDeHash() != null) formulario.estado.personas.d1.salario = brutoDeHash();
   pintarHijos(); pintarGastosTerritorio(); recalcular(); marcarPestanaClientes(); mostrarVista({ moverFoco: Boolean(vistaDeHash()) });
+  // volver con «atrás» desde otra página: a la misma altura que se dejó
+  window.addEventListener("pagehide", guardarScroll);
+  try {
+    const nav0 = performance.getEntriesByType("navigation")[0];
+    if (nav0 && nav0.type === "back_forward" && history.state && history.state.y) window.scrollTo(0, history.state.y);
+  } catch (e) { /* sin Navigation Timing */ }
   // «Comunicar un error» de la calculadora: el hogar entero, no solo los campos visibles
   if (MCF && MCF.registrar) MCF.registrar("tarjeta-resultado", () => {
     const u = ultima, l = u && u.liq;

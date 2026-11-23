@@ -123,3 +123,51 @@ body.pagina-seo { background: var(--superficie); color: var(--tinta); font: 16px
 /* Listas de enlaces dentro de la prosa: alineadas con el texto (guias.css sangra las <ul> normales). */
 .pagina-seo .prosa :is(.lista-enlaces, .lista-guias) { padding-left: 0; margin: 0; }
 .pagina-seo .prosa :is(.lista-enlaces, .lista-guias) li { margin: 0; }
+
+/* Cálculo rápido (tools/seo_comun.mjs → bloqueCalculoRapido, web/js/calculo-rapido.js): una franja
+   entre filetes, sin caja ni sombra; los campos arriba y la cifra grande debajo. */
+.pagina-seo-main > .calc-rapido { margin-top: 30px; margin-bottom: 8px; padding: 18px 0 16px; border-top: 2px solid var(--tinta); border-bottom: 1px solid var(--linea-2);
+  scroll-margin-top: 120px; }
+.calc-rapido .rotulo { margin-bottom: 12px; }
+.calc-rapido .cr-form { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.1fr) auto; gap: 12px 16px; align-items: end; margin: 0; }
+.calc-rapido .campo { margin: 0; }
+.calc-rapido #cr-bruto { font-family: var(--display); font-stretch: 108%; font-weight: 700; font-size: 18px; }
+.calc-rapido .cr-pagas { border: 0; margin: 0; padding: 0; min-width: 0; display: flex; gap: 0; }
+.calc-rapido .cr-pagas legend { font-size: 13px; font-weight: 600; color: var(--tinta-2); padding: 0; margin-bottom: 6px; }
+.calc-rapido .cr-pagas label { display: inline-flex; align-items: center; gap: 6px; min-height: 42px; padding: 0 14px; border: 1px solid var(--linea-2);
+  font-weight: 600; color: var(--tinta); cursor: pointer; }
+.calc-rapido .cr-pagas label + label { border-left: 0; }
+.calc-rapido .cr-pagas label:first-of-type { border-radius: 8px 0 0 8px; }
+.calc-rapido .cr-pagas label:last-of-type { border-radius: 0 8px 8px 0; }
+.calc-rapido .cr-pagas label:has(input:checked) { background: var(--marca-suave); border-color: var(--marca); }
+.calc-rapido .cr-pagas input { accent-color: var(--marca); margin: 0; }
+.calc-rapido .cr-res { margin-top: 16px; min-height: 4.5em; }
+.calc-rapido .cr-espera, .calc-rapido .cr-aviso { color: var(--tinta-2); margin: 0; font-size: 15px; }
+.calc-rapido .cr-cifra { display: flex; align-items: baseline; flex-wrap: wrap; gap: 2px 12px; margin: 0; max-width: none; }
+.calc-rapido .cr-xl { font-family: var(--display); font-stretch: 110%; font-weight: 800; letter-spacing: -.035em; line-height: 1;
+  font-size: clamp(34px, 5vw, 46px); color: var(--tinta); font-variant-numeric: tabular-nums; }
+.calc-rapido .cr-etq { font-size: 14px; color: var(--tinta-2); }
+.calc-rapido .cr-datos { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 0 24px; margin: 14px 0 0; }
+.calc-rapido .cr-datos div { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; padding: 7px 0; border-bottom: 1px solid var(--linea); }
+.calc-rapido .cr-datos dt { font-size: 13px; color: var(--tinta-2); }
+.calc-rapido .cr-datos dd { margin: 0; font-weight: 700; font-variant-numeric: tabular-nums; color: var(--tinta); white-space: nowrap; }
+.calc-rapido .cr-frase { margin: 12px 0 0; font-size: 15px; color: var(--tinta-2); max-width: 40em; }
+.calc-rapido .cr-frase b { color: var(--tinta); }
+.calc-rapido .cr-afinar { margin: 12px 0 0; font-weight: 700; }
+.calc-rapido .cr-afinar a { color: var(--marca-tinta); text-underline-offset: 3px; }
+.calc-rapido .cr-supuesto { margin-top: 8px; font-size: 12.5px; color: var(--tinta-3); max-width: 72ch; }
+@media (max-width: 640px) {
+  .calc-rapido .cr-form { grid-template-columns: minmax(0, 1fr) auto; }
+  .calc-rapido .cr-terr { grid-column: 1 / -1; grid-row: 2; }
+  .calc-rapido .cr-datos { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0 16px; }
+  .calc-rapido .cr-datos div { flex-direction: column; align-items: flex-start; gap: 1px; padding: 6px 0; }
+}
+/* Widget de sueldo neto (/widget/): configurador, vista previa y código para copiar. */
+.widget-config { display: flex; flex-wrap: wrap; gap: 4px 20px; align-items: flex-end; margin-bottom: 12px; }
+.widget-config .campo { margin-bottom: 8px; }
+.widget-config select { min-width: 220px; }
+.widget-previa-marco { background: var(--superficie-2); border: 1px dashed var(--linea-2); border-radius: var(--radio); padding: 16px; }
+.widget-previa-marco iframe { background: transparent; }
+.widget-atribucion { font-size: 13px; margin: 4px 0 0; }
+.widget-codigo { font-family: var(--mono); font-size: 13px; line-height: 1.5; width: 100%; white-space: pre-wrap; word-break: break-all; }
+pre.widget-codigo { background: var(--superficie-2); border: 1px solid var(--linea); border-radius: 8px; padding: 10px 12px; overflow-x: auto; }
