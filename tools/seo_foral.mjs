@@ -154,7 +154,7 @@ function pSimulador(P, t, generado) {
   const cuerpo = `
   ${botones}
   <div class="tarjeta"><h2 class="rotulo">Cómo se calcula la renta en ${esc(n)}</h2><p>${rasgoForal(P, t)}</p>
-    <p>La declaración se presenta ante ${esc(HACIENDA[t])}, de ${esc(INSTITUCION[t])}, con calendario y programa propios. Aquí puedes simularla antes: el resultado sale de la misma normativa (${esc(NORMA[t])}). <a href="${ruta(t)}#renta">Más sobre la renta en ${esc(c)}</a>.</p></div>
+    <p>La declaración se presenta ante ${esc(HACIENDA[t])}, ${esc(("de " + INSTITUCION[t]).replace(/^de el /, "del "))}, con calendario y programa propios. Aquí puedes simularla antes: el resultado sale de la misma normativa (${esc(NORMA[t])}). <a href="${ruta(t)}#renta">Más sobre la renta en ${esc(c)}</a>.</p></div>
   <div class="tarjeta tarjeta-tabla"><h2 class="rotulo">Ejemplos de la renta ${ej} en ${esc(c)}</h2>
     <p class="ayuda">IRPF del año tras la declaración, calculado con el mismo motor que el simulador. Sueldos con contrato indefinido; tipo medio sobre el bruto: IRPF entre los ingresos brutos del hogar.</p>
     ${tabla([["Caso"], ["Declaración"], ["IRPF", 1], ["Tipo medio sobre el bruto", 1]], filasCasos)}</div>
