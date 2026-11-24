@@ -555,13 +555,32 @@ autonómicas / Comunidad de Madrid*.
 
 | Deducción (art.) | Regla |
 |---|---|
-| Arrendamiento de vivienda habitual (8) | **30 %**, límite **1.237,20 €**; ≤ 40 años; *base ≤ 26.414,22 / 37.322,20*, UF ≤ 61.860 |
+| Arrendamiento de vivienda habitual (8) | **30 %**, límite **1.237,20 €**; ≤ 40 años; *base ≤ 26.414,22 / 37.322,20*, UF ≤ 61.860; el alquiler tiene que **superar el 20 % de la base imponible** (general + ahorro) |
 | Nacimiento o adopción (4) | **721,70 €/hijo** (desde 2023) en el ejercicio del nacimiento **+ 2 siguientes**; +721,70 €/hijo el 1.er año si parto múltiple; *base ≤ 30.930 / 37.322,20*, UF ≤ 61.860; prorrateo |
 | Familia numerosa general (13 bis) | **50 % de la cuota íntegra autonómica**, tope **6.186 € / 12.372 €** (ind./conj.). **Solo si el título se obtiene con efectos desde el 1-1-2023**, en ese ejercicio y en los dos siguientes (`familia_numerosa_reciente`; si no se informa, no se aplica). UF ≤ 30.930 € × nº de miembros (art. 18.2) |
 | Familia numerosa especial (13 bis) | **100 % de la cuota íntegra autonómica**, tope **12.372 € / 24.744 €**; mismos requisitos |
 | Cuidado de ascendientes (7 bis) | **515,50 €** por ascendiente > 65 años o con discapacidad ≥ 33 % con derecho a mínimo por ascendientes; prorrateo |
 | Empleada de hogar (11 bis) | **25 %** de las cuotas al Sistema Especial de Empleados de Hogar, límite **463,95 €**; **40 % / 618,60 €** para titulares de familia numerosa. Supuestos modelados (variantes del `grupo: empleada_hogar_md`): **a)** hijo < 3 años y los dos progenitores con actividad; **d)** contribuyente con discapacidad ≥ 33 %. UF ≤ 30.930 € × miembros. Pendientes b) y c) (familiar dependiente o con discapacidad) |
 | Gastos educativos (11) | Por hijo: **15 %** de escolaridad e idiomas y **5 %** de vestuario escolar, con **un único límite por hijo**: 412,40 €; **927,90 €** si hay gasto de escolaridad; **1.031 €** en el primer ciclo de infantil (0-2 años, solo escolaridad). Prorrateo; UF ≤ 30.930 € × miembros. Tipo `porcentaje_campos_hijo` |
+
+### Alquiler en Madrid: el 20 % de la base imponible (2026-11-24)
+
+Art. 8 DL 1/2010 en la redacción de la Ley 5/2024 (BOE-A-2025-3303), para los periodos desde
+2024: «Solo se tendrá derecho a la deducción cuando las cantidades abonadas por el
+arrendamiento de la vivienda habitual superen el 20 por ciento de la base imponible,
+entendiendo como tal la suma de la base imponible general y la del ahorro del
+contribuyente». Parámetro `pagos_min_pct_base_imponible: 0.20` (R y JS).
+
+Soltero de 30 años, 27.000 € de trabajo y 1.714 € de cotizaciones: rendimiento neto
+27.000 − 1.714 − 2.000 = 23.286 € = base imponible general (sin ahorro). Umbral:
+20 % · 23.286 = **4.657,20 €**.
+
+| Alquiler pagado | ¿Supera 4.657,20? | Deducción |
+|---|---|---|
+| 4.000 € (`md_alquiler_bajo`) | no | **0 €** (antes, 30 % · 4.000 = 1.200 €) |
+| 4.657,20 € (`md_alquiler_umbral`) | no (es igual) | **0 €** |
+| 4.700 € | sí | 30 % · 4.700 = 1.410 → tope **1.237,20 €** |
+| 9.000 € (`md_alquiler`) | sí | **1.237,20 €** |
 
 ### Cotejo con la fuente (2026-09-26, issue #16)
 

@@ -58,6 +58,13 @@ add("prevsoc_md", "ES-MD", "ninguna", "no",
 add("md_alquiler", "ES-MD", "ninguna", "no",
     list(persona("d1","declarante",30, trabajo=list(dinerarias=27000, cotizaciones_ss=1714), alquiler_vivienda_pagos=9000)),
     list(list(id="d1",rol="declarante",edad=30, trabajo=list(dinerarias=27000,cotizacionesSs=1714), alquilerViviendaPagos=9000)))
+# Madrid art. 8: el alquiler tiene que superar el 20 % de la base imponible (23.286 € -> 4.657,20 €)
+add("md_alquiler_bajo", "ES-MD", "ninguna", "no",
+    list(persona("d1","declarante",30, trabajo=list(dinerarias=27000, cotizaciones_ss=1714), alquiler_vivienda_pagos=4000)),
+    list(list(id="d1",rol="declarante",edad=30, trabajo=list(dinerarias=27000,cotizacionesSs=1714), alquilerViviendaPagos=4000)))
+add("md_alquiler_umbral", "ES-MD", "ninguna", "no",
+    list(persona("d1","declarante",30, trabajo=list(dinerarias=27000, cotizaciones_ss=1714), alquiler_vivienda_pagos=4657.20)),
+    list(list(id="d1",rol="declarante",edad=30, trabajo=list(dinerarias=27000,cotizacionesSs=1714), alquilerViviendaPagos=4657.20)))
 add("an_mono", "ES-AN", "monoparental", "no",
     list(persona("d1","declarante",32, trabajo=list(dinerarias=24000, cotizaciones_ss=1524)),
          persona("h1","descendiente",0, nacido_en_ejercicio=TRUE)),
