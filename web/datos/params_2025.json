@@ -3899,6 +3899,115 @@
       "base_max_conjunta": 50000
      },
      {
+      "id": "deporte_actividades_saludables",
+      "norma": "Art. 4.Uno.ad) Ley 13/1997, en la redacción del art. 3 del Decreto-ley 1/2026 (efectos para los devengos desde el 1-1-2025)",
+      "estado": "provisional",
+      "fuente": "Art. 4.Uno.ad) Ley 13/1997 (BOE-A-1998-8202), redacción del Decreto-ley 1/2026, de 27 de febrero, art. 3 (DOGV-r-2026-90037, publicado en boe.es): «el 30 % con el límite de 150 euros […] Si el declarante es mayor de sesenta y cinco años o tiene una discapacidad igual o superior al 33 %, […] 50 % […] mayor de setenta y cinco años o […] igual o superior al 65 %, […] 100 %»; límites de 60.000/78.000 € con reducción entre 54.000-60.000 y 72.000-78.000 (divisor 6.000). AEAT Manual Práctico Renta 2025, Parte 2, Comunitat Valenciana, «Por cantidades satisfechas en gastos asociados a la práctica del deporte y actividades saludables» (https://sede.agenciatributaria.gob.es/Sede/ayuda/manuales-videos-folletos/manuales-practicos/irpf-2025-deducciones-autonomicas/comunitat-valenciana/cantidades-satisfechas-gastos-asociados-practica-saludables.html)",
+      "tipo": "porcentaje_campo",
+      "campo": "gastos_deporte",
+      "limite": 150,
+      "base_max_individual": 60000,
+      "base_max_conjunta": 78000,
+      "taper_individual": [
+       54000,
+       60000
+      ],
+      "taper_conjunta": [
+       72000,
+       78000
+      ],
+      "grupo": "deporte_vc",
+      "porcentaje": 0.3
+     },
+     {
+      "id": "deporte_actividades_saludables_65",
+      "norma": "Art. 4.Uno.ad) Ley 13/1997, en la redacción del art. 3 del Decreto-ley 1/2026 (efectos para los devengos desde el 1-1-2025)",
+      "estado": "provisional",
+      "fuente": "Art. 4.Uno.ad) Ley 13/1997 (BOE-A-1998-8202), redacción del Decreto-ley 1/2026, de 27 de febrero, art. 3 (DOGV-r-2026-90037, publicado en boe.es): «el 30 % con el límite de 150 euros […] Si el declarante es mayor de sesenta y cinco años o tiene una discapacidad igual o superior al 33 %, […] 50 % […] mayor de setenta y cinco años o […] igual o superior al 65 %, […] 100 %»; límites de 60.000/78.000 € con reducción entre 54.000-60.000 y 72.000-78.000 (divisor 6.000). AEAT Manual Práctico Renta 2025, Parte 2, Comunitat Valenciana, «Por cantidades satisfechas en gastos asociados a la práctica del deporte y actividades saludables» (https://sede.agenciatributaria.gob.es/Sede/ayuda/manuales-videos-folletos/manuales-practicos/irpf-2025-deducciones-autonomicas/comunitat-valenciana/cantidades-satisfechas-gastos-asociados-practica-saludables.html)",
+      "tipo": "porcentaje_campo",
+      "campo": "gastos_deporte",
+      "limite": 150,
+      "base_max_individual": 60000,
+      "base_max_conjunta": 78000,
+      "taper_individual": [
+       54000,
+       60000
+      ],
+      "taper_conjunta": [
+       72000,
+       78000
+      ],
+      "grupo": "deporte_vc",
+      "porcentaje": 0.5,
+      "edad_min": 66
+     },
+     {
+      "id": "deporte_actividades_saludables_discapacidad_33",
+      "norma": "Art. 4.Uno.ad) Ley 13/1997, en la redacción del art. 3 del Decreto-ley 1/2026 (efectos para los devengos desde el 1-1-2025)",
+      "estado": "provisional",
+      "fuente": "Art. 4.Uno.ad) Ley 13/1997 (BOE-A-1998-8202), redacción del Decreto-ley 1/2026, de 27 de febrero, art. 3 (DOGV-r-2026-90037, publicado en boe.es): «el 30 % con el límite de 150 euros […] Si el declarante es mayor de sesenta y cinco años o tiene una discapacidad igual o superior al 33 %, […] 50 % […] mayor de setenta y cinco años o […] igual o superior al 65 %, […] 100 %»; límites de 60.000/78.000 € con reducción entre 54.000-60.000 y 72.000-78.000 (divisor 6.000). AEAT Manual Práctico Renta 2025, Parte 2, Comunitat Valenciana, «Por cantidades satisfechas en gastos asociados a la práctica del deporte y actividades saludables» (https://sede.agenciatributaria.gob.es/Sede/ayuda/manuales-videos-folletos/manuales-practicos/irpf-2025-deducciones-autonomicas/comunitat-valenciana/cantidades-satisfechas-gastos-asociados-practica-saludables.html)",
+      "tipo": "porcentaje_campo",
+      "campo": "gastos_deporte",
+      "limite": 150,
+      "base_max_individual": 60000,
+      "base_max_conjunta": 78000,
+      "taper_individual": [
+       54000,
+       60000
+      ],
+      "taper_conjunta": [
+       72000,
+       78000
+      ],
+      "grupo": "deporte_vc",
+      "porcentaje": 0.5,
+      "requiere_discapacidad_contribuyente": true
+     },
+     {
+      "id": "deporte_actividades_saludables_75",
+      "norma": "Art. 4.Uno.ad) Ley 13/1997, en la redacción del art. 3 del Decreto-ley 1/2026 (efectos para los devengos desde el 1-1-2025)",
+      "estado": "provisional",
+      "fuente": "Art. 4.Uno.ad) Ley 13/1997 (BOE-A-1998-8202), redacción del Decreto-ley 1/2026, de 27 de febrero, art. 3 (DOGV-r-2026-90037, publicado en boe.es): «el 30 % con el límite de 150 euros […] Si el declarante es mayor de sesenta y cinco años o tiene una discapacidad igual o superior al 33 %, […] 50 % […] mayor de setenta y cinco años o […] igual o superior al 65 %, […] 100 %»; límites de 60.000/78.000 € con reducción entre 54.000-60.000 y 72.000-78.000 (divisor 6.000). AEAT Manual Práctico Renta 2025, Parte 2, Comunitat Valenciana, «Por cantidades satisfechas en gastos asociados a la práctica del deporte y actividades saludables» (https://sede.agenciatributaria.gob.es/Sede/ayuda/manuales-videos-folletos/manuales-practicos/irpf-2025-deducciones-autonomicas/comunitat-valenciana/cantidades-satisfechas-gastos-asociados-practica-saludables.html)",
+      "tipo": "porcentaje_campo",
+      "campo": "gastos_deporte",
+      "limite": 150,
+      "base_max_individual": 60000,
+      "base_max_conjunta": 78000,
+      "taper_individual": [
+       54000,
+       60000
+      ],
+      "taper_conjunta": [
+       72000,
+       78000
+      ],
+      "grupo": "deporte_vc",
+      "porcentaje": 1,
+      "edad_min": 76
+     },
+     {
+      "id": "deporte_actividades_saludables_discapacidad_65",
+      "norma": "Art. 4.Uno.ad) Ley 13/1997, en la redacción del art. 3 del Decreto-ley 1/2026 (efectos para los devengos desde el 1-1-2025)",
+      "estado": "provisional",
+      "fuente": "Art. 4.Uno.ad) Ley 13/1997 (BOE-A-1998-8202), redacción del Decreto-ley 1/2026, de 27 de febrero, art. 3 (DOGV-r-2026-90037, publicado en boe.es): «el 30 % con el límite de 150 euros […] Si el declarante es mayor de sesenta y cinco años o tiene una discapacidad igual o superior al 33 %, […] 50 % […] mayor de setenta y cinco años o […] igual o superior al 65 %, […] 100 %»; límites de 60.000/78.000 € con reducción entre 54.000-60.000 y 72.000-78.000 (divisor 6.000). AEAT Manual Práctico Renta 2025, Parte 2, Comunitat Valenciana, «Por cantidades satisfechas en gastos asociados a la práctica del deporte y actividades saludables» (https://sede.agenciatributaria.gob.es/Sede/ayuda/manuales-videos-folletos/manuales-practicos/irpf-2025-deducciones-autonomicas/comunitat-valenciana/cantidades-satisfechas-gastos-asociados-practica-saludables.html)",
+      "tipo": "porcentaje_campo",
+      "campo": "gastos_deporte",
+      "limite": 150,
+      "base_max_individual": 60000,
+      "base_max_conjunta": 78000,
+      "taper_individual": [
+       54000,
+       60000
+      ],
+      "taper_conjunta": [
+       72000,
+       78000
+      ],
+      "grupo": "deporte_vc",
+      "porcentaje": 1,
+      "requiere_discapacidad_grado": "65_mas"
+     },
+     {
       "id": "dos_o_mas_descendientes",
       "norma": "Art. 4.Uno.t) Ley 13/1997",
       "estado": "provisional",

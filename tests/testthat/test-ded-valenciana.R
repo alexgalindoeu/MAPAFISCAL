@@ -186,3 +186,21 @@ test_that("CV: guardería exige que trabajen los dos progenitores; se prorratea 
   expect_null(mk(FALSE))
   expect_equal(mk(TRUE), 148.5)                 # min(15 % × 3.000, 297) / 2
 })
+
+test_that("C. Valenciana ad): deporte y actividades saludables (30/50/100 %, 150 €, DL 1/2026)", {
+  # Ver docs/03, «C. Valenciana: deporte y actividades saludables (art. 4.Uno.ad)».
+  ded <- function(edad, sal, gasto, disc = "no") {
+    h <- nuevo_hogar("v","ES-VC", list(persona("d1","declarante",edad, discapacidad=disc,
+      trabajo=list(dinerarias=sal, cotizaciones_ss=round(sal*0.0635,2)), gastos_deporte=gasto)))
+    d <- liquidar(h, modo="individual")$deducciones_autonomicas$detalle
+    sum(unlist(d[grep("^deporte_actividades_saludables", names(d))]))
+  }
+  expect_equal(ded(40, 30000, 400), 120)               # 30 % · 400
+  expect_equal(ded(65, 30000, 400), 120)               # con 65 años no es «mayor de 65»
+  expect_equal(ded(66, 30000, 400), 150)               # 50 % · 400 = 200 -> 150
+  expect_equal(ded(80, 30000, 100), 100)               # 100 % · 100
+  expect_equal(ded(40, 30000, 120, "33_64"), 60)       # 50 % · 120
+  expect_equal(ded(40, 30000, 120, "65_mas"), 120)     # 100 % · 120
+  expect_equal(ded(40, 63000, 400), 75.01)             # base 56.999,50: 150 · (1 − 2.999,50/6.000)
+  expect_equal(ded(40, 70000, 400), 0)                 # base 63.555 > 60.000
+})

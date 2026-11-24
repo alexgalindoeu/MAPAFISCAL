@@ -858,6 +858,31 @@ municipio en riesgo de despoblamiento.
 
 ---
 
+### C. Valenciana: deporte y actividades saludables (art. 4.Uno.ad), 2026-11-24)
+
+Art. 4.Uno.ad) Ley 13/1997 en la redacción del art. 3 del DL 1/2026 (DOGV-r-2026-90037), con
+efectos para los devengos desde el 1-1-2025: 30 % de los gastos (gimnasios, clubes,
+federaciones, equipamiento del deporte federado, entrenadores, fisioterapeutas…), con un
+límite de **150 €** por contribuyente; **50 %** si el declarante es mayor de 65 años o tiene
+discapacidad ≥ 33 %, y **100 %** si es mayor de 75 o tiene discapacidad ≥ 65 % (el límite sigue
+en 150 €). Requisito: base liquidable general + ahorro ≤ **60.000 €** (individual) o
+**78.000 €** (conjunta); entre 54.000 y 60.000 € (72.000-78.000 en conjunta) el límite se
+multiplica por 1 − (base − 54.000) / 6.000. Variantes en `grupo: deporte_vc` (se aplica la
+mayor). `provisional`: en conjunta el motor aplica un solo límite.
+
+Soltero, trabajo con cotizaciones del 6,35 % (base liquidable de 26.095 € con 30.000 €):
+
+| Caso | Cálculo | Deducción |
+|---|---|---|
+| 40 años, 400 € (`vc_deporte`) | 30 % · 400 | **120 €** |
+| 65 años, 400 € | no es «mayor de 65» (como el mínimo, edad > 65): 30 % | **120 €** |
+| 66 años, 400 € | 50 % · 400 = 200 → tope | **150 €** |
+| 80 años, 100 € (`vc_deporte_80`) | 100 % · 100 | **100 €** |
+| 40 años, discapacidad 33-64 %, 120 € | 50 % · 120 | **60 €** |
+| 40 años, discapacidad ≥ 65 %, 120 € | 100 % · 120 | **120 €** |
+| 63.000 € de trabajo, 400 € (`vc_deporte_taper`) | base 56.999,50: límite 150 · (1 − 2.999,50 / 6.000) = 75,01; 30 % · 400 = 120 | **75,01 €** |
+| 70.000 € de trabajo | base 63.555 > 60.000 | **0 €** |
+
 ## Deducciones autonómicas — Castilla-La Mancha (Ley 8/2013)
 
 Codificadas en `tests/testthat/test-ded-clm.R`. 9 deducciones (de ~30).
