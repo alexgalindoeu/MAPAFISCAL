@@ -25,7 +25,7 @@ jobs:
     runs-on: ubuntu-latest
     environment:
       name: github-pages
-      url: ${{ steps.despliegue.outputs.page_url }}
+      url: ${{ steps.despliegue.outputs.page_url || steps.despliegue-2.outputs.page_url }}
     steps:
       - uses: actions/checkout@v7
         with:
@@ -52,5 +52,15 @@ jobs:
       - uses: actions/upload-pages-artifact@v5
         with:
           path: web
+      # GitHub Pages falla a veces por causas suyas («No artifacts named github-pages» justo
+      # tras subirlo, «Deployment failed, try again later»). Un reintento tras una pausa lo
+      # resuelve; si el segundo también falla, el job falla y hay que mirarlo.
       - id: despliegue
+        uses: actions/deploy-pages@v5
+        continue-on-error: true
+      - name: Esperar antes de reintentar
+        if: steps.despliegue.outcome == 'failure'
+        run: sleep 45
+      - id: despliegue-2
+        if: steps.despliegue.outcome == 'failure'
         uses: actions/deploy-pages@v5

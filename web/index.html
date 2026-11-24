@@ -80,17 +80,18 @@ descarga de los datos no empieza hasta que llega y se ejecuta app.js). La de los
 <!-- =========================== INICIO =========================== -->
 <section class="vista" id="v-inicio" aria-labelledby="t-inicio">
   <div class="portada">
+    <p class="portada-mancheta"><span>Renta 2025 y 2026</span><span>19 territorios fiscales</span><span>Sin registro: el cálculo se hace en tu navegador</span></p>
     <div class="portada-texto">
       <h1 id="t-inicio">El mismo sueldo, <span class="subrayado">19&nbsp;IRPF distintos</span></h1>
       <p class="entradilla">Cada comunidad y cada territorio foral tiene su escala, sus mínimos y sus deducciones. Calcula tu declaración con la normativa del tuyo y mira cuánto pagarías en el resto de España. Gratis, sin registrarte y sin que tus datos salgan de tu navegador.</p>
-      <form class="minicalc" id="minicalc" autocomplete="off" novalidate aria-label="Cálculo rápido">
-        <div class="minicalc-campos">
-          <div class="campo"><label for="mc-salario">Tu sueldo bruto anual</label><div class="con-sufijo"><input type="text" data-importe id="mc-salario" min="0" step="500" value="30000" inputmode="decimal"><span>€</span></div></div>
-          <div class="campo"><label for="mc-territorio">Dónde vives</label><select id="mc-territorio"></select></div>
-        </div>
-        <div class="minicalc-res" id="mc-res" aria-live="polite"></div>
-      </form>
     </div>
+    <form class="minicalc" id="minicalc" autocomplete="off" novalidate aria-label="Cálculo rápido">
+      <div class="minicalc-campos">
+        <div class="campo"><label for="mc-salario">Tu sueldo bruto anual</label><div class="con-sufijo"><input type="text" data-importe id="mc-salario" min="0" step="500" value="30000" inputmode="decimal"><span>€</span></div></div>
+        <div class="campo"><label for="mc-territorio">Dónde vives</label><select id="mc-territorio"></select></div>
+      </div>
+      <div class="minicalc-res" id="mc-res" aria-live="polite"></div>
+    </form>
     <div class="portada-mapa">
       <h2 class="rotulo" id="t-mapa-portada">Lo que pagarías en cada territorio</h2>
       <div class="mapa-envoltorio">
@@ -100,8 +101,8 @@ descarga de los datos no empieza hasta que llega y se ejecuta app.js). La de los
       <div class="leyenda" id="leyenda-portada"></div>
       <p class="nota">Pulsa un territorio para ver tu cifra allí. Canarias, en el recuadro.</p>
     </div>
+    <p class="dato-portada" id="dato-portada"></p>
   </div>
-  <p class="dato-portada" id="dato-portada"></p>
   <div class="seccion-cab"><h2>Herramientas</h2></div>
   <div class="herramientas" id="herramientas"></div>
   <div class="seccion-cab"><h2>Por qué fiarte de las cifras</h2></div>

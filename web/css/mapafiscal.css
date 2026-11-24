@@ -229,7 +229,8 @@ main:focus { outline: none; }
   .nav a { padding: 0 10px; font-size: 13.5px; }
 }
 @media (max-width: 400px) {
-  .con-menu .marca-txt { display: none; }
+  /* oculto a la vista, no a los lectores: es el nombre accesible del enlace del logo */
+  .con-menu .marca-txt { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
 }
 
 /* ---- botones ---------------------------------------------------------------- */
@@ -283,35 +284,41 @@ main:focus { outline: none; }
   content: ""; display: inline-block; flex: none; width: 11px; height: 9px; border-radius: 1px;
   background: var(--resalte); transform: skewX(var(--diagonal-inclinacion));
   box-shadow: 0 0 0 1px color-mix(in srgb, var(--tinta) 14%, transparent); }
-.cinta-m, .tarjeta-resultado, .minicalc { position: relative; }
-.cinta-m::after, .tarjeta-resultado::after, .minicalc::after {
+.cinta-m, .tarjeta-resultado { position: relative; }
+.cinta-m::after, .tarjeta-resultado::after {
   content: ""; position: absolute; left: 0; right: 0; top: 0; height: 4px; pointer-events: none;
   --cinta-color: var(--marca);
   background: linear-gradient(112deg, var(--cinta-color) 0 22px, transparent 22px 24px, var(--resalte) 24px 40px,
     transparent 40px 42px, var(--cinta-color) 42px); }
-.corte-m, .tarjeta-resultado, .minicalc {
+.corte-m, .tarjeta-resultado {
   clip-path: polygon(0 0, calc(100% - var(--corte)) 0, 100% var(--corte), 100% 100%, 0 100%); }
 
-/* ---- portada (inicio) ------------------------------------------------------ */
-.portada { position: relative; display: grid; grid-template-columns: minmax(0, 1fr); gap: 28px; align-items: start; padding: 8px 0 8px; }
+/* ---- portada (inicio): página insignia ---------------------------------------------
+   Composición sacada de la M (ver docs/diseno_identidad.md, «Páginas insignia»):
+   - mancheta de publicación con la cinta M sobre un filete de tinta;
+   - titular en Archivo al 125 % de ancho; «19» en azul con la diagonal amarilla delante,
+     el mismo tratamiento que la cifra de las portadas de territorio;
+   - la mini-calculadora no es una tarjeta: es una franja entre filetes bajo el titular;
+   - el mapa va en una lámina con el borde izquierdo inclinado como la pata de la M, la pata
+     azul a lo largo de ese borde y el trazo amarillo saliendo de su pie, y la esquina
+     superior derecha cortada (el corte M). La lámina es un tinte de marca, no azul macizo. */
+.portada { position: relative; display: grid; grid-template-columns: minmax(0, 1fr); align-items: start; padding: 0 0 8px; }
 .portada::before { content: ""; position: absolute; inset: -32px -16px -20px; z-index: -1; pointer-events: none;
   background-image: linear-gradient(var(--reticula) 1px, transparent 1px), linear-gradient(90deg, var(--reticula) 1px, transparent 1px);
   background-size: 44px 44px; background-position: -1px -1px;
-  -webkit-mask-image: radial-gradient(ellipse 70% 80% at 70% 40%, #000 30%, transparent 75%);
-  mask-image: radial-gradient(ellipse 70% 80% at 70% 40%, #000 30%, transparent 75%); }
-@media (min-width: 960px) {
-  .portada { grid-template-columns: minmax(0, 1.05fr) minmax(0, 1fr); gap: 48px; }
-  .portada-mapa { position: sticky; top: 84px; }
-}
+  -webkit-mask-image: radial-gradient(ellipse 60% 70% at 20% 30%, #000 25%, transparent 75%);
+  mask-image: radial-gradient(ellipse 60% 70% at 20% 30%, #000 25%, transparent 75%); }
+.portada-mancheta { position: relative; display: flex; flex-wrap: wrap; gap: 2px 0; margin: 0 0 22px; padding: 11px 0 9px;
+  border-top: 3px solid var(--tinta); border-bottom: 1px solid var(--linea-2);
+  font-family: var(--mono); font-size: 11.5px; font-weight: 500; letter-spacing: .06em; text-transform: uppercase; color: var(--tinta-2); }
+.portada-mancheta span:not(:last-child)::after { content: "/"; margin: 0 10px; color: var(--tinta-3); }
+.portada-mancheta::before { content: ""; position: absolute; left: 0; top: -3px; width: 66px; height: 3px;
+  background: linear-gradient(112deg, var(--marca) 0 26px, var(--fondo) 26px 28px, var(--resalte) 28px 44px, var(--fondo) 44px 46px, var(--marca) 46px); }
+
 .portada-texto h1 { font-size: clamp(34px, 5.6vw, 62px); font-weight: 800; letter-spacing: -.035em; line-height: 1.02; }
-@media (min-width: 960px) {
-  /* En dos columnas el titular se mide por la columna, no por la ventana: con 5,6vw
-     «19 IRPF distintos» (sin cortes) se salía unos píxeles entre 960 y ~1200 px. */
-  .portada-texto h1 { font-size: clamp(34px, 4.5vw, 62px); }
-}
 .portada-texto h1 .subrayado { background: linear-gradient(transparent 66%, var(--resalte) 66%, var(--resalte) 90%, transparent 90%);
   padding: 0 .06em; -webkit-box-decoration-break: clone; box-decoration-break: clone; }
-.portada-texto .entradilla { font-size: 17px; margin-top: 16px; max-width: 54ch; }
+.portada-texto .entradilla { font-size: 17px; line-height: 1.55; margin-top: 20px; max-width: 46ch; }
 .portada-acciones { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 22px; }
 .portada-destacado { background: var(--superficie); border: 1px solid var(--linea); border-radius: var(--radio);
   box-shadow: var(--sombra-alta); padding: 24px; }
@@ -320,20 +327,64 @@ main:focus { outline: none; }
 .portada-destacado h2 { font-size: 20px; margin: 12px 0 6px; }
 .portada-destacado p { color: var(--tinta-2); margin: 0 0 16px; }
 
-/* mini-calculadora de la portada */
-.minicalc { margin-top: 28px; background: var(--superficie); border: 1px solid var(--linea-2); border-radius: var(--radio);
-  box-shadow: var(--sombra); overflow: hidden; }
-.minicalc-campos { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.2fr); gap: 12px; padding: 18px 20px 16px; }
+/* mini-calculadora: franja entre filetes, integrada bajo el titular (sin caja ni sombra) */
+.minicalc { position: relative; margin-top: 28px; border-top: 2px solid var(--tinta); border-bottom: 1px solid var(--linea-2); }
+.minicalc-campos { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.2fr); gap: 12px; padding: 16px 0 14px; }
 .minicalc-campos .campo { margin: 0; }
-.minicalc-campos input { font-family: var(--display); font-stretch: 108%; font-weight: 700; font-size: 18px; }
-.minicalc-res { border-top: 1px dashed var(--linea-2); padding: 16px 20px 18px; background: var(--superficie-2); }
+.minicalc-campos input { font-family: var(--display); font-stretch: 112%; font-weight: 700; font-size: 19px; }
+.minicalc-res { padding: 14px 0 18px; border-top: 1px solid var(--linea); }
 .minicalc-cifra { display: flex; align-items: baseline; flex-wrap: wrap; gap: 4px 12px; }
-.minicalc-cifra .cifra-xl { font-size: clamp(34px, 5vw, 46px); }
+.minicalc-cifra .cifra-xl { font-stretch: 125%; font-size: clamp(40px, 5vw, 56px); letter-spacing: -.045em; }
 .minicalc-cifra .etq-cifra { font-size: 14px; color: var(--tinta-2); }
 .minicalc-frase { margin: 8px 0 0; font-size: 14px; color: var(--tinta-2); }
 .minicalc-frase b { color: var(--tinta); }
 .minicalc-acciones { display: flex; gap: 8px 14px; flex-wrap: wrap; align-items: center; margin-top: 14px; }
 .minicalc-supuesto { font-size: 12px; color: var(--tinta-3); margin: 10px 0 0; }
+
+/* la lámina del mapa */
+.portada-mapa { --pata: 30px; --trazo: 34px; position: relative; isolation: isolate; margin-top: 32px; padding: 20px 18px 44px calc(var(--pata) + 22px); }
+.portada-mapa::before { content: ""; position: absolute; inset: 0; z-index: -1; background: var(--marca-50);
+  clip-path: polygon(0 0, calc(100% - var(--corte)) 0, 100% var(--corte), 100% 100%, var(--pata) 100%); }
+.portada-mapa::after { content: ""; position: absolute; inset: 0; z-index: -1; pointer-events: none;
+  background: linear-gradient(to right, var(--marca) calc(var(--pata) + 11px), transparent calc(var(--pata) + 11px) calc(var(--pata) + 15px), var(--resalte) calc(var(--pata) + 15px));
+  clip-path: polygon(0 0, 9px 0, calc(var(--pata) + 9px) 100%, calc(var(--pata) + 16px) 100%,
+    calc(var(--pata) + 16px + var(--trazo, 44px)) calc(100% - var(--trazo, 44px)), calc(var(--pata) + 30px + var(--trazo, 44px)) calc(100% - var(--trazo, 44px)),
+    calc(var(--pata) + 30px) 100%, var(--pata) 100%); }
+.portada-mapa .rotulo { margin-bottom: 6px; font-stretch: 112%; font-size: 17px; }
+.portada-mapa .leyenda { margin-top: 8px; }
+.portada-mapa .nota { margin: 8px 0 0; }
+.mapa-pie { display: flex; justify-content: space-between; align-items: center; gap: 8px 16px; flex-wrap: wrap; }
+
+/* El dato de la portada, dentro de la lámina y bajo el mapa: texto grande, filete de tinta. */
+.dato-portada { margin: 40px 0 0; padding: 2px 0 2px 22px; border-left: 4px solid var(--marca);
+  font-size: clamp(18px, 2.1vw, 23px); line-height: 1.4; color: var(--tinta-2); max-width: 46em; text-wrap: pretty; }
+.dato-portada b { color: var(--tinta); }
+.dato-portada .cifra-dato { font-family: var(--display); font-stretch: 125%; font-weight: 800; color: var(--tinta); font-size: 1.3em;
+  letter-spacing: -.03em; white-space: nowrap; }
+
+@media (min-width: 960px) {
+  .portada { grid-template-columns: minmax(0, 1fr) minmax(0, 1.04fr); column-gap: 36px; }
+  .portada-mancheta, .minicalc, .dato-portada { grid-column: 1 / -1; }
+  .portada-texto { grid-column: 1; grid-row: 2; align-self: center; padding-bottom: 12px; }
+  .portada-mapa { --pata: 64px; --trazo: 56px; grid-column: 2; grid-row: 2; margin-top: 0; padding: 24px 22px 66px calc(var(--pata) + 26px); }
+  /* En dos columnas el titular se mide por la columna, no por la ventana. */
+  .portada-texto h1 { font-size: clamp(34px, 4.5vw, 62px); }
+  /* la franja de la calculadora, a lo ancho: campos | cifra y regla */
+  .minicalc { display: grid; grid-template-columns: minmax(240px, 290px) minmax(0, 1fr); margin-top: 0; }
+  .minicalc-campos { grid-template-columns: minmax(0, 1fr); align-content: start; padding: 18px 28px 18px 0; }
+  .minicalc-res { border-top: 0; border-left: 1px solid var(--linea-2); padding: 18px 0 20px 28px;
+    display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); column-gap: 32px; align-items: start; }
+  .minicalc-res > * { grid-column: 1 / -1; }
+  .minicalc-res > .minicalc-cifra { grid-column: 1; grid-row: 1 / span 2; flex-direction: column; gap: 6px; }
+  .minicalc-cifra .cifra-xl { white-space: nowrap; font-size: clamp(40px, 4.2vw, 54px); }
+  .minicalc-res > .regla { grid-column: 2; grid-row: 1; margin-top: 8px; }
+  .minicalc-res > .minicalc-frase { grid-column: 2; grid-row: 2; }
+}
+@media (max-width: 480px) {
+  .portada-mancheta span:last-child { display: none; }
+  .portada-mancheta span:nth-last-child(2)::after { content: none; }
+  .portada-mapa { --pata: 20px; --trazo: 30px; margin-left: -4px; margin-right: -8px; padding: 18px 12px 40px calc(var(--pata) + 14px); }
+}
 
 /* «regla» de posiciones: los 19 territorios de más barato a más caro, con el tuyo marcado */
 .regla { position: relative; margin: 14px 0 4px; padding-top: 4px; }
@@ -344,19 +395,6 @@ main:focus { outline: none; }
 .regla-pista i.tu { background: var(--resalte); box-shadow: 0 0 0 1.5px var(--tinta); }
 .regla-extremos { display: flex; justify-content: space-between; gap: 12px; font-size: 12px; color: var(--tinta-3); margin-top: 6px; }
 .regla-extremos b { color: var(--tinta-2); font-weight: 600; }
-
-/* El mapa va sobre la retícula, sin caja: es la ilustración de la portada, no una tarjeta. */
-.portada-mapa { padding: 4px 0 0; }
-.portada-mapa .rotulo { margin-bottom: 4px; }
-.portada-mapa .leyenda { margin-top: 8px; }
-.mapa-pie { display: flex; justify-content: space-between; align-items: center; gap: 8px 16px; flex-wrap: wrap; }
-
-/* El dato de la portada, como un destacado de diario: texto grande, filete amarillo, sin caja. */
-.dato-portada { margin: 56px 0 0; padding: 2px 0 2px 22px; border-left: 4px solid var(--resalte);
-  font-size: clamp(18px, 2.1vw, 23px); line-height: 1.4; color: var(--tinta-2); max-width: 46em; text-wrap: pretty; }
-.dato-portada b { color: var(--tinta); }
-.dato-portada .cifra-dato { font-family: var(--display); font-stretch: 110%; font-weight: 800; color: var(--tinta); font-size: 1.3em;
-  letter-spacing: -.02em; white-space: nowrap; }
 
 .seccion-cab { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; flex-wrap: wrap; margin: 64px 0 0;
   padding-bottom: 12px; border-bottom: 2px solid var(--tinta); }
