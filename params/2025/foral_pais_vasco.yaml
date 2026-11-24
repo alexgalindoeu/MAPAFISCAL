@@ -22,7 +22,11 @@
 # Fuente principal 2025: Diputación Foral de Gipuzkoa, "Modelo 109 (2025) —
 #   Bonificaciones, reducciones, deducciones y la tabla de gravamen".
 #   https://www.gipuzkoa.eus/es/web/ogasuna/impuestos/modelo/109/2025/bonificaciones-reducciones-deducciones-tabla-gravamen
-#   Contraste: Cuatrecasas, "País Vasco - Novedades tributarias para personas físicas 2025 y 2026" (mayo 2025).
+#   Solo fuentes oficiales (boletines y webs de las Haciendas forales). Cuando un bloque
+#   común cita a los tres territorios, la `fuente` va como «Bizkaia: … / Gipuzkoa: … /
+#   Araba: …», y las páginas de cada territorio muestran solo su parte
+#   (fuente_del_territorio() en tools/generar_datos_seo.R y fuenteDelTerritorio() en
+#   tools/seo_foral.mjs).
 # =============================================================================
 
 meta:
@@ -36,9 +40,12 @@ meta:
 comun:
 
   escala_general_foral:
-    norma: "Art. 75 NF 13/2013 Bizkaia / art. 75 NF 3/2014 Gipuzkoa / art. 74 NF 33/2013 Araba"
-    fuente: "DF Gipuzkoa, Modelo 109 (2025) — tabla de gravamen general"
+    norma: "Art. 75.1 NF 13/2013 Bizkaia / art. 75.1 NF 3/2014 Gipuzkoa / art. 75.1 NF 33/2013 Araba"
+    fuente: "Bizkaia: NF 10/2023, de 29 de diciembre, de Presupuestos Generales de Bizkaia para 2024 (BOB 30-12-2023), que da nueva redacción al art. 75.1 con efectos 1-1-2024, sin cambios en 2025; Hacienda Foral de Bizkaia, «Comparativa de cambios en el IRPF de Bizkaia para 2026» (KA-01877, escala vigente hasta el 31-12-2025) / Gipuzkoa: Decreto Foral-Norma 2/2023, de 28 de diciembre (BOG n.º 249, 29-12-2023), que deflacta la tarifa del art. 75.1 con efectos 1-1-2024, sin cambios en 2025; DF Gipuzkoa, Modelo 109 (2025), tabla de gravamen general / Araba: NF 26/2023, de 22 de diciembre, de medidas tributarias para 2024 (BOTHA n.º 150, 29-12-2023), que da nueva redacción al art. 75.1 con efectos 1-1-2024, sin cambios en 2025; Hacienda Foral de Álava, web.araba.eus/es/hacienda/renta/informacion (tarifa de la renta 2025)"
     estado: confirmado
+    # Corregido (24-11-2026): la tarifa de Araba está en el art. 75.1 NF 33/2013 (el que
+    # modifican la NF 26/2023 y la NF 21/2025), no en el art. 74. Las cifras no cambian: las
+    # tres tablas oficiales llegan a 204.270 € y la de 2026 (18.080 €) es esta deflactada un 2 %.
     tramos:
       - { hasta: 17720,  tipo: 0.23 }
       - { hasta: 35440,  tipo: 0.28 }
@@ -51,7 +58,7 @@ comun:
 
   escala_ahorro_foral:
     norma: "Art. 76 NF 13/2013 y equivalentes (redacción vigente hasta 31/12/2025)"
-    fuente: "DF Gipuzkoa, Modelo 109 (2025); Cuatrecasas (mayo 2025)"
+    fuente: "Bizkaia: Hacienda Foral de Bizkaia, «Comparativa de cambios en el IRPF de Bizkaia para 2026» (KA-01877, escala del ahorro vigente hasta el 31-12-2025) / Gipuzkoa: DF Gipuzkoa, Modelo 109 (2025), tabla de gravamen del ahorro / Araba: Hacienda Foral de Álava, web.araba.eus/es/hacienda/renta/informacion (escala de la base liquidable del ahorro)"
     estado: confirmado
     tramos:
       - { hasta: 2500,  tipo: 0.20 }
@@ -75,7 +82,7 @@ comun:
 
   reduccion_prevision_social:
     norma: "Arts. 70 a 72 NF 13/2013 Bizkaia, NF 3/2014 Gipuzkoa y NF 33/2013 Araba (EPSV, planes de pensiones, mutualidades), con los 4.000 € de autónomos de la revisión fiscal de 2025 (NF 2/2025 Bizkaia, NF 1/2025 Gipuzkoa, NF 3/2025 Araba)"
-    fuente: "DF Gipuzkoa, Modelo 109 (2025); Hacienda Foral de Bizkaia, bizkaia.eus/es/renta-bizkaia/deducciones (EPSV: «Nuevo límite de 4.000 €» de autónomos)"
+    fuente: "Bizkaia: Hacienda Foral de Bizkaia, bizkaia.eus/es/renta-bizkaia/deducciones (EPSV: «Nuevo límite de 4.000 €» de autónomos) / Gipuzkoa: DF Gipuzkoa, Modelo 109 (2025)"
     # Por persona: 5.000 € de aportaciones propias, 8.000 € de contribuciones empresariales a
     # sistemas de empleo y 12.000 € entre todas; sin límite porcentual sobre los rendimientos.
     # Las aportaciones a favor del cónyuge (2.400 €) y de personas con discapacidad tienen
@@ -112,7 +119,7 @@ comun:
 
   minoracion_cuota:
     norma: "Art. 77 NF 13/2013 y equivalentes"
-    fuente: "DF Gipuzkoa Modelo 109 (2025); Bizkaia: art. 50 NF 10/2023 (BOB 30-12-2023), que no cambia en 2025 (la NF 3/2024 de Presupuestos para 2025 no toca el IRPF); Araba: NF 19/2024, art. 2.Tercero.Diez (BOTHA n.º 147, 30-12-2024)"
+    fuente: "Bizkaia: art. 50 NF 10/2023 (BOB n.º 249, 30-12-2023), que no cambia en 2025 (la NF 3/2024 de Presupuestos para 2025 no toca el IRPF) / Gipuzkoa: DF Gipuzkoa, Modelo 109 (2025) / Araba: NF 19/2024, art. 2.Tercero.Diez (BOTHA n.º 147, 30-12-2024)"
     estado: confirmado
     importe_gipuzkoa: 1583
     importe_bizkaia: 1583      # corregido: 1.615 es la cifra de 2026 (NF 7/2025)
@@ -126,8 +133,12 @@ comun:
 
   capital_inmobiliario:
     norma: "Art. 32 NF 13/2013 y equivalentes; NF 2/2025, 3/2025, 1/2025 (efectos 2025)"
-    fuente: "Cuatrecasas (mayo 2025)"
-    estado: confirmado
+    fuente: "Bizkaia: Hacienda Foral de Bizkaia, preguntas frecuentes de bizkaia.eus sobre el arrendamiento de vivienda (normativa vigente desde el 01-01-2025): bonificación del 30 %, del 70 % en zona tensionada con renta limitada al índice de referencia y del 70 % en Bizigune, ASAP o programas similares"
+    # Provisional (24-11-2026): se retira la cita de un despacho (no oficial). La web de la
+    # Hacienda Foral de Bizkaia respalda el 30 % y los dos 70 %; falta la fuente oficial de
+    # Gipuzkoa y Araba y la del 20 % general (que la web de Bizkaia da como régimen hasta
+    # 2024). Las cifras no cambian hasta cotejar las tres normas forales.
+    estado: provisional
     bonificacion_general: 0.20          # gasto/bonificación a tanto alzado sobre ingresos íntegros
     bonificacion_vivienda_habitual: 0.30
     bonificacion_zona_tensionada: 0.70
@@ -161,7 +172,7 @@ comun:
 # -----------------------------------------------------------------------------
   deduccion_descendientes:
     norma: "Art. 79 NF 3/2014 Gipuzkoa (y equivalentes)"
-    fuente: "DF Gipuzkoa Modelo 109 (2025); Bizkaia: art. 51 NF 10/2023 (BOB 30-12-2023) y Hacienda Foral de Bizkaia, ficha «Deducción por descendientes» (importes 2024-2025). Araba, ver override"
+    fuente: "Bizkaia: art. 51 NF 10/2023 (BOB n.º 249, 30-12-2023) y Hacienda Foral de Bizkaia, ficha «Deducción por descendientes» (importes 2024-2025) / Gipuzkoa: DF Gipuzkoa, Modelo 109 (2025)"   # Araba, en su override
     estado: confirmado
     importes: { "1": 668, "2": 827, "3": 1393, "4": 1647, "5+": 2151 }
     incremento_menor_6_anios: 386   # Gipuzkoa y Bizkaia (394 € es la cifra de 2026)
@@ -211,7 +222,7 @@ comun:
 
   deduccion_alquiler_vivienda:
     norma: "Art. 86 NF 13/2013 Bizkaia, NF 3/2014 Gipuzkoa y NF 33/2013 Araba, en la redacción de la revisión fiscal de 2025 (NF 2/2025 Bizkaia, NF 1/2025 Gipuzkoa, NF 3/2025 Araba; efectos 1-1-2025)"
-    fuente: "Hacienda Foral de Bizkaia, ficha KA-01027 «Deducción por alquiler de vivienda habitual» (cuadro desde 01-01-2025) y bizkaia.eus/es/renta-bizkaia/deducciones; DF Gipuzkoa, Modelo 109 (2025)"
+    fuente: "Bizkaia: Hacienda Foral de Bizkaia, ficha KA-01027 «Deducción por alquiler de vivienda habitual» (cuadro desde 01-01-2025) y bizkaia.eus/es/renta-bizkaia/deducciones; NF 2/2025, art. 1.Cinco, nueva redacción del art. 86 (BOB n.º 75, 22-04-2025) / Gipuzkoa: DF Gipuzkoa, Modelo 109 (2025)"
     estado: confirmado
     # 20 % con 1.600 €; 35 % con 2.800 € para menores de 36 años a 31 de diciembre, familias
     # numerosas, unidades monoparentales, discapacidad >= 65 % o dependencia y víctimas de
@@ -223,7 +234,7 @@ comun:
 
   deduccion_adquisicion_vivienda:
     norma: "Arts. 87 a 89 NF 13/2013 Bizkaia, NF 3/2014 Gipuzkoa y NF 33/2013 Araba, en la redacción de la revisión fiscal de 2025 (NF 2/2025 Bizkaia, NF 1/2025 Gipuzkoa, NF 3/2025 Araba)"
-    fuente: "Hacienda Foral de Bizkaia, fichas KA-01508 «Compra de vivienda habitual» y KA-01353 «Deducción por cantidades depositadas en cuenta vivienda» (cuadros desde 01-01-2025); DF Gipuzkoa, Modelo 109 (2025)"
+    fuente: "Bizkaia: Hacienda Foral de Bizkaia, fichas KA-01508 «Compra de vivienda habitual» y KA-01353 «Deducción por cantidades depositadas en cuenta vivienda» (cuadros desde 01-01-2025); NF 2/2025, art. 1.Seis, art. 87.4 (23 % y 1.955 € para menores de 36 años) (BOB n.º 75, 22-04-2025) / Gipuzkoa: DF Gipuzkoa, Modelo 109 (2025)"
     estado: confirmado
     # 18 % con 1.530 € al año (8.500 € de inversión); 23 % con 1.955 € para menores de 36 años
     # (sin límite el año de la compra: el motor no sabe el año de compra y aplica el límite) y
@@ -294,20 +305,24 @@ overrides:
     # los de descendientes, un 32 % ascendientes y un 15,5 % discapacidad.
     deduccion_descendientes:
       norma: "Art. 79.1 y 79.2 NF 33/2013 Araba (redacción NF 19/2024, art. 2.Tercero.Once)"
+      fuente: "NF 19/2024, de 20 de diciembre, de medidas tributarias para 2025, art. 2.Tercero.Once (BOTHA n.º 147, 30-12-2024)"
       estado: confirmado
       importes: { "1": 734.80, "2": 909.70, "3": 1532.30, "4": 1811.70, "5+": 2366.10 }
       incremento_menor_6_anios: 424.60
       incremento_6_a_15_anios: 68.20   # de 6 a 15 años inclusive; incompatible con el anterior
     deduccion_anualidades_alimentos_hijos:
       norma: "Art. 80 NF 33/2013 Araba (redacción NF 3/2025): 15 %, con el límite por hijo del 30 % de la deducción del art. 79.1"
+      fuente: "NF 3/2025 (BOTHA n.º 44, 16-04-2025), art. 80 NF 33/2013; importes del art. 79.1 de la NF 19/2024 (BOTHA n.º 147, 30-12-2024)"
       estado: confirmado
       limites: { "1": 220.44, "2": 272.91, "3": 459.69, "4": 543.51, "5+": 709.83 }   # 30 % de los importes del art. 79.1
     deduccion_ascendientes:
       norma: "Art. 81.1 NF 33/2013 Araba (redacción NF 19/2024, art. 2.Tercero.Once bis)"
+      fuente: "NF 19/2024, de 20 de diciembre, de medidas tributarias para 2025, art. 2.Tercero.Once bis (BOTHA n.º 147, 30-12-2024)"
       estado: confirmado
       importe: 423.72
     deduccion_discapacidad:
       norma: "Art. 82.1 NF 33/2013 Araba (redacción NF 19/2024, art. 2.Tercero.Once quater)"
+      fuente: "NF 19/2024, de 20 de diciembre, de medidas tributarias para 2025, art. 2.Tercero.Once quater (BOTHA n.º 147, 30-12-2024)"
       estado: confirmado
       grado_33_64: 1025.64
       grado_65_mas_o_dependencia_moderada: 1464.54

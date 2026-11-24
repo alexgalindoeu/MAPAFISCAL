@@ -1074,7 +1074,7 @@
    "bloques": {
     "minoracion_cuota": {
      "norma": "Art. 77 NF 13/2013 y equivalentes",
-     "fuente": "DF Gipuzkoa Modelo 109 (2025); Bizkaia: art. 50 NF 10/2023 (BOB 30-12-2023), que no cambia en 2025 (la NF 3/2024 de Presupuestos para 2025 no toca el IRPF); Araba: NF 19/2024, art. 2.Tercero.Diez (BOTHA n.º 147, 30-12-2024)",
+     "fuente": "art. 50 NF 10/2023 (BOB n.º 249, 30-12-2023), que no cambia en 2025 (la NF 3/2024 de Presupuestos para 2025 no toca el IRPF)",
      "estado": "confirmado",
      "importe_gipuzkoa": 1583,
      "importe_bizkaia": 1583,
@@ -1082,7 +1082,7 @@
     },
     "deduccion_descendientes": {
      "norma": "Art. 79 NF 3/2014 Gipuzkoa (y equivalentes)",
-     "fuente": "DF Gipuzkoa Modelo 109 (2025); Bizkaia: art. 51 NF 10/2023 (BOB 30-12-2023) y Hacienda Foral de Bizkaia, ficha «Deducción por descendientes» (importes 2024-2025). Araba, ver override",
+     "fuente": "art. 51 NF 10/2023 (BOB n.º 249, 30-12-2023) y Hacienda Foral de Bizkaia, ficha «Deducción por descendientes» (importes 2024-2025)",
      "estado": "confirmado",
      "importes": {
       "1": 668,
@@ -1104,7 +1104,7 @@
     },
     "deduccion_alquiler_vivienda": {
      "norma": "Art. 86 NF 13/2013 Bizkaia, NF 3/2014 Gipuzkoa y NF 33/2013 Araba, en la redacción de la revisión fiscal de 2025 (NF 2/2025 Bizkaia, NF 1/2025 Gipuzkoa, NF 3/2025 Araba; efectos 1-1-2025)",
-     "fuente": "Hacienda Foral de Bizkaia, ficha KA-01027 «Deducción por alquiler de vivienda habitual» (cuadro desde 01-01-2025) y bizkaia.eus/es/renta-bizkaia/deducciones; DF Gipuzkoa, Modelo 109 (2025)",
+     "fuente": "Hacienda Foral de Bizkaia, ficha KA-01027 «Deducción por alquiler de vivienda habitual» (cuadro desde 01-01-2025) y bizkaia.eus/es/renta-bizkaia/deducciones; NF 2/2025, art. 1.Cinco, nueva redacción del art. 86 (BOB n.º 75, 22-04-2025)",
      "estado": "confirmado",
      "edad_max_incrementada": 36,
      "general": {
@@ -1118,7 +1118,7 @@
     },
     "deduccion_adquisicion_vivienda": {
      "norma": "Arts. 87 a 89 NF 13/2013 Bizkaia, NF 3/2014 Gipuzkoa y NF 33/2013 Araba, en la redacción de la revisión fiscal de 2025 (NF 2/2025 Bizkaia, NF 1/2025 Gipuzkoa, NF 3/2025 Araba)",
-     "fuente": "Hacienda Foral de Bizkaia, fichas KA-01508 «Compra de vivienda habitual» y KA-01353 «Deducción por cantidades depositadas en cuenta vivienda» (cuadros desde 01-01-2025); DF Gipuzkoa, Modelo 109 (2025)",
+     "fuente": "Hacienda Foral de Bizkaia, fichas KA-01508 «Compra de vivienda habitual» y KA-01353 «Deducción por cantidades depositadas en cuenta vivienda» (cuadros desde 01-01-2025); NF 2/2025, art. 1.Seis, art. 87.4 (23 % y 1.955 € para menores de 36 años) (BOB n.º 75, 22-04-2025)",
      "estado": "confirmado",
      "cuenta_vivienda": {
       "porcentaje_general": 0.18,
@@ -1163,7 +1163,7 @@
    "bloques": {
     "minoracion_cuota": {
      "norma": "Art. 77 NF 13/2013 y equivalentes",
-     "fuente": "DF Gipuzkoa Modelo 109 (2025); Bizkaia: art. 50 NF 10/2023 (BOB 30-12-2023), que no cambia en 2025 (la NF 3/2024 de Presupuestos para 2025 no toca el IRPF); Araba: NF 19/2024, art. 2.Tercero.Diez (BOTHA n.º 147, 30-12-2024)",
+     "fuente": "DF Gipuzkoa, Modelo 109 (2025)",
      "estado": "confirmado",
      "importe_gipuzkoa": 1583,
      "importe_bizkaia": 1583,
@@ -1171,7 +1171,7 @@
     },
     "deduccion_descendientes": {
      "norma": "Art. 79 NF 3/2014 Gipuzkoa (y equivalentes)",
-     "fuente": "DF Gipuzkoa Modelo 109 (2025); Bizkaia: art. 51 NF 10/2023 (BOB 30-12-2023) y Hacienda Foral de Bizkaia, ficha «Deducción por descendientes» (importes 2024-2025). Araba, ver override",
+     "fuente": "DF Gipuzkoa, Modelo 109 (2025)",
      "estado": "confirmado",
      "importes": {
       "1": 668,
@@ -1253,7 +1253,7 @@
     },
     "deduccion_alquiler_vivienda": {
      "norma": "Art. 86 NF 13/2013 Bizkaia, NF 3/2014 Gipuzkoa y NF 33/2013 Araba, en la redacción de la revisión fiscal de 2025 (NF 2/2025 Bizkaia, NF 1/2025 Gipuzkoa, NF 3/2025 Araba; efectos 1-1-2025)",
-     "fuente": "Hacienda Foral de Bizkaia, ficha KA-01027 «Deducción por alquiler de vivienda habitual» (cuadro desde 01-01-2025) y bizkaia.eus/es/renta-bizkaia/deducciones; DF Gipuzkoa, Modelo 109 (2025)",
+     "fuente": "DF Gipuzkoa, Modelo 109 (2025)",
      "estado": "confirmado",
      "edad_max_incrementada": 36,
      "general": {
@@ -1267,7 +1267,7 @@
     },
     "deduccion_adquisicion_vivienda": {
      "norma": "Arts. 87 a 89 NF 13/2013 Bizkaia, NF 3/2014 Gipuzkoa y NF 33/2013 Araba, en la redacción de la revisión fiscal de 2025 (NF 2/2025 Bizkaia, NF 1/2025 Gipuzkoa, NF 3/2025 Araba)",
-     "fuente": "Hacienda Foral de Bizkaia, fichas KA-01508 «Compra de vivienda habitual» y KA-01353 «Deducción por cantidades depositadas en cuenta vivienda» (cuadros desde 01-01-2025); DF Gipuzkoa, Modelo 109 (2025)",
+     "fuente": "DF Gipuzkoa, Modelo 109 (2025)",
      "estado": "confirmado",
      "cuenta_vivienda": {
       "porcentaje_general": 0.18,
@@ -1319,7 +1319,7 @@
    "bloques": {
     "minoracion_cuota": {
      "norma": "Art. 77 NF 13/2013 y equivalentes",
-     "fuente": "DF Gipuzkoa Modelo 109 (2025); Bizkaia: art. 50 NF 10/2023 (BOB 30-12-2023), que no cambia en 2025 (la NF 3/2024 de Presupuestos para 2025 no toca el IRPF); Araba: NF 19/2024, art. 2.Tercero.Diez (BOTHA n.º 147, 30-12-2024)",
+     "fuente": "NF 19/2024, art. 2.Tercero.Diez (BOTHA n.º 147, 30-12-2024)",
      "estado": "confirmado",
      "importe_gipuzkoa": 1583,
      "importe_bizkaia": 1583,
@@ -1327,7 +1327,7 @@
     },
     "deduccion_descendientes": {
      "norma": "Art. 79.1 y 79.2 NF 33/2013 Araba (redacción NF 19/2024, art. 2.Tercero.Once)",
-     "fuente": "DF Gipuzkoa Modelo 109 (2025); Bizkaia: art. 51 NF 10/2023 (BOB 30-12-2023) y Hacienda Foral de Bizkaia, ficha «Deducción por descendientes» (importes 2024-2025). Araba, ver override",
+     "fuente": "NF 19/2024, de 20 de diciembre, de medidas tributarias para 2025, art. 2.Tercero.Once (BOTHA n.º 147, 30-12-2024)",
      "estado": "confirmado",
      "importes": {
       "1": 734.8,
@@ -1338,6 +1338,34 @@
      },
      "incremento_menor_6_anios": 424.6,
      "incremento_6_a_15_anios": 68.2
+    },
+    "deduccion_anualidades_alimentos_hijos": {
+     "norma": "Art. 80 NF 33/2013 Araba (redacción NF 3/2025): 15 %, con el límite por hijo del 30 % de la deducción del art. 79.1",
+     "fuente": "NF 3/2025 (BOTHA n.º 44, 16-04-2025), art. 80 NF 33/2013; importes del art. 79.1 de la NF 19/2024 (BOTHA n.º 147, 30-12-2024)",
+     "estado": "confirmado",
+     "porcentaje": 0.15,
+     "limites": {
+      "1": 220.44,
+      "2": 272.91,
+      "3": 459.69,
+      "4": 543.51,
+      "5+": 709.83
+     }
+    },
+    "deduccion_ascendientes": {
+     "norma": "Art. 81.1 NF 33/2013 Araba (redacción NF 19/2024, art. 2.Tercero.Once bis)",
+     "fuente": "NF 19/2024, de 20 de diciembre, de medidas tributarias para 2025, art. 2.Tercero.Once bis (BOTHA n.º 147, 30-12-2024)",
+     "estado": "confirmado",
+     "importe": 423.72
+    },
+    "deduccion_discapacidad": {
+     "norma": "Art. 82.1 NF 33/2013 Araba (redacción NF 19/2024, art. 2.Tercero.Once quater)",
+     "fuente": "NF 19/2024, de 20 de diciembre, de medidas tributarias para 2025, art. 2.Tercero.Once quater (BOTHA n.º 147, 30-12-2024)",
+     "estado": "confirmado",
+     "grado_33_64": 1025.64,
+     "grado_65_mas_o_dependencia_moderada": 1464.54,
+     "grado_75_15_39_puntos_o_dependencia_severa": 1756.75,
+     "grado_75_40_puntos_o_gran_dependencia": 2191.03
     }
    }
   },
@@ -1359,6 +1387,45 @@
      "incremento_discapacidad_33_64": 766,
      "incremento_discapacidad_65_mas": 2757,
      "incremento_monoparental_conjunta": 668
+    },
+    "deduccion_trabajo_cuota": {
+     "norma": "Art. 62.5 DFL 4/2008 (TR IRPF Navarra), redacción vigente en 2025",
+     "fuente": "Letras a), d) y e): LF 30/2018, art. primero.Diecisiete (BOE-A-2019-752); letra b): LF 19/2021, art. primero.Ocho (BOE-A-2022-2067); letra c): LF 29/2019, art. primero.Diez (BOE-A-2020-450); Hacienda Foral de Navarra, Manual teórico de la campaña de 2025 (actualizado a 02-02-2026), «Deducción por trabajo» (art. 62.5 TRIRPF, pág. 271), con el incremento del 50 % y del 100 % para trabajadores en activo con discapacidad",
+     "estado": "confirmado",
+     "tramos": [
+      {
+       "hasta": 10500,
+       "base": 1400,
+       "coef": 0,
+       "desde": 0
+      },
+      {
+       "hasta": 17500,
+       "base": 1400,
+       "coef": 0.1,
+       "desde": 10500
+      },
+      {
+       "hasta": 35000,
+       "base": 700,
+       "coef": 0,
+       "desde": 17500
+      },
+      {
+       "hasta": 50000,
+       "base": 700,
+       "coef": 0.02,
+       "desde": 35000
+      },
+      {
+       "hasta": "Inf",
+       "base": 400,
+       "coef": 0,
+       "desde": 50000
+      }
+     ],
+     "incremento_discapacidad_33_64": 0.5,
+     "incremento_discapacidad_65_mas": 1
     },
     "deduccion_alquiler_vivienda": {
      "norma": "Art. 62.2 DFL 4/2008 (TR IRPF Navarra), redacción de la Ley Foral 22/2023, art. primero.Nueve (efectos 2024)",

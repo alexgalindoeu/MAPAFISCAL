@@ -36,7 +36,7 @@ comun:
 
   escala_general_foral:
     norma: "Art. 75.1 NF 3/2014 Gipuzkoa (NF 6/2025, DF 1.ª.Dos), art. 75 NF 13/2013 Bizkaia (NF 7/2025, art. 49) y art. 75.1 NF 33/2013 Araba (NF 21/2025, art. 2.4.º.Cuatro)"
-    fuente: "BOG n.º 250 (31-12-2025); BOB 30-12-2025; BOTHA n.º 147 (29-12-2025)"
+    fuente: "Bizkaia: NF 7/2025, de 29 de diciembre, de Presupuestos Generales de Bizkaia para 2026, art. 49 (BOB 30-12-2025) / Gipuzkoa: NF 6/2025, de 19 de diciembre, de Presupuestos Generales de Gipuzkoa para 2026, DF 1.ª.Dos (BOG n.º 250, 31-12-2025) / Araba: NF 21/2025, de 19 de diciembre, de medidas tributarias para 2026, art. 2.4.º.Cuatro (BOTHA n.º 147, 29-12-2025)"
     estado: confirmado
     tramos:
       - { hasta: 18080,  tipo: 0.23 }
@@ -50,7 +50,7 @@ comun:
 
   escala_ahorro_foral:
     norma: "Art. 76.1 NF 3/2014 Gipuzkoa en la redacción del art. 13.3 de la NF 1/2025 (efectos 1-1-2026); escala armonizada: NF 2/2025 Bizkaia y NF 3/2025 Araba"
-    fuente: "NF 1/2025 de Gipuzkoa (BOG), tabla del art. 76.1 con cuotas acumuladas: 1.425 / 2.925 / 6.225 / 11.025 / 21.225 / 29.025 / 60.825 / 77.025"
+    fuente: "Bizkaia: NF 2/2025 (BOB 22-04-2025), art. 76 NF 13/2013, y Hacienda Foral de Bizkaia, «Comparativa de cambios en el IRPF de Bizkaia para 2026» (KA-01877, escala del ahorro desde el 1-1-2026) / Gipuzkoa: NF 1/2025 de Gipuzkoa (BOG 15-05-2025), tabla del art. 76.1 con cuotas acumuladas: 1.425 / 2.925 / 6.225 / 11.025 / 21.225 / 29.025 / 60.825 / 77.025 / Araba: NF 3/2025 (BOTHA n.º 44, 16-04-2025), art. 76 NF 33/2013 (tabla pendiente de cotejo literal)"
     estado: confirmado
     # Corrige la transcripción provisional anterior: el segundo tramo acaba en 15.000 €,
     # no en 15.500 €.
@@ -67,7 +67,7 @@ comun:
 
   reduccion_prevision_social:
     norma: "Art. 71 NF 13/2013 Bizkaia, NF 3/2014 Gipuzkoa y NF 33/2013 Araba, en la redacción de la NF 2/2025 (Bizkaia, BOB 22-04-2025), la NF 1/2025 (Gipuzkoa, BOG 15-05-2025) y la NF 3/2025 (Araba, BOTHA 16-04-2025)"
-    fuente: "Texto del art. 71 NF 13/2013 en la versión del BOB de 22-04-2025 («será de 10.000 euros anuales, con preferencia para las realizadas a sistemas de empleo»); INVERCO, nota AP.1 sobre la reforma de la previsión social en los tres territorios (junio de 2025): 10.000 € frente a los 12.000 € vigentes"
+    fuente: "Texto del art. 71 NF 13/2013 en la versión del BOB de 22-04-2025 («será de 10.000 euros anuales, con preferencia para las realizadas a sistemas de empleo»)"
     estado: confirmado
     limite_conjunto: 10000
 

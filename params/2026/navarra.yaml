@@ -38,7 +38,7 @@ minimo_personal_deduccion:
 
 deduccion_trabajo_cuota:
   norma: "Art. 62.5.1.º DFL 4/2008 (TR IRPF Navarra), letras a) y b) en la redacción del art. primero.Trece de la LF 17/2025 (efectos 1-1-2026)"
-  fuente: "BOE-A-2026-3910 (LF 17/2025, art. primero.Trece); letras c) a e) sin cambios"
+  fuente: "BOE-A-2026-3910 (LF 17/2025, art. primero.Trece) para las letras a) y b); letras c) a e) sin cambios: LF 29/2019 (BOE-A-2020-450) y LF 30/2018 (BOE-A-2019-752)"
   estado: confirmado
   # 1.400 € hasta 12.500 € de rendimientos netos del trabajo (antes, 10.500 €) y
   # 1.400 − 0,14 × (RNT − 12.500) hasta 17.500 € (antes, coeficiente 0,1): en 17.500 € sigue

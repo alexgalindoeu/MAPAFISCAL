@@ -127,7 +127,7 @@ trabajo_otros_gastos:
 
 trabajo_reduccion_art20:
   norma: "Art. 20 LIRPF (redacción vigente 2025)"
-  fuente: "AEAT Manual Práctico Renta 2025, Rendimientos del trabajo → Fase 3ª: Determinación del rendimiento neto reducido; Iberley art. 20 LIRPF"
+  fuente: "AEAT Manual Práctico Renta 2025, Rendimientos del trabajo → Fase 3ª: Determinación del rendimiento neto reducido; art. 20 Ley 35/2006, del IRPF, versión consolidada (BOE-A-2006-20764)"
   estado: confirmado
   # El rendimiento neto que fija la cuantía (y el umbral de 19.747,50 €) es el íntegro
   # menos los gastos de las letras a) a e) del art. 19.2, SIN los «otros gastos» de la

@@ -1,6 +1,6 @@
 {
  "ejercicio": 2025,
- "generado": "2026-11-23",
+ "generado": "2026-11-24",
  "ejercicios": {
   "por_defecto": 2026,
   "publicados": [
@@ -131,7 +131,7 @@
   },
   "trabajo_reduccion_art20": {
    "norma": "Art. 20 LIRPF (redacción vigente 2025)",
-   "fuente": "AEAT Manual Práctico Renta 2025, Rendimientos del trabajo → Fase 3ª: Determinación del rendimiento neto reducido; Iberley art. 20 LIRPF",
+   "fuente": "AEAT Manual Práctico Renta 2025, Rendimientos del trabajo → Fase 3ª: Determinación del rendimiento neto reducido; art. 20 Ley 35/2006, del IRPF, versión consolidada (BOE-A-2006-20764)",
    "estado": "confirmado",
    "base": "rendimiento íntegro − gastos art. 19.2 a) a e)",
    "importe_maximo": 7302,
@@ -413,7 +413,7 @@
   },
   "reduccion_prevision_social": {
    "norma": "Arts. 70 a 72 NF 13/2013 Bizkaia, NF 3/2014 Gipuzkoa y NF 33/2013 Araba (EPSV, planes de pensiones, mutualidades), con los 4.000 € de autónomos de la revisión fiscal de 2025 (NF 2/2025 Bizkaia, NF 1/2025 Gipuzkoa, NF 3/2025 Araba)",
-   "fuente": "DF Gipuzkoa, Modelo 109 (2025); Hacienda Foral de Bizkaia, bizkaia.eus/es/renta-bizkaia/deducciones (EPSV: «Nuevo límite de 4.000 €» de autónomos)",
+   "fuente": "Bizkaia: Hacienda Foral de Bizkaia, bizkaia.eus/es/renta-bizkaia/deducciones (EPSV: «Nuevo límite de 4.000 €» de autónomos) / Gipuzkoa: DF Gipuzkoa, Modelo 109 (2025)",
    "estado": "confirmado",
    "limite_individual_no_empleo": 5000,
    "limite_individual_empleo": 8000,
@@ -432,7 +432,7 @@
   },
   "minoracion_cuota": {
    "norma": "Art. 77 NF 13/2013 y equivalentes",
-   "fuente": "DF Gipuzkoa Modelo 109 (2025); Bizkaia: art. 50 NF 10/2023 (BOB 30-12-2023), que no cambia en 2025 (la NF 3/2024 de Presupuestos para 2025 no toca el IRPF); Araba: NF 19/2024, art. 2.Tercero.Diez (BOTHA n.º 147, 30-12-2024)",
+   "fuente": "Bizkaia: art. 50 NF 10/2023 (BOB n.º 249, 30-12-2023), que no cambia en 2025 (la NF 3/2024 de Presupuestos para 2025 no toca el IRPF) / Gipuzkoa: DF Gipuzkoa, Modelo 109 (2025) / Araba: NF 19/2024, art. 2.Tercero.Diez (BOTHA n.º 147, 30-12-2024)",
    "estado": "confirmado",
    "importe_gipuzkoa": 1583,
    "importe_bizkaia": 1583,
@@ -446,8 +446,8 @@
   },
   "capital_inmobiliario": {
    "norma": "Art. 32 NF 13/2013 y equivalentes; NF 2/2025, 3/2025, 1/2025 (efectos 2025)",
-   "fuente": "Cuatrecasas (mayo 2025)",
-   "estado": "confirmado",
+   "fuente": "Bizkaia: Hacienda Foral de Bizkaia, preguntas frecuentes de bizkaia.eus sobre el arrendamiento de vivienda (normativa vigente desde el 01-01-2025): bonificación del 30 %, del 70 % en zona tensionada con renta limitada al índice de referencia y del 70 % en Bizigune, ASAP o programas similares",
+   "estado": "provisional",
    "bonificacion_general": 0.2,
    "bonificacion_vivienda_habitual": 0.3,
    "bonificacion_zona_tensionada": 0.7,
@@ -456,7 +456,7 @@
   },
   "deduccion_descendientes": {
    "norma": "Art. 79 NF 3/2014 Gipuzkoa (y equivalentes)",
-   "fuente": "DF Gipuzkoa Modelo 109 (2025); Bizkaia: art. 51 NF 10/2023 (BOB 30-12-2023) y Hacienda Foral de Bizkaia, ficha «Deducción por descendientes» (importes 2024-2025). Araba, ver override",
+   "fuente": "Bizkaia: art. 51 NF 10/2023 (BOB n.º 249, 30-12-2023) y Hacienda Foral de Bizkaia, ficha «Deducción por descendientes» (importes 2024-2025) / Gipuzkoa: DF Gipuzkoa, Modelo 109 (2025)",
    "estado": "confirmado",
    "importes": {
     "1": 668,
@@ -515,7 +515,7 @@
   },
   "deduccion_alquiler_vivienda": {
    "norma": "Art. 86 NF 13/2013 Bizkaia, NF 3/2014 Gipuzkoa y NF 33/2013 Araba, en la redacción de la revisión fiscal de 2025 (NF 2/2025 Bizkaia, NF 1/2025 Gipuzkoa, NF 3/2025 Araba; efectos 1-1-2025)",
-   "fuente": "Hacienda Foral de Bizkaia, ficha KA-01027 «Deducción por alquiler de vivienda habitual» (cuadro desde 01-01-2025) y bizkaia.eus/es/renta-bizkaia/deducciones; DF Gipuzkoa, Modelo 109 (2025)",
+   "fuente": "Bizkaia: Hacienda Foral de Bizkaia, ficha KA-01027 «Deducción por alquiler de vivienda habitual» (cuadro desde 01-01-2025) y bizkaia.eus/es/renta-bizkaia/deducciones; NF 2/2025, art. 1.Cinco, nueva redacción del art. 86 (BOB n.º 75, 22-04-2025) / Gipuzkoa: DF Gipuzkoa, Modelo 109 (2025)",
    "estado": "confirmado",
    "edad_max_incrementada": 36,
    "general": {
@@ -529,7 +529,7 @@
   },
   "deduccion_adquisicion_vivienda": {
    "norma": "Arts. 87 a 89 NF 13/2013 Bizkaia, NF 3/2014 Gipuzkoa y NF 33/2013 Araba, en la redacción de la revisión fiscal de 2025 (NF 2/2025 Bizkaia, NF 1/2025 Gipuzkoa, NF 3/2025 Araba)",
-   "fuente": "Hacienda Foral de Bizkaia, fichas KA-01508 «Compra de vivienda habitual» y KA-01353 «Deducción por cantidades depositadas en cuenta vivienda» (cuadros desde 01-01-2025); DF Gipuzkoa, Modelo 109 (2025)",
+   "fuente": "Bizkaia: Hacienda Foral de Bizkaia, fichas KA-01508 «Compra de vivienda habitual» y KA-01353 «Deducción por cantidades depositadas en cuenta vivienda» (cuadros desde 01-01-2025); NF 2/2025, art. 1.Seis, art. 87.4 (23 % y 1.955 € para menores de 36 años) (BOB n.º 75, 22-04-2025) / Gipuzkoa: DF Gipuzkoa, Modelo 109 (2025)",
    "estado": "confirmado",
    "cuenta_vivienda": {
     "porcentaje_general": 0.18,
@@ -604,6 +604,7 @@
     "fuente": "NF 19/2024, de 20 de diciembre, de medidas tributarias para 2025, art. 2.Tercero (efectos 1-1-2025), apartados Diez a Once quater (BOTHA n.º 147, 30-12-2024); la NF 3/2025 (BOTHA n.º 44, 16-04-2025) no cambia esos importes",
     "deduccion_descendientes": {
      "norma": "Art. 79.1 y 79.2 NF 33/2013 Araba (redacción NF 19/2024, art. 2.Tercero.Once)",
+     "fuente": "NF 19/2024, de 20 de diciembre, de medidas tributarias para 2025, art. 2.Tercero.Once (BOTHA n.º 147, 30-12-2024)",
      "estado": "confirmado",
      "importes": {
       "1": 734.8,
@@ -617,6 +618,7 @@
     },
     "deduccion_anualidades_alimentos_hijos": {
      "norma": "Art. 80 NF 33/2013 Araba (redacción NF 3/2025): 15 %, con el límite por hijo del 30 % de la deducción del art. 79.1",
+     "fuente": "NF 3/2025 (BOTHA n.º 44, 16-04-2025), art. 80 NF 33/2013; importes del art. 79.1 de la NF 19/2024 (BOTHA n.º 147, 30-12-2024)",
      "estado": "confirmado",
      "limites": {
       "1": 220.44,
@@ -628,11 +630,13 @@
     },
     "deduccion_ascendientes": {
      "norma": "Art. 81.1 NF 33/2013 Araba (redacción NF 19/2024, art. 2.Tercero.Once bis)",
+     "fuente": "NF 19/2024, de 20 de diciembre, de medidas tributarias para 2025, art. 2.Tercero.Once bis (BOTHA n.º 147, 30-12-2024)",
      "estado": "confirmado",
      "importe": 423.72
     },
     "deduccion_discapacidad": {
      "norma": "Art. 82.1 NF 33/2013 Araba (redacción NF 19/2024, art. 2.Tercero.Once quater)",
+     "fuente": "NF 19/2024, de 20 de diciembre, de medidas tributarias para 2025, art. 2.Tercero.Once quater (BOTHA n.º 147, 30-12-2024)",
      "estado": "confirmado",
      "grado_33_64": 1025.64,
      "grado_65_mas_o_dependencia_moderada": 1464.54,
@@ -836,7 +840,7 @@
   },
   "reduccion_prevision_social": {
    "norma": "Art. 55.1.7.º a) DFL 4/2008 (TR IRPF Navarra): letra b´) en la redacción del art. primero.Seis de la LF 19/2021 (efectos 1-1-2022), sin cambios en la LF 22/2023 (que solo añade los 4.250 € de seguros colectivos) ni en la LF 20/2024; letra a´), redacción anterior no modificada",
-   "fuente": "BOE-A-2022-2067 (LF 19/2021, texto literal de la letra b´): «1.500 euros anuales. Este límite se incrementará en 8.500 euros, siempre que tal incremento provenga de contribuciones empresariales…»); BOE-A-2024-1694 (LF 22/2023); letra a´) (30 %, 50 % para mayores de 50 años): BBVA AM, «Límites fiscalidad planes de pensiones 2023 Navarra»",
+   "fuente": "BOE-A-2022-2067 (LF 19/2021, texto literal de la letra b´): «1.500 euros anuales. Este límite se incrementará en 8.500 euros, siempre que tal incremento provenga de contribuciones empresariales…»); BOE-A-2024-1694 (LF 22/2023); letra a´) (30 %, 50 % para mayores de 50 años): Hacienda Foral de Navarra, Manual teórico de la campaña de 2025 (actualizado a 02-02-2026), «Límite fiscal de la reducción por estos conceptos (art. 55.1.7º TRIRPF)», pág. 209",
    "estado": "provisional",
    "limite_general_abs": 1500,
    "incremento_contribucion_empresarial": 8500,

@@ -74,7 +74,7 @@ test("cada deducción y cada guía cita su fuente primaria", () => {
     const fichas = html.split('class="tarjeta ficha-deduccion"').slice(1);
     assert.ok(fichas.length, r);
     for (const f of fichas) assert.match(f, /Norma: [^<]+\.|Norma: /, r);
-    assert.match(html, /boe\.es|agenciatributaria\.gob\.es|gipuzkoa\.eus/, r);
+    assert.match(html, /boe\.es|agenciatributaria\.gob\.es|gipuzkoa\.eus|bizkaia\.eus|araba\.eus/, r);
   }
   for (const g of GUIAS) assert.match(ficheros.get(`guias/${g.slug}/index.html`), /Norma: |boe\.es/, g.slug);
 });

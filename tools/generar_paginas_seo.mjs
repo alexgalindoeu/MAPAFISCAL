@@ -36,7 +36,7 @@ import { paginaSobre, paginaContacto, RUTA_SOBRE, RUTA_CONTACTO } from "./seo_so
 import { paginaRanking, RUTA_RANKING } from "./seo_ranking.mjs";
 import { paginasGlosario, enlazarGlosario, HUB_GLOSARIO } from "./seo_glosario.mjs";
 import { paginasVivienda, PAGINAS_VIVIENDA, HUB_VIVIENDA } from "./seo_vivienda.mjs";
-import { paginasForal, enlacesSuiteForal, enlacesVascos, escalasAhorro, ejemploPasoAPaso, normaDelTerritorio, rasgoForalDe, paramsForal, BOLETIN, rentaForal, enlaceCalculadora, enlacesIndiceForal } from "./seo_foral.mjs";
+import { paginasForal, enlacesSuiteForal, enlacesVascos, escalasAhorro, ejemploPasoAPaso, normaDelTerritorio, fuenteDelTerritorio, rasgoForalDe, paramsForal, BOLETIN, rentaForal, enlaceCalculadora, enlacesIndiceForal } from "./seo_foral.mjs";
 
 const RAIZ = join(dirname(fileURLToPath(import.meta.url)), "..");
 const motor = createRequire(import.meta.url)(join(RAIZ, "web", "js", "irpfsim.js"));
@@ -140,7 +140,7 @@ function paginaTerritorio(codigo) {
     <h2 class="rotulo">Tabla de tramos del IRPF ${esc(en)} ${anio}</h2>
     ${nota ? `<p>${nota}</p>` : ""}
     ${tablaEscala(tramos)}
-    ${citaFuente({ norma: normaDelTerritorio(codigo, fuente.norma), fuente: fuente.fuente })}
+    ${citaFuente({ norma: normaDelTerritorio(codigo, fuente.norma), fuente: fuenteDelTerritorio(codigo, fuente.fuente) })}
   </div>`;
     const f25 = t.escala_combinada.fuente_autonomica;
     cartaEscala = anioTabla(2025, tr, f25, "") + (con26 ? anioTabla(2026, esc26.tramos, esc26, igual26

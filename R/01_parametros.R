@@ -137,7 +137,7 @@ cargar_parametros <- function(territorio, ejercicio = 2025) {
     nv$tipo <- "foral_navarra"
     nv$nombre <- "Comunidad Foral de Navarra"
     p$jurisdiccion <- nv
-    registrar_aviso("[ES-NC] módulo Navarra: mínimos familiares, deducciones de vivienda y reducción del trabajo PENDIENTES.")
+    registrar_aviso("[ES-NC] módulo Navarra: donativos, adquisición de vivienda (régimen transitorio) y reglas propias de la conjunta PENDIENTES.")
   }
 
   class(p) <- "irpfsim_parametros"
