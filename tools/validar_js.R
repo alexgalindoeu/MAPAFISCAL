@@ -65,6 +65,16 @@ add("md_alquiler_bajo", "ES-MD", "ninguna", "no",
 add("md_alquiler_umbral", "ES-MD", "ninguna", "no",
     list(persona("d1","declarante",30, trabajo=list(dinerarias=27000, cotizaciones_ss=1714), alquiler_vivienda_pagos=4657.20)),
     list(list(id="d1",rol="declarante",edad=30, trabajo=list(dinerarias=27000,cotizacionesSs=1714), alquilerViviendaPagos=4657.20)))
+# C. Valenciana ad): deporte (DL 1/2026): 30 % general, 100 % con 80 años, límite reducido entre 54.000 y 60.000
+add("vc_deporte", "ES-VC", "ninguna", "no",
+    list(persona("d1","declarante",40, trabajo=list(dinerarias=30000, cotizaciones_ss=1905), gastos_deporte=400)),
+    list(list(id="d1",rol="declarante",edad=40, trabajo=list(dinerarias=30000,cotizacionesSs=1905), gastosDeporte=400)))
+add("vc_deporte_80", "ES-VC", "ninguna", "no",
+    list(persona("d1","declarante",80, trabajo=list(dinerarias=30000, cotizaciones_ss=1905), gastos_deporte=100)),
+    list(list(id="d1",rol="declarante",edad=80, trabajo=list(dinerarias=30000,cotizacionesSs=1905), gastosDeporte=100)))
+add("vc_deporte_taper", "ES-VC", "ninguna", "no",
+    list(persona("d1","declarante",40, trabajo=list(dinerarias=63000, cotizaciones_ss=4000.5), gastos_deporte=400)),
+    list(list(id="d1",rol="declarante",edad=40, trabajo=list(dinerarias=63000,cotizacionesSs=4000.5), gastosDeporte=400)))
 add("an_mono", "ES-AN", "monoparental", "no",
     list(persona("d1","declarante",32, trabajo=list(dinerarias=24000, cotizaciones_ss=1524)),
          persona("h1","descendiente",0, nacido_en_ejercicio=TRUE)),
