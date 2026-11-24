@@ -3051,12 +3051,14 @@
     "lista": [
      {
       "id": "arrendamiento_vivienda_habitual",
-      "norma": "Art. 8 DL 1/2010 Madrid",
+      "norma": "Art. 8 DL 1/2010 Madrid (redacción del art. único.3 de la Ley 5/2024, para los periodos desde el 1-1-2024)",
+      "fuente": "Art. 8 del TR de tributos cedidos de la Comunidad de Madrid (DL 1/2010), versión consolidada del BOE (BOCM-m-2010-90068) vigente en 2025: «Solo se tendrá derecho a la deducción cuando las cantidades abonadas por el arrendamiento de la vivienda habitual superen el 20 por ciento de la base imponible, entendiendo como tal la suma de la base imponible general y la del ahorro del contribuyente»; Ley 5/2024 (BOE-A-2025-3303)",
       "tipo": "porcentaje_campo",
       "campo": "alquiler_vivienda_pagos",
       "porcentaje": 0.3,
       "limite": 1237.2,
       "edad_max": 40,
+      "pagos_min_pct_base_imponible": 0.2,
       "base_max_individual": 26414.22,
       "suma_bases": "imponibles",
       "base_max_conjunta": 37322.2,
