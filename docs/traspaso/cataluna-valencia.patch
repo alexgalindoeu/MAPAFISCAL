@@ -1,0 +1,37 @@
+diff --git a/params/2025/autonomico.yaml b/params/2025/autonomico.yaml
+index 15e84119..47d88e53 100644
+--- a/params/2025/autonomico.yaml
++++ b/params/2025/autonomico.yaml
+@@ -1278,9 +1278,13 @@ territorios:
+           campo: inversion_cooperativas_cat
+           porcentaje: 0.20
+           limite: 3000
++      # Sin cargar (2026-11-24): no se pudo leer la fuente primaria desde la sesión (sin acceso
++      # a sede.agenciatributaria.gob.es, boe.es ni portaljuridic.gencat.cat). En particular el
++      # 9 % del tramo autonómico de vivienda (régimen transitorio) necesita el texto literal de
++      # los requisitos (fecha de adquisición, edad, paro, discapacidad, renta) antes de modelarlo.
+       pendientes:
+         # Requieren campos de entrada no modelados por el motor:
+-        - viudedad_2023_2025                 # necesita "año de viudedad" + nº descendientes -> 150/300 €
++        - viudedad_2023_2025                # necesita "año de viudedad" + nº descendientes -> 150/300 €
+         - alquiler_vivienda_victimas_violencia_machista  # necesita flag "víctima de violencia machista" -> 100 %/1.000 €
+         - obligacion_declarar_dos_pagadores  # necesita flag ">1 pagador" y trabajo 15.876–22.000; deducción = cuota aut − cuota estatal
+         - intereses_prestamos_master_doctorado  # préstamos AGAUR; campo específico
+@@ -2361,6 +2365,17 @@ territorios:
+           requiere_zona_despoblada: true
+           descendientes_min: 3
+           descendientes_sin_deduccion: nacimiento_adopcion
++      # Sin cargar (2026-11-24): no se pudo leer la fuente primaria desde la sesión (sin acceso
++      # a sede.agenciatributaria.gob.es, boe.es ni dogv.gva.es), así que no se añade ningún
++      # importe. Páginas oficiales del Manual Práctico Renta 2025, parte 2, localizadas para el
++      # cotejo (no abiertas todavía; base https://sede.agenciatributaria.gob.es/Sede/ayuda/
++      # manuales-videos-folletos/manuales-practicos/irpf-2025-deducciones-autonomicas/
++      # comunitat-valenciana/):
++      #   nacimiento-adopcion-multiples.html, primera-adquisicion-vivienda-habitual-igual-anos.html,
++      #   cantidades-invertidas-instalaciones-autoconsumo-generacion-termica.html,
++      #   inversion-adquisicion-acciones-participaciones-entidades.html;
++      #   índice: comunitat-valenciana.html; PDF completo: /static_files/Sede/Biblioteca/Manual/
++      #   Practicos/IRPF/IRPF-2025-Deducciones-autonomicas/ManualRenta2025Parte2_es_es.pdf
+       pendientes:
+         - nacimiento_adopcion_multiple
+         - nacimiento_adopcion_discapacidad
