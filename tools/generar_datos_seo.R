@@ -162,12 +162,27 @@ datos_territorio_comun <- function(t) {
   )
 }
 
+# Fuente de un bloque común del País Vasco para UN territorio. Si cita a los tres con el
+# formato «Bizkaia: … / Gipuzkoa: … / Araba: …», devuelve solo la parte del territorio (NULL
+# si no tiene); si no lleva etiquetas, la cita entera. Igual que fuenteDelTerritorio() en
+# tools/seo_foral.mjs: la página de un territorio nunca muestra la fuente de otro.
+ETIQUETA_PV <- c("ES-PV-BI" = "Bizkaia", "ES-PV-SS" = "Gipuzkoa", "ES-PV-VI" = "Araba")
+fuente_del_territorio <- function(t, fuente) {
+  if (is.null(fuente) || !(t %in% names(ETIQUETA_PV))) return(fuente)
+  partes <- strsplit(fuente, " / ", fixed = TRUE)[[1]]
+  etiquetada <- grepl("^(Bizkaia|Gipuzkoa|Araba): ", partes)
+  if (!any(etiquetada)) return(fuente)
+  propia <- partes[startsWith(partes, paste0(ETIQUETA_PV[[t]], ": "))]
+  if (!length(propia)) return(NULL)
+  sub("^[^:]+: ", "", propia[[1]])
+}
+
 datos_territorio_pv <- function(t, nombre) {
   e <- pv$comun$escala_general_foral
   list(
     territorio = t, nombre = nombre, regimen = "foral_pais_vasco",
     escala_combinada = list(tramos = tramos_json(e$tramos), fuente_estatal = NULL,
-                            fuente_autonomica = list(norma = e$norma, fuente = e$fuente)),
+                            fuente_autonomica = list(norma = e$norma, fuente = fuente_del_territorio(t, e$fuente))),
     minimo_contribuyente = NULL, deducciones = NULL
   )
 }
@@ -277,6 +292,7 @@ deducciones_pv <- function(t) {
   for (k in nombres) {
     b <- pv$comun[[k]]
     if (is.list(ov[[k]])) b <- fusionar_params(b, ov[[k]])
+    b$fuente <- fuente_del_territorio(t, b$fuente)
     if (!identical(b$estado, "confirmado") || is.null(b$fuente)) next
     if (!grepl(HACIENDA_PV[[t]], b$fuente) || !grepl(FUENTE_PRIMARIA, b$fuente)) next
     bloques[[k]] <- b

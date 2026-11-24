@@ -279,8 +279,13 @@ export function slugDeduccion(texto) {
 
 // ---- forales ----------------------------------------------------------------------
 // URL de la fuente principal de params/2025/foral_pais_vasco.yaml (cabecera del fichero).
+// Enlaces de las fuentes forales oficiales, por el texto que las cita en `fuente`. Cada página
+// territorial enlaza solo su propia Hacienda o su boletín (fuente_del_territorio()).
 const URL_FUENTE_FORAL = {
-  "DF Gipuzkoa": "https://www.gipuzkoa.eus/es/web/ogasuna/impuestos/modelo/109/2025/bonificaciones-reducciones-deducciones-tabla-gravamen"
+  "DF Gipuzkoa": "https://www.gipuzkoa.eus/es/web/ogasuna/impuestos/modelo/109/2025/bonificaciones-reducciones-deducciones-tabla-gravamen",
+  "BOB n.º 249, 30-12-2023": "https://www.bizkaia.eus/documents/842933/0/I-1528_cas.pdf/417f75aa-bcf5-8ea4-278c-86ed90661bc4?t=1704719801925",
+  "BOB n.º 75, 22-04-2025": "https://www.bizkaia.eus/lehendakaritza/Bao_bob/2025/04/22/I-441_cas.pdf?hash=f8e0e7c517a42c8b3e17d401fe6f54a2",
+  "BOTHA n.º 147, 30-12-2024": "https://www.araba.eus/botha/Boletines/2024/147/2024_147_04143_C.pdf"
 };
 const IMPORTE_MINORACION = { "ES-PV-BI": "importe_bizkaia", "ES-PV-SS": "importe_gipuzkoa", "ES-PV-VI": "importe_araba" };
 const ordenHijos = o => `${eur(o["1"])} por el primero, ${eur(o["2"])} por el segundo, ${eur(o["3"])} por el tercero, ${eur(o["4"])} por el cuarto y ${eur(o["5+"])} por el quinto y siguientes`;
@@ -332,8 +337,8 @@ export function fichaForal(clave, b, t, regimen, enlace) {
   let r;
   try { r = FORAL[k](b, t); } catch (e) { return { error: `${t} ${clave}: ${e.message}` }; }
   if (!r || r.some(x => x == null) || r[1].some(x => /undefined|NaN/.test(x))) return { error: `${t} ${clave}: faltan datos` };
-  const url = Object.entries(URL_FUENTE_FORAL).find(([p]) => (b.fuente || "").includes(p));
-  const fuentes = [...enlacesBoe(b.fuente), url ? `<a href="${url[1]}" rel="noopener">${esc(url[0])}</a>` : null].filter(Boolean);
+  const urls = Object.entries(URL_FUENTE_FORAL).filter(([p]) => (b.fuente || "").includes(p));
+  const fuentes = [...enlacesBoe(b.fuente), ...urls.map(([p, u]) => `<a href="${u}" rel="noopener">${esc(p)}</a>`)];
   const fuente = `<p class="fuente">Norma: ${esc(b.norma)}. Fuente: ${esc(b.fuente)}${fuentes.length ? ` (${fuentes.join(" · ")})` : ""}.</p>`;
   return { html: `<div class="tarjeta ficha-deduccion">
     <h2 class="rotulo">${esc(r[0])}</h2>

@@ -411,6 +411,18 @@ export function normaDelTerritorio(t, norma) {
   const parte = String(norma).split(/ \/ |(?<=\)), (?=art)|(?<=\)) y (?=art)/i).find(p => CLAVE_NORMA[t].test(p));
   return parte ? parte.replace(/^a/, "A") : norma;
 }
+// Fuente de un bloque común del País Vasco para UN territorio. Si cita a los tres con el
+// formato «Bizkaia: … / Gipuzkoa: … / Araba: …», devuelve solo la parte del territorio (null si
+// no tiene); sin etiquetas, la cita entera. Igual que fuente_del_territorio() en
+// tools/generar_datos_seo.R: la página de un territorio nunca muestra la fuente de otro.
+const ETIQUETA_PV = { "ES-PV-BI": "Bizkaia", "ES-PV-SS": "Gipuzkoa", "ES-PV-VI": "Araba" };
+export function fuenteDelTerritorio(t, fuente) {
+  if (fuente == null || !ETIQUETA_PV[t]) return fuente;
+  const partes = String(fuente).split(" / ");
+  if (!partes.some(p => /^(Bizkaia|Gipuzkoa|Araba): /.test(p))) return fuente;
+  const propia = partes.find(p => p.startsWith(ETIQUETA_PV[t] + ": "));
+  return propia ? propia.replace(/^[^:]+: /, "") : null;
+}
 function paramsDe(ej) {
   for (const n of readdirSync(join(WEB, "datos")).filter(n => /^params(_\d{4})?\.json$/.test(n))) {
     const P = JSON.parse(readFileSync(join(WEB, "datos", n), "utf8"));

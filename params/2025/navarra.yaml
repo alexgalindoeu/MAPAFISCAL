@@ -6,8 +6,8 @@
 #        Ley Foral 22/2023 (deflactación 3 %, tarifa vigente). LF 20/2024 y
 #        LF 17/2025 NO modificaron la tarifa (⇒ 2025 = 2026 en escalas).
 #        Convenio Económico: Ley 28/1990.
-# Fuente: guiafiscal.es/irpf/navarra (tablas literales del BON) + Iberley
-#         "Escala IRPF Navarra"; texto TR IRPF Navarra (BON).
+# Fuentes: solo oficiales (BOE, que publica las leyes forales, BON y Hacienda Foral de
+#         Navarra). Cada bloque cita la suya.
 #
 # Diferencias estructurales frente al territorio común:
 #   - Tarifa foral ÚNICA sobre la base liquidable general (sin escala estatal).
@@ -25,7 +25,7 @@ meta:
 
 escala_general_foral:
   norma: "Art. 59.1 TR IRPF Navarra (DFL 4/2008), redacción LF 22/2023"
-  fuente: "BON; guiafiscal.es/irpf/navarra (tabla literal); Iberley Escala IRPF Navarra"
+  fuente: "LF 22/2023, art. primero.Ocho (BOE-A-2024-1694), texto literal de la escala del art. 59.1 con efectos 1-1-2024, sin cambios en la LF 20/2024 (BOE-A-2025-719); Hacienda Foral de Navarra, Manual teórico de la campaña de 2025 (actualizado a 02-02-2026), escala de gravamen de la base liquidable general"
   estado: confirmado
   tramos:
     - { hasta: 4458,   tipo: 0.13 }
@@ -42,7 +42,7 @@ escala_general_foral:
 
 escala_ahorro_foral:
   norma: "Art. 60 TR IRPF Navarra, redacción LF 36/2022 (efectos 1-1-2023)"
-  fuente: "BON; guiafiscal.es/irpf/navarra"
+  fuente: "LF 36/2022, art. primero.Diecisiete (BOE-A-2023-3349), texto literal del art. 60 con efectos 1-1-2023, sin cambios en la LF 22/2023 (BOE-A-2024-1694) ni en la LF 20/2024 (BOE-A-2025-719); Hacienda Foral de Navarra, Manual teórico de la campaña de 2025 (actualizado a 02-02-2026), escala de la base liquidable especial del ahorro"
   estado: confirmado
   tramos:
     - { hasta: 6000,   tipo: 0.20 }
@@ -104,8 +104,8 @@ reduccion_rendimientos_trabajo:
   estado: no_aplica   # Navarra canaliza el beneficio por la deducción por trabajo en cuota (art. 62.5)
 
 deduccion_trabajo_cuota:
-  norma: "Art. 62.5 DFL 4/2008 (TR IRPF Navarra)"
-  fuente: "Iberley — Deducción IRPF rendimientos del trabajo Navarra (ejercicio 2025)"
+  norma: "Art. 62.5 DFL 4/2008 (TR IRPF Navarra), redacción vigente en 2025"
+  fuente: "Letras a), d) y e): LF 30/2018, art. primero.Diecisiete (BOE-A-2019-752); letra b): LF 19/2021, art. primero.Ocho (BOE-A-2022-2067); letra c): LF 29/2019, art. primero.Diez (BOE-A-2020-450); Hacienda Foral de Navarra, Manual teórico de la campaña de 2025 (actualizado a 02-02-2026), «Deducción por trabajo» (art. 62.5 TRIRPF, pág. 271), con el incremento del 50 % y del 100 % para trabajadores en activo con discapacidad"
   estado: confirmado
   tramos:
     - { hasta: 10500, base: 1400, coef: 0,     desde: 0 }
@@ -175,11 +175,11 @@ deducciones_donativos:
 
 reduccion_prevision_social:
   norma: "Art. 55.1.7.º a) DFL 4/2008 (TR IRPF Navarra): letra b´) en la redacción del art. primero.Seis de la LF 19/2021 (efectos 1-1-2022), sin cambios en la LF 22/2023 (que solo añade los 4.250 € de seguros colectivos) ni en la LF 20/2024; letra a´), redacción anterior no modificada"
-  fuente: "BOE-A-2022-2067 (LF 19/2021, texto literal de la letra b´): «1.500 euros anuales. Este límite se incrementará en 8.500 euros, siempre que tal incremento provenga de contribuciones empresariales…»); BOE-A-2024-1694 (LF 22/2023); letra a´) (30 %, 50 % para mayores de 50 años): BBVA AM, «Límites fiscalidad planes de pensiones 2023 Navarra»"
+  fuente: "BOE-A-2022-2067 (LF 19/2021, texto literal de la letra b´): «1.500 euros anuales. Este límite se incrementará en 8.500 euros, siempre que tal incremento provenga de contribuciones empresariales…»); BOE-A-2024-1694 (LF 22/2023); letra a´) (30 %, 50 % para mayores de 50 años): Hacienda Foral de Navarra, Manual teórico de la campaña de 2025 (actualizado a 02-02-2026), «Límite fiscal de la reducción por estos conceptos (art. 55.1.7º TRIRPF)», pág. 209"
   # Por partícipe (también en conjunta): aportaciones + contribuciones empresariales hasta el
   # menor de a´) el 30 % de la suma de sus rendimientos netos del trabajo y de actividades
   # (50 % si tiene más de 50 años) y b´) 1.500 € más hasta 8.500 € de contribuciones
-  # empresariales. Provisional por la letra a´), tomada de una fuente secundaria. No
+  # empresariales. Provisional porque no se modelan los supuestos siguientes. No
   # modelados: los 5.000 € de seguros colectivos de dependencia (letra b), los 4.250 € de
   # seguros colectivos que no incluyen a toda la plantilla, la aportación al cónyuge con
   # rendimientos < 8.500 € (1.000 €, ordinal 9.º) y los excesos de años anteriores.
