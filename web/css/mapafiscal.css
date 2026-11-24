@@ -1344,3 +1344,18 @@ body.escribiendo .barra-movil, body.escribiendo .ir-resultado { display: none !i
 /* «Igual» / «Cambia»: sin pastilla; lo que cambia, subrayado con el rotulador amarillo. */
 .ej-grupo .chip { background: none; border: 0; padding: 0 2px; margin-left: 6px; border-radius: 0; font-weight: 600; color: var(--tinta-3); }
 .ej-grupo .chip.tu { color: var(--tinta); text-decoration: underline 3px var(--resalte); text-underline-offset: 3px; }
+
+/* Pie: enlaces en tres columnas cortas con título (antes, una sola línea con puntos) */
+.pie-nav { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px 32px; margin: 18px 0 16px; max-width: 760px; }
+.pie-tit { margin: 0 0 6px !important; font-family: var(--display); font-weight: 700; font-size: 12px; letter-spacing: .04em; text-transform: uppercase; color: var(--tinta-2); display: flex; align-items: center; gap: 6px; }
+.pie-tit::before { content: ""; width: 7px; height: 9px; background: var(--resalte); transform: skewX(-22deg); flex: none; }
+.pie-nav ul { list-style: none; margin: 0; padding: 0; }
+.pie-nav li { margin: 0; }
+.pie-nav a { display: inline-block; padding: 3px 0; color: var(--tinta-2); text-decoration: none; }
+.pie-nav a:hover, .pie-nav a:focus-visible { color: var(--marca-tinta); text-decoration: underline; }
+.pie-legal, .pie-fechas { font-size: 12px; }
+.pie-legal { padding-top: 10px; border-top: 1px solid var(--linea); margin-top: 8px !important; }
+@media (max-width: 560px) {
+  .pie-nav { grid-template-columns: 1fr 1fr; gap: 14px 20px; }
+  .pie-nav a { padding: 7px 0; }
+}

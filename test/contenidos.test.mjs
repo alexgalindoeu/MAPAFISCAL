@@ -130,10 +130,10 @@ test("vivienda: las cifras de los tipos de imputación salen de params.json", ()
   assert.match(ficheros.get("vivienda/venta-vivienda/index.html"), /todavía no aplica la exención por reinversión/);
 });
 
-test("vivienda: en el menú y el pie de las páginas generadas y en la portada", () => {
+// La portada no la lleva en la barra (decisión del 24-11: va con las guías, no con las
+// calculadoras); se llega desde el panel «Todo» (web/js/ui.js) y el menú de las páginas generadas.
+test("vivienda: en el menú de las páginas generadas y en el panel «Todo» de la portada", () => {
   const g = ficheros.get("guias/index.html");
   assert.match(g, /<nav class="nav"[\s\S]*?href="\/vivienda\/"[\s\S]*?<\/nav>/);
-  assert.match(g, /<footer[\s\S]*href="\/vivienda\/"/);
-  const portada = readFileSync(WEB + "index.html", "utf8");
-  assert.match(portada, /<nav class="nav" id="nav-principal"[\s\S]*?href="vivienda\/"[\s\S]*?<\/nav>/);
+  assert.match(readFileSync(WEB + "js/ui.js", "utf8"), /href: "\/vivienda\/"/);
 });

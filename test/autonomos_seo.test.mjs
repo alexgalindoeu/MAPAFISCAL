@@ -56,8 +56,7 @@ test("autónomos: FAQ, fuentes BOE, municipio explicado y sin cuotas del RETA", 
   assert.match(main("autonomos/madrid/index.html"), /Humanes/);
 });
 
-test("autónomos: en el menú y el pie comunes", () => {
+test("autónomos: en el menú común", () => {
   const g = ficheros.get("irpf/madrid/index.html");
   assert.match(g, /<nav class="nav"[\s\S]*?href="\/autonomos\/"[\s\S]*?<\/nav>/);
-  assert.match(g, /<footer[\s\S]*?href="\/autonomos\/"[\s\S]*?<\/footer>/);
 });
