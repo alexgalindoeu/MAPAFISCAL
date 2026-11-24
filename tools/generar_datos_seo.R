@@ -18,7 +18,10 @@
 #                                       planes de pensiones, donativos, obligación de
 #                                       declarar y calendario de params/calendario_renta.yaml).
 #   web/datos/seo_sueldo_neto.json   — sueldo neto (sueldo_neto() de R/15) por importe y
-#                                       territorio en el ejercicio en curso (web/sueldo-neto/).
+#                                       territorio en el ejercicio en curso (web/sueldo-neto/),
+#                                       con el detalle de cada página por territorio (hijos,
+#                                       cónyuge a cargo, 1.000 € más y límites de renta de las
+#                                       deducciones autonómicas publicadas).
 # =============================================================================
 source("R/cargar.R"); irpfsim_cargar(".")
 
@@ -412,6 +415,101 @@ sueldos_neto <- setNames(lapply(IMPORTES_NETO, function(b) {
                  solidaridad = d$solidaridad, total = d$total, base_mensual = d$base_mensual),
        territorios = porT)
 }), clave(IMPORTES_NETO))
+
+# Detalle de las páginas por territorio (/sueldo-neto/<importe>/<territorio>/), para que
+# cada una diga algo propio: el mismo sueldo con hijos o con el cónyuge a cargo, el neto
+# exacto con 1.000 € brutos más y, en régimen común, qué deducciones autonómicas publicadas
+# (las de web/irpf/<territorio>/deducciones/) dejan entrar por renta con ese sueldo.
+#   · hijos: sueldo_neto(hijos = …), lo mismo que la vista #sueldo-neto (familia monoparental).
+#   · pareja: matrimonio con el cónyuge sin rentas; liquidar() elige individual o conjunta.
+#   · renta: el límite de renta de cada supuesto contra la base que usa esa deducción
+#     (la misma elección de base que base_puerta() de R/06_deducciones.R), con la
+#     liquidación del ejercicio de las deducciones (EJERCICIO): en individual, la de una
+#     persona sin hijos; en conjunta, la de esa persona con un hijo (monoparental).
+EDADES_HIJOS <- c(6, 9)
+neto_pareja <- function(b, t, hijos = integer()) {
+  P <- cargar_parametros(t, EJ_NETO)
+  cot <- cotizaciones_trabajador(b, P)
+  miembros <- c(list(persona("d1", "declarante", 40, trabajo = list(dinerarias = b, cotizaciones_ss = cot)),
+                     persona("c1", "conyuge", 40)),
+                lapply(seq_along(hijos), function(i) persona(paste0("h", i), "descendiente", hijos[[i]])))
+  liq <- liquidar(nuevo_hogar("neto-pareja", t, miembros, EJ_NETO, tipo_unidad_familiar = "biparental"), P)
+  irpf <- red2(liq$cuota_resultante_autoliquidacion - (liq$deducciones_cuota_diferencial$total %||% 0))
+  list(irpf = irpf, neto = red2(b - cot - irpf), modo = liq$modo_tributacion_elegido)
+}
+corto_neto <- function(s) list(irpf = s$irpf, neto = s$neto, modo = s$liquidacion$modo_tributacion_elegido)
+
+# Base con la que cada supuesto compara su límite de renta (espejo de base_puerta()).
+puerta_renta <- function(d, l) {
+  bimp <- l$base_imponible_general + l$base_imponible_ahorro
+  m <- l$minimo_personal_familiar
+  tipo <- if (identical(d$base_gate, "menos_minimo")) "imponible_menos_minimo"
+    else if (identical(d$base_gate, "menos_minimo_contribuyente_descendientes")) "imponible_menos_minimo_contribuyente_descendientes"
+    else if (identical(d$base_gate, "general_menos_minimo")) "general_menos_minimo"
+    else if (identical(d$suma_bases, "imponibles")) "imponible" else "liquidable"
+  valor <- switch(tipo,
+    imponible_menos_minimo = max(0, bimp - l$minimo_personal_familiar_autonomico$total),
+    imponible_menos_minimo_contribuyente_descendientes = max(0, bimp - m$contribuyente - m$descendientes),
+    general_menos_minimo = max(0, l$base_imponible_general - m$total),
+    imponible = bimp,
+    liquidable = l$base_liquidable_general + l$base_liquidable_ahorro)
+  list(tipo = tipo, valor = round(valor, 2))
+}
+# Estado de un límite: "fuera", "reducida" (dentro del tramo de reducción lineal) o "entra".
+estado_limite <- function(valor, lim, tp) {
+  tp <- unlist(tp)
+  if (valor > lim) "fuera" else if (length(tp) == 2 && valor > tp[1]) "reducida" else "entra"
+}
+renta_deducciones <- function(b, t) {
+  fichas <- ded[[t]]$fichas
+  P <- cargar_parametros(t, EJERCICIO)
+  # individual: la persona sola; conjunta: la misma persona con un hijo (familia
+  # monoparental), la unidad familiar más pequeña que puede declarar en conjunta
+  l <- sueldo_neto(b, t, EJERCICIO)$liquidacion
+  cot <- cotizaciones_trabajador(b, P)
+  hc <- nuevo_hogar("renta-conjunta", t, list(
+    persona("d1", "declarante", 40, trabajo = list(dinerarias = b, cotizaciones_ss = cot)),
+    persona("h1", "descendiente", EDADES_HIJOS[1])), EJERCICIO, tipo_unidad_familiar = "monoparental")
+  lc <- liquidar(hc, P, "conjunta")
+  lapply(fichas, function(f) {
+    puertas <- list(); sin_limite <- FALSE
+    for (d in f$supuestos) {
+      lim <- d[["base_max_individual"]]; bpm <- d[["base_max_por_miembro_uf"]]
+      if (is.null(lim) && is.null(bpm)) { sin_limite <- TRUE; next }
+      pb <- puerta_renta(d, l)
+      p <- if (!is.null(bpm)) {
+        # unidad familiar: el límite es por miembro; cuántos miembros hacen falta para entrar
+        base_uf <- if (identical(d$suma_bases, "imponibles")) l$base_imponible_general + l$base_imponible_ahorro
+                   else l$base_liquidable_general + l$base_liquidable_ahorro
+        list(base = pb$tipo, valor = round(base_uf, 2), por_miembro = bpm, miembros = max(1, ceiling(base_uf / bpm)))
+      } else {
+        tp <- unlist(d[["taper_individual"]])
+        limc <- d[["base_max_conjunta"]]
+        conj <- if (!is.null(limc)) {
+          pc <- puerta_renta(d, lc); tpc <- unlist(d[["taper_conjunta"]])
+          c(list(valor = pc$valor, limite = limc, estado = estado_limite(pc$valor, limc, tpc)),
+            if (length(tpc) == 2) list(reduccion_desde = tpc[1]) else NULL)
+        }
+        c(list(base = pb$tipo, valor = pb$valor, limite = lim, estado = estado_limite(pb$valor, lim, tp)),
+          if (length(tp) == 2) list(reduccion_desde = tp[1]) else NULL,
+          if (!is.null(conj)) list(conjunta = conj) else NULL)
+      }
+      if (!any(vapply(puertas, function(q) identical(q, p), logical(1)))) puertas[[length(puertas) + 1]] <- p
+    }
+    list(titulo = f$titulo, sin_limite = sin_limite, puertas = puertas)
+  })
+}
+TERR_RENTA <- names(Filter(function(x) identical(x$regimen, "comun"), ded))
+detalle_neto <- setNames(lapply(IMPORTES_TERRITORIO, function(b) {
+  setNames(lapply(TERR_NETO, function(t) {
+    c(list(hijo1 = corto_neto(sueldo_neto(b, t, EJ_NETO, hijos = EDADES_HIJOS[1])),
+           hijos2 = corto_neto(sueldo_neto(b, t, EJ_NETO, hijos = EDADES_HIJOS)),
+           pareja = neto_pareja(b, t),
+           pareja_hijos2 = neto_pareja(b, t, EDADES_HIJOS),
+           mas_1000 = corto_neto(sueldo_neto(b + 1000, t, EJ_NETO))[c("irpf", "neto")]),
+      if (t %in% TERR_RENTA) list(renta = renta_deducciones(b, t)) else NULL)
+  }), TERR_NETO)
+}), clave(IMPORTES_TERRITORIO))
 cargar_parametros <- .cargar_parametros_original
 
 seo_sueldo_neto <- list(
@@ -424,7 +522,12 @@ seo_sueldo_neto <- list(
   importes_anuales = as.list(IMPORTES_ANUALES),
   importes_territorio = as.list(IMPORTES_TERRITORIO),
   mensuales = as.list(MENSUALES),
-  sueldos = sueldos_neto
+  sueldos = sueldos_neto,
+  detalle = list(
+    edades_hijos = as.list(EDADES_HIJOS),
+    ejercicio_deducciones = EJERCICIO,
+    territorios = detalle_neto
+  )
 )
 
 # -----------------------------------------------------------------------------

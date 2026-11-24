@@ -5,6 +5,8 @@
 // mismo hogar con y sin la situación y solo cuenta piezas confirmadas. Un territorio sin
 // cifra tiene página con `noindex` y no va al sitemap. Lo usa tools/generar_paginas_seo.mjs.
 // =============================================================================
+import { vecinosGeograficos } from "./seo_sueldo_neto.mjs";
+import { conEn } from "./seo_deduccion_ficha.mjs";
 import { NOMBRE_CORTO, tituloQueQuepa, SLUG, ORDEN_TERRITORIOS, esc, euros, eurosExactos, layout, jsonLdMigas, jsonLdFaq, bloqueFaq, migasHtml } from "./seo_comun.mjs";
 
 const HUB = "/cuanto-me-devuelve/";
@@ -80,6 +82,14 @@ function enlaceDeducciones(codigo, nombre, conDeducciones) {
     : `<a href="/irpf/${SLUG[codigo]}/">IRPF en ${esc(nombre)}</a>`;
 }
 
+// La página de sueldo neto del territorio con el sueldo de referencia (si existe): con
+// hijos o con el cónyuge a cargo, para las situaciones familiares.
+function enlaceNeto(sit, codigo, nombre, sueldo, d) {
+  if (!(d.importes_neto || []).includes(sueldo)) return "";
+  const fam = sit === "hijo" || sit === "familia-numerosa";
+  return `<a href="/sueldo-neto/${sueldo}/${SLUG[codigo]}/">${esc(fam ? `sueldo neto de ${euros(sueldo)} ${conEn(nombre)} con hijos` : `sueldo neto de ${euros(sueldo)} ${conEn(nombre)}`)}</a> · `;
+}
+
 const de = x => x.startsWith("el ") ? "del " + x.slice(3) : "de " + x;
 // Por qué sale esa cifra, en texto plano.
 function explicacion(sit, t, d) {
@@ -97,6 +107,7 @@ function explicacion(sit, t, d) {
 // Texto propio de cada página: puesto entre los territorios con cifra, distancia al que más y
 // al que menos rebaja, cómo cambia con el sueldo y, para la discapacidad, el otro grado.
 // Todo sale de seo_devuelve.json.
+const VECINOS = vecinosGeograficos();
 const PAR = { "discapacidad-33": "discapacidad-65", "discapacidad-65": "discapacidad-33" };
 function contexto(sit, t, d) {
   const S = SITUACIONES[sit], sal = d.salarios.map(String), med = sal[1], a = t.ahorro[med];
@@ -112,8 +123,16 @@ function contexto(sit, t, d) {
     out.push(Math.abs(a - media) < 1 ? "Es lo mismo que la media de los territorios con cifra." : `La media de los territorios con cifra es ${eurosExactos(media)}.`);
   }
   const v = sal.map(s => t.ahorro[s]);
-  out.push(v.every(x => x === v[0]) ? `En ${t.nombre} la rebaja no depende del sueldo: es ${eurosExactos(v[0])} con ${euros(+sal[0])}, con ${euros(+sal[1])} y con ${euros(+sal[2])} brutos.`
+  out.push(v.every(x => Math.abs(x - v[0]) < 1) ? `En ${t.nombre} la rebaja ${v.every(x => x === v[0]) ? "no depende" : "apenas depende"} del sueldo: es ${v.every(x => x === v[0]) ? "" : "de unos "}${eurosExactos(v[0])} con ${euros(+sal[0])}, con ${euros(+sal[1])} y con ${euros(+sal[2])} brutos.`
     : `En ${t.nombre} la rebaja ${v[2] > v[0] ? "crece" : "baja"} con el sueldo: ${eurosExactos(v[0])} con ${euros(+sal[0])} brutos y ${eurosExactos(v[2])} con ${euros(+sal[2])}.`);
+  // territorios con los que limita (mapa de la web), solo los que tienen cifra
+  const vec = (VECINOS[t.territorio] || []).map(c => d.situaciones[sit][c]).filter(x => x && x.publicable)
+    .sort((x, y) => y.ahorro[med] - x.ahorro[med] || x.territorio.localeCompare(y.territorio));
+  if (vec.length) {
+    const casi = x => Math.abs(x.ahorro[med] - a) < 1, igual = vec.filter(casi).length;
+    out.push(igual === vec.length ? `Es la misma rebaja que en ${vec.length > 1 ? `los ${vec.length} territorios con los que limita y tienen cifra` : `${vec[0].nombre}, con el que limita`}.`
+      : `Frente a los territorios con los que limita: ${vec.map(x => casi(x) ? `en ${x.nombre}, ${x.ahorro[med] === a ? "lo mismo" : "prácticamente lo mismo"}` : `en ${x.nombre}, ${eurosExactos(x.ahorro[med])} (${eurosExactos(Math.abs(x.ahorro[med] - a))} ${x.ahorro[med] > a ? "más" : "menos"})`).join("; ")}.`);
+  } else if (!(VECINOS[t.territorio] || []).length) out.push(`${t.nombre} no limita por tierra con ningún otro territorio fiscal.`);
   const otra = PAR[sit] && d.situaciones[PAR[sit]][t.territorio];
   if (otra && otra.publicable) {
     const b = otra.ahorro[med], O = SITUACIONES[PAR[sit]];
@@ -163,7 +182,7 @@ function paginaTerritorio(sit, t, d, conDeducciones, generado) {
   ${cuerpo}
   ${bloqueFaq(faq)}
   <p><a class="btn btn-pri" href="${CALC}">Calcula tu caso real en ${esc(nombre)}</a></p>
-  <p class="ayuda">Más: ${enlaceDeducciones(codigo, nombre, conDeducciones)} · <a href="${ruta(sit)}">${esc(S.nombre)} en los 19 territorios</a> · <a href="${HUB}">otras situaciones</a></p>
+  <p class="ayuda">Más: ${enlaceDeducciones(codigo, nombre, conDeducciones)} · ${enlaceNeto(sit, codigo, nombre, +med, d)}<a href="${ruta(sit)}">${esc(S.nombre)} en los 19 territorios</a> · <a href="${HUB}">otras situaciones</a></p>
   </div>`;
   const html = layout({
     jsonld: [jsonLdMigas(migas), jsonLdFaq(faq)],
@@ -223,7 +242,9 @@ function paginaIndice(d, generado) {
 }
 
 // Devuelve [{ ruta, html, indexable }].
-export function paginasDevuelve(d, conDeducciones) {
+// importesNeto: sueldos con página /sueldo-neto/<importe>/<territorio>/.
+export function paginasDevuelve(d, conDeducciones, importesNeto = []) {
+  d = { ...d, importes_neto: importesNeto };
   const out = [paginaIndice(d, d.generado)];
   for (const sit of Object.keys(SITUACIONES)) {
     const ts = d.situaciones[sit];
