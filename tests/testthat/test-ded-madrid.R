@@ -133,3 +133,17 @@ test_that("Madrid: el límite de la UF (art. 18.2) usa la base IMPONIBLE, tambi�
     tipo_unidad_familiar="biparental")
   expect_equal(liquidar(h2, modo="conjunta")$deducciones_autonomicas$detalle$gastos_educativos, 1958.90)
 })
+
+test_that("Madrid art. 8: el alquiler tiene que superar el 20 % de la base imponible", {
+  # 27.000 € de trabajo y 1.714 € de cotizaciones: base imponible general 23.286 € ->
+  # umbral 20 % = 4.657,20 €. Ver docs/03, «Alquiler en Madrid: el 20 % de la base imponible».
+  ded <- function(alq) {
+    h <- nuevo_hogar("v","ES-MD", list(persona("d1","declarante",30,
+      trabajo=list(dinerarias=27000, cotizaciones_ss=1714), alquiler_vivienda_pagos=alq)))
+    liquidar(h, modo="individual")$deducciones_autonomicas$detalle$arrendamiento_vivienda_habitual %||% 0
+  }
+  expect_equal(ded(4000), 0)          # no supera el 20 % (antes, 30 % · 4.000 = 1.200 €)
+  expect_equal(ded(4657.20), 0)       # igual al 20 %: tiene que «superar»
+  expect_equal(ded(4700), 1237.20)    # 30 % · 4.700 = 1.410 -> tope 1.237,20 €
+  expect_equal(ded(9000), 1237.20)
+})

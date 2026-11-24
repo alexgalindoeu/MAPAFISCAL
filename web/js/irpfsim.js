@@ -481,6 +481,8 @@
           if (m.rol === "declarante" || m.rol === "conyuge") { if (idsAmbito.has(m.id)) base += v; }
           else base += indCompartido ? v / nProg : v;
         }
+        // pagos_min_pct_base_imponible: el gasto tiene que superar ese % de 0435 + 0460 (Madrid, art. 8)
+        if (d.pagos_min_pct_base_imponible != null && !(base > num(d.pagos_min_pct_base_imponible) * baseImp)) base = 0;
         if (d.base_maxima != null) base = Math.min(base, d.base_maxima);
         val = base * num(d.porcentaje);
         // limite_por_hijo_adicional: el límite sube por cada descendiente a partir del segundo;

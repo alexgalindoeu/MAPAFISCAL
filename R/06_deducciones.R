@@ -75,6 +75,8 @@ deducciones_estatales <- function(hogar, P, rentas, base_liquidable_total, perso
 #     base_gate: "menos_minimo" -> base imponible − mínimo del gravamen autonómico (0520)
 #     base_gate: "general_menos_minimo" -> base imponible general − mínimo (0435 − 0519);
 #     base_ahorro_max: tope de la base imponible del ahorro; limite_por_hijo_adicional
+#     pagos_min_pct_base_imponible (porcentaje_campo): el gasto tiene que superar ese % de la
+#       suma de bases imponibles general y del ahorro (0435 + 0460)
 #     base_max_por_miembro_uf: base de la UF <= importe x nº de miembros (declarantes +
 #       descendientes < 18); requiere_familia_numerosa_reciente (hogar$familia_numerosa_reciente)
 #     requiere_discapacidad_65_de: "declarantes_o_descendientes" | "contribuyente_o_descendientes"
@@ -321,6 +323,10 @@ deducciones_autonomicas <- function(hogar, P, rentas, modo = "individual", base_
         if (es_decl) { if ((m$id %||% "") %in% ids_ambito) v else 0 }
         else if (ind_compartido) v / n_prog else v
       }, numeric(1)))
+      # `pagos_min_pct_base_imponible`: solo hay deducción si el gasto supera ese porcentaje
+      # de la base imponible general + la del ahorro (0435 + 0460) (Madrid, art. 8: 20 %)
+      umb <- g(d, "pagos_min_pct_base_imponible")
+      if (!is.null(umb) && !(base > umb * base_imp)) base <- 0
       if (!is.null(g(d,"base_maxima"))) base <- min(base, g(d,"base_maxima"))
       val <- base * porc
       # `limite_por_hijo_adicional`: el límite sube ese importe por cada descendiente a partir
