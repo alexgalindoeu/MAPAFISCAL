@@ -277,7 +277,9 @@
 
   // ---- 3. HTML del informe (pantalla e impresión) ---------------------------------------
   const CAT = { declaracion: "Declaración", prevision: "Ahorro", territorio: "Residencia", deduccion_potencial: "Deducción" };
-  const LOGO = '<svg viewBox="0 0 32 32" aria-hidden="true" class="inf-logo"><rect width="32" height="32" rx="8" fill="#1f3fc4"/><path fill="#fff" d="M7 10.5 13 8v15.5L7 26z"/><path fill="#ffd23f" d="M13 8l6 2.5V26l-6-2.5z"/><path fill="#fff" fill-opacity=".55" d="M19 10.5 25 8v15.5L19 26z"/></svg>';
+  // La M del logo (web/favicon.svg): dos patas cobalto y la diagonal amarilla. Colores fijos, sin
+  // tokens: el informe se imprime siempre en claro y el SVG no depende de imprimir fondos.
+  const LOGO = '<svg viewBox="0 0 101 82" aria-hidden="true" class="inf-logo"><polygon fill="#1f3fc4" points="2,80 16,4 28,4 54,30 46,41 24,20 17,80"/><polygon fill="#1f3fc4" points="72,2 83,2 99,80 85,80 75,30"/><polygon class="inf-logo-tu" fill="#ffd23f" points="31,80 46,80 87,24 79,10"/></svg>';
 
   // o = { banner, afiliado: { texto, enlace, imagen }, fecha, web }
   function html(c, o) {
@@ -290,7 +292,7 @@
       : `<aside class="inf-banner">${LOGO}<div><b>Informe gratuito de Mapafiscal.</b> Con el plan Gestor tienes los informes de toda tu cartera de clientes, siempre recalculados y sin este aviso.
           <a href="${esc(web)}#planes">${esc(web.replace(/^https?:\/\//, "").replace(/\/$/, ""))}/#planes</a></div></aside>`);
     return `<article class="inf-doc">
-  <header class="inf-cab">${LOGO}<div><p class="inf-marca">Mapafiscal</p><h1>Informe de tu IRPF ${c.ejercicio}</h1>
+  <header class="inf-cab">${LOGO}<div class="inf-cab-txt"><p class="inf-marca">Mapafiscal</p><h1>Informe de tu IRPF ${c.ejercicio}</h1>
     <p class="inf-sub">${esc(c.territorio.nombre)} · ${esc(c.territorio.regimenTxt)}${o.fecha ? ` · generado el ${esc(o.fecha)}` : ""}</p></div></header>
   ${banner}
   <section class="inf-sec inf-resumen">

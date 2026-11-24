@@ -75,7 +75,7 @@ function irpfVivienda(P, extra) {
 const r2v = x => Math.round(x * 100) / 100;
 const rirpf = art => `<a href="${RIRPF_BOE}" rel="noopener">${esc(art)} del Reglamento del IRPF</a>`;
 const FUENTES_VIV = `<p class="cita">Fuentes primarias: <a href="${LIRPF_BOE}" rel="noopener">Ley 35/2006, del IRPF (texto consolidado, BOE-A-2006-20764)</a> y <a href="${RIRPF_BOE}" rel="noopener">Real Decreto 439/2007, Reglamento del IRPF (texto consolidado, BOE-A-2007-6820)</a>.</p>`;
-const aviso = txt => `<div class="tarjeta"><h2 class="rotulo">Lo que la calculadora todavía no hace</h2><p>${txt}</p></div>`;
+const aviso = txt => `<div class="tarjeta nota-limite"><h2 class="rotulo">Lo que la calculadora todavía no hace</h2><p>${txt}</p></div>`;
 
 function datosVivienda() {
   const P = PARAMS(), imp = P.estatal.imputacion_renta_inmobiliaria;
@@ -114,24 +114,24 @@ function guiaViviendaHub(g) {
     ${tablaG(["Situación", "Cómo tributa", "Base", "Norma", "Guía"], filas, { cifras: false })}
     <p class="ayuda">La base general se suma al sueldo y paga la escala progresiva estatal y autonómica; la base del ahorro tiene su propia escala, igual en todas las comunidades de régimen común.</p>
   </div>
-  <div class="tarjeta">
-    <h2 class="rotulo">1. La vivienda en la que vives</h2>
+  <div class="tarjeta viv-paso">
+    <h2 class="rotulo"><span class="viv-num">1.</span> La vivienda en la que vives</h2>
     <p>Tu vivienda habitual no genera renta por el hecho de ser tuya: el ${lirpf("art. 85")} la deja fuera de la imputación de rentas inmobiliarias. Aparece en la declaración en dos casos: si la compraste antes de 2013 y aplicas el régimen transitorio de deducción por inversión en vivienda habitual (${esc(P.estatal.deduccion_vivienda_transitoria.norma)}), y cuando la vendes, porque la diferencia entre lo que pagaste y lo que cobras es una ganancia patrimonial, que en ciertos casos puede quedar exenta.</p>
   </div>
-  <div class="tarjeta">
-    <h2 class="rotulo">2. Una segunda vivienda que no alquilas</h2>
+  <div class="tarjeta viv-paso">
+    <h2 class="rotulo"><span class="viv-num">2.</span> Una segunda vivienda que no alquilas</h2>
     <p>Un piso en la playa, una casa en el pueblo o una vivienda vacía a tu disposición tributan aunque no te den ni un euro: Hacienda te <a href="/glosario/imputacion-rentas-inmobiliarias/">imputa una renta presunta</a> del ${pctTipo(imp.tipo_general)} de su valor catastral, o del ${pctTipo(imp.tipo_revisado_10_anios)} si ese valor se ha revisado en los últimos años (${esc(imp.norma)}). Esa renta se suma al sueldo en la base general.</p>
-    <p>Con el motor: un valor catastral de ${euros(D.VC)} sumado a ${euros(VIV_BRUTO)} brutos en ${esc(NOMBRE_CORTO[VIV_T])} sube el IRPF del año ${eur(D.dif(D.rev))} si el valor está revisado y ${eur(D.dif(D.norev))} si no lo está. <a href="/vivienda/segunda-vivienda/">Guía de la segunda vivienda</a>.</p>
+    <p class="dato-motor">Con el motor: un valor catastral de ${euros(D.VC)} sumado a ${euros(VIV_BRUTO)} brutos en ${esc(NOMBRE_CORTO[VIV_T])} sube el IRPF del año <b>${eur(D.dif(D.rev))}</b> si el valor está revisado y <b>${eur(D.dif(D.norev))}</b> si no lo está. <a href="/vivienda/segunda-vivienda/">Guía de la segunda vivienda</a>.</p>
   </div>
-  <div class="tarjeta">
-    <h2 class="rotulo">3. Una vivienda alquilada</h2>
+  <div class="tarjeta viv-paso">
+    <h2 class="rotulo"><span class="viv-num">3.</span> Una vivienda alquilada</h2>
     <p>Lo que cobras de alquiler, menos los gastos deducibles, es un rendimiento del capital inmobiliario (${lirpf("arts. 22 a 24")}). Si se alquila como vivienda habitual del inquilino, el rendimiento neto positivo tiene una reducción (${lirpf("art. 23.2")}); si se alquila por temporadas o para uso turístico, no. Los días del año en que no está alquilada vuelven a la imputación de rentas.</p>
-    <p>Con el motor: ${euros(D.alq.ingresos)} de alquiler en un año con ${euros(D.alq.gastosDeducibles + D.alq.gastosFinancieros)} de gastos suben el IRPF ${eur(D.dif(D.alqViv))} si es vivienda habitual del inquilino y ${eur(D.dif(D.alqOtro))} si no tiene la reducción. <a href="/vivienda/alquiler-por-temporadas/">Guía del alquiler por temporadas</a>.</p>
+    <p class="dato-motor">Con el motor: ${euros(D.alq.ingresos)} de alquiler en un año con ${euros(D.alq.gastosDeducibles + D.alq.gastosFinancieros)} de gastos suben el IRPF <b>${eur(D.dif(D.alqViv))}</b> si es vivienda habitual del inquilino y <b>${eur(D.dif(D.alqOtro))}</b> si no tiene la reducción. <a href="/vivienda/alquiler-por-temporadas/">Guía del alquiler por temporadas</a>.</p>
   </div>
-  <div class="tarjeta">
-    <h2 class="rotulo">4. Cuando la vendes</h2>
+  <div class="tarjeta viv-paso">
+    <h2 class="rotulo"><span class="viv-num">4.</span> Cuando la vendes</h2>
     <p>Al vender, la diferencia entre el valor de transmisión y el de adquisición es una ganancia (o pérdida) patrimonial que va a la base del ahorro (${lirpf("arts. 33 a 35 y 46")}).${escAhorro ? ` Su escala va del ${pctTipo(escAhorro[0].tipo)} al ${pctTipo(escAhorro[escAhorro.length - 1].tipo)} sumando las partes estatal y autonómica.` : ""} Si la vivienda era la habitual, la ganancia puede quedar exenta si reinviertes en otra o si tienes más de 65 años; si estuvo alquilada, la amortización de esos años reduce el valor de compra y aumenta la ganancia.</p>
-    <p>Con el motor: comprar a ${euros(D.venta.compra)} y vender a ${euros(D.venta.precio)} deja una ganancia de ${euros(D.venta.precio - D.venta.compra)} que sube el IRPF del año ${eur(D.dif(D.vend))}. <a href="/vivienda/venta-vivienda/">Guía de la venta</a> · <a href="/vivienda/vender-piso-alquilado/">Vender un piso alquilado</a>.</p>
+    <p class="dato-motor">Con el motor: comprar a ${euros(D.venta.compra)} y vender a ${euros(D.venta.precio)} deja una ganancia de ${euros(D.venta.precio - D.venta.compra)} que sube el IRPF del año <b>${eur(D.dif(D.vend))}</b>. <a href="/vivienda/venta-vivienda/">Guía de la venta</a> · <a href="/vivienda/vender-piso-alquilado/">Vender un piso alquilado</a>.</p>
   </div>
   <div class="tarjeta"><h2 class="rotulo">En esta sección</h2><ul class="lista-enlaces">${VIV_GUIAS.map(([s, t]) => `<li><a href="/vivienda/${s}/">${esc(t)}</a></li>`).join("")}</ul>
     <p class="ayuda">${esc(SUP_VIV(P))}</p>${FUENTES_VIV}</div>
@@ -308,7 +308,7 @@ function guiaVentaVivienda(g) {
   <div class="tarjeta">
     <h2 class="rotulo">Exención por reinversión en vivienda habitual</h2>
     <p>Si vendes tu vivienda habitual y reinviertes lo que obtienes en comprar otra vivienda habitual, la ganancia queda exenta (${lirpf("art. 38.1")}). Las condiciones las desarrolla el ${rirpf("art. 41")}:</p>
-    <ul>
+    <ul class="lista-req">
       <li>La reinversión tiene que hacerse dentro del plazo que fija el ${rirpf("art. 41")}, que cuenta tanto hacia atrás como hacia delante desde la venta.</li>
       <li>Si reinviertes solo una parte, la exención es proporcional a la parte reinvertida.</li>
       <li>Si la vivienda vendida tenía hipoteca, cuenta como importe obtenido el precio de venta menos el préstamo pendiente que se cancela.</li>
@@ -356,7 +356,7 @@ function guiaVenderAlquilado(g) {
   </div>
   <div class="tarjeta">
     <h2 class="rotulo">Qué datos necesitas</h2>
-    <ul>
+    <ul class="lista-req">
       <li>El precio de compra y los gastos y tributos de la compra, y qué parte corresponde a la construcción y cuál al suelo (la escritura y el recibo del IBI ayudan a repartirlo).</li>
       <li>Los años y días en que estuvo alquilada y las amortizaciones deducidas en cada declaración.</li>
       <li>Las mejoras hechas en la vivienda, que suman al valor de adquisición y también se amortizan mientras está alquilada.</li>

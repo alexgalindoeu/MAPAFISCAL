@@ -60,8 +60,40 @@ La portada se reconoce como Mapafiscal sin ver el logo. Usa estos recursos; no l
   24-11: demasiado grande y con demasiadas cifras, tapaba lo que la gente viene a consultar.
   Se quedan con el formato sobrio.
 
+## Más zonas con los recursos de la M (segunda tanda)
+
+- **Comparador** (`#comparar`): la tarjeta «Tu territorio» (`.comp-resumen > div.tu`) es blanca
+  como las demás, con la cinta M arriba, la diagonal junto al rótulo y filete `--marca-200`. La
+  leyenda del mapa (`.tarjeta-mapa .leyenda`) es el pie de la tarjeta: filete con la cinta M corta
+  al principio y la rampa y la muestra de «tu territorio» inclinadas como el trazo de la M (solo en
+  `#comparar`; la portada tiene la suya).
+- **Fichas de deducción** (`/irpf/<t>/deducciones/<slug>/`, `.ficha-req`): cada supuesto es una fila
+  con la cifra clave (`.supuesto-cifra`: rótulo «Supuesto n» en mono y el importe en Archivo, con la
+  pata azul rematada en amarillo) y, al lado en escritorio, los requisitos como lista numerada
+  (`.lista-req`: 01, 02… en mono entre filetes). En los ejemplos (`.ficha-ejemplo`) la cifra del
+  motor va subrayada con el trazo amarillo.
+- **Vivienda y rescate** (`guias.css`): las cuatro situaciones de `/vivienda/` numeradas
+  (`.viv-paso .viv-num`), el dato del motor (`.dato-motor`) separado con la cinta M corta y sus
+  cifras subrayadas; las condiciones (reinversión, datos necesarios) y las reglas del rescate como
+  `.lista-req`; en las tablas del rescate, la forma que menos tributa con la diagonal
+  (`td.mejor-forma`) y las cifras de la entradilla subrayadas (`.entradilla-cifras`).
+- **Informe PDF** (`web/js/informe.js`, `.inf-*`): portada con la M del logo (mismos polígonos que
+  `favicon.svg`), «MAPAFISCAL» en cobalto, titular en Archivo y la cinta M bajo la cabecera (un
+  tercio del ancho; `print-color-adjust: exact`). La cifra principal lleva la pata azul con remate
+  amarillo. En blanco y negro: cinta oscuro-claro-oscuro y la diagonal del logo con filete fino al
+  imprimir.
+
+## Avisos, errores y estados vacíos
+
+- **Avisos** (`.avisos-form`, `.aviso-demo`, «Lo que la calculadora todavía no hace» de vivienda
+  `.nota-limite`): tinte `--aviso-suave`, filete izquierdo de 3 px (la pata) y, delante del título,
+  la diagonal rellena de `--aviso`. Sin caja con borde completo.
+- **Errores de campo** (`input[aria-invalid]`, `.error-importe`, `.mensaje.error`): color `--pierde`
+  (nunca rojos sueltos) y una diagonal pequeña de su mismo color delante del texto.
+- **Vacíos en línea** (`.vacio`): la diagonal solo con contorno `--linea-2` (sin amarillo: no hay nada
+  tuyo que señalar). **Estado vacío de una vista** (`.estado-vacio`): la cinta M corta y centrada
+  encima del titular.
+
 El resto sigue el patrón sobrio de tarjeta/filete. Respeta `prefers-reduced-motion` y los
 huecos de anuncios; no añadas iconos genéricos (los propios están en `ICONOS` de `web/js/ui.js`).
 
-Pendiente: la tarjeta «Tu territorio» del comparador (`.comp-resumen > div.tu`) aún usa
-`--resalte-suave` como fondo de tarjeta entera; candidata a pasar a la diagonal.
