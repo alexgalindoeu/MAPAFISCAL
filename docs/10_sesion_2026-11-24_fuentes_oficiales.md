@@ -29,14 +29,16 @@ Retoma `fuentes-forales.patch` y `navarra.patch` de `docs/traspaso/` (rama
 
 ## Impacto en la web
 
-Mismas 899 URLs del sitemap que `main`. Ninguna cifra de cálculo cambia (VALIDADOR OK 172).
+Sitemap: las 899 URLs de `main` más las 6 nuevas de Álava. Ninguna cifra de cálculo cambia (VALIDADOR OK 172).
 Solo cambian los textos de «Fuente» y sus enlaces en las páginas forales, y el `lastmod`.
 
-## Pendiente de decisión del dueño
+## Álava: tres deducciones con fuente propia (decisión del dueño, 24-11-2026)
 
-- **Álava:** ascendientes (423,72 €), discapacidad (1.025,64 €…) y anualidades por alimentos
-  tienen fuente oficial verificada (BOTHA n.º 147), pero se deja como comentario en el YAML:
-  activarla publica 3 páginas nuevas en «cuánto me devuelve» y cambia la media de unas 60.
+Ascendientes (423,72 €), discapacidad (1.025,64 € a 2.191,03 €) y anualidades por alimentos
+citan ya la NF 19/2024 (BOTHA n.º 147) y la NF 3/2025 (BOTHA n.º 44). Se publican sus fichas
+en /irpf/araba-alava/deducciones/ y Álava entra en «cuánto me devuelve» por ascendiente y
+discapacidad: 3 páginas nuevas de deducciones y 3 de «cuánto me devuelve», y cambian las
+medias de las páginas de esas situaciones.
 
 ## Normativa nueva comprobada en el BOE
 

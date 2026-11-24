@@ -1,6 +1,6 @@
 {
  "ejercicio": 2025,
- "generado": "2026-11-14",
+ "generado": "2026-11-24",
  "salarios": [
   20000,
   35000,
@@ -1022,7 +1022,7 @@
     "territorio": "ES-PV-VI",
     "nombre": "Araba/Álava",
     "regimen": "foral_pais_vasco",
-    "publicable": false,
+    "publicable": true,
     "piezas": [
      "deduccion_ascendientes"
     ],
@@ -1030,7 +1030,11 @@
     "deducciones_autonomicas": [
 
     ],
-    "ahorro": null
+    "ahorro": {
+     "20000": 423.72,
+     "35000": 423.72,
+     "60000": 423.72
+    }
    },
    "ES-NC": {
     "territorio": "ES-NC",
@@ -1697,7 +1701,7 @@
     "territorio": "ES-PV-VI",
     "nombre": "Araba/Álava",
     "regimen": "foral_pais_vasco",
-    "publicable": false,
+    "publicable": true,
     "piezas": [
      "deduccion_discapacidad"
     ],
@@ -1705,7 +1709,11 @@
     "deducciones_autonomicas": [
 
     ],
-    "ahorro": null
+    "ahorro": {
+     "20000": 1025.64,
+     "35000": 1025.64,
+     "60000": 1025.64
+    }
    },
    "ES-NC": {
     "territorio": "ES-NC",
@@ -2040,7 +2048,7 @@
     "territorio": "ES-PV-VI",
     "nombre": "Araba/Álava",
     "regimen": "foral_pais_vasco",
-    "publicable": false,
+    "publicable": true,
     "piezas": [
      "deduccion_discapacidad"
     ],
@@ -2048,7 +2056,11 @@
     "deducciones_autonomicas": [
 
     ],
-    "ahorro": null
+    "ahorro": {
+     "20000": 1436.1,
+     "35000": 1464.54,
+     "60000": 1464.54
+    }
    },
    "ES-NC": {
     "territorio": "ES-NC",

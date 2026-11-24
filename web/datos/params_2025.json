@@ -618,6 +618,7 @@
     },
     "deduccion_anualidades_alimentos_hijos": {
      "norma": "Art. 80 NF 33/2013 Araba (redacción NF 3/2025): 15 %, con el límite por hijo del 30 % de la deducción del art. 79.1",
+     "fuente": "NF 3/2025 (BOTHA n.º 44, 16-04-2025), art. 80 NF 33/2013; importes del art. 79.1 de la NF 19/2024 (BOTHA n.º 147, 30-12-2024)",
      "estado": "confirmado",
      "limites": {
       "1": 220.44,
@@ -629,11 +630,13 @@
     },
     "deduccion_ascendientes": {
      "norma": "Art. 81.1 NF 33/2013 Araba (redacción NF 19/2024, art. 2.Tercero.Once bis)",
+     "fuente": "NF 19/2024, de 20 de diciembre, de medidas tributarias para 2025, art. 2.Tercero.Once bis (BOTHA n.º 147, 30-12-2024)",
      "estado": "confirmado",
      "importe": 423.72
     },
     "deduccion_discapacidad": {
      "norma": "Art. 82.1 NF 33/2013 Araba (redacción NF 19/2024, art. 2.Tercero.Once quater)",
+     "fuente": "NF 19/2024, de 20 de diciembre, de medidas tributarias para 2025, art. 2.Tercero.Once quater (BOTHA n.º 147, 30-12-2024)",
      "estado": "confirmado",
      "grado_33_64": 1025.64,
      "grado_65_mas_o_dependencia_moderada": 1464.54,
