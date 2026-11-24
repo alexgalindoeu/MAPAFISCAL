@@ -64,9 +64,7 @@ descarga de los datos no empieza hasta que llega y se ejecuta app.js). La de los
       <a href="#escenarios" data-vista="escenarios">Escenarios</a>
       <a href="#sueldo-neto" data-vista="sueldo-neto">Sueldo neto</a>
       <a href="#plan-pensiones" data-vista="plan-pensiones">Ahorro fiscal</a>
-      <a href="#clientes" data-vista="clientes">Mis clientes</a>
-      <a href="#planes" data-vista="planes">Planes</a>
-      <a href="vivienda/">Vivienda</a>
+      <a href="#clientes" data-vista="clientes" hidden>Mis clientes</a>
     </nav>
     <div class="appbar-der">
       <button class="btn-icono tema-btn" id="btn-tema" type="button" aria-label="Tema: automático (como el sistema). Cambiar a claro" title="Tema: automático"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><circle cx="12" cy="12" r="8"/><path class="relleno" d="M12 4a8 8 0 0 1 0 16z"/></svg></button>
@@ -1173,9 +1171,9 @@ descarga de los datos no empieza hasta que llega y se ejecuta app.js). La de los
 <footer class="pie">
   <div class="contenedor pie-in">
     <p><b>Mapafiscal</b> ofrece estimaciones con fines informativos. No es una liquidación oficial ni asesoramiento fiscal.</p>
-    <p class="pie-sec"><a href="irpf/">IRPF por territorio</a> · <a href="guias/">Guías del IRPF</a> · <a href="vivienda/">Vivienda</a> · <a href="comparar-sueldo/">Dónde se paga menos IRPF</a> · <a href="sueldo-neto/">Sueldo neto por importe</a> · <a href="sueldo-mensual/">Sueldo al mes</a></p>
-    <p class="pie-sec"><a href="#metodologia">Cómo calculamos</a> · Normativa del ejercicio <span data-ejercicio>2025</span> · <a href="validacion/">Motor validado R ↔ JavaScript</a> · Cartografía: <span title="es-atlas (MIT) sobre datos del Instituto Geográfico Nacional, CC BY 4.0">© Instituto Geográfico Nacional (CC BY 4.0)</span></p>
-    <p class="pie-sec"><a href="legal/aviso-legal.html">Aviso legal</a> · <a href="legal/privacidad.html">Privacidad</a> · <a href="legal/condiciones.html">Condiciones</a> · <a href="legal/cookies.html">Cookies</a><span id="pie-configurar-cookies" hidden> · <a href="legal/cookies.html#publicidad">Configurar cookies</a></span> · <a href="sobre-mapafiscal/">Sobre Mapafiscal</a> · <a href="contacto/">Contacto</a></p>
+    <nav class="pie-nav" aria-label="Más de Mapafiscal"><div class="pie-col"><p class="pie-tit">Calcula</p><ul><li><a href="sueldo-neto/">Sueldo neto según tu bruto</a></li><li><a href="cuanto-me-devuelve/">¿Cuánto me devuelve Hacienda?</a></li><li><a href="rescate-plan-pensiones/">Rescatar el plan de pensiones</a></li><li><a href="dos-pagadores/">Dos pagadores: ¿me toca pagar?</a></li><li><a href="comparar-ofertas/">Comparar dos ofertas de trabajo</a></li></ul></div><div class="pie-col"><p class="pie-tit">Descubre</p><ul><li><a href="comparar-sueldo/">Dónde se paga menos IRPF</a></li><li><a href="irpf/">IRPF de tu comunidad</a></li><li><a href="declaracion-conjunta/">¿Conjunta o individual?</a></li><li><a href="guias/">Guías del IRPF</a></li></ul></div><div class="pie-col"><p class="pie-tit">Mapafiscal</p><ul><li><a href="sobre-mapafiscal/">Sobre Mapafiscal</a></li><li><a href="validacion/">Cómo comprobamos los cálculos</a></li><li><a href="contacto/">Contacto</a></li></ul></div></nav>
+    <p class="pie-sec pie-fechas">Normativa del ejercicio <span data-ejercicio>2025</span> · Cartografía: <span title="es-atlas (MIT) sobre datos del Instituto Geográfico Nacional, CC BY 4.0">© Instituto Geográfico Nacional (CC BY 4.0)</span></p>
+    <p class="pie-sec pie-legal"><a href="legal/aviso-legal.html">Aviso legal</a> · <a href="legal/privacidad.html">Privacidad</a> · <a href="legal/condiciones.html">Condiciones</a> · <a href="legal/cookies.html">Cookies</a><span id="pie-configurar-cookies" hidden> · <a href="legal/cookies.html#publicidad">Configurar cookies</a></span></p>
   </div>
 </footer>
 

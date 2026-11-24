@@ -42,9 +42,7 @@ test("/widget/ muestra el código por defecto tal cual y enlaza la metodología 
   assert.match(PAGINA, /<link rel="canonical" href="https:\/\/mapafiscal\.es\/widget\/">/);
 });
 
-test("enlaces a /widget/ desde el pie común y desde /metodologia/", () => {
-  for (const r of ["metodologia/index.html", "irpf/madrid/index.html", "guias/index.html"])
-    assert.match(leer(r), /<a href="\/widget\/">/, r);
+test("enlace a /widget/ desde /metodologia/", () => {
   assert.match(leer("metodologia/index.html").match(/<main[\s\S]*<\/main>/)[0], /<a href="\/widget\/">/);
 });
 
