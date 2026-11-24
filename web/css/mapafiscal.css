@@ -592,6 +592,10 @@ details.mas:not([open]) summary { margin-bottom: 0; }
 .etq-prov { background: var(--aviso-suave); color: var(--aviso); }
 .etq-cat { background: var(--marca-suave); color: var(--marca-tinta); margin: 0 6px 0 0; }
 .vacio { color: var(--tinta-3); font-size: 14px; padding: 4px 0; }
+/* Mensajes de vacío en línea: la diagonal de la M solo con su contorno (sin amarillo: no hay nada
+   «tuyo» que señalar), como hueco por rellenar. */
+.vacio::before { content: ""; display: inline-block; width: 10px; height: 8px; margin-right: 9px; vertical-align: 0;
+  border: 1.5px solid var(--linea-2); border-radius: 1px; transform: skewX(var(--diagonal-inclinacion)); }
 
 .palancas li { padding: 10px 0; border-bottom: 1px solid var(--linea); }
 .palancas li:last-child { border-bottom: 0; }
@@ -603,6 +607,7 @@ details.mas:not([open]) summary { margin-bottom: 0; }
 
 .avisos { margin-top: 16px; font-size: 13px; color: var(--tinta-2); background: var(--superficie); border: 1px solid var(--linea);
   border-radius: var(--radio); padding: 12px 16px; }
+.avisos { border-left: 3px solid var(--linea-2); }
 .avisos summary { cursor: pointer; font-weight: 600; }
 .avisos ul { margin: 10px 0 0; padding-left: 18px; }
 .avisos li { margin: 4px 0; }
@@ -611,7 +616,14 @@ details.mas:not([open]) summary { margin-bottom: 0; }
 .comp-resumen { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; margin: 0 0 20px; }
 @media (min-width: 860px) { .comp-resumen { grid-template-columns: repeat(4, minmax(0, 1fr)); } }
 .comp-resumen > div { background: var(--superficie); border: 1px solid var(--linea); border-radius: var(--radio); padding: 14px 16px; box-shadow: var(--sombra); min-width: 0; }
-.comp-resumen > div.tu { background: var(--resalte-suave); border-color: color-mix(in srgb, var(--resalte) 60%, var(--linea)); }
+/* «Tu territorio»: la tarjeta sigue siendo blanca; lo tuyo lo marcan la cinta M arriba (pata, trazo
+   amarillo, pata), la diagonal junto al rótulo y el filete de marca. El amarillo, solo de acento. */
+.comp-resumen > div.tu { position: relative; overflow: hidden; border-color: var(--marca-200); }
+.comp-resumen > div.tu::after { content: ""; position: absolute; left: 0; right: 0; top: 0; height: 4px; pointer-events: none;
+  background: linear-gradient(112deg, var(--marca) 0 22px, transparent 22px 24px, var(--resalte) 24px 40px, transparent 40px 42px, var(--marca) 42px); }
+.comp-resumen > div.tu dt { display: flex; align-items: center; gap: 8px; color: var(--marca-tinta); }
+.comp-resumen > div.tu dt::before { content: ""; width: 11px; height: 9px; border-radius: 1px; flex: none; background: var(--resalte);
+  transform: skewX(var(--diagonal-inclinacion)); box-shadow: 0 0 0 1px color-mix(in srgb, var(--tinta) 14%, transparent); }
 .comp-resumen dt { font-size: 12px; color: var(--tinta-3); font-weight: 600; }
 .comp-resumen dd { margin: 4px 0 0; }
 .comp-resumen .cifra-xl { font-size: clamp(22px, 2.6vw, 28px); }
@@ -637,6 +649,14 @@ details.mas:not([open]) summary { margin-bottom: 0; }
 .leyenda-rampa { display: flex; border-radius: 4px; overflow: hidden; border: 1px solid var(--linea); }
 .leyenda-rampa span { width: 28px; height: 12px; }
 .leyenda-tu { width: 14px; height: 12px; border-radius: 3px; background: var(--m-tu); display: inline-block; box-shadow: 0 0 0 1.5px var(--tinta); }
+/* Leyenda del mapa del comparador: pie de la tarjeta con filete y la cinta M corta al principio
+   (como el separador de las páginas editoriales); la rampa y la muestra de «tu territorio»,
+   inclinadas como el trazo de la M. Solo en #comparar (la portada tiene su propia leyenda). */
+.tarjeta-mapa .leyenda { position: relative; margin-top: 16px; padding-top: 14px; border-top: 1px solid var(--linea); }
+.tarjeta-mapa .leyenda::before { content: ""; position: absolute; left: 0; top: -2px; width: 52px; height: 3px;
+  background: linear-gradient(112deg, var(--marca) 0 30px, transparent 30px 32px, var(--resalte) 32px 52px); }
+.tarjeta-mapa .leyenda-rampa { transform: skewX(var(--diagonal-inclinacion)); border-radius: 2px; margin: 0 4px; }
+.tarjeta-mapa .leyenda-tu { border-radius: 1px; transform: skewX(var(--diagonal-inclinacion)); margin: 0 2px; }
 .nota { font-size: 12px; color: var(--tinta-3); margin: 10px 0 0; }
 .nota-pie { margin-top: 16px; }
 .nota-centro { text-align: center; }
@@ -681,6 +701,9 @@ details.mas:not([open]) summary { margin-bottom: 0; }
 .tarjeta-tabla .cobertura :is(th, td):first-child { padding-left: 20px; }
 .tarjeta-tabla .cobertura :is(th, td):last-child { padding-right: 20px; }
 .estado-vacio { text-align: center; padding: 48px 20px; }
+/* Estado vacío de una vista: la cinta M corta, centrada, encima del titular. */
+.estado-vacio::before { content: ""; display: block; width: 52px; height: 4px; margin: 0 auto 18px;
+  background: linear-gradient(112deg, var(--marca) 0 18px, transparent 18px 20px, var(--resalte) 20px 34px, transparent 34px 36px, var(--marca) 36px); }
 .estado-vacio h2 { font-size: 20px; margin-bottom: 8px; }
 .estado-vacio p { color: var(--tinta-2); max-width: 52ch; margin: 0 auto 18px; }
 /* «Mis clientes» sin plan de pago: pestaña atenuada con candado y vista difuminada */
@@ -722,6 +745,8 @@ details.mas:not([open]) summary { margin-bottom: 0; }
 .mensaje { font-size: 13px; margin: 0; min-height: 1em; }
 .mensaje.ok { color: var(--gana); }
 .mensaje.error { color: var(--pierde); }
+.mensaje.error:not(:empty)::before, .error-importe::before { content: ""; display: inline-block; width: 8px; height: 7px; margin-right: 7px;
+  border-radius: 1px; background: currentColor; transform: skewX(var(--diagonal-inclinacion)); vertical-align: 0; }
 
 .comparativa { width: 100%; border-collapse: collapse; font-size: 14px; }
 .comparativa caption { text-align: left; font-weight: 700; font-size: 16px; padding: 18px 20px 10px; }
@@ -808,7 +833,7 @@ details.mas:not([open]) summary { margin-bottom: 0; }
 .zona-peligro h2 { color: var(--pierde); }
 
 .sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
-.aviso-demo { background: var(--aviso-suave); color: var(--aviso); border-radius: 8px; padding: 10px 14px; font-size: 14px; margin-bottom: 16px; }
+.aviso-demo { background: var(--aviso-suave); color: var(--aviso); border-radius: 0 8px 8px 0; border-left: 3px solid currentColor; padding: 10px 14px; font-size: 14px; margin-bottom: 16px; }
 
 /* ---- responsive ---------------------------------------------------------------- */
 @media (max-width: 980px) {
@@ -970,9 +995,12 @@ details.mas:not([open]) summary { margin-bottom: 0; }
 .seccion-form .seccion-ayuda { margin: -4px 0 12px; }
 .chip-datos { font-size: 11px; padding: 1px 7px; margin-left: 6px; vertical-align: middle; }
 .quien-form { position: sticky; top: 64px; z-index: 2; background: var(--superficie); padding: 6px 0; }
-.avisos-form { margin-top: 4px; background: var(--aviso-suave); color: var(--tinta); border: 1px solid color-mix(in srgb, var(--aviso) 35%, transparent);
-  border-radius: var(--radio); padding: 12px 14px; font-size: 13px; }
-.avisos-form-tit { margin: 0 0 6px; font-weight: 700; color: var(--aviso); }
+/* «Revisa estos datos»: filete izquierdo de aviso (la pata de la M) y la diagonal en color de aviso
+   delante del título; sin caja con borde completo. */
+.avisos-form { margin-top: 4px; background: var(--aviso-suave); color: var(--tinta); border-left: 3px solid var(--aviso);
+  border-radius: 0 var(--radio) var(--radio) 0; padding: 12px 14px; font-size: 13px; }
+.avisos-form-tit { display: flex; align-items: center; gap: 8px; margin: 0 0 6px; font-weight: 700; color: var(--aviso); }
+.avisos-form-tit::before { content: ""; width: 10px; height: 8px; flex: none; border-radius: 1px; background: currentColor; transform: skewX(var(--diagonal-inclinacion)); }
 .avisos-form ul { margin: 0; padding-left: 18px; }
 .formulario input[aria-invalid="true"] { border-color: var(--aviso); box-shadow: 0 0 0 1px var(--aviso); }
 @media (max-width: 480px) { .tarjeta-item { padding: 10px 10px 2px; } .quien-form { top: 56px; } }
@@ -993,15 +1021,24 @@ body.con-informe { overflow: hidden; }
 .inf-opciones { display: flex; flex-direction: column; align-items: center; gap: 8px; margin: 16px 0; }
 .inf-opciones .ayuda { margin: 0 0 8px; }
 .inf-doc { background: var(--superficie); color: var(--tinta); border: 1px solid var(--linea); border-radius: 12px; padding: 32px; }
-.inf-cab { display: flex; gap: 14px; align-items: center; border-bottom: 2px solid var(--tinta); padding-bottom: 14px; }
-.inf-logo { width: 40px; height: 40px; flex: none; }
-.inf-marca { margin: 0; font-family: var(--display); font-weight: 800; font-size: 14px; letter-spacing: -.01em; }
-.inf-cab h1 { margin: 2px 0; font-size: 24px; }
+/* Portada del informe: la M del logo, el titular en Archivo ancho y, debajo, la cinta M a todo el
+   ancho (pata azul, trazo amarillo, pata). En blanco y negro la cinta queda oscuro-claro-oscuro y
+   la M se lee por sus patas; la diagonal lleva un filete fino al imprimir para no perderse. */
+.inf-cab { position: relative; display: flex; gap: 16px; align-items: flex-end; padding-bottom: 18px; border-bottom: 1px solid var(--linea-2); }
+.inf-cab::after { content: ""; position: absolute; left: 0; right: 0; bottom: -1px; height: 5px;
+  background: linear-gradient(112deg, var(--marca) 0 44px, transparent 44px 47px, var(--resalte) 47px 75px, transparent 75px 78px, var(--marca) 78px 33%, transparent 33%);
+  -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+.inf-logo { width: 54px; height: 44px; flex: none; margin-bottom: 4px; }
+.inf-cab-txt { min-width: 0; }
+.inf-marca { margin: 0; font-family: var(--display); font-stretch: 115%; font-weight: 800; font-size: 13px; letter-spacing: .08em; text-transform: uppercase; color: var(--marca-tinta); }
+.inf-cab h1 { margin: 2px 0 4px; font-family: var(--display); font-stretch: 110%; font-weight: 800; font-size: clamp(24px, 3.4vw, 30px); letter-spacing: -.02em; line-height: 1.1; }
 .inf-sub { margin: 0; color: var(--tinta-2); font-size: 14px; }
+.inf-banner .inf-logo { width: 34px; height: 28px; margin: 0; }
 .inf-sec { margin-top: 24px; break-inside: avoid-page; }
-.inf-sec h2 { font-size: 16px; margin: 0 0 10px; padding-bottom: 4px; border-bottom: 1px solid var(--linea-2); }
+.inf-sec h2 { font-family: var(--display); font-stretch: 108%; font-size: 16px; margin: 0 0 10px; padding-bottom: 4px; border-bottom: 1px solid var(--linea-2); }
 .inf-resumen { display: grid; gap: 12px; }
-.inf-cifra { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; flex-wrap: wrap; }
+.inf-cifra { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; flex-wrap: wrap;
+  border-left: 3px solid var(--marca); border-image: linear-gradient(to bottom, var(--resalte) 0 12px, var(--marca) 12px) 1; padding: 4px 0 4px 14px; }
 .inf-cifra span { color: var(--tinta-2); }
 .inf-cifra b { font-family: var(--display); font-size: 32px; }
 .inf-cifra.gana b { color: var(--gana); }
@@ -1045,6 +1082,9 @@ body.con-informe { overflow: hidden; }
   body.imprimiendo-informe .inf-doc { border: 0; padding: 0; color: #000; background: #fff; }
   body.imprimiendo-informe .inf-doc * { color: #000 !important; background: transparent !important; }
   body.imprimiendo-informe .inf-cmp tr.tu td { background: #eee !important; }
+  body.imprimiendo-informe .inf-logo, body.imprimiendo-informe .inf-cifra { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  body.imprimiendo-informe .inf-logo-tu { stroke: #0e1a2c; stroke-width: 1.5; stroke-opacity: .55; }
+  body.imprimiendo-informe .inf-marca { color: #1a36a8 !important; }
   body.imprimiendo-informe .inf-banner { border: 1px solid #999; }
   body.imprimiendo-informe .inf-salto { break-before: page; }
   body.imprimiendo-informe .inf-tabla tr { break-inside: avoid; }
@@ -1188,8 +1228,8 @@ html.panel-abierto { overflow: hidden; }
 }
 
 /* Importe que no se puede leer con seguridad (js/importe.js): el campo y su mensaje. */
-input[aria-invalid="true"] { border-color: var(--rojo, #b42318); box-shadow: 0 0 0 2px color-mix(in srgb, var(--rojo, #b42318) 25%, transparent); }
-.error-importe { margin: 4px 0 0; font-size: 13px; color: var(--rojo, #b42318); }
+input[aria-invalid="true"] { border-color: var(--pierde); box-shadow: 0 0 0 2px color-mix(in srgb, var(--pierde) 25%, transparent); }
+.error-importe { margin: 4px 0 0; font-size: 13px; color: var(--pierde); }
 /* ---- #bruto-necesario (web/js/bruto.js) ---- */
 .res-cifra small { font-size: .45em; font-weight: 600; color: var(--tinta-2); }
 .bn-oferta { border: 1px solid var(--linea); border-radius: 10px; padding: 12px; background: var(--superficie-2); }

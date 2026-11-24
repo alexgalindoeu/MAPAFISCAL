@@ -28,3 +28,54 @@
 .lista-guias a { font-weight: 600; color: var(--tinta); text-decoration: none; }
 .lista-guias a:hover { color: var(--marca); text-decoration: underline; }
 .lista-guias span { font-size: 14px; color: var(--tinta-3); }
+
+/* ---- Fichas de deducción (/irpf/<t>/deducciones/<slug>/) y páginas de vivienda y rescate ----
+   Diseño propio de la marca (docs/diseno_identidad.md): la cifra clave de cada supuesto como un
+   rótulo grande con la pata azul de la M rematada en amarillo; los requisitos, como una lista
+   numerada de casillas (cifras en mono) entre filetes, no como tarjetas apiladas. */
+.ficha-req .supuesto { display: grid; grid-template-columns: minmax(0, 1fr); gap: 12px 32px; padding: 18px 0; margin: 0;
+  border-top: 1px solid var(--linea); }
+.ficha-req .rotulo + .supuesto { border-top: 0; padding-top: 4px; }
+@media (min-width: 760px) { .ficha-req .supuesto:has(.supuesto-req) { grid-template-columns: minmax(0, 5fr) minmax(0, 7fr); align-items: start; } }
+.supuesto-cifra { border-left: 3px solid var(--marca); border-image: linear-gradient(to bottom, var(--resalte) 0 12px, var(--marca) 12px) 1;
+  padding: 2px 0 2px 14px; }
+.pagina-seo .prosa .supuesto-num { font-family: var(--mono); font-size: 12px; letter-spacing: .06em; text-transform: uppercase;
+  color: var(--marca-tinta); margin: 0 0 6px; }
+.pagina-seo .prosa .supuesto-cifra .supuesto-importe { font-family: var(--display); font-stretch: 106%; font-size: clamp(18px, 2.1vw, 21px);
+  font-weight: 800; letter-spacing: -.015em; line-height: 1.3; color: var(--tinta); margin: 0; max-width: none; }
+.pagina-seo .prosa .supuesto-req-tit { font-size: 12.5px; font-weight: 700; letter-spacing: .04em; text-transform: uppercase;
+  color: var(--tinta-3); margin: 0 0 4px; }
+.pagina-seo .prosa .lista-req { list-style: none; padding: 0; margin: 0; counter-reset: req; }
+.pagina-seo .prosa .lista-req li { counter-increment: req; display: grid; grid-template-columns: 30px minmax(0, 1fr); gap: 0 6px;
+  margin: 0; padding: 8px 0; border-bottom: 1px solid var(--linea); color: var(--tinta); }
+.pagina-seo .prosa .lista-req li::before { content: counter(req, decimal-leading-zero); font-family: var(--mono); font-size: 12px;
+  color: var(--marca-tinta); padding-top: 3px; }
+.supuesto-req .ayuda { margin-top: 8px; }
+.supuesto-foral .lista-req li { grid-template-columns: 30px minmax(0, 1fr); }
+
+/* Ejemplos de las fichas: la cifra que da el motor, subrayada con el trazo amarillo. */
+.ficha-ejemplo p b, .entradilla-cifras b, .dato-motor b { color: var(--tinta); text-decoration: underline 3px var(--resalte);
+  text-underline-offset: 4px; text-decoration-skip-ink: none; }
+
+/* /vivienda/: las cuatro situaciones numeradas como un recorrido (número en cobalto, ancho de
+   rótulo) y el dato que da el motor separado con la cinta M corta, como cifra clave. */
+.pagina-seo .viv-paso .viv-num { font-stretch: 125%; color: var(--marca-tinta); margin-right: 2px; }
+.pagina-seo .prosa .dato-motor { position: relative; margin-top: 14px; padding-top: 12px; border-top: 1px solid var(--linea); color: var(--tinta-2); }
+.pagina-seo .prosa .dato-motor::before { content: ""; position: absolute; left: 0; top: -2px; width: 52px; height: 3px;
+  background: linear-gradient(112deg, var(--marca) 0 30px, transparent 30px 32px, var(--resalte) 32px 52px); }
+
+/* «Lo que la calculadora todavía no hace»: un aviso, no una sección más. Filete y tinte de aviso,
+   con la diagonal en el color del aviso delante del rótulo (mismo lenguaje que .avisos-form). */
+.pagina-seo-main .tarjeta.nota-limite { border-top: 0; border-left: 3px solid var(--aviso); background: var(--aviso-suave);
+  padding: 16px 20px 16px 18px; }
+.pagina-seo .nota-limite .rotulo { display: flex; align-items: center; gap: 10px; font-size: 17px; max-width: none; margin-bottom: 8px; }
+.pagina-seo .nota-limite .rotulo::before { content: ""; width: 11px; height: 9px; flex: none; border-radius: 1px; background: var(--aviso);
+  transform: skewX(var(--diagonal-inclinacion)); }
+.pagina-seo .prosa .nota-limite p { color: var(--tinta); }
+
+/* /rescate-plan-pensiones/: las reglas como lista numerada y la forma que menos tributa marcada
+   con la diagonal. */
+.reglas-rescate .lista-req { max-width: 44em; }
+.pagina-seo-main .cobertura td.mejor-forma::before { content: ""; display: inline-block; width: 9px; height: 7px; margin-right: 7px; border-radius: 1px;
+  background: var(--resalte); transform: skewX(var(--diagonal-inclinacion)); vertical-align: 1px;
+  box-shadow: 0 0 0 1px color-mix(in srgb, var(--tinta) 14%, transparent); }

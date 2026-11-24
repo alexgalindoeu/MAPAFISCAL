@@ -66,6 +66,13 @@ reescribe `node tools/generar_paginas_seo.mjs`; si cambias `web/index.html`, reg
 
 ## Reglas al añadir normativa
 
+0. **SOLO FUENTES OFICIALES. Regla absoluta del dueño, sin excepciones.** Valen: BOE, BOB,
+   BOG, BOTHA, BON, boletines autonómicos (BOCM, BOJA, DOGC, DOGV…), la AEAT (Manual
+   Práctico de Renta, sede) y las webs oficiales de las Haciendas forales y de los gobiernos.
+   NO valen, ni siquiera como «contraste»: despachos (Cuatrecasas, Garrigues…), editoriales
+   jurídicas (Iberley, Wolters…), blogs, prensa, otras calculadoras ni webs privadas
+   (guiafiscal.es…). Si un valor no se puede verificar con fuente oficial: `estado: pendiente`,
+   nunca inventado ni sacado de una fuente no oficial.
 1. Fuente primaria siempre (BOE / BOB / BOG / BOTHA / BON / boletín autonómico) o el
    Manual Práctico de Renta de la AEAT. Cítala en el YAML.
 2. Si no puedes verificar un valor, `estado: pendiente` o `provisional` — no lo inventes.

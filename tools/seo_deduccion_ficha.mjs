@@ -215,9 +215,9 @@ export function paginasFichasDeduccion(ded, generado, ejercicio, CAMPO, { import
       const r = f.redaccion;
       cuantos = r.supuestos.map(s => mayus(s.cuanto) + ".");
       bloques = r.supuestos.map((s, i) => `<div class="supuesto">
-      ${r.supuestos.length > 1 ? `<p class="ayuda">Supuesto ${i + 1}</p>` : ""}<p class="supuesto-importe">${esc(mayus(s.cuanto))}.</p>
-      ${s.requisitos.length ? `<p>Requisitos:</p><ul>${s.requisitos.map(q => `<li>${esc(q)}.</li>`).join("")}</ul>` : ""}
-      ${s.notas.map(q => `<p class="ayuda">${esc(q)}</p>`).join("")}
+      <div class="supuesto-cifra">${r.supuestos.length > 1 ? `<p class="supuesto-num">Supuesto ${i + 1}</p>` : ""}<p class="supuesto-importe">${esc(mayus(s.cuanto))}.</p></div>
+      ${s.requisitos.length || s.notas.length ? `<div class="supuesto-req">${s.requisitos.length ? `<p class="supuesto-req-tit">Requisitos:</p><ol class="lista-req">${s.requisitos.map(q => `<li>${esc(q)}.</li>`).join("")}</ol>` : ""}
+      ${s.notas.map(q => `<p class="ayuda">${esc(q)}</p>`).join("")}</div>` : ""}
     </div>`).join("");
       if (r.excluyentes) incompat.push("Estos supuestos no se suman: se aplica el que dé más deducción.");
       if (r.acumulables) incompat.push("Si se cumplen varios supuestos, sus importes se suman.");
@@ -227,7 +227,7 @@ export function paginasFichasDeduccion(ded, generado, ejercicio, CAMPO, { import
       if (reqs.length) faqReq = reqs.join(". ") + ".";
     } else {
       cuantos = f.lineas;
-      bloques = `<div class="supuesto"><ul>${f.lineas.map(q => `<li>${esc(q)}</li>`).join("")}</ul></div>`;
+      bloques = `<div class="supuesto supuesto-foral"><ul class="lista-req">${f.lineas.map(q => `<li>${esc(q)}</li>`).join("")}</ul></div>`;
       incompat = f.lineas.filter(q => /^No se puede sumar/.test(q));
       normaTxt = f.norma;
     }
@@ -267,16 +267,16 @@ export function paginasFichasDeduccion(ded, generado, ejercicio, CAMPO, { import
   ${respuestaDirecta(esc(cuantos[0]))}
   <div class="prosa">
   <div class="tarjeta"><h2 class="rotulo">Qué es</h2><p>${queEs}</p></div>
-  <div class="tarjeta"><h2 class="rotulo">Quién puede aplicarla, importe y límites</h2>
+  <div class="tarjeta ficha-req"><h2 class="rotulo">Quién puede aplicarla, importe y límites</h2>
     ${bloques}
     ${comun ? `<p class="ayuda">Cuando hablamos de hijos nos referimos a los descendientes que dan derecho al mínimo por descendientes.</p>` : ""}
   </div>
   ${incompat.length ? `<div class="tarjeta"><h2 class="rotulo">Incompatibilidades</h2>${incompat.map(q => `<p>${esc(q)}</p>`).join("")}</div>` : ""}
-  ${ex.length ? `<div class="tarjeta"><h2 class="rotulo">Ejemplo${ex.length > 1 ? "s" : ""}</h2>
+  ${ex.length ? `<div class="tarjeta ficha-ejemplo"><h2 class="rotulo">Ejemplo${ex.length > 1 ? "s" : ""}</h2>
     ${htmlEjemplos(ex, campoTexto)}
     <p class="ayuda">Diferencia entre la cuota líquida con y sin el gasto, calculada con la normativa de ${ejercicio}.</p>
   </div>` : ""}${exFam ? `
-  <div class="tarjeta"><h2 class="rotulo">Ejemplo</h2>
+  <div class="tarjeta ficha-ejemplo"><h2 class="rotulo">Ejemplo</h2>
     ${htmlEjemploFamiliar(exFam, exFam.campo ? CAMPO[exFam.campo] : "")}
     <p class="ayuda">Importe de esta deducción en la liquidación del motor, con la normativa de ${ejercicio}; coincide con el que resulta de la norma.</p>
   </div>` : ""}

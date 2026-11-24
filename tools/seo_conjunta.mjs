@@ -9,7 +9,7 @@ import { readFileSync, readdirSync } from "node:fs";
 import { createRequire } from "node:module";
 import { join, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
-import { LIRPF_BOE, esc, euros, layout, jsonLdMigas, jsonLdFaq, bloqueFaq, migasHtml } from "./seo_comun.mjs";
+import { LIRPF_BOE, esc, euros, pctMedio, layout, jsonLdMigas, jsonLdFaq, bloqueFaq, migasHtml } from "./seo_comun.mjs";
 
 const require = createRequire(import.meta.url);
 const WEB = join(dirname(fileURLToPath(import.meta.url)), "..", "web");
@@ -165,6 +165,25 @@ function tablaDpTerritorios(P, total) {
   return tabla(["Territorio", "IRPF del año", "Retenido", "Resultado"], C.dosPagadoresPorTerritorio(P, dos(b1, b2)).sort((a, b) => a.resultado - b.resultado)
     .map(x => [esc(nombre(P, x.territorio)), esc(euros(x.irpf)), esc(euros(x.retenciones)), esc(signo(x.resultado))]));
 }
+// Lectura propia de cada importe, por reglas, con las cifras del motor: cuánto falta por
+// retener y qué tipo tendría que aplicar la segunda empresa para que la declaración salga a
+// cero, qué cambia frente a un solo pagador y dónde queda el territorio de ejemplo.
+function lecturaDp(P, total, b1, b2, r, unPag) {
+  const falta = r.resultado, ret = r.retenciones[0] + r.retenciones[1];
+  const out = [falta > 0.5
+    ? `Con ${euros(b1)} + ${euros(b2)} falta por retener ${euros(falta)}: ${euros(falta / 12)} al mes repartido en doce. Si la segunda empresa te retuviera el ${pctMedio((r.retenciones[1] + falta) / b2)} ${r.retenciones[1] > 0.5 ? `en vez del ${pctMedio(r.retenciones[1] / b2)} que te aplicaría como único pagador` : "(como único pagador no te retendría nada)"}, la declaración saldría a cero.`
+    : falta < -0.5 ? `Con ${euros(b1)} + ${euros(b2)} las retenciones estimadas (${euros(ret)}) superan el IRPF del año (${euros(r.irpf)}): la declaración sale a devolver ${euros(-falta)}${r.obligado ? "" : ", y aunque no estás obligado a presentarla, te conviene"}.`
+      : r.irpf < 0.5 ? `Con ${euros(b1)} + ${euros(b2)} el IRPF del año sale a cero en ${nombre(P, TERR)}: no hay nada que regularizar.`
+        : `Con ${euros(b1)} + ${euros(b2)} las retenciones estimadas cubren justo el IRPF del año (${euros(r.irpf)}).`];
+  if (r.irpf >= 0.5 || unPag.irpf >= 0.5) out.push(Math.abs(unPag.irpf - r.irpf) < 1
+    ? `Con un solo pagador de ${euros(total)} el IRPF del año sería el mismo; lo que cambia es lo retenido: ${euros(ret)} con dos empresas frente a ${euros(unPag.retenciones[0])} con una.`
+    : `Con un solo pagador de ${euros(total)} el IRPF del año sería de ${euros(unPag.irpf)} (${euros(Math.abs(unPag.irpf - r.irpf))} ${unPag.irpf > r.irpf ? "más" : "menos"}), y la retención, de ${euros(unPag.retenciones[0])}.`);
+  const ts = C.dosPagadoresPorTerritorio(P, dos(b1, b2)).sort((x, y) => x.resultado - y.resultado || x.territorio.localeCompare(y.territorio));
+  const k = ts.findIndex(x => x.territorio === TERR) + 1, a = ts[0], z = ts.at(-1);
+  const res = v => v > 0.5 ? `${euros(v)} a pagar` : v < -0.5 ? `${euros(-v)} a devolver` : "0 €";
+  if (Math.abs(z.resultado - a.resultado) >= 1) out.push(`Según el territorio, el resultado va de ${res(a.resultado)} en ${nombre(P, a.territorio)} a ${res(z.resultado)} en ${nombre(P, z.territorio)}; ${nombre(P, TERR)} es el ${k}.º de 19 (de mejor a peor).`);
+  return out.join(" ");
+}
 function paginasDosPagadores(P, generado) {
   const out = [];
   const filas = IMPORTES_DP.map(t => {
@@ -184,6 +203,7 @@ function paginasDosPagadores(P, generado) {
   for (const total of IMPORTES_DP) {
     const [b1, b2] = reparto(total), r = C.dosPagadores(P, dos(b1, b2)), ruta = `${HUB_DP}${total}/`;
     const unPag = C.dosPagadores(P, dos(total, 0));
+    const lectura = lecturaDp(P, total, b1, b2, r, unPag);
     const esc2 = C.escenariosSegundo(P, dos(b1, b2), [1000, 1500, 2000, 5000, Math.round(total * 0.3), Math.round(total * 0.5)].filter((v, i, a) => a.indexOf(v) === i).sort((x, y) => x - y));
     out.push(pagina({ ruta, generado, migas: [["Inicio", "/"], ["Dos pagadores", HUB_DP], [euros(total), null]],
       h1: `${euros(total)} con dos pagadores: ¿me sale a pagar? (${P.ejercicio})`,
@@ -196,6 +216,7 @@ function paginasDosPagadores(P, generado) {
         ["Retención estimada del primer pagador", esc(euros(r.retenciones[0]))], ["Retención estimada del segundo pagador", esc(euros(r.retenciones[1]))],
         ["Resultado de la declaración", esc(signo(r.resultado))],
         ["Con un solo pagador de " + euros(total), esc(signo(unPag.resultado)) + (unPag.obligado ? "" : " (sin obligación de declarar)")]])}</div>
+      <div class="tarjeta"><h2 class="rotulo">Lo que dice esta cifra</h2><p>${esc(lectura)}</p></div>
       <div class="tarjeta tarjeta-tabla"><h2 class="rotulo">Según lo que te pague el segundo</h2>${tabla(["El segundo te paga", "¿Obligado?", "Resultado"], esc2.map(x => [esc(euros(x.segundo)), x.obligado ? "Sí" : "No", esc(signo(x.resultado))]))}</div>
       <div class="tarjeta tarjeta-tabla"><h2 class="rotulo">En los 19 territorios</h2>${tablaDpTerritorios(P, total)}</div>
       ${reglasDp(P)}

@@ -489,7 +489,7 @@ export function generar({ conGit = false } = {}) {
   for (const v of viv) pagina(v.ruta, enlazarGlosario(v.html));
   const glo = paginasGlosario({ comparativas, guias, generado: territorios.generado });
   for (const g of glo) pagina(g.ruta, g.html);
-  const sn = paginasSueldoNeto(sueldoNeto, { conDeducciones, ejercicioDeducciones: deducciones.ejercicio });
+  const sn = paginasSueldoNeto(sueldoNeto, { conDeducciones, ejercicioDeducciones: deducciones.ejercicio, fichasDe, devuelve });
   for (const p of sn) pagina(p.ruta, p.html);
   // «Sueldo al mes»: una sola página con la tabla de brutos entre 12 y 14 (motor JS)
   pagina(RUTA_SUELDO_MENSUAL, paginaSueldoMensual({ ejercicio: sueldoNeto.ejercicio, generado: sueldoNeto.generado }));
@@ -498,7 +498,7 @@ export function generar({ conGit = false } = {}) {
   for (const g of paginasComparadores(territorios.generado)) pagina(g.ruta, g.html);
   for (const g of paginasConjuntaPagadores(territorios.generado)) pagina(g.ruta, g.html);
   // «¿Cuánto me devuelve?»: las páginas sin cifra van con noindex y fuera del sitemap.
-  for (const p of paginasDevuelve(devuelve, conDeducciones)) p.indexable ? pagina(p.ruta, p.html) : ficheros.set(p.ruta.slice(1) + "index.html", p.html);
+  for (const p of paginasDevuelve(devuelve, conDeducciones, sueldoNeto.importes_territorio)) p.indexable ? pagina(p.ruta, p.html) : ficheros.set(p.ruta.slice(1) + "index.html", p.html);
   for (const g of paginasForal(territorios.generado, sueldoNeto.importes_territorio)) pagina(g.ruta, g.html);
   // Sección «Autónomos» (/autonomos/): IRPF de actividades económicas con el motor JS
   const aut = paginasAutonomos(territorios.ejercicio, territorios.generado);
