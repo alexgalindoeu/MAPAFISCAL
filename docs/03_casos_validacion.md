@@ -545,6 +545,32 @@ condicionada a residir en pequeños municipios.
 
 ---
 
+## Edad de 65 y 75 años: criterio de la AEAT (2026-11-25)
+
+La LIRPF (art. 57) habla de «edad superior a 65 años» y muchas leyes autonómicas, de
+«mayores de 65/75 años»; el Manual Práctico Renta 2025 de la AEAT (parte 1, cap. 14,
+«Mínimo del contribuyente») habla de «contribuyentes de edad igual o superior a 65 años o
+a 75 años». Decisión del dueño: se sigue a la AEAT en todo el motor. Quien ha cumplido 65
+(o 75) años a la fecha de devengo tiene el incremento.
+
+- Mínimo del contribuyente (estatal y autonómico) y por ascendientes: `edad >= 65` y
+  `edad >= 75` en `R/04_minimos.R` y `web/js/irpfsim.js` (antes, `> 65` y `> 75`).
+- Deducciones autonómicas para «mayores de 65/75 años»: `edad_min` y
+  `edad_ascendiente_min` 65 y 75 (antes, 66 y 76): Andalucía 13.2, Castilla-La Mancha 6.1 y
+  6.2, C. Valenciana h) y ad).
+
+Soltero en Madrid, 30.000 € de trabajo (tests en `test-edad-criterio-aeat.R`):
+
+| Edad | Mínimo del contribuyente |
+|---|---|
+| 64 | 5.550 € |
+| 65 (`md_edad_65`) | 5.550 + 1.150 = **6.700 €** (antes, 5.550) |
+| 74 | 6.700 € |
+| 75 | 5.550 + 1.150 + 1.400 = **8.100 €** (antes, 6.700) |
+
+Con un ascendiente de 75 años sin rentas (`md_edad_75_asc_75`, declarante también de 75):
+mínimo por ascendiente 1.150 + 1.400 = 2.550 € (antes, 1.150).
+
 ## Deducciones autonómicas — Comunidad de Madrid (DL 1/2010)
 
 Codificadas en `tests/testthat/test-ded-madrid.R`. 7 deducciones (de ~23), contando
@@ -670,7 +696,7 @@ Fuente: Ley 5/2021 de Tributos Cedidos de Andalucía, arts. 10-22 bis, y AEAT
 | Familia numerosa general (14) | **200 €**; *base ≤ 25.000 / 30.000* (art. 14.3) |
 | Familia numerosa especial (14) | **+200 €** (400 € en total); *base ≤ 25.000 / 30.000* |
 | Familia monoparental (13) | **100 €**; *base ≤ 80.000 / 100.000* |
-| Familia monoparental — incremento por ascendiente > 75 (13.2) | **+100 €** por ascendiente que conviva y genere el mínimo por ascendientes **de edad superior a 75 años** (edad ≥ 76 en el motor; rentas ≤ 8.000 €; la discapacidad no cuenta) |
+| Familia monoparental — incremento por ascendiente > 75 (13.2) | **+100 €** por ascendiente que conviva y genere el mínimo por ascendientes **de edad superior a 75 años** (75 cumplidos, criterio de la AEAT; rentas ≤ 8.000 €; la discapacidad no cuenta) |
 | Contribuyente con discapacidad ≥ 33 % (16) | **150 €**; *base ≤ 25.000 / 30.000* |
 | Gastos educativos de idiomas / informática (15) | **15 %**, límite **150 €/descendiente**; *base ≤ 80.000 / 100.000* |
 | Ayuda doméstica (19) | **20 %** de las cuotas al Sistema Especial de Empleados de Hogar, límite **500 €**, sin límite de base. Dos supuestos alternativos (variantes del `grupo: ayuda_domestica`): **a)** hijos con mínimo por descendientes y rendimientos del trabajo o de actividades (con cónyuge o pareja, **los dos**); **b)** titular o cónyuge de **75 años o más** |
@@ -702,7 +728,8 @@ de trabajo (tests en `test-ded-andalucia.R`):
 | Ascendiente | ¿Genera el mínimo de > 75? | Incremento |
 |---|---|---|
 | 80 años, sin rentas | sí | **100 €** |
-| 75 años | no (no tiene edad *superior* a 75) | 0 |
+| 75 años | sí (75 cumplidos: criterio de la AEAT, ver «Edad de 65 y 75 años») | **100 €** |
+| 74 años | no | 0 |
 | 70 años, discapacidad ≥ 65 % | genera el mínimo por ascendientes, pero no el de > 75 | 0 |
 | 80 años, 9.000 € de rentas | no (rentas > 8.000 €) | 0 |
 | dos, de 78 y 82 años | sí, los dos | 2 · 100 = **200 €** |
@@ -795,7 +822,7 @@ y AEAT *Manual Práctico Renta 2025, Parte 2 — Deducciones autonómicas / Comu
 | Familia monoparental (d) | **330 €** con el título de familia monoparental de la Generalitat de categoría general; **660 €** con el de categoría especial (límites 35.000 / 58.000, taper 31–35 k / 54–58 k). Exige el título (Decreto 19/2018; `titulo_monoparental`, que la web pregunta). Es la misma deducción que la de familia numerosa: las cuatro variantes forman el `grupo: fn_monoparental_vc` |
 | Custodia en guarderías < 3 años (e) | **15 %**, límite **297 €/hijo** (el límite se reduce en la franja de taper); exige que **todos los progenitores convivientes trabajen** (`requiere_progenitores_trabajan`); prorrateo |
 | Contribuyente con discapacidad ≥ 33 % y ≥ 65 años (g) | **197 €**; taper |
-| Ascendientes > 75 (o > 65 con discapacidad ≥ 65 %) (h) | **197 €/ascendiente** de edad > 75 (≥ 76 en el motor), o > 65 con discapacidad ≥ 65 %, con convivencia ≥ 6 meses y rentas ≤ 8.000 €; taper; prorrateo |
+| Ascendientes > 75 (o > 65 con discapacidad ≥ 65 %) (h) | **197 €/ascendiente** de 75 años o más (criterio de la AEAT), o de 65 o más con discapacidad ≥ 65 %, con convivencia ≥ 6 meses y rentas ≤ 8.000 €; taper; prorrateo |
 | Arrendamiento de vivienda habitual (n) | variantes **excluyentes** (`grupo: arrendamiento_vc`, se aplica la mayor): **20 %/800 €** general · **25 %/950 €** si ≤ 35 años **o** discapacidad ≥ 65 % · **30 %/1.100 €** si ambas; límites reducidos por el taper |
 | Material escolar (v) | **110 €/hijo** de 6 a 16 años (primaria, ESO o educación especial) **solo si el contribuyente u otro progenitor conviviente está en desempleo** e inscrito como demandante (`requiere_desempleo`), **prorrateado por el tiempo en desempleo** (suma de los meses de los dos, con el límite del año: `prorratea_desempleo`, `meses_desempleo`); prorrateo; taper |
 | Abonos culturales (x) | **21 %**, base máxima **165 €**; rentas < 50.000 € |
@@ -840,7 +867,8 @@ Renta 2025.
 | Caso | Cálculo | Resultado |
 |---|---|---|
 | `vc_asc_disc`: ascendiente de 70 años con discapacidad ≥ 65 % y 4.000 € de rentas; otro de 81 con 9.000 € | solo cuenta el primero (el segundo supera 8.000 €) | 197 € (cuota líquida 502,35 + 223,95 − 197 = **529,30 €**) |
-| Test: ascendiente de 75 años sin discapacidad / de 65 con 65 % / de 70 con 33-64 % | no es > 75 / no es > 65 / grado < 65 % | 0 € |
+| Test: ascendiente de 74 años sin discapacidad / de 64 con 65 % / de 70 con 33-64 % | no llega a 75 / no llega a 65 / grado < 65 % | 0 € |
+| Test: ascendiente de 75 años / de 65 con 65 % | 75 y 65 cumplidos (criterio de la AEAT) | 197 € |
 | `vc_mono_especial`: monoparental con título especial, 30.400 € de trabajo, 2 hijos (8 y 13), 6 meses en desempleo; conjunta, base 24.320 € | 660 + 2 · 110 · 6/12 = 770; dos o más descendientes 10 % · (1.573,65 − 770) = 80,37 | **850,37 €** (cuota líquida 2.442,28 €) |
 | Test: pareja en conjunta, 8 + 7 meses en desempleo, un hijo de 10 | min(12, 15)/12 = 1 | 110 € |
 | `vc_despobl_nacimiento`: monoparental en zona de despoblamiento, 36.000 € de trabajo, hijos de 6 y 1 años; conjunta | nacimiento (2.º hijo) 750; 330; incremento solo por el hijo de 6 → 132; dos o más descendientes 78,72 | **1.290,72 €** (cuota líquida 2.923,08 €) |
@@ -875,8 +903,8 @@ Soltero, trabajo con cotizaciones del 6,35 % (base liquidable de 26.095 € con 
 | Caso | Cálculo | Deducción |
 |---|---|---|
 | 40 años, 400 € (`vc_deporte`) | 30 % · 400 | **120 €** |
-| 65 años, 400 € | no es «mayor de 65» (como el mínimo, edad > 65): 30 % | **120 €** |
-| 66 años, 400 € | 50 % · 400 = 200 → tope | **150 €** |
+| 64 años, 400 € | 30 % | **120 €** |
+| 65 años, 400 € | 65 cumplidos (criterio de la AEAT): 50 % · 400 = 200 → tope | **150 €** |
 | 80 años, 100 € (`vc_deporte_80`) | 100 % · 100 | **100 €** |
 | 40 años, discapacidad 33-64 %, 120 € | 50 % · 120 | **60 €** |
 | 40 años, discapacidad ≥ 65 %, 120 € | 100 % · 120 | **120 €** |
@@ -1638,11 +1666,12 @@ Tests: `tests/testthat/test-rescate-plan.R`, `test/rescate.test.mjs`; validador:
 **Caso 2. Plazos (DT 12.ª.4), cobro en 2026.** Jubilación en 2024: en plazo (2024 + 2 ≥ 2026). En 2023: fuera.
 Jubilación entre 2011 y 2014: hasta el octavo año siguiente (2014 → 2022). Antes de 2011: hasta 2018.
 
-**Caso 3. Formas de rescate (Madrid 2026, 30.000 € hasta 2006 + 30.000 desde 2007, pensión de 15.000 €, jubilación en 2026, 5 años).**
+**Caso 3. Formas de rescate (Madrid 2026, 65 años, 30.000 € hasta 2006 + 30.000 desde 2007, pensión de 15.000 €, jubilación en 2026, 5 años).**
+Con 65 años cumplidos el mínimo del contribuyente es 5.550 + 1.150 = 6.700 € (criterio de la AEAT, ver «Edad de 65 y 75 años»; hasta el 25-11-2026 el motor no lo aplicaba con 65 justos y daba 16.547,61 / 18.474,42 / 21.530,60 €).
 IRPF sin rescate: 0 (la reducción del art. 20 y el mínimo cubren la pensión).
-- De una vez: 60.000 € con reducción de 12.000 → IRPF extra **16.547,61 €**.
-- Mixto: 36.000 € el primer año (con la reducción) y 6.000 € los cuatro siguientes → **18.474,42 €**.
-- Renta: 12.000 € al año durante 5 años, sin reducción → 5 × 4.306,12 = **21.530,60 €**. Cada año la pensión
+- De una vez: 60.000 € con reducción de 12.000 → IRPF extra **16.333,44 €**.
+- Mixto: 36.000 € el primer año (con la reducción) y 6.000 € los cuatro siguientes → **17.403,58 €**.
+- Renta: 12.000 € al año durante 5 años, sin reducción → 5 × 4.091,96 = **20.459,80 €**. Cada año la pensión
   más la renta (27.000 €) supera el umbral de la reducción del art. 20 y la pierde: por eso repartir sale peor aquí.
 
 País Vasco y Navarra: el rescate tiene reglas forales propias (integración del 60 % del primer cobro en capital,

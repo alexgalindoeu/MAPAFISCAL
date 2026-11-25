@@ -156,7 +156,7 @@ territorios:
           fuente: "Art. 13 Ley 5/2021, redacción vigente en 2025 (BOE-A-2021-17915); AEAT Manual Práctico Renta 2025, Parte 2, Andalucía, «Para el padre o madre de familia monoparental y, en su caso, con ascendientes mayores de 75 años» (https://sede.agenciatributaria.gob.es/Sede/ayuda/manuales-videos-folletos/manuales-practicos/irpf-2025-deducciones-autonomicas/comunidad-autonoma-andalucia/padre-madre-familia-monoparental-ascendientes-anos.html)"
           tipo: fija_por_ascendiente
           importe: 100           # por ascendiente que conviva con la familia monoparental y genere el mínimo por ascendientes mayores de 75 años
-          edad_ascendiente_min: 76   # «edad superior a 75 años» (AEAT, mínimo por ascendientes; el motor lo aplica con edad > 75)
+          edad_ascendiente_min: 75   # «mayores de 75 años»: 75 cumplidos, criterio de la AEAT (mínimo por edad «igual o superior a 75»)
           ascendiente_discapacidad: false   # la discapacidad del ascendiente no da derecho al incremento
           requiere_minimo_ascendiente: true
           requiere_monoparental: true
@@ -916,7 +916,7 @@ territorios:
           estado: provisional   # no se modela la exclusión por residir > 30 días en centro residencial de mayores
           tipo: fija
           importe: 150
-          edad_min: 76           # "mayores de 75 años"
+          edad_min: 75           # "mayores de 75 años": 75 cumplidos (criterio AEAT)
           base_max_individual: 27000
           suma_bases: imponibles       # casillas 0435 + 0460
           base_max_conjunta: 36000
@@ -925,7 +925,7 @@ territorios:
           estado: provisional   # el tipo cuenta también ascendientes < 76 con discapacidad; exclusión por centro residencial no modelada
           tipo: fija_por_ascendiente
           importe: 150
-          edad_ascendiente_min: 76
+          edad_ascendiente_min: 75   # 75 cumplidos (criterio AEAT)
           base_max_individual: 27000
           suma_bases: imponibles       # casillas 0435 + 0460
           base_max_conjunta: 36000
@@ -2228,9 +2228,9 @@ territorios:
           fuente: "Art. 4.Uno.h), Cuatro y Cinco Ley 13/1997, redacción del Decreto-ley 14/2025 vigente a 31-12-2025 (BOE-A-1998-8202); AEAT Manual Práctico Renta 2025, Parte 2, Comunitat Valenciana, «Por ascendientes mayores de 75 años o mayores de 65 años con discapacidad» (https://sede.agenciatributaria.gob.es/Sede/ayuda/manuales-videos-folletos/manuales-practicos/irpf-2025-deducciones-autonomicas/comunitat-valenciana/ascendientes-mayores-75-anos-mayores-discapacidad.html)"
           tipo: fija_por_ascendiente
           importe: 197
-          edad_ascendiente_min: 76                 # «mayores de 75 años» (edad > 75, como el mínimo)
+          edad_ascendiente_min: 75                 # «mayores de 75 años»: 75 cumplidos (criterio AEAT, como el mínimo)
           ascendiente_discapacidad: "65_mas"       # o mayores de 65 con discapacidad >= 65 %; la discapacidad intelectual >= 33 % no se distingue en el motor
-          edad_ascendiente_min_discapacidad: 66
+          edad_ascendiente_min_discapacidad: 65
           requiere_minimo_ascendiente: true        # convivencia >= 6 meses y rentas <= 8.000 € (no se comprueba el límite de 1.800 € si el ascendiente declara)
           prorratea_progenitores: true
           base_max_individual: 30000
@@ -2335,7 +2335,7 @@ territorios:
           taper_conjunta: [72000, 78000]
           grupo: deporte_vc     # variantes excluyentes: se aplica la mayor
           porcentaje: 0.50
-          edad_min: 66          # «mayor de sesenta y cinco años» (edad > 65, como el mínimo)
+          edad_min: 65          # «mayor de sesenta y cinco años»: 65 cumplidos (criterio AEAT, como el mínimo)
         - id: deporte_actividades_saludables_discapacidad_33
           norma: "Art. 4.Uno.ad) Ley 13/1997, en la redacción del art. 3 del Decreto-ley 1/2026 (efectos para los devengos desde el 1-1-2025)"
           estado: provisional   # en conjunta, el motor aplica un solo límite de 150 € y el porcentaje mayor de los cónyuges; la ley fija el límite «por contribuyente»
@@ -2363,7 +2363,7 @@ territorios:
           taper_conjunta: [72000, 78000]
           grupo: deporte_vc     # variantes excluyentes: se aplica la mayor
           porcentaje: 1.00
-          edad_min: 76          # «mayor de setenta y cinco años»
+          edad_min: 75          # «mayor de setenta y cinco años»: 75 cumplidos
         - id: deporte_actividades_saludables_discapacidad_65
           norma: "Art. 4.Uno.ad) Ley 13/1997, en la redacción del art. 3 del Decreto-ley 1/2026 (efectos para los devengos desde el 1-1-2025)"
           estado: provisional   # en conjunta, el motor aplica un solo límite de 150 € y el porcentaje mayor de los cónyuges; la ley fija el límite «por contribuyente»

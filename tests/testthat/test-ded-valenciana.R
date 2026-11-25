@@ -65,8 +65,10 @@ test_that("CV: ascendientes > 75, o > 65 con discapacidad >= 65 %, con rentas <=
     modo="individual")$deducciones_autonomicas$detalle$ascendientes_75
   expect_equal(asc(persona("a1","ascendiente",70, discapacidad="65_mas")), 197)   # > 65 y >= 65 %
   expect_null(asc(persona("a1","ascendiente",70, discapacidad="33_64")))          # grado insuficiente
-  expect_null(asc(persona("a1","ascendiente",65, discapacidad="65_mas")))         # no es mayor de 65
-  expect_null(asc(persona("a1","ascendiente",75)))                                # no es mayor de 75
+  expect_equal(asc(persona("a1","ascendiente",65, discapacidad="65_mas")), 197)  # 65 cumplidos (criterio AEAT)
+  expect_null(asc(persona("a1","ascendiente",64, discapacidad="65_mas")))
+  expect_equal(asc(persona("a1","ascendiente",75)), 197)                          # 75 cumplidos (criterio AEAT)
+  expect_null(asc(persona("a1","ascendiente",74)))
   expect_null(asc(persona("a1","ascendiente",80, rentas_propias=9000)))           # rentas > 8.000
 })
 
@@ -196,8 +198,8 @@ test_that("C. Valenciana ad): deporte y actividades saludables (30/50/100 %, 150
     sum(unlist(d[grep("^deporte_actividades_saludables", names(d))]))
   }
   expect_equal(ded(40, 30000, 400), 120)               # 30 % · 400
-  expect_equal(ded(65, 30000, 400), 120)               # con 65 años no es «mayor de 65»
-  expect_equal(ded(66, 30000, 400), 150)               # 50 % · 400 = 200 -> 150
+  expect_equal(ded(64, 30000, 400), 120)               # con 64 años, 30 %
+  expect_equal(ded(65, 30000, 400), 150)               # 65 cumplidos (criterio AEAT): 50 % · 400 = 200 -> 150
   expect_equal(ded(80, 30000, 100), 100)               # 100 % · 100
   expect_equal(ded(40, 30000, 120, "33_64"), 60)       # 50 % · 120
   expect_equal(ded(40, 30000, 120, "65_mas"), 120)     # 100 % · 120

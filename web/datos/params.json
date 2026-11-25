@@ -1,6 +1,6 @@
 {
  "ejercicio": 2026,
- "generado": "2026-11-24",
+ "generado": "2026-11-25",
  "ejercicios": {
   "por_defecto": 2026,
   "publicados": [
@@ -1029,7 +1029,7 @@
       "fuente": "Art. 13 Ley 5/2021, redacción vigente en 2025 (BOE-A-2021-17915); AEAT Manual Práctico Renta 2025, Parte 2, Andalucía, «Para el padre o madre de familia monoparental y, en su caso, con ascendientes mayores de 75 años» (https://sede.agenciatributaria.gob.es/Sede/ayuda/manuales-videos-folletos/manuales-practicos/irpf-2025-deducciones-autonomicas/comunidad-autonoma-andalucia/padre-madre-familia-monoparental-ascendientes-anos.html)",
       "tipo": "fija_por_ascendiente",
       "importe": 100,
-      "edad_ascendiente_min": 76,
+      "edad_ascendiente_min": 75,
       "ascendiente_discapacidad": false,
       "requiere_minimo_ascendiente": true,
       "requiere_monoparental": true,
@@ -2103,7 +2103,7 @@
       "estado": "provisional",
       "tipo": "fija",
       "importe": 150,
-      "edad_min": 76,
+      "edad_min": 75,
       "base_max_individual": 27000,
       "suma_bases": "imponibles",
       "base_max_conjunta": 36000
@@ -2114,7 +2114,7 @@
       "estado": "provisional",
       "tipo": "fija_por_ascendiente",
       "importe": 150,
-      "edad_ascendiente_min": 76,
+      "edad_ascendiente_min": 75,
       "base_max_individual": 27000,
       "suma_bases": "imponibles",
       "base_max_conjunta": 36000
@@ -3803,9 +3803,9 @@
       "fuente": "Art. 4.Uno.h), Cuatro y Cinco Ley 13/1997, redacción del Decreto-ley 14/2025 vigente a 31-12-2025 (BOE-A-1998-8202); AEAT Manual Práctico Renta 2025, Parte 2, Comunitat Valenciana, «Por ascendientes mayores de 75 años o mayores de 65 años con discapacidad» (https://sede.agenciatributaria.gob.es/Sede/ayuda/manuales-videos-folletos/manuales-practicos/irpf-2025-deducciones-autonomicas/comunitat-valenciana/ascendientes-mayores-75-anos-mayores-discapacidad.html)",
       "tipo": "fija_por_ascendiente",
       "importe": 197,
-      "edad_ascendiente_min": 76,
+      "edad_ascendiente_min": 75,
       "ascendiente_discapacidad": "65_mas",
-      "edad_ascendiente_min_discapacidad": 66,
+      "edad_ascendiente_min_discapacidad": 65,
       "requiere_minimo_ascendiente": true,
       "prorratea_progenitores": true,
       "base_max_individual": 30000,
@@ -3973,7 +3973,7 @@
       ],
       "grupo": "deporte_vc",
       "porcentaje": 0.5,
-      "edad_min": 66
+      "edad_min": 65
      },
      {
       "id": "deporte_actividades_saludables_discapacidad_33",
@@ -4017,7 +4017,7 @@
       ],
       "grupo": "deporte_vc",
       "porcentaje": 1,
-      "edad_min": 76
+      "edad_min": 75
      },
      {
       "id": "deporte_actividades_saludables_discapacidad_65",

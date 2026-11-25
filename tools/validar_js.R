@@ -75,6 +75,15 @@ add("vc_deporte_80", "ES-VC", "ninguna", "no",
 add("vc_deporte_taper", "ES-VC", "ninguna", "no",
     list(persona("d1","declarante",40, trabajo=list(dinerarias=63000, cotizaciones_ss=4000.5), gastos_deporte=400)),
     list(list(id="d1",rol="declarante",edad=40, trabajo=list(dinerarias=63000,cotizacionesSs=4000.5), gastosDeporte=400)))
+# Edad de 65 y 75 años: criterio de la AEAT («igual o superior a 65/75»): 65 y 75 cumplidos cuentan
+add("md_edad_65", "ES-MD", "ninguna", "no",
+    list(persona("d1","declarante",65, trabajo=list(dinerarias=30000, cotizaciones_ss=1905))),
+    list(list(id="d1",rol="declarante",edad=65, trabajo=list(dinerarias=30000,cotizacionesSs=1905))))
+add("md_edad_75_asc_75", "ES-MD", "ninguna", "no",
+    list(persona("d1","declarante",75, trabajo=list(dinerarias=30000, cotizaciones_ss=1905)),
+         persona("a1","ascendiente",75, rentas_propias=0)),
+    list(list(id="d1",rol="declarante",edad=75, trabajo=list(dinerarias=30000,cotizacionesSs=1905)),
+         list(id="a1",rol="ascendiente",edad=75, rentasPropias=0)))
 add("an_mono", "ES-AN", "monoparental", "no",
     list(persona("d1","declarante",32, trabajo=list(dinerarias=24000, cotizaciones_ss=1524)),
          persona("h1","descendiente",0, nacido_en_ejercicio=TRUE)),
