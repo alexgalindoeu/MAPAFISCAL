@@ -19,13 +19,14 @@ test_that("Andalucía: familia monoparental 100 € + 100 € por ascendiente > 
   expect_null(d2$familia_monoparental_ascendientes_75)
 })
 
-test_that("Andalucía: el incremento por ascendiente exige el mínimo por ascendientes > 75 (art. 13.2)", {
+test_that("Andalucía: el incremento por ascendiente exige el mínimo por ascendientes de 75 años o más (art. 13.2)", {
   con_asc <- function(a) nuevo_hogar("v","ES-AN", list(
     persona("d1","declarante",44, trabajo=list(dinerarias=30000, cotizaciones_ss=1905)),
     persona("h1","descendiente",9), a), tipo_unidad_familiar="monoparental")
   inc <- function(a) liquidar(con_asc(a), modo="individual")$deducciones_autonomicas$detalle$familia_monoparental_ascendientes_75
-  # 75 años: no tiene «edad superior a 75» -> sin incremento
-  expect_null(inc(persona("a1","ascendiente",75)))
+  # 75 años cumplidos: criterio de la AEAT («igual o superior a 75») -> incremento
+  expect_equal(inc(persona("a1","ascendiente",75)), 100)
+  expect_null(inc(persona("a1","ascendiente",74)))
   # 70 años con discapacidad >= 65 %: genera mínimo por ascendientes, pero no el de > 75
   expect_null(inc(persona("a1","ascendiente",70, discapacidad="65_mas")))
   # 80 años con rentas > 8.000 €: no genera el mínimo por ascendientes

@@ -2,7 +2,7 @@
 
 > Calculadora gratuita del IRPF (impuesto sobre la renta) de España en sus 19 territorios fiscales: las 15 comunidades autónomas de régimen común, las tres diputaciones forales del País Vasco (Bizkaia, Gipuzkoa y Araba/Álava) y Navarra. Ejercicios 2025 y 2026. Cada cifra sale de un motor de cálculo abierto con los parámetros de la norma (LIRPF, leyes autonómicas y normas forales), y cada página cita su fuente oficial (BOE, boletines autonómicos y forales o el Manual práctico de la AEAT).
 
-Datos clave (2025, actualizados el 2026-11-24):
+Datos clave (2025, actualizados el 2026-11-25):
 
 - Escala estatal general del IRPF: 6 tramos, del 9,5 % al 24,5 % (art. 63 LIRPF); se suma a la escala autonómica de cada comunidad.
 - Con 30.000 € brutos al año (una persona, sin hijos), la cuota del IRPF va de 4.547 € en Bizkaia a 4.961 € en Cataluña.

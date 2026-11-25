@@ -35,7 +35,7 @@ export const SITUACIONES = {
     foral: "la deducción foral por ascendientes que conviven con el contribuyente"
   },
   "mayor-65": {
-    nombre: "Cumplir 65 años", corto: "mayores de 65", que: "tener más de 65 años",
+    nombre: "Cumplir 65 años", corto: "mayores de 65", que: "tener 65 años o más",
     hogar: s => `Una persona de 67 años con ${s} de rendimientos del trabajo (sueldo o pensión), frente a la misma persona con 60 años.`,
     comun: n => `el incremento del mínimo del contribuyente a partir de los 65 años (${n.minimo_contribuyente})`,
     foral: "la deducción foral por edad del contribuyente"

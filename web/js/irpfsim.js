@@ -288,7 +288,7 @@
     const mdi = Object.assign({}, e.minimo_discapacidad, o.minimo_discapacidad);
     const mdiDesc = Object.assign({}, mdi, o.minimo_discapacidad_descendientes);
     // mínimo general: algunas CCAA fijan otro importe para mayores de 65 años (Illes Balears)
-    const generalDe = c => (c.edad > 65 && mc.general_mayor_65 != null) ? mc.general_mayor_65 : mc.general;
+    const generalDe = c => (c.edad >= 65 && mc.general_mayor_65 != null) ? mc.general_mayor_65 : mc.general;
     const decs = hogar.miembros.filter(m => m.rol === "declarante" || m.rol === "conyuge");
     const prorrateo = (modo === "individual" && decs.length > 1) ? 0.5 : 1;
     const contribs = modo === "conjunta" ? decs : hogar.miembros.filter(m => m.id === declaranteId);
@@ -297,12 +297,12 @@
     contribs.forEach((c, idx) => {
       if (modo === "conjunta") {
         if (idx === 0) minContrib += generalDe(c);
-        if (c.edad > 65) minContrib += mc.incremento_mayor_65;
-        if (c.edad > 75) minContrib += mc.incremento_mayor_75;
+        if (c.edad >= 65) minContrib += mc.incremento_mayor_65;
+        if (c.edad >= 75) minContrib += mc.incremento_mayor_75;
       } else {
         let m = generalDe(c);
-        if (c.edad > 65) m += mc.incremento_mayor_65;
-        if (c.edad > 75) m += mc.incremento_mayor_75;
+        if (c.edad >= 65) m += mc.incremento_mayor_65;
+        if (c.edad >= 75) m += mc.incremento_mayor_75;
         minContrib += m;
       }
       minDiscContrib += minimoDiscapacidadPersona(c, mdi);
@@ -324,7 +324,7 @@
     let minAsc = 0, minDiscAsc = 0;
     for (const a of asc) {
       let imp = ma.importe;
-      if (a.edad > 75) imp += ma.incremento_mayor_75;
+      if (a.edad >= 75) imp += ma.incremento_mayor_75;
       minAsc += imp * prorrateo;
       minDiscAsc += minimoDiscapacidadPersona(a, mdi) * prorrateo;
     }

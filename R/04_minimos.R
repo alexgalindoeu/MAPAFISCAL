@@ -21,7 +21,7 @@ minimo_personal_familiar <- function(hogar, P, modo = "individual", declarante_i
   mdi <- modifyList(e$minimo_discapacidad, ov[["minimo_discapacidad"]] %||% list())
   mdi_desc <- modifyList(mdi, ov[["minimo_discapacidad_descendientes"]] %||% list())
   # mínimo general: algunas CCAA fijan otro importe para mayores de 65 años (Illes Balears)
-  general_de <- function(c) if (c$edad > 65 && !is.null(mc[["general_mayor_65"]])) mc[["general_mayor_65"]] else mc$general
+  general_de <- function(c) if (c$edad >= 65 && !is.null(mc[["general_mayor_65"]])) mc[["general_mayor_65"]] else mc$general
 
   # Contribuyente(s) en el ámbito
   contribs <- if (modo == "conjunta") declarantes(hogar)
@@ -31,14 +31,14 @@ minimo_personal_familiar <- function(hogar, P, modo = "individual", declarante_i
   min_disc_contrib <- 0
   for (c in contribs) {
     m <- general_de(c)
-    if (c$edad > 65) m <- m + mc$incremento_mayor_65
-    if (c$edad > 75) m <- m + mc$incremento_mayor_75
+    if (c$edad >= 65) m <- m + mc$incremento_mayor_65
+    if (c$edad >= 75) m <- m + mc$incremento_mayor_75
     # En conjunta el mínimo del contribuyente es 5.550 por la unidad (no por persona),
     # salvo los incrementos por edad de cada uno.
     if (modo == "conjunta") {
       if (identical(c, contribs[[1]])) min_contrib <- min_contrib + general_de(c)
-      if (c$edad > 65) min_contrib <- min_contrib + mc$incremento_mayor_65
-      if (c$edad > 75) min_contrib <- min_contrib + mc$incremento_mayor_75
+      if (c$edad >= 65) min_contrib <- min_contrib + mc$incremento_mayor_65
+      if (c$edad >= 75) min_contrib <- min_contrib + mc$incremento_mayor_75
     } else {
       min_contrib <- min_contrib + m
     }
@@ -79,7 +79,7 @@ minimo_personal_familiar <- function(hogar, P, modo = "individual", declarante_i
   min_disc_asc <- 0
   for (a in asc) {
     imp <- ma$importe
-    if (a$edad > 75) imp <- imp + ma$incremento_mayor_75
+    if (a$edad >= 75) imp <- imp + ma$incremento_mayor_75
     min_asc <- min_asc + imp * prorrateo
     min_disc_asc <- min_disc_asc + minimo_discapacidad_persona(a, mdi) * prorrateo
   }

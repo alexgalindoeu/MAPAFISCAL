@@ -39,9 +39,9 @@ test("rescate en Madrid: 60.000 € con 15.000 € de pensión", () => {
   const r = C.rescate(P, yo());
   assert.equal(r.enPlazo, true);
   casi(r.reduccion, 12000, "reducción");
-  casi(r.capital.extra, 16547.61, "de una vez");
-  casi(r.mixto.extra, 18474.42, "mixto en 5 años");
-  casi(r.renta.extra, 21530.6, "renta en 5 años");
+  casi(r.capital.extra, 16333.44, "de una vez");   // 65 años cumplidos: mínimo de 6.700 € (criterio AEAT)
+  casi(r.mixto.extra, 17403.58, "mixto en 5 años");
+  casi(r.renta.extra, 20459.8, "renta en 5 años");
   assert.equal(r.mejor, "capital");
   assert.deepEqual(r.mixto.cobros, [36000, 6000, 6000, 6000, 6000]);
   // fuera de plazo, de una vez tributa más
@@ -94,7 +94,7 @@ test("páginas SEO del rescate: índice y 15 territorios de régimen común, en 
   const madrid = ficheros.get("rescate-plan-pensiones/madrid/index.html");
   assert.match(madrid, /"@type":"FAQPage"/);
   assert.match(madrid, /#rescate-plan\?t=ES-MD/);
-  assert.match(madrid, /16\.548 €/, "de una vez: el mismo cálculo que la herramienta");
+  assert.match(madrid, /16\.333 €/, "de una vez: el mismo cálculo que la herramienta");
   assert.match(ficheros.get("sitemap.xml"), /\/rescate-plan-pensiones\/madrid\//);
   for (const r of rutas) assert.doesNotMatch(ficheros.get(r), /provisional|incomplet|@(?!type|context)[a-z]+\.[a-z]/i, r);
 });

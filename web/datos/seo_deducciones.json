@@ -1,6 +1,6 @@
 {
  "ejercicio": 2025,
- "generado": "2026-11-24",
+ "generado": "2026-11-25",
  "territorios": {
   "ES-AN": {
    "territorio": "ES-AN",
@@ -1013,9 +1013,9 @@
        "norma": "Art. 4.Uno.h), Cuatro y Cinco Ley 13/1997",
        "tipo": "fija_por_ascendiente",
        "importe": 197,
-       "edad_ascendiente_min": 76,
+       "edad_ascendiente_min": 75,
        "ascendiente_discapacidad": "65_mas",
-       "edad_ascendiente_min_discapacidad": 66,
+       "edad_ascendiente_min_discapacidad": 65,
        "requiere_minimo_ascendiente": true,
        "prorratea_progenitores": true,
        "base_max_individual": 30000,

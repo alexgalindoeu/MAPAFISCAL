@@ -268,7 +268,7 @@ function guiaMinimo(g) {
     <h2 class="rotulo">Mínimo del contribuyente</h2>
     <ul>
       <li><b>${eur(c.general)}</b> con carácter general.</li>
-      <li>${eur(c.incremento_mayor_65)} más si tienes más de 65 años.</li>
+      <li>${eur(c.incremento_mayor_65)} más desde los 65 años.</li>
       <li>${eur(c.incremento_mayor_75)} más, adicionales, si tienes más de 75.</li>
     </ul>
     ${citaFuente(c)}
