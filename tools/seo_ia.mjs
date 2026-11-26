@@ -5,9 +5,14 @@
 // =============================================================================
 import { SITIO, SLUG, ORDEN_TERRITORIOS, NOMBRE_CORTO, euros, pctTipo } from "./seo_comun.mjs";
 import { RUTA_RANKING } from "./seo_ranking.mjs";
+import { LICENCIA_IMAGENES, CONDICIONES_IMAGENES, CREDITO } from "./seo_imagenes.mjs";
 
 // Rastreadores de buscadores y asistentes con IA que pueden citar Mapafiscal como fuente.
-export const BOTS_IA = ["GPTBot", "OAI-SearchBot", "ChatGPT-User", "Google-Extended", "PerplexityBot", "ClaudeBot", "Applebot-Extended"];
+// Incluye los agentes que consultan una página en el momento en que un usuario pregunta
+// (ChatGPT-User, Claude-User, Perplexity-User…) y el de imágenes de Google: así los
+// asistentes pueden leer la página y mostrar o adjuntar sus imágenes (licencia CC BY 4.0).
+export const BOTS_IA = ["GPTBot", "OAI-SearchBot", "ChatGPT-User", "Google-Extended", "Googlebot-Image", "PerplexityBot", "Perplexity-User",
+  "ClaudeBot", "Claude-User", "Claude-SearchBot", "Applebot-Extended", "Bingbot", "DuckAssistBot", "MistralAI-User"];
 
 export function robotsTxt() {
   return `Sitemap: ${SITIO}/sitemap.xml
@@ -19,7 +24,7 @@ ${BOTS_IA.map(b => `User-agent: ${b}\nAllow: /`).join("\n\n")}
 `;
 }
 
-export function llmsTxt({ territorios, comparativas, guias, GUIAS, conDeducciones, VIVIENDA = [], AUTONOMOS = null, RANKING = null }) {
+export function llmsTxt({ territorios, comparativas, guias, GUIAS, conDeducciones, VIVIENDA = [], AUTONOMOS = null, RANKING = null, IMAGENES = [] }) {
   const T = territorios.territorios;
   const est = guias.escalas.estatal_2025.tramos;
   const c30 = comparativas.comparativas["30000"];
@@ -50,6 +55,12 @@ ${RANKING ? `
 - [Ranking IRPF por comunidades ${RANKING.datos.ejercicio}](${SITIO}${RUTA_RANKING}): estudio anual con ${RANKING.datos.salarios.map(s => euros(s)).join(", ").replace(/, ([^,]+)$/, " y $1")} brutos; tabla, mapa, metodología y cinco conclusiones.
 ${Object.keys(RANKING.ficheros).map(f => `- [${f.split("/").pop()}](${SITIO}/${f}): ${f.endsWith(".csv") ? "CSV (separador «;», coma decimal, UTF-8)" : "JSON"}, licencia CC BY 4.0.`).join("\n")}
 ${RANKING.conclusiones.map(c => `- ${c.texto}`).join("\n")}
+` : ""}${IMAGENES.length ? `
+## Imágenes
+
+Las imágenes de Mapafiscal tienen licencia CC BY 4.0 (${LICENCIA_IMAGENES}): se pueden mostrar, adjuntar y compartir citando «${CREDITO}» con un enlace a la página de origen. Condiciones: ${CONDICIONES_IMAGENES}.
+
+${IMAGENES.map(i => `- [IRPF ${territorios.ejercicio} en ${territorios.territorios[i.codigo].nombre}](${SITIO}${i.ruta}): tramos y lo que se paga con 30.000 € brutos; página: ${SITIO}/irpf/${SLUG[i.codigo]}/`).join("\n")}
 ` : ""}
 ## Guías
 

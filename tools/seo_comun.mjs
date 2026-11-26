@@ -14,7 +14,7 @@ export const SITIO = "https://mapafiscal.es";
 
 // Piezas de interfaz comunes con la aplicación (web/js/ui.js): script del tema en el <head>,
 // botones de la barra y redes del pie. Las redes salen de `redes` en web/config.js.
-const WEB = join(dirname(fileURLToPath(import.meta.url)), "..", "web");
+export const WEB = join(dirname(fileURLToPath(import.meta.url)), "..", "web");
 export const UI = createRequire(import.meta.url)("../web/js/ui.js");
 export function configWeb() {
   const window = {};
@@ -332,7 +332,9 @@ export function bloqueConfianza(generado) {
     <li>Fuentes: BOE y boletines oficiales · <a href="/metodologia/">Metodología</a></li>
   </ul>`;
 }
-export function layout({ title, description, canonical, breadcrumb, main, generado, ejercicio = EJERCICIO.valor, jsonld = [], css = [], scripts = [] }) {
+// `imagen`: { src, ancho, alto, alt } de la página (si no, la imagen de marca /og.png).
+export function layout({ title, description, canonical, breadcrumb, main, generado, ejercicio = EJERCICIO.valor, jsonld = [], css = [], scripts = [], imagen = null }) {
+  const img = imagen || { src: `${SITIO}/og.png`, ancho: 1200, alto: 630, alt: "Mapafiscal: el mismo sueldo, 19 IRPF distintos" };
   title = tituloFinal(title);
   const anuncios = conAnuncios(canonical);
   if (anuncios) main = ponerHuecos(main);
@@ -348,20 +350,22 @@ export function layout({ title, description, canonical, breadcrumb, main, genera
 <title>${esc(title)}</title>
 <meta name="description" content="${esc(description)}">
 <link rel="canonical" href="${SITIO}${canonical}">
+<meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1">
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="Mapafiscal">
 <meta property="og:title" content="${esc(title)}">
 <meta property="og:description" content="${esc(description)}">
 <meta property="og:url" content="${SITIO}${canonical}">
 <meta property="og:locale" content="es_ES">
-<meta property="og:image" content="${SITIO}/og.png">
-<meta property="og:image:width" content="1200">
-<meta property="og:image:height" content="630">
-<meta property="og:image:alt" content="Mapafiscal: el mismo sueldo, 19 IRPF distintos">
+<meta property="og:image" content="${img.src}">
+<meta property="og:image:width" content="${img.ancho}">
+<meta property="og:image:height" content="${img.alto}">
+<meta property="og:image:alt" content="${esc(img.alt)}">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:title" content="${esc(title)}">
 <meta name="twitter:description" content="${esc(description)}">
-<meta name="twitter:image" content="${SITIO}/og.png">
+<meta name="twitter:image" content="${img.src}">
+<meta name="twitter:image:alt" content="${esc(img.alt)}">
 <meta name="theme-color" content="#1f3fc4">
 <meta name="color-scheme" content="light dark">
 ${UI.SCRIPT_TEMA}

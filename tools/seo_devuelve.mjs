@@ -74,7 +74,8 @@ export const SITUACIONES = {
 };
 
 const ruta = (sit, codigo) => `${HUB}${sit}/${codigo ? SLUG[codigo] + "/" : ""}`;
-const noindex = html => html.replace('<meta name="viewport"', '<meta name="robots" content="noindex, follow">\n<meta name="viewport"');
+// Sustituye la etiqueta robots de la maqueta (index, max-image-preview…) por noindex.
+const noindex = html => html.replace(/<meta name="robots" content="[^"]*">/, '<meta name="robots" content="noindex, follow">');
 
 function enlaceDeducciones(codigo, nombre, conDeducciones) {
   return conDeducciones.has(codigo)

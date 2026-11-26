@@ -34,6 +34,7 @@ import { paginaMetodologia } from "./seo_metodologia.mjs";
 import { paginaWidget, RUTA_WIDGET } from "./seo_widget.mjs";
 import { paginaSobre, paginaContacto, RUTA_SOBRE, RUTA_CONTACTO } from "./seo_sobre.mjs";
 import { paginaRanking, RUTA_RANKING } from "./seo_ranking.mjs";
+import { imagenesTerritorios, imagenesDesfasadas, figuraImagen, imagenCabecera, jsonLdImagen } from "./seo_imagenes.mjs";
 import { paginasGlosario, enlazarGlosario, HUB_GLOSARIO } from "./seo_glosario.mjs";
 import { paginasVivienda, PAGINAS_VIVIENDA, HUB_VIVIENDA } from "./seo_vivienda.mjs";
 import { paginasForal, enlacesSuiteForal, enlacesVascos, escalasAhorro, ejemploPasoAPaso, normaDelTerritorio, fuenteDelTerritorio, rasgoForalDe, paramsForal, BOLETIN, rentaForal, enlaceCalculadora, enlacesIndiceForal } from "./seo_foral.mjs";
@@ -45,6 +46,8 @@ const sinCR = s => s.replace(/\r/g, "");
 const leerJson = f => JSON.parse(readFileSync(join(WEB, "datos", f), "utf8"));
 
 let territorios, comparativas, deducciones, guias, sueldoNeto;
+// Imagen PNG de cada territorio (tools/seo_imagenes.mjs), por código; se rellena al generar.
+const imagenDe = new Map();
 const eurosSalario = euros;
 const REGIMEN_ETIQUETA = { comun: "régimen común", foral_pais_vasco: "concierto económico del País Vasco", foral_navarra: "convenio económico de Navarra" };
 // Territorios con página de deducciones (se rellena al generar), y sus fichas.
@@ -260,6 +263,8 @@ function paginaTerritorio(codigo) {
     faq.push([`¿Cómo se hace la declaración de la renta ${en}?`, `Como en todo el régimen común, se presenta ante la Agencia Tributaria (AEAT). La declaración aplica la escala estatal, la escala autonómica ${de} y, si cumples los requisitos, sus deducciones autonómicas. Las fechas de la campaña están en el calendario de la renta de Mapafiscal.`]);
     if (conDeducciones.has(codigo)) faq.push([`¿Qué deducciones tiene la renta ${en}?`, `Además de las estatales, ${el} tiene deducciones autonómicas propias que se restan de la parte autonómica de la cuota, como ${listaY((fichasDe.get(codigo) || []).slice(0, 3).map(f => f.titulo.charAt(0).toLowerCase() + f.titulo.slice(1)))}. La página de deducciones ${de} las recoge con su cuantía y su límite.`]);
   }
+  const img = imagenDe.get(codigo);
+  cartaEscala += figuraImagen(img);
   const main = `
   <h1>${esComun ? `IRPF y renta ${esc(en)} ${anios}: tramos, tipos y comparativa` : `IRPF en ${esc(t.regimen === "foral_navarra" ? corto : nombre)} ${anios}: tablas, renta y tipo marginal`}</h1>
   ${esComun ? "" : `${respuestaDirecta(resumen)}\n  <div class="prosa">${indiceForal}${cartaEscala}</div>`}
@@ -289,7 +294,8 @@ function paginaTerritorio(codigo) {
   return layout({
     jsonld: [jsonLdMigas([["Inicio", "/"], ["IRPF por territorio", "/irpf/"], [nombre, `/irpf/${slug}/`]]), jsonLdFaq(faq),
       jsonLdDataset({ nombre: `Escala del IRPF en ${nombre} ${anios}`, descripcion: `Tramos de la base liquidable general y tipo marginal del IRPF en ${nombre}${esComun ? " (escala estatal más autonómica)" : " (tarifa foral)"}, del ${pctTipo(tMin)} al ${pctTipo(tMax)}.`, ruta: `/irpf/${slug}/`, generado: territorios.generado, ambito: nombre, fuentes: fuentesEscala.flatMap(f => [f.norma, f.fuente]),
-        conLirpf: esComun, periodo: anios.replace(" y ", "/") })],
+        conLirpf: esComun, periodo: anios.replace(" y ", "/") }), jsonLdImagen(img, `/irpf/${slug}/`)],
+    imagen: imagenCabecera(img),
     title: !esComun
       ? `IRPF ${corto} ${anios}: tablas, renta y tipo marginal`
       : con26 ? `IRPF ${corto} 2025 y 2026: tabla de tramos hasta el ${pctTipo(tMax)}` : tituloQueQuepa(`IRPF en ${corto} 2025: tramos, tipos y cuánto se paga`, `IRPF en ${corto} 2025: tramos y tipos`),
@@ -453,6 +459,9 @@ export function generar({ conGit = false } = {}) {
   sueldoNeto = leerJson("seo_sueldo_neto.json");
   const devuelve = leerJson("seo_devuelve.json");
   EJERCICIO.valor = territorios.ejercicio;
+  imagenDe.clear();
+  const imagenes = imagenesTerritorios({ territorios, comparativas });
+  for (const img of imagenes) imagenDe.set(img.codigo, img);
   conDeducciones.clear();
   fichasDe.clear();
   const ficheros = new Map(), urls = [], avisos = [];
@@ -535,9 +544,9 @@ ${urls.map(u => `<url><loc>${SITIO}${u}</loc><lastmod>${lastmod(u)}</lastmod><ch
 </urlset>
 `);
   ficheros.set("robots.txt", robotsTxt());
-  ficheros.set("llms.txt", llmsTxt({ territorios, comparativas, guias, GUIAS, conDeducciones, VIVIENDA: PAGINAS_VIVIENDA, AUTONOMOS: aut, RANKING: ranking }));
+  ficheros.set("llms.txt", llmsTxt({ territorios, comparativas, guias, GUIAS, conDeducciones, VIVIENDA: PAGINAS_VIVIENDA, AUTONOMOS: aut, RANKING: ranking, IMAGENES: imagenes }));
   return {
-    ficheros, avisos, urls,
+    ficheros, avisos, urls, imagenes,
     recuento: { territorios: ORDEN_TERRITORIOS.length, sueldos: comparativas.salarios.length, deducciones: ded.length, porDeduccion: porDeduccion.length, guias: gs.length - 1, sueldoNeto: sn.length - 1, glosario: glo.length - 1, vivienda: viv.length - 1, autonomos: aut.length - 1, indices: 7 }
   };
 }
@@ -579,8 +588,11 @@ export function huerfanas(ficheros) {
 
 if (process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {
   const comprobar = process.argv.includes("--comprobar");
-  const { ficheros, avisos, recuento, urls } = generar({ conGit: !comprobar });
+  const { ficheros, avisos, recuento, urls, imagenes } = generar({ conGit: !comprobar });
   for (const a of avisos) console.warn("Aviso: " + a);
+  // Los PNG de las páginas se versionan: tienen que corresponder a los datos actuales.
+  const imgMal = imagenesDesfasadas(imagenes);
+  const avisoImg = `Imágenes que no corresponden a los datos actuales (o faltan):\n  ${imgMal.join("\n  ")}\nRegenéralas con \`node tools/generar_imagenes.mjs --seo\` (necesita Chrome o Edge) y versiona los PNG y web/img/manifiesto.json.`;
   const sobran = huerfanas(ficheros);
   if (comprobar) {
     const mal = [];
@@ -590,6 +602,7 @@ if (process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.ur
       else if (sinCR(readFileSync(p, "utf8")) !== html) mal.push(`${r} (desfasada)`);
     }
     for (const r of sobran) mal.push(`${r} (sobra)`);
+    if (imgMal.length) { console.error(avisoImg); process.exit(1); }
     if (mal.length) {
       console.error(`Páginas SEO que no coinciden con web/datos/seo_*.json:\n  ${mal.join("\n  ")}\nRegenéralas con \`node tools/generar_paginas_seo.mjs\` y no las edites a mano.`);
       process.exit(1);
@@ -602,6 +615,7 @@ if (process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.ur
       writeFileSync(p, html, "utf8");
     }
     for (const r of sobran) { rmSync(join(WEB, r)); console.log(`Borrada (ya no se genera): ${r}`); }
+    if (imgMal.length) console.warn("Aviso: " + avisoImg);
     console.log(`Páginas SEO: ${recuento.territorios} territorios + ${recuento.deducciones} de deducciones (${recuento.porDeduccion} fichas) + ${recuento.sueldos} sueldos + ${recuento.guias} guías + ${recuento.sueldoNeto} de sueldo neto + ${recuento.glosario} términos del glosario + ${recuento.vivienda} de vivienda + ${recuento.autonomos} de autónomos + ${recuento.indices} índices + el ranking anual (${RUTA_RANKING}).`);
     console.log(`sitemap.xml: ${urls.length + 1} URLs.`);
   }
