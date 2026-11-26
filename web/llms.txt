@@ -26,6 +26,30 @@ Datos clave (2025, actualizados el 2026-11-25):
 - Entre las 15 comunidades de régimen común, la más barata es Extremadura con 20.000 € (1.881,67 €) y la Comunidad de Madrid con 30.000 € (4.599,69 €), 50.000 € (10.563,38 €) y 80.000 € (22.201,12 €).
 - Extremadura es el territorio que más puestos cambia con el sueldo: es el 4.º más barato con 20.000 € y el 19.º de 19 (el más caro) con 50.000 € y 80.000 €, 15 puestos de diferencia.
 
+## Imágenes
+
+Las imágenes de Mapafiscal tienen licencia CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/deed.es): se pueden mostrar, adjuntar y compartir citando «Mapafiscal (mapafiscal.es)» con un enlace a la página de origen. Condiciones: https://mapafiscal.es/legal/aviso-legal.html#imagenes.
+
+- [IRPF 2025 en Andalucía](https://mapafiscal.es/img/irpf/andalucia-2025.png): tramos y lo que se paga con 30.000 € brutos; página: https://mapafiscal.es/irpf/andalucia/
+- [IRPF 2025 en Aragón](https://mapafiscal.es/img/irpf/aragon-2025.png): tramos y lo que se paga con 30.000 € brutos; página: https://mapafiscal.es/irpf/aragon/
+- [IRPF 2025 en Principado de Asturias](https://mapafiscal.es/img/irpf/asturias-2025.png): tramos y lo que se paga con 30.000 € brutos; página: https://mapafiscal.es/irpf/asturias/
+- [IRPF 2025 en Illes Balears](https://mapafiscal.es/img/irpf/islas-baleares-2025.png): tramos y lo que se paga con 30.000 € brutos; página: https://mapafiscal.es/irpf/islas-baleares/
+- [IRPF 2025 en Canarias](https://mapafiscal.es/img/irpf/canarias-2025.png): tramos y lo que se paga con 30.000 € brutos; página: https://mapafiscal.es/irpf/canarias/
+- [IRPF 2025 en Cantabria](https://mapafiscal.es/img/irpf/cantabria-2025.png): tramos y lo que se paga con 30.000 € brutos; página: https://mapafiscal.es/irpf/cantabria/
+- [IRPF 2025 en Castilla-La Mancha](https://mapafiscal.es/img/irpf/castilla-la-mancha-2025.png): tramos y lo que se paga con 30.000 € brutos; página: https://mapafiscal.es/irpf/castilla-la-mancha/
+- [IRPF 2025 en Castilla y León](https://mapafiscal.es/img/irpf/castilla-y-leon-2025.png): tramos y lo que se paga con 30.000 € brutos; página: https://mapafiscal.es/irpf/castilla-y-leon/
+- [IRPF 2025 en Cataluña](https://mapafiscal.es/img/irpf/cataluna-2025.png): tramos y lo que se paga con 30.000 € brutos; página: https://mapafiscal.es/irpf/cataluna/
+- [IRPF 2025 en Extremadura](https://mapafiscal.es/img/irpf/extremadura-2025.png): tramos y lo que se paga con 30.000 € brutos; página: https://mapafiscal.es/irpf/extremadura/
+- [IRPF 2025 en Galicia](https://mapafiscal.es/img/irpf/galicia-2025.png): tramos y lo que se paga con 30.000 € brutos; página: https://mapafiscal.es/irpf/galicia/
+- [IRPF 2025 en Comunidad de Madrid](https://mapafiscal.es/img/irpf/madrid-2025.png): tramos y lo que se paga con 30.000 € brutos; página: https://mapafiscal.es/irpf/madrid/
+- [IRPF 2025 en Región de Murcia](https://mapafiscal.es/img/irpf/murcia-2025.png): tramos y lo que se paga con 30.000 € brutos; página: https://mapafiscal.es/irpf/murcia/
+- [IRPF 2025 en La Rioja](https://mapafiscal.es/img/irpf/la-rioja-2025.png): tramos y lo que se paga con 30.000 € brutos; página: https://mapafiscal.es/irpf/la-rioja/
+- [IRPF 2025 en Comunitat Valenciana](https://mapafiscal.es/img/irpf/comunidad-valenciana-2025.png): tramos y lo que se paga con 30.000 € brutos; página: https://mapafiscal.es/irpf/comunidad-valenciana/
+- [IRPF 2025 en Bizkaia](https://mapafiscal.es/img/irpf/bizkaia-2025.png): tramos y lo que se paga con 30.000 € brutos; página: https://mapafiscal.es/irpf/bizkaia/
+- [IRPF 2025 en Gipuzkoa](https://mapafiscal.es/img/irpf/gipuzkoa-2025.png): tramos y lo que se paga con 30.000 € brutos; página: https://mapafiscal.es/irpf/gipuzkoa/
+- [IRPF 2025 en Araba/Álava](https://mapafiscal.es/img/irpf/araba-alava-2025.png): tramos y lo que se paga con 30.000 € brutos; página: https://mapafiscal.es/irpf/araba-alava/
+- [IRPF 2025 en Comunidad Foral de Navarra](https://mapafiscal.es/img/irpf/navarra-2025.png): tramos y lo que se paga con 30.000 € brutos; página: https://mapafiscal.es/irpf/navarra/
+
 ## Guías
 
 - [Tramos del IRPF 2025 y 2026](https://mapafiscal.es/guias/tramos-irpf-2025-2026/): Escala estatal, del ahorro y de cada territorio.

@@ -22,7 +22,10 @@ test("la portada lleva canonical, Open Graph, Twitter, manifest y JSON-LD sin da
 
 test("las páginas generadas llevan imagen para redes y tarjeta grande", () => {
   for (const [r, html] of generar().ficheros) if (r.endsWith(".html")) {
-    assert.match(html, /property="og:image" content="https:\/\/mapafiscal\.es\/og\.png"/, r);
+    // la imagen de marca o la propia de la página (tools/seo_imagenes.mjs), que tiene que existir
+    const og = html.match(/property="og:image" content="https:\/\/mapafiscal\.es\/([^"]+\.png)"/);
+    assert.ok(og, r);
+    assert.ok(existsSync(new URL(og[1], WEB)), `${r}: ${og[1]}`);
     assert.match(html, /name="twitter:card" content="summary_large_image"/, r);
   }
 });
